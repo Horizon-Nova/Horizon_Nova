@@ -44,45 +44,29 @@ exit /b
 
 :: =====================================================
 :backup
+:: 產生唯一檔名：專案_yyyyMMddHHmmss_rand.zip
 set "bk_stamp=%timestamp%_%random%"
-if not "%~1"=="" set "bk_stamp=%bk_stamp%_%~1"
+set "zip_name=%project_name%_%bk_stamp%.zip"
+set "zip_path=%backup_root%\%zip_name%"
 
-set "backup_path=%backup_root%\%project_name%_backup_%bk_stamp%"
-echo [Backup] 備份專案到 "%backup_path%"...
-mkdir "%backup_path%" 2>nul || (echo [錯誤] 建立備份目錄失敗 & exit /b 1)
+:: 建立備份根目錄（若不存在）
+if not exist "%backup_root%" mkdir "%backup_root%"
 
-:: 預設排除清單
-set "DEFAULT_EXCLUDES=bin obj .vs .git .github publish MISSA-Deploy"
-set "EXCLUDES="
+echo [Backup] 使用 git archive 產生 "%zip_name%" ...
 
-:: 檢查 .backupignore 是否存在
-if exist "%script_dir%\.backupignore" (
-    echo [Backup] 偵測到 .backupignore，使用自訂排除清單...
-    for /f "usebackq delims=" %%x in ("%script_dir%\.backupignore") do (
-        set "EXCLUDES=!EXCLUDES! \"%%x\""
-    )
-) else (
-    echo [Backup] 未找到 .backupignore，使用預設排除清單...
-    for %%x in (%DEFAULT_EXCLUDES%) do (
-        set "EXCLUDES=!EXCLUDES! \"%%x\""
-    )
-    echo [Backup] 建立 .backupignore 範例...
-    > "%script_dir%\.backupignore" (
-        for %%x in (%DEFAULT_EXCLUDES%) do echo %%x
-    )
-)
-
-robocopy "%script_dir%" "%backup_path%" /E /COPY:DAT /R:5 /W:2 /NFL /NDL /NJH /NJS /NC /XD %EXCLUDES%
-
-if exist "%backup_path%\*" (
-    echo [成功] 備份完成
-    call :cleanupBackups
-    exit /b 0
-) else (
-    echo [警告] 備份失敗：未備份任何檔案
-    rmdir /s /q "%backup_path%"
+:: --prefix 可以讓壓縮包裡的檔案都放在一個資料夾下，避免展開後滿地檔案
+git archive --format=zip --prefix=%project_name%/ HEAD -o "%zip_path%"
+if %errorlevel% neq 0 (
+    echo [錯誤] git archive 失敗，停止備份！
     exit /b 1
 )
+
+echo [成功] 備份完成：%zip_path%
+
+:: 清理舊備份，只保留最新 %MAX_BACKUPS% 份
+call :cleanupBackups
+exit /b
+
 
 :: =====================================================
 :cleanupBackups
