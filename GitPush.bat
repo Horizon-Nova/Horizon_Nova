@@ -51,9 +51,21 @@ set "backup_path=%backup_root%\%project_name%_backup_%bk_stamp%"
 echo [Backup] 備份專案到 "%backup_path%"...
 mkdir "%backup_path%" 2>nul || (echo [錯誤] 建立備份目錄失敗 & exit /b 1)
 
-robocopy "%script_dir%" "%backup_path%" /E /COPY:DAT /R:5 /W:2 ^
-    /XD bin obj .vs .git backup .github publish MISSA-Deploy ^
-    /NFL /NDL /NJH /NJS /NC
+:: 設定預設排除清單
+set "EXCLUDES=\"bin\" \"obj\" \".vs\" \".git\" \".github\" \"publish\" \"MISSA-Deploy\""
+
+:: 檢查 .backupignore 是否存在
+if exist "%script_dir%\.backupignore" (
+    echo [Backup] 偵測到 .backupignore，使用自訂排除清單...
+    set "EXCLUDES="
+    for /f "usebackq delims=" %%x in ("%script_dir%\.backupignore") do (
+        set "EXCLUDES=!EXCLUDES! \"%%x\""
+    )
+) else (
+    echo [Backup] 未找到 .backupignore，使用預設排除清單...
+)
+
+robocopy "%script_dir%" "%backup_path%" /E /COPY:DAT /R:5 /W:2 /NFL /NDL /NJH /NJS /NC /XD %EXCLUDES%
 
 if exist "%backup_path%\*" (
     echo [成功] 備份完成
