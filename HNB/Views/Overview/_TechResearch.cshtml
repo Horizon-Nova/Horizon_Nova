@@ -1,0 +1,238 @@
+﻿<section class="team-overview">
+    <h1 class="mb-4 animateStarIcon">
+        <img src="\image/Team_introduction/NovaStar.png" alt="北極星" style="width: 10%; height: 10%;" />
+        Horizon Nova 技術研究
+    </h1>
+
+    <!-- 技術選單 -->
+    <div id="techMenu">
+        <a href="#ai-training" data-tech="ai-training"><i class="fa-solid fa-cogs"></i> 模組化 AI 訓練流程</a>
+        <a href="#apriltag" data-tech="apriltag"><i class="fa-solid fa-qrcode"></i> AprilTag 系統</a>
+        <a href="#voice" data-tech="voice"><i class="fa-solid fa-microphone"></i> AI 語音控制</a>
+        <a href="#iot" data-tech="iot"><i class="fa-solid fa-microchip"></i> ESP32 IoT 整合</a>
+        <a href="#missa" data-tech="missa"><i class="fa-solid fa-file-alt"></i> MISSA 表單流程與任務管理系統</a>
+    </div>
+
+    <!-- 技術內容區 -->
+    <div id="techContent">
+
+        <!-- 模組化 AI 訓練流程 -->
+        <div id="ai-training" class="tech-section">
+            <h2>模組化 AI 訓練流程</h2>
+
+            <p>
+                為解決不同專案在 AI 訓練過程中常見的流程不一致、部署困難、以及模型重用性不足等問題，
+                團隊設計了一套可高度模組化的 AI 訓練流程框架，涵蓋從資料收集、標註、自動化前處理、模型訓練到最終部署的完整開發鏈路。
+                此流程已廣泛應用於語音合成、影像辨識以及 AI 助理記憶強化等任務場景。
+            </p>
+
+            <h3>流程特色：</h3>
+            <ul>
+                <li><strong>資料採集與前處理：</strong> 支援多格式輸入來源，並整合語音、影像等資料的自動清洗與標準化處理。</li>
+                <li><strong>自動化標註系統：</strong> 開發專屬標註工具，支援語音分段、影像標框、文字分類等多類型標註需求。</li>
+                <li><strong>模型訓練模組化：</strong> 架構可快速切換不同模型類型，支援語音（FastSpeech2、ESPnet）、影像（YOLO系列）等任務。</li>
+                <li><strong>AI 助理記憶層：</strong> 整合向量資料庫與自建 Embedding API，實現語意記憶存取，可針對不同專案切換 LLM 模型，保持記憶資料不丟失。</li>
+                <li><strong>視覺化訓練監控：</strong> 整合 TensorBoard 與自建訓練監控模組，即時追蹤模型性能變化。</li>
+                <li><strong>邊緣部署支援：</strong> 支援 ONNX 格式轉換，可將模型部署於 Jetson Nano 等邊緣設備進行低延遲推論。</li>
+            </ul>
+
+            <h3>核心技術：</h3>
+            <ul>
+                <li>FastSpeech2 語音合成模型</li>
+                <li>Jetson Nano 邊緣運算部署</li>
+                <li>自建 Python 標註與資料處理工具</li>
+                <li>TensorBoard 訓練監控平台</li>
+                <li>ONNX 模型格式轉換</li>
+                <li>向量資料庫與自建向量 API</li>
+            </ul>
+
+            <blockquote>
+                <strong>應用場景：</strong>
+                客製語音助手、AI 語意記憶管理系統、特定場域語音辨識、影像識別模型快速開發、IoT 邊緣智能應用。
+            </blockquote>
+
+            <img src="\image\Team_introduction\AI training flow chart.png" alt="AI 訓練流程圖">
+        </div>
+
+        <!-- AprilTag 整合系統（開發中） -->
+        <div id="apriltag" class="tech-section">
+            <h2>AprilTag 整合系統（開發中）</h2>
+
+            <p>
+                為解決倉儲、物流與大型場域中的物件定位與即時追蹤需求，團隊正在開發一套專屬的 AprilTag 整合系統。
+                本系統結合影像辨識模組、資料同步中介層以及前端視覺化操作介面，目標實現快速掃描、場景即時回饋與多端平台支援。
+            </p>
+
+            <h3>目前開發進度：</h3>
+            <ul>
+                <li>完成原型驗證階段</li>
+                <li>正在進行場域測試與性能優化</li>
+                <li>商業版功能設計與模組封裝進行中</li>
+                <li>核心邏輯與通訊架構暫不對外公開</li>
+            </ul>
+
+            <h3>預計功能特色：</h3>
+            <blockquote>
+                <strong>系統亮點：</strong><br>
+                - 低延遲即時掃描引擎<br>
+                - 支援多平台 API 整合（Web、Android、iOS）<br>
+                - Flutter 前端即時渲染界面<br>
+                - 可擴充的場域資料回傳與事件處理機制
+            </blockquote>
+
+            <h3>技術架構概覽：</h3>
+            <ul>
+                <li>OpenCV 與 AprilTag 掃描演算法模組</li>
+                <li>自建中介層 Web API 服務</li>
+                <li>Flutter 客製化前端界面</li>
+                <li>PostgreSQL 資料儲存與分析模組</li>
+            </ul>
+
+            <img src="\image\Team_introduction\AprilTag Integrated System.png" alt="AprilTag 整合系統">
+        </div>
+
+        <!-- AI 語音控制與離線辨識 -->
+        <div id="voice" class="tech-section">
+            <h2>AI 語音控制與離線辨識</h2>
+
+            <p>
+                為解決在無網路環境下的語音互動需求，團隊開發了一套可本地部署的 AI 語音辨識與語音控制系統。
+                系統支援使用者自定義語者資料與情境語料，可針對特定任務進行小規模微調，實現離線語音指令識別、情境式回應及多語翻譯等應用。
+            </p>
+
+            <h3>系統特性：</h3>
+            <ul>
+                <li><strong>離線部署：</strong> 模型可直接在邊緣設備或內網環境執行，無需依賴雲端 API。</li>
+                <li><strong>語者自訂：</strong> 可針對指定使用者語音特徵進行模型適應，提高辨識準確率。</li>
+                <li><strong>情境式語料管理：</strong> 支援根據應用場景匯入特定指令集或回答庫。</li>
+                <li><strong>低延遲反應：</strong> 通過 ONNX 格式優化，縮短語音輸入到結果輸出的處理時間。</li>
+                <li><strong>多語翻譯支援：</strong> 可搭配翻譯語料，進行基礎離線翻譯應用。</li>
+            </ul>
+
+            <h3>核心技術：</h3>
+            <ul>
+                <li>ESPnet 語音辨識模型</li>
+                <li>Whisper 微調版語音轉文字引擎</li>
+                <li>ONNX Runtime 離線推理引擎</li>
+                <li>自建指令意圖解析模組</li>
+                <li>多語離線語料管理系統</li>
+            </ul>
+
+            <blockquote>
+                <strong>應用場景：</strong>
+                智能助理、工業設備語音控制、無網環境語音輸入設備、現場翻譯輔助系統。
+            </blockquote>
+
+            <img src="\image\Team_introduction\Voice recognition device.png" alt="語音辨識場景圖">
+        </div>
+
+        <!-- ESP32 與 IoT 整合方案 -->
+        <div id="iot" class="tech-section">
+            <h2>ESP32 與 IoT 整合方案</h2>
+
+            <p>
+                為實現場域設備的遠端監控與事件數據回傳，團隊基於 ESP32 微控制器開發了一套高度彈性且可擴展的 IoT 整合方案。
+                系統設計涵蓋從設備層資料採集、網路通訊協議、到後端資料儲存與前端可視化操作的完整流程。
+                可針對不同應用場景，快速部署感測、控制與資料回報功能。
+            </p>
+
+            <h3>功能特性：</h3>
+            <ul>
+                <li><strong>低功耗感測與監控：</strong> 支援長時間運作的低功耗模式，適用於電池供電環境。</li>
+                <li><strong>Captive Portal 網路設定：</strong> 使用者可透過手機或電腦進行現場 Wi-Fi 設定，無需外部軟體。</li>
+                <li><strong>遠端 OTA 韌體更新：</strong> 支援遠端批次韌體升級，降低維護成本。</li>
+                <li><strong>內網或雲端資料串接：</strong> 可靈活選擇資料傳輸至本地伺服器或雲端平台。</li>
+                <li><strong>與網頁控制台同步：</strong> 即時更新設備狀態，支援事件觸發與歷史記錄查詢。</li>
+            </ul>
+
+            <h3>核心技術：</h3>
+            <ul>
+                <li>ESP32 微控制器平台</li>
+                <li>MQTT 與 HTTP 通訊協議</li>
+                <li>Captive Portal 自建網路配置介面</li>
+                <li>OTA 遠端韌體更新機制</li>
+                <li>PostgreSQL 資料記錄與分析</li>
+                <li>Web 前端控制台同步顯示模組</li>
+            </ul>
+
+            <blockquote>
+                <strong>應用場景：</strong>
+                環境數據監測、設備狀態監控、遠端設備控制、倉儲安全管理、IoT 資料收集與分析。
+            </blockquote>
+
+            <img src="\image\Team_introduction\ESP32 and IoT.png" alt="ESP32 整合示意圖">
+        </div>
+
+        <!-- MISSA 表單流程與任務管理系統 -->
+        <div id="missa" class="tech-section">
+            <h2>MISSA 表單流程與任務管理系統</h2>
+
+            <p>
+                MISSA 是我們自研的一套 <strong>中型企業級、多模組、可擴充的表單流程與任務管理平台</strong>，
+                專為解決大型組織在「活動申請、預算核銷、內部簽核、資料歷程追蹤」等場景的資料流轉與任務協作需求而設計。
+                系統架構符合企業內部 IT 部署規範，具備可擴展性、彈性模組化與多層級安全控管。
+            </p>
+
+            <h3>核心架構：</h3>
+            <ul>
+                <li><strong>後端：</strong> ASP.NET MVC 架構，支援多控制器、多服務層、多倉儲模式 (Repository Pattern)</li>
+                <li><strong>資料庫：</strong> PostgreSQL，採用多 Schema 隔離設計，支援 JSON 動態欄位與高效查詢索引</li>
+                <li><strong>前端：</strong> Bootstrap + jQuery，採用可插拔 Partial Views 組件化開發</li>
+                <li><strong>API 擴充：</strong> 支援 JSON API 串接，兼容 ERP、CRM、AI 模型或第三方服務</li>
+            </ul>
+
+            <h3>主要功能模組：</h3>
+            <ul>
+                <li><strong>表單管理：</strong> 支援多類型表單、狀態流轉、自動編號與版本控管</li>
+                <li><strong>簽核流程引擎：</strong> 多層級審核流、流程節點自訂、歷程與權限驗證</li>
+                <li><strong>人員與權限管理：</strong> 基於角色的權限控管模型（RBAC），支援部門、職務細分</li>
+                <li><strong>預算管理：</strong> 經費明細填報、統計分析、自動產出 Word/Excel 報表</li>
+                <li><strong>AI 輔助模組：</strong> 整合向量記憶 API，支援自然語言表單查詢與流程建議</li>
+                <li><strong>系統排程：</strong> 內建 Job Scheduler，支援定時通知、資料清理、任務提醒</li>
+            </ul>
+
+            <h3>企業級安全設計：</h3>
+            <ul>
+                <li><strong>身份驗證：</strong> 採用 JWT 驗證流程，防止未授權存取</li>
+                <li><strong>操作權限層控：</strong> 基於多層角色權限，每層功能點可獨立控管</li>
+                <li><strong>資料隔離與稽核：</strong> 透過 Schema 分層與權限隔離，搭配操作歷程記錄 (Audit Log)</li>
+                <li><strong>傳輸加密：</strong> 全系統支援 HTTPS 與敏感資料加密儲存</li>
+                <li><strong>異常監控：</strong> 整合錯誤日誌與自建健康監測機制，主動偵測系統異常</li>
+            </ul>
+
+            <h3>技術亮點：</h3>
+            <ul>
+                <li>ASP.NET MVC + PostgreSQL 多 Schema 架構</li>
+                <li>動態 JSON 欄位設計，支援表單欄位自訂</li>
+                <li>可插拔模組化設計，易於未來擴充</li>
+                <li>支援 API 外掛、AI 模型、報表服務等外部整合</li>
+                <li>內建排程與通知引擎，支援定時任務</li>
+            </ul>
+
+            <blockquote>
+                <strong>適用場景：</strong>
+                校園 E 化系統、政府單位業務申請、企業內部資源管理、預算與專案審核流程、跨部門多人協作任務追蹤。
+            </blockquote>
+
+            <div class="missa-media d-flex align-items-center gap-3 mt-3">
+                <img src="\image\Team_introduction\公文系統.png" alt="MISSA 系統概覽" class="img-fluid rounded shadow" style="max-width: 45%;">
+
+                <video id="autoScheduleVideo" class="rounded shadow" style="max-width: 45%;" muted autoplay loop playsinline preload="auto">
+                    <source src="/image/MISSA_welcome.mp4" type="video/mp4">
+                    您的瀏覽器不支援影片播放。
+                </video>
+            </div>
+        </div>
+
+
+    </div>
+
+</section>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const video = document.getElementById('autoScheduleVideo');
+        if (video) {
+            video.play().catch(err => console.warn('自動播放失敗:', err));
+        }
+    });
+</script>

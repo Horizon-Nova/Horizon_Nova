@@ -4,9 +4,9 @@ cd /d %~dp0
 
 echo 正在從 appsettings.json 讀取連線字串與資料表...
 
-:: 讀取 ConnectionStrings.ProductionConnection
+:: 讀取 ConnectionStrings.TestConnection
 for /f "delims=" %%c in ('powershell -NoProfile -Command ^
-  "$conn = (Get-Content \"appsettings.json\" -Raw | ConvertFrom-Json).ConnectionStrings.ProductionConnection; if ($conn) { $conn } else { '' }"') do (
+  "$conn = (Get-Content \"appsettings.json\" -Raw | ConvertFrom-Json).ConnectionStrings.TestConnection; if ($conn) { $conn } else { '' }"') do (
     set "CONNSTR=%%c"
 )
 
@@ -18,7 +18,7 @@ for /f "delims=" %%t in ('powershell -NoProfile -Command ^
 
 :: 錯誤處理
 if not defined CONNSTR (
-    echo [錯誤] 無法讀取 appsettings.json 內的 ConnectionStrings.ProductionConnection！
+    echo [錯誤] 無法讀取 appsettings.json 內的 ConnectionStrings.TestConnection！
     pause
     exit /b
 )
