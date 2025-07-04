@@ -33,7 +33,7 @@ set "script_dir=%script_dir:~0,-1%"
 for /f "usebackq tokens=*" %%i in (`powershell -NoProfile -Command "[DateTime]::Now.ToString('yyyyMMddHHmmss')"` ) do set "timestamp=%%i"
 
 :: 取得目前分支
-for /f "tokens=*" %%b in ('git rev-parse --abbrev-ref main') do set "CUR_BRANCH=%%b"
+for /f "tokens=*" %%b in ('git rev-parse --abbrev-ref HEAD') do set "CUR_BRANCH=%%b"
 echo [Init] 目前分支 = %CUR_BRANCH%
 
 :: 專案與備份路徑
