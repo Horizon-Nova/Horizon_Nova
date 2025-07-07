@@ -1,7 +1,7 @@
 publish/
 
 # 排除 Deploy 整個目錄
-Horizon_Nova-Deploy
+HNB-Deploy
 
 # 排除 Visual Studio 和 VS Code 的暫存檔案與設定
 .vs/

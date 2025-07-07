@@ -4,12 +4,12 @@ setlocal enabledelayedexpansion
 
 rem ===================== 使用者可調整區 =====================
 set "BASE_DIR=%~dp0"
-set "PROJECT_NAME=MISSA-Deploy"
-set "GIT_REPO=https://github.com/Horizon-Nova/MISSA.git"
-set "GIT_BRANCH=MISSA-Deploy"
-set "CS_PROJ_PATH=%BASE_DIR%MISSA.csproj"
+set "PROJECT_NAME=HNB-Deploy"
+set "GIT_REPO=https://github.com/Horizon-Nova/Horizon_Nova.git"
+set "GIT_BRANCH=HNB-Deploy"
+set "CS_PROJ_PATH=%BASE_DIR%HNB.csproj"
 set "PUBLISH_DIR=%BASE_DIR%publish\Release"
-set "DEPLOY_DIR=%BASE_DIR%%PROJECT_NAME%\MISSA-Deploy"
+set "DEPLOY_DIR=%BASE_DIR%%PROJECT_NAME%\HNB-Deploy"
 rem ==========================================================
 
 rem [Step1] 檢查並更新 Git 儲存庫
@@ -63,11 +63,6 @@ if exist "GitPush.bat" (
 ) else (
     echo [警告] GitPush.bat 不存在，略過。
 )
-
-rem [Step6] 可選：Fly.io 自動部署（如你使用 Fly）
-:: echo [Step6] Fly.io 部屬
-:: cd /d "%DEPLOY_DIR%"
-:: fly deploy --config fly.toml --remote-only
 
 echo [全部完成] 部屬流程完成！
 pause
