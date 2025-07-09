@@ -15,5 +15,11 @@ public static class ServiceRegistrationExtensions
         services.AddScoped<GitHubAccessServices>();
         return services;
     }
+    /// <summary> DI注入管理 IpMiddlewareServices 功能 </summary>
+    public static IServiceCollection AddIpMiddlewareServicesModule(this IServiceCollection services)
+    {
+        services.AddScoped<IpMiddlewareServices>();
+        return services;
+    }
 
 }

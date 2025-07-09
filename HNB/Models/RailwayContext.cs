@@ -19,6 +19,8 @@ public partial class RailwayContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.HasPostgresExtension("AI_Trainer", "pgcrypto");
+
         modelBuilder.Entity<AccessRecord>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("access_records_pkey");
@@ -30,7 +32,6 @@ public partial class RailwayContext : DbContext
                 .HasColumnName("id");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
                 .HasColumnName("created_at");
             entity.Property(e => e.DurationMs).HasColumnName("duration_ms");
             entity.Property(e => e.HttpMethod).HasColumnName("http_method");
@@ -59,11 +60,8 @@ public partial class RailwayContext : DbContext
                 .HasColumnName("id");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
                 .HasColumnName("created_at");
-            entity.Property(e => e.ExpiresAt)
-                .HasColumnType("timestamp without time zone")
-                .HasColumnName("expires_at");
+            entity.Property(e => e.ExpiresAt).HasColumnName("expires_at");
             entity.Property(e => e.Ip).HasColumnName("ip");
             entity.Property(e => e.Reason).HasColumnName("reason");
         });
@@ -77,7 +75,6 @@ public partial class RailwayContext : DbContext
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
                 .HasColumnName("created_at");
             entity.Property(e => e.Function)
                 .HasMaxLength(255)

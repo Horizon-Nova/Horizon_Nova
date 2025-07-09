@@ -12,7 +12,6 @@ using System.Linq;
 
 namespace HNB.Filters;
 
-/// <summary>替代 LoggerHelperAttribute，改寫成 IAsyncResourceFilter</summary>
 public class RequestResponseLoggerFilter : IAsyncResourceFilter
 {
     private readonly ILogger<RequestResponseLoggerFilter> _logger;
@@ -83,12 +82,6 @@ public class RequestResponseLoggerFilter : IAsyncResourceFilter
         return http.Connection.RemoteIpAddress?.MapToIPv4().ToString() ?? "Unknown IP";
     }
 
-    private static DateTime GetTaipeiNow()
-    {
-        var tz = TimeZoneInfo.FindSystemTimeZoneById("Taipei Standard Time");
-        return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz);
-    }
-
     private static async Task LogToDbAsync(HttpContext http, string reqBody, string respBody,
                                            double duration, Exception? ex)
     {
@@ -113,7 +106,6 @@ public class RequestResponseLoggerFilter : IAsyncResourceFilter
             ResponseBody = respBody,
             StatusCode = http.Response.StatusCode,
             DurationMs = duration,
-            CreatedAt = GetTaipeiNow()
         };
 
         var db = http.RequestServices.GetRequiredService<RailwayContext>();

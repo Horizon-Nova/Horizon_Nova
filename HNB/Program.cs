@@ -1,4 +1,3 @@
-//using HNB.Models;
 using HNB.Models;
 using HNB.Filters;
 using HNB.Utilities;
@@ -8,6 +7,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
+using HNB.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,7 +28,9 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient();
 
 // 依賴注入集中管理
-builder.Services.AddGitHubAccessModule();
+builder.Services
+    .AddGitHubAccessModule()
+    .AddIpMiddlewareServicesModule();
 
 // Data-Protection 金鑰
 var keyPath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "DataProtectionKeys");
@@ -61,6 +63,7 @@ builder.Services.Configure<ForwardedHeadersOptions>(opt =>
 // Session 啟用
 builder.Services.AddSession();
 
+builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 
@@ -69,17 +72,26 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
-app.UseMiddleware<ExceptionLoggingMiddleware>();
-app.UseMiddleware<BlockMiddleware>();
+
+
+app.UseMiddleware<IpSecurityMiddleware>();
 
 app.UseForwardedHeaders();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseSession();
 
+// 加強安全標頭
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Add("X-Frame-Options", "DENY");
+    await next();
+});
+
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+
 
 app.MapControllerRoute(
     name: "default",
