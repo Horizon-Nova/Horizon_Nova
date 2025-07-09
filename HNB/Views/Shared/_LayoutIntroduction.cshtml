@@ -50,7 +50,15 @@
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" href="#">帳號設定</a></li>
-                        <li><a class="dropdown-item" href="@Url.Action("HNBAccess", "GitHubAccess")">登入</a></li>
+                        <li>
+                            <a class="dropdown-item"
+                               href="@(User.Identity.IsAuthenticated
+                                           ? Url.Action("Logout", "GitHubAccess")
+                                           : Url.Action("HNBAccess", "GitHubAccess")
+                                        )">
+                                @(User.Identity.IsAuthenticated ? "登出" : "登入")
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>

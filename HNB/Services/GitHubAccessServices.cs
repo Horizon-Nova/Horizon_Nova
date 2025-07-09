@@ -130,4 +130,12 @@ public class GitHubAccessServices
             CookieAuthenticationDefaults.AuthenticationScheme,
             claimsPrincipal);
     }
+
+    public async Task SignOutAsync()
+    {
+        var context = _httpContextAccessor.HttpContext;
+        if (context != null)
+            await context.SignOutAsync();
+    }
+
 }

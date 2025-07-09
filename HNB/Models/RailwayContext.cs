@@ -13,6 +13,8 @@ public partial class RailwayContext : DbContext
 
     public virtual DbSet<AccessRecord> AccessRecords { get; set; }
 
+    public virtual DbSet<BlockedIp> BlockedIps { get; set; }
+
     public virtual DbSet<ErrorLog> ErrorLogs { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -44,6 +46,26 @@ public partial class RailwayContext : DbContext
             entity.Property(e => e.StatusCode).HasColumnName("status_code");
             entity.Property(e => e.UserAgent).HasColumnName("user_agent");
             entity.Property(e => e.UserName).HasColumnName("user_name");
+        });
+
+        modelBuilder.Entity<BlockedIp>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("blocked_ips_pkey");
+
+            entity.ToTable("blocked_ips", "hnb", tb => tb.HasComment("黑名單"));
+
+            entity.Property(e => e.Id)
+                .HasDefaultValueSql("gen_random_uuid()")
+                .HasColumnName("id");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("created_at");
+            entity.Property(e => e.ExpiresAt)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("expires_at");
+            entity.Property(e => e.Ip).HasColumnName("ip");
+            entity.Property(e => e.Reason).HasColumnName("reason");
         });
 
         modelBuilder.Entity<ErrorLog>(entity =>

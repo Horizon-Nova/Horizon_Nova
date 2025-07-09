@@ -58,6 +58,10 @@ builder.Services.Configure<ForwardedHeadersOptions>(opt =>
     opt.KnownProxies.Clear();
 });
 
+// Session ±Ò¥Î
+builder.Services.AddSession();
+
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
@@ -65,11 +69,13 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
-
 app.UseMiddleware<ExceptionLoggingMiddleware>();
+app.UseMiddleware<BlockMiddleware>();
+
 app.UseForwardedHeaders();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.UseSession();
 
 app.UseRouting();
 app.UseAuthentication();
