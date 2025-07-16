@@ -1,0 +1,46 @@
+name: Build & Update DeployFile in Deploy branch
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout Deploy branch first
+      - name: Checkout Deploy branch
+        uses: actions/checkout@v4
+        with:
+          ref: Deploy
+
+      # Remove old DeployFile
+      - name: Clean old DeployFile
+        run: |
+          rm -rf DeployFile
+
+      # Checkout main branch code in another folder
+      - name: Checkout main branch code
+        uses: actions/checkout@v4
+        with:
+          path: main
+          ref: main
+
+      # Build main branch code
+      - name: Build & Publish main branch
+        working-directory: ./main
+        run: |
+          dotnet restore
+          dotnet build --configuration Release
+          dotnet publish -c Release -o ../DeployFile
+
+      # Commit and push changes to Deploy branch
+      - name: Commit & Push updated DeployFile
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add DeployFile
+          git commit -m "Update DeployFile from main"
+          git push origin Deploy
