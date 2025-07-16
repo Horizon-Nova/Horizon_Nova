@@ -30,7 +30,7 @@ jobs:
 
       # Build main branch code
       - name: Build & Publish main branch
-        working-directory: ./main
+        working-directory: ./HNB
         run: |
           dotnet restore
           dotnet build --configuration Release
