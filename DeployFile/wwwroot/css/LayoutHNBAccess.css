@@ -1,0 +1,32 @@
+﻿/* #region CSS Variables */
+:root {
+    --primary: #2997ff;
+    --primary-hover: #0077ed;
+    --background-dark: #000000;
+    --background-light: #ffffff;
+    --text-light: #f5f5f7;
+    --text-dark: #1d1d1f;
+    --footer-bg: #3a2a50;
+    --overlay-dark: rgba(0, 0, 0, 0.6);
+    --logo-blur-bg: rgba(255, 255, 255, 0.3);
+}
+/* #endregion */
+
+/* #region Global Reset & Typography */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body, html {
+    background-color: var(--background-dark);
+    color: var(--text-light);
+    overflow-x: hidden;
+}
+
+/* #endregion */
+
+/* #region Footer */
+
+/* #endregion */
