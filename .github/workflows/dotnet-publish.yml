@@ -30,11 +30,11 @@ jobs:
 
       # Build main branch code
       - name: Build & Publish main branch
-        working-directory: ./HNB
+        working-directory: ./main/HNB
         run: |
           dotnet restore
           dotnet build --configuration Release
-          dotnet publish -c Release -o ../DeployFile
+          dotnet publish -c Release -o ../../DeployFile
 
       # Commit and push changes to Deploy branch
       - name: Commit & Push updated DeployFile
