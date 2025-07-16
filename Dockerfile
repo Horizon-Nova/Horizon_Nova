@@ -24,7 +24,7 @@ ENV LANGUAGE=zh_TW:zh
 ENV LC_ALL=zh_TW.UTF-8
 
 # 複製 dotnet publish 輸出的內容
-COPY HNB-Deploy . 
+COPY DeployFile . 
 
 # 設定啟動指令
 ENTRYPOINT ["dotnet", "HNB.dll"]
