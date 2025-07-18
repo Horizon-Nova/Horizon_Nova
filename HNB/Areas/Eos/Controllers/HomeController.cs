@@ -2,6 +2,7 @@
 
 namespace HNB.Areas.Eos.Controllers
 {
+    [Area("Eos")]
     public class HomeController : Controller
     {
         public IActionResult Index()

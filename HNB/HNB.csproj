@@ -7,17 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="HNB-Deploy\**" />
-    <Compile Remove="publish\**" />
-    <Content Remove="HNB-Deploy\**" />
-    <Content Remove="publish\**" />
-    <EmbeddedResource Remove="HNB-Deploy\**" />
-    <EmbeddedResource Remove="publish\**" />
-    <None Remove="HNB-Deploy\**" />
-    <None Remove="publish\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Remove="BuildModels.bat" />
     <None Remove="ProjectPush.bat" />
   </ItemGroup>
