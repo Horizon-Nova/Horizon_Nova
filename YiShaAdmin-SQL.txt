@@ -1,0 +1,481 @@
+-- DROP SCHEMA dbo;
+
+CREATE SCHEMA dbo;
+-- YsData.dbo.Pcc_Orders definition
+
+-- Drop table
+
+-- DROP TABLE YsData.dbo.Pcc_Orders;
+
+CREATE TABLE YsData.dbo.Pcc_Orders (
+	Id bigint NOT NULL,
+	BaseIsDelete int NOT NULL,
+	BaseCreateTime datetime NOT NULL,
+	BaseModifyTime datetime NOT NULL,
+	BaseCreatorId bigint NOT NULL,
+	BaseModifierId bigint NOT NULL,
+	BaseVersion int NOT NULL,
+	OrderNo nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	OrderSeq nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	RequestAgency nvarchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	ContractAgency nvarchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	TenderCaseNo nvarchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	ContractNo nvarchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	SupplierName nvarchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	SupplierTaxId varchar(8) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	SupplierContact nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	SupplierPhone nvarchar(40) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	SupplierFax nvarchar(40) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	Requisitioner nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	RequisitionDate datetime NULL,
+	RequisitionPhone nvarchar(40) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	RequisitionFax nvarchar(40) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	RequisitionEmail nvarchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	OrderingAgency nvarchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	Orderer nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	OrderDate datetime NULL,
+	OrdererPhone nvarchar(40) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	OrdererFax nvarchar(40) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	OrdererEmail nvarchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	DeliveryContact nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	DeliveryPhone nvarchar(40) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	InstallationContact nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	InstallationPhone nvarchar(40) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	AgencyTaxId varchar(8) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	InvoiceTitle nvarchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	InvoiceAddress nvarchar(200) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	InvoiceSendAddress nvarchar(200) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	InvoiceMethod nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	PaymentMethod nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	DeliveryAddress nvarchar(200) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	DeliveryDeadline date NULL,
+	ContractDeadline date NULL,
+	ProductCategory nvarchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	OrderTotal decimal(18,2) NULL,
+	CONSTRAINT PK_Pcc_Orders PRIMARY KEY (Id)
+);
+
+
+-- YsData.dbo.Pcc_UploadFiles definition
+
+-- Drop table
+
+-- DROP TABLE YsData.dbo.Pcc_UploadFiles;
+
+CREATE TABLE YsData.dbo.Pcc_UploadFiles (
+	Id bigint NOT NULL,
+	BaseIsDelete int NOT NULL,
+	BaseCreateTime datetime NOT NULL,
+	BaseModifyTime datetime NOT NULL,
+	BaseCreatorId bigint NOT NULL,
+	BaseModifierId bigint NOT NULL,
+	BaseVersion int NOT NULL,
+	file_name nvarchar(255) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	file_path nvarchar(500) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	file_size bigint NOT NULL,
+	file_type nvarchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	access_url nvarchar(500) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	status char(1) COLLATE Chinese_Taiwan_Stroke_CI_AS DEFAULT 1 NOT NULL,
+	CONSTRAINT PK_Pcc_UploadFiles PRIMARY KEY (Id)
+);
+
+
+-- YsData.dbo.SysArea definition
+
+-- Drop table
+
+-- DROP TABLE YsData.dbo.SysArea;
+
+CREATE TABLE YsData.dbo.SysArea (
+	Id bigint NOT NULL,
+	BaseIsDelete int NOT NULL,
+	BaseCreateTime datetime NOT NULL,
+	BaseModifyTime datetime NOT NULL,
+	BaseCreatorId bigint NOT NULL,
+	BaseModifierId bigint NOT NULL,
+	BaseVersion int NOT NULL,
+	AreaCode varchar(6) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	ParentAreaCode varchar(6) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	AreaName nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	ZipCode varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	AreaLevel int NOT NULL,
+	CONSTRAINT PK_SysArea PRIMARY KEY (Id)
+);
+
+
+-- YsData.dbo.SysAutoJob definition
+
+-- Drop table
+
+-- DROP TABLE YsData.dbo.SysAutoJob;
+
+CREATE TABLE YsData.dbo.SysAutoJob (
+	Id bigint NOT NULL,
+	BaseIsDelete int NOT NULL,
+	BaseCreateTime datetime NOT NULL,
+	BaseModifyTime datetime NOT NULL,
+	BaseCreatorId bigint NOT NULL,
+	BaseModifierId bigint NOT NULL,
+	BaseVersion int NOT NULL,
+	JobGroupName nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	JobName nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	JobStatus int NOT NULL,
+	CronExpression varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	StartTime datetime NOT NULL,
+	EndTime datetime NOT NULL,
+	NextStartTime datetime NOT NULL,
+	Remark nvarchar(500) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CONSTRAINT PK_SysAutoJob PRIMARY KEY (Id)
+);
+
+
+-- YsData.dbo.SysAutoJobLog definition
+
+-- Drop table
+
+-- DROP TABLE YsData.dbo.SysAutoJobLog;
+
+CREATE TABLE YsData.dbo.SysAutoJobLog (
+	Id bigint NOT NULL,
+	BaseCreateTime datetime NOT NULL,
+	BaseCreatorId bigint NOT NULL,
+	JobGroupName nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	JobName nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	LogStatus int NOT NULL,
+	Remark nvarchar(500) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CONSTRAINT PK_SysAutoJobLog PRIMARY KEY (Id)
+);
+
+
+-- YsData.dbo.SysDataDict definition
+
+-- Drop table
+
+-- DROP TABLE YsData.dbo.SysDataDict;
+
+CREATE TABLE YsData.dbo.SysDataDict (
+	Id bigint NOT NULL,
+	BaseIsDelete int NOT NULL,
+	BaseCreateTime datetime NOT NULL,
+	BaseModifyTime datetime NOT NULL,
+	BaseCreatorId bigint NOT NULL,
+	BaseModifierId bigint NOT NULL,
+	BaseVersion int NOT NULL,
+	DictType varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	DictSort int NOT NULL,
+	Remark nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CONSTRAINT PK_SysDataDict PRIMARY KEY (Id)
+);
+
+
+-- YsData.dbo.SysDataDictDetail definition
+
+-- Drop table
+
+-- DROP TABLE YsData.dbo.SysDataDictDetail;
+
+CREATE TABLE YsData.dbo.SysDataDictDetail (
+	Id bigint NOT NULL,
+	BaseIsDelete int NOT NULL,
+	BaseCreateTime datetime NOT NULL,
+	BaseModifyTime datetime NOT NULL,
+	BaseCreatorId bigint NOT NULL,
+	BaseModifierId bigint NOT NULL,
+	BaseVersion int NOT NULL,
+	DictType varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	DictSort int NOT NULL,
+	DictKey int NOT NULL,
+	DictValue varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	ListClass varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	DictStatus int NOT NULL,
+	IsDefault int NOT NULL,
+	Remark nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CONSTRAINT PK_SysDataDictDetail PRIMARY KEY (Id)
+);
+
+
+-- YsData.dbo.SysDepartment definition
+
+-- Drop table
+
+-- DROP TABLE YsData.dbo.SysDepartment;
+
+CREATE TABLE YsData.dbo.SysDepartment (
+	Id bigint NOT NULL,
+	BaseIsDelete int NOT NULL,
+	BaseCreateTime datetime NOT NULL,
+	BaseModifyTime datetime NOT NULL,
+	BaseCreatorId bigint NOT NULL,
+	BaseModifierId bigint NOT NULL,
+	BaseVersion int NOT NULL,
+	ParentId bigint NOT NULL,
+	DepartmentName nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	Telephone varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	Fax varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	Email varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	PrincipalId bigint NOT NULL,
+	DepartmentSort int NOT NULL,
+	Remark nvarchar(500) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CONSTRAINT PK_SysDepartment PRIMARY KEY (Id)
+);
+
+
+-- YsData.dbo.SysLogApi definition
+
+-- Drop table
+
+-- DROP TABLE YsData.dbo.SysLogApi;
+
+CREATE TABLE YsData.dbo.SysLogApi (
+	Id bigint NOT NULL,
+	BaseCreateTime datetime NOT NULL,
+	BaseCreatorId bigint NOT NULL,
+	LogStatus int NOT NULL,
+	Remark nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	ExecuteUrl varchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	ExecuteParam nvarchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	ExecuteResult nvarchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	ExecuteTime int NOT NULL,
+	ExecuteIpAddress varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT PK_SysLogApi PRIMARY KEY (Id)
+);
+
+
+-- YsData.dbo.SysLogLogin definition
+
+-- Drop table
+
+-- DROP TABLE YsData.dbo.SysLogLogin;
+
+CREATE TABLE YsData.dbo.SysLogLogin (
+	Id bigint NOT NULL,
+	BaseCreateTime datetime NOT NULL,
+	BaseCreatorId bigint NOT NULL,
+	LogStatus int NOT NULL,
+	IpAddress varchar(20) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	IpLocation nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	Browser nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	OS nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	Remark nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	ExtraRemark nvarchar(500) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CONSTRAINT PK_SysLogLogin PRIMARY KEY (Id)
+);
+
+
+-- YsData.dbo.SysLogOperate definition
+
+-- Drop table
+
+-- DROP TABLE YsData.dbo.SysLogOperate;
+
+CREATE TABLE YsData.dbo.SysLogOperate (
+	Id bigint NOT NULL,
+	BaseCreateTime datetime NOT NULL,
+	BaseCreatorId bigint NOT NULL,
+	LogStatus int NOT NULL,
+	IpAddress varchar(20) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	IpLocation nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	Remark nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	LogType varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	BusinessType varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	ExecuteUrl nvarchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	ExecuteParam nvarchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	ExecuteResult nvarchar(4000) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	ExecuteTime int NOT NULL,
+	CONSTRAINT PK_SysLogOperate PRIMARY KEY (Id)
+);
+
+
+-- YsData.dbo.SysMenu definition
+
+-- Drop table
+
+-- DROP TABLE YsData.dbo.SysMenu;
+
+CREATE TABLE YsData.dbo.SysMenu (
+	Id bigint NOT NULL,
+	BaseIsDelete int NOT NULL,
+	BaseCreateTime datetime NOT NULL,
+	BaseModifyTime datetime NOT NULL,
+	BaseCreatorId bigint NOT NULL,
+	BaseModifierId bigint NOT NULL,
+	BaseVersion int NOT NULL,
+	ParentId bigint NOT NULL,
+	MenuName nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	MenuIcon varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	MenuUrl varchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	MenuTarget varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	MenuSort int NOT NULL,
+	MenuType int NOT NULL,
+	MenuStatus int NOT NULL,
+	Authorize varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	Remark nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CONSTRAINT PK_SysMenu PRIMARY KEY (Id)
+);
+
+
+-- YsData.dbo.SysMenuAuthorize definition
+
+-- Drop table
+
+-- DROP TABLE YsData.dbo.SysMenuAuthorize;
+
+CREATE TABLE YsData.dbo.SysMenuAuthorize (
+	Id bigint NOT NULL,
+	BaseCreateTime datetime NOT NULL,
+	BaseCreatorId bigint NOT NULL,
+	MenuId bigint NOT NULL,
+	AuthorizeId bigint NOT NULL,
+	AuthorizeType int NOT NULL,
+	CONSTRAINT PK_SysMenuAuthorize PRIMARY KEY (Id)
+);
+
+
+-- YsData.dbo.SysNews definition
+
+-- Drop table
+
+-- DROP TABLE YsData.dbo.SysNews;
+
+CREATE TABLE YsData.dbo.SysNews (
+	Id bigint NOT NULL,
+	BaseIsDelete int NOT NULL,
+	BaseCreateTime datetime NOT NULL,
+	BaseModifyTime datetime NOT NULL,
+	BaseCreatorId bigint NOT NULL,
+	BaseModifierId bigint NOT NULL,
+	BaseVersion int NOT NULL,
+	NewsTitle nvarchar(300) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	NewsContent ntext COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	NewsTag nvarchar(200) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	ThumbImage varchar(200) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	NewsAuthor nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	NewsSort int NOT NULL,
+	NewsDate datetime NOT NULL,
+	NewsType int NOT NULL,
+	ViewTimes int NOT NULL,
+	ProvinceId bigint NOT NULL,
+	CityId bigint NOT NULL,
+	CountyId bigint NOT NULL,
+	CONSTRAINT PK_SysNews PRIMARY KEY (Id)
+);
+
+
+-- YsData.dbo.SysPosition definition
+
+-- Drop table
+
+-- DROP TABLE YsData.dbo.SysPosition;
+
+CREATE TABLE YsData.dbo.SysPosition (
+	Id bigint NOT NULL,
+	BaseIsDelete int NOT NULL,
+	BaseCreateTime datetime NOT NULL,
+	BaseModifyTime datetime NOT NULL,
+	BaseCreatorId bigint NOT NULL,
+	BaseModifierId bigint NOT NULL,
+	BaseVersion int NOT NULL,
+	PositionName nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	PositionSort int NOT NULL,
+	PositionStatus int NOT NULL,
+	Remark nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CONSTRAINT PK_SysPosition PRIMARY KEY (Id)
+);
+
+
+-- YsData.dbo.SysRole definition
+
+-- Drop table
+
+-- DROP TABLE YsData.dbo.SysRole;
+
+CREATE TABLE YsData.dbo.SysRole (
+	Id bigint NOT NULL,
+	BaseIsDelete int NOT NULL,
+	BaseCreateTime datetime NOT NULL,
+	BaseModifyTime datetime NOT NULL,
+	BaseCreatorId bigint NOT NULL,
+	BaseModifierId bigint NOT NULL,
+	BaseVersion int NOT NULL,
+	RoleName nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	RoleSort int NOT NULL,
+	RoleStatus int NOT NULL,
+	Remark nvarchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	CONSTRAINT PK_SysRole PRIMARY KEY (Id)
+);
+
+
+-- YsData.dbo.SysUser definition
+
+-- Drop table
+
+-- DROP TABLE YsData.dbo.SysUser;
+
+CREATE TABLE YsData.dbo.SysUser (
+	Id bigint NOT NULL,
+	BaseIsDelete int NOT NULL,
+	BaseCreateTime datetime NOT NULL,
+	BaseModifyTime datetime NOT NULL,
+	BaseCreatorId bigint NOT NULL,
+	BaseModifierId bigint NOT NULL,
+	BaseVersion int NOT NULL,
+	UserName nvarchar(20) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	Password varchar(32) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	Salt varchar(5) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	RealName nvarchar(20) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	DepartmentId bigint NOT NULL,
+	Gender int NOT NULL,
+	Birthday varchar(10) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	Portrait varchar(200) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	Email varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	Mobile varchar(30) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	LoginCount int NOT NULL,
+	UserStatus int NOT NULL,
+	IsSystem int NOT NULL,
+	IsOnline int NOT NULL,
+	FirstVisit datetime NOT NULL,
+	PreviousVisit datetime NOT NULL,
+	LastVisit datetime NOT NULL,
+	Remark nvarchar(200) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	WebToken varchar(32) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	ApiToken varchar(32) COLLATE Chinese_Taiwan_Stroke_CI_AS NOT NULL,
+	OptToken varchar(100) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT PK_SysUser PRIMARY KEY (Id)
+);
+
+
+-- YsData.dbo.SysUserBelong definition
+
+-- Drop table
+
+-- DROP TABLE YsData.dbo.SysUserBelong;
+
+CREATE TABLE YsData.dbo.SysUserBelong (
+	Id bigint NOT NULL,
+	BaseCreateTime datetime NOT NULL,
+	BaseCreatorId bigint NOT NULL,
+	UserId bigint NOT NULL,
+	BelongId bigint NOT NULL,
+	BelongType int NOT NULL,
+	CONSTRAINT PK_SysUserBelong PRIMARY KEY (Id)
+);
+
+
+-- YsData.dbo.TstiAccountManage definition
+
+-- Drop table
+
+-- DROP TABLE YsData.dbo.TstiAccountManage;
+
+CREATE TABLE YsData.dbo.TstiAccountManage (
+	Id bigint NOT NULL,
+	BaseIsDelete int NOT NULL,
+	BaseCreateTime datetime NOT NULL,
+	BaseModifyTime datetime NOT NULL,
+	BaseCreatorId bigint NOT NULL,
+	BaseModifierId bigint NOT NULL,
+	BaseVersion int NOT NULL,
+	UserID varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	Password varchar(50) COLLATE Chinese_Taiwan_Stroke_CI_AS NULL,
+	CONSTRAINT PK_TstiAccountManager PRIMARY KEY (Id)
+);
