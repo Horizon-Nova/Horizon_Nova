@@ -22,7 +22,7 @@ namespace HNB.Utilities
             try
             {
                 await using var scope = context.HttpContext.RequestServices.CreateAsyncScope();
-                var db = scope.ServiceProvider.GetRequiredService<RailwayContext>();
+                var db = scope.ServiceProvider.GetRequiredService<HnbdataContext>();
 
                 db.ErrorLogs.Add(new ErrorLog
                 {

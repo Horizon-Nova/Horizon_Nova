@@ -108,7 +108,7 @@ public class RequestResponseLoggerFilter : IAsyncResourceFilter
             DurationMs = duration,
         };
 
-        var db = http.RequestServices.GetRequiredService<RailwayContext>();
+        var db = http.RequestServices.GetRequiredService<HnbdataContext>();
         db.AccessRecords.Add(record);
         await db.SaveChangesAsync();
     }

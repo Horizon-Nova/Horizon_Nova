@@ -3,9 +3,6 @@ using System.Collections.Generic;
 
 namespace HNB.Models;
 
-/// <summary>
-/// 黑名單
-/// </summary>
 public partial class BlockedIp
 {
     public Guid Id { get; set; }

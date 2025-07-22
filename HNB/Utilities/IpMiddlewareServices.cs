@@ -12,12 +12,12 @@ public class IpMiddlewareServices
     private const int LIMIT = 100;          // 1 分鐘內請求上限
     private const int BLOCK_MINUTES = 10;   // 違規後封鎖時間
 
-    private readonly RailwayContext _db;
+    private readonly HnbdataContext _db;
     private readonly IMemoryCache _cache;
     private readonly ILogger<IpMiddlewareServices> _logger;
     private readonly IHostEnvironment _env;
 
-    public IpMiddlewareServices(RailwayContext db,IMemoryCache cache,ILogger<IpMiddlewareServices> logger, IHostEnvironment env)
+    public IpMiddlewareServices(HnbdataContext db,IMemoryCache cache,ILogger<IpMiddlewareServices> logger, IHostEnvironment env)
     {
         _db = db;
         _cache = cache;

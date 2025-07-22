@@ -17,10 +17,10 @@ builder.Services.AddControllersWithViews(options =>
 });
 
 #if DEBUG
-builder.Services.AddDbContext<RailwayContext>(options =>
+builder.Services.AddDbContext<HnbdataContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("TestConnection")));
 #else
-builder.Services.AddDbContext<RailwayContext>(options =>
+builder.Services.AddDbContext<HnbdataContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("ProdConnection")));
 #endif
 
@@ -30,6 +30,7 @@ builder.Services.AddHttpClient();
 // 依賴注入集中管理
 builder.Services
     .AddGitHubAccessModule()
+    .AddHomeModule()
     .AddIpMiddlewareServicesModule();
 
 // Data-Protection 金鑰

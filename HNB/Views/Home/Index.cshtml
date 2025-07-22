@@ -1,0 +1,64 @@
+﻿@using HNB.Models
+
+@{
+    ViewBag.Title = "Horizon Nova 工作區";
+    Layout = "~/Views/Shared/_LayoutSYS.cshtml";
+
+    var menuList = (List<SysMenu>)ViewBag.MenuList;
+}
+
+<ul class="nav" id="side-menu">
+    <li class="logo">Horizon Nova</li>
+
+    @foreach (var menu in menuList.Where(m => m.ParentId == 0).OrderBy(m => m.MenuSort))
+    {
+        var secondLevel = menuList.Where(m => m.ParentId == menu.Id).OrderBy(m => m.MenuSort).ToList();
+
+        <li>
+            <a href="#">
+                <i class="@menu.MenuIcon"></i>
+                <span class="nav-label">@menu.MenuName</span>
+                @if (secondLevel.Any())
+                {
+                    <span class="fa arrow"></span>
+                }
+            </a>
+
+            @if (secondLevel.Any())
+            {
+                <ul class="nav nav-second-level collapse">
+                    @foreach (var secondMenu in secondLevel)
+                    {
+                        var thirdLevel = menuList.Where(m => m.ParentId == secondMenu.Id).OrderBy(m => m.MenuSort).ToList();
+
+                        <li>
+                            @if (!thirdLevel.Any())
+                            {
+                                <a class="menuItem" href="#" data-url="@Url.Content("~/" + secondMenu.MenuUrl)">
+                                    @secondMenu.MenuName
+                                </a>
+                            }
+                            else
+                            {
+                                <a href="#">
+                                    @secondMenu.MenuName
+                                    <span class="fa arrow"></span>
+                                </a>
+                                <ul class="nav nav-third-level">
+                                    @foreach (var thirdMenu in thirdLevel)
+                                    {
+                                        <li>
+                                            <a class="menuItem" href="#" data-url="@Url.Content("~/" + thirdMenu.MenuUrl)">
+                                                @thirdMenu.MenuName
+                                            </a>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                        </li>
+                    }
+                </ul>
+            }
+        </li>
+    }
+</ul>
