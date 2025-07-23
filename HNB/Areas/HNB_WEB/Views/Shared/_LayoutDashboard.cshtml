@@ -21,9 +21,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollToPlugin.min.js"></script>
 
+    <!-- 自訂樣式 -->
+    <link rel="stylesheet" href="~/HNB_WEB/css/LayoutDashboard.css" />
+    <script src="~/HNB_WEB/js/LayoutDashboard.js"></script>
+
 </head>
 <body>
-    <div class="min-vw-100 min-vh-100 text-center">
+    <div >
         @RenderBody()
     </div>
     @RenderSection("js_section", required: false)

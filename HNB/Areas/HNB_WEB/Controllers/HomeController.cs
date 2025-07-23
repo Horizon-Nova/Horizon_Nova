@@ -1,8 +1,8 @@
 ﻿using HNB.Models;
-using HNB.Services;
+using HNB.Areas.HNB_WEB.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HNB.Controllers;
+namespace HNB.Areas.HNB_WEB.Controllers;
 
 public class HomeController : Controller
 {
@@ -11,6 +11,7 @@ public class HomeController : Controller
     public HomeController(HomeServices homeServices)
         => _homeServices = homeServices;
 
+    [Area("HNB_WEB")]
     public IActionResult Index()
     {
         _homeServices.PopulateHomeViewBag(ViewBag);

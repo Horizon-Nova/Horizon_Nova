@@ -15,10 +15,18 @@
     <Folder Include="API\" />
     <Folder Include="Areas\Eos\Data\" />
     <Folder Include="Areas\Eos\Models\" />
+    <Folder Include="Areas\HNB_WEB\Data\" />
+    <Folder Include="Areas\HNB_WEB\Models\" />
+    <Folder Include="wwwroot\HNB_WEB\image\" />
     <Folder Include="BackSystem\" />
     <Folder Include="Data\" />
-    <Folder Include="Extensions\" />
     <Folder Include="Models\" />
+    <Folder Include="Repositories\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\HNB_WEB\css\LayoutDashboard.css" />
+    <None Include="wwwroot\HNB_WEB\js\LayoutDashboard.js" />
   </ItemGroup>
 
   <ItemGroup>

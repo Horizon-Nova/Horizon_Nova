@@ -1,7 +1,7 @@
 ﻿using HNB.Models;
-using HNB.Repositories;
+using HNB.Areas.HNB_WEB.Repositories;
 
-namespace HNB.Services;
+namespace HNB.Areas.HNB_WEB.Services;
 
 public class HomeServices
 {

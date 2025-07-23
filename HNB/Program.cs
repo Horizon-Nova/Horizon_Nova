@@ -2,12 +2,12 @@ using HNB.Models;
 using HNB.Filters;
 using HNB.Utilities;
 using HNB.Extensions;
-
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using HNB.Middleware;
+using HNB.Areas.HNB_WEB.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 

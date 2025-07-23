@@ -1,7 +1,7 @@
 ﻿using HNB.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace HNB.Repositories;
+namespace HNB.Areas.HNB_WEB.Repositories;
 
 public class HomeRepositories
 {
