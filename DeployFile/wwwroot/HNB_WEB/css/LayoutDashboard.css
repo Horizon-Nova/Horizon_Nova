@@ -80,25 +80,20 @@
 
 /* #region 橫向可滾動的頁籤列 */
 
-.tabs-container {
+.page-tabs {
     display: flex;
-    overflow-x: hidden;
+    overflow: hidden;
     flex-wrap: nowrap;
     flex-grow: 1;
     max-width: 100%;
     white-space: nowrap;
 }
+.page-tabs-content {
+    display: inline-block;
+    white-space: nowrap;
+}
 
-    .tabs-container::-webkit-scrollbar {
-        height: 4px;
-    }
-
-    .tabs-container::-webkit-scrollbar-thumb {
-        background: #ccc;
-        border-radius: 2px;
-    }
-
-.tab {
+.menuTab {
     display: inline-flex;
     align-items: center;
     padding: 0 12px;
@@ -113,11 +108,11 @@
     line-height: 2.5rem;
 }
 
-    .tab:last-child {
+    .menuTab:last-child {
         border-right: none;
     }
 
-    .tab.active {
+    .menuTab.active {
         background-color: #fff;
         color: #000;
         border-bottom: 2px solid #0d6efd;
