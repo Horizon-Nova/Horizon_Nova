@@ -21,7 +21,7 @@ builder.Services.AddDbContext<HnbdataContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("TestConnection")));
 #else
 builder.Services.AddDbContext<HnbdataContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("ProdConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("TestConnection")));
 #endif
 
 builder.Services.AddHttpContextAccessor();
@@ -85,7 +85,7 @@ app.UseSession();
 // 加強安全標頭
 app.Use(async (context, next) =>
 {
-    context.Response.Headers.Add("X-Frame-Options", "DENY");
+    context.Response.Headers["X-Frame-Options"] = "SAMEORIGIN";
     await next();
 });
 

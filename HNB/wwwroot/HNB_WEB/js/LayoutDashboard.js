@@ -1,26 +1,58 @@
-﻿// 初始化
-document.addEventListener('DOMContentLoaded', () => {
+﻿document.addEventListener('DOMContentLoaded', () => {
     initSidebarToggle();
     initSidebarMenuHighlight();
     initTabs();
     initSidebarHoverPopup();
-});
 
+    $('.tabLeft').on('click', scrollTabLeft);
+    $('.tabRight').on('click', scrollTabRight);
+
+    $('.dropdown-menu .dropdown-item').on('click', function () {
+        const action = $(this).data('action');
+        handleTabOperation(action);
+    });
+
+    $('#tabRefresh').on('click', () => {
+        const $activeTab = $('.page-tabs-content').find('.menuTab.active');
+        if ($activeTab.length) {
+            const id = $activeTab.data('id');
+            const $iframe = $(`.YiSha_iframe[data-id="${id}"]`);
+            if ($iframe.length) {
+                const url = $iframe.attr('src');
+                $iframe.attr('src', url);
+            }
+        }
+    });
+    $('#fullscreenToggle').on('click', toggleFullscreen);
+
+});
 
 function initSidebarToggle() {
     $('#sidebarToggle').on('click', function () {
-        $('#sidebar').toggleClass('sidebar-mini');
+        const $sidebar = $('#sidebar');
+        $sidebar.toggleClass('sidebar-mini');
+
+        $('.sidebar-popup').remove(); 
+
+        if ($sidebar.hasClass('sidebar-mini')) {
+            $('#sidebar .collapse.show').collapse('hide');
+        }
     });
 }
 
 function initSidebarMenuHighlight() {
-    $('#sidebar .nav-link[data-bs-toggle="collapse"]').on('click', function () {
+    $('#sidebar .nav-link[data-bs-toggle="collapse"]').on('click', function (e) {
+        const $sidebar = $('#sidebar');
         const $link = $(this);
+        const target = $link.attr('href'); 
 
-        // 清除所有 active
+        if ($sidebar.hasClass('sidebar-mini')) {
+            $sidebar.removeClass('sidebar-mini');
+            $('.sidebar-popup').remove();
+        }
+        $('#sidebar .collapse.show').not(target).collapse('hide');
+
         $('#sidebar .nav-link').removeClass('active');
-
-        // 給當前加上 active
         $link.addClass('active');
     });
 
@@ -37,91 +69,68 @@ function initSidebarMenuHighlight() {
 }
 
 function initTabs() {
-    const $tabsContainer = $('.tabs-container');
-    const $iframe = $('#content-frame');
+    const $tabsContainer = $('.page-tabs-content');
+    const $mainContent = $('.mainContent');
 
-    // 點選左側選單
-    $('.menuItem').on('click', function () {
+    // 點擊左側選單或 popup 內容
+    $(document).on('click', '.menuItem', function () {
         const url = $(this).data('url');
         const id = $(this).data('id');
-        const text = $(this).text();
+        const text = $(this).text().trim();
 
         if (!id || !url) return;
 
-        const $existingTab = $tabsContainer.find(`.tab[data-id="${id}"]`);
+        const $existingTab = $tabsContainer.find(`.menuTab[data-id="${id}"]`);
         if ($existingTab.length) {
             activateTab($existingTab);
         } else {
-            const $tab = $(`<a href="#" class="tab" data-id="${id}">${text} <span class="close-tab">&times;</span></a>`);
+            const $tab = $(`
+                <a href="javascript:;" class="menuTab" data-id="${id}">
+                    ${text} <span class="close-tab">&times;</span>
+                </a>`);
             $tabsContainer.append($tab);
+
+            const $iframe = $(`
+                <iframe class="content-iframe" 
+                        name="iframe_${id}" 
+                        width="100%" height="100%" 
+                        src="${url}" frameborder="0" 
+                        data-id="${id}"></iframe>`);
+            $mainContent.find('.content-iframe').hide();
+            $mainContent.append($iframe);
+
             activateTab($tab);
         }
     });
 
-    // 點選頁籤
-    $tabsContainer.on('click', '.tab', function (e) {
+    // 點擊頁籤
+    $tabsContainer.on('click', '.menuTab', function (e) {
         if ($(e.target).hasClass('close-tab')) return;
         activateTab($(this));
     });
 
     // 關閉頁籤
     $tabsContainer.on('click', '.close-tab', function () {
-        const $tab = $(this).closest('.tab');
+        const $tab = $(this).closest('.menuTab');
+        const id = $tab.data('id');
         const isActive = $tab.hasClass('active');
         $tab.remove();
+        $(`.content-iframe[data-id="${id}"]`).remove();
 
         if (isActive) {
-            const $last = $tabsContainer.find('.tab').last();
+            const $last = $tabsContainer.find('.menuTab').last();
             if ($last.length) activateTab($last);
-            else $iframe.attr('src', '/Home/index');
+            else $mainContent.empty();
         }
-    });
-
-    // 頁籤操作
-    $('.dropdown-menu .dropdown-item').on('click', function () {
-        const action = $(this).text().trim();
-        const $activeTab = $tabsContainer.find('.tab.active');
-
-        if (action === '关闭当前' && $activeTab.length) {
-            $activeTab.find('.close-tab').click();
-        } else if (action === '关闭其他') {
-            $tabsContainer.find('.tab').not('.active').remove();
-        } else if (action === '全部关闭') {
-            $tabsContainer.find('.tab').remove();
-            $iframe.attr('src', '/Home/index');
-        }
-    });
-
-    // 刷新
-    $('#tabRefresh').on('click', function () {
-        const $activeTab = $tabsContainer.find('.tab.active');
-        const id = $activeTab.data('id');
-        if (!id) return;
-
-        const $menuItem = $(`.menuItem[data-id="${id}"]`);
-        if ($menuItem.length) {
-            const url = $menuItem.data('url');
-            $iframe.attr('src', url);
-        }
-    });
-
-    // 左右滾動
-    $('#tabLeft').on('click', function () {
-        $tabsContainer.scrollLeft($tabsContainer.scrollLeft() - 200);
-    });
-    $('#tabRight').on('click', function () {
-        $tabsContainer.scrollLeft($tabsContainer.scrollLeft() + 200);
     });
 
     function activateTab($tab) {
         const id = $tab.data('id');
-        const $menuItem = $(`.menuItem[data-id="${id}"]`);
-        if ($menuItem.length) {
-            const url = $menuItem.data('url');
-            $iframe.attr('src', url);
-        }
-        $tabsContainer.find('.tab').removeClass('active');
+        $tabsContainer.find('.menuTab').removeClass('active');
         $tab.addClass('active');
+
+        $mainContent.find('.content-iframe').hide();
+        $mainContent.find(`.content-iframe[data-id="${id}"]`).show();
     }
 }
 
@@ -131,9 +140,7 @@ function initSidebarHoverPopup() {
     $('#sidebar .nav-link').hover(
         function () {
             const $sidebar = $('#sidebar');
-            if (!$sidebar.hasClass('sidebar-mini')) {
-                return;
-            }
+            if (!$sidebar.hasClass('sidebar-mini')) return;
 
             clearTimeout(hideTimeout);
             $('.sidebar-popup').remove();
@@ -177,3 +184,111 @@ function initSidebarHoverPopup() {
     );
 }
 
+function handleTabOperation(action) {
+    const $tabsContainer = $('.page-tabs-content');
+    const $mainContent = $('.mainContent');
+    const $activeTab = $tabsContainer.find('.menuTab.active');
+
+    switch (action) {
+        case 'close-current':
+            if ($activeTab.length) {
+                $activeTab.find('.close-tab').click();
+            }
+            break;
+
+        case 'close-others':
+            $tabsContainer.find('.menuTab').not('.active').each(function () {
+                const id = $(this).data('id');
+                $(`.YiSha_iframe[data-id="${id}"]`).remove();
+                $(this).remove();
+            });
+            break;
+
+        case 'close-all':
+            $tabsContainer.find('.menuTab').each(function () {
+                const id = $(this).data('id');
+                $(`.YiSha_iframe[data-id="${id}"]`).remove();
+                $(this).remove();
+            });
+            $mainContent.html('');
+            break;
+    }
+}
+
+function calSumWidth($elements) {
+    let width = 0;
+    $elements.each(function () {
+        width += $(this).outerWidth(true);
+    });
+    return width;
+}
+
+function scrollTabLeft() {
+    const $content = $('.page-tabs-content');
+    const $container = $('.tab-bar');
+    const marginLeftVal = Math.abs(parseInt($content.css('margin-left')) || 0);
+    const tabOuterWidth = calSumWidth($container.children().not('.menuTabs'));
+    const visibleWidth = $container.outerWidth(true) - tabOuterWidth;
+
+    if ($content.width() <= visibleWidth) return;
+
+    let scrollVal = 0;
+    let offsetVal = 0;
+    let $tab = $('.menuTab:first');
+
+    while ((offsetVal + $tab.outerWidth(true)) <= marginLeftVal) {
+        offsetVal += $tab.outerWidth(true);
+        $tab = $tab.next();
+    }
+
+    if (calSumWidth($tab.prevAll()) > visibleWidth) {
+        offsetVal = 0;
+        while ((offsetVal + $tab.outerWidth(true)) < visibleWidth && $tab.length > 0) {
+            offsetVal += $tab.outerWidth(true);
+            $tab = $tab.prev();
+        }
+        scrollVal = calSumWidth($tab.prevAll());
+    }
+
+    $content.stop().animate({ marginLeft: -scrollVal + 'px' }, 'fast');
+}
+
+function scrollTabRight() {
+    const $content = $('.page-tabs-content');
+    const $container = $('.tab-bar');
+    const marginLeftVal = Math.abs(parseInt($content.css('margin-left')) || 0);
+    const tabOuterWidth = calSumWidth($container.children().not('.menuTabs'));
+    const visibleWidth = $container.outerWidth(true) - tabOuterWidth;
+
+    if ($content.width() <= visibleWidth) return;
+
+    let scrollVal = 0;
+    let offsetVal = 0;
+    let $tab = $('.menuTab:first');
+
+    while ((offsetVal + $tab.outerWidth(true)) <= marginLeftVal) {
+        offsetVal += $tab.outerWidth(true);
+        $tab = $tab.next();
+    }
+
+    offsetVal = 0;
+    while ((offsetVal + $tab.outerWidth(true)) < visibleWidth && $tab.length > 0) {
+        offsetVal += $tab.outerWidth(true);
+        $tab = $tab.next();
+    }
+
+    scrollVal = calSumWidth($tab.prevAll());
+    if (scrollVal > 0) {
+        $content.stop().animate({ marginLeft: -scrollVal + 'px' }, 'fast');
+    }
+}
+
+function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+            console.error(`無法切換全螢幕: ${err.message}`);
+        });
+    } else {
+        document.exitFullscreen();
+    }
+}
