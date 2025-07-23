@@ -13,6 +13,8 @@
 
   <ItemGroup>
     <Folder Include="API\" />
+    <Folder Include="Areas\DialVision\Data\" />
+    <Folder Include="Areas\DialVision\Models\" />
     <Folder Include="Areas\Eos\Data\" />
     <Folder Include="Areas\Eos\Models\" />
     <Folder Include="Areas\HNB_WEB\Data\" />
