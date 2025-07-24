@@ -2,7 +2,7 @@
 
 namespace HNB.Areas.DialVision.Controllers
 {
-    public class HomeController : Controller
+    public class AppWebController : Controller
     {
         [Area("DialVision")]
         public IActionResult Index()
