@@ -1,0 +1,46 @@
+/**
+ * Bootstrap Table Chinese translation
+ * Author: Zhixin Wen<wenzhixin2010@gmail.com>
+ */
+(function ($) {
+    'use strict';
+
+    $.fn.bootstrapTable.locales['zh-CN'] = {
+        formatLoadingMessage: function () {
+            return '正在努力地加載資料中，請稍候……';
+        },
+        formatRecordsPerPage: function (pageNumber) {
+            return '每頁顯示 ' + pageNumber + ' 条记录';
+        },
+        formatShowingRows: function (pageFrom, pageTo, totalRows) {
+            return '顯示第 ' + pageFrom + ' 到第 ' + pageTo + ' 条记录，總共 ' + totalRows + ' 条记录';
+        },
+        formatSearch: function () {
+            return '搜索';
+        },
+        formatNoMatches: function () {
+            return '沒有找到匹配的记录';
+        },
+        formatPaginationSwitch: function () {
+            return '隱藏/顯示分頁';
+        },
+        formatRefresh: function () {
+            return '重新整理';
+        },
+        formatToggle: function () {
+            return '切换';
+        },
+        formatColumns: function () {
+            return '列';
+        },
+        formatExport: function () {
+            return '導出資料';
+        },
+        formatClearFilters: function () {
+            return '清空过滤';
+        }
+    };
+
+    $.extend($.fn.bootstrapTable.defaults, $.fn.bootstrapTable.locales['zh-CN']);
+
+})(jQuery);

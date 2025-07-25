@@ -11,11 +11,11 @@ namespace HNB.Areas.HNB_WEB.Extensions;
 
 public static class HNBWebServiceCollectionExtensions
 {
-    /// <summary> DI注入管理 Home 功能 </summary>
-    public static IServiceCollection AddHomeModule(this IServiceCollection services)
+    /// <summary> DI注入管理 TeamZone 功能 </summary>
+    public static IServiceCollection AddTeamZoneModule(this IServiceCollection services)
     {
-        services.AddScoped<HomeServices>();
-        services.AddScoped<HomeRepositories>();
+        services.AddScoped<TeamZoneServices>();
+        services.AddScoped<TeamZoneRepositories>();
         return services;
     }
 

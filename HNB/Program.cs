@@ -30,7 +30,7 @@ builder.Services.AddHttpClient();
 // 依賴注入集中管理
 builder.Services
     .AddGitHubAccessModule()
-    .AddHomeModule()
+    .AddTeamZoneModule()
     .AddIpMiddlewareServicesModule();
 
 // Data-Protection 金鑰

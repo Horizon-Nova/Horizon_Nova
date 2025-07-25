@@ -16,7 +16,7 @@
         const $activeTab = $('.page-tabs-content').find('.menuTab.active');
         if ($activeTab.length) {
             const id = $activeTab.data('id');
-            const $iframe = $(`.YiSha_iframe[data-id="${id}"]`);
+            const $iframe = $(`.Nova_iframe[data-id="${id}"]`);
             if ($iframe.length) {
                 const url = $iframe.attr('src');
                 $iframe.attr('src', url);
@@ -199,7 +199,7 @@ function handleTabOperation(action) {
         case 'close-others':
             $tabsContainer.find('.menuTab').not('.active').each(function () {
                 const id = $(this).data('id');
-                $(`.YiSha_iframe[data-id="${id}"]`).remove();
+                $(`.Nova_iframe[data-id="${id}"]`).remove();
                 $(this).remove();
             });
             break;
@@ -207,7 +207,7 @@ function handleTabOperation(action) {
         case 'close-all':
             $tabsContainer.find('.menuTab').each(function () {
                 const id = $(this).data('id');
-                $(`.YiSha_iframe[data-id="${id}"]`).remove();
+                $(`.Nova_iframe[data-id="${id}"]`).remove();
                 $(this).remove();
             });
             $mainContent.html('');

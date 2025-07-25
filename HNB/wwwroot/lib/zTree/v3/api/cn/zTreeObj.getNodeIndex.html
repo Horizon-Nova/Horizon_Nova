@@ -1,0 +1,30 @@
+<div class="apiDetail">
+<div>
+	<h2><span>Function(treeNode)</span><span class="path">zTreeObj.</span>getNodeIndex</h2>
+	<h3>概述<span class="h3_info">[ 依赖 <span class="highlight_green">jquery.ztree.core</span> 核心 js ]</span></h3>
+	<div class="desc">
+		<p></p>
+		<div class="longdesc">
+			<p>獲取某結點在同级結點中的序号（從0开始）</p>
+			<p class="highlight_red">請通过 zTree 对象执行此方法。</p>
+		</div>
+	</div>
+	<h3>Function 参數说明</h3>
+	<div class="desc">
+	<h4><b>treeNode</b><span>JSON</span></h4>
+	<p>需要查询顺序的結點 JSON 資料对象</p>
+	<p class="highlight_red">請务必保证此結點資料对象 是 zTree 内部的資料对象</p>
+	<h4 class="topLine"><b>返回值</b><span>Number</span></h4>
+	<p class="highlight_red">返回值從 0 开始计數</p>
+	<p class="highlight_red">如果不存在该結點資料，返回 -1</p>
+	</div>
+	<h3>function 举例</h3>
+	<h4>1. 獲取當前選中的第一个結點在同级結點中的序号</h4>
+	<pre xmlns=""><code>var treeObj = $.fn.zTree.getZTreeObj("tree");
+var nodes = treeObj.getSelectedNodes();
+if (nodes.length>0) {
+	var index = treeObj.getNodeIndex(nodes[0]);
+}
+</code></pre>
+</div>
+</div>

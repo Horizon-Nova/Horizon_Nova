@@ -1,0 +1,28 @@
+<div class="apiDetail">
+<div>
+	<h2><span>Boolean</span><span class="path">treeNode.</span>isParent</h2>
+	<h3>概述<span class="h3_info">[ 依赖 <span class="highlight_green">jquery.ztree.core</span> 核心 js ]</span></h3>
+	<div class="desc">
+		<p></p>
+		<div class="longdesc">
+			<p>记录 treeNode 結點是否為父結點。</p>
+			<p class="highlight_red">1、初始化結點資料时，根据 treeNode.children 属性判断，有子結點则设置為 true，否则為 false</p>
+			<p class="highlight_red">2、初始化結點資料时，如果设定 treeNode.isParent = true，即使无子結點資料，也會设置為父結點</p>
+			<p class="highlight_red">3、為了解决部分朋友生成 json 資料出现的兼容问题, 支持 "false","true" 字符串格式的資料</p>
+		</div>
+	</div>
+	<h3>Boolean 格式说明</h3>
+	<div class="desc">
+	<p> true 表示是父結點</p>
+	<p> false 表示不是父結點</p>
+	</div>
+	<h3>treeNode 举例</h3>
+	<h4>1. 查看當前被選中的結點是否是父結點</h4>
+	<pre xmlns=""><code>var treeObj = $.fn.zTree.getZTreeObj("tree");
+var sNodes = treeObj.getSelectedNodes();
+if (sNodes.length > 0) {
+	var isParent = sNodes[0].isParent;
+}
+</code></pre>
+</div>
+</div>

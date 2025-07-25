@@ -9,7 +9,7 @@ namespace HNB.Utilities;
 /// </summary>
 public class IpMiddlewareServices
 {
-    private const int LIMIT = 100;          // 1 分鐘內請求上限
+    private const int LIMIT = 9999999;          // 1 分鐘內請求上限
     private const int BLOCK_MINUTES = 10;   // 違規後封鎖時間
 
     private readonly HnbdataContext _db;
