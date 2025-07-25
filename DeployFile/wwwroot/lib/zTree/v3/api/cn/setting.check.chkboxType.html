@@ -1,0 +1,31 @@
+<div class="apiDetail">
+<div>
+	<h2><span>JSON</span><span class="path">setting.check.</span>chkboxType</h2>
+	<h3>概述<span class="h3_info">[ 依赖 <span class="highlight_green">jquery.ztree.excheck</span> 扩展 js ]</span></h3>
+	<div class="desc">
+		<p></p>
+		<div class="longdesc">
+			<p>勾選 checkbox 对于父子結點的关联关系。<span class="highlight_red">[setting.check.enable = true 且 setting.check.chkStyle = "checkbox" 时生效]</span></p>
+			<p>默认值：{ "Y": "ps", "N": "ps" }</p>
+		</div>
+	</div>
+	<h3>JSON 格式说明</h3>
+	<div class="desc">
+	<p>Y 属性定义 checkbox 被勾選後的情况；
+<br/>N 属性定义 checkbox 取消勾選後的情况；
+<br/>"p" 表示操作會影响父級結點；
+<br/>"s" 表示操作會影响子級結點。</p>
+	<p class="highlight_red">請注意大小写，不要改变</p>
+	</div>
+	<h3>setting 举例</h3>
+	<h4>1. checkbox 勾選操作，只影响父級結點；取消勾選操作，只影响子級結點</h4>
+	<pre xmlns=""><code>var setting = {
+	check: {
+		enable: true,
+		chkStyle: "checkbox",
+		chkboxType: { "Y": "p", "N": "s" }
+	}
+};
+......</code></pre>
+</div>
+</div>

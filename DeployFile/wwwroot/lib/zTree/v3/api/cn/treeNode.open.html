@@ -1,0 +1,30 @@
+<div class="apiDetail">
+<div>
+	<h2><span>Boolean</span><span class="path">treeNode.</span>open</h2>
+	<h3>概述<span class="h3_info">[ 依赖 <span class="highlight_green">jquery.ztree.core</span> 核心 js ]</span></h3>
+	<div class="desc">
+		<p></p>
+		<div class="longdesc">
+			<p>记录 treeNode 結點的 展开 / 折叠 状态。</p>
+			<p class="highlight_red">1、初始化結點資料时，如果设定 treeNode.open = true，则會直接展开此結點</p>
+			<p class="highlight_red">2、叶子結點 treeNode.open = false</p>
+			<p class="highlight_red">3、為了解决部分朋友生成 json 資料出现的兼容问题, 支持 "false","true" 字符串格式的資料</p>
+			<p class="highlight_red">4、非异步加載模式下，无子結點的父結點设置 open=true 後，可顯示為展开状态，但异步加載模式下不會生效。（v3.5.15+） </p>
+			<p>默认值：false</p>
+		</div>
+	</div>
+	<h3>Boolean 格式说明</h3>
+	<div class="desc">
+	<p> true 表示結點為 展开 状态</p>
+	<p> false 表示結點為 折叠 状态</p>
+	</div>
+	<h3>treeNode 举例</h3>
+	<h4>1. 查看當前被選中的結點的 展开 / 折叠 状态</h4>
+	<pre xmlns=""><code>var treeObj = $.fn.zTree.getZTreeObj("tree");
+var sNodes = treeObj.getSelectedNodes();
+if (sNodes.length > 0) {
+	var isOpen = sNodes[0].open;
+}
+</code></pre>
+</div>
+</div>

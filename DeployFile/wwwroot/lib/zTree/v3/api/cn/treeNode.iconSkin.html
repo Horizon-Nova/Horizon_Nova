@@ -1,0 +1,43 @@
+<div class="apiDetail">
+<div>
+	<h2><span>String</span><span class="path">treeNode.</span>iconSkin</h2>
+	<h3>概述<span class="h3_info">[ 依赖 <span class="highlight_green">jquery.ztree.core</span> 核心 js ]</span></h3>
+	<div class="desc">
+		<p></p>
+		<div class="longdesc">
+			<p>結點自定义圖标的 className</p>
+			<p class="highlight_red">1、需要修改 css，增加相应 className 的设置</p>
+			<p class="highlight_red">2、css 方式简單、方便，并且同时支持父結點展开、折叠状态切换圖片</p>
+			<p class="highlight_red">3、css 建议采用圖片分割渲染的方式以减少反复加載圖片，并且避免圖片闪动</p>
+			<p class="highlight_red">4、zTree v3.x 的 iconSkin 同样支持 IE6</p>
+			<p class="highlight_red">5、如果想直接使用 圖片的Url路径 设置結點的个性化圖标，需要设置 treeNode.icon / treeNode.iconOpen / treeNode.iconClose 属性</p>
+			<p>默认值：无</p>
+		</div>
+	</div>
+	<h3>String 格式说明</h3>
+	<div class="desc">
+	<p>设置个性圖标的 className</p>
+	</div>
+	<h3>css & treeNode 举例</h3>
+	<h4>1. 设置結點的个性化圖标</h4>
+	<pre xmlns=""><code>css 內容：
+.ztree li span.button.diy01_ico_open, .ztree li span.button.diy01_ico_close{...}
+
+.ztree li span.button.diy02_ico_open{...}
+.ztree li span.button.diy02_ico_close{...}
+
+.ztree li span.button.diy03_ico_docu{...}
+
+js中結點資料：
+var nodes = [
+	//父結點展开 折叠时使用相同的圖标
+	{ name:"父結點1", iconSkin:"diy01"},
+
+	//父結點展开 折叠时分别使用不同的圖标
+	{ name:"父結點2", iconSkin:"diy02"},
+
+	//叶子結點个性化圖标
+	{ name:"叶子結點", iconSkin:"diy03"}
+]</code></pre>
+</div>
+</div>
