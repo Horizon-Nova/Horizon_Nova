@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Build.Evaluation;
 
-namespace HNB.Areas.Eos.Controllers
+namespace HNB.Areas.HNB_WEB.Controllers
 {
     [Area("HNB_WEB")]
     public class TeamZoneController : Controller
@@ -21,8 +21,9 @@ namespace HNB.Areas.Eos.Controllers
         }
 
         public IActionResult Skin()
-        {
-            return View();
-        }
+            => View();
+
+        public IActionResult Welcome()
+            => View();
     }
 }

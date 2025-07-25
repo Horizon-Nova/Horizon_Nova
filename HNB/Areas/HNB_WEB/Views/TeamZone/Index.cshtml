@@ -24,7 +24,7 @@
         </div>
         <div class="sidebar-collapse">
             <ul class="nav" id="side-menu">
-                <li class="logo">Horizon Nova後台</li>
+                <li class="logo">一Horizon Nova後台</li>
                 <li class="nav-header">
                     <div class="dropdown profile-element clear">
                         <div class="image-left">
@@ -43,18 +43,14 @@
                     <li data-type="menu">
                         @if (!hasSecondLevel)
                         {
-                            <a class="menuItem"
-                               href="javascript:void(0);"
-                               data-url="@Url.Content("~/" + menu.MenuUrl)"
-                               data-index="@menu.Id"
-                               target="">
+                            <a class="menuItem">
                                 <i class="@menu.MenuIcon"></i>
                                 <span class="nav-label">@menu.MenuName</span>
                             </a>
                         }
                         else
                         {
-                            <a href="javascript:void(0);">
+                            <a href="menu.MenuUrl">
                                 <i class="@menu.MenuIcon"></i>
                                 <span class="nav-label">@menu.MenuName</span>
                                 <span class="fa arrow"></span>
@@ -66,11 +62,8 @@
                                     <li data-type="menu">
                                         @if (!hasThirdLevel)
                                         {
-                                            <a class="menuItem"
-                                               href="javascript:void(0);"
-                                               data-url="@Url.Content("~/" + secondMenu.MenuUrl)"
-                                               data-index="@secondMenu.Id"
-                                               target="@secondMenu.MenuTarget">
+                                            <a class="menuItem"href="@menu.MenuUrl"
+                                               data-url="@Url.Content("~/" + secondMenu.MenuUrl)">
                                                 @secondMenu.MenuName
                                             </a>
                                         }
@@ -81,11 +74,7 @@
                                                 @foreach (var thirdMenu in menuList.Where(m => m.ParentId == secondMenu.Id && m.MenuType != 3).OrderBy(m => m.MenuSort))
                                                 {
                                                     <li data-type="menu">
-                                                        <a class="menuItem"
-                                                           href="javascript:void(0);"
-                                                           data-url="@Url.Content("~/" + thirdMenu.MenuUrl)"
-                                                           data-index="@thirdMenu.Id"
-                                                           target="@thirdMenu.MenuTarget">
+                                                        <a class="menuItem"href="@menu.MenuUrl"data-url="@Url.Content("~/" + thirdMenu.MenuUrl)">
                                                             @thirdMenu.MenuName
                                                         </a>
                                                     </li>
@@ -99,8 +88,9 @@
                     </li>
                 }
             </ul>
-        </div>
 
+
+        </div>
     </nav>
 
     <!--右側內容-->
@@ -169,7 +159,7 @@
             <a href="#" class="roll-nav roll-right tabReload"><i class="fa fa-refresh"></i> 刷新</a>
         </div>
         <div class="row mainContent" id="content-main">
-            <iframe class="YiSha_iframe" name="iframe0" width="100%" height="100%" data-id="" src="" frameborder="0" seamless></iframe>
+            <iframe class="YiSha_iframe" name="iframe0" width="100%" height="100%" data-id="/system/main" src="@Url.Content("~/HNB_WEB/TeamZone/Welcome")" frameborder="0" seamless></iframe>
         </div>
     </div>
 </div>
