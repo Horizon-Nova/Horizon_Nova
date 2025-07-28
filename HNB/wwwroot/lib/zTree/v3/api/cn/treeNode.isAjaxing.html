@@ -5,17 +5,17 @@
 	<div class="desc">
 		<p></p>
 		<div class="longdesc">
-			<p>记录 treeNode 結點是否正在进行异步加載。</p>
-			<p class="highlight_red">初始化結點資料时，由 zTree 增加此属性，請勿提前赋值</p>
+			<p>记录 treeNode 节点是否正在进行异步加载。</p>
+			<p class="highlight_red">初始化节点数据时，由 zTree 增加此属性，请勿提前赋值</p>
 		</div>
 	</div>
 	<h3>Boolean 格式说明</h3>
 	<div class="desc">
-	<p> true 表示結點正在进行异步加載</p>
-	<p> false 表示結點沒有进行异步加載</p>
+	<p> true 表示节点正在进行异步加载</p>
+	<p> false 表示节点没有进行异步加载</p>
 	</div>
 	<h3>treeNode 举例</h3>
-	<h4>1. 查看當前被選中的結點是否結點正在进行异步加載</h4>
+	<h4>1. 查看当前被选中的节点是否节点正在进行异步加载</h4>
 	<pre xmlns=""><code>var treeObj = $.fn.zTree.getZTreeObj("tree");
 var sNodes = treeObj.getSelectedNodes();
 if (sNodes.length > 0) {

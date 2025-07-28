@@ -22,7 +22,7 @@
             return '該当するレコードが見つかりません';
         },
         formatPaginationSwitch: function () {
-            return 'ページ數を表示・非表示';
+            return 'ページ数を表示・非表示';
         },
         formatRefresh: function () {
             return '更新';

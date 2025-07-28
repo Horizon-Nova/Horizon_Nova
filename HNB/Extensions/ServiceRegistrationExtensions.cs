@@ -1,7 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using HNB.Repositories;
 //using HNB.Repositories;
 using HNB.Services;
 using HNB.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 //using HNB.BackSystem;
 using static Microsoft.AspNetCore.Razor.Language.TagHelperMetadata;
 //using HNB.Repositories;
@@ -21,6 +22,13 @@ public static class ServiceRegistrationExtensions
     public static IServiceCollection AddIpMiddlewareServicesModule(this IServiceCollection services)
     {
         services.AddScoped<IpMiddlewareServices>();
+        return services;
+    }
+    /// <summary> DI注入管理 ErrorLogService 功能 </summary>
+    public static IServiceCollection AddErrorLogServiceModule(this IServiceCollection services)
+    {
+        services.AddScoped<ErrorLogService>();
+        services.AddScoped<ErrorLogRepository>();
         return services;
     }
 

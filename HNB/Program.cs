@@ -1,18 +1,19 @@
-using HNB.Models;
-using HNB.Filters;
-using HNB.Utilities;
+using HNB.Areas.HNB_WEB.Extensions;
 using HNB.Extensions;
-using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.EntityFrameworkCore;
+using HNB.Filters;
+using HNB.Middleware;
+using HNB.Models;
+using HNB.Utilities;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
-using HNB.Middleware;
-using HNB.Areas.HNB_WEB.Extensions;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews(options =>
 {
+    options.Filters.Add<LogErrorAttribute>();
     options.Filters.Add<RequestResponseLoggerFilter>(); // 記錄請求
 });
 
@@ -30,7 +31,10 @@ builder.Services.AddHttpClient();
 // 依賴注入集中管理
 builder.Services
     .AddGitHubAccessModule()
+    .AddErrorLogServiceModule()
+    .AddUserModule()
     .AddTeamZoneModule()
+    .AddCommonRepositoryModule()
     .AddIpMiddlewareServicesModule();
 
 // Data-Protection 金鑰
@@ -68,13 +72,12 @@ builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
-}
+
+app.UseExceptionHandler("/Home/Error");
+app.UseHsts();
 
 
+app.UseMiddleware<ExceptionLoggingMiddleware>();
 app.UseMiddleware<IpSecurityMiddleware>();
 
 app.UseForwardedHeaders();

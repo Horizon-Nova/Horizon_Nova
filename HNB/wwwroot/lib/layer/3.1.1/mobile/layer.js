@@ -1,6 +1,6 @@
 /*!
 
- @Name：layer mobile v2.0 弹層组件移动版
+ @Name：layer mobile v2.0 弹层组件移动版
  @Author：贤心
  @Site：http://layer.layui.com/mobie/
  @License：LGPL
@@ -35,7 +35,7 @@ var ready = {
   timer: {}, end: {}
 };
 
-//點触事件
+//点触事件
 ready.touch = function(elem, fn){
   elem.addEventListener('click', function(e){
     fn.call(this, e);
@@ -55,7 +55,7 @@ Layer.prototype.view = function(){
   layerbox.setAttribute('class', classs[0] + ' ' + classs[0]+(config.type || 0));
   layerbox.setAttribute('index', index);
   
-  //标题區域
+  //标题区域
   var title = (function(){
     var titype = typeof config.title === 'object';
     return config.title
@@ -63,7 +63,7 @@ Layer.prototype.view = function(){
     : '';
   }());
   
-  //按鈕區域
+  //按钮区域
   var button = (function(){
     typeof config.btn === 'string' && (config.btn = [config.btn]);
     var btns = (config.btn || []).length, btndom;
@@ -119,14 +119,14 @@ Layer.prototype.view = function(){
 Layer.prototype.action = function(config, elem){
   var that = this;
   
-  //自动關閉
+  //自动关闭
   if(config.time){
     ready.timer[that.index] = setTimeout(function(){
       layer.close(that.index);
     }, config.time*1000);
   }
   
-  //確認取消
+  //确认取消
   var btn = function(){
     var type = this.getAttribute('type');
     if(type == 0){
@@ -143,7 +143,7 @@ Layer.prototype.action = function(config, elem){
     }
   }
   
-  //點遮罩關閉
+  //点遮罩关闭
   if(config.shade && config.shadeClose){
     var shade = elem[claname]('layui-m-layershade')[0];
     ready.touch(shade, function(){
@@ -175,7 +175,7 @@ win.layer = {
     delete ready.end[index];
   },
   
-  //關閉所有layer層
+  //关闭所有layer层
   closeAll: function(){
     var boxs = doc[claname](classs[0]);
     for(var i = 0, len = boxs.length; i < len; i++){
@@ -191,7 +191,7 @@ win.layer = {
   var js = document.scripts, script = js[js.length - 1], jsPath = script.src;
   var path = jsPath.substring(0, jsPath.lastIndexOf("/") + 1);
   
-  //如果合并方式，则需要單独引入layer.css
+  //如果合并方式，则需要单独引入layer.css
   if(script.getAttribute('merge')) return; 
   
   document.head.appendChild(function(){

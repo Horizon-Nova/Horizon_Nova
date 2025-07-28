@@ -19,11 +19,12 @@
     <Folder Include="Areas\Eos\Models\" />
     <Folder Include="Areas\HNB_WEB\Data\" />
     <Folder Include="Areas\HNB_WEB\Models\" />
+    <Folder Include="Areas\OrganizationManage\Controllers\" />
+    <Folder Include="Areas\OrganizationManage\Views\" />
     <Folder Include="wwwroot\HNB_WEB\image\" />
     <Folder Include="BackSystem\" />
     <Folder Include="Data\" />
     <Folder Include="Models\" />
-    <Folder Include="Repositories\" />
   </ItemGroup>
 
   <ItemGroup>

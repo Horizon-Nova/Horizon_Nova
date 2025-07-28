@@ -65,7 +65,7 @@ html #layuicss-layer{display: none; position: absolute; width: 1989px;}
 .layui-layer-setwin .layui-layer-close2{position:absolute; right:-28px; top:-28px; width:30px; height:30px;  margin-left:0; background-position:-149px -31px; *right:-18px; _display:none;}
 .layui-layer-setwin .layui-layer-close2:hover{ background-position:-180px -31px;}
 
-/* 按鈕栏 */
+/* 按钮栏 */
 .layui-layer-btn{text-align: right; padding: 0 15px 12px; pointer-events: auto; user-select: none; -webkit-user-select: none;}
 .layui-layer-btn a{height: 28px; line-height: 28px; margin: 5px 5px 0; padding: 0 15px; border: 1px solid #dedede; background-color:#fff; color: #333; border-radius: 2px; font-weight:400; cursor:pointer; text-decoration: none;}
 .layui-layer-btn a:hover{opacity: 0.9; text-decoration: none;}
@@ -161,7 +161,7 @@ html #layuicss-layer{display: none; position: absolute; width: 1989px;}
 .layui-layer-imgtit a:hover{color:#fff; text-decoration:underline;}
 .layui-layer-imgtit em{padding-left:10px; font-style: normal;}
 
-/* 關閉动画 */
+/* 关闭动画 */
 @-webkit-keyframes layer-bounceOut {
   100% {opacity: 0; -webkit-transform: scale(.7); transform: scale(.7)}
   30% {-webkit-transform: scale(1.05); transform: scale(1.05)}

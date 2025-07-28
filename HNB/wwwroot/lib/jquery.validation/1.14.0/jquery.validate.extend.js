@@ -10,12 +10,12 @@ $(document).ready(function(){
 		var length = value.length;
 		var phone=/^1[3|4|5|6|7|8][0-9]\d{8}$/;
 		return this.optional(element)||(length == 11 && phone.test(value));
-	},"請填写正确的11位手机号");
+	},"请填写正确的11位手机号");
 	//电话号码验证
 	jQuery.validator.addMethod("isTel",function(value,element){
-		var tel = /^(0\d{2,3}-)?\d{7,8}$/g;//區号3,4位,号码7,8位
+		var tel = /^(0\d{2,3}-)?\d{7,8}$/g;//区号3,4位,号码7,8位
 		return this.optional(element) || (tel.test(value));
-	},"請填写正确的座机号码");
+	},"请填写正确的座机号码");
 	//姓名校验
 	jQuery.validator.addMethod("isName",function(value,element){
 		var name=/^[\u4e00-\u9fa5]{2,6}$/;
@@ -25,13 +25,13 @@ $(document).ready(function(){
 	jQuery.validator.addMethod("isUserName",function(value,element){
 		var userName=/^[a-zA-Z0-9]{2,13}$/;
 		return this.optional(element) || (userName).test(value);
-	},'請输入數字或者字母,不包含特殊字符');
+	},'请输入数字或者字母,不包含特殊字符');
 	
 	//校验身份证
 	jQuery.validator.addMethod("isIdentity",function(value,element){
 		var id= /^(\d{15}$|^\d{18}$|^\d{17}(\d|X))$/;
 		return this.optional(element) || (id.test(value));
-	},"請输入正确的15或18位身份证号,末尾為大写X");
+	},"请输入正确的15或18位身份证号,末尾为大写X");
 	//校验出生日期
 	jQuery.validator.addMethod("isBirth",function(value,element){
 		var birth = /^(19|20)\d{2}-(1[0-2]|0?[1-9])-(0?[1-9]|[1-2][0-9]|3[0-1])$/;
@@ -47,7 +47,7 @@ $(document).ready(function(){
 			 return true;
 		}
 		});
-	//校验新密码和確認密码是否相同
+	//校验新密码和确认密码是否相同
 	jQuery.validator.addMethod("issame",function(){
 		var p3=$("#confirm_password").val();
 		var p4=$("#pwdNew").val();
@@ -57,7 +57,7 @@ $(document).ready(function(){
 			 return false;
 		}
 		});
-	//校验基础信息表單
+	//校验基础信息表单
 	$("#basicInfoForm").validate({
 		errorElement:'span',
 		errorClass:'help-block error-mes',
@@ -79,22 +79,22 @@ $(document).ready(function(){
 		},
 		messages:{
 			name:{
-				required:"請输入中文姓名",
-				isName:"姓名只能為汉字"
+				required:"请输入中文姓名",
+				isName:"姓名只能为汉字"
 			},
 			sex:{
-				required:"請输入性别"
+				required:"请输入性别"
 			},
 			birth:{
-				required:"請输入出生年月"
+				required:"请输入出生年月"
 			},
             mobile:{
-				required:"請输入手机号",
-				isPhone:"請填写正确的11位手机号"
+				required:"请输入手机号",
+				isPhone:"请填写正确的11位手机号"
 			},
 			email:{
-				required:"請输入邮箱",
-				email:"請填写正确的邮箱格式"
+				required:"请输入邮箱",
+				email:"请填写正确的邮箱格式"
 			}
 		},
 	
@@ -117,10 +117,10 @@ $(document).ready(function(){
 		}
 	});
 	
-	//校验修改密码表單
+	//校验修改密码表单
 	$("#modifyPwd").validate({
 		onfocusout: function(element) { $(element).valid()},
-		 debug:false, //表示校验通过後是否直接提交表單
+		 debug:false, //表示校验通过后是否直接提交表单
 		 onkeyup:false, //表示按键松开时候监听验证
 		rules:{
 			pwdOld:{
@@ -154,7 +154,7 @@ $(document).ready(function(){
 				confirm_password:{
 				   required:'必填',
 				   minlength:$.validator.format('密码长度要大于6'),
-				   issame:'新密码要与確認新密码一致',
+				   issame:'新密码要与确认新密码一致',
 				}
 		
 		},

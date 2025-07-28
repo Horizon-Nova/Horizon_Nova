@@ -19,4 +19,19 @@ public static class HNBWebServiceCollectionExtensions
         return services;
     }
 
+    /// <summary> DI注入管理 User 功能 </summary>
+    public static IServiceCollection AddUserModule(this IServiceCollection services)
+    {
+        services.AddScoped<UserRepositories>();
+        services.AddScoped<UserServices>();
+        return services;
+    }
+
+    /// <summary> DI注入管理 CommonRepository 功能 </summary>
+    public static IServiceCollection AddCommonRepositoryModule(this IServiceCollection services)
+    {
+        services.AddScoped<CommonRepository>();
+        return services;
+    }
+
 }
