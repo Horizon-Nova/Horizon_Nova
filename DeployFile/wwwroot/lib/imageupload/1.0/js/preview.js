@@ -1,5 +1,5 @@
 ﻿/* =======================================================================
- * jQuery.Huipreview.js v3.0.1 圖片視频预览
+ * jQuery.Huipreview.js v3.0.1 图片视频预览
  * http://www.h-ui.net/
  * Created & Modified by guojunhui
  * Date modified 2017.07.26
@@ -70,7 +70,7 @@
 
                             $("body").append(tooltip_keleyi_com);
                             if (options.type == "image") {
-                                /*圖片预加載*/
+                                /*图片预加载*/
                                 var image = new Image();
                                 image.src = bigImg;
                                 /*创建一个Image对象*/

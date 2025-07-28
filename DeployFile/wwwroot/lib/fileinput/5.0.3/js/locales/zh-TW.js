@@ -105,7 +105,7 @@
             prev: '預覽上壹個文件',
             next: '預覽下壹個文件',
             toggleheader: '縮放',
-            fullscreen: '全螢幕',
+            fullscreen: '全屏',
             borderless: '無邊界模式',
             close: '關閉當前預覽'
         }

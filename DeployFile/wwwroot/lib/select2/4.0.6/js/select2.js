@@ -4596,7 +4596,7 @@
                 inputTooLong: function (args) {
                     var overChars = args.input.length - args.maximum;
 
-                    var message = '請删除' + overChars + '个字符';
+                    var message = '请删除' + overChars + '个字符';
 
                     if (overChars != 1) {
                         message += 's';
@@ -4607,7 +4607,7 @@
                 inputTooShort: function (args) {
                     var remainingChars = args.minimum - args.input.length;
 
-                    var message = '請再输入至少' + remainingChars + '个字符';
+                    var message = '请再输入至少' + remainingChars + '个字符';
 
                     return message;
                 },
@@ -4615,7 +4615,7 @@
                     return '载入更多结果…';
                 },
                 maximumSelected: function (args) {
-                    var message = '最多只能選擇' + args.maximum + '个项目';
+                    var message = '最多只能选择' + args.maximum + '个项目';
 
                     if (args.maximum != 1) {
                         message += 's';
