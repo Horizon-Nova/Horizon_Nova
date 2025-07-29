@@ -75,7 +75,6 @@ git config --global --add safe.directory "%cd%"
 git pull origin %CUR_BRANCH%
 if %errorlevel% neq 0 (
     echo [錯誤] Pull 失敗，請手動檢查版本衝突或網路錯誤。
-    call :backup
     goto :fatalError
 )
 exit /b
@@ -98,7 +97,6 @@ if %errorlevel% equ 0 (
 git push origin %CUR_BRANCH%
 if %errorlevel% neq 0 (
     echo [錯誤] Push 失敗，備份後進入強制同步
-    call :backup
     call :gitReset
 )
 exit /b
