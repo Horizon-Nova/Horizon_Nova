@@ -1,0 +1,68 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutQAS.cshtml";
+}
+
+<h3>Grounding DINO – Prompt 測試</h3>
+
+<div class="mb-3">
+    <input type="text" id="promptInput" class="form-control" placeholder="Enter prompt..." />
+</div>
+
+<div class="mb-3">
+    <input type="file" id="imageInput" class="form-control" accept="image/*" />
+</div>
+
+<button id="sendPrompt" class="btn btn-primary">送出</button>
+
+<hr />
+
+<div id="result" class="mt-4"></div>
+
+<script>
+    $('#sendPrompt').click(function () {
+        const prompt = $('#promptInput').val();
+        const fileInput = $('#imageInput')[0];
+
+        if (!fileInput.files.length) {
+            alert("請選擇圖片！");
+            return;
+        }
+        if (!prompt) {
+            alert("請輸入 prompt！");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("prompt", prompt);
+        formData.append("image", fileInput.files[0]);
+
+        $.ajax({
+            url: '@Url.Action("GroundingDINOModelTest", "QAS")',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (res) {
+                if (res.error) {
+                    $('#result').html(`<p class="text-danger">${res.error}</p>`);
+                    return;
+                }
+                if (!res.length) {
+                    $('#result').html('<p class="text-warning">未偵測到目標</p>');
+                    return;
+                }
+                let html = '<h5>Detections</h5><ol>';
+                res.forEach(d => {
+                    html += `<li>(${d.xmin},${d.ymin}) – (${d.xmax},${d.ymax}) - score: ${d.score}</li>`;
+                });
+                html += '</ol>';
+                $('#result').html(html);
+            },
+            error: function (err) {
+                console.error(err);
+                $('#result').html('<p class="text-danger">Server error</p>');
+            }
+        });
+    });
+</script>
+

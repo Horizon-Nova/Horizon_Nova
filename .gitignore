@@ -1,8 +1,3 @@
-publish/
-
-# 排除 Deploy 整個目錄
-HNB-Deploy
-
 # 排除 Visual Studio 和 VS Code 的暫存檔案與設定
 .vs/
 .vscode/
@@ -49,3 +44,14 @@ packages/**/restore.lock.json
 !packages/**/*.dll
 !packages/**/*.exe
 !packages/**/*.pdb
+
+
+# 排除所有 ONNX 模型
+*.onnx
+
+# 排除 tokenizer 相關檔案
+tokenizer.json
+tokenizer_config.json
+vocab.json
+merges.txt
+special_tokens_map.json

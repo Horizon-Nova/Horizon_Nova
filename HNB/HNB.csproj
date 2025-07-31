@@ -13,6 +13,10 @@
 
   <ItemGroup>
     <Folder Include="API\" />
+    <Folder Include="Areas\AI\DataModels\" />
+    <Folder Include="Areas\AI\Models\" />
+    <Folder Include="Areas\AI\Modules\" />
+    <Folder Include="Areas\AI\OWL‑ViT\" />
     <Folder Include="Areas\DialVision\Data\" />
     <Folder Include="Areas\DialVision\Models\" />
     <Folder Include="Areas\Eos\Data\" />
@@ -37,10 +41,13 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.22.1" />
+    <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.17.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite" Version="9.0.4" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.11" />
+    <PackageReference Include="Tokenizers.DotNet" Version="1.2.1" />
+    <PackageReference Include="Tokenizers.DotNet.runtime.win-x64" Version="1.2.1" />
   </ItemGroup>
 
 </Project>

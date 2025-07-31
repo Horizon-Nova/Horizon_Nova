@@ -4,6 +4,7 @@ using HNB.Filters;
 using HNB.Middleware;
 using HNB.Models;
 using HNB.Utilities;
+using HorizonNova.AI.GroundingDino;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -70,12 +71,17 @@ builder.Services.AddSession();
 
 builder.Services.AddMemoryCache();
 
-var app = builder.Build();
+builder.Services.AddSingleton(_ =>
+    new GroundingDinoDetector(
+        Path.Combine("Areas", "AI", "Modules", "GroundingDino", "model_q4.onnx"),
+        Path.Combine("Areas", "AI", "Modules", "GroundingDino", "tokenizer.json"),
+        boxThreshold: 0.4f,
+        useCuda: false));
 
+var app = builder.Build();
 
 app.UseExceptionHandler("/Home/Error");
 app.UseHsts();
-
 
 app.UseMiddleware<ExceptionLoggingMiddleware>();
 app.UseMiddleware<IpSecurityMiddleware>();
@@ -95,6 +101,8 @@ app.Use(async (context, next) =>
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+
+
 
 
 app.MapControllerRoute(

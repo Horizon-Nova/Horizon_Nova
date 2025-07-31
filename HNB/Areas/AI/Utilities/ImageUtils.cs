@@ -7,9 +7,10 @@ public static class ImageUtils
 {
     public static DenseTensor<float> Preprocess(Image image)
     {
-        int targetWidth = 224;
-        int targetHeight = 224;
+        int targetWidth = 800;
+        int targetHeight = 800;
 
+        // 正確寫法
         using var bmp = new Bitmap(image, new Size(targetWidth, targetHeight));
         var tensor = new DenseTensor<float>(new[] { 1, 3, targetHeight, targetWidth });
 
@@ -26,4 +27,18 @@ public static class ImageUtils
 
         return tensor;
     }
+
+    public static DenseTensor<long> GetPixelMask(int height = 800, int width = 800)
+    {
+        var mask = new DenseTensor<long>(new[] { 1, height, width });
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                mask[0, y, x] = 1;
+            }
+        }
+        return mask;
+    }
+
 }
