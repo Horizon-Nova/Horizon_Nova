@@ -52,7 +52,7 @@ namespace HNB.Controllers
             using var imgStream = image.OpenReadStream();
             using var img = Image.Load<Rgb24>(imgStream);
 
-            var dets = _dino.Detect(img, prompt);   // ← 不落地檔案、不用 Save()
+            var dets = _dino.Detect(img, prompt);
 
             var result = dets.Select(d => new {
                 xmin = (int)d.XMin,
