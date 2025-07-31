@@ -9,6 +9,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Linq;
+using HNB.Helpers;
 
 namespace HNB.Filters;
 
@@ -82,28 +83,32 @@ public class RequestResponseLoggerFilter : IAsyncResourceFilter
         return http.Connection.RemoteIpAddress?.MapToIPv4().ToString() ?? "Unknown IP";
     }
 
-    private static async Task LogToDbAsync(HttpContext http, string reqBody, string respBody,
-                                           double duration, Exception? ex)
+    /* ----------------- 寫入 DB ----------------- */
+    private static async Task LogToDbAsync(HttpContext http,string reqBody,string respBody,double duration,Exception? ex)
     {
-        string ip = GetClientIp(http);
+        const int MaxBodyLen = 4000;
 
+        string CleanBody(string body) =>
+            LogSanitizer.Clean(body.Length > MaxBodyLen? body[..MaxBodyLen] + "…(truncated)": body);
         var record = new AccessRecord
         {
             Id = Guid.NewGuid(),
             LogType = "action",
-            UserName = http.User.Identity?.Name ?? "Anonymous",
-            Roles = http.User.Identity?.IsAuthenticated == true
-                ? string.Join(',', http.User.Claims
-                    .Where(c => c.Type == System.Security.Claims.ClaimTypes.Role)
-                    .Select(c => c.Value))
-                : "Anonymous",
-            RequestPath = http.Request.Path + http.Request.QueryString,
-            Ip = ip,
-            Result = ex == null ? "執行成功" : $"執行失敗：{ex.Message}",
-            UserAgent = http.Request.Headers["User-Agent"].ToString(),
-            HttpMethod = http.Request.Method,
-            RequestBody = reqBody,
-            ResponseBody = respBody,
+            UserName = LogSanitizer.Clean(http.User.Identity?.Name ?? "Anonymous"),
+            Roles = LogSanitizer.Clean(
+                               http.User.Identity?.IsAuthenticated == true
+                               ? string.Join(',', http.User.Claims
+                                   .Where(c => c.Type == System.Security.Claims.ClaimTypes.Role)
+                                   .Select(c => c.Value))
+                               : "Anonymous"),
+            RequestPath = LogSanitizer.Clean(http.Request.Path + http.Request.QueryString),
+            Ip = LogSanitizer.Clean(GetClientIp(http)),
+            Result = LogSanitizer.Clean(
+                               ex == null ? "執行成功" : $"執行失敗：{ex.Message}"),
+            UserAgent = LogSanitizer.Clean(http.Request.Headers["User-Agent"].ToString()),
+            HttpMethod = LogSanitizer.Clean(http.Request.Method),
+            RequestBody = CleanBody(reqBody),
+            ResponseBody = CleanBody(respBody),
             StatusCode = http.Response.StatusCode,
             DurationMs = duration,
         };
@@ -112,4 +117,5 @@ public class RequestResponseLoggerFilter : IAsyncResourceFilter
         db.AccessRecords.Add(record);
         await db.SaveChangesAsync();
     }
+
 }

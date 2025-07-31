@@ -1,6 +1,9 @@
-﻿// GroundingDinoDetector.cs – 完整可編譯，直接吃 Image<Rgb24>
+﻿#region GroundingDinoDetector.cs 檔案說明
+// GroundingDinoDetector.cs – 完整可編譯，直接吃 Image<Rgb24>
 // 依賴：Microsoft.ML.OnnxRuntime 1.17、SixLabors.ImageSharp 3.x、Tokenizers.DotNet 1.2.x
 // -----------------------------------------------------------------
+#endregion
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -29,8 +32,7 @@ public sealed class GroundingDinoDetector : IDisposable
 
     private readonly float _boxThreshold;
 
-    public GroundingDinoDetector(string onnxPath, string tokenizerJsonPath,
-                                 float boxThreshold = 0.35f, bool useCuda = false)
+    public GroundingDinoDetector(string onnxPath, string tokenizerJsonPath,float boxThreshold = 0.35f, bool useCuda = false)
     {
         Console.WriteLine("[Init] GroundingDINO 模型初始化中，請勿中斷或關閉程式");
 
@@ -41,17 +43,6 @@ public sealed class GroundingDinoDetector : IDisposable
             throw new FileNotFoundException("Tokenizer 檔案不存在: " + tokenizerJsonPath);
 
         var opts = new OrtSessionOptions();
-        if (useCuda)
-        {
-            try
-            {
-                opts.AppendExecutionProvider_CUDA();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("無法初始化 CUDA，將使用 CPU。錯誤資訊: " + ex.Message);
-            }
-        }
 
         try
         {
@@ -68,26 +59,17 @@ public sealed class GroundingDinoDetector : IDisposable
         _boxThreshold = boxThreshold;
     }
 
-
-    /* ---------- Detect(Image)：主推介面 ---------- */
-    /* ---------- Detect(Image)：主推介面 ---------- */
+    #region 主推論介面：Detect(Image)
     public IList<Detection> Detect(Image<Rgb24> img, string prompt)
     {
-        using var clone = img.Clone(); // 防止修改原圖
+        using var clone = img.Clone();
         var pixel = Preprocess(clone, out int ow, out int oh);
         var (ids, mask) = Encode(prompt);
 
-        // token_type_ids → long tensor (1, seq_len)，全部填 0
-        var tokenTypeIds = new DenseTensor<long>(
-            Enumerable.Repeat(0L, ids.Length).ToArray(),
-            new[] { 1, ids.Length });
+        var tokenTypeIds = new DenseTensor<long>(Enumerable.Repeat(0L, ids.Length).ToArray(),new[] { 1, ids.Length });
 
-        // pixel_mask → float tensor (1, 800, 800)，全部填 1.0f
-        var pixelMask = new DenseTensor<long>(
-            Enumerable.Repeat(1L, ImageSize * ImageSize).ToArray(),
-            new[] { 1, ImageSize, ImageSize });
+        var pixelMask = new DenseTensor<long>(Enumerable.Repeat(1L, ImageSize * ImageSize).ToArray(),new[] { 1, ImageSize, ImageSize });
 
-        // input_ids 與 attention_mask
         var inputIds = new DenseTensor<long>(ids, new[] { 1, ids.Length });
         var attentionMask = new DenseTensor<long>(mask, new[] { 1, mask.Length });
 
@@ -103,16 +85,17 @@ public sealed class GroundingDinoDetector : IDisposable
         using var results = _session.Run(inputs);
         return Postprocess(results, ow, oh, ids.Length);
     }
+    #endregion
 
-
-    /* ---------- Detect(path)：支援路徑載入 ---------- */
+    #region Detect(path)：支援圖片路徑輸入
     public IList<Detection> Detect(string imagePath, string prompt)
     {
         using var img = Image.Load<Rgb24>(imagePath);
         return Detect(img, prompt);
     }
+    #endregion
 
-    /* ---------------- 前處理 ---------------- */
+    #region 影像前處理
     private static DenseTensor<float> Preprocess(Image<Rgb24> img, out int oW, out int oH)
     {
         oW = img.Width; oH = img.Height;
@@ -129,8 +112,9 @@ public sealed class GroundingDinoDetector : IDisposable
             }
         return ts;
     }
+    #endregion
 
-    /* ---------------- 文字編碼 ---------------- */
+    #region 文字編碼
     private (long[] ids, long[] mask) Encode(string prompt)
     {
         prompt = prompt.Trim().ToLowerInvariant();
@@ -143,10 +127,10 @@ public sealed class GroundingDinoDetector : IDisposable
         long[] mask = Enumerable.Repeat(1L, ids.Length).ToArray();
         return (ids, mask);
     }
+    #endregion
 
-    /* ---------------- 後處理 ---------------- */
-    private IList<Detection> Postprocess(IDisposableReadOnlyCollection<DisposableNamedOnnxValue> results,
-                                         int oW, int oH, int txtLen)
+    #region 後處理
+    private IList<Detection> Postprocess(IDisposableReadOnlyCollection<DisposableNamedOnnxValue> results,int oW, int oH, int txtLen)
     {
         var boxes = results.First(r => r.Name == "pred_boxes").AsTensor<float>();
         var logits = results.First(r => r.Name == "logits").AsTensor<float>();
@@ -168,8 +152,9 @@ public sealed class GroundingDinoDetector : IDisposable
         }
         return Nms(dets, 0.45f);
     }
+    #endregion
 
-    /* ---------------- NMS & IoU ----------------- */
+    #region NMS 與 IoU
     private static List<Detection> Nms(List<Detection> dets, float iouTh)
     {
         var sorted = dets.OrderByDescending(d => d.Score).ToList();
@@ -194,12 +179,14 @@ public sealed class GroundingDinoDetector : IDisposable
         float areaB = (b.XMax - b.XMin) * (b.YMax - b.YMin);
         return inter / (areaA + areaB - inter + 1e-6f);
     }
+    #endregion
 
-    /* ---------------- NamedOnnxValue 快捷 ---------------- */
+    #region NamedOnnxValue 快捷建立
     private static NamedOnnxValue Nv(string name, DenseTensor<float> t) =>
         NamedOnnxValue.CreateFromTensor(name, t);
     private static NamedOnnxValue Nv(string name, DenseTensor<long> t) =>
         NamedOnnxValue.CreateFromTensor(name, t);
+    #endregion
 
     public void Dispose() => _session.Dispose();
 }
