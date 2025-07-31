@@ -9,10 +9,13 @@
       "HNB/1.0.0": {
         "dependencies": {
           "Microsoft.EntityFrameworkCore.Design": "9.0.6",
-          "Microsoft.ML.OnnxRuntime": "1.22.1",
+          "Microsoft.ML.OnnxRuntime": "1.17.0",
           "Microsoft.VisualStudio.Web.CodeGeneration.Design": "8.0.7",
           "Npgsql.EntityFrameworkCore.PostgreSQL": "9.0.4",
-          "Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite": "9.0.4"
+          "Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite": "9.0.4",
+          "SixLabors.ImageSharp": "3.1.11",
+          "Tokenizers.DotNet": "1.2.1",
+          "Tokenizers.DotNet.runtime.win-x64": "1.2.1"
         },
         "runtime": {
           "HNB.dll": {}
@@ -1221,9 +1224,9 @@
           }
         }
       },
-      "Microsoft.ML.OnnxRuntime/1.22.1": {
+      "Microsoft.ML.OnnxRuntime/1.17.0": {
         "dependencies": {
-          "Microsoft.ML.OnnxRuntime.Managed": "1.22.1"
+          "Microsoft.ML.OnnxRuntime.Managed": "1.17.0"
         },
         "runtimeTargets": {
           "runtimes/android/native/onnxruntime.aar": {
@@ -1231,7 +1234,107 @@
             "assetType": "native",
             "fileVersion": "0.0.0.0"
           },
-          "runtimes/ios/native/onnxruntime.xcframework.zip": {
+          "runtimes/ios/native/onnxruntime.xcframework/Info.plist": {
+            "rid": "ios",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/ios/native/onnxruntime.xcframework/ios-arm64/onnxruntime.framework/Headers/coreml_provider_factory.h": {
+            "rid": "ios",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/ios/native/onnxruntime.xcframework/ios-arm64/onnxruntime.framework/Headers/cpu_provider_factory.h": {
+            "rid": "ios",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/ios/native/onnxruntime.xcframework/ios-arm64/onnxruntime.framework/Headers/onnxruntime_c_api.h": {
+            "rid": "ios",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/ios/native/onnxruntime.xcframework/ios-arm64/onnxruntime.framework/Headers/onnxruntime_cxx_api.h": {
+            "rid": "ios",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/ios/native/onnxruntime.xcframework/ios-arm64/onnxruntime.framework/Headers/onnxruntime_cxx_inline.h": {
+            "rid": "ios",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/ios/native/onnxruntime.xcframework/ios-arm64/onnxruntime.framework/Headers/onnxruntime_float16.h": {
+            "rid": "ios",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/ios/native/onnxruntime.xcframework/ios-arm64/onnxruntime.framework/Headers/onnxruntime_run_options_config_keys.h": {
+            "rid": "ios",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/ios/native/onnxruntime.xcframework/ios-arm64/onnxruntime.framework/Headers/onnxruntime_session_options_config_keys.h": {
+            "rid": "ios",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/ios/native/onnxruntime.xcframework/ios-arm64/onnxruntime.framework/Info.plist": {
+            "rid": "ios",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/ios/native/onnxruntime.xcframework/ios-arm64/onnxruntime.framework/onnxruntime": {
+            "rid": "ios",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/ios/native/onnxruntime.xcframework/ios-arm64_x86_64-simulator/onnxruntime.framework/Headers/coreml_provider_factory.h": {
+            "rid": "ios",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/ios/native/onnxruntime.xcframework/ios-arm64_x86_64-simulator/onnxruntime.framework/Headers/cpu_provider_factory.h": {
+            "rid": "ios",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/ios/native/onnxruntime.xcframework/ios-arm64_x86_64-simulator/onnxruntime.framework/Headers/onnxruntime_c_api.h": {
+            "rid": "ios",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/ios/native/onnxruntime.xcframework/ios-arm64_x86_64-simulator/onnxruntime.framework/Headers/onnxruntime_cxx_api.h": {
+            "rid": "ios",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/ios/native/onnxruntime.xcframework/ios-arm64_x86_64-simulator/onnxruntime.framework/Headers/onnxruntime_cxx_inline.h": {
+            "rid": "ios",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/ios/native/onnxruntime.xcframework/ios-arm64_x86_64-simulator/onnxruntime.framework/Headers/onnxruntime_float16.h": {
+            "rid": "ios",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/ios/native/onnxruntime.xcframework/ios-arm64_x86_64-simulator/onnxruntime.framework/Headers/onnxruntime_run_options_config_keys.h": {
+            "rid": "ios",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/ios/native/onnxruntime.xcframework/ios-arm64_x86_64-simulator/onnxruntime.framework/Headers/onnxruntime_session_options_config_keys.h": {
+            "rid": "ios",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/ios/native/onnxruntime.xcframework/ios-arm64_x86_64-simulator/onnxruntime.framework/Info.plist": {
+            "rid": "ios",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/ios/native/onnxruntime.xcframework/ios-arm64_x86_64-simulator/onnxruntime.framework/onnxruntime": {
             "rid": "ios",
             "assetType": "native",
             "fileVersion": "0.0.0.0"
@@ -1241,17 +1344,7 @@
             "assetType": "native",
             "fileVersion": "0.0.0.0"
           },
-          "runtimes/linux-arm64/native/libonnxruntime_providers_shared.so": {
-            "rid": "linux-arm64",
-            "assetType": "native",
-            "fileVersion": "0.0.0.0"
-          },
           "runtimes/linux-x64/native/libonnxruntime.so": {
-            "rid": "linux-x64",
-            "assetType": "native",
-            "fileVersion": "0.0.0.0"
-          },
-          "runtimes/linux-x64/native/libonnxruntime_providers_shared.so": {
             "rid": "linux-x64",
             "assetType": "native",
             "fileVersion": "0.0.0.0"
@@ -1328,13 +1421,12 @@
           }
         }
       },
-      "Microsoft.ML.OnnxRuntime.Managed/1.22.1": {
+      "Microsoft.ML.OnnxRuntime.Managed/1.17.0": {
         "dependencies": {
-          "System.Memory": "4.5.5",
-          "System.Numerics.Tensors": "9.0.0"
+          "System.Memory": "4.5.5"
         },
         "runtime": {
-          "lib/net8.0/Microsoft.ML.OnnxRuntime.dll": {
+          "lib/net6.0/Microsoft.ML.OnnxRuntime.dll": {
             "assemblyVersion": "0.0.0.0",
             "fileVersion": "0.0.0.0"
           }
@@ -1643,6 +1735,14 @@
           }
         }
       },
+      "SixLabors.ImageSharp/3.1.11": {
+        "runtime": {
+          "lib/net6.0/SixLabors.ImageSharp.dll": {
+            "assemblyVersion": "3.0.0.0",
+            "fileVersion": "3.1.11.0"
+          }
+        }
+      },
       "System.CodeDom/6.0.0": {
         "runtime": {
           "lib/net6.0/System.CodeDom.dll": {
@@ -1764,14 +1864,6 @@
         }
       },
       "System.Memory/4.5.5": {},
-      "System.Numerics.Tensors/9.0.0": {
-        "runtime": {
-          "lib/net8.0/System.Numerics.Tensors.dll": {
-            "assemblyVersion": "9.0.0.0",
-            "fileVersion": "9.0.24.52809"
-          }
-        }
-      },
       "System.Reflection.Metadata/7.0.0": {
         "dependencies": {
           "System.Collections.Immutable": "7.0.0"
@@ -1869,6 +1961,23 @@
             "assetType": "runtime",
             "assemblyVersion": "7.0.0.0",
             "fileVersion": "7.0.22.51805"
+          }
+        }
+      },
+      "Tokenizers.DotNet/1.2.1": {
+        "runtime": {
+          "lib/net8.0/Tokenizers.DotNet.dll": {
+            "assemblyVersion": "1.2.9.0",
+            "fileVersion": "2025.7.21.33626"
+          }
+        }
+      },
+      "Tokenizers.DotNet.runtime.win-x64/1.2.1": {
+        "runtimeTargets": {
+          "runtimes/win-x64/native/hf_tokenizers.dll": {
+            "rid": "win-x64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
           }
         }
       }
@@ -2468,19 +2577,19 @@
       "path": "microsoft.extensions.primitives/9.0.6",
       "hashPath": "microsoft.extensions.primitives.9.0.6.nupkg.sha512"
     },
-    "Microsoft.ML.OnnxRuntime/1.22.1": {
+    "Microsoft.ML.OnnxRuntime/1.17.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-oKRyzajMIB18Z9gmC9CyDPgyo5Yu/ZYZ/w3mF6NwqC0YHOZisGytdAaK3fvUFLZ5XDRZTDzzr+Nqx/clRtdCcA==",
-      "path": "microsoft.ml.onnxruntime/1.22.1",
-      "hashPath": "microsoft.ml.onnxruntime.1.22.1.nupkg.sha512"
+      "sha512": "sha512-voFOYGFWcE1YFHnrBECofPC+uHDelBealnTOE4Kx1byqfOJWsUOI9WGJzu8YkLvOVTRIH39WHtrt22UhHkkWOg==",
+      "path": "microsoft.ml.onnxruntime/1.17.0",
+      "hashPath": "microsoft.ml.onnxruntime.1.17.0.nupkg.sha512"
     },
-    "Microsoft.ML.OnnxRuntime.Managed/1.22.1": {
+    "Microsoft.ML.OnnxRuntime.Managed/1.17.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-hYGYf0BaHiTfb623kD36pYpFN0rh2Znk3QS+ZWWxnTV6iDzl1KUJYaxf7/stz28r1w6HOqUqgWcT1nOYXuf8ew==",
-      "path": "microsoft.ml.onnxruntime.managed/1.22.1",
-      "hashPath": "microsoft.ml.onnxruntime.managed.1.22.1.nupkg.sha512"
+      "sha512": "sha512-scI9s0xhkyANmc8fz8NLkZHJHS7hS+nTEk3X+X9GcLVpsIqxMx0Wg/ib6flDfv3bIjt6rVtJv6OXtRJvwiRBWA==",
+      "path": "microsoft.ml.onnxruntime.managed/1.17.0",
+      "hashPath": "microsoft.ml.onnxruntime.managed.1.17.0.nupkg.sha512"
     },
     "Microsoft.NET.StringTools/17.8.3": {
       "type": "package",
@@ -2664,6 +2773,13 @@
       "path": "nuget.versioning/6.11.0",
       "hashPath": "nuget.versioning.6.11.0.nupkg.sha512"
     },
+    "SixLabors.ImageSharp/3.1.11": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-JfPLyigLthuE50yi6tMt7Amrenr/fA31t2CvJyhy/kQmfulIBAqo5T/YFUSRHtuYPXRSaUHygFeh6Qd933EoSw==",
+      "path": "sixlabors.imagesharp/3.1.11",
+      "hashPath": "sixlabors.imagesharp.3.1.11.nupkg.sha512"
+    },
     "System.CodeDom/6.0.0": {
       "type": "package",
       "serviceable": true,
@@ -2776,13 +2892,6 @@
       "path": "system.memory/4.5.5",
       "hashPath": "system.memory.4.5.5.nupkg.sha512"
     },
-    "System.Numerics.Tensors/9.0.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-hyJB4UlpAi19Xr9AXzu2NuagKC4lPfHObNMEAA0HmqFz2rX7wKgzeYzO/jM/eBHDhnUGFFEjk5cOoJaxqg5J4A==",
-      "path": "system.numerics.tensors/9.0.0",
-      "hashPath": "system.numerics.tensors.9.0.0.nupkg.sha512"
-    },
     "System.Reflection.Metadata/7.0.0": {
       "type": "package",
       "serviceable": true,
@@ -2866,6 +2975,20 @@
       "sha512": "sha512-bR4qdCmssMMbo9Fatci49An5B1UaVJZHKNq70PRgzoLYIlitb8Tj7ns/Xt5Pz1CkERiTjcVBDU2y1AVrPBYkaw==",
       "path": "system.windows.extensions/7.0.0",
       "hashPath": "system.windows.extensions.7.0.0.nupkg.sha512"
+    },
+    "Tokenizers.DotNet/1.2.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-YCBbwdWgehSpcrv1wYyyIlwXwrwslRKOcbGnso4cXaAWkR7kXWz8TKfuyaYj04bSmnesCaGTbAxqdq7wqYPOtA==",
+      "path": "tokenizers.dotnet/1.2.1",
+      "hashPath": "tokenizers.dotnet.1.2.1.nupkg.sha512"
+    },
+    "Tokenizers.DotNet.runtime.win-x64/1.2.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-0LUkX5sx7RTH5H7a/mQTKdrFwiCzGastSpo/5wvma53Hp3RBdrM3wH92BP97xOwONY+O8LYVA9TFKNQE97ja7w==",
+      "path": "tokenizers.dotnet.runtime.win-x64/1.2.1",
+      "hashPath": "tokenizers.dotnet.runtime.win-x64.1.2.1.nupkg.sha512"
     }
   }
 }
