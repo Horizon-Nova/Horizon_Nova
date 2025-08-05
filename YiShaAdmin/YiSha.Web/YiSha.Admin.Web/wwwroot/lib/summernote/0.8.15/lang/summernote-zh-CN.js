@@ -115,79 +115,79 @@ return /******/ (function(modules) { // webpackBootstrap
   $.extend($.summernote.lang, {
     'zh-CN': {
       font: {
-        bold: '粗体',
-        italic: '斜体',
-        underline: '下划线',
+        bold: '粗體',
+        italic: '斜體',
+        underline: '底線',
         clear: '清除格式',
         height: '行高',
-        name: '字体',
-        strikethrough: '删除线',
-        subscript: '下标',
-        superscript: '上标',
-        size: '字号'
+        name: '字體',
+        strikethrough: '删除線',
+        subscript: '下標',
+        superscript: '上標',
+        size: '字號'
       },
       image: {
-        image: '图片',
-        insert: '插入图片',
-        resizeFull: '缩放至 100%',
-        resizeHalf: '缩放至 50%',
-        resizeQuarter: '缩放至 25%',
-        floatLeft: '靠左浮动',
-        floatRight: '靠右浮动',
-        floatNone: '取消浮动',
-        shapeRounded: '形状: 圆角',
-        shapeCircle: '形状: 圆',
-        shapeThumbnail: '形状: 缩略图',
-        shapeNone: '形状: 无',
-        dragImageHere: '将图片拖拽至此处',
-        dropImage: '拖拽图片或文本',
-        selectFromFiles: '从本地上传',
+        image: '圖片',
+        insert: '插入圖片',
+        resizeFull: '縮放至 100%',
+        resizeHalf: '縮放至 50%',
+        resizeQuarter: '縮放至 25%',
+        floatLeft: '靠左浮動',
+        floatRight: '靠右浮動',
+        floatNone: '取消浮動',
+        shapeRounded: '形狀: 圓角',
+        shapeCircle: '形狀: 圓',
+        shapeThumbnail: '形狀: 縮略圖',
+        shapeNone: '形狀: 无',
+        dragImageHere: '將圖片拖拽至此處',
+        dropImage: '拖拽圖片或文本',
+        selectFromFiles: '從本地上傳',
         maximumFileSize: '文件大小最大值',
         maximumFileSizeError: '文件大小超出最大值。',
-        url: '图片地址',
-        remove: '移除图片',
-        original: '原始图片'
+        url: '圖片地址',
+        remove: '移除圖片',
+        original: '原始圖片'
       },
       video: {
-        video: '视频',
-        videoLink: '视频链接',
-        insert: '插入视频',
-        url: '视频地址',
-        providers: '(优酷, 腾讯, Instagram, DailyMotion, Youtube等)'
+        video: '視频',
+        videoLink: '視频連結',
+        insert: '插入視频',
+        url: '視频地址',
+        providers: '(優酷, 腾訊, Instagram, DailyMotion, Youtube等)'
       },
       link: {
-        link: '链接',
-        insert: '插入链接',
-        unlink: '去除链接',
-        edit: '编辑链接',
-        textToDisplay: '显示文本',
-        url: '链接地址',
-        openInNewWindow: '在新窗口打开'
+        link: '連結',
+        insert: '插入連結',
+        unlink: '去除連結',
+        edit: '編輯連結',
+        textToDisplay: '顯示文本',
+        url: '連結地址',
+        openInNewWindow: '在新窗口打開'
       },
       table: {
         table: '表格',
         addRowAbove: '在上方插入行',
         addRowBelow: '在下方插入行',
-        addColLeft: '在左侧插入列',
-        addColRight: '在右侧插入列',
+        addColLeft: '在左側插入列',
+        addColRight: '在右側插入列',
         delRow: '删除行',
         delCol: '删除列',
         delTable: '删除表格'
       },
       hr: {
-        insert: '水平线'
+        insert: '水平線'
       },
       style: {
-        style: '样式',
+        style: '樣式',
         p: '普通',
         blockquote: '引用',
-        pre: '代码',
-        h1: '标题 1',
-        h2: '标题 2',
-        h3: '标题 3',
-        h4: '标题 4',
-        h5: '标题 5',
-        h6: '标题 6'
+        pre: '代碼',
+        h1: '標題 1',
+        h2: '標題 2',
+        h3: '標題 3',
+        h4: '標題 4',
+        h5: '標題 5',
+        h6: '標題 6'
       },
       lists: {
         unordered: '无序列表',
@@ -195,17 +195,17 @@ return /******/ (function(modules) { // webpackBootstrap
       },
       options: {
         help: '帮助',
-        fullscreen: '全屏',
-        codeview: '源代码'
+        fullscreen: '全螢幕',
+        codeview: '源代碼'
       },
       paragraph: {
         paragraph: '段落',
-        outdent: '减少缩进',
-        indent: '增加缩进',
-        left: '左对齐',
-        center: '居中对齐',
-        right: '右对齐',
-        justify: '两端对齐'
+        outdent: '减少縮進',
+        indent: '增加縮進',
+        left: '左對齐',
+        center: '居中對齐',
+        right: '右對齐',
+        justify: '兩端對齐'
       },
       color: {
         recent: '最近使用',
@@ -215,53 +215,53 @@ return /******/ (function(modules) { // webpackBootstrap
         transparent: '透明',
         setTransparent: '透明',
         reset: '重置',
-        resetToDefault: '默认'
+        resetToDefault: '默認'
       },
       shortcut: {
-        shortcuts: '快捷键',
-        close: '关闭',
+        shortcuts: '快捷鍵',
+        close: '關閉',
         textFormatting: '文本格式',
-        action: '动作',
+        action: '動作',
         paragraphFormatting: '段落格式',
-        documentStyle: '文档样式',
-        extraKeys: '额外按键'
+        documentStyle: '檔案樣式',
+        extraKeys: '額外按鍵'
       },
       help: {
         insertParagraph: '插入段落',
-        undo: '撤销',
+        undo: '撤銷',
         redo: '重做',
-        tab: '增加缩进',
-        untab: '减少缩进',
-        bold: '粗体',
-        italic: '斜体',
-        underline: '下划线',
-        strikethrough: '删除线',
+        tab: '增加縮進',
+        untab: '减少縮進',
+        bold: '粗體',
+        italic: '斜體',
+        underline: '底線',
+        strikethrough: '删除線',
         removeFormat: '清除格式',
-        justifyLeft: '左对齐',
-        justifyCenter: '居中对齐',
-        justifyRight: '右对齐',
-        justifyFull: '两端对齐',
+        justifyLeft: '左對齐',
+        justifyCenter: '居中對齐',
+        justifyRight: '右對齐',
+        justifyFull: '兩端對齐',
         insertUnorderedList: '无序列表',
         insertOrderedList: '有序列表',
-        outdent: '减少缩进',
-        indent: '增加缩进',
-        formatPara: '设置选中内容样式为 普通',
-        formatH1: '设置选中内容样式为 标题1',
-        formatH2: '设置选中内容样式为 标题2',
-        formatH3: '设置选中内容样式为 标题3',
-        formatH4: '设置选中内容样式为 标题4',
-        formatH5: '设置选中内容样式为 标题5',
-        formatH6: '设置选中内容样式为 标题6',
-        insertHorizontalRule: '插入水平线',
-        'linkDialog.show': '显示链接对话框'
+        outdent: '减少縮進',
+        indent: '增加縮進',
+        formatPara: '設置選中內容樣式為 普通',
+        formatH1: '設置選中內容樣式為 標題1',
+        formatH2: '設置選中內容樣式為 標題2',
+        formatH3: '設置選中內容樣式為 標題3',
+        formatH4: '設置選中內容樣式為 標題4',
+        formatH5: '設置選中內容樣式為 標題5',
+        formatH6: '設置選中內容樣式為 標題6',
+        insertHorizontalRule: '插入水平線',
+        'linkDialog.show': '顯示連結對話框'
       },
       history: {
-        undo: '撤销',
+        undo: '撤銷',
         redo: '重做'
       },
       specialChar: {
         specialChar: '特殊字符',
-        select: '选取特殊字符'
+        select: '選取特殊字符'
       }
     }
   });

@@ -1,10 +1,10 @@
 ﻿/* =======================================================================
- * jQuery.Huipreview.js v3.0.1 图片视频预览
+ * jQuery.Huipreview.js v3.0.1 圖片視频預覽
  * http://www.h-ui.net/
  * Created & Modified by guojunhui
  * Date modified 2017.07.26
  *
- * Copyright 2017 北京颖杰联创科技有限公司 All rights reserved.
+ * Copyright 2017 北京颖杰联創科技有限公司 All rights reserved.
  * Licensed under MIT license.
  * http://opensource.org/licenses/MIT
  * ========================================================================*/
@@ -70,10 +70,10 @@
 
                             $("body").append(tooltip_keleyi_com);
                             if (options.type == "image") {
-                                /*图片预加载*/
+                                /*圖片預加載*/
                                 var image = new Image();
                                 image.src = bigImg;
-                                /*创建一个Image对象*/
+                                /*創建一個Image對象*/
                                 image.onload = function () {
                                     $('#preview-wraper').find("img").attr("src", bigImg).css("width", options.bigImgWidth);
                                 };

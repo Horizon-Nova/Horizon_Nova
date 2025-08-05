@@ -30,7 +30,7 @@ namespace YiSha.Business.AutoJob
                 {
                     jobData = context.JobDetail.JobDataMap;
                     jobId = jobData["Id"].ParseToLong();
-                    // 获取数据库中的任务
+                    // 獲取資料庫中的任務
                     dbJobEntity = await autoJobService.GetEntity(jobId);
                     if (dbJobEntity != null)
                     {
@@ -41,15 +41,15 @@ namespace YiSha.Business.AutoJob
                             {
                                 if (trigger.CronExpressionString != dbJobEntity.CronExpression)
                                 {
-                                    // 更新任务周期
+                                    // 更新任務周期
                                     trigger.CronExpressionString = dbJobEntity.CronExpression;
                                     await JobScheduler.GetScheduler().RescheduleJob(trigger.Key, trigger);
                                 }
 
-                                #region 执行任务
+                                #region 執行任務
                                 switch (context.JobDetail.Key.Name)
                                 {
-                                    case "数据库备份":
+                                    case "資料庫備份":
                                         obj = await new DatabasesBackupJob().Start();
                                         break;
                                 }
@@ -70,7 +70,7 @@ namespace YiSha.Business.AutoJob
                     {
                         if (dbJobEntity.JobStatus == StatusEnum.Yes.ParseToInt())
                         {
-                            #region 更新下次运行时间
+                            #region 更新下次運行時間
                             await autoJobService.SaveForm(new AutoJobEntity
                             {
                                 Id = dbJobEntity.Id,
@@ -78,7 +78,7 @@ namespace YiSha.Business.AutoJob
                             });
                             #endregion
 
-                            #region 记录执行状态
+                            #region 記錄執行狀態
                             await autoJobLogService.SaveForm(new AutoJobLogEntity
                             {
                                 JobGroupName = context.JobDetail.Key.Group,

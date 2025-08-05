@@ -7,19 +7,19 @@
             <div class="select-list">
                 <ul>
                     <li>
-                        角色名称：<input id="roleName" col="RoleName" type="text" />
+                        角色名稱：<input id="roleName" col="RoleName" type="text" />
                     </li>
                     <li>
-                        角色状态：<span id="roleStatus" col="RoleStatus"></span>
+                        角色狀態：<span id="roleStatus" col="RoleStatus"></span>
                     </li>
                     <li class="select-time">
-                        <label>创建时间： </label>
-                        <input id="startTime" col="StartTime" type="text" class="time-input" placeholder="开始时间" />
+                        <label>創建時間： </label>
+                        <input id="startTime" col="StartTime" type="text" class="time-input" placeholder="開始時間" />
                         <span>-</span>
-                        <input id="endTime" col="EndTime" type="text" class="time-input" placeholder="结束时间" />
+                        <input id="endTime" col="EndTime" type="text" class="time-input" placeholder="結束時間" />
                     </li>
                     <li>
-                        <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                        <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class="fa fa-search"></i>&nbsp;查詢</a>
                     </li>
                 </ul>
             </div>
@@ -55,10 +55,10 @@
             columns: [
                 { checkbox: true, visible: true },
                 { field: 'Id', title: 'Id', visible: false },
-                { field: 'RoleName', title: '角色名称', width: "15%",sortable: true },
-                { field: 'RoleSort', title: '显示顺序', width: "15%",sortable: true },
+                { field: 'RoleName', title: '角色名稱', width: "15%",sortable: true },
+                { field: 'RoleSort', title: '顯示順序', width: "15%",sortable: true },
                 {
-                    field: 'RoleStatus', title: '状态', width: "15%",
+                    field: 'RoleStatus', title: '狀態', width: "15%",
                     formatter: function (value, row, index) {
                         if (value == "@StatusEnum.Yes.ParseToInt()") {
                             return '<span class="badge badge-primary">' + "@StatusEnum.Yes.GetDescription()" + '</span>';
@@ -68,7 +68,7 @@
                     }
                 },
                 {
-                    field: 'BaseModifyTime', title: '创建时间', formatter: function (value, row, index) {
+                    field: 'BaseModifyTime', title: '創建時間', formatter: function (value, row, index) {
                         return ys.formatDate(value, "yyyy-MM-dd HH:mm:ss");
                     }
                 }
@@ -98,7 +98,7 @@
             }
         }
         ys.openDialog({
-            title: id > 0 ? "编辑角色" : "添加角色",
+            title: id > 0 ? "編輯角色" : "添加角色",
             content: '@Url.Content("~/SystemManage/Role/RoleForm")' + '?id=' + id,
             width: "780px",
             callback: function (index, layero) {
@@ -111,7 +111,7 @@
     function deleteForm() {
         var selectedRow = $("#gridTable").bootstrapTable("getSelections");
         if (ys.checkRowDelete(selectedRow)) {
-            ys.confirm("确认要删除选中的" + selectedRow.length + "条数据吗？", function () {
+            ys.confirm("確認要删除選中的" + selectedRow.length + "條資料嗎？", function () {
                 var ids = ys.getIds(selectedRow);
                 ys.ajax({
                     url: '@Url.Content("~/SystemManage/Role/DeleteFormJson")' + '?ids=' + ids,

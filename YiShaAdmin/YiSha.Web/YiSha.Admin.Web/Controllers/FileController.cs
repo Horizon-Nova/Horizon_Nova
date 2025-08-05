@@ -13,7 +13,7 @@ namespace YiSha.Admin.Web.Controllers
 {
     public class FileController : BaseController
     {
-        #region 上传单个文件
+        #region 上傳單個文件
         [HttpPost]
         [AuthorizeFilter]
         public async Task<TData<string>> UploadFile(int fileModule, IFormCollection fileList)
@@ -23,7 +23,7 @@ namespace YiSha.Admin.Web.Controllers
         }
         #endregion
 
-        #region 删除单个文件
+        #region 删除單個文件
         [HttpPost]
         [AuthorizeFilter]
         public TData<string> DeleteFile(int fileModule, string filePath)
@@ -33,7 +33,7 @@ namespace YiSha.Admin.Web.Controllers
         }
         #endregion
 
-        #region 下载文件
+        #region 下載文件
         [HttpGet]
         public FileContentResult DownloadFile(string filePath, int delete = 1)
         {
@@ -44,7 +44,7 @@ namespace YiSha.Admin.Web.Controllers
             }
             else
             {
-                throw new Exception("下载失败：" + obj.Message);
+                throw new Exception("下載失敗：" + obj.Message);
             }
         }
         #endregion

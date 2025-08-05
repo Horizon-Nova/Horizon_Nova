@@ -12,7 +12,7 @@ namespace YiSha.Service.OrganizationManage
 {
     public class UserBelongService : RepositoryFactory
     {
-        #region 获取数据
+        #region 獲得資料
         public async Task<List<UserBelongEntity>> GetList(UserBelongEntity entity)
         {
             var expression = LinqExtensions.True<UserBelongEntity>();
@@ -37,7 +37,7 @@ namespace YiSha.Service.OrganizationManage
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         public async Task SaveForm(UserBelongEntity entity)
         {
             if (entity.Id.IsNullOrZero())

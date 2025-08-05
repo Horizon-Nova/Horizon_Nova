@@ -93,7 +93,7 @@
         margin: 5px 0 5px -25px
     }
 
-/** select2 样式修改 */
+/** select2 樣式修改 */
 .select2-container--default .select2-selection--multiple .select2-selection__choice {
     background-color: #1AB394;
     border-color: #1AB394;
@@ -114,7 +114,7 @@
     padding-right: 10px
 }
 
-/** 表单验证 样式布局 */
+/** 表單驗證 樣式布局 */
 label.error {
     position: absolute;
     right: 18px;
@@ -146,7 +146,7 @@ label.error {
     max-width: none;
 }
 
-/** 遮罩层 */
+/** 遮罩層 */
 .loaderbox {
     display: inline-block;
     min-width: 125px;
@@ -213,7 +213,7 @@ label.error {
     }
 }
 
-/** 表单查询条件 */
+/** 表單查询條件 */
 ul {
     margin: 0;
     padding: 0;
@@ -342,7 +342,7 @@ label {
     cursor: pointer;
 }
 
-/** 表格查询数据 */
+/** 表格查询資料 */
 .table-striped {
     min-height: 75%;
 }
@@ -415,7 +415,7 @@ a.ui-button:active,
     color: #676a6c;
 }
 
-/** 首页样式 **/
+/** 首頁樣式 **/
 .ax_close_max {
     position: fixed;
     top: 5px;

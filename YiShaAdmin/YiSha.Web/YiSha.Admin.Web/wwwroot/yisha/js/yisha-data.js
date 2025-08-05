@@ -1,9 +1,9 @@
 ﻿; (function (window) {
     "use strict";
 
-    // 存放数据库里面所有的数据字典，获取字典类型列表或是字典值 例如top.getDataDict('NewsType')或top.getDataDictValue('NewsType' , 1)
+    // 存放資料庫里面所有的資料字典，獲取字典類型列表或是字典值 例如top.getDataDict('NewsType')或top.getDataDictValue('NewsType' , 1)
     var dataDict = {};
-    // 存放当前用户所拥有的权限
+    // 存放當前使用者所拥有的權限
     var dataAuthority = {};
 
     function initDataDict() {
@@ -58,7 +58,7 @@
     function getButtonAuthority(url, buttonList) {
         var noAuthorize = [];
         if (dataAuthority) {
-            // 超级用户不验证
+            // 超級使用者不驗證
             if (dataAuthority.IsSystem != 1) {
                 var regex = /([a-zA-Z]+)Manage\/(.*)\//;  //match url like http://localhost:5000/OrganizationManage/User/UserIndex
                 var matches = regex.exec(url);
@@ -89,7 +89,7 @@
     initDataDict();
     initDataAuthority();
 
-    // 公开方法
+    // 公開方法
     window.initDataDict = initDataDict;
     window.getDataDict = getDataDict;
     window.getDataDictValue = getDataDictValue;

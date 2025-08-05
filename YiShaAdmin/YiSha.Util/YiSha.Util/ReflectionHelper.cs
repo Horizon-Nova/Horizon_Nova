@@ -10,9 +10,9 @@ namespace YiSha.Util
     {
         private static ConcurrentDictionary<string, object> dictCache = new ConcurrentDictionary<string, object>();
 
-        #region 得到类里面的属性集合
+        #region 得到類里面的属性集合
         /// <summary>
-        /// 得到类里面的属性集合
+        /// 得到類里面的属性集合
         /// </summary>
         /// <param name="type"></param>
         /// <param name="columns"></param>
@@ -32,7 +32,7 @@ namespace YiSha.Util
 
             if (columns != null && columns.Length > 0)
             {
-                //  按columns顺序返回属性
+                //  按columns順序返回属性
                 var columnPropertyList = new List<PropertyInfo>();
                 foreach (var column in columns)
                 {

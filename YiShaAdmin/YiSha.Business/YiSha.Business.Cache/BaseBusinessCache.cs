@@ -18,7 +18,7 @@ namespace YiSha.Business.Cache
 
         public virtual Task<List<T>> GetList()
         {
-            throw new Exception("请在子类实现");
+            throw new Exception("請在子類實現");
         }
     }
 }

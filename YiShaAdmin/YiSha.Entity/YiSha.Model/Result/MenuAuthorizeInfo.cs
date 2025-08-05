@@ -13,16 +13,16 @@ namespace YiSha.Model.Result
         [JsonConverter(typeof(StringJsonConverter))]
         public long? MenuId { get; set; }
         /// <summary>
-        /// 用户Id或者角色Id
+        /// 使用者Id或者角色Id
         /// </summary>
         [JsonConverter(typeof(StringJsonConverter))]
         public long? AuthorizeId { get; set; }
         /// <summary>
-        ///  用户或者角色
+        ///  使用者或者角色
         /// </summary>
         public int? AuthorizeType { get; set; }
         /// <summary>
-        /// 权限标识
+        /// 權限標識
         /// </summary>
         public string Authorize { get; set; }
 

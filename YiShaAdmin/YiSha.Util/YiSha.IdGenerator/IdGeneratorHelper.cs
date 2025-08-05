@@ -9,7 +9,7 @@ using YiSha.Util.Extension;
 namespace YiSha.IdGenerator
 {
     /// <summary>
-    /// 生成数据库主键Id
+    /// 生成資料庫主鍵Id
     /// </summary>
     public class IdGeneratorHelper
     {

@@ -22,7 +22,7 @@ namespace YiSha.Business.OrganizationManage
         private DepartmentService departmentService = new DepartmentService();
         private UserService userService = new UserService();
 
-        #region 获取数据
+        #region 獲得資料
         public async Task<TData<List<DepartmentEntity>>> GetList(DepartmentListParam param)
         {
             TData<List<DepartmentEntity>> obj = new TData<List<DepartmentEntity>>();
@@ -133,18 +133,18 @@ namespace YiSha.Business.OrganizationManage
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         public async Task<TData<string>> SaveForm(DepartmentEntity entity)
         {
             TData<string> obj = new TData<string>();
             if (!entity.Id.IsNullOrZero() && entity.Id == entity.ParentId)
             {
-                obj.Message = "不能选择自己作为上级部门！";
+                obj.Message = "不能選擇自己作為上級部門！";
                 return obj;
             }
             if (departmentService.ExistDepartmentName(entity))
             {
-                obj.Message = "部门名称已经存在！";
+                obj.Message = "部門名稱已经存在！";
                 return obj;
             }
             await departmentService.SaveForm(entity);
@@ -160,7 +160,7 @@ namespace YiSha.Business.OrganizationManage
             {
                 if (departmentService.ExistChildrenDepartment(id))
                 {
-                    obj.Message = "该部门下面有子部门！";
+                    obj.Message = "該部門下面有子部門！";
                     return obj;
                 }
             }
@@ -172,7 +172,7 @@ namespace YiSha.Business.OrganizationManage
 
         #region 公共方法
         /// <summary>
-        /// 获取当前部门及下面所有的部门
+        /// 獲取當前部門及下面所有的部門
         /// </summary>
         /// <param name="departmentList"></param>
         /// <param name="departmentId"></param>
@@ -192,7 +192,7 @@ namespace YiSha.Business.OrganizationManage
 
         #region 私有方法
         /// <summary>
-        /// 获取该部门下面所有的子部门
+        /// 獲取該部門下面所有的子部門
         /// </summary>
         /// <param name="departmentList"></param>
         /// <param name="departmentId"></param>

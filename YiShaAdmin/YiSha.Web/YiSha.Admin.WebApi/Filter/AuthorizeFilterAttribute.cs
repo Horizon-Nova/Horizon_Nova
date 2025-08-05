@@ -20,7 +20,7 @@ using YiSha.Web.Code;
 namespace YiSha.Admin.WebApi.Controllers
 {
     /// <summary>
-    /// 验证token和记录日志
+    /// 驗證token和記錄日誌
     /// </summary>
     public class AuthorizeFilterAttribute : ActionFilterAttribute
     {
@@ -30,7 +30,7 @@ namespace YiSha.Admin.WebApi.Controllers
         public static readonly string[] IgnoreToken = { "GetWxOpenId", "Login", "LoginOff" };
 
         /// <summary>
-        /// 异步接口日志
+        /// 異步接口日誌
         /// </summary>
         /// <param name="context"></param>
         /// <param name="next"></param>
@@ -44,7 +44,7 @@ namespace YiSha.Admin.WebApi.Controllers
             OperatorInfo user = await Operator.Instance.Current(token);
             if (user != null)
             {
-                // 根据传入的Token，设置CustomerId
+                // 根据傳入的Token，設置CustomerId
                 if (context.ActionArguments != null && context.ActionArguments.Count > 0)
                 {
                     PropertyInfo property = context.ActionArguments.FirstOrDefault().Value.GetType().GetProperty("Token");
@@ -71,12 +71,12 @@ namespace YiSha.Admin.WebApi.Controllers
 
             sw.Stop();
 
-            #region 保存日志
+            #region 保存日誌
             LogApiEntity logApiEntity = new LogApiEntity();
             logApiEntity.ExecuteUrl = context.HttpContext.Request.Path;
             logApiEntity.LogStatus = OperateStatusEnum.Success.ParseToInt();
 
-            #region 获取Post参数
+            #region 獲取Post參數
             switch (context.HttpContext.Request.Method.ToUpper())
             {
                 case "GET":
@@ -99,7 +99,7 @@ namespace YiSha.Admin.WebApi.Controllers
 
             if (resultContext.Exception != null)
             {
-                #region 异常获取
+                #region 異常獲取
                 StringBuilder sbException = new StringBuilder();
                 Exception exception = resultContext.Exception;
                 sbException.AppendLine(exception.Message);
@@ -133,7 +133,7 @@ namespace YiSha.Admin.WebApi.Controllers
 
             Action taskAction = async () =>
              {
-                 // 让底层不用获取HttpContext
+                 // 讓底層不用獲取HttpContext
                  logApiEntity.BaseCreatorId = logApiEntity.BaseCreatorId ?? 0;
 
                  await new LogApiBLL().SaveForm(logApiEntity);

@@ -6,14 +6,14 @@
     <members>
         <member name="M:YiSha.Admin.WebApi.Controllers.DataDictController.GetList(YiSha.Model.Param.SystemManage.DataDictListParam)">
             <summary>
-            获取数据字典列表
+            獲得資料字典列表
             </summary>
             <param name="param"></param>
             <returns></returns>
         </member>
         <member name="M:YiSha.Admin.WebApi.Controllers.NewsController.GetPageList(YiSha.Model.Param.OrganizationManage.NewsListParam,YiSha.Util.Model.Pagination)">
             <summary>
-            获取文章列表
+            獲取文章列表
             </summary>
             <param name="param"></param>
             <param name="pagination"></param>
@@ -21,7 +21,7 @@
         </member>
         <member name="M:YiSha.Admin.WebApi.Controllers.NewsController.GetPageContentList(YiSha.Model.Param.OrganizationManage.NewsListParam,YiSha.Util.Model.Pagination)">
             <summary>
-            获取文章列表
+            獲取文章列表
             </summary>
             <param name="param"></param>
             <param name="pagination"></param>
@@ -29,7 +29,7 @@
         </member>
         <member name="M:YiSha.Admin.WebApi.Controllers.NewsController.GetForm(System.Int64)">
             <summary>
-            获取文章内容
+            獲取文章內容
             </summary>
             <param name="id"></param>
             <returns></returns>
@@ -43,7 +43,7 @@
         </member>
         <member name="M:YiSha.Admin.WebApi.Controllers.UserController.Login(System.String,System.String)">
             <summary>
-            用户登录
+            使用者登錄
             </summary>
             <param name="userName"></param>
             <param name="password"></param>
@@ -51,14 +51,14 @@
         </member>
         <member name="M:YiSha.Admin.WebApi.Controllers.UserController.LoginOff(System.String)">
             <summary>
-            用户退出登录
+            使用者退出登錄
             </summary>
             <param name="token"></param>
             <returns></returns>
         </member>
         <member name="T:YiSha.Admin.WebApi.Controllers.AuthorizeFilterAttribute">
             <summary>
-            验证token和记录日志
+            驗證token和記錄日誌
             </summary>
         </member>
         <member name="F:YiSha.Admin.WebApi.Controllers.AuthorizeFilterAttribute.IgnoreToken">
@@ -68,7 +68,7 @@
         </member>
         <member name="M:YiSha.Admin.WebApi.Controllers.AuthorizeFilterAttribute.OnActionExecutionAsync(Microsoft.AspNetCore.Mvc.Filters.ActionExecutingContext,Microsoft.AspNetCore.Mvc.Filters.ActionExecutionDelegate)">
             <summary>
-            异步接口日志
+            異步接口日誌
             </summary>
             <param name="context"></param>
             <param name="next"></param>

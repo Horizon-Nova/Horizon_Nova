@@ -16,7 +16,7 @@ namespace YiSha.Business.SystemManage
     {
         private LogLoginService logLoginService = new LogLoginService();
 
-        #region 获取数据
+        #region 獲得資料
         public async Task<TData<List<LogLoginEntity>>> GetList(LogLoginListParam param)
         {
             TData<List<LogLoginEntity>> obj = new TData<List<LogLoginEntity>>();
@@ -44,7 +44,7 @@ namespace YiSha.Business.SystemManage
 
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         public async Task<TData<string>> SaveForm(LogLoginEntity entity)
         {
             TData<string> obj = new TData<string>();

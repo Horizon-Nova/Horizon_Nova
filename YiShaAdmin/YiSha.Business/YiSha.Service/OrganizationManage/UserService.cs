@@ -23,7 +23,7 @@ namespace YiSha.Service.OrganizationManage
 {
     public class UserService : RepositoryFactory
     {
-        #region 获取数据
+        #region 獲得資料
         public async Task<List<UserEntity>> GetList(UserListParam param)
         {
             var expression = ListFilter(param);
@@ -73,7 +73,7 @@ namespace YiSha.Service.OrganizationManage
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         public async Task UpdateUser(UserEntity entity)
         {
             await this.BaseRepository().Update(entity);
@@ -93,12 +93,12 @@ namespace YiSha.Service.OrganizationManage
                 {
                     await db.Delete<UserBelongEntity>(t => t.UserId == entity.Id);
 
-                    // 密码不进行更新，有单独的方法更新密码
+                    // 密碼不進行更新，有單独的方法更新密碼
                     entity.Password = null;
                     await entity.Modify();
                     await db.Update(entity);
                 }
-                // 职位
+                // 職位
                 if (!string.IsNullOrEmpty(entity.PositionIds))
                 {
                     foreach (long positionId in TextHelper.SplitToArray<long>(entity.PositionIds, ','))
@@ -177,7 +177,7 @@ namespace YiSha.Service.OrganizationManage
                     param.EndTime = param.EndTime.Value.Date.Add(new TimeSpan(23, 59, 59));
                 }
             }
-            //****根据查询字段自动过滤条件****
+            //****根据查询字段自動過滤條件****
             var expression = LinqExtensions.GetExpressionItems<UserEntity,UserListParam>(param);
 
             //if (param != null)

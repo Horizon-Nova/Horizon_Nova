@@ -20,15 +20,15 @@ namespace YiSha.Data.EF
             ConnectionString = connectionString;
         }
 
-        #region 重载
+        #region 重載
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseMySql(ConnectionString, ServerVersion.AutoDetect(ConnectionString), p => p.CommandTimeout(GlobalContext.SystemConfig.DBCommandTimeout));
             optionsBuilder.AddInterceptors(new DbCommandCustomInterceptor());
             optionsBuilder.UseLoggerFactory(_loggerFactory);
-            // 这里需要注意，不能采用这种写法：optionsBuilder.UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()));
-            // 会导致内存泄露的问题
+            // 這里需要注意，不能采用這種寫法：optionsBuilder.UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()));
+            // 会導致內存泄露的問題
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

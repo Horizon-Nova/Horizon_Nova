@@ -10,21 +10,21 @@ namespace YiSha.Entity.OrganizationManage
     public class NewsEntity : BaseAreaEntity
     {
         /// <summary>
-        /// 文章标题
+        /// 文章標題
         /// </summary>
         /// <returns></returns>
         public string NewsTitle { get; set; }
         /// <summary>
-        /// 文章内容
+        /// 文章內容
         /// </summary>
         /// <returns></returns>
         public string NewsContent { get; set; }
         /// <summary>
-        /// 文章标签
+        /// 文章標籤
         /// </summary>
         public string NewsTag { get; set; }
         /// <summary>
-        /// 缩略图
+        /// 縮略圖
         /// </summary>
         /// <returns></returns>
         public string ThumbImage { get; set; }
@@ -39,18 +39,18 @@ namespace YiSha.Entity.OrganizationManage
         /// <returns></returns>
         public int? NewsSort { get; set; }
         /// <summary>
-        /// 发布时间
+        /// 發布時間
         /// </summary>
         /// <returns></returns>
         [JsonConverter(typeof(DateTimeJsonConverter))]
         public DateTime? NewsDate { get; set; }
         /// <summary>
-        /// 文章类别
+        /// 文章類別
         /// </summary>
         /// <returns></returns>
         public int? NewsType { get; set; }
         /// <summary>
-        /// 阅读量
+        /// 閱讀量
         /// </summary>
         /// <returns></returns>
         public int? ViewTimes { get; set; }

@@ -15,7 +15,7 @@ namespace YiSha.Business.OrganizationManage
     {
         private PositionService positionService = new PositionService();
 
-        #region 获取数据
+        #region 獲得資料
         public async Task<TData<List<PositionEntity>>> GetList(PositionListParam param)
         {
             TData<List<PositionEntity>> obj = new TData<List<PositionEntity>>();
@@ -50,13 +50,13 @@ namespace YiSha.Business.OrganizationManage
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         public async Task<TData<string>> SaveForm(PositionEntity entity)
         {
             TData<string> obj = new TData<string>();
             if (positionService.ExistPositionName(entity))
             {
-                obj.Message = "职位名称已经存在！";
+                obj.Message = "職位名稱已经存在！";
                 return obj;
             }
             await positionService.SaveForm(entity);

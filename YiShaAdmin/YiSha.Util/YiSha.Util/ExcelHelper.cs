@@ -15,14 +15,14 @@ using YiSha.Util.Extension;
 namespace YiSha.Util
 {
     /// <summary>
-    /// List导出到Excel文件
+    /// List導出到Excel文件
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class ExcelHelper<T> where T : new()
     {
-        #region List导出到Excel文件
+        #region List導出到Excel文件
         /// <summary>
-        /// List导出到Excel文件
+        /// List導出到Excel文件
         /// </summary>
         /// <param name="sFileName"></param>
         /// <param name="sHeaderText"></param>
@@ -51,11 +51,11 @@ namespace YiSha.Util
         }
 
         /// <summary>  
-        /// List导出到Excel的MemoryStream  
+        /// List導出到Excel的MemoryStream  
         /// </summary>  
-        /// <param name="list">数据源</param>  
-        /// <param name="sHeaderText">表头文本</param>  
-        /// <param name="columns">需要导出的属性</param>  
+        /// <param name="list">資料源</param>  
+        /// <param name="sHeaderText">表頭文本</param>  
+        /// <param name="columns">需要導出的属性</param>  
         private MemoryStream CreateExportMemoryStream(List<T> list, string sHeaderText, string[] columns)
         {
             HSSFWorkbook workbook = new HSSFWorkbook();
@@ -67,20 +67,20 @@ namespace YiSha.Util
             ICellStyle dateStyle = workbook.CreateCellStyle();
             IDataFormat format = workbook.CreateDataFormat();
             dateStyle.DataFormat = format.GetFormat("yyyy-MM-dd");
-            //单元格填充循环外设定单元格格式，避免4000行异常
+            //單元格填充循环外設定單元格格式，避免4000行異常
             ICellStyle contentStyle = workbook.CreateCellStyle();
             contentStyle.Alignment = HorizontalAlignment.Left;
-            #region 取得每列的列宽（最大宽度）
+            #region 取得每列的列寬（最大寬度）
             int[] arrColWidth = new int[properties.Length];
             for (int columnIndex = 0; columnIndex < properties.Length; columnIndex++)
             {
-                //GBK对应的code page是CP936
+                //GBK對應的code page是CP936
                 arrColWidth[columnIndex] = properties[columnIndex].Name.Length;
             }
             #endregion
             for (int rowIndex = 0; rowIndex < list.Count; rowIndex++)
             {
-                #region 新建表，填充表头，填充列头，样式
+                #region 新建表，填充表頭，填充列頭，樣式
                 if (rowIndex == 65535 || rowIndex == 0)
                 {
                     if (rowIndex != 0)
@@ -88,7 +88,7 @@ namespace YiSha.Util
                         sheet = workbook.CreateSheet();
                     }
 
-                    #region 表头及样式
+                    #region 表頭及樣式
                     {
                         IRow headerRow = sheet.CreateRow(0);
                         headerRow.HeightInPoints = 25;
@@ -107,7 +107,7 @@ namespace YiSha.Util
                     }
                     #endregion
 
-                    #region 列头及样式
+                    #region 列頭及樣式
                     {
                         IRow headerRow = sheet.CreateRow(1);
                         ICellStyle headStyle = workbook.CreateCellStyle();
@@ -119,7 +119,7 @@ namespace YiSha.Util
 
                         for (int columnIndex = 0; columnIndex < properties.Length; columnIndex++)
                         {
-                            // 类属性如果有Description就用Description当做列名
+                            // 類属性如果有Description就用Description當做列名
                             DescriptionAttribute customAttribute = (DescriptionAttribute)Attribute.GetCustomAttribute(properties[columnIndex], typeof(DescriptionAttribute));
                             string description = properties[columnIndex].Name;
                             if (customAttribute != null)
@@ -128,7 +128,7 @@ namespace YiSha.Util
                             }
                             headerRow.CreateCell(columnIndex).SetCellValue(description);
                             headerRow.GetCell(columnIndex).CellStyle = headStyle;
-                            //根据表头设置列宽  
+                            //根据表頭設置列寬  
                             sheet.SetColumnWidth(columnIndex, (arrColWidth[columnIndex] + 1) * 256);
                         }
                     }
@@ -136,14 +136,14 @@ namespace YiSha.Util
                 }
                 #endregion
 
-                #region 填充内容
+                #region 填充內容
                 IRow dataRow = sheet.CreateRow(rowIndex + 2); // 前面2行已被占用
                 for (int columnIndex = 0; columnIndex < properties.Length; columnIndex++)
                 {
                     ICell newCell = dataRow.CreateCell(columnIndex);
                     newCell.CellStyle = contentStyle;
                     string drValue = properties[columnIndex].GetValue(list[rowIndex], null).ParseToString();
-                    //根据单元格内容设定列宽
+                    //根据單元格內容設定列寬
                     int length = Math.Min(253, Encoding.UTF8.GetBytes(drValue).Length + 1) * 256;
                     if (sheet.GetColumnWidth(columnIndex) < length && !drValue.IsEmpty())
                     {
@@ -159,7 +159,7 @@ namespace YiSha.Util
                         case "System.DateTime":
                         case "System.Nullable`1[System.DateTime]":
                             newCell.SetCellValue(drValue.ParseToDateTime());
-                            newCell.CellStyle = dateStyle; //格式化显示  
+                            newCell.CellStyle = dateStyle; //格式化顯示  
                             break;
 
                         case "System.Boolean":
@@ -219,9 +219,9 @@ namespace YiSha.Util
         }
         #endregion
 
-        #region Excel导入
+        #region Excel導入
         /// <summary>
-        /// Excel导入
+        /// Excel導入
         /// </summary>
         /// <param name="filePath"></param>
         /// <returns></returns>
@@ -250,7 +250,7 @@ namespace YiSha.Util
                         throw new Exception("不支持的文件格式");
                 }
             }
-            IRow columnRow = sheet.GetRow(1); // 第二行为字段名
+            IRow columnRow = sheet.GetRow(1); // 第二行為字段名
             Dictionary<int, PropertyInfo> mapPropertyInfoDict = new Dictionary<int, PropertyInfo>();
             for (int j = 0; j < columnRow.LastCellNum; j++)
             {
@@ -334,7 +334,7 @@ namespace YiSha.Util
         }
 
         /// <summary>
-        /// 查找Excel列名对应的实体属性
+        /// 查找Excel列名對應的實體属性
         /// </summary>
         /// <param name="columnName"></param>
         /// <returns></returns>

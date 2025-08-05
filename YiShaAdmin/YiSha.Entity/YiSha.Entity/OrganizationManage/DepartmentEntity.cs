@@ -24,12 +24,12 @@ namespace YiSha.Entity.OrganizationManage
         public string Remark { get; set; }
 
         /// <summary>
-        /// 多个部门Id
+        /// 多個部門Id
         /// </summary>
         [NotMapped]
         public string Ids { get; set; }
         /// <summary>
-        /// 负责人名称
+        /// 負責人名稱
         /// </summary>
         [NotMapped]
         public string PrincipalName { get; set; }

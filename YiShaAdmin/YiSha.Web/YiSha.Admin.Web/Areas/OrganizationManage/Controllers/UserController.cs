@@ -22,7 +22,7 @@ namespace YiSha.Admin.Web.Areas.OrganizationManage.Controllers
         private UserBLL userBLL = new UserBLL();
         private DepartmentBLL departmentBLL = new DepartmentBLL();
 
-        #region 视图功能
+        #region 視圖功能
         [AuthorizeFilter("organization:user:view")]
         public IActionResult UserIndex()
         {
@@ -68,7 +68,7 @@ namespace YiSha.Admin.Web.Areas.OrganizationManage.Controllers
         }
         #endregion
 
-        #region 获取数据
+        #region 獲得資料
         [HttpGet]
         [AuthorizeFilter("organization:user:search")]
         public async Task<IActionResult> GetListJson(UserListParam param)
@@ -111,7 +111,7 @@ namespace YiSha.Admin.Web.Areas.OrganizationManage.Controllers
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         [HttpPost]
         [AuthorizeFilter("organization:user:add,organization:user:edit")]
         public async Task<IActionResult> SaveFormJson(UserEntity entity)
@@ -169,8 +169,8 @@ namespace YiSha.Admin.Web.Areas.OrganizationManage.Controllers
             TData<List<UserEntity>> userObj = await userBLL.GetList(param);
             if (userObj.Tag == 1)
             {
-                string file = new ExcelHelper<UserEntity>().ExportToExcel("用户列表.xls",
-                                                                          "用户列表",
+                string file = new ExcelHelper<UserEntity>().ExportToExcel("使用者列表.xls",
+                                                                          "使用者列表",
                                                                           userObj.Data,
                                                                           new string[] { "UserName", "RealName", "Gender", "Mobile", "Email" });
                 obj.Data = file;

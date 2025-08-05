@@ -16,7 +16,7 @@ namespace YiSha.Admin.Web.Areas.SystemManage.Controllers
     {
         private MenuBLL menuBLL = new MenuBLL();
 
-        #region 视图功能
+        #region 視圖功能
         [AuthorizeFilter("system:menu:view")]
         public IActionResult MenuIndex()
         {
@@ -38,7 +38,7 @@ namespace YiSha.Admin.Web.Areas.SystemManage.Controllers
         }
         #endregion
 
-        #region 获取数据
+        #region 獲得資料
         [HttpGet]
         [AuthorizeFilter("system:menu:search,system:role:search")]
         public async Task<IActionResult> GetListJson(MenuListParam param)
@@ -71,7 +71,7 @@ namespace YiSha.Admin.Web.Areas.SystemManage.Controllers
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         [HttpPost]
         [AuthorizeFilter("system:menu:add,system:menu:edit")]
         public async Task<IActionResult> SaveFormJson(MenuEntity entity)

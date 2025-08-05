@@ -121,7 +121,7 @@ namespace YiSha.Data
         {
             if (!SecurityHelper.IsSafeSqlParam(param))
             {
-                throw new ArgumentException("含有Sql注入的参数");
+                throw new ArgumentException("含有Sql注入的參數");
             }
         }
     }

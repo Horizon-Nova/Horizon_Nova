@@ -14,7 +14,7 @@ namespace YiSha.Service.SystemManage
 {
     public class DataDictDetailService : RepositoryFactory
     {
-        #region 获取数据
+        #region 獲得資料
         public async Task<List<DataDictDetailEntity>> GetList(DataDictDetailListParam param)
         {
             var expression = ListFilter(param);
@@ -58,7 +58,7 @@ namespace YiSha.Service.SystemManage
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         public async Task SaveForm(DataDictDetailEntity entity)
         {
             if (entity.Id.IsNullOrZero())

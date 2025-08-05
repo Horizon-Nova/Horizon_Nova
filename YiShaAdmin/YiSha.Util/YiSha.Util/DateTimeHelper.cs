@@ -8,9 +8,9 @@ namespace YiSha.Util
 {
     public class DateTimeHelper
     {
-        #region 毫秒转天时分秒
+        #region 毫秒转天時分秒
         /// <summary>
-        /// 毫秒转天时分秒
+        /// 毫秒转天時分秒
         /// </summary>
         /// <param name="ms"></param>
         /// <returns></returns>
@@ -28,19 +28,19 @@ namespace YiSha.Util
             long milliSecond = ms - day * dd - hour * hh - minute * mi - second * ss;
 
             string sDay = day < 10 ? "0" + day : "" + day; //天
-            string sHour = hour < 10 ? "0" + hour : "" + hour;//小时
+            string sHour = hour < 10 ? "0" + hour : "" + hour;//小時
             string sMinute = minute < 10 ? "0" + minute : "" + minute;//分钟
             string sSecond = second < 10 ? "0" + second : "" + second;//秒
             string sMilliSecond = milliSecond < 10 ? "0" + milliSecond : "" + milliSecond;//毫秒
             sMilliSecond = milliSecond < 100 ? "0" + sMilliSecond : "" + sMilliSecond;
 
-            return string.Format("{0} 天 {1} 小时 {2} 分 {3} 秒", sDay, sHour, sMinute, sSecond);
+            return string.Format("{0} 天 {1} 小時 {2} 分 {3} 秒", sDay, sHour, sMinute, sSecond);
         }
         #endregion
 
-        #region 获取unix时间戳
+        #region 獲取unix時間戳
         /// <summary>
-        /// 获取unix时间戳
+        /// 獲取unix時間戳
         /// </summary>
         /// <param name="dt"></param>
         /// <returns></returns>
@@ -51,7 +51,7 @@ namespace YiSha.Util
         }
         #endregion
 
-        #region 获取日期天的最小时间
+        #region 獲取日期天的最小時間
         public static DateTime GetDayMinDate(DateTime dt)
         {
             DateTime min = new DateTime(dt.Year, dt.Month, dt.Day, 0, 0, 0);
@@ -59,7 +59,7 @@ namespace YiSha.Util
         }
         #endregion
 
-        #region 获取日期天的最大时间
+        #region 獲取日期天的最大時間
         public static DateTime GetDayMaxDate(DateTime dt)
         {
             DateTime max = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
@@ -67,7 +67,7 @@ namespace YiSha.Util
         }
         #endregion
 
-        #region 获取日期天的最大时间
+        #region 獲取日期天的最大時間
         public static string FormatDateTime(DateTime? dt)
         {
             if (dt != null)

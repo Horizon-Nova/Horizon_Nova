@@ -21,7 +21,7 @@ namespace YiSha.Admin.Web.Areas.OrganizationManage.Controllers
     {
         private NewsBLL newsBLL = new NewsBLL();
 
-        #region 视图功能
+        #region 視圖功能
         [AuthorizeFilter("organization:news:view")]
         public IActionResult NewsIndex()
         {
@@ -35,7 +35,7 @@ namespace YiSha.Admin.Web.Areas.OrganizationManage.Controllers
         }
         #endregion
 
-        #region 获取数据
+        #region 獲得資料
         [HttpGet]
         [AuthorizeFilter("organization:news:search")]
         public async Task<IActionResult> GetListJson(NewsListParam param)
@@ -68,7 +68,7 @@ namespace YiSha.Admin.Web.Areas.OrganizationManage.Controllers
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         [HttpPost]
         [AuthorizeFilter("organization:news:add,organization:news:edit")]
         public async Task<IActionResult> SaveFormJson(NewsEntity entity)

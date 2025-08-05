@@ -9,7 +9,7 @@ namespace YiSha.Enum
 {
     public enum StatusEnum
     {
-        [Description("启用")]
+        [Description("啟用")]
         Yes = 1,
 
         [Description("禁用")]
@@ -36,7 +36,7 @@ namespace YiSha.Enum
 
     public enum OperateStatusEnum
     {
-        [Description("失败")]
+        [Description("失敗")]
         Fail = 0,
 
         [Description("成功")]
@@ -45,19 +45,19 @@ namespace YiSha.Enum
 
     public enum UploadFileType
     {
-        [Description("头像")]
+        [Description("頭像")]
         Portrait = 1,
 
-        [Description("新闻图片")]
+        [Description("新闻圖片")]
         News = 2,
 
-        [Description("导入的文件")]
+        [Description("導入的文件")]
         Import = 10
     }
 
     public enum PlatformEnum
     {
-        [Description("Web后台")]
+        [Description("Web後台")]
         Web = 1,
 
         [Description("WebApi")]
@@ -78,16 +78,16 @@ namespace YiSha.Enum
         [Description("未支付")]
         NotPay = 3,
 
-        [Description("已关闭")]
+        [Description("已關閉")]
         Closed = 4,
 
-        [Description("已撤销（付款码支付）")]
+        [Description("已撤銷（付款碼支付）")]
         Revoked = 5,
 
-        [Description("用户支付中（付款码支付）")]
+        [Description("使用者支付中（付款碼支付）")]
         UserPaying = 6,
 
-        [Description("支付失败(其他原因，如银行返回失败)")]
+        [Description("支付失敗(其他原因，如银行返回失敗)")]
         PayError = 7
     }
 

@@ -37,32 +37,34 @@
         formData.append("image", fileInput.files[0]);
 
         $.ajax({
-            url: '@Url.Action("GroundingDINOModelTest", "QAS")',
+            url: '@Url.Action("Detect", "QAS")',
             type: 'POST',
             data: formData,
             processData: false,
             contentType: false,
             success: function (res) {
-                if (res.error) {
-                    $('#result').html(`<p class="text-danger">${res.error}</p>`);
-                    return;
-                }
-                if (!res.length) {
-                    $('#result').html('<p class="text-warning">未偵測到目標</p>');
-                    return;
-                }
-                let html = '<h5>Detections</h5><ol>';
-                res.forEach(d => {
-                    html += `<li>(${d.xmin},${d.ymin}) – (${d.xmax},${d.ymax}) - score: ${d.score}</li>`;
-                });
-                html += '</ol>';
+                const now = new Date().toLocaleString();
+
+                // 包裝為 JSON 字串
+                const debugJson = JSON.stringify(res, null, 2);
+
+                let html = `<h5>推論結果 (${now})</h5>`;
+                html += `<pre>${debugJson}</pre>`;
+
                 $('#result').html(html);
             },
             error: function (err) {
+                const now = new Date().toLocaleString();
                 console.error(err);
-                $('#result').html('<p class="text-danger">Server error</p>');
+
+                const errText = JSON.stringify(err.responseJSON || { error: "無法取得錯誤內容" }, null, 2);
+                let html = `<h5 class="text-danger">伺服器錯誤 (${now})</h5>`;
+                html += `<pre class="text-danger">${errText}</pre>`;
+
+                $('#result').html(html);
             }
         });
     });
+
 </script>
 

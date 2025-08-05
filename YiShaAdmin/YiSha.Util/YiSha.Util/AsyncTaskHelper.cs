@@ -11,7 +11,7 @@ namespace YiSha.Util
     public class AsyncTaskHelper
     {
         /// <summary>
-        /// 开始异步任务
+        /// 開始異步任務
         /// </summary>
         /// <param name="action"></param>
         public static void StartTask(Action action)

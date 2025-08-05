@@ -27,7 +27,7 @@ namespace YiSha.Util
 
     #region JsonConverter
     /// <summary>
-    /// Json数据返回到前端js的时候，把数值很大的long类型转成字符串
+    /// Json資料返回到前端js的時候，把數值很大的long類型转成字符串
     /// </summary>
     public class StringJsonConverter : JsonConverter
     {
@@ -56,7 +56,7 @@ namespace YiSha.Util
     }
 
     /// <summary>
-    /// DateTime类型序列化的时候，转成指定的格式
+    /// DateTime類型序列化的時候，转成指定的格式
     /// </summary>
     public class DateTimeJsonConverter : JsonConverter
     {

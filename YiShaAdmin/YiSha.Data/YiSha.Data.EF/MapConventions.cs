@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 namespace YiSha.Data.EF
 {
     /// <summary>
-    /// 主键约定，把属性Id当做数据库主键
+    /// 主鍵约定，把属性Id當做資料庫主鍵
     /// </summary>
     public class PrimaryKeyConvention
     {
@@ -21,7 +21,7 @@ namespace YiSha.Data.EF
     }
 
     /// <summary>
-    /// 列名约定，比如属性ParentId，映射到数据库字段parent_id
+    /// 列名约定，比如属性ParentId，映射到資料庫字段parent_id
     /// </summary>
     [Obsolete]
     public class ColumnConvention
@@ -31,7 +31,7 @@ namespace YiSha.Data.EF
             StringBuilder sbField = new StringBuilder();
             char[] charArr = propertyName.ToCharArray();
 
-            int iCapital = 0; // 把属性第一个开始的大写字母转成小写，直到遇到了第1个小写字母，因为数据库里面是小写的
+            int iCapital = 0; // 把属性第一個開始的大寫字母转成小寫，直到遇到了第1個小寫字母，因為資料庫里面是小寫的
             while (iCapital < charArr.Length)
             {
                 if (charArr[iCapital] >= 'A' && charArr[iCapital] <= 'Z')

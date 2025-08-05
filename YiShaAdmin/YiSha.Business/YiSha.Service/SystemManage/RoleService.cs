@@ -15,7 +15,7 @@ namespace YiSha.Service.SystemManage
 {
     public class RoleService : RepositoryFactory
     {
-        #region 获取数据
+        #region 獲得資料
         public async Task<List<RoleEntity>> GetList(RoleListParam param)
         {
             var expression = ListFilter(param);
@@ -59,7 +59,7 @@ namespace YiSha.Service.SystemManage
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         public async Task SaveForm(RoleEntity entity)
         {
             var db = await this.BaseRepository().BeginTrans();
@@ -76,7 +76,7 @@ namespace YiSha.Service.SystemManage
                     await entity.Modify();
                     await db.Update(entity);
                 }
-                // 角色对应的菜单、页面和按钮权限
+                // 角色對應的選單、頁面和按鈕權限
                 if (!string.IsNullOrEmpty(entity.MenuIds))
                 {
                     foreach (long menuId in TextHelper.SplitToArray<long>(entity.MenuIds, ','))

@@ -13,11 +13,11 @@ namespace YiSha.Util
     public class CookieHelper
     {
         /// <summary>
-        /// 写cookie值
+        /// 寫cookie值
         /// </summary>
-        /// <param name="sName">名称</param>
+        /// <param name="sName">名稱</param>
         /// <param name="sValue">值</param>
-        /// <param name="httpOnly">true代表浏览器的js不能获取到的cookie</param>
+        /// <param name="httpOnly">true代表瀏覽器的js不能獲取到的cookie</param>
         public void WriteCookie(string sName, string sValue, bool httpOnly = true)
         {
             IHttpContextAccessor hca = GlobalContext.ServiceProvider?.GetService<IHttpContextAccessor>();
@@ -29,12 +29,12 @@ namespace YiSha.Util
         }
 
         /// <summary>
-        /// 写cookie值
+        /// 寫cookie值
         /// </summary>
-        /// <param name="sName">名称</param>
+        /// <param name="sName">名稱</param>
         /// <param name="sValue">值</param>
-        /// <param name="expires">过期时间(分钟)</param>
-        /// <param name="httpOnly">true代表浏览器的js不能获取到的cookie</param>
+        /// <param name="expires">過期時間(分钟)</param>
+        /// <param name="httpOnly">true代表瀏覽器的js不能獲取到的cookie</param>
         public void WriteCookie(string sName, string sValue, int expires, bool httpOnly = true)
         {
             IHttpContextAccessor hca = GlobalContext.ServiceProvider?.GetService<IHttpContextAccessor>();
@@ -46,9 +46,9 @@ namespace YiSha.Util
         }
 
         /// <summary>
-        /// 读cookie值
+        /// 讀cookie值
         /// </summary>
-        /// <param name="sName">名称</param>
+        /// <param name="sName">名稱</param>
         /// <returns>cookie值</returns>
         public string GetCookie(string sName)
         {
@@ -57,9 +57,9 @@ namespace YiSha.Util
         }
 
         /// <summary>
-        /// 删除Cookie对象
+        /// 删除Cookie對象
         /// </summary>
-        /// <param name="sName">Cookie对象名称</param>
+        /// <param name="sName">Cookie對象名稱</param>
         public void RemoveCookie(string sName)
         {
             IHttpContextAccessor hca = GlobalContext.ServiceProvider?.GetService<IHttpContextAccessor>();

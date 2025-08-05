@@ -21,12 +21,12 @@ namespace YiSha.Admin.WebApi.Controllers
     {
         private UserBLL userBLL = new UserBLL();
 
-        #region 获取数据       
+        #region 獲得資料       
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         /// <summary>
-        /// 用户登录
+        /// 使用者登錄
         /// </summary>
         /// <param name="userName"></param>
         /// <param name="password"></param>
@@ -48,7 +48,7 @@ namespace YiSha.Admin.WebApi.Controllers
         }
 
         /// <summary>
-        /// 用户退出登录
+        /// 使用者退出登錄
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>

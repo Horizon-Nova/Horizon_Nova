@@ -16,7 +16,7 @@ namespace YiSha.Business.SystemManage
     {
         private AutoJobService autoJobService = new AutoJobService();
 
-        #region 获取数据
+        #region 獲得資料
         public async Task<TData<List<AutoJobEntity>>> GetList(AutoJobListParam param)
         {
             TData<List<AutoJobEntity>> obj = new TData<List<AutoJobEntity>>();
@@ -44,13 +44,13 @@ namespace YiSha.Business.SystemManage
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         public async Task<TData<string>> SaveForm(AutoJobEntity entity)
         {
             TData<string> obj = new TData<string>();
             if (autoJobService.ExistJob(entity))
             {
-                obj.Message = "任务已经存在！";
+                obj.Message = "任務已经存在！";
                 return obj;
             }
             await autoJobService.SaveForm(entity);
@@ -67,7 +67,7 @@ namespace YiSha.Business.SystemManage
                 AutoJobEntity dbEntity = await autoJobService.GetEntity(id);
                 if (dbEntity.JobStatus == StatusEnum.Yes.ParseToInt())
                 {
-                    obj.Message = "请先暂停 " + dbEntity.JobName + " 定时任务";
+                    obj.Message = "請先暂停 " + dbEntity.JobName + " 定時任務";
                     return obj;
                 }
             }

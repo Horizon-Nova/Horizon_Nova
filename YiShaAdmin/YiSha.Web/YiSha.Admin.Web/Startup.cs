@@ -56,7 +56,7 @@ namespace YiSha.Admin.Web
                 options.ModelMetadataDetailsProviders.Add(new ModelBindingMetadataProvider());
             }).AddNewtonsoftJson(options =>
             {
-                // 返回数据首字母不小写，CamelCasePropertyNamesContractResolver是小写
+                // 返回資料首字母不小寫，CamelCasePropertyNamesContractResolver是小寫
                 options.SerializerSettings.ContractResolver = new DefaultContractResolver();
             });
 
@@ -80,7 +80,7 @@ namespace YiSha.Admin.Web
         {
             if (!string.IsNullOrEmpty(GlobalContext.SystemConfig.VirtualDirectory))
             {
-                app.UsePathBase(new PathString(GlobalContext.SystemConfig.VirtualDirectory)); // 让 Pathbase 中间件成为第一个处理请求的中间件， 才能正确的模拟虚拟路径
+                app.UsePathBase(new PathString(GlobalContext.SystemConfig.VirtualDirectory)); // 讓 Pathbase 中間件成為第一個處理請求的中間件， 才能正確的模擬虛擬路徑
             }
             if (WebHostEnvironment.IsDevelopment())
             {

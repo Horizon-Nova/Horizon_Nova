@@ -5,39 +5,39 @@ $(document).ready(function(){
 		 		form.submit();    
 		}       
 	});  
-	//手机号码验证身份证正则合并：(^\d{15}$)|(^\d{17}([0-9]|X)$)
+	//手機號碼驗證身份證正则合並：(^\d{15}$)|(^\d{17}([0-9]|X)$)
 	jQuery.validator.addMethod("isPhone",function(value,element){
 		var length = value.length;
 		var phone=/^1[3|4|5|6|7|8][0-9]\d{8}$/;
 		return this.optional(element)||(length == 11 && phone.test(value));
-	},"请填写正确的11位手机号");
-	//电话号码验证
+	},"請填寫正確的11位手機號");
+	//電話號碼驗證
 	jQuery.validator.addMethod("isTel",function(value,element){
-		var tel = /^(0\d{2,3}-)?\d{7,8}$/g;//区号3,4位,号码7,8位
+		var tel = /^(0\d{2,3}-)?\d{7,8}$/g;//區號3,4位,號碼7,8位
 		return this.optional(element) || (tel.test(value));
-	},"请填写正确的座机号码");
-	//姓名校验
+	},"請填寫正確的座機號碼");
+	//姓名校驗
 	jQuery.validator.addMethod("isName",function(value,element){
 		var name=/^[\u4e00-\u9fa5]{2,6}$/;
 		return this.optional(element) || (name.test(value));
 	},"姓名只能用汉字,长度2-4位");
-	//校验用户名
+	//校驗使用者名
 	jQuery.validator.addMethod("isUserName",function(value,element){
 		var userName=/^[a-zA-Z0-9]{2,13}$/;
 		return this.optional(element) || (userName).test(value);
-	},'请输入数字或者字母,不包含特殊字符');
+	},'請輸入數字或者字母,不包含特殊字符');
 	
-	//校验身份证
+	//校驗身份證
 	jQuery.validator.addMethod("isIdentity",function(value,element){
 		var id= /^(\d{15}$|^\d{18}$|^\d{17}(\d|X))$/;
 		return this.optional(element) || (id.test(value));
-	},"请输入正确的15或18位身份证号,末尾为大写X");
-	//校验出生日期
+	},"請輸入正確的15或18位身份證號,末尾為大寫X");
+	//校驗出生日期
 	jQuery.validator.addMethod("isBirth",function(value,element){
 		var birth = /^(19|20)\d{2}-(1[0-2]|0?[1-9])-(0?[1-9]|[1-2][0-9]|3[0-1])$/;
 		return this.optional(element) || (birth).test(value);
-	},"出生日期格式示例2000-01-01");
-	//校验新旧密码是否相同
+	},"出生日期格式範例2000-01-01");
+	//校驗新舊密碼是否相同
 	jQuery.validator.addMethod("isdiff",function(){
 		var p1=$("#pwdOld").val();
 		var p2=$("#pwdNew").val();
@@ -47,7 +47,7 @@ $(document).ready(function(){
 			 return true;
 		}
 		});
-	//校验新密码和确认密码是否相同
+	//校驗新密碼和確認密碼是否相同
 	jQuery.validator.addMethod("issame",function(){
 		var p3=$("#confirm_password").val();
 		var p4=$("#pwdNew").val();
@@ -57,7 +57,7 @@ $(document).ready(function(){
 			 return false;
 		}
 		});
-	//校验基础信息表单
+	//校驗基礎信息表單
 	$("#basicInfoForm").validate({
 		errorElement:'span',
 		errorClass:'help-block error-mes',
@@ -79,22 +79,22 @@ $(document).ready(function(){
 		},
 		messages:{
 			name:{
-				required:"请输入中文姓名",
-				isName:"姓名只能为汉字"
+				required:"請輸入中文姓名",
+				isName:"姓名只能為汉字"
 			},
 			sex:{
-				required:"请输入性别"
+				required:"請輸入性別"
 			},
 			birth:{
-				required:"请输入出生年月"
+				required:"請輸入出生年月"
 			},
             mobile:{
-				required:"请输入手机号",
-				isPhone:"请填写正确的11位手机号"
+				required:"請輸入手機號",
+				isPhone:"請填寫正確的11位手機號"
 			},
 			email:{
-				required:"请输入邮箱",
-				email:"请填写正确的邮箱格式"
+				required:"請輸入信箱",
+				email:"請填寫正確的信箱格式"
 			}
 		},
 	
@@ -117,11 +117,11 @@ $(document).ready(function(){
 		}
 	});
 	
-	//校验修改密码表单
+	//校驗修改密碼表單
 	$("#modifyPwd").validate({
 		onfocusout: function(element) { $(element).valid()},
-		 debug:false, //表示校验通过后是否直接提交表单
-		 onkeyup:false, //表示按键松开时候监听验证
+		 debug:false, //表示校驗通過後是否直接提交表單
+		 onkeyup:false, //表示按鍵松開時候监听驗證
 		rules:{
 			pwdOld:{
 				required:true,
@@ -143,18 +143,18 @@ $(document).ready(function(){
 		messages:{
 			 	pwdOld : {
 					 required:'必填',
-					 minlength:$.validator.format('密码长度要大于6')
+					 minlength:$.validator.format('密碼长度要大於6')
 				},
             	pwdNew:{
 				   required:'必填',
-				   minlength:$.validator.format('密码长度要大于6'),
-				   isdiff:'原密码与新密码不能重复',
+				   minlength:$.validator.format('密碼长度要大於6'),
+				   isdiff:'原密碼與新密碼不能重复',
 				  
 			   },
 				confirm_password:{
 				   required:'必填',
-				   minlength:$.validator.format('密码长度要大于6'),
-				   issame:'新密码要与确认新密码一致',
+				   minlength:$.validator.format('密碼长度要大於6'),
+				   issame:'新密碼要與確認新密碼一致',
 				}
 		
 		},

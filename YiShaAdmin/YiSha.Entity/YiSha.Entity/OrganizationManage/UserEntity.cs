@@ -13,19 +13,19 @@ namespace YiSha.Entity.OrganizationManage
     [Table("SysUser")]
     public class UserEntity : BaseExtensionEntity
     {
-        [Description("用户名")]
+        [Description("使用者名")]
         public string UserName { get; set; }
         public string Password { get; set; }
         [JsonIgnore]
         public string Salt { get; set; }
-        [Description("真实姓名")]
+        [Description("真實姓名")]
         public string RealName { get; set; }
-        [Description("性别")]
+        [Description("性別")]
         public int? Gender { get; set; }
         public string Birthday { get; set; }
         public string Portrait { get; set; }
         public string Email { get; set; }
-        [Description("手机号")]
+        [Description("手機號")]
         public string Mobile { get; set; }
         public string QQ { get; set; }
         public string Wechat { get; set; }

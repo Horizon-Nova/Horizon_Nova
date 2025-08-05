@@ -3414,7 +3414,7 @@ body.body-small.fixed-sidebar.mini-navbar .navbar-static-side {
 /*border-radius: 2px;*/
 /*}*/
 
-/*伸缩菜单*/
+/*伸縮選單*/
 .fixed-sidebar.mini-navbar .nav li:hover > a > span.nav-label {
     top: 0px;
     padding: 10px 10px 10px 10px;
@@ -3437,7 +3437,7 @@ body.body-small.fixed-sidebar.mini-navbar .navbar-static-side {
     min-width: 140px;
     border-radius: 2px;
 }
-/*伸缩菜单结束*/
+/*伸縮選單結束*/
 
 body.fixed-sidebar.mini-navbar .navbar-default .nav > li > .nav-second-level li a {
     font-size: 12px;
@@ -9868,7 +9868,7 @@ body.rtls .top-navigation .footer.fixed, body.rtls.top-navigation .footer.fixed 
     padding-bottom: 10px;
 }
 
-/*编辑器按钮样式冲突*/
+/*編輯器按鈕樣式冲突*/
 .note-editor .btn-default {
     color: #333333 !important;
     background-color: #ffffff !important;
@@ -9892,11 +9892,11 @@ body.rtls .top-navigation .footer.fixed, body.rtls.top-navigation .footer.fixed 
 }
 /*
  *
- *   SKIN blue 若依管理系统 一沙后台管理系统
+ *   SKIN blue 若依管理系统 一Horizon Nova後台
  *   NAME - blue/green/purple/red/yellow
  *
 */
-/** 蓝色主题 skin-blue **/
+/** 蓝色主題 skin-blue **/
 .navbar, .skin-blue .navbar {
 	background-color: #3c8dbc
 }
@@ -10069,7 +10069,7 @@ body.rtls .top-navigation .footer.fixed, body.rtls.top-navigation .footer.fixed 
 		background-color: #3b8ab8
 	}
 
-/** 绿色主题 skin-green **/
+/** 绿色主題 skin-green **/
 .skin-green .navbar {
 	background-color: #00a65a;
 }
@@ -10222,7 +10222,7 @@ body.rtls .top-navigation .footer.fixed, body.rtls.top-navigation .footer.fixed 
 		border-bottom-left-radius: 0
 	}
 
-/** 红色主题 skin-red **/
+/** 红色主題 skin-red **/
 .skin-red .navbar {
 	background-color: #dd4b39
 }
@@ -10375,7 +10375,7 @@ body.rtls .top-navigation .footer.fixed, body.rtls.top-navigation .footer.fixed 
 		border-bottom-left-radius: 0
 	}
 
-/** 黄色主题 skin-red **/
+/** 黄色主題 skin-red **/
 .skin-yellow .navbar {
 	background-color: #f39c12
 }
@@ -10528,7 +10528,7 @@ body.rtls .top-navigation .footer.fixed, body.rtls.top-navigation .footer.fixed 
 		border-bottom-left-radius: 0
 	}
 
-/** 紫色主题 skin-purple **/
+/** 紫色主題 skin-purple **/
 .skin-purple .navbar {
 	background-color: #605ca8
 }
@@ -10683,11 +10683,11 @@ body.rtls .top-navigation .footer.fixed, body.rtls.top-navigation .footer.fixed 
 
 /*
  *
- *   侧边栏主题
+ *   側邊欄主題
  *   NAME - .theme-dark/theme-light
  *
 */
-/** 深黑主题 .theme-dark **/
+/** 深黑主題 .theme-dark **/
 .theme-dark .user-panel > .info > p, .theme-dark .user-panel > .info, .theme-dark .user-panel > .info > a {
 	color: #fff
 }
@@ -10709,7 +10709,7 @@ body.rtls .top-navigation .footer.fixed, body.rtls.top-navigation .footer.fixed 
 	background: #293846;
 }
 
-/** 浅色主题 theme-light **/
+/** 浅色主題 theme-light **/
 .theme-light .user-panel > .info > p, .theme-light .user-panel > .info, .theme-light .user-panel > .info > a {
 	color: #555
 }
@@ -10794,7 +10794,7 @@ body.rtls .top-navigation .footer.fixed, body.rtls.top-navigation .footer.fixed 
 	background-color: #f9fafc;
 }
 
-/** 深蓝主题 theme-light **/
+/** 深蓝主題 theme-light **/
 /**
 .skin-blue.theme-blue .logo, .skin-white.theme-blue .logo {
 	background-color: rgba(15,41,80,1) !important;

@@ -15,7 +15,7 @@ namespace YiSha.Admin.Web.Areas.ToolManage.Controllers
     [Area("ToolManage")]
     public class ServerController : BaseController
     {
-        #region 视图功能
+        #region 視圖功能
         [AuthorizeFilter("tool:server:view")]
         public IActionResult ServerIndex()
         {
@@ -23,7 +23,7 @@ namespace YiSha.Admin.Web.Areas.ToolManage.Controllers
         }
         #endregion
 
-        #region 获取数据
+        #region 獲得資料
         [HttpGet]
         [AuthorizeFilter("tool:server:view")]
         public IActionResult GetServerJson()

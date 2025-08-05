@@ -15,9 +15,9 @@ namespace YiSha.Util
 {
     public class FileHelper
     {
-        #region 创建文本文件
+        #region 創建文本文件
         /// <summary>
-        /// 创建文件
+        /// 創建文件
         /// </summary>
         /// <param name="path"></param>
         /// <param name="content"></param>
@@ -34,9 +34,9 @@ namespace YiSha.Util
         }
         #endregion
 
-        #region 上传单个文件
+        #region 上傳單個文件
         /// <summary>
-        /// 上传单个文件
+        /// 上傳單個文件
         /// </summary>
         /// <param name="fileModule"></param>
         /// <param name="fileCollection"></param>
@@ -47,12 +47,12 @@ namespace YiSha.Util
             TData<string> obj = new TData<string>();
             if (files == null || files.Count == 0)
             {
-                obj.Message = "请先选择文件！";
+                obj.Message = "請先選擇文件！";
                 return obj;
             }
             if (files.Count > 1)
             {
-                obj.Message = "一次只能上传一个文件！";
+                obj.Message = "一次只能上傳一個文件！";
                 return obj;
             }
             TData objCheck = null;
@@ -72,7 +72,7 @@ namespace YiSha.Util
                 case (int)UploadFileType.News:
                     if (file.Length > 5 * 1024 * 1024) // 5MB
                     {
-                        obj.Message = "文件最大限制为 5MB";
+                        obj.Message = "文件最大限制為 5MB";
                         return obj;
                     }
                     objCheck = CheckFileExtension(Path.GetExtension(file.FileName), ".jpg|.jpeg|.gif|.png");
@@ -95,7 +95,7 @@ namespace YiSha.Util
                     break;
 
                 default:
-                    obj.Message = "请指定上传到的模块";
+                    obj.Message = "請指定上傳到的模塊";
                     return obj;
             }
             string fileExtension = TextHelper.GetCustomValue(Path.GetExtension(file.FileName), ".png");
@@ -130,9 +130,9 @@ namespace YiSha.Util
         }
         #endregion
 
-        #region 删除单个文件
+        #region 删除單個文件
         /// <summary>
-        /// 删除单个文件
+        /// 删除單個文件
         /// </summary>
         /// <param name="fileModule"></param>
         /// <param name="filePath"></param>
@@ -144,7 +144,7 @@ namespace YiSha.Util
 
             if (string.IsNullOrEmpty(filePath))
             {
-                obj.Message = "请先选择文件！";
+                obj.Message = "請先選擇文件！";
                 return obj;
             }
 
@@ -171,9 +171,9 @@ namespace YiSha.Util
         }
         #endregion
 
-        #region 下载文件
+        #region 下載文件
         /// <summary>
-        /// 下载文件
+        /// 下載文件
         /// </summary>
         /// <param name="filePath"></param>
         /// <param name="delete"></param>
@@ -183,7 +183,7 @@ namespace YiSha.Util
             filePath = FilterFilePath(filePath);
             if (!filePath.StartsWith("wwwroot") && !filePath.StartsWith("Resource"))
             {
-                throw new Exception("非法访问");
+                throw new Exception("非法訪問");
             }
             TData<FileContentResult> obj = new TData<FileContentResult>();
             string absoluteFilePath = GlobalContext.HostingEnvironment.ContentRootPath + Path.DirectorySeparatorChar + filePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
@@ -256,7 +256,7 @@ namespace YiSha.Util
         {
             try
             {
-                if (Directory.Exists(filePath)) //如果存在这个文件夹删除之 
+                if (Directory.Exists(filePath)) //如果存在這個文件夹删除之 
                 {
                     foreach (string d in Directory.GetFileSystemEntries(filePath))
                     {
@@ -298,7 +298,7 @@ namespace YiSha.Util
             }
             else
             {
-                obj.Message = "只有文件扩展名是 " + allowExtension + " 的文件才能上传";
+                obj.Message = "只有文件扩展名是 " + allowExtension + " 的文件才能上傳";
             }
             return obj;
         }

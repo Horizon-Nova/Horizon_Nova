@@ -7,37 +7,37 @@
 
     $.fn.bootstrapTable.locales['zh-CN'] = {
         formatLoadingMessage: function () {
-            return '正在努力地加载数据中，请稍候……';
+            return '正在努力地加載資料中，請稍候……';
         },
         formatRecordsPerPage: function (pageNumber) {
-            return '每页显示 ' + pageNumber + ' 条记录';
+            return '每頁顯示 ' + pageNumber + ' 條記錄';
         },
         formatShowingRows: function (pageFrom, pageTo, totalRows) {
-            return '显示第 ' + pageFrom + ' 到第 ' + pageTo + ' 条记录，总共 ' + totalRows + ' 条记录';
+            return '顯示第 ' + pageFrom + ' 到第 ' + pageTo + ' 條記錄，總共 ' + totalRows + ' 條記錄';
         },
         formatSearch: function () {
-            return '搜索';
+            return '查詢';
         },
         formatNoMatches: function () {
-            return '没有找到匹配的记录';
+            return '沒有找到匹配的記錄';
         },
         formatPaginationSwitch: function () {
-            return '隐藏/显示分页';
+            return '隱藏/顯示分頁';
         },
         formatRefresh: function () {
             return '刷新';
         },
         formatToggle: function () {
-            return '切换';
+            return '切換';
         },
         formatColumns: function () {
             return '列';
         },
         formatExport: function () {
-            return '导出数据';
+            return '導出資料';
         },
         formatClearFilters: function () {
-            return '清空过滤';
+            return '清空過滤';
         }
     };
 

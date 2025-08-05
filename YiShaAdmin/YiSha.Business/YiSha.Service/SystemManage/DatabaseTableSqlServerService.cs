@@ -16,7 +16,7 @@ namespace YiSha.Service.SystemManage
 {
     public class DatabaseTableSqlServerService : RepositoryFactory, IDatabaseTableService
     {
-        #region 获取数据
+        #region 獲得資料
         public async Task<List<TableInfo>> GetTableList(string tableName)
         {
             StringBuilder strSql = new StringBuilder();
@@ -83,7 +83,7 @@ namespace YiSha.Service.SystemManage
 
         #region 私有方法
         /// <summary>
-        /// 获取所有表的主键、主键名称、记录数
+        /// 獲取所有表的主鍵、主鍵名稱、記錄數
         /// </summary>
         /// <returns></returns>
         private async Task<List<TableInfo>> GetTableDetailList()
@@ -103,7 +103,7 @@ namespace YiSha.Service.SystemManage
         }
 
         /// <summary>
-        /// 赋值表的主键、主键名称、记录数
+        /// 赋值表的主鍵、主鍵名稱、記錄數
         /// </summary>
         /// <param name="list"></param>
         private async Task SetTableDetail(IEnumerable<TableInfo> list)

@@ -18,7 +18,7 @@ namespace YiSha.Business.SystemManage
         private AreaService areaService = new AreaService();
         private AreaCache areaCache = new AreaCache();
 
-        #region 获取数据
+        #region 獲得資料
         public async Task<TData<List<AreaEntity>>> GetList(AreaListParam param)
         {
             TData<List<AreaEntity>> obj = new TData<List<AreaEntity>>();
@@ -85,7 +85,7 @@ namespace YiSha.Business.SystemManage
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         public async Task<TData<string>> SaveForm(AreaEntity entity)
         {
             TData<string> obj = new TData<string>();

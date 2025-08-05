@@ -1,16 +1,34 @@
-﻿namespace HNB.Areas.HNB_WEB.Services;
+﻿using HNB.Areas.HNB_WEB.Enum;
+using HNB.Areas.HNB_WEB.Models;
+using HNB.Areas.HNB_WEB.Repositories;
+using HNB.Areas.HNB_WEB.Utilities;
+using Newtonsoft.Json;
+
+namespace HNB.Areas.HNB_WEB.Services;
 
 public class UserServices
 {
-    private HNB.Areas.HNB_WEB.Repositories.UserRepositories _userRepositories;
-    
-    public UserServices(HNB.Areas.HNB_WEB.Repositories.UserRepositories userRepositories)
-        => _userRepositories = userRepositories;
+    private readonly UserRepositories _repo;
+    public UserServices(UserRepositories repo) => _repo = repo;
 
-    public void ViewBagModelUser(dynamic viewBag)
+    public async Task<TData<List<ZtreeInfo>>> GetDepartmentTreeZtreeAsync()
     {
-        //viewBag.DepartmentList = _userRepositories.SysDepartmentList();
-        viewBag.DepartmentList = null;
+        var result = new TData<List<ZtreeInfo>>();
+        result.Data = new List<ZtreeInfo>();
+
+        var deptEntities = await _repo.GetZtreeDepartmentListAsync();
+
+        result.Data = deptEntities.Select(d => new ZtreeInfo
+        {
+            id = d.Id,
+            pId = d.ParentId,
+            name = d.DepartmentName
+        }).ToList();
+
+        result.Tag = 1;
+        return result;
     }
+
+
 
 }

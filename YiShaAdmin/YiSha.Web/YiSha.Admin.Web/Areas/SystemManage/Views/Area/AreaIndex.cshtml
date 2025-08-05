@@ -14,10 +14,10 @@
             <div class="select-list">
                 <ul>
                     <li>
-                        地点名称：<input id="areaName" col="AreaName" type="text" />
+                        地點名稱：<input id="areaName" col="AreaName" type="text" />
                     </li>
                     <li>
-                        <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchTreeGrid()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                        <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchTreeGrid()"><i class="fa fa-search"></i>&nbsp;查詢</a>
                     </li>
                 </ul>
             </div>
@@ -50,13 +50,13 @@
             toolbar: '#toolbar',
             expandColumn: '2',
             url: '@Url.Content("~/SystemManage/Area/GetListJson")',
-            modalName: "行政区划",
+            modalName: "行政區划",
             columns: [
                 { field: 'Id', visible: false },
                 { field: 'selectItem', radio: true },
-                { field: 'AreaName', title: '地点名称', width: '50%' },
-                { field: 'ZipCode', title: '邮政编码', width: '25%', align: "left" },
-                { field: 'AreaLevel', title: '级别', width: '25%', align: "left" }
+                { field: 'AreaName', title: '地點名稱', width: '50%' },
+                { field: 'ZipCode', title: '邮政編碼', width: '25%', align: "left" },
+                { field: 'AreaLevel', title: '級別', width: '25%', align: "left" }
             ]
         };
         $('#gridTable').ysTreeTable(options);
@@ -79,7 +79,7 @@
             }
         }
         ys.openDialog({
-            title: id > 0 ? "编辑" : "添加",
+            title: id > 0 ? "編輯" : "添加",
             content: '@Url.Content("~/SystemManage/Area/AreaForm")' + '?id=' + id,
             callback: function (index, layero) {
                 var iframeWin = window[layero.find('iframe')[0]['name']];
@@ -91,7 +91,7 @@
     function deleteForm() {
         var selectedRow = $("#gridTable").bootstrapTable("getSelections");
         if (ys.checkRowDelete(selectedRow)) {
-            ys.confirm("确认要删除选中的" + selectedRow.length + "条数据吗？", function () {
+            ys.confirm("確認要删除選中的" + selectedRow.length + "條資料嗎？", function () {
                 var ids = ys.getIds(selectedRow);
                 ys.ajax({
                     url: '@Url.Content("~/SystemManage/Area/DeleteFormJson")' + '?ids=' + ids,

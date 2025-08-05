@@ -9,7 +9,7 @@ namespace YiSha.Util
     public class TextHelper
     {
         /// <summary>
-        /// 获取默认值
+        /// 獲取默認值
         /// </summary>
         /// <param name="value"></param>
         /// <param name="defaultValue"></param>
@@ -50,7 +50,7 @@ namespace YiSha.Util
         }
 
         /// <summary>
-        /// 字符串转指定类型数组
+        /// 字符串转指定類型數組
         /// </summary>
         /// <param name="value"></param>
         /// <param name="split"></param>

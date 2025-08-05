@@ -14,7 +14,7 @@ namespace YiSha.Service.OrganizationManage
 {
     public class PositionService : RepositoryFactory
     {
-        #region 获取数据
+        #region 獲得資料
         public async Task<List<PositionEntity>> GetList(PositionListParam param)
         {
             var expression = ListFilter(param);
@@ -58,7 +58,7 @@ namespace YiSha.Service.OrganizationManage
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         public async Task SaveForm(PositionEntity entity)
         {
             if (entity.Id.IsNullOrZero())

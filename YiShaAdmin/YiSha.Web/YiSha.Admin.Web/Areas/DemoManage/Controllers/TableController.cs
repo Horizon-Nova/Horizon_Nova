@@ -13,7 +13,7 @@ namespace YiSha.Admin.Web.Areas.DemoManage.Controllers
     [Area("DemoManage")]
     public class TableController : Controller
     {
-        #region 视图功能
+        #region 視圖功能
         public IActionResult Editable()
         {
             return View();
@@ -40,11 +40,11 @@ namespace YiSha.Admin.Web.Areas.DemoManage.Controllers
         }
         #endregion
 
-        #region 获取数据
+        #region 獲得資料
         [HttpGet]
         public async Task<IActionResult> GetPageListJson(UserListParam param, Pagination pagination)
         {
-            // 测试总共23条数据
+            // 测试總共23條資料
             int total = 23;
             TData<List<UserEntity>> obj = new TData<List<UserEntity>>();
             obj.Total = total;
@@ -59,7 +59,7 @@ namespace YiSha.Admin.Web.Areas.DemoManage.Controllers
                 obj.Data.Add(new UserEntity
                 {
                     Id = i,
-                    RealName = "用户" + i,
+                    RealName = "使用者" + i,
                     Mobile = "15612345678",
                     Email = "test@163.com",
                     Birthday = DateTime.Now.ToString("yyyy-MM-dd"),

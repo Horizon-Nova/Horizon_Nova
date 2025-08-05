@@ -14,11 +14,11 @@ namespace YiSha.Data
     {
         #region 属性
         /// <summary>
-        /// 获取 当前使用的数据访问上下文对象
+        /// 獲取 當前使用的資料訪問上下文對象
         /// </summary>
         public DbContext dbContext { get; set; }
         /// <summary>
-        /// 事务对象
+        /// 事務對象
         /// </summary>
         public IDbContextTransaction dbContextTransaction { get; set; }
         #endregion

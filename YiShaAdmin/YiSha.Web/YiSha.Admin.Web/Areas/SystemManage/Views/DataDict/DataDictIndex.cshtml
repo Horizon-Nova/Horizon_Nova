@@ -7,13 +7,13 @@
             <div class="select-list">
                 <ul>
                     <li>
-                        字典类型：<input id="dictType" col="DictType" type="text" />
+                        字典類型：<input id="dictType" col="DictType" type="text" />
                     </li>
                     <li>
                         字典描述：<input id="remark" col="Remark" type="text" />
                     </li>
                     <li>
-                        <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                        <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class="fa fa-search"></i>&nbsp;查詢</a>
                     </li>
                 </ul>
             </div>
@@ -44,11 +44,11 @@
             columns: [
                 { checkbox: true, visible: true },
                 { field: 'Id', title: 'Id', visible: false },
-                { field: 'DictType', title: '字典类型' },
+                { field: 'DictType', title: '字典類型' },
                 { field: 'Remark', title: '字典描述' },
                 { field: 'DictSort', title: '字典排序' },
                 {
-                    field: 'BaseModifyTime', title: '创建时间', formatter: function (value, row, index) {
+                    field: 'BaseModifyTime', title: '創建時間', formatter: function (value, row, index) {
                         return ys.formatDate(value, "yyyy-MM-dd HH:mm:ss");
                     }
                 },
@@ -87,7 +87,7 @@
             }
         }
         ys.openDialog({
-            title: id > 0 ? "编辑字典" : "添加字典",
+            title: id > 0 ? "編輯字典" : "添加字典",
             content: '@Url.Content("~/SystemManage/DataDict/DataDictForm")' + '?id=' + id,
             callback: function (index, layero) {
                 var iframeWin = window[layero.find('iframe')[0]['name']];
@@ -99,7 +99,7 @@
     function deleteForm() {
         var selectedRow = $("#gridTable").bootstrapTable("getSelections");
         if (ys.checkRowDelete(selectedRow)) {
-            ys.confirm("确认要删除选中的" + selectedRow.length + "条数据吗？", function () {
+            ys.confirm("確認要删除選中的" + selectedRow.length + "條資料嗎？", function () {
                 var ids = ys.getIds(selectedRow);
                 ys.ajax({
                     url: '@Url.Content("~/SystemManage/DataDict/DeleteFormJson")' + '?ids=' + ids,
@@ -120,6 +120,6 @@
 
     function showDataDictDetailForm(dictType) {
         var url = '@Url.Content("~/SystemManage/DataDictDetail/DataDictDetailIndex")' + '?dictType=' + dictType;
-        createMenuItem(url, "字典数据");
+        createMenuItem(url, "字典資料");
     }
 </script>

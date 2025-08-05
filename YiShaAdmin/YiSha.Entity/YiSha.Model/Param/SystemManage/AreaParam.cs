@@ -15,7 +15,7 @@ namespace YiSha.Model.Param.SystemManage
         public int? CityId { get; set; }
         public int? CountyId { get; set; }
         /// <summary>
-        /// 逗号分隔的Id
+        /// 逗號分隔的Id
         /// </summary>
         public string AreaId { get; set; }
     }

@@ -9,11 +9,11 @@ namespace YiSha.CodeGenerator.Model
     public class BaseConfigModel
     {
         /// <summary>
-        /// 数据库表名sys_menu
+        /// 資料庫表名sys_menu
         /// </summary>
         public string TableName { get; set; }
         /// <summary>
-        /// 表名首字母大写SysMenu
+        /// 表名首字母大寫SysMenu
         /// </summary>
         public string TableNameUpper { get; set; }
         public FileConfigModel FileConfig { get; set; }
@@ -53,17 +53,17 @@ namespace YiSha.CodeGenerator.Model
     public class PageIndexModel
     {
         /// <summary>
-        /// 是否有搜索
+        /// 是否有查詢
         /// </summary>
         public int IsSearch { get; set; }
 
         /// <summary>
-        /// 工具栏按钮（新增 修改 删除）
+        /// 工具欄按鈕（新增 修改 删除）
         /// </summary>
         public List<string> ButtonList { get; set; }
 
         /// <summary>
-        /// 是否有分页
+        /// 是否有分頁
         /// </summary>
         public int IsPagination { get; set; }
 
@@ -72,7 +72,7 @@ namespace YiSha.CodeGenerator.Model
     public class PageFormModel
     {
         /// <summary>
-        /// 1表示显示成1列，2表示显示成2列
+        /// 1表示顯示成1列，2表示顯示成2列
         /// </summary>
         public int ShowMode { get; set; }
         public List<string> FieldList { get; set; }

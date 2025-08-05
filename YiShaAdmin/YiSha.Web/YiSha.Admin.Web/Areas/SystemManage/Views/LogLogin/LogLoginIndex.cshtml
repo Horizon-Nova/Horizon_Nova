@@ -7,22 +7,22 @@
             <div class="select-list">
                 <ul>
                     <li>
-                        登录名称：<input id="userName" col="UserName" type="text" />
+                        登錄名稱：<input id="userName" col="UserName" type="text" />
                     </li>
                     <li>
                         &nbsp;&nbsp;&nbsp;&nbsp;Ip地址：<input id="ipAddress" col="IpAddress" type="text" />
                     </li>
                     <li>
-                        登录状态：<span id="logStatus" col="LogStatus"></span>
+                        登錄狀態：<span id="logStatus" col="LogStatus"></span>
                     </li>
                     <li class="select-time">
-                        <label>登录时间： </label>
-                        <input id="startTime" col="StartTime" type="text" class="time-input" placeholder="开始时间" />
+                        <label>登錄時間： </label>
+                        <input id="startTime" col="StartTime" type="text" class="time-input" placeholder="開始時間" />
                         <span>-</span>
-                        <input id="endTime" col="EndTime" type="text" class="time-input" placeholder="结束时间" />
+                        <input id="endTime" col="EndTime" type="text" class="time-input" placeholder="結束時間" />
                     </li>
                     <li>
-                        <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                        <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class="fa fa-search"></i>&nbsp;查詢</a>
                     </li>
                 </ul>
             </div>
@@ -55,13 +55,13 @@
             columns: [
                 { checkbox: true, visible: true },
                 { field: 'Id', title: 'Id', visible: false },
-                { field: 'UserName', title: '登录名称', sortable: true },
+                { field: 'UserName', title: '登錄名稱', sortable: true },
                 { field: 'IpAddress', title: 'Ip地址' },
                 { field: 'IpLocation', title: 'Ip位置' },
-                { field: 'Browser', title: '浏览器' },
+                { field: 'Browser', title: '瀏覽器' },
                 { field: 'OS', title: '操作系统' },
                 {
-                    field: 'LogStatus', title: '登录状态', align: 'center',
+                    field: 'LogStatus', title: '登錄狀態', align: 'center',
                     formatter: function (value, row, index) {
                         if (value == "@OperateStatusEnum.Success.ParseToInt()") {
                             return '<span class="badge badge-primary">' + "@OperateStatusEnum.Success.GetDescription()" + '</span>';
@@ -72,7 +72,7 @@
                 },
                 { field: 'Remark', title: '操作信息' },
                 {
-                    field: 'BaseCreateTime', title: '登录时间', formatter: function (value, row, index) {
+                    field: 'BaseCreateTime', title: '登錄時間', formatter: function (value, row, index) {
                         return ys.formatDate(value, "yyyy-MM-dd HH:mm:ss");
                     }
                 }
@@ -93,7 +93,7 @@
     function deleteForm() {
         var selectedRow = $("#gridTable").bootstrapTable("getSelections");
         if (ys.checkRowDelete(selectedRow)) {
-            ys.confirm("确认要删除选中的" + selectedRow.length + "条数据吗？", function () {
+            ys.confirm("確認要删除選中的" + selectedRow.length + "條資料嗎？", function () {
                 var ids = ys.getIds(selectedRow);
                 ys.ajax({
                     url: '@Url.Content("~/SystemManage/LogLogin/DeleteFormJson")' + '?ids=' + ids,
@@ -113,7 +113,7 @@
     }
 
     function removeAllForm() {
-        ys.confirm("确认要清空表吗？", function () {
+        ys.confirm("確認要清空表嗎？", function () {
             ys.ajax({
                 url: '@Url.Content("~/SystemManage/LogLogin/RemoveAllFormJson")',
                 type: "post",

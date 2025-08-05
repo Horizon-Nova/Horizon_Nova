@@ -17,7 +17,7 @@ namespace YiSha.Service.SystemManage
 {
     public class LogApiService : RepositoryFactory
     {
-        #region 获取数据
+        #region 獲得資料
         public async Task<List<LogApiEntity>> GetList(LogApiListParam param)
         {
             var strSql = new StringBuilder();
@@ -40,7 +40,7 @@ namespace YiSha.Service.SystemManage
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         public async Task SaveForm(LogApiEntity entity)
         {
             if (entity.Id.IsNullOrZero())

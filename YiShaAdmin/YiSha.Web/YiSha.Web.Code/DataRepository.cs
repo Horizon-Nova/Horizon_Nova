@@ -46,7 +46,7 @@ namespace YiSha.Web.Code
                 operatorInfo.RoleIds = string.Join(",", roleList.Select(p => p.RoleId).ToArray());
                 #endregion
 
-                #region 部门名称
+                #region 部門名稱
                 strSql.Clear();
                 strSql.Append(@"SELECT  a.DepartmentName
                                 FROM    SysDepartment a

@@ -29,7 +29,7 @@ namespace YiSha.Business.AutoJob
             });
         }
 
-        #region 添加任务计划
+        #region 添加任務計划
         private void AddScheduleJob(List<AutoJobEntity> entityList)
         {
             try
@@ -69,7 +69,7 @@ namespace YiSha.Business.AutoJob
         }
         #endregion
 
-        #region 清除任务计划
+        #region 清除任務計划
         public void ClearScheduleJob()
         {
             try

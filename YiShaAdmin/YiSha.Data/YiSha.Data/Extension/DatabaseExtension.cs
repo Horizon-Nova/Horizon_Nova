@@ -19,7 +19,7 @@ namespace YiSha.Data
     public static class DatabasesExtension
     {
         /// <summary>
-        /// 将DataReader数据转为Dynamic对象
+        /// 將DataReader資料转為Dynamic對象
         /// </summary>
         /// <param name="reader"></param>
         /// <returns></returns>
@@ -44,7 +44,7 @@ namespace YiSha.Data
         }
 
         /// <summary>
-        /// 获取模型对象集合
+        /// 獲取模型對象集合
         /// </summary>
         /// <param name="reader"></param>
         /// <returns></returns>
@@ -67,7 +67,7 @@ namespace YiSha.Data
         }
 
         /// <summary>
-        /// 将IDataReader转换为集合
+        /// 將IDataReader转換為集合
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="reader"></param>
@@ -104,7 +104,7 @@ namespace YiSha.Data
         }
 
         /// <summary>
-        ///  将IDataReader转换为DataTable
+        ///  將IDataReader转換為DataTable
         /// </summary>
         /// <param name="dr"></param>
         /// <returns></returns>
@@ -133,7 +133,7 @@ namespace YiSha.Data
         }
 
         /// <summary>
-        /// 获取实体类键值（缓存）
+        /// 獲取實體類鍵值（緩存）
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="entity"></param>
@@ -194,7 +194,7 @@ namespace YiSha.Data
             return tempData;
         }
 
-        //这个类对可空类型进行判断转换，要不然会报错
+        //這個類對可空類型進行判斷转換，要不然会报錯
         public static object HackType(object value, Type conversionType)
         {
             if (conversionType.IsGenericType && conversionType.GetGenericTypeDefinition().Equals(typeof(Nullable<>)))
@@ -213,7 +213,7 @@ namespace YiSha.Data
         }
 
         /// <summary>
-        /// 获取使用Linq生成的Sql
+        /// 獲取使用Linq生成的Sql
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="query"></param>
@@ -233,7 +233,7 @@ namespace YiSha.Data
         }
 
         /// <summary>
-        /// 获取运行时的Sql
+        /// 獲取運行時的Sql
         /// </summary>
         /// <param name="dbCommand"></param>
         /// <returns></returns>

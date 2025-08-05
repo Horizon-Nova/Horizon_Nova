@@ -16,7 +16,7 @@ namespace YiSha.Business.SystemManage
 {
     public class DatabaseTableBLL
     {
-        #region  构造函数
+        #region  構造函數
         private IDatabaseTableService databaseTableService;
 
         public DatabaseTableBLL()
@@ -34,12 +34,12 @@ namespace YiSha.Business.SystemManage
                     databaseTableService = new DatabaseTableOracleService();
                     break;
                 default:
-                    throw new Exception("未找到数据库配置");
+                    throw new Exception("未找到資料庫配置");
             }
         }
         #endregion
 
-        #region 获取数据
+        #region 獲得資料
         public async Task<TData<List<TableInfo>>> GetTableList(string tableName)
         {
             TData<List<TableInfo>> obj = new TData<List<TableInfo>>();
@@ -61,7 +61,7 @@ namespace YiSha.Business.SystemManage
         }
 
         /// <summary>
-        /// 获取表字段
+        /// 獲取表字段
         /// </summary>
         /// <param name="tableName"></param>
         /// <returns></returns>
@@ -76,7 +76,7 @@ namespace YiSha.Business.SystemManage
         }
 
         /// <summary>
-        /// 获取表字段，去掉基础字段
+        /// 獲取表字段，去掉基礎字段
         /// </summary>
         /// <param name="tableName"></param>
         /// <returns></returns>
@@ -116,7 +116,7 @@ namespace YiSha.Business.SystemManage
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         public async Task<string> DatabaseBackup(string backupPath)
         {
             string database = HtmlHelper.Resove(GlobalContext.SystemConfig.DBConnectionString.ToLower(), "database=", ";");

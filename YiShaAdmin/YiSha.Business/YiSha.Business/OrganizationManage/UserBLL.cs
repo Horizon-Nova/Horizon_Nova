@@ -30,7 +30,7 @@ namespace YiSha.Business.OrganizationManage
 
         private DepartmentBLL departmentBLL = new DepartmentBLL();
 
-        #region 获取数据
+        #region 獲得資料
         public async Task<TData<List<UserEntity>>> GetList(UserListParam param)
         {
             TData<List<UserEntity>> obj = new TData<List<UserEntity>>();
@@ -88,7 +88,7 @@ namespace YiSha.Business.OrganizationManage
             TData<UserEntity> obj = new TData<UserEntity>();
             if (userName.IsEmpty() || password.IsEmpty())
             {
-                obj.Message = "用户名或密码不能为空";
+                obj.Message = "使用者名或密碼不能為空";
                 return obj;
             }
             UserEntity user = await userService.CheckLogin(userName);
@@ -101,7 +101,7 @@ namespace YiSha.Business.OrganizationManage
                         user.LoginCount++;
                         user.IsOnline = 1;
 
-                        #region 设置日期
+                        #region 設置日期
                         if (user.FirstVisit == GlobalConstant.DefaultTime)
                         {
                             user.FirstVisit = DateTime.Now;
@@ -122,7 +122,7 @@ namespace YiSha.Business.OrganizationManage
                             case (int)PlatformEnum.Web:
                                 if (GlobalContext.SystemConfig.LoginMultiple)
                                 {
-                                    #region 多次登录用同一个token
+                                    #region 多次登錄用同一個token
                                     if (string.IsNullOrEmpty(user.WebToken))
                                     {
                                         user.WebToken = SecurityHelper.GetGuid(true);
@@ -142,34 +142,34 @@ namespace YiSha.Business.OrganizationManage
                         await GetUserBelong(user);
 
                         obj.Data = user;
-                        obj.Message = "登录成功";
+                        obj.Message = "登錄成功";
                         obj.Tag = 1;
                     }
                     else
                     {
-                        obj.Message = "密码不正确，请重新输入";
+                        obj.Message = "密碼不正確，請重新輸入";
                     }
                 }
                 else
                 {
-                    obj.Message = "账号被禁用，请联系管理员";
+                    obj.Message = "帳號被禁用，請联系管理員";
                 }
             }
             else
             {
-                obj.Message = "账号不存在，请重新输入";
+                obj.Message = "帳號不存在，請重新輸入";
             }
             return obj;
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         public async Task<TData<string>> SaveForm(UserEntity entity)
         {
             TData<string> obj = new TData<string>();
             if (userService.ExistUserName(entity))
             {
-                obj.Message = "用户名已经存在！";
+                obj.Message = "使用者名已经存在！";
                 return obj;
             }
             if (entity.Id.IsNullOrZero())
@@ -195,7 +195,7 @@ namespace YiSha.Business.OrganizationManage
             TData obj = new TData();
             if (string.IsNullOrEmpty(ids))
             {
-                obj.Message = "参数不能为空";
+                obj.Message = "參數不能為空";
                 return obj;
             }
             await userService.DeleteForm(ids);
@@ -214,7 +214,7 @@ namespace YiSha.Business.OrganizationManage
                 UserEntity dbUserEntity = await userService.GetEntity(entity.Id.Value);
                 if (dbUserEntity.Password == entity.Password)
                 {
-                    obj.Message = "密码未更改";
+                    obj.Message = "密碼未更改";
                     return obj;
                 }
                 entity.Salt = GetPasswordSalt();
@@ -236,13 +236,13 @@ namespace YiSha.Business.OrganizationManage
             {
                 if (string.IsNullOrEmpty(param.Password) || string.IsNullOrEmpty(param.NewPassword))
                 {
-                    obj.Message = "新密码不能为空";
+                    obj.Message = "新密碼不能為空";
                     return obj;
                 }
                 UserEntity dbUserEntity = await userService.GetEntity(param.Id.Value);
                 if (dbUserEntity.Password != EncryptUserPassword(param.Password, dbUserEntity.Salt))
                 {
-                    obj.Message = "旧密码不正确";
+                    obj.Message = "舊密碼不正確";
                     return obj;
                 }
                 dbUserEntity.Salt = GetPasswordSalt();
@@ -258,7 +258,7 @@ namespace YiSha.Business.OrganizationManage
         }
 
         /// <summary>
-        /// 用户自己修改自己的信息
+        /// 使用者自己修改自己的信息
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
@@ -313,7 +313,7 @@ namespace YiSha.Business.OrganizationManage
             }
             else
             {
-                obj.Message = " 未找到导入的数据";
+                obj.Message = " 未找到導入的資料";
             }
             return obj;
         }
@@ -322,7 +322,7 @@ namespace YiSha.Business.OrganizationManage
 
         #region 私有方法
         /// <summary>
-        /// 密码MD5处理
+        /// 密碼MD5處理
         /// </summary>
         /// <param name="password"></param>
         /// <param name="salt"></param>
@@ -335,7 +335,7 @@ namespace YiSha.Business.OrganizationManage
         }
 
         /// <summary>
-        /// 密码盐
+        /// 密碼盐
         /// </summary>
         /// <returns></returns>
         private string GetPasswordSalt()
@@ -344,7 +344,7 @@ namespace YiSha.Business.OrganizationManage
         }
 
         /// <summary>
-        /// 移除缓存里面的token
+        /// 移除緩存里面的token
         /// </summary>
         /// <param name="id"></param>
         private async Task RemoveCacheById(string ids)
@@ -365,7 +365,7 @@ namespace YiSha.Business.OrganizationManage
         }
 
         /// <summary>
-        /// 获取用户的职位和角色
+        /// 獲取使用者的職位和角色
         /// </summary>
         /// <param name="user"></param>
         private async Task GetUserBelong(UserEntity user)

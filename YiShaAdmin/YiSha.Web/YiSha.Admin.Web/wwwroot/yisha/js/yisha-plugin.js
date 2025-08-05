@@ -1,4 +1,4 @@
-﻿// 添加到Jquery对象上面，用$("#id").进行访问
+﻿// 添加到Jquery對象上面，用$("#id").進行訪問
 ; (function ($) {
     "use strict";
     $.fn.ysRadioBox = function (option, param) {
@@ -14,8 +14,8 @@
             url: null,
             key: "Key",
             value: "Value",
-            data: null, // 数据源            
-            dataName: 'Data', // 数据名称
+            data: null, // 資料源            
+            dataName: 'Data', // 資料名稱
             default: undefined
         }, option);
 
@@ -112,8 +112,8 @@
             url: null,
             key: "Key",
             value: "Value",
-            data: null, //数据源
-            dataName: 'Data', //数据名称
+            data: null, //資料源
+            dataName: 'Data', //資料名稱
             default: undefined
         }, option);
 
@@ -193,7 +193,7 @@
         }
     };
 
-    // 下拉框select，和ysComboxBoxTree对应
+    // 下拉框select，和ysComboxBoxTree對應
     $.fn.ysComboBox = function (option, param) {
         if (typeof option == 'string') {
             return $.fn.ysComboBox.methods[option](this, param);
@@ -210,8 +210,8 @@
             maxHeight: "160px",
             class: null,
             multiple: false,
-            data: null, // 数据源          
-            dataName: 'Data',  // 数据名称
+            data: null, // 資料源          
+            dataName: 'Data',  // 資料名稱
             onChange: null,
             default: undefined
         }, option);
@@ -255,18 +255,18 @@
 
                     var option = '';
 
-                    var groupOption = false; // 是否有分组
+                    var groupOption = false; // 是否有分組
                     if (setting.data.length > 0) {
                         groupOption = setting.data[0][setting.value] instanceof Array;
                     }
 
                     if (!groupOption) {
                         if (!setting.class) {
-                            // 没有form-control这个class，就加一个全部选项，应该是查询条件
+                            // 沒有form-control這個class，就加一個全部選項，應該是查询條件
                             option += "<option value='-1'>全部</option>";
                         } else {
                             if (!setting.multiple) {
-                                option += "<option value='' selected='selected'>请选择</option>";
+                                option += "<option value='' selected='selected'>請選擇</option>";
                             }
                         }
                     }
@@ -277,7 +277,7 @@
                             option += "<option value='" + row + "'>" + row + "</option>";
                         } else {
                             if (row[setting.value] instanceof Array) {
-                                // 分组的选项
+                                // 分組的選項
                                 option += "<optgroup label='--" + row[setting.key] + "--'>";
                                 $.each(row[setting.value], function (j) {
                                     var childRow = row[setting.value][j];
@@ -311,7 +311,7 @@
                     }
                     $("#" + id).select2();
 
-                    // hack 搜索的select保持和其他元素的宽度一致
+                    // hack 查詢的select保持和其他元素的寬度一致
                     if (!setting.class) {
                         $("#" + targetId).find(".select2-container").width(280);
                     }
@@ -334,7 +334,7 @@
             }
             else {
                 var val = valArray.toString();
-                // -1代表查询条件所有，就把这个查询条件置为空
+                // -1代表查询條件所有，就把這個查询條件置為空
                 return val;
             }
         },

@@ -13,7 +13,7 @@ namespace YiSha.Model.Param.SystemManage
         public int? RoleStatus { get; set; }
 
         /// <summary>
-        /// 多个角色Id
+        /// 多個角色Id
         /// </summary>
         public string RoleIds { get; set; }
     }

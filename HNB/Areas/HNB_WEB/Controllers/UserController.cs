@@ -1,60 +1,24 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using HNB.Areas.HNB_WEB.Repositories;
+using HNB.Areas.HNB_WEB.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Build.Evaluation;
 
-namespace HNB.Areas.HNB_WEB.Controllers
+namespace HNB.Areas.HNB_WEB.Controllers;
+
+[Area("HNB_WEB")]
+public class UserController : Controller
 {
-    [Area("HNB_WEB")]
-    public class UserController : Controller
+    private readonly UserServices _svc;
+    public UserController(UserServices svc) => _svc = svc;
+
+    public IActionResult UserIndex()
     {
-        private readonly HNB_WEB.Services.UserServices _userServices;
-        public UserController(HNB_WEB.Services.UserServices userServices)
-        {
-            _userServices = userServices;
-        }
+        return View();
+    }
 
-        public IActionResult UserIndex()
-        {
-            _userServices.ViewBagModelUser(ViewBag);
-            return View();
-        }
-
-        //public IActionResult UserForm()
-        //{
-        //    return View();
-        //}
-
-        //public IActionResult UserDetail()
-        //{
-        //    ViewBag.Ip = NetHelper.Ip;
-        //    return View();
-        //}
-
-        //public IActionResult ResetPassword()
-        //{
-        //    return View();
-        //}
-
-        //public async Task<IActionResult> ChangePassword()
-        //{
-        //    ViewBag.OperatorInfo = await Operator.Instance.Current();
-        //    return View();
-        //}
-
-        //public IActionResult ChangeUser()
-        //{
-        //    return View();
-        //}
-
-        //public async Task<IActionResult> UserPortrait()
-        //{
-        //    ViewBag.OperatorInfo = await Operator.Instance.Current();
-        //    return View();
-        //}
-
-        public IActionResult UserImport()
-        {
-            return View();
-        }
-
+    public async Task<IActionResult> GetDepartmentTreeListJson()
+    {
+        var result = _svc.GetZtreeDepartmentListAsync();
+        return Json(result);
     }
 }

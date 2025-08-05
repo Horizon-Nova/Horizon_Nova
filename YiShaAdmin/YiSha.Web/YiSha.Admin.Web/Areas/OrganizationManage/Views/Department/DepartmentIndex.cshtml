@@ -14,10 +14,10 @@
             <div class="select-list">
                 <ul>
                     <li>
-                        部门名称：<input id="departmentName" col="DepartmentName" type="text" />
+                        部門名稱：<input id="departmentName" col="DepartmentName" type="text" />
                     </li>
                     <li>
-                        <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchTreeGrid()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                        <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchTreeGrid()"><i class="fa fa-search"></i>&nbsp;查詢</a>
                     </li>
                 </ul>
             </div>
@@ -27,7 +27,7 @@
             <a id="btnAdd" class="btn btn-success" onclick="showSaveForm(true)"><i class="fa fa-plus"></i> 新增</a>
             <a id="btnEdit" class="btn btn-primary" onclick="showSaveForm(false)"><i class="fa fa-edit"></i> 修改</a>
             <a id="btnDelete" class="btn btn-danger" onclick="deleteForm()"><i class="fa fa-remove"></i> 删除</a>
-            <a id="btnExpandAll" class="btn btn-info"><i class="fa fa-exchange"></i> 展开/折叠</a>
+            <a id="btnExpandAll" class="btn btn-info"><i class="fa fa-exchange"></i> 展開/折叠</a>
         </div>
         <div class="col-sm-12 select-table table-striped">
             <table id="gridTable" data-mobile-responsive="true"></table>
@@ -51,14 +51,14 @@
             toolbar: '#toolbar',
             expandColumn: '1',
             url: '@Url.Content("~/OrganizationManage/Department/GetListJson")',
-            modalName: "部门",
+            modalName: "部門",
             columns: [
                 { field: 'selectItem', radio: true },
-                { field: 'DepartmentName', title: '部门名称', width: '20%' },
-                { field: 'DepartmentSort', title: '显示顺序', width: '10%', align: "left" },
-                { field: 'PrincipalName', title: '负责人', width: '10%', align: "left" },
+                { field: 'DepartmentName', title: '部門名稱', width: '20%' },
+                { field: 'DepartmentSort', title: '顯示順序', width: '10%', align: "left" },
+                { field: 'PrincipalName', title: '負責人', width: '10%', align: "left" },
                 {
-                    field: 'BaseModifyTime', title: '创建时间', width: '60%', align: "left",
+                    field: 'BaseModifyTime', title: '創建時間', width: '60%', align: "left",
                     formatter: function (value, row, index) {
                         return ys.formatDate(value, "yyyy-MM-dd HH:mm:ss");
                     }
@@ -93,7 +93,7 @@
             }
         }
         ys.openDialog({
-            title: id > 0 ? "编辑部门" : "添加部门",
+            title: id > 0 ? "編輯部門" : "添加部門",
             content: '@Url.Content("~/OrganizationManage/Department/DepartmentForm")' + '?id=' + id,
             callback: function (index, layero) {
                 var iframeWin = window[layero.find('iframe')[0]['name']];
@@ -105,7 +105,7 @@
     function deleteForm() {
         var selectedRow = $("#gridTable").bootstrapTreeTable("getSelections");
         if (ys.checkRowDelete(selectedRow)) {
-            ys.confirm("确认要删除选中的" + selectedRow.length + "条数据吗？", function () {
+            ys.confirm("確認要删除選中的" + selectedRow.length + "條資料嗎？", function () {
                 var ids = ys.getIds(selectedRow);
                 ys.ajax({
                     url: '@Url.Content("~/OrganizationManage/Department/DeleteFormJson")' + '?ids=' + ids,

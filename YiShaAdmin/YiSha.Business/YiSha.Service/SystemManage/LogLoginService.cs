@@ -17,7 +17,7 @@ namespace YiSha.Service.SystemManage
 {
     public class LogLoginService : RepositoryFactory
     {
-        #region 获取数据
+        #region 獲得資料
         public async Task<List<LogLoginEntity>> GetList(LogLoginListParam param)
         {
             var strSql = new StringBuilder();
@@ -40,7 +40,7 @@ namespace YiSha.Service.SystemManage
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         public async Task SaveForm(LogLoginEntity entity)
         {
             if (entity.Id.IsNullOrZero())

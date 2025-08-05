@@ -5,22 +5,22 @@
 	<div class="desc">
 		<p></p>
 		<div class="longdesc">
-			<p>设置某节点进入编辑名称状态。</p>
-			<p class="highlight_red">1、如果需要用 js 取消编辑名称状态，请使用 cancelEditName(newName) 方法。</p>
-			<p class="highlight_red">2、可利用此方法让当前正编辑的节点 input 输入框获取焦点。</p>
-			<p class="highlight_red">3、请通过 zTree 对象执行此方法。</p>
+			<p>設置某節點進入編輯名稱狀態。</p>
+			<p class="highlight_red">1、如果需要用 js 取消編輯名稱狀態，請使用 cancelEditName(newName) 方法。</p>
+			<p class="highlight_red">2、可利用此方法讓當前正編輯的節點 input 輸入框獲取焦點。</p>
+			<p class="highlight_red">3、請通過 zTree 對象執行此方法。</p>
 		</div>
 	</div>
-	<h3>Function 参数说明</h3>
+	<h3>Function 參數說明</h3>
 	<div class="desc">
 	<h4><b>treeNode</b><span>JSON</span></h4>
-	<p>指定进入编辑名称状态的节点 JSON 数据</p>
-	<p class="highlight_red">请务必保证此节点数据对象 是 zTree 内部的数据对象</p>
+	<p>指定進入編輯名稱狀態的節點 JSON 資料</p>
+	<p class="highlight_red">請務必保證此節點資料對象 是 zTree 內部的資料對象</p>
 	<h4 class="topLine"><b>返回值</b><span>无</span></h4>
 	<p>目前无任何返回值</p>
 	</div>
 	<h3>function 举例</h3>
-	<h4>1. 设置根节点第一个节点进入编辑名称状态</h4>
+	<h4>1. 設置根節點第一個節點進入編輯名稱狀態</h4>
 	<pre xmlns=""><code>var treeObj = $.fn.zTree.getZTreeObj("tree");
 var nodes = treeObj.getNodes();
 treeObj.editName(nodes[0]);

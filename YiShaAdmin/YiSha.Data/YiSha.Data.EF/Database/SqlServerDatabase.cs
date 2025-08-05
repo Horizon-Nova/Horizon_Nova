@@ -16,9 +16,9 @@ namespace YiSha.Data.EF
 {
     public class SqlServerDatabase : IDatabase
     {
-        #region 构造函数
+        #region 構造函數
         /// <summary>
-        /// 构造方法
+        /// 構造方法
         /// </summary>
         public SqlServerDatabase(string connString)
         {
@@ -28,18 +28,18 @@ namespace YiSha.Data.EF
 
         #region 属性
         /// <summary>
-        /// 获取 当前使用的数据访问上下文对象
+        /// 獲取 當前使用的資料訪問上下文對象
         /// </summary>
         public DbContext dbContext { get; set; }
         /// <summary>
-        /// 事务对象
+        /// 事務對象
         /// </summary>
         public IDbContextTransaction dbContextTransaction { get; set; }
         #endregion
 
-        #region 事务提交
+        #region 事務提交
         /// <summary>
-        /// 事务开始
+        /// 事務開始
         /// </summary>
         /// <returns></returns>
         public async Task<IDatabase> BeginTrans()
@@ -53,7 +53,7 @@ namespace YiSha.Data.EF
             return this;
         }
         /// <summary>
-        /// 提交当前操作的结果
+        /// 提交當前操作的結果
         /// </summary>
         public async Task<int> CommitTrans()
         {
@@ -86,7 +86,7 @@ namespace YiSha.Data.EF
             }
         }
         /// <summary>
-        /// 把当前操作回滚成未提交状态
+        /// 把當前操作回滚成未提交狀態
         /// </summary>
         public async Task RollbackTrans()
         {
@@ -95,7 +95,7 @@ namespace YiSha.Data.EF
             await this.Close();
         }
         /// <summary>
-        /// 关闭连接 内存回收
+        /// 關閉连接 內存回收
         /// </summary>
         public async Task Close()
         {
@@ -103,7 +103,7 @@ namespace YiSha.Data.EF
         }
         #endregion
 
-        #region 执行 SQL 语句
+        #region 執行 SQL 語句
         public async Task<int> ExecuteBySql(string strSql)
         {
             if (dbContextTransaction == null)
@@ -154,7 +154,7 @@ namespace YiSha.Data.EF
         }
         #endregion
 
-        #region 对象实体 添加、修改、删除
+        #region 對象實體 添加、修改、删除
         public async Task<int> Insert<T>(T entity) where T : class
         {
             dbContext.Entry<T>(entity).State = EntityState.Added;
@@ -276,7 +276,7 @@ namespace YiSha.Data.EF
         }
         #endregion
 
-        #region 对象实体 查询
+        #region 對象實體 查询
         public async Task<T> FindEntity<T>(object keyValue) where T : class
         {
             return await dbContext.Set<T>().FindAsync(keyValue);
@@ -363,7 +363,7 @@ namespace YiSha.Data.EF
         }
         #endregion
 
-        #region 数据源查询
+        #region 資料源查询
         public async Task<DataTable> FindTable(string strSql)
         {
             return await FindTable(strSql, null);

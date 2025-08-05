@@ -3634,8 +3634,8 @@
                     self.ajaxAborted = false;
                     self._raise('filebeforedelete', [vKey, extraData]);
                     //noinspection JSUnresolvedVariable,JSHint
-                    // 删除前确认，因为是非阻塞的，所以要用回调来做
-                    ys.confirm("确认要删除吗？", function () {
+                    // 删除前確認，因為是非阻塞的，所以要用回調來做
+                    ys.confirm("確認要删除嗎？", function () {
                         if (self.ajaxAborted instanceof Promise) {
                             self.ajaxAborted.then(function (result) {
                                 if (!result) {

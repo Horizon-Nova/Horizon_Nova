@@ -5,44 +5,44 @@
 <div class="wrapper animated fadeInRight">
     <form id="form" class="form-horizontal m">
         <div class="form-group">
-            <label class="col-sm-3 control-label ">上级菜单</label>
+            <label class="col-sm-3 control-label ">上級選單</label>
             <div class="col-sm-8">
                 <input id="parentId" type="hidden" col="ParentId" />
                 <input id="parentName" col="ParentName" type="text" class="form-control" readonly="readonly" onclick="showChooseForm()" />
             </div>
         </div>
         <div class="form-group">
-            <label class="col-sm-3 control-label">菜单类型</label>
+            <label class="col-sm-3 control-label">選單類型</label>
             <div class="col-sm-8" id="menuType" col="MenuType"></div>
         </div>
         <div class="form-group">
-            <label class="col-sm-3 control-label">菜单名称<font class="red"> *</font></label>
+            <label class="col-sm-3 control-label">選單名稱<font class="red"> *</font></label>
             <div class="col-sm-8">
                 <input id="menuName" col="MenuName" type="text" class="form-control" />
             </div>
         </div>
         <div class="form-group">
-            <label class="col-sm-3 control-label">权限标识</label>
+            <label class="col-sm-3 control-label">權限標識</label>
             <div class="col-sm-8">
                 <input id="authorize" col="Authorize" type="text" class="form-control" />
             </div>
         </div>
         <div class="form-group">
-            <label class="col-sm-3 control-label">请求地址</label>
+            <label class="col-sm-3 control-label">請求地址</label>
             <div class="col-sm-8">
                 <input id="menuUrl" col="MenuUrl" type="text" class="form-control" />
             </div>
         </div>
         <div class="form-group">
-            <label class="col-sm-3 control-label">显示排序</label>
+            <label class="col-sm-3 control-label">顯示排序</label>
             <div class="col-sm-8">
                 <input id="menuSort" col="MenuSort" type="text" class="form-control" />
             </div>
         </div>
         <div class="form-group">
-            <label class="col-sm-3 control-label">图标</label>
+            <label class="col-sm-3 control-label">圖標</label>
             <div class="col-sm-8">
-                <input id="menuIcon" col="MenuIcon" class="form-control" type="text" placeholder="选择图标">
+                <input id="menuIcon" col="MenuIcon" class="form-control" type="text" placeholder="選擇圖標">
                 <div class="ms-parent" style="width: 100%;">
                     <div class="icon-drop animated flipInX" style="display: none;max-height:200px;overflow-y:auto">
                         @Html.PartialAsync("MenuIcon").Result
@@ -51,7 +51,7 @@
             </div>
         </div>
         <div class="form-group">
-            <label class="col-sm-3 control-label">菜单状态</label>
+            <label class="col-sm-3 control-label">選單狀態</label>
             <div class="col-sm-8" id="menuStatus" col="MenuStatus"></div>
         </div>
     </form>
@@ -110,7 +110,7 @@
                             defaultData.ParentName = parentName;
                         }
                         else {
-                            defaultData.ParentName = "主目录";
+                            defaultData.ParentName = "主目錄";
                         }
                         defaultData.MenuStatus = "@StatusEnum.Yes.ParseToInt()";
 
@@ -161,7 +161,7 @@
 
     function showChooseForm() {
         ys.openDialog({
-            title: "菜单选择",
+            title: "選單選擇",
             content: '@Url.Content("~/SystemManage/Menu/MenuChoose")' + '?id=' + id,
             width: "300px",
             height: "390px",

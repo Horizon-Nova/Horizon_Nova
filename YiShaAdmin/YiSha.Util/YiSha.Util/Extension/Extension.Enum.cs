@@ -11,9 +11,9 @@ namespace YiSha.Util.Extension
 {
     public static partial class Extensions
     {
-        #region 枚举成员转成dictionary类型
+        #region 枚举成員转成dictionary類型
         /// <summary>
-        /// 转成dictionary类型
+        /// 转成dictionary類型
         /// </summary>
         /// <param name="enumType"></param>
         /// <returns></returns>
@@ -45,7 +45,7 @@ namespace YiSha.Util.Extension
             return dictionary;
         }
         /// <summary>
-        /// 枚举成员转成键值对Json字符串
+        /// 枚举成員转成鍵值對Json字符串
         /// </summary>
         /// <param name="enumType"></param>
         /// <returns></returns>
@@ -57,9 +57,9 @@ namespace YiSha.Util.Extension
         }
         #endregion
 
-        #region 获取枚举的描述
+        #region 獲取枚举的描述
         /// <summary>
-        /// 获取枚举值对应的描述
+        /// 獲取枚举值對應的描述
         /// </summary>
         /// <param name="enumType"></param>
         /// <returns></returns>
@@ -78,7 +78,7 @@ namespace YiSha.Util.Extension
         }
         #endregion
 
-        #region 根据值获取枚举的描述
+        #region 根据值獲取枚举的描述
         public static string GetDescriptionByEnum<T>(this object obj)
         {
             var tEnum = System.Enum.Parse(typeof(T), obj.ParseToString()) as System.Enum;

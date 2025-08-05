@@ -1,5 +1,5 @@
 ﻿@{
-    ViewBag.Title = "一沙后台管理系统 - 登录";
+    ViewBag.Title = "一Horizon Nova後台 - 登錄";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment HostingEnvironment
@@ -14,25 +14,25 @@
     <div class="row section">
         <div class="col-sm-12">
             <form id="form">
-                <h4 class="no-margin">登录：</h4>
+                <h4 class="no-margin">登錄：</h4>
                 <p class="m-t-md">一沙一世界，一叶一菩提</p>
-                <p>用户名：admin&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;密码：123456</p>
-                <input id="userName" name="userName" class="form-control uname" col="UserName" type="text" placeholder="用户名" value="@ViewBag.UserName" />
-                <input id="password" name="password" class="form-control pword m-b" col="Password" type="password" placeholder="密码" value="@ViewBag.Password" />
+                <p>使用者名：admin&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;密碼：123456</p>
+                <input id="userName" name="userName" class="form-control uname" col="UserName" type="text" placeholder="使用者名" value="@ViewBag.UserName" />
+                <input id="password" name="password" class="form-control pword m-b" col="Password" type="password" placeholder="密碼" value="@ViewBag.Password" />
                 <div class="row">
                     <div class="col-xs-6">
-                        <input id="captchaCode" name="captchaCode" type="text" col="CaptchaCode" class="form-control code" placeholder="验证码" maxlength="3">
+                        <input id="captchaCode" name="captchaCode" type="text" col="CaptchaCode" class="form-control code" placeholder="驗證碼" maxlength="3">
                     </div>
                     <div class="col-xs-6">
-                        <a href="javascript:void(0);" title="点击更换验证码">
+                        <a href="javascript:void(0);" title="點击更換驗證碼">
                             <img id="imgCaptchaCode" src='@Url.Content("~/Home/GetCaptchaImage")' height="34" />
                         </a>
                     </div>
                 </div>
                 <div class="checkbox-custom">
-                    <input id="rememberMe" name="rememberMe" type="checkbox"> <label for="rememberMe">记住我</label>
+                    <input id="rememberMe" name="rememberMe" type="checkbox"> <label for="rememberMe">記住我</label>
                 </div>
-                <button class="btn btn-success btn-block" onclick="loginForm(); return false;">登录</button>
+                <button class="btn btn-success btn-block" onclick="loginForm(); return false;">登錄</button>
             </form>
         </div>
     </div>

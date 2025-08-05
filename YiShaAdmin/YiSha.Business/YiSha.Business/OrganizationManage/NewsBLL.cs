@@ -17,7 +17,7 @@ namespace YiSha.Business.OrganizationManage
         private AreaBLL areaBLL = new AreaBLL();
         private NewsService newsService = new NewsService();
 
-        #region 获取数据
+        #region 獲得資料
         public async Task<TData<List<NewsEntity>>> GetList(NewsListParam param)
         {
             TData<List<NewsEntity>> obj = new TData<List<NewsEntity>>();
@@ -65,7 +65,7 @@ namespace YiSha.Business.OrganizationManage
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         public async Task<TData<string>> SaveForm(NewsEntity entity)
         {
             TData<string> obj = new TData<string>();

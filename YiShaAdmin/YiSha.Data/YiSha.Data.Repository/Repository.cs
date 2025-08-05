@@ -14,13 +14,13 @@ using YiSha.Util.Model;
 namespace YiSha.Data.Repository
 {
     /// <summary>
-    /// 创建人：admin
+    /// 創建人：admin
     /// 日 期：2018.10.18
-    /// 描 述：定义仓储模型中的数据标准操作接口
+    /// 描 述：定義仓储模型中的資料標准操作接口
     /// </summary>
     public class Repository
     {
-        #region 构造函数
+        #region 構造函數
         public IDatabase db;
         public Repository(IDatabase iDatabase)
         {
@@ -28,7 +28,7 @@ namespace YiSha.Data.Repository
         }
         #endregion
 
-        #region 事务提交
+        #region 事務提交
         public async Task<Repository> BeginTrans()
         {
             await db.BeginTrans();
@@ -44,7 +44,7 @@ namespace YiSha.Data.Repository
         }
         #endregion
 
-        #region 执行 SQL 语句
+        #region 執行 SQL 語句
         public async Task<int> ExecuteBySql(string strSql)
         {
             return await db.ExecuteBySql(strSql);
@@ -63,7 +63,7 @@ namespace YiSha.Data.Repository
         }
         #endregion
 
-        #region 对象实体 添加、修改、删除
+        #region 對象實體 添加、修改、删除
         public async Task<int> Insert<T>(T entity) where T : class
         {
             return await db.Insert<T>(entity);
@@ -125,7 +125,7 @@ namespace YiSha.Data.Repository
         }
         #endregion
 
-        #region 对象实体 查询
+        #region 對象實體 查询
         public async Task<T> FindEntity<T>(long id) where T : class
         {
             return await db.FindEntity<T>(id);
@@ -179,7 +179,7 @@ namespace YiSha.Data.Repository
         }
         #endregion
 
-        #region 数据源 查询
+        #region 資料源 查询
         public async Task<DataTable> FindTable(string strSql)
         {
             return await db.FindTable(strSql);

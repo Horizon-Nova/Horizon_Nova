@@ -138,15 +138,15 @@ namespace YiSha.Util
         /// </summary>
         public string CPURate { get; set; }
         /// <summary>
-        /// 总内存
+        /// 總內存
         /// </summary>
         public string TotalRAM { get; set; }
         /// <summary>
-        /// 内存使用率
+        /// 內存使用率
         /// </summary>
         public string RAMRate { get; set; }
         /// <summary>
-        /// 系统运行时间
+        /// 系统運行時間
         /// </summary>
         public string RunTime { get; set; }
     }

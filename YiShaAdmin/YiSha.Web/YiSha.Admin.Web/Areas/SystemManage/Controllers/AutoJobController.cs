@@ -20,7 +20,7 @@ namespace YiSha.Admin.Web.Areas.SystemManage.Controllers
     {
         private AutoJobBLL autoJobBLL = new AutoJobBLL();
 
-        #region 视图功能
+        #region 視圖功能
         [AuthorizeFilter("system:autojob:view")]
         public IActionResult AutoJobIndex()
         {
@@ -32,7 +32,7 @@ namespace YiSha.Admin.Web.Areas.SystemManage.Controllers
         }
         #endregion
 
-        #region 获取数据
+        #region 獲得資料
         [HttpGet]
         [AuthorizeFilter("system:autojob:search")]
         public async Task<IActionResult> GetListJson(AutoJobListParam param)
@@ -58,7 +58,7 @@ namespace YiSha.Admin.Web.Areas.SystemManage.Controllers
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         [HttpPost]
         [AuthorizeFilter("system:autojob:add,ystem:autojob:edit")]
         public async Task<IActionResult> SaveFormJson(AutoJobEntity entity)

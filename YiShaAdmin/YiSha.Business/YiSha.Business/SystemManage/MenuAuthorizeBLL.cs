@@ -22,7 +22,7 @@ namespace YiSha.Business.SystemManage
         private MenuAuthorizeCache menuAuthorizeCache = new MenuAuthorizeCache();
         private MenuCache menuCache = new MenuCache();
 
-        #region 获取数据
+        #region 獲得資料
         public async Task<TData<List<MenuAuthorizeInfo>>> GetAuthorizeList(OperatorInfo user)
         {
             TData<List<MenuAuthorizeInfo>> obj = new TData<List<MenuAuthorizeInfo>>();
@@ -38,7 +38,7 @@ namespace YiSha.Business.SystemManage
 
             menuAuthorizeCacheList = menuAuthorizeCacheList.Where(p => enableMenuIdList.Contains(p.MenuId)).ToList();
 
-            // 用户
+            // 使用者
             userAuthorizeList = menuAuthorizeCacheList.Where(p => p.AuthorizeId == user.UserId && p.AuthorizeType == AuthorizeTypeEnum.User.ParseToInt()).ToList();
 
             // 角色
@@ -48,7 +48,7 @@ namespace YiSha.Business.SystemManage
                 roleAuthorizeList = menuAuthorizeCacheList.Where(p => roleIdList.Contains(p.AuthorizeId.Value) && p.AuthorizeType == AuthorizeTypeEnum.Role.ParseToInt()).ToList();
             }
 
-            // 排除重复的记录
+            // 排除重复的記錄
             if (userAuthorizeList.Count > 0)
             {
                 authorizeList.AddRange(userAuthorizeList);

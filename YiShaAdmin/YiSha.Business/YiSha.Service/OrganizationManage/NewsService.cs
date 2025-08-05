@@ -17,7 +17,7 @@ namespace YiSha.Service.OrganizationManage
 {
     public class NewsService : RepositoryFactory
     {
-        #region 获取数据
+        #region 獲得資料
         public async Task<List<NewsEntity>> GetList(NewsListParam param)
         {
             var strSql = new StringBuilder();
@@ -56,7 +56,7 @@ namespace YiSha.Service.OrganizationManage
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         public async Task SaveForm(NewsEntity entity)
         {
             if (entity.Id.IsNullOrZero())

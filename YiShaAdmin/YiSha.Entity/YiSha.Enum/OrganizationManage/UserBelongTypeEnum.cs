@@ -10,7 +10,7 @@ namespace YiSha.Enum.OrganizationManage
     public enum UserBelongTypeEnum
     {
 
-        [Description("职位")]
+        [Description("職位")]
         Position = 1,
 
         [Description("角色")]

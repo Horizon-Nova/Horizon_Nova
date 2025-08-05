@@ -7,10 +7,10 @@
             <div class="select-list">
                 <ul>
                     <li>
-                        文章标题：<input id="newsTitle" col="NewsTitle" type="text" />
+                        文章標題：<input id="newsTitle" col="NewsTitle" type="text" />
                     </li>
                     <li>
-                        <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                        <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class="fa fa-search"></i>&nbsp;查詢</a>
                     </li>
                 </ul>
             </div>
@@ -40,16 +40,16 @@
             columns: [
                 { checkbox: true, visible: true },
                 { field: 'Id', title: 'Id', visible: false },
-                { field: 'NewsTitle', title: '文章标题' },
+                { field: 'NewsTitle', title: '文章標題' },
                 {
-                    field: 'NewsType', title: '文章类型', formatter: function (value, row, index) {
+                    field: 'NewsType', title: '文章類型', formatter: function (value, row, index) {
                         return top.getDataDictValue('NewsType', value);
                     }
                 },
                 { field: 'NewsAuthor', title: '作者' },
                 { field: 'NewsSort', title: '排序' },
-                { field: 'NewsDate', title: '发布时间' },
-                { field: 'ViewTimes', title: '阅读量' },
+                { field: 'NewsDate', title: '發布時間' },
+                { field: 'ViewTimes', title: '閱讀量' },
             ],
             queryParams: function (params) {
                 var pagination = $('#gridTable').ysTable('getPagination', params);
@@ -76,7 +76,7 @@
             }
         }
         ys.openDialog({
-            title: id > 0 ? "编辑文章" : "添加文章",
+            title: id > 0 ? "編輯文章" : "添加文章",
             content: '@Url.Content("~/OrganizationManage/News/NewsForm")' + '?id=' + id,
             callback: function (index, layero) {
                 var iframeWin = window[layero.find('iframe')[0]['name']];
@@ -88,7 +88,7 @@
     function deleteForm() {
         var selectedRow = $("#gridTable").bootstrapTable("getSelections");
         if (ys.checkRowDelete(selectedRow)) {
-            ys.confirm("确认要删除选中的" + selectedRow.length + "条数据吗？", function () {
+            ys.confirm("確認要删除選中的" + selectedRow.length + "條資料嗎？", function () {
                 var ids = ys.getIds(selectedRow);
                 ys.ajax({
                     url: '@Url.Content("~/OrganizationManage/News/DeleteFormJson")' + '?ids=' + ids,

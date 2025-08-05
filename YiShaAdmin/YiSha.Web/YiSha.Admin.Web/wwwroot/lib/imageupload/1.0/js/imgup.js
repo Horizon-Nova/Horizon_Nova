@@ -5,8 +5,8 @@
     var deleteParent;
     var deleteDisplay = 'none';
     var defaults = {
-        fileType: ["jpg", "png", "bmp", "jpeg"],   // 上传文件的类型
-        fileSize: 1024 * 1024 * 10                 // 上传文件的大小 10M
+        fileType: ["jpg", "png", "bmp", "jpeg"],   // 上傳文件的類型
+        fileSize: 1024 * 1024 * 10                 // 上傳文件的大小 10M
     };
 
     $.fn.imageUpload = function (option, param) {
@@ -31,8 +31,8 @@
         html += '</section>';
         html += '<aside class="mask works-mask">';
         html += '   <div class="mask-content">';
-        html += '       <div class="del-p">您确定要删除图片吗？</div>';
-        html += '       <div class="check-p"><span class="del-com wsdel-ok">确定</span><span class="wsdel-no">取消</span></div>';
+        html += '       <div class="del-p">您確定要删除圖片嗎？</div>';
+        html += '       <div class="check-p"><span class="del-com wsdel-ok">確定</span><span class="wsdel-no">取消</span></div>';
         html += '   </div>';
         html += '</aside>';
         target.append(html);
@@ -56,10 +56,10 @@
     };
 
     $.fn.imageUpload.defaults = {
-        uploadImage: '',    // 上传图片回调
-        limit: 10,          // 上传限制
-        context: '',        // 当前页面根目录
-        canPreview: 1,      // 是否可以预览(0不可以，1可以)
+        uploadImage: '',    // 上傳圖片回調
+        limit: 10,          // 上傳限制
+        context: '',        // 當前頁面根目錄
+        canPreview: 1,      // 是否可以預覽(0不可以，1可以)
         canAdd: 1           // 是否可以添加(0不可以，1可以)
     };
 
@@ -139,17 +139,17 @@
         var callback = target.attr("callback");
         var limit = target.attr("limit");
         if (!callback || callback == '') {
-            alert("请提供上传方法");
+            alert("請提供上傳方法");
             return;
         }
         var inputFile = document.getElementById(inputFileId);
-        var imgContainer = target.parents(".z_photo"); //存放图片的父亲元素
-        var fileList = inputFile.files; //获取的图片文件
-        //遍历得到的图片文件
+        var imgContainer = target.parents(".z_photo"); //存放圖片的父亲元素
+        var fileList = inputFile.files; //獲取的圖片文件
+        //遍历得到的圖片文件
         var num = imgContainer.find(".up-section").length;
-        var totalNum = num + fileList.length;  //总的数量
+        var totalNum = num + fileList.length;  //總的數量
         if (fileList.length > limit || totalNum > limit) {
-            alert("上传图片数目不可以超过" + limit + "个，请重新选择");  //一次选择上传超过5个 或者是已经上传和这次上传的到的总数也不可以超过5个
+            alert("上傳圖片數目不可以超過" + limit + "個，請重新選擇");  //一次選擇上傳超過5個 或者是已经上傳和這次上傳的到的總數也不可以超過5個
         }
         else if (num < limit) {
 
@@ -187,33 +187,33 @@
     }
 
     function validateUpload(files) {
-        var arrFiles = [];//替换的文件数组
+        var arrFiles = [];//替換的文件數組
         for (var i = 0, file; file = files[i]; i++) {
-            //获取文件上传的后缀名
+            //獲取文件上傳的後綴名
             var newStr = file.name.split("").reverse().join("");
             if (newStr.split(".")[0] != null) {
                 var type = newStr.split(".")[0].split("").reverse().join("");
                 console.log(type + "===type===");
                 if (jQuery.inArray(type, defaults.fileType) > -1) {
-                    // 类型符合，可以上传
+                    // 類型符合，可以上傳
                     if (file.size >= defaults.fileSize) {
                         alert(file.size);
-                        alert('您这个"' + file.name + '"文件大小过大');
+                        alert('您這個"' + file.name + '"文件大小過大');
                     } else {
-                        // 在这里需要判断当前所有文件中
+                        // 在這里需要判斷當前所有文件中
                         arrFiles.push(file);
                     }
                 } else {
-                    alert('您这个"' + file.name + '"上传类型不符合');
+                    alert('您這個"' + file.name + '"上傳類型不符合');
                 }
             } else {
-                alert('您这个"' + file.name + '"没有类型, 无法识别');
+                alert('您這個"' + file.name + '"沒有類型, 无法識別');
             }
         }
         return arrFiles;
     }
 
-    // 动态调用方法，并传递参数
+    // 動態調用方法，並傳递參數
     function doCallback(fn, args) {
         fn.apply(this, args);
     }

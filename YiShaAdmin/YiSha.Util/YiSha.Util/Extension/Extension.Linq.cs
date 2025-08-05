@@ -47,7 +47,7 @@ namespace YiSha.Util.Extension
         { return param => false; }
 
         /// <summary>
-        /// 组合And
+        /// 組合And
         /// </summary>
         /// <returns></returns>
         public static Expression<Func<T, bool>> And<T>(this Expression<Func<T, bool>> first, Expression<Func<T, bool>> second)
@@ -56,7 +56,7 @@ namespace YiSha.Util.Extension
         }
 
         /// <summary>
-        /// 组合Or
+        /// 組合Or
         /// </summary>
         /// <returns></returns>
         public static Expression<Func<T, bool>> Or<T>(this Expression<Func<T, bool>> first, Expression<Func<T, bool>> second)
@@ -77,7 +77,7 @@ namespace YiSha.Util.Extension
         }
 
         /// <summary>
-        /// #jhzou0616 根据数据类型获取实体表达式(目前仅支持string/日期范围 的条件筛选),字段属性名称必须匹配** 日期范围字段必须以 xxxStart/xxxEnd 结尾
+        /// #jhzou0616 根据資料類型獲取實體表達式(目前僅支持string/日期範圍 的條件筛選),字段属性名稱必須匹配** 日期範圍字段必須以 xxxStart/xxxEnd 結尾
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="input"></param>
@@ -94,7 +94,7 @@ namespace YiSha.Util.Extension
                 var val = p.GetValue(input,null);
                 if ( val == null || string.IsNullOrEmpty(val.ToString())) continue;
 
-                //查找和实体映射的属性名和值以及操作符
+                //查找和實體映射的属性名和值以及操作符
                 string fieldName = p.Name;
                 CompareEnum compareType = CompareEnum.Equals;
                 if (compareAttr != null)
@@ -304,7 +304,7 @@ namespace YiSha.Util.Extension
         public string FieldName { get; set; }
 
         /// <summary>
-        /// 表达式拼接运算符号
+        /// 表達式拼接運算符號
         /// </summary>
         public CompareEnum Compare = CompareEnum.Equals;
 
@@ -314,7 +314,7 @@ namespace YiSha.Util.Extension
         public object Value { get; set; }
 
         /// <summary>
-        /// 是否忽略该属性
+        /// 是否忽略該属性
         /// </summary>
         public bool IsIgnore { get; set; }
     }

@@ -18,9 +18,9 @@ namespace YiSha.Admin.WebApi.Controllers
     {
         private DataDictBLL dataDictBLL = new DataDictBLL();
 
-        #region 获取数据
+        #region 獲得資料
         /// <summary>
-        /// 获取数据字典列表
+        /// 獲得資料字典列表
         /// </summary>
         /// <param name="param"></param>
         /// <returns></returns>

@@ -19,7 +19,7 @@ using YiSha.Enum;
 namespace YiSha.Admin.Web.Controllers
 {
     /// <summary>
-    /// 基础控制器，用来记录访问日志
+    /// 基礎控制器，用來記錄訪問日誌
     /// </summary>
     public class BaseController : Controller
     {
@@ -39,7 +39,7 @@ namespace YiSha.Admin.Web.Controllers
                     if (!allowAction.Select(p => p.ToUpper()).Contains(action.ToUpper()))
                     {
                         TData obj = new TData();
-                        obj.Message = "演示模式，不允许操作";
+                        obj.Message = "演示模式，不允許操作";
                         context.Result = new JsonResult(obj);
                         return;
                     }
@@ -58,7 +58,7 @@ namespace YiSha.Admin.Web.Controllers
             string[] notLogAction = new string[] { "GetServerJson", "Error" };
             if (!notLogAction.Select(p => p.ToUpper()).Contains(action.ToUpper()))
             {
-                #region 获取请求参数
+                #region 獲取請求參數
                 switch (context.HttpContext.Request.Method.ToUpper())
                 {
                     case "GET":
@@ -79,7 +79,7 @@ namespace YiSha.Admin.Web.Controllers
                 }
                 #endregion
 
-                #region 异常获取
+                #region 異常獲取
                 StringBuilder sbException = new StringBuilder();
                 if (resultContext.Exception != null)
                 {
@@ -99,7 +99,7 @@ namespace YiSha.Admin.Web.Controllers
                 }
                 #endregion
 
-                #region 日志实体                  
+                #region 日誌實體                  
                 if (user != null)
                 {
                     operateEntity.BaseCreatorId = user.UserId;
@@ -113,10 +113,10 @@ namespace YiSha.Admin.Web.Controllers
 
                 Action taskAction = async () =>
                 {
-                    // 让底层不用获取HttpContext
+                    // 讓底層不用獲取HttpContext
                     operateEntity.BaseCreatorId = operateEntity.BaseCreatorId ?? 0;
 
-                    // 耗时的任务异步完成
+                    // 耗時的任務異步完成
                     // operateEntity.IpLocation = IpLocationHelper.GetIpLocation(ip);
                     await new LogOperateBLL().SaveForm(operateEntity);
                 };

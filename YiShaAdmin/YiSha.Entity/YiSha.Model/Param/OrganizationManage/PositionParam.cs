@@ -10,7 +10,7 @@ namespace YiSha.Model.Param.OrganizationManage
     {
         public string PositionName { get; set; }
         /// <summary>
-        /// 多个职位Id
+        /// 多個職位Id
         /// </summary>
         public string PositionIds { get; set; }
     }

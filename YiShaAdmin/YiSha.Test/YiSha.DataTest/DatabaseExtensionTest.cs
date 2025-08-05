@@ -15,7 +15,7 @@ namespace YiSha.DataTest
     public class DatabaseExtensionTest
     {
         /// <summary>
-        /// 测试单字段排序
+        /// 测试單字段排序
         /// </summary>
         /// <returns></returns>
         [Test]
@@ -49,7 +49,7 @@ namespace YiSha.DataTest
         }
 
         /// <summary>
-        /// 测试如何获取Linq查询时对应的Sql
+        /// 测试如何獲取Linq查询時對應的Sql
         /// </summary>
         /// <returns></returns>
         [Test]

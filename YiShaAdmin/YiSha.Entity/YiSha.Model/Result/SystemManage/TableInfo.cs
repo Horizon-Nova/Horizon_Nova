@@ -17,19 +17,19 @@ namespace YiSha.Model.Result.SystemManage
         /// </summary>
         public string TableName { get; set; }
         /// <summary>
-        /// 主键名
+        /// 主鍵名
         /// </summary>
         public string TableKeyName { get; set; }
         /// <summary>
-        /// 主键
+        /// 主鍵
         /// </summary>
         public string TableKey { get; set; }
         /// <summary>
-        /// 记录数
+        /// 記錄數
         /// </summary>
         public int TableCount { get; set; }
         /// <summary>
-        /// 备注
+        /// 備注
         /// </summary>
         public string Remark { get; set; }
     }

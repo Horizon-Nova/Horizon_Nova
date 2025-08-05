@@ -18,7 +18,7 @@ namespace YiSha.Admin.Web.Areas.OrganizationManage.Controllers
     {
         private PositionBLL positionBLL = new PositionBLL();
 
-        #region 视图功能
+        #region 視圖功能
         [AuthorizeFilter("organization:position:view")]
         public IActionResult PositionIndex()
         {
@@ -31,7 +31,7 @@ namespace YiSha.Admin.Web.Areas.OrganizationManage.Controllers
         }
         #endregion
 
-        #region 获取数据
+        #region 獲得資料
         [HttpGet]
         [AuthorizeFilter("organization:position:search,organization:user:view")]
         public async Task<IActionResult> GetListJson(PositionListParam param)
@@ -77,7 +77,7 @@ namespace YiSha.Admin.Web.Areas.OrganizationManage.Controllers
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         [HttpPost]
         [AuthorizeFilter("organization:position:add,organization:position:edit")]
         public async Task<IActionResult> SaveFormJson(PositionEntity entity)

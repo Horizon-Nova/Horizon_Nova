@@ -17,7 +17,7 @@ namespace YiSha.Business.SystemManage
     {
         private LogApiService logApiService = new LogApiService();
 
-        #region 获取数据
+        #region 獲得資料
         public async Task<TData<List<LogApiEntity>>> GetList(LogApiListParam param)
         {
             TData<List<LogApiEntity>> obj = new TData<List<LogApiEntity>>();
@@ -58,7 +58,7 @@ namespace YiSha.Business.SystemManage
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         public async Task<TData<string>> SaveForm(LogApiEntity entity)
         {
             TData<string> obj = new TData<string>();

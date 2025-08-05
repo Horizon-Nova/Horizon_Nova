@@ -39,7 +39,7 @@ namespace YiSha.Data.EF
                         optionsBuilder.UseMySql(connection, ServerVersion.AutoDetect(connection.ConnectionString), options => options.EnableRetryOnFailure());
                         break;
                     case "Oracle": break;
-                    default: throw new Exception("未找到数据库配置");
+                    default: throw new Exception("未找到資料庫配置");
                 }
                 base.OnConfiguring(optionsBuilder);
             }

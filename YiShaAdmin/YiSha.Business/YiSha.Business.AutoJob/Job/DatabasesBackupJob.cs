@@ -33,7 +33,7 @@ namespace YiSha.Business.AutoJob
             string info = await new DatabaseTableBLL().DatabaseBackup(backupPath);
 
             obj.Tag = 1;
-            obj.Message = "备份路径：" + info;
+            obj.Message = "備份路徑：" + info;
             return obj;
         }
     }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace YiSha.Data
 {
     /// <summary>
-    /// 数据库类型枚举
+    /// 資料庫類型枚举
     /// </summary>
     public enum DatabaseType
     {

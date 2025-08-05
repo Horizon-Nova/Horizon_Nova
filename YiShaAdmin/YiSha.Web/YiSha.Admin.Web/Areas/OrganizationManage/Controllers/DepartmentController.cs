@@ -19,7 +19,7 @@ namespace YiSha.Admin.Web.Areas.OrganizationManage.Controllers
     {
         private DepartmentBLL departmentBLL = new DepartmentBLL();
 
-        #region 视图功能
+        #region 視圖功能
         [AuthorizeFilter("organization:department:view")]
         public IActionResult DepartmentIndex()
         {
@@ -31,7 +31,7 @@ namespace YiSha.Admin.Web.Areas.OrganizationManage.Controllers
         }
         #endregion
 
-        #region 获取数据
+        #region 獲得資料
         [HttpGet]
         [AuthorizeFilter("organization:department:search,organization:user:search")]
         public async Task<IActionResult> GetListJson(DepartmentListParam param)
@@ -72,7 +72,7 @@ namespace YiSha.Admin.Web.Areas.OrganizationManage.Controllers
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         [HttpPost]
         [AuthorizeFilter("organization:department:add,organization:department:edit")]
         public async Task<IActionResult> SaveFormJson(DepartmentEntity entity)

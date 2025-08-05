@@ -7,11 +7,11 @@
         <div class="col-sm-12">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
-                    <h5>日期选择器 <small>https://github.com/sentsin/laydate</small></h5>
+                    <h5>日期選擇器 <small>https://github.com/sentsin/laydate</small></h5>
                 </div>
                 <div class="ibox-content">
                     <div class="form-group">
-                        <label class="font-noraml">简单示例</label>
+                        <label class="font-noraml">簡單範例</label>
                         <div class="input-group date">
                             <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                             <input type="text" class="form-control" id="laydate-demo-1" placeholder="yyyy-MM-dd">
@@ -19,7 +19,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="font-noraml">显示年月日</label>
+                        <label class="font-noraml">顯示年月日</label>
                         <div class="input-group date">
                             <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                             <input type="text" class="form-control" id="laydate-demo-2" placeholder="yyyy-MM-dd">
@@ -27,7 +27,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="font-noraml">显示年月日时分秒</label>
+                        <label class="font-noraml">顯示年月日時分秒</label>
                         <div class="input-group date">
                             <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                             <input type="text" class="form-control" id="laydate-demo-3" placeholder="yyyy-MM-dd HH:mm:ss">
@@ -35,7 +35,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="font-noraml">单框范围选择</label>
+                        <label class="font-noraml">單框範圍選擇</label>
                         <div class="input-group date">
                             <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                             <input type="text" class="form-control" id="laydate-demo-4" placeholder="yyyy-MM-dd - yyyy-MM-dd">
@@ -43,7 +43,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="font-noraml">日期范围选择</label>
+                        <label class="font-noraml">日期範圍選擇</label>
                         <div class="input-daterange input-group">
                             <input type="text" class="input-sm form-control" id="laydate-startTime" placeholder="yyyy-MM-dd" />
                             <span class="input-group-addon">到</span>
@@ -84,7 +84,7 @@
             theme: 'molv',
             trigger: 'click',
             done: function (value, date) {
-                // 结束时间大于开始时间
+                // 結束時間大於開始時間
                 if (value !== '') {
                     endDate.config.min.year = date.year;
                     endDate.config.min.month = date.month - 1;
@@ -103,7 +103,7 @@
             theme: 'molv',
             trigger: 'click',
             done: function (value, date) {
-                // 开始时间小于结束时间
+                // 開始時間小於結束時間
                 if (value !== '') {
                     startDate.config.max.year = date.year;
                     startDate.config.max.month = date.month - 1;

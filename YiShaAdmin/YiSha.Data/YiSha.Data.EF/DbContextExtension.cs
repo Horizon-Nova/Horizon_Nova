@@ -16,7 +16,7 @@ namespace YiSha.Data.EF
     public static class DbContextExtension
     {
         /// <summary>
-        /// 拼接删除SQL语句
+        /// 拼接删除SQL語句
         /// </summary>
         /// <param name="tableName">表名</param>
         /// <returns></returns>
@@ -27,11 +27,11 @@ namespace YiSha.Data.EF
         }
 
         /// <summary>
-        /// 拼接删除SQL语句
+        /// 拼接删除SQL語句
         /// </summary>
         /// <param name="tableName">表名</param>
-        /// <param name="propertyName">实体属性名称</param>
-        /// <param name="propertyValue">字段值：数组1,2,3,4,5,6.....</param>
+        /// <param name="propertyName">實體属性名稱</param>
+        /// <param name="propertyValue">字段值：數組1,2,3,4,5,6.....</param>
         /// <returns></returns>
         public static string DeleteSql(string tableName, string propertyName, long propertyValue)
         {
@@ -40,11 +40,11 @@ namespace YiSha.Data.EF
         }
 
         /// <summary>
-        /// 拼接批量删除SQL语句
+        /// 拼接批量删除SQL語句
         /// </summary>
         /// <param name="tableName">表名</param>
-        /// <param name="propertyName">实体属性名称</param>
-        /// <param name="propertyValue">字段值：数组1,2,3,4,5,6.....</param>
+        /// <param name="propertyName">實體属性名稱</param>
+        /// <param name="propertyValue">字段值：數組1,2,3,4,5,6.....</param>
         /// <returns></returns>
         public static string DeleteSql(string tableName, string propertyName, long[] propertyValue)
         {
@@ -53,7 +53,7 @@ namespace YiSha.Data.EF
         }
 
         /// <summary>
-        /// 获取实体映射对象
+        /// 獲取實體映射對象
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="dbcontext"></param>
@@ -64,10 +64,10 @@ namespace YiSha.Data.EF
         }
 
         /// <summary>
-        /// 存储过程语句
+        /// 存储過程語句
         /// </summary>
-        /// <param name="procName">存储过程名称</param>
-        /// <param name="dbParameter">执行命令所需的sql语句对应参数</param>
+        /// <param name="procName">存储過程名稱</param>
+        /// <param name="dbParameter">執行命令所需的sql語句對應參數</param>
         /// <returns></returns>
         public static string BuilderProc(string procName, params DbParameter[] dbParameter)
         {
@@ -87,7 +87,7 @@ namespace YiSha.Data.EF
         {
             foreach (EntityEntry entry in dbcontext.ChangeTracker.Entries().Where(p => p.State == EntityState.Added))
             {
-                #region 把null设置成对应属性类型的默认值
+                #region 把null設置成對應属性類型的默認值
                 Type type = entry.Entity.GetType();
                 PropertyInfo[] props = ReflectionHelper.GetProperties(type);
                 foreach (PropertyInfo prop in props)
@@ -156,7 +156,7 @@ namespace YiSha.Data.EF
                     }
                     else if (value.ToString() == DateTime.MinValue.ToString())
                     {
-                        // sql server datetime类型的的范围不到0001-01-01，所以转成1970-01-01
+                        // sql server datetime類型的的範圍不到0001-01-01，所以转成1970-01-01
                         prop.SetValue(entry.Entity, GlobalConstant.DefaultTime);
                     }
                 }

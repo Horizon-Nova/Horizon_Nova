@@ -15,7 +15,7 @@ using Microsoft.Extensions.Hosting;
 namespace YiSha.Admin.Web.Controllers
 {
     /// <summary>
-    /// 全局异常过滤器
+    /// 全局異常過滤器
     /// </summary>
     public class GlobalExceptionFilter : IExceptionFilter, IAsyncExceptionFilter
     {
@@ -28,7 +28,7 @@ namespace YiSha.Admin.Web.Controllers
                 obj.Message = context.Exception.GetOriginalException().Message;
                 if (string.IsNullOrEmpty(obj.Message))
                 {
-                    obj.Message = "抱歉，系统错误，请联系管理员！";
+                    obj.Message = "抱歉，系统錯誤，請联系管理員！";
                 }
                 context.Result = new JsonResult(obj);
                 context.ExceptionHandled = true;

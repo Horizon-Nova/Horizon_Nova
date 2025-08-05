@@ -13,7 +13,7 @@ namespace YiSha.Service.SystemManage
 {
     public class MenuAuthorizeService : RepositoryFactory
     {
-        #region 获取数据
+        #region 獲得資料
         public async Task<List<MenuAuthorizeEntity>> GetList(MenuAuthorizeEntity param)
         {
             var expression = LinqExtensions.True<MenuAuthorizeEntity>();
@@ -43,7 +43,7 @@ namespace YiSha.Service.SystemManage
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         public async Task SaveForm(MenuAuthorizeEntity entity)
         {
             if (entity.Id.IsNullOrZero())

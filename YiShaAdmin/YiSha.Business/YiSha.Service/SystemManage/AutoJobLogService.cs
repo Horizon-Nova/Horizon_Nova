@@ -14,7 +14,7 @@ namespace YiSha.Service.SystemManage
 {
     public class AutoJobLogService : RepositoryFactory
     {
-        #region 获取数据
+        #region 獲得資料
         public async Task<List<AutoJobLogEntity>> GetList(AutoJobLogListParam param)
         {
             var expression = ListFilter(param);
@@ -35,7 +35,7 @@ namespace YiSha.Service.SystemManage
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         public async Task SaveForm(AutoJobLogEntity entity)
         {
             if (entity.Id.IsNullOrZero())

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 namespace YiSha.Util
 {
     /// <summary>
-    /// Controller Model Binding 处理
+    /// Controller Model Binding 處理
     /// </summary>
     public class ModelBindingMetadataProvider : IMetadataDetailsProvider, IDisplayMetadataProvider
     {

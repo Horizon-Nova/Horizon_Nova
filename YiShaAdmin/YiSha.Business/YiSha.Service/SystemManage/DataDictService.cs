@@ -14,7 +14,7 @@ namespace YiSha.Service.SystemManage
 {
     public class DataDictService : RepositoryFactory
     {
-        #region 获取数据
+        #region 獲得資料
         public async Task<List<DataDictEntity>> GetList(DataDictListParam param)
         {
             var expression = ListFilter(param);
@@ -70,7 +70,7 @@ namespace YiSha.Service.SystemManage
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         public async Task SaveForm(DataDictEntity entity)
         {
             var db = await this.BaseRepository().BeginTrans();
@@ -81,7 +81,7 @@ namespace YiSha.Service.SystemManage
                     var dbEntity = await db.FindEntity<DataDictEntity>(entity.Id.Value);
                     if (dbEntity.DictType != entity.DictType)
                     {
-                        // 更新子表的DictType，因为2个表用DictType进行关联
+                        // 更新子表的DictType，因為2個表用DictType進行關联
                         IEnumerable<DataDictDetailEntity> detailList = await db.FindList<DataDictDetailEntity>(p => p.DictType == dbEntity.DictType);
                         foreach (DataDictDetailEntity detailEntity in detailList)
                         {

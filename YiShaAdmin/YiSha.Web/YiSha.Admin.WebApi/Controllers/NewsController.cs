@@ -19,9 +19,9 @@ namespace YiSha.Admin.WebApi.Controllers
     {
         private NewsBLL newsBLL = new NewsBLL();
 
-        #region 获取数据
+        #region 獲得資料
         /// <summary>
-        /// 获取文章列表
+        /// 獲取文章列表
         /// </summary>
         /// <param name="param"></param>
         /// <param name="pagination"></param>
@@ -34,7 +34,7 @@ namespace YiSha.Admin.WebApi.Controllers
         }
 
         /// <summary>
-        /// 获取文章列表
+        /// 獲取文章列表
         /// </summary>
         /// <param name="param"></param>
         /// <param name="pagination"></param>
@@ -47,7 +47,7 @@ namespace YiSha.Admin.WebApi.Controllers
         }
 
         /// <summary>
-        /// 获取文章内容
+        /// 獲取文章內容
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -59,7 +59,7 @@ namespace YiSha.Admin.WebApi.Controllers
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         /// <summary>
         /// 保存文章
         /// </summary>

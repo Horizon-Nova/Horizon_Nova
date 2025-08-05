@@ -22,7 +22,7 @@ namespace YiSha.Business.SystemManage
 
         private MenuCache menuCache = new MenuCache();
 
-        #region 获取数据
+        #region 獲得資料
         public async Task<TData<List<MenuEntity>>> GetList(MenuListParam param)
         {
             var obj = new TData<List<MenuEntity>>();
@@ -74,7 +74,7 @@ namespace YiSha.Business.SystemManage
                 }
                 else
                 {
-                    obj.Data.ParentName = "主目录";
+                    obj.Data.ParentName = "主目錄";
                 }
             }
             obj.Tag = 1;
@@ -90,18 +90,18 @@ namespace YiSha.Business.SystemManage
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         public async Task<TData<string>> SaveForm(MenuEntity entity)
         {
             TData<string> obj = new TData<string>();
             if (!entity.Id.IsNullOrZero() && entity.Id == entity.ParentId)
             {
-                obj.Message = "不能选择自己作为上级菜单！";
+                obj.Message = "不能選擇自己作為上級選單！";
                 return obj;
             }
             if (menuService.ExistMenuName(entity))
             {
-                obj.Message = "菜单名称已经存在！";
+                obj.Message = "選單名稱已经存在！";
                 return obj;
             }
             await menuService.SaveForm(entity);

@@ -15,7 +15,7 @@ namespace YiSha.Data.EF
 
         private string ConnectionString { get; set; }
 
-        #region 构造函数
+        #region 構造函數
 
         public SqlServerDbContext(string connectionString)
         {
@@ -24,15 +24,15 @@ namespace YiSha.Data.EF
 
         #endregion
 
-        #region 重载
+        #region 重載
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer(ConnectionString, p => p.CommandTimeout(GlobalContext.SystemConfig.DBCommandTimeout));
             optionsBuilder.AddInterceptors(new DbCommandCustomInterceptor());
             optionsBuilder.UseLoggerFactory(_loggerFactory);
-            // 这里需要注意，不能采用这种写法：optionsBuilder.UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()));
-            // 会导致内存泄露的问题
+            // 這里需要注意，不能采用這種寫法：optionsBuilder.UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()));
+            // 会導致內存泄露的問題
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

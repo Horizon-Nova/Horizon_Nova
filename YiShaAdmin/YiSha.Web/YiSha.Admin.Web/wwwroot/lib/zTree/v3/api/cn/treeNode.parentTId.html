@@ -5,18 +5,18 @@
 	<div class="desc">
 		<p></p>
 		<div class="longdesc">
-			<p>treeNode 节点的父节点唯一标识 tId。</p>
-			<p class="highlight_red">1、v3.x 用 parentTId 替换了原先的 parentNode 属性，同时增加了 getParentNode 方法，以避免原先 parentNode 造成的 clone 死循环</p>
-			<p class="highlight_red">2、初始化节点数据时，由 zTree 增加此属性，请勿提前赋值</p>
+			<p>treeNode 節點的父節點唯一標識 tId。</p>
+			<p class="highlight_red">1、v3.x 用 parentTId 替換了原先的 parentNode 属性，同時增加了 getParentNode 方法，以避免原先 parentNode 造成的 clone 死循环</p>
+			<p class="highlight_red">2、初始化節點資料時，由 zTree 增加此属性，請勿提前赋值</p>
 		</div>
 	</div>
-	<h3>String 格式说明</h3>
+	<h3>String 格式說明</h3>
 	<div class="desc">
-	<p>zTree 内部生成的节点唯一标识，请参考 treeNode.tId 的说明</p>
-	<p class="highlight_red">如果 treeNode 是根节点，则 parentTId = null</p>
+	<p>zTree 內部生成的節點唯一標識，請参考 treeNode.tId 的說明</p>
+	<p class="highlight_red">如果 treeNode 是根節點，则 parentTId = null</p>
 	</div>
 	<h3>treeNode 举例</h3>
-	<h4>1. 查看当前被选中的节点的父节点 tId</h4>
+	<h4>1. 查看當前被選中的節點的父節點 tId</h4>
 	<pre xmlns=""><code>var treeObj = $.fn.zTree.getZTreeObj("tree");
 var sNodes = treeObj.getSelectedNodes();
 if (sNodes.length > 0) {

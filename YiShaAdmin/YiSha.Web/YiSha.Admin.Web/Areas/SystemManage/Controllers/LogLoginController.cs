@@ -17,7 +17,7 @@ namespace YiSha.Admin.Web.Areas.SystemManage.Controllers
     {
         private LogLoginBLL logLoginBLL = new LogLoginBLL();
 
-        #region 视图功能
+        #region 視圖功能
         [AuthorizeFilter("system:loglogin:view")]
         public IActionResult LogLoginIndex()
         {
@@ -25,7 +25,7 @@ namespace YiSha.Admin.Web.Areas.SystemManage.Controllers
         }
         #endregion
 
-        #region 获取数据
+        #region 獲得資料
         [HttpGet]
         [AuthorizeFilter("system:loglogin:search")]
         public async Task<IActionResult> GetListJson(LogLoginListParam param)
@@ -51,7 +51,7 @@ namespace YiSha.Admin.Web.Areas.SystemManage.Controllers
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         [HttpPost]
         [AuthorizeFilter("system:loglogin:delete")]
         public async Task<IActionResult> DeleteFormJson(string ids)

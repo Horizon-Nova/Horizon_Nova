@@ -28,7 +28,7 @@ namespace YiSha.CodeGenerator
         }
 
         /// <summary>
-        /// sys_menu_authorize变成MenuAuthorize
+        /// sys_menu_authorize變成MenuAuthorize
         /// </summary>
         public static string GetClassNamePrefix(string tableName)
         {

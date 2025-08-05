@@ -15,7 +15,7 @@ namespace YiSha.Business.SystemManage
     {
         private AutoJobLogService autoJobLogService = new AutoJobLogService();
 
-        #region 获取数据
+        #region 獲得資料
         public async Task<TData<List<AutoJobLogEntity>>> GetList(AutoJobLogListParam param)
         {
             TData<List<AutoJobLogEntity>> obj = new TData<List<AutoJobLogEntity>>();
@@ -43,7 +43,7 @@ namespace YiSha.Business.SystemManage
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         public async Task<TData<string>> SaveForm(AutoJobLogEntity entity)
         {
             TData<string> obj = new TData<string>();

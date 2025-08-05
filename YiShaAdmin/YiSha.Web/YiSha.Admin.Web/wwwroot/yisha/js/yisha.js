@@ -1,4 +1,4 @@
-﻿// 添加到页面的window对象上面，在页面中用ys.进行访问
+﻿// 添加到頁面的window對象上面，在頁面中用ys.進行訪問
 ; window.ys = {};
 (function ($, ys) {
     "use strict";
@@ -20,23 +20,23 @@
                 content: '',
                 maxmin: true,
                 shade: 0.4,
-                btn: ['确认', '关闭'],
+                btn: ['確認', '關閉'],
                 callback: null,
                 shadeClose: false,
                 fix: false,
                 closeBtn: 1
             }, option);
             layer.open({
-                type: _option.type, // 2表示content的值为url，1表示content的值为html
+                type: _option.type, // 2表示content的值為url，1表示content的值為html
                 area: [_option.width, _option.height],
                 maxmin: _option.maxmin,
                 shade: _option.shade,
                 title: _option.title,
                 content: _option.content,
                 btn: _option.btn,
-                shadeClose: _option.shadeClose, // 弹层外区域关闭     
+                shadeClose: _option.shadeClose, // 弹層外區域關閉     
                 fix: _option.fix,
-                closeBtn: _option.closeBtn,  // 1表示带关闭，0表示不带
+                closeBtn: _option.closeBtn,  // 1表示帶關閉，0表示不帶
                 yes: _option.callback,
                 cancel: function (index) {
                     return true;
@@ -67,16 +67,16 @@
                 closeBtn: 0
             }, option);
             layer.open({
-                type: _option.type, // 2表示content的值为url，1表示content的值为html
+                type: _option.type, // 2表示content的值為url，1表示content的值為html
                 area: [_option.width, _option.height],
                 maxmin: _option.maxmin,
                 shade: _option.shade,
                 title: _option.title,
                 content: _option.content,
                 btn: _option.btn,
-                shadeClose: _option.shadeClose, // 弹层外区域关闭
+                shadeClose: _option.shadeClose, // 弹層外區域關閉
                 fix: _option.fix,
-                closeBtn: _option.closeBtn,  // 1表示带关闭，0表示不带
+                closeBtn: _option.closeBtn,  // 1表示帶關閉，0表示不帶
                 yes: _option.callback,
                 cancel: function (index) {
                     return true;
@@ -99,7 +99,7 @@
         },
         msgError: function (content) {
             if (ys.isNullOrEmpty(content)) {
-                content = "操作失败";
+                content = "操作失敗";
             }
             layer.msg(content, { icon: 2, time: 3000, shift: 5 });
         },
@@ -108,7 +108,7 @@
             layer.alert(content, {
                 icon: 0,
                 title: "系统提示",
-                btn: ['确认'],
+                btn: ['確認'],
                 btnclass: ['btn btn-primary'],
             });
         },
@@ -116,7 +116,7 @@
             layer.alert(content, {
                 icon: 1,
                 title: "系统提示",
-                btn: ['确认'],
+                btn: ['確認'],
                 btnclass: ['btn btn-primary'],
             });
         },
@@ -124,7 +124,7 @@
             layer.alert(content, {
                 icon: 2,
                 title: "系统提示",
-                btn: ['确认'],
+                btn: ['確認'],
                 btnclass: ['btn btn-primary'],
             });
         },
@@ -132,7 +132,7 @@
             layer.confirm(content, {
                 icon: 3,
                 title: "系统提示",
-                btn: ['确认', '取消'],
+                btn: ['確認', '取消'],
                 btnclass: ['btn btn-primary', 'btn btn-danger'],
             }, function (index) {
                 layer.close(index);
@@ -161,9 +161,9 @@
         },
         checkRowEdit: function (row) {
             if (row.length == 0) {
-                ys.msgError("您没有选择任何行！");
+                ys.msgError("您沒有選擇任何行！");
             } else if (row.length > 1) {
-                ys.msgError("您的选择大于1行！");
+                ys.msgError("您的選擇大於1行！");
             } else if (row.length == 1) {
                 return true;
             }
@@ -171,7 +171,7 @@
         },
         checkRowDelete: function (row) {
             if (row.length == 0) {
-                ys.msgError("您没有选择任何行！");
+                ys.msgError("您沒有選擇任何行！");
             } else if (row.length > 0) {
                 return true;
             }
@@ -185,12 +185,12 @@
                 type: "get",
                 data: option.data || {},
                 dataType: option.dataType || "json",
-                error: function (xhr, status, obj) { ys.alertError("系统出错了"); },
+                error: function (xhr, status, obj) { ys.alertError("系统出錯了"); },
                 success: function (rdata) {
                     ys.msgSuccess();
                 },
                 beforeSend: function (xhr) {
-                    ys.showLoading("正在处理中...");
+                    ys.showLoading("正在處理中...");
                 },
                 complete: function (xhr, status) {
                     ys.closeLoading();
@@ -198,7 +198,7 @@
             }, option);
 
             if (ys.isNullOrEmpty(opt.url)) {
-                ys.alertError("url 参数不能为空");
+                ys.alertError("url 參數不能為空");
                 return;
             }
             $.ajax({
@@ -217,12 +217,12 @@
             var opt = $.extend({
                 url: option.url,
                 data: option.data || {},
-                error: function (xhr, status, obj) { ys.alertError("系统出错了"); },
+                error: function (xhr, status, obj) { ys.alertError("系统出錯了"); },
                 success: function (rdata) {
                     ys.msgSuccess();
                 },
                 beforeSend: function (xhr) {
-                    ys.showLoading("正在处理中...");
+                    ys.showLoading("正在處理中...");
                 },
                 complete: function (xhr, status) {
                     ys.closeLoading();
@@ -230,11 +230,11 @@
             }, option);
 
             if (ys.isNullOrEmpty(opt.url)) {
-                ys.alertError("url 参数不能为空");
+                ys.alertError("url 參數不能為空");
                 return;
             }
             if (ys.isNullOrEmpty(opt.data)) {
-                ys.alertError("data 参数不能为空");
+                ys.alertError("data 參數不能為空");
                 return;
             }
             $.ajax({
@@ -263,7 +263,7 @@
                     }
                 },
                 beforeSend: function (xhr) {
-                    ys.showLoading("正在导出数据，请稍后...");
+                    ys.showLoading("正在導出資料，請稍後...");
                 }
             });
         },
@@ -326,7 +326,7 @@
                 return false;
             }
         },
-        // Html.Raw()方法会提示语法错误，所以用这个函数包装一下
+        // Html.Raw()方法会提示語法錯誤，所以用這個函數包装一下
         getJson: function (value) {
             return value;
         },
@@ -355,7 +355,7 @@
             }
             return '';
         },
-        // 格式为 yyyy-MM-dd HH:mm:ss
+        // 格式為 yyyy-MM-dd HH:mm:ss
         formatDate: function (v, format) {
             if (!v) return "";
             var d = v;

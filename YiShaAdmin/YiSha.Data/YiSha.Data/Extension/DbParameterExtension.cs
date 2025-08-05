@@ -9,8 +9,8 @@ namespace YiSha.Data
     public class DbParameterExtension
     {
         /// <summary>
-        /// 根据配置文件中所配置的数据库类型
-        /// 来创建相应数据库的参数对象
+        /// 根据配置文件中所配置的資料庫類型
+        /// 來創建相應資料庫的參數對象
         /// </summary>
         /// <returns></returns>
         public static DbParameter CreateDbParameter()
@@ -27,13 +27,13 @@ namespace YiSha.Data
                     return new OracleParameter();
 
                 default:
-                    throw new Exception("数据库类型目前不支持！");
+                    throw new Exception("資料庫類型目前不支持！");
             }
         }
 
         /// <summary>
-        /// 根据配置文件中所配置的数据库类型
-        /// 来创建相应数据库的参数对象
+        /// 根据配置文件中所配置的資料庫類型
+        /// 來創建相應資料庫的參數對象
         /// </summary>
         /// <returns></returns>
         public static DbParameter CreateDbParameter(string paramName, object value)
@@ -45,9 +45,9 @@ namespace YiSha.Data
         }
 
         /// <summary>
-        /// 转换对应的数据库参数
+        /// 转換對應的資料庫參數
         /// </summary>
-        /// <param name="dbParameter">参数</param>
+        /// <param name="dbParameter">參數</param>
         /// <returns></returns>
         public static DbParameter[] ToDbParameter(DbParameter[] dbParameter)
         {
@@ -81,7 +81,7 @@ namespace YiSha.Data
                     }
                     break;
                 default:
-                    throw new Exception("数据库类型目前不支持！");
+                    throw new Exception("資料庫類型目前不支持！");
             }
             return _dbParameter;
         }

@@ -21,7 +21,7 @@ namespace YiSha.Admin.Web.Areas.SystemManage.Controllers
     {
         private DatabaseTableBLL databaseTableBLL = new DatabaseTableBLL();
 
-        #region 视图功能
+        #region 視圖功能
         [AuthorizeFilter("system:datatable:view")]
         public IActionResult DatatableIndex()
         {
@@ -33,7 +33,7 @@ namespace YiSha.Admin.Web.Areas.SystemManage.Controllers
         }
         #endregion
 
-        #region 获取数据
+        #region 獲得資料
         [HttpGet]
         [AuthorizeFilter("system:datatable:search")]
         public async Task<IActionResult> GetTableListJson(string tableName)
@@ -59,7 +59,7 @@ namespace YiSha.Admin.Web.Areas.SystemManage.Controllers
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         [HttpPost]
         public async Task<IActionResult> SyncDatabaseJson()
         {

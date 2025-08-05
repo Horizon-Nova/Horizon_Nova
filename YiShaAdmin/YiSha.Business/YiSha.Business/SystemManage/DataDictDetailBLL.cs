@@ -18,7 +18,7 @@ namespace YiSha.Business.SystemManage
 
         private DataDictDetailCache dataDictDetailCache = new DataDictDetailCache();
 
-        #region  获取数据
+        #region  獲得資料
         public async Task<TData<List<DataDictDetailEntity>>> GetList(DataDictDetailListParam param)
         {
             TData<List<DataDictDetailEntity>> obj = new TData<List<DataDictDetailEntity>>();
@@ -54,18 +54,18 @@ namespace YiSha.Business.SystemManage
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         public async Task<TData<string>> SaveForm(DataDictDetailEntity entity)
         {
             TData<string> obj = new TData<string>();
             if (entity.DictKey <= 0)
             {
-                obj.Message = "字典键必须大于0";
+                obj.Message = "字典鍵必須大於0";
                 return obj;
             }
             if (dataDictDetailService.ExistDictKeyValue(entity))
             {
-                obj.Message = "字典键或值已经存在！";
+                obj.Message = "字典鍵或值已经存在！";
                 return obj;
             }
             await dataDictDetailService.SaveForm(entity);

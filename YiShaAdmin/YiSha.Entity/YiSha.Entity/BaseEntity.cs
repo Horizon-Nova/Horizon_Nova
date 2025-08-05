@@ -10,20 +10,20 @@ using YiSha.IdGenerator;
 namespace YiSha.Entity
 {
     /// <summary>
-    /// 数据库实体的基类，所有的数据库实体属性类型都是可空值类型，为了在做条件查询的时候进行判断
-    /// 虽然是可空值类型，null的属性值，在底层会根据属性类型赋值默认值，字符串是string.empty，数值是0，日期是1970-01-01
+    /// 資料庫實體的基類，所有的資料庫實體属性類型都是可空值類型，為了在做條件查询的時候進行判斷
+    /// 虽然是可空值類型，null的属性值，在底層会根据属性類型赋值默認值，字符串是string.empty，數值是0，日期是1970-01-01
     /// </summary>
     public class BaseEntity
     {
         /// <summary>
-        /// 所有表的主键
-        /// long返回到前端js的时候，会丢失精度，所以转成字符串
+        /// 所有表的主鍵
+        /// long返回到前端js的時候，会丢失精度，所以转成字符串
         /// </summary>
         [JsonConverter(typeof(StringJsonConverter))]
         public long? Id { get; set; }
 
         /// <summary>
-        /// WebApi没有Cookie和Session，所以需要传入Token来标识用户身份
+        /// WebApi沒有Cookie和Session，所以需要傳入Token來標識使用者身份
         /// </summary>
         [NotMapped]
         public string Token { get; set; }
@@ -37,14 +37,14 @@ namespace YiSha.Entity
     public class BaseCreateEntity : BaseEntity
     {
         /// <summary>
-        /// 创建时间
+        /// 創建時間
         /// </summary>
         [JsonConverter(typeof(DateTimeJsonConverter))]
-        [Description("创建时间")]
+        [Description("創建時間")]
         public DateTime? BaseCreateTime { get; set; }
 
         /// <summary>
-        /// 创建人ID
+        /// 創建人ID
         /// </summary>
         public long? BaseCreatorId { get; set; }
 
@@ -78,15 +78,15 @@ namespace YiSha.Entity
     public class BaseModifyEntity : BaseCreateEntity
     {
         /// <summary>
-        /// 数据更新版本，控制并发
+        /// 資料更新版本，控制並發
         /// </summary>
         public int? BaseVersion { get; set; }
 
         /// <summary>
-        /// 修改时间
+        /// 修改時間
         /// </summary>
         [JsonConverter(typeof(DateTimeJsonConverter))]
-        [Description("修改时间")]
+        [Description("修改時間")]
         public DateTime? BaseModifyTime { get; set; }
 
         /// <summary>

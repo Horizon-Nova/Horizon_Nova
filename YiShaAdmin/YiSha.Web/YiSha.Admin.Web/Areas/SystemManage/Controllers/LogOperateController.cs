@@ -18,7 +18,7 @@ namespace YiSha.Admin.Web.Areas.SystemManage.Controllers
     {
         private LogOperateBLL logOperateBLL = new LogOperateBLL();
 
-        #region 视图功能
+        #region 視圖功能
         [AuthorizeFilter("system:logoperate:view")]
         public IActionResult LogOperateIndex()
         {
@@ -32,7 +32,7 @@ namespace YiSha.Admin.Web.Areas.SystemManage.Controllers
         }
         #endregion
 
-        #region 获取数据
+        #region 獲得資料
         [HttpGet]
         [AuthorizeFilter("system:logoperate:search")]
         public async Task<IActionResult> GetListJson(LogOperateListParam param)
@@ -58,7 +58,7 @@ namespace YiSha.Admin.Web.Areas.SystemManage.Controllers
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         [HttpPost]
         [AuthorizeFilter("system:logoperate:delete")]
         public async Task<IActionResult> DeleteFormJson(string ids)

@@ -36,7 +36,7 @@ namespace YiSha.Entity.SystemManage
     }
 
     /// <summary>
-    /// 此类给其他需要省市县的业务表继承
+    /// 此類給其他需要省市县的業務表继承
     /// </summary>
     public class BaseAreaEntity : BaseExtensionEntity
     {
@@ -53,7 +53,7 @@ namespace YiSha.Entity.SystemManage
         [JsonConverter(typeof(StringJsonConverter))]
         public long? CityId { get; set; }
         /// <summary>
-        /// 区域ID
+        /// 區域ID
         /// </summary>
         /// <returns></returns>
         [JsonConverter(typeof(StringJsonConverter))]

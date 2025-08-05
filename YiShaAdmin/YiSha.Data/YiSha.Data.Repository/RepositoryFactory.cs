@@ -27,10 +27,10 @@ namespace YiSha.Data.Repository
                     break;
                 case "Oracle":
                     DbHelper.DbType = DatabaseType.Oracle;
-                    // 支持Oracle或是更多数据库请参考上面SqlServer或是MySql的写法
+                    // 支持Oracle或是更多資料庫請参考上面SqlServer或是MySql的寫法
                     break;
                 default:
-                    throw new Exception("未找到数据库配置");
+                    throw new Exception("未找到資料庫配置");
             }
             return new Repository(database);
         }

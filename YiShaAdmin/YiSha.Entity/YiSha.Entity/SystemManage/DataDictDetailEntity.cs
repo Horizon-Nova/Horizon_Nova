@@ -17,7 +17,7 @@ namespace YiSha.Entity.SystemManage
         /// <returns></returns>
         public int? DictSort { get; set; }
         /// <summary>
-        /// 字典键
+        /// 字典鍵
         /// </summary>
         /// <returns></returns>
         public int? DictKey { get; set; }

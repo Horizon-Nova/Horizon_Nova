@@ -19,7 +19,7 @@ namespace YiSha.Business.SystemManage
     {
         private LogOperateService logOperateService = new LogOperateService();
 
-        #region 获取数据
+        #region 獲得資料
         public async Task<TData<List<LogOperateEntity>>> GetList(LogOperateListParam param)
         {
             TData<List<LogOperateEntity>> obj = new TData<List<LogOperateEntity>>();
@@ -59,7 +59,7 @@ namespace YiSha.Business.SystemManage
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         public async Task<TData<string>> SaveForm(LogOperateEntity entity)
         {
             TData<string> obj = new TData<string>();

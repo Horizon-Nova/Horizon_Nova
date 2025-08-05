@@ -7,17 +7,17 @@ using System.Threading.Tasks;
 namespace YiSha.Util.Model
 {
     /// <summary>
-    /// 数据传输对象
+    /// 資料傳輸對象
     /// </summary>
     public class TData
     {
         /// <summary>
-        /// 操作结果，Tag为1代表成功，0代表失败，其他的验证返回结果，可根据需要设置
+        /// 操作結果，Tag為1代表成功，0代表失敗，其他的驗證返回結果，可根据需要設置
         /// </summary>
         public int Tag { get; set; }
 
         /// <summary>
-        /// 提示信息或异常信息
+        /// 提示信息或異常信息
         /// </summary>
         public string Message { get; set; }
 
@@ -30,12 +30,12 @@ namespace YiSha.Util.Model
     public class TData<T> : TData
     {
         /// <summary>
-        /// 列表的记录数
+        /// 列表的記錄數
         /// </summary>
         public int Total { get; set; }
 
         /// <summary>
-        /// 数据
+        /// 資料
         /// </summary>
         public T Data { get; set; }
     }

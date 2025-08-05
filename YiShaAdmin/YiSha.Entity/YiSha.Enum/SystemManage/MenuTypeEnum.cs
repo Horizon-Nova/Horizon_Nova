@@ -9,13 +9,13 @@ namespace YiSha.Enum.SystemManage
 {
     public enum MenuTypeEnum
     {
-        [Description("目录")]
+        [Description("目錄")]
         Directory = 1,
 
-        [Description("页面")]
+        [Description("頁面")]
         Menu = 2,
 
-        [Description("按钮")]
+        [Description("按鈕")]
         Button = 3
     }
 }

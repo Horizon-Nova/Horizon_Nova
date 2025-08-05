@@ -5,19 +5,19 @@
 	<div class="desc">
 		<p></p>
 		<div class="longdesc">
-			<p>记录 treeNode 节点是否为父节点。</p>
-			<p class="highlight_red">1、初始化节点数据时，根据 treeNode.children 属性判断，有子节点则设置为 true，否则为 false</p>
-			<p class="highlight_red">2、初始化节点数据时，如果设定 treeNode.isParent = true，即使无子节点数据，也会设置为父节点</p>
-			<p class="highlight_red">3、为了解决部分朋友生成 json 数据出现的兼容问题, 支持 "false","true" 字符串格式的数据</p>
+			<p>記錄 treeNode 節點是否為父節點。</p>
+			<p class="highlight_red">1、初始化節點資料時，根据 treeNode.children 属性判斷，有子節點则設置為 true，否则為 false</p>
+			<p class="highlight_red">2、初始化節點資料時，如果設定 treeNode.isParent = true，即使无子節點資料，也会設置為父節點</p>
+			<p class="highlight_red">3、為了解决部分朋友生成 json 資料出現的兼容問題, 支持 "false","true" 字符串格式的資料</p>
 		</div>
 	</div>
-	<h3>Boolean 格式说明</h3>
+	<h3>Boolean 格式說明</h3>
 	<div class="desc">
-	<p> true 表示是父节点</p>
-	<p> false 表示不是父节点</p>
+	<p> true 表示是父節點</p>
+	<p> false 表示不是父節點</p>
 	</div>
 	<h3>treeNode 举例</h3>
-	<h4>1. 查看当前被选中的节点是否是父节点</h4>
+	<h4>1. 查看當前被選中的節點是否是父節點</h4>
 	<pre xmlns=""><code>var treeObj = $.fn.zTree.getZTreeObj("tree");
 var sNodes = treeObj.getSelectedNodes();
 if (sNodes.length > 0) {

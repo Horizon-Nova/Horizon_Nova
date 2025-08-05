@@ -5,26 +5,26 @@
 	<div class="desc">
 		<p></p>
 		<div class="longdesc">
-			<p>取消节点的选中状态。</p>
-			<p class="highlight_red">v3.x 支持多点同时选中，因此取消选中状态可以全部取消，也可以单独取消某个节点的选中状态。</p>
-			<p class="highlight_red">请通过 zTree 对象执行此方法。</p>
+			<p>取消節點的選中狀態。</p>
+			<p class="highlight_red">v3.x 支持多點同時選中，因此取消選中狀態可以全部取消，也可以單独取消某個節點的選中狀態。</p>
+			<p class="highlight_red">請通過 zTree 對象執行此方法。</p>
 		</div>
 	</div>
-	<h3>Function 参数说明</h3>
+	<h3>Function 參數說明</h3>
 	<div class="desc">
 	<h4><b>treeNode</b><span>JSON</span></h4>
-	<p>需要取消选中状态的节点。</p>
-	<p class="highlight_red">请务必保证此节点数据对象 是 zTree 内部的数据对象</p>
-	<p class="highlight_red">如果省略此参数，则将取消全部被选中节点的选中状态。</p>
+	<p>需要取消選中狀態的節點。</p>
+	<p class="highlight_red">請務必保證此節點資料對象 是 zTree 內部的資料對象</p>
+	<p class="highlight_red">如果省略此參數，则將取消全部被選中節點的選中狀態。</p>
 	<h4 class="topLine"><b>返回值</b><span>无</span></h4>
 	<p>目前无任何返回值</p>
 	</div>
 	<h3>function 举例</h3>
-	<h4>1. 取消当前所有被选中节点的选中状态</h4>
+	<h4>1. 取消當前所有被選中節點的選中狀態</h4>
 	<pre xmlns=""><code>var treeObj = $.fn.zTree.getZTreeObj("tree");
 treeObj.cancelSelectedNode();
 </code></pre>
-	<h4>2. 取消当前第一个被选中节点的选中状态</h4>
+	<h4>2. 取消當前第一個被選中節點的選中狀態</h4>
 	<pre xmlns=""><code>var treeObj = $.fn.zTree.getZTreeObj("tree");
 var nodes = treeObj.getSelectedNodes();
 if (nodes.length>0) { 

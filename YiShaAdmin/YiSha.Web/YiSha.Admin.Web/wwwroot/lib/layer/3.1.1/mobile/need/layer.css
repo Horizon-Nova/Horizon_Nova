@@ -14,12 +14,12 @@
 .layui-m-layerchild{-webkit-animation-fill-mode: both; animation-fill-mode: both; -webkit-animation-duration: .2s; animation-duration: .2s;}
 
 
-/* 弹出动画 */
-@-webkit-keyframes layui-m-anim-scale { /* 默认 */
+/* 弹出動画 */
+@-webkit-keyframes layui-m-anim-scale { /* 默認 */
 	0% {opacity: 0; -webkit-transform: scale(.5); transform: scale(.5)}
 	100% {opacity: 1; -webkit-transform: scale(1); transform: scale(1)}
 }
-@keyframes layui-m-anim-scale { /* 默认 */
+@keyframes layui-m-anim-scale { /* 默認 */
 	0% {opacity: 0; -webkit-transform: scale(.5); transform: scale(.5)}
 	100% {opacity: 1; -webkit-transform: scale(1); transform: scale(1)}
 }
@@ -71,7 +71,7 @@
 .layui-m-layerend::before, .layui-m-layerend::after{position:absolute; left:5px; top:15px; content:''; width:18px; height:1px; background-color:#999; transform:rotate(45deg); -webkit-transform:rotate(45deg); border-radius: 3px;}
 .layui-m-layerend::after{transform:rotate(-45deg);  -webkit-transform:rotate(-45deg);}
 
-/* 底部对话框风格 */
+/* 底部對話框风格 */
 body .layui-m-layer .layui-m-layer-footer{position: fixed; width: 95%; max-width: 100%; margin: 0 auto; left:0; right: 0; bottom: 10px; background: none;}
 .layui-m-layer-footer .layui-m-layercont{padding: 20px; border-radius: 5px 5px 0 0; background-color: rgba(255,255,255,.8);}
 .layui-m-layer-footer .layui-m-layerbtn{display: block; height: auto; background: none; border-top: none;}

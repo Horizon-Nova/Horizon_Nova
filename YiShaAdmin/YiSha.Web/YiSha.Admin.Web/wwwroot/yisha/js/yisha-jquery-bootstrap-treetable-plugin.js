@@ -1,12 +1,12 @@
 ﻿(function ($) {
     "use strict";
     $.fn.ysTreeTable = function (option, param) {
-        //如果是调用方法
+        //如果是調用方法
         if (typeof option == 'string') {
             return $.fn.ysTreeTable.methods[option](this, param);
         }
 
-        //如果是初始化组件
+        //如果是初始化組件
         var _option = $.extend({}, $.fn.ysTreeTable.defaults, option || {});
         var target = $(this);
         target.bootstrapTreeTable(_option);

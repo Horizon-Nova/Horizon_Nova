@@ -21,7 +21,7 @@ namespace YiSha.Business.SystemManage
         private DataDictCache dataDictCache = new DataDictCache();
         private DataDictDetailCache dataDictDetailCache = new DataDictDetailCache();
 
-        #region 获取数据
+        #region 獲得資料
         public async Task<TData<List<DataDictEntity>>> GetList(DataDictListParam param)
         {
             TData<List<DataDictEntity>> obj = new TData<List<DataDictEntity>>();
@@ -57,7 +57,7 @@ namespace YiSha.Business.SystemManage
         }
 
         /// <summary>
-        /// 获取所有的数据字典
+        /// 獲取所有的資料字典
         /// </summary>
         /// <returns></returns>
         public async Task<TData<List<DataDictInfo>>> GetDataDictList()
@@ -89,13 +89,13 @@ namespace YiSha.Business.SystemManage
         }
         #endregion
 
-        #region 提交数据 
+        #region 提交資料 
         public async Task<TData<string>> SaveForm(DataDictEntity entity)
         {
             TData<string> obj = new TData<string>();
             if (dataDictService.ExistDictType(entity))
             {
-                obj.Message = "字典类型已经存在！";
+                obj.Message = "字典類型已经存在！";
                 return obj;
             }
 
@@ -114,7 +114,7 @@ namespace YiSha.Business.SystemManage
                 DataDictEntity dbEntity = await dataDictService.GetEntity(id);
                 if (dataDictService.ExistDictDetail(dbEntity.DictType))
                 {
-                    obj.Message = "请先删除字典值！";
+                    obj.Message = "請先删除字典值！";
                     return obj;
                 }
             }

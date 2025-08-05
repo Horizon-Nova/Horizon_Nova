@@ -12,7 +12,7 @@ namespace YiSha.Enum.SystemManage
         [Description("角色")]
         Role = 1,
 
-        [Description("用户")]
+        [Description("使用者")]
         User = 2,
     }
 }

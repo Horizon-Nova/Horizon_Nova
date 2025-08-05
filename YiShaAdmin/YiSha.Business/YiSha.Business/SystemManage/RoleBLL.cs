@@ -24,7 +24,7 @@ namespace YiSha.Business.SystemManage
 
         private MenuAuthorizeCache menuAuthorizeCache = new MenuAuthorizeCache();
 
-        #region 获取数据
+        #region 獲得資料
         public async Task<TData<List<RoleEntity>>> GetList(RoleListParam param)
         {
             TData<List<RoleEntity>> obj = new TData<List<RoleEntity>>();
@@ -52,7 +52,7 @@ namespace YiSha.Business.SystemManage
                 AuthorizeId = id,
                 AuthorizeType = AuthorizeTypeEnum.Role.ParseToInt()
             });
-            // 获取角色对应的权限
+            // 獲取角色對應的權限
             roleEntity.MenuIds = string.Join(",", menuAuthorizeList.Select(p => p.MenuId));
 
             obj.Data = roleEntity;
@@ -69,20 +69,20 @@ namespace YiSha.Business.SystemManage
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         public async Task<TData<string>> SaveForm(RoleEntity entity)
         {
             TData<string> obj = new TData<string>();
 
             if (roleService.ExistRoleName(entity))
             {
-                obj.Message = "角色名称已经存在！";
+                obj.Message = "角色名稱已经存在！";
                 return obj;
             }
 
             await roleService.SaveForm(entity);
 
-            // 清除缓存里面的权限数据
+            // 清除緩存里面的權限資料
             menuAuthorizeCache.Remove();
 
             obj.Data = entity.Id.ParseToString();
@@ -97,7 +97,7 @@ namespace YiSha.Business.SystemManage
 
             await roleService.DeleteForm(ids);
 
-            // 清除缓存里面的权限数据
+            // 清除緩存里面的權限資料
             menuAuthorizeCache.Remove();
 
             obj.Tag = 1;

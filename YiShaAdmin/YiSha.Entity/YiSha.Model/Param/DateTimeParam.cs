@@ -10,13 +10,13 @@ namespace YiSha.Model.Param
     public class DateTimeParam
     {
         /// <summary>
-        /// 搜索条件开始时间
+        /// 查詢條件開始時間
         /// </summary>
         [QueryCompareAttribute(FieldName = "BaseModifyTime",Compare =CompareEnum.GreaterThanOrEquals)]
         public virtual DateTime? StartTime { get; set; }
 
         /// <summary>
-        /// 搜索条件结束时间
+        /// 查詢條件結束時間
         /// </summary>
         [QueryCompareAttribute(FieldName = "BaseModifyTime", Compare = CompareEnum.LessThanOrEquals)]
         public virtual DateTime? EndTime { get; set; }

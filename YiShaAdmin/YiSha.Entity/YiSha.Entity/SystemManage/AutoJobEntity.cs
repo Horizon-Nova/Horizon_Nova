@@ -47,7 +47,7 @@ namespace YiSha.Entity.SystemManage
         [JsonConverter(typeof(DateTimeJsonConverter))]
         public DateTime? NextStartTime { get; set; }
         /// <summary>
-        /// 备注
+        /// 備注
         /// </summary>
         public string Remark { get; set; }
     }

@@ -26,7 +26,7 @@ namespace YiSha.Admin.Web.Controllers
         }
 
         /// <summary>
-        /// 权限字符串，例如 organization:user:view
+        /// 權限字符串，例如 organization:user:view
         /// </summary>
         public string Authorize { get; set; }
 
@@ -37,17 +37,17 @@ namespace YiSha.Admin.Web.Controllers
             OperatorInfo user = await Operator.Instance.Current();
             if (user == null || user.UserId == 0)
             {
-                // 防止用户选择记住我，页面一直在首页刷新
+                // 防止使用者選擇記住我，頁面一直在首頁刷新
                 if (new CookieHelper().GetCookie("RememberMe").ParseToInt() == 1)
                 {
                     Operator.Instance.RemoveCurrent();
                 }
 
-                #region 没有登录
+                #region 沒有登錄
                 if (context.HttpContext.Request.IsAjaxRequest())
                 {
                     TData obj = new TData();
-                    obj.Message = "抱歉，没有登录或登录已超时";
+                    obj.Message = "抱歉，沒有登錄或登錄已超時";
                     context.Result = new JsonResult(obj);
                     return;
                 }
@@ -60,14 +60,14 @@ namespace YiSha.Admin.Web.Controllers
             }
             else
             {
-                // 系统用户拥有所有权限
+                // 系统使用者拥有所有權限
                 if (user.IsSystem == 1)
                 {
                     hasPermission = true;
                 }
                 else
                 {
-                    // 权限判断
+                    // 權限判斷
                     if (!string.IsNullOrEmpty(Authorize))
                     {
                         string[] authorizeList = Authorize.Split(',');
@@ -77,7 +77,7 @@ namespace YiSha.Admin.Web.Controllers
                         {
                             hasPermission = true;
 
-                            #region  新增和修改判断
+                            #region  新增和修改判斷
                             if (context.RouteData.Values["Action"].ToString() == "SaveFormJson")
                             {
                                 var id = context.HttpContext.Request.Form["Id"];
@@ -103,7 +103,7 @@ namespace YiSha.Admin.Web.Controllers
                             if (context.HttpContext.Request.IsAjaxRequest())
                             {
                                 TData obj = new TData();
-                                obj.Message = "抱歉，没有权限";
+                                obj.Message = "抱歉，沒有權限";
                                 context.Result = new JsonResult(obj);
                             }
                             else

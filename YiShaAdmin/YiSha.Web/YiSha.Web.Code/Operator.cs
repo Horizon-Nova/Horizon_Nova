@@ -48,7 +48,7 @@ namespace YiSha.Web.Code
         }
 
         /// <summary>
-        /// Api接口需要传入apiToken
+        /// Api接口需要傳入apiToken
         /// </summary>
         /// <param name="apiToken"></param>
         public void RemoveCurrent(string apiToken = "")
@@ -73,7 +73,7 @@ namespace YiSha.Web.Code
         }
 
         /// <summary>
-        /// Api接口需要传入apiToken
+        /// Api接口需要傳入apiToken
         /// </summary>
         /// <param name="apiToken"></param>
         /// <returns></returns>

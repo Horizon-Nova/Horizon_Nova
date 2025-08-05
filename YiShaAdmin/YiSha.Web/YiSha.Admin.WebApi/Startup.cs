@@ -46,7 +46,7 @@ namespace YiSha.Admin.WebApi
                 options.ModelMetadataDetailsProviders.Add(new ModelBindingMetadataProvider());
             }).AddNewtonsoftJson(options =>
             {
-                // 返回数据首字母不小写，CamelCasePropertyNamesContractResolver是小写
+                // 返回資料首字母不小寫，CamelCasePropertyNamesContractResolver是小寫
                 options.SerializerSettings.ContractResolver = new DefaultContractResolver();
             });
 
@@ -111,7 +111,7 @@ namespace YiSha.Admin.WebApi
             GlobalContext.ServiceProvider = app.ApplicationServices;
             if (!GlobalContext.SystemConfig.Debug)
             {
-                new JobCenter().Start(); // 定时任务
+                new JobCenter().Start(); // 定時任務
             }
         }
     }

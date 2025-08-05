@@ -10,7 +10,7 @@
             return '読み込み中です。少々お待ちください。';
         },
         formatRecordsPerPage: function (pageNumber) {
-            return 'ページ当たり最大' + pageNumber + '件';
+            return 'ページ當たり最大' + pageNumber + '件';
         },
         formatShowingRows: function (pageFrom, pageTo, totalRows) {
             return '全' + totalRows + '件から、'+ pageFrom + 'から' + pageTo + '件目まで表示しています';
@@ -19,10 +19,10 @@
             return '検索';
         },
         formatNoMatches: function () {
-            return '該当するレコードが見つかりません';
+            return '該當するレコードが見つかりません';
         },
         formatPaginationSwitch: function () {
-            return 'ページ数を表示・非表示';
+            return 'ページ數を表示・非表示';
         },
         formatRefresh: function () {
             return '更新';

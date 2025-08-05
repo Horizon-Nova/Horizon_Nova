@@ -9,7 +9,7 @@ namespace YiSha.Model.Result.SystemManage
     public class DataDictInfo
     {
         /// <summary>
-        /// 数据字典类型
+        /// 資料字典類型
         /// </summary>
         public string DictType { get; set; }
 
@@ -19,7 +19,7 @@ namespace YiSha.Model.Result.SystemManage
     public class DataDictDetailInfo
     {
         /// <summary>
-        /// 字典键
+        /// 字典鍵
         /// </summary>
         public int? DictKey { get; set; }
         /// <summary>
@@ -30,7 +30,7 @@ namespace YiSha.Model.Result.SystemManage
         public int? DictStatus { get; set; }
         public int? IsDefault { get; set; }
         /// <summary>
-        /// 备注
+        /// 備注
         /// </summary>
         public string Remark { get; set; }
     }

@@ -13,18 +13,15 @@
 
   <ItemGroup>
     <Folder Include="API\" />
-    <Folder Include="Areas\AI\DataModels\" />
-    <Folder Include="Areas\AI\Models\" />
-    <Folder Include="Areas\AI\Modules\" />
-    <Folder Include="Areas\AI\OWL‑ViT\" />
     <Folder Include="Areas\DialVision\Data\" />
     <Folder Include="Areas\DialVision\Models\" />
-    <Folder Include="Areas\Eos\Data\" />
-    <Folder Include="Areas\Eos\Models\" />
     <Folder Include="Areas\HNB_WEB\Data\" />
     <Folder Include="Areas\HNB_WEB\Models\" />
     <Folder Include="Areas\OrganizationManage\Controllers\" />
     <Folder Include="Areas\OrganizationManage\Views\" />
+    <Folder Include="Areas\Wardrobe\Data\" />
+    <Folder Include="Areas\Wardrobe\Models\" />
+    <Folder Include="Areas\Wardrobe\Utilities\" />
     <Folder Include="wwwroot\HNB_WEB\image\" />
     <Folder Include="BackSystem\" />
     <Folder Include="Data\" />
@@ -46,6 +43,7 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite" Version="9.0.4" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.11" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.7" />
     <PackageReference Include="Tokenizers.DotNet" Version="1.2.1" />
     <PackageReference Include="Tokenizers.DotNet.runtime.win-x64" Version="1.2.1" />
   </ItemGroup>

@@ -27,7 +27,7 @@ namespace YiSha.Admin.Web.Controllers
         private LogLoginBLL logLoginBLL = new LogLoginBLL();
         private MenuAuthorizeBLL menuAuthorizeBLL = new MenuAuthorizeBLL();
 
-        #region 视图功能
+        #region 視圖功能
         [HttpGet]
         [AuthorizeFilter]
         public async Task<IActionResult> Index()
@@ -74,13 +74,13 @@ namespace YiSha.Admin.Web.Controllers
             if (user != null)
             {
                 #region 退出系统
-                // 如果不允许同一个用户多次登录，当用户登出的时候，就不在线了
+                // 如果不允許同一個使用者多次登錄，當使用者登出的時候，就不在線了
                 if (!GlobalContext.SystemConfig.LoginMultiple)
                 {
                     await userBLL.UpdateUser(new UserEntity { Id = user.UserId, IsOnline = 0 });
                 }
 
-                // 登出日志
+                // 登出日誌
                 await logLoginBLL.SaveForm(new LogLoginEntity
                 {
                     LogStatus = OperateStatusEnum.Success.ParseToInt(),
@@ -101,7 +101,7 @@ namespace YiSha.Admin.Web.Controllers
             }
             else
             {
-                throw new Exception("非法请求");
+                throw new Exception("非法請求");
             }
         }
 
@@ -125,7 +125,7 @@ namespace YiSha.Admin.Web.Controllers
         }
         #endregion
 
-        #region 获取数据
+        #region 獲取數據
         public IActionResult GetCaptchaImage()
         {
             string sessionId = GlobalContext.ServiceProvider?.GetService<IHttpContextAccessor>().HttpContext.Session.Id;
@@ -137,19 +137,19 @@ namespace YiSha.Admin.Web.Controllers
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         [HttpPost]
         public async Task<IActionResult> LoginJson(string userName, string password, string captchaCode)
         {
             TData obj = new TData();
             if (string.IsNullOrEmpty(captchaCode))
             {
-                obj.Message = "验证码不能为空";
+                obj.Message = "驗證碼不能為空";
                 return Json(obj);
             }
             if (captchaCode != new SessionHelper().GetSession("CaptchaCode").ParseToString())
             {
-                obj.Message = "验证码错误，请重新输入";
+                obj.Message = "驗證碼錯誤，請重新輸入";
                 return Json(obj);
             }
             TData<UserEntity> userObj = await userBLL.CheckLogin(userName, password, (int)PlatformEnum.Web);
@@ -178,7 +178,7 @@ namespace YiSha.Admin.Web.Controllers
                     BaseCreatorId = userObj.Data?.Id
                 };
 
-                // 让底层不用获取HttpContext
+                // 讓底層不用獲取HttpContext
                 logLoginEntity.BaseCreatorId = logLoginEntity.BaseCreatorId ?? 0;
 
                 await logLoginBLL.SaveForm(logLoginEntity);

@@ -18,7 +18,7 @@ namespace YiSha.Service.SystemManage
 {
     public class DatabaseTableMySqlService : RepositoryFactory, IDatabaseTableService
     {
-        #region 获取数据
+        #region 獲得資料
         public async Task<List<TableInfo>> GetTableList(string tableName)
         {
             StringBuilder strSql = new StringBuilder();
@@ -77,12 +77,12 @@ namespace YiSha.Service.SystemManage
         }
 
         /// <summary>
-        /// 仅用在YiShaAdmin框架里面，同步不同数据库之间的数据，以 MySql 为主库，同步 MySql 的数据到SqlServer和Oracle，保证各个数据库的数据是一样的
+        /// 僅用在YiShaAdmin框架里面，同步不同資料庫之間的資料，以 MySql 為主庫，同步 MySql 的資料到SqlServer和Oracle，保證各個資料庫的資料是一樣的
         /// </summary>
         /// <returns></returns>
         public async Task SyncDatabase()
         {
-            #region 同步SqlServer数据库
+            #region 同步SqlServer資料庫
             await SyncSqlServerTable<AreaEntity>();
             await SyncSqlServerTable<AutoJobEntity>();
             await SyncSqlServerTable<AutoJobLogEntity>();
@@ -112,7 +112,7 @@ namespace YiSha.Service.SystemManage
         #region 私有方法
 
         /// <summary>
-        /// 获取所有表的主键、主键名称、记录数
+        /// 獲取所有表的主鍵、主鍵名稱、記錄數
         /// </summary>
         /// <param name="list"></param>
         /// <returns></returns>
@@ -124,14 +124,14 @@ namespace YiSha.Service.SystemManage
                                      WHERE t1.TABLE_SCHEMA='" + GetDatabase() + "' AND t2.TABLE_SCHEMA='" + GetDatabase() + "'";
             if (list != null && list.Count() > 0)
             {
-                strSql += " AND t1.TABLE_NAME in(" + string.Join(",", list.Select(p => "'" + p.TableName + "'")) + ")";//生成 Where In 条件
+                strSql += " AND t1.TABLE_NAME in(" + string.Join(",", list.Select(p => "'" + p.TableName + "'")) + ")";//生成 Where In 條件
             }
             IEnumerable<TableInfo> result = await BaseRepository().FindList<TableInfo>(strSql.ToString());
             return result.ToList();
         }
 
         /// <summary>
-        /// 赋值表的主键、主键名称、记录数
+        /// 赋值表的主鍵、主鍵名稱、記錄數
         /// </summary>
         /// <param name="list"></param>
         private async Task SetTableDetail(IEnumerable<TableInfo> list)

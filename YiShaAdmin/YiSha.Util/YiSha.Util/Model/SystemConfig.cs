@@ -13,12 +13,12 @@
         public bool Demo { get; set; }
 
         /// <summary>
-        /// 是否是调试模式
+        /// 是否是調试模式
         /// </summary>
         public bool Debug { get; set; }
 
         /// <summary>
-        /// 允许一个用户在多个电脑同时登录
+        /// 允許一個使用者在多個電脑同時登錄
         /// </summary>
         public bool LoginMultiple { get; set; }
 
@@ -35,12 +35,12 @@
         public string ApiSite { get; set; }
 
         /// <summary>
-        /// 允许跨域的站点
+        /// 允許跨域的站點
         /// </summary>
         public string AllowCorsSite { get; set; }
 
         /// <summary>
-        /// 网站虚拟目录
+        /// 网站虛擬目錄
         /// </summary>
         public string VirtualDirectory { get; set; }
 
@@ -49,17 +49,17 @@
         public string DBConnectionString { get; set; }
 
         /// <summary>
-        ///  数据库超时间（秒）
+        ///  資料庫超時間（秒）
         /// </summary>
         public int DBCommandTimeout { get; set; }
 
         /// <summary>
-        /// 慢查询记录Sql(秒),保存到文件以便分析
+        /// 慢查询記錄Sql(秒),保存到文件以便分析
         /// </summary>
         public int DBSlowSqlLogTime { get; set; }
 
         /// <summary>
-        /// 数据库备份路径
+        /// 資料庫備份路徑
         /// </summary>
         public string DBBackup { get; set; }
 

@@ -5,26 +5,26 @@
 	<div class="desc">
 		<p></p>
 		<div class="longdesc">
-			<p>用于对 Ajax 返回数据进行预处理的函数。<span class="highlight_red">[setting.async.enable = true 时生效]</span></p>
-			<p>默认值：null</p>
+			<p>用於對 Ajax 返回資料進行預處理的函數。<span class="highlight_red">[setting.async.enable = true 時生效]</span></p>
+			<p>默認值：null</p>
 		</div>
 	</div>
-	<h3>Function 参数说明</h3>
+	<h3>Function 參數說明</h3>
 	<div class="desc">
 	<h4><b>treeId</b><span>String</span></h4>
-	<p>对应 zTree 的 <b class="highlight_red">treeId</b>，便于用户操控</p>
+	<p>對應 zTree 的 <b class="highlight_red">treeId</b>，便於使用者操控</p>
 	<h4 class="topLine"><b>parentNode</b><span>JSON</span></h4>
-	<p>进行异步加载的父节点 JSON 数据对象</p>
-	<p class="highlight_red">对根进行异步加载时，parentNode = null</p>
+	<p>進行異步加載的父節點 JSON 資料對象</p>
+	<p class="highlight_red">對根進行異步加載時，parentNode = null</p>
 	<h4 class="topLine"><b>responseData</b><span>Array(JSON) / JSON / String</span></h4>
-	<p>异步加载获取到的数据转换后的 Array(JSON) / JSON / String 数据对象</p>
-	<p class="highlight_red">v3.4开始 支持 XML 数据格式的 String</p>
+	<p>異步加載獲取到的資料转換後的 Array(JSON) / JSON / String 資料對象</p>
+	<p class="highlight_red">v3.4開始 支持 XML 資料格式的 String</p>
 	<h4 class="topLine"><b>返回值</b><span>Array(JSON) / JSON</span></h4>
-	<p>返回值是 zTree 支持的JSON 数据结构即可。</p>
-	<p class="highlight_red">v3.x 支持单个 JSON 节点数据进行加载</p>
+	<p>返回值是 zTree 支持的JSON 資料結構即可。</p>
+	<p class="highlight_red">v3.x 支持單個 JSON 節點資料進行加載</p>
 	</div>
 	<h3>setting & function 举例</h3>
-	<h4>1. 修改异步获取到的节点name属性</h4>
+	<h4>1. 修改異步獲取到的節點name属性</h4>
 	<pre xmlns=""><code>function ajaxDataFilter(treeId, parentNode, responseData) {
     if (responseData) {
       for(var i =0; i < responseData.length; i++) {

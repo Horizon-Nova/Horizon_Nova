@@ -21,7 +21,7 @@ namespace YiSha.Admin.Web.Areas.SystemManage.Controllers
     {
         private DataDictBLL dataDictBLL = new DataDictBLL();
 
-        #region 视图功能
+        #region 視圖功能
         [AuthorizeFilter("system:datadict:view")]
         public IActionResult DataDictIndex()
         {
@@ -34,7 +34,7 @@ namespace YiSha.Admin.Web.Areas.SystemManage.Controllers
         }
         #endregion
 
-        #region 获取数据
+        #region 獲得資料
         [HttpGet]
         [AuthorizeFilter("system:datadict:search")]
         public async Task<IActionResult> GetListJson(DataDictListParam param)
@@ -75,7 +75,7 @@ namespace YiSha.Admin.Web.Areas.SystemManage.Controllers
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         [HttpPost]
         [AuthorizeFilter("system:datadict:add,system:datadict:edit")]
         public async Task<IActionResult> SaveFormJson(DataDictEntity entity)

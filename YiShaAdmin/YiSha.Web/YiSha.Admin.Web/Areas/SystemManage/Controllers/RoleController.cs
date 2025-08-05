@@ -15,7 +15,7 @@ namespace YiSha.Admin.Web.Areas.SystemManage.Controllers
     {
         private RoleBLL roleBLL = new RoleBLL();
 
-        #region 视图功能
+        #region 視圖功能
         [AuthorizeFilter("system:role:view")]
         public IActionResult RoleIndex()
         {
@@ -29,7 +29,7 @@ namespace YiSha.Admin.Web.Areas.SystemManage.Controllers
         }
         #endregion
 
-        #region 获取数据
+        #region 獲得資料
         [HttpGet]
         [AuthorizeFilter("system:role:search,organization:user:search")]
         public async Task<IActionResult> GetListJson(RoleListParam param)
@@ -76,7 +76,7 @@ namespace YiSha.Admin.Web.Areas.SystemManage.Controllers
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         [HttpPost]
         [AuthorizeFilter("system:role:add,system:role:edit")]
         public async Task<IActionResult> SaveFormJson(RoleEntity entity)

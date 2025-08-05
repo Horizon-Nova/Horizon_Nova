@@ -13,13 +13,13 @@ namespace YiSha.Data
     public class DbHelper
     {
         /// <summary>
-        /// 数据库类型
+        /// 資料庫類型
         /// </summary>
         public static DatabaseType DbType { get; set; }
 
-        #region 构造函数
+        #region 構造函數
         /// <summary>
-        /// 构造方法
+        /// 構造方法
         /// </summary>
         public DbHelper(DbConnection _dbConnection)
         {
@@ -38,15 +38,15 @@ namespace YiSha.Data
         #region 属性
         private DbContext dbContext { get; set; }
         /// <summary>
-        /// 数据库连接对象
+        /// 資料庫连接對象
         /// </summary>
         private DbConnection dbConnection { get; set; }
         /// <summary>
-        /// 执行命令对象
+        /// 執行命令對象
         /// </summary>
         private DbCommand dbCommand { get; set; }
         /// <summary>
-        /// 关闭数据库连接
+        /// 關閉資料庫连接
         /// </summary>
         public void Close()
         {
@@ -63,11 +63,11 @@ namespace YiSha.Data
         #endregion
 
         /// <summary>
-        /// 执行SQL返回 DataReader
+        /// 執行SQL返回 DataReader
         /// </summary>
-        /// <param name="cmdType">命令的类型</param>
-        /// <param name="strSql">Sql语句</param>
-        /// <param name="dbParameter">Sql参数</param>
+        /// <param name="cmdType">命令的類型</param>
+        /// <param name="strSql">Sql語句</param>
+        /// <param name="dbParameter">Sql參數</param>
         /// <returns></returns>
         public async Task<IDataReader> ExecuteReadeAsync(CommandType cmdType, string strSql, params DbParameter[] dbParameter)
         {
@@ -130,11 +130,11 @@ namespace YiSha.Data
         }
 
         /// <summary>
-        /// 执行查询，并返回查询所返回的结果集
+        /// 執行查询，並返回查询所返回的結果集
         /// </summary>
-        /// <param name="cmdType">命令的类型</param>
-        /// <param name="strSql">Sql语句</param>
-        /// <param name="dbParameter">Sql参数</param>
+        /// <param name="cmdType">命令的類型</param>
+        /// <param name="strSql">Sql語句</param>
+        /// <param name="dbParameter">Sql參數</param>
         /// <returns></returns>
         public async Task<object> ExecuteScalarAsync(CommandType cmdType, string strSql, params DbParameter[] dbParameter)
         {
@@ -198,14 +198,14 @@ namespace YiSha.Data
         }
 
         /// <summary>
-        /// 为即将执行准备一个命令
+        /// 為即將執行准備一個命令
         /// </summary>
-        /// <param name="conn">SqlConnection对象</param>
-        /// <param name="cmd">SqlCommand对象</param>
-        /// <param name="isOpenTrans">DbTransaction对象</param>
-        /// <param name="cmdType">执行命令的类型（存储过程或T-SQL，等等）</param>
-        /// <param name="strSql">存储过程名称或者T-SQL命令行, e.g. Select * from Products</param>
-        /// <param name="dbParameter">执行命令所需的sql语句对应参数</param>
+        /// <param name="conn">SqlConnection對象</param>
+        /// <param name="cmd">SqlCommand對象</param>
+        /// <param name="isOpenTrans">DbTransaction對象</param>
+        /// <param name="cmdType">執行命令的類型（存储過程或T-SQL，等等）</param>
+        /// <param name="strSql">存储過程名稱或者T-SQL命令行, e.g. Select * from Products</param>
+        /// <param name="dbParameter">執行命令所需的sql語句對應參數</param>
         private void PrepareCommand(DbConnection conn, IDbCommand cmd, DbTransaction isOpenTrans, CommandType cmdType, string strSql, params DbParameter[] dbParameter)
         {
             if (conn.State != ConnectionState.Open)

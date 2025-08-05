@@ -5,21 +5,21 @@
 	<div class="desc">
 		<p></p>
 		<div class="longdesc">
-			<p>将简单 Array 格式数据转换为 zTree 使用的标准 JSON 嵌套数据格式。</p>
-			<p class="highlight_red">使用此方法，请务必设置节点唯一标识属性名称 setting.data.simpleData.idKey 和 父节点唯一标识属性名称 setting.data.simpleData.pIdKey，并且让数据满足父子关系。</p>
-			<p class="highlight_red">请通过 zTree 对象执行此方法。</p>
+			<p>將簡單 Array 格式資料转換為 zTree 使用的標准 JSON 嵌套資料格式。</p>
+			<p class="highlight_red">使用此方法，請務必設置節點唯一標識属性名稱 setting.data.simpleData.idKey 和 父節點唯一標識属性名稱 setting.data.simpleData.pIdKey，並且讓資料滿足父子關系。</p>
+			<p class="highlight_red">請通過 zTree 對象執行此方法。</p>
 		</div>
 	</div>
-	<h3>Function 参数说明</h3>
+	<h3>Function 參數說明</h3>
 	<div class="desc">
 	<h4><b>simpleNodes</b><span>Array(JSON) / JSON</span></h4>
-	<p>需要被转换的简单 Array 格式数据 或 某个单独的数据对象</p>
+	<p>需要被转換的簡單 Array 格式資料 或 某個單独的資料對象</p>
 	<h4 class="topLine"><b>返回值</b><span>Array(JSON)</span></h4>
-	<p>zTree 使用的标准数据，子节点都存在于父节点数据的 children 属性中</p>
-	<p class="highlight_red">如果 simpleNodes 是一个 JSON 对象，则被简单封装成长度为 1 的数组。</p>
+	<p>zTree 使用的標准資料，子節點都存在於父節點資料的 children 属性中</p>
+	<p class="highlight_red">如果 simpleNodes 是一個 JSON 對象，则被簡單封装成长度為 1 的數組。</p>
 	</div>
 	<h3>function 举例</h3>
-	<h4>1. 将简单 Array 格式转换为zTree使用的标准格式</h4>
+	<h4>1. 將簡單 Array 格式转換為zTree使用的標准格式</h4>
 	<pre xmlns=""><code>var setting = {
 	data: {
 		simpleData: {

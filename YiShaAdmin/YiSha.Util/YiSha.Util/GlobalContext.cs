@@ -36,13 +36,13 @@ namespace YiSha.Util
         }
 
         /// <summary>
-        /// 程序启动时，记录目录
+        /// 程序啟動時，記錄目錄
         /// </summary>
         /// <param name="env"></param>
         public static void LogWhenStart(IWebHostEnvironment env)
         {
             StringBuilder sb = new StringBuilder();
-            sb.Append("程序启动");
+            sb.Append("程序啟動");
             sb.Append(" |ContentRootPath:" + env.ContentRootPath);
             sb.Append(" |WebRootPath:" + env.WebRootPath);
             sb.Append(" |IsDevelopment:" + env.IsDevelopment());
@@ -50,7 +50,7 @@ namespace YiSha.Util
         }
 
         /// <summary>
-        /// 设置cache control
+        /// 設置cache control
         /// </summary>
         /// <param name="context"></param>
         public static void SetCacheControl(StaticFileResponseContext context)

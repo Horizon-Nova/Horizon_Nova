@@ -8,7 +8,7 @@
         var target = $(this);
         var id = target.attr("id");
 
-        // 显示垂直滚动条
+        // 顯示垂直滚動條
         target.css("overflow-y", "auto").css("max-height", _option.maxHeight);
 
         ys.ajax({
@@ -39,7 +39,7 @@
             if (!ys.isNullOrEmpty(ids)) {
                 var _ids = ids.split(',');
                 var zTreeObj = $.fn.zTree.getZTreeObj($(target).attr("id"));
-                zTreeObj.cancelSelectedNode();//先取消所有的选中状态
+                zTreeObj.cancelSelectedNode();//先取消所有的選中狀態
                 $.each(_ids, function (i, id) {
                     var node = zTreeObj.getNodeByParam("id", id);
                     zTreeObj.checkNode(node, true, false, true);
@@ -50,7 +50,7 @@
             if (!ys.isNullOrEmpty(names)) {
                 var _names = names.split(',');
                 var zTreeObj = $.fn.zTree.getZTreeObj($(target).attr("id"));
-                zTreeObj.cancelSelectedNode();//先取消所有的选中状态
+                zTreeObj.cancelSelectedNode();//先取消所有的選中狀態
                 $.each(_names, function (i, name) {
                     var node = zTreeObj.getNodeByParam("name", name);
                     zTreeObj.checkNode(node, true, false, true);
@@ -69,7 +69,7 @@
         callback: {}
     };
 
-    // 下拉框，里面展示的数据是树形，和ysComboBox对应
+    // 下拉框，里面展示的資料是树形，和ysComboBox對應
     $.fn.ysComboBoxTree = function (option, param) {
         if (typeof option == 'string') {
             return $.fn.ysComboBoxTree.methods[option](this, param);
@@ -82,7 +82,7 @@
         var eleInputId = id + "_input";
         var eleTreeId = id + "_tree";
 
-        // 样式需要改成通用的
+        // 樣式需要改成通用的
         target.css("position", "relative");
         var html = "<input id='" + eleInputId + "' name='" + eleInputId + "' readonly='readonly' type='text' class='form-control' />";
         html += "<div id='" + eleTreeId + "' class='ztree treeSelect-panel' style='overflow-y: auto;max-height:" + _option.maxHeight + ";border:1px solid #e5e6e7;margin-top:1px;display:none'></div>";
@@ -105,7 +105,7 @@
                 var targetTree = $("#" + eleTreeId);
                 var targetInput = $("#" + eleInputId);
 
-                // 用户定义的onClick回调
+                // 使用者定義的onClick回調
                 var customOnClick = _option.callback.customOnClick;
                 // OnClick callback
                 _option.callback.onClick = function (event, treeId, treeNode) {
@@ -163,7 +163,7 @@
             return $(target).attr("data-key");
         },
         setValue: function (target, value) {
-            var lastId = '0'; // 取最下面的一个值
+            var lastId = '0'; // 取最下面的一個值
             if (value) {
                 var arr = value.toString().split(',');
                 lastId = arr[arr.length - 1];
@@ -173,10 +173,10 @@
             var zTreeObj = $.fn.zTree.getZTreeObj(eleTreeId);
             var node = zTreeObj.getNodeByParam("id", lastId);
             if (node != null) {
-                zTreeObj.cancelSelectedNode();//先取消所有的选中状态
-                zTreeObj.selectNode(node, true);//将指定ID的节点选中
-                zTreeObj.expandNode(node, true, false);//将指定ID节点展开
-                zTreeObj.setting.callback.onClick('setValue', zTreeObj.setting.treeId, node); //触发onclick
+                zTreeObj.cancelSelectedNode();//先取消所有的選中狀態
+                zTreeObj.selectNode(node, true);//將指定ID的節點選中
+                zTreeObj.expandNode(node, true, false);//將指定ID節點展開
+                zTreeObj.setting.callback.onClick('setValue', zTreeObj.setting.treeId, node); //触發onclick
             }
             return $(target);
         }

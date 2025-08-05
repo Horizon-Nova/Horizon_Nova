@@ -21,7 +21,7 @@ namespace YiSha.Admin.Web.Areas.SystemManage.Controllers
     {
         private AreaBLL areaBLL = new AreaBLL();
 
-        #region 视图功能
+        #region 視圖功能
         [AuthorizeFilter("system:area:view")]
         public IActionResult AreaIndex()
         {
@@ -34,7 +34,7 @@ namespace YiSha.Admin.Web.Areas.SystemManage.Controllers
         }
         #endregion
 
-        #region 获取数据
+        #region 獲得資料
         [HttpGet]
         [AuthorizeFilter("system:area:search")]
         public async Task<IActionResult> GetListJson(AreaListParam param)
@@ -68,7 +68,7 @@ namespace YiSha.Admin.Web.Areas.SystemManage.Controllers
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         [HttpPost]
         [AuthorizeFilter("system:area:add,ystem:area:edit")]
         public async Task<IActionResult> SaveFormJson(AreaEntity entity)

@@ -24,7 +24,7 @@ namespace YiSha.Admin.Web.Areas.ToolManage.Controllers
     {
         private DatabaseTableBLL databaseTableBLL = new DatabaseTableBLL();
 
-        #region 视图功能
+        #region 視圖功能
         [AuthorizeFilter("tool:codegenerator:view")]
         public IActionResult CodeGeneratorIndex()
         {
@@ -54,7 +54,7 @@ namespace YiSha.Admin.Web.Areas.ToolManage.Controllers
 
         #endregion
 
-        #region 获取数据
+        #region 獲得資料
         [HttpGet]
         [AuthorizeFilter("tool:codegenerator:search")]
         public async Task<IActionResult> GetTableFieldTreeListJson(string tableName)
@@ -70,7 +70,7 @@ namespace YiSha.Admin.Web.Areas.ToolManage.Controllers
             TData<List<ZtreeInfo>> obj = await databaseTableBLL.GetTableFieldZtreeList(tableName);
             if (obj.Data != null)
             {
-                // 基础字段不显示出来
+                // 基礎字段不顯示出來
                 obj.Data.RemoveAll(p => BaseField.BaseFieldList.Contains(p.name));                
             }
             return Json(obj);
@@ -94,7 +94,7 @@ namespace YiSha.Admin.Web.Areas.ToolManage.Controllers
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         [HttpPost]
         [AuthorizeFilter("tool:codegenerator:add")]
         public async Task<IActionResult> CodePreviewJson(BaseConfigModel baseConfig)
@@ -102,13 +102,13 @@ namespace YiSha.Admin.Web.Areas.ToolManage.Controllers
             TData<object> obj = new TData<object>();
             if (string.IsNullOrEmpty(baseConfig.OutputConfig.OutputModule))
             {
-                obj.Message = "请选择输出到的模块";
+                obj.Message = "請選擇輸出到的模塊";
             }
             else
             {
                 SingleTableTemplate template = new SingleTableTemplate();
                 TData<List<TableFieldInfo>> objTable = await databaseTableBLL.GetTableFieldList(baseConfig.TableName);
-                DataTable dt = DataTableHelper.ListToDataTable(objTable.Data);  // 用DataTable类型，避免依赖
+                DataTable dt = DataTableHelper.ListToDataTable(objTable.Data);  // 用DataTable類型，避免依赖
                 string codeEntity = template.BuildEntity(baseConfig, dt);
                 string codeEntityParam = template.BuildEntityParam(baseConfig);
                 string codeService = template.BuildService(baseConfig, dt);
@@ -142,7 +142,7 @@ namespace YiSha.Admin.Web.Areas.ToolManage.Controllers
             TData<List<KeyValue>> obj = new TData<List<KeyValue>>();
             if (!GlobalContext.SystemConfig.Debug)
             {
-                obj.Message = "请在本地开发模式时使用代码生成";
+                obj.Message = "請在本地開發模式時使用代碼生成";
             }
             else
             {

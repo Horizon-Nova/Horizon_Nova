@@ -7,10 +7,10 @@
             <div class="select-list">
                 <ul>
                     <li>
-                        任务名称：<input id="jobName" col="JobName" type="text" />
+                        任務名稱：<input id="jobName" col="JobName" type="text" />
                     </li>
                     <li>
-                        <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                        <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class="fa fa-search"></i>&nbsp;查詢</a>
                     </li>
                 </ul>
             </div>
@@ -36,9 +36,9 @@
             columns: [
                 { checkbox: true, visible: true },
                 { field: 'Id', title: 'Id', visible: false },
-                { field: 'JobName', title: '任务名称' },
+                { field: 'JobName', title: '任務名稱' },
                 {
-                    field: 'LogStatus', title: '执行状态', align: 'center',
+                    field: 'LogStatus', title: '執行狀態', align: 'center',
                     formatter: function (value, row, index) {
                         if (value == "@OperateStatusEnum.Success.ParseToInt()") {
                             return '<span class="badge badge-primary">' + "@OperateStatusEnum.Success.GetDescription()" + '</span>';
@@ -47,9 +47,9 @@
                         }
                     }
                 },
-                { field: 'Remark', title: '任务信息' },
+                { field: 'Remark', title: '任務信息' },
                 {
-                    field: 'BaseCreateTime', title: '创建时间', formatter: function (value, row, index) {
+                    field: 'BaseCreateTime', title: '創建時間', formatter: function (value, row, index) {
                         return ys.formatDate(value, "yyyy-MM-dd HH:mm:ss");
                     }
                 }
@@ -70,7 +70,7 @@
     function deleteForm() {
         var selectedRow = $("#gridTable").bootstrapTable("getSelections");
         if (ys.checkRowDelete(selectedRow)) {
-            ys.confirm("确认要删除选中的" + selectedRow.length + "条数据吗？", function () {
+            ys.confirm("確認要删除選中的" + selectedRow.length + "條資料嗎？", function () {
                 var ids = ys.getIds(selectedRow);
                 ys.ajax({
                     url: '@Url.Content("~/SystemManage/AutoJobLog/DeleteFormJson")' + '?ids=' + ids,

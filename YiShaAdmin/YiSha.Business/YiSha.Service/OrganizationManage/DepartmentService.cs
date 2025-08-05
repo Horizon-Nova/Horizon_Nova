@@ -16,7 +16,7 @@ namespace YiSha.Service.OrganizationManage
 {
     public class DepartmentService : RepositoryFactory
     {
-        #region 获取数据
+        #region 獲得資料
         public async Task<List<DepartmentEntity>> GetList(DepartmentListParam param)
         {
             var expression = ListFilter(param);
@@ -38,7 +38,7 @@ namespace YiSha.Service.OrganizationManage
         }
 
         /// <summary>
-        /// 部门名称是否存在
+        /// 部門名稱是否存在
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
@@ -58,7 +58,7 @@ namespace YiSha.Service.OrganizationManage
         }
 
         /// <summary>
-        /// 是否存在子部门
+        /// 是否存在子部門
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -70,7 +70,7 @@ namespace YiSha.Service.OrganizationManage
         }
         #endregion
 
-        #region 提交数据
+        #region 提交資料
         public async Task SaveForm(DepartmentEntity entity)
         {
             if (entity.Id.IsNullOrZero())

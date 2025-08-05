@@ -68,16 +68,16 @@ namespace YiSha.Util
         }
         #endregion
 
-        #region 判断是否是外网IP
+        #region 判斷是否是外网IP
         public static bool IsInnerIP(string ipAddress)
         {
             bool isInnerIp = false;
             long ipNum = GetIpNum(ipAddress);
             /**
-                私有IP：A类 10.0.0.0-10.255.255.255
-                            B类 172.16.0.0-172.31.255.255
-                            C类 192.168.0.0-192.168.255.255
-                当然，还有127这个网段是环回地址 
+                私有IP：A類 10.0.0.0-10.255.255.255
+                            B類 172.16.0.0-172.31.255.255
+                            C類 192.168.0.0-192.168.255.255
+                當然，還有127這個网段是环回地址 
            **/
             long aBegin = GetIpNum("10.0.0.0");
             long aEnd = GetIpNum("10.255.255.255");
@@ -90,7 +90,7 @@ namespace YiSha.Util
         }
 
         /// <summary>
-        /// 把IP地址转换为Long型数字
+        /// 把IP地址转換為Long型數字
         /// </summary>
         /// <param name="ipAddress">IP地址字符串</param>
         /// <returns></returns>

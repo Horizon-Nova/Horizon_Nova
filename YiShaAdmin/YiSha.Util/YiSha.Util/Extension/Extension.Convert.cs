@@ -9,9 +9,9 @@ namespace YiSha.Util.Extension
 {
     public static partial class Extensions
     {
-        #region 转换为long
+        #region 转換為long
         /// <summary>
-        /// 将object转换为long，若转换失败，则返回0。不抛出异常。  
+        /// 將object转換為long，若转換失敗，则返回0。不抛出異常。  
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
@@ -28,7 +28,7 @@ namespace YiSha.Util.Extension
         }
 
         /// <summary>
-        /// 将object转换为long，若转换失败，则返回指定值。不抛出异常。  
+        /// 將object转換為long，若转換失敗，则返回指定值。不抛出異常。  
         /// </summary>
         /// <param name="str"></param>
         /// <param name="defaultValue"></param>
@@ -46,9 +46,9 @@ namespace YiSha.Util.Extension
         }
         #endregion
 
-        #region 转换为int
+        #region 转換為int
         /// <summary>
-        /// 将object转换为int，若转换失败，则返回0。不抛出异常。  
+        /// 將object转換為int，若转換失敗，则返回0。不抛出異常。  
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
@@ -65,8 +65,8 @@ namespace YiSha.Util.Extension
         }
 
         /// <summary>
-        /// 将object转换为int，若转换失败，则返回指定值。不抛出异常。 
-        /// null返回默认值
+        /// 將object转換為int，若转換失敗，则返回指定值。不抛出異常。 
+        /// null返回默認值
         /// </summary>
         /// <param name="str"></param>
         /// <param name="defaultValue"></param>
@@ -88,9 +88,9 @@ namespace YiSha.Util.Extension
         }
         #endregion
 
-        #region 转换为short
+        #region 转換為short
         /// <summary>
-        /// 将object转换为short，若转换失败，则返回0。不抛出异常。  
+        /// 將object转換為short，若转換失敗，则返回0。不抛出異常。  
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
@@ -107,7 +107,7 @@ namespace YiSha.Util.Extension
         }
 
         /// <summary>
-        /// 将object转换为short，若转换失败，则返回指定值。不抛出异常。  
+        /// 將object转換為short，若转換失敗，则返回指定值。不抛出異常。  
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
@@ -124,9 +124,9 @@ namespace YiSha.Util.Extension
         }
         #endregion
 
-        #region 转换为demical
+        #region 转換為demical
         /// <summary>
-        /// 将object转换为demical，若转换失败，则返回指定值。不抛出异常。  
+        /// 將object转換為demical，若转換失敗，则返回指定值。不抛出異常。  
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
@@ -143,7 +143,7 @@ namespace YiSha.Util.Extension
         }
 
         /// <summary>
-        /// 将object转换为demical，若转换失败，则返回0。不抛出异常。  
+        /// 將object转換為demical，若转換失敗，则返回0。不抛出異常。  
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
@@ -160,9 +160,9 @@ namespace YiSha.Util.Extension
         }
         #endregion
 
-        #region 转化为bool
+        #region 转化為bool
         /// <summary>
-        /// 将object转换为bool，若转换失败，则返回false。不抛出异常。  
+        /// 將object转換為bool，若转換失敗，则返回false。不抛出異常。  
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
@@ -179,7 +179,7 @@ namespace YiSha.Util.Extension
         }
 
         /// <summary>
-        /// 将object转换为bool，若转换失败，则返回指定值。不抛出异常。  
+        /// 將object转換為bool，若转換失敗，则返回指定值。不抛出異常。  
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
@@ -196,9 +196,9 @@ namespace YiSha.Util.Extension
         }
         #endregion
 
-        #region 转换为float
+        #region 转換為float
         /// <summary>
-        /// 将object转换为float，若转换失败，则返回0。不抛出异常。  
+        /// 將object转換為float，若转換失敗，则返回0。不抛出異常。  
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
@@ -215,7 +215,7 @@ namespace YiSha.Util.Extension
         }
 
         /// <summary>
-        /// 将object转换为float，若转换失败，则返回指定值。不抛出异常。  
+        /// 將object转換為float，若转換失敗，则返回指定值。不抛出異常。  
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
@@ -232,9 +232,9 @@ namespace YiSha.Util.Extension
         }
         #endregion
 
-        #region 转换为Guid
+        #region 转換為Guid
         /// <summary>
-        /// 将string转换为Guid，若转换失败，则返回Guid.Empty。不抛出异常。  
+        /// 將string转換為Guid，若转換失敗，则返回Guid.Empty。不抛出異常。  
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
@@ -251,9 +251,9 @@ namespace YiSha.Util.Extension
         }
         #endregion
 
-        #region 转换为DateTime
+        #region 转換為DateTime
         /// <summary>
-        /// 将string转换为DateTime，若转换失败，则返回日期最小值。不抛出异常。  
+        /// 將string转換為DateTime，若转換失敗，则返回日期最小值。不抛出異常。  
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
@@ -298,7 +298,7 @@ namespace YiSha.Util.Extension
         }
 
         /// <summary>
-        /// 将string转换为DateTime，若转换失败，则返回默认值。  
+        /// 將string转換為DateTime，若转換失敗，则返回默認值。  
         /// </summary>
         /// <param name="str"></param>
         /// <param name="defaultValue"></param>
@@ -344,9 +344,9 @@ namespace YiSha.Util.Extension
         }
         #endregion
 
-        #region 转换为string
+        #region 转換為string
         /// <summary>
-        /// 将object转换为string，若转换失败，则返回""。不抛出异常。  
+        /// 將object转換為string，若转換失敗，则返回""。不抛出異常。  
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
@@ -390,9 +390,9 @@ namespace YiSha.Util.Extension
         }
         #endregion
 
-        #region 转换为double
+        #region 转換為double
         /// <summary>
-        /// 将object转换为double，若转换失败，则返回0。不抛出异常。  
+        /// 將object转換為double，若转換失敗，则返回0。不抛出異常。  
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
@@ -409,7 +409,7 @@ namespace YiSha.Util.Extension
         }
 
         /// <summary>
-        /// 将object转换为double，若转换失败，则返回指定值。不抛出异常。  
+        /// 將object转換為double，若转換失敗，则返回指定值。不抛出異常。  
         /// </summary>
         /// <param name="str"></param>
         /// <param name="defaultValue"></param>
@@ -427,9 +427,9 @@ namespace YiSha.Util.Extension
         }
         #endregion
 
-        #region 强制转换类型
+        #region 强制转換類型
         /// <summary>
-        /// 强制转换类型
+        /// 强制转換類型
         /// </summary>
         /// <typeparam name="TResult"></typeparam>
         /// <param name="source"></param>

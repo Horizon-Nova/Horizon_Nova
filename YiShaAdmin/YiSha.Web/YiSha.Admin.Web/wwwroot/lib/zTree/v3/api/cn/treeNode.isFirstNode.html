@@ -5,19 +5,19 @@
 	<div class="desc">
 		<p></p>
 		<div class="longdesc">
-			<p>记录 treeNode 节点是否为同级节点中的第一个节点。</p>
-			<p class="highlight_red">使用 exhide 扩展后，只针对显示的节点设置此属性</p>
-			<p class="highlight_red">初始化节点数据时，由 zTree 增加此属性，请勿提前赋值</p>
+			<p>記錄 treeNode 節點是否為同級節點中的第一個節點。</p>
+			<p class="highlight_red">使用 exhide 扩展後，只針對顯示的節點設置此属性</p>
+			<p class="highlight_red">初始化節點資料時，由 zTree 增加此属性，請勿提前赋值</p>
 		</div>
 	</div>
-	<h3>Boolean 格式说明</h3>
+	<h3>Boolean 格式說明</h3>
 	<div class="desc">
-	<p> true 表示是同级节点中的第一个节点</p>
-	<p> false 表示不是同级节点中的第一个节点</p>
-	<p class="highlight_red">节点被隐藏后，isFirstNode = false</p>
+	<p> true 表示是同級節點中的第一個節點</p>
+	<p> false 表示不是同級節點中的第一個節點</p>
+	<p class="highlight_red">節點被隱藏後，isFirstNode = false</p>
 	</div>
 	<h3>treeNode 举例</h3>
-	<h4>1. 查看当前被选中的节点是否是同级节点中的第一个节点</h4>
+	<h4>1. 查看當前被選中的節點是否是同級節點中的第一個節點</h4>
 	<pre xmlns=""><code>var treeObj = $.fn.zTree.getZTreeObj("tree");
 var sNodes = treeObj.getSelectedNodes();
 if (sNodes.length > 0) {

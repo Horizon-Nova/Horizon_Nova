@@ -19,7 +19,7 @@ namespace YiSha.Entity.OrganizationManage
         public int? BelongType { get; set; }
 
         /// <summary>
-        /// 多个用户Id
+        /// 多個使用者Id
         /// </summary>
         [NotMapped]
         public string UserIds { get; set; }
