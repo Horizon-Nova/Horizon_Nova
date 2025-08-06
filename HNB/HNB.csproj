@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Areas\OrganizationManage\**" />
+    <Content Remove="Areas\OrganizationManage\**" />
+    <EmbeddedResource Remove="Areas\OrganizationManage\**" />
+    <None Remove="Areas\OrganizationManage\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="BuildModels.bat" />
     <None Remove="ProjectPush.bat" />
   </ItemGroup>
@@ -17,8 +24,7 @@
     <Folder Include="Areas\DialVision\Models\" />
     <Folder Include="Areas\HNB_WEB\Data\" />
     <Folder Include="Areas\HNB_WEB\Models\" />
-    <Folder Include="Areas\OrganizationManage\Controllers\" />
-    <Folder Include="Areas\OrganizationManage\Views\" />
+    <Folder Include="Areas\HNB_WEB\Utilities\" />
     <Folder Include="Areas\Wardrobe\Data\" />
     <Folder Include="Areas\Wardrobe\Models\" />
     <Folder Include="Areas\Wardrobe\Utilities\" />

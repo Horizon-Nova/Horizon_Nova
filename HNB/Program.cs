@@ -32,9 +32,7 @@ builder.Services.AddHttpClient();
 builder.Services
     .AddGitHubAccessModule()
     .AddErrorLogServiceModule()
-    .AddUserModule()
     .AddTeamZoneModule()
-    .AddCommonRepositoryModule()
     .AddIpMiddlewareServicesModule();
 
 // Data-Protection ª÷Æ_
