@@ -2,38 +2,34 @@ name: Build & Deploy HNB to Deploy branch
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   deploy-hnb:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout Deploy branch
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           ref: Deploy
           fetch-depth: 0
           clean: true
 
-      - name: Clean old deploy output
-        run: rm -rf DeployFile
+      - run: |
+          mkdir -p DeployFile
+          rm -rf DeployFile/* DeployFile/.* 2>/dev/null || true
 
-      - name: Checkout main source
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          path: main
           ref: main
+          path: main
 
-      - name: Build & Publish HNB
-        working-directory: ./main/HNB
+      - working-directory: ./main/HNB
         run: |
           dotnet restore
-          dotnet build -c Release
-          dotnet publish -c Release -o ../../DeployFile
+          dotnet publish -c Release -o "$GITHUB_WORKSPACE/DeployFile"
 
-      - name: Commit & Push to Deploy
-        run: |
+      - run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add DeployFile

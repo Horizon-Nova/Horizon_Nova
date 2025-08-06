@@ -2,45 +2,34 @@ name: Build & Deploy YiShaAdmin to Management_System branch
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   deploy-yisha:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout Management_System branch
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           ref: Management_System
           fetch-depth: 0
           clean: true
 
-      - name: Ensure DeployFile exists
-        run: |
-        mkdir -p DeployFile
-        touch DeployFile/.gitkeep
-        
-      - name: Clean old deploy output
-        run: |
-          rm -rf DeployFile/*
-          rm -rf DeployFile/.* 2>/dev/null || true
+      - run: |
+          mkdir -p DeployFile
+          rm -rf DeployFile/* DeployFile/.* 2>/dev/null || true
 
-      - name: Checkout main source
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          path: main
           ref: main
+          path: main
 
-      - name: Build & Publish YiShaAdmin
-        working-directory: ./main/YiShaAdmin/YiSha.Web/YiSha.Admin.Web
+      - working-directory: ./main/YiShaAdmin/YiSha.Web/YiSha.Admin.Web
         run: |
           dotnet restore
-          dotnet build -c Release
-          dotnet publish -c Release -o ../../../../../DeployFile
+          dotnet publish -c Release -o "$GITHUB_WORKSPACE/DeployFile"
 
-      - name: Commit & Push to Management_System
-        run: |
+      - run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add DeployFile
