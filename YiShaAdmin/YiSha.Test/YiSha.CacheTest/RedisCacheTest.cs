@@ -20,7 +20,7 @@ namespace YiSha.CacheTest
             GlobalContext.SystemConfig = new SystemConfig
             {
                 DBProvider = "MySql",
-                DBConnectionString = "server=localhost;database=YiShaAdmin;user=root;password=123456;port=3306;",
+                DBConnectionString = "Server=shinkansen.proxy.rlwy.net;Port=48591;Database=YsData;User Id=root;Password=uMLFqLyRVyNiPQwpdVAaVRRbuSZNJVFe;",
 
                 CacheProvider = "Redis",
                 RedisConnectionString = "127.0.0.1:6379"
