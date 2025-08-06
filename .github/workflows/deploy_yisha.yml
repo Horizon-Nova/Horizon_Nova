@@ -16,8 +16,13 @@ jobs:
           fetch-depth: 0
           clean: true
 
+      - name: Ensure DeployFile exists
+        run: mkdir -p DeployFile
+
       - name: Clean old deploy output
-        run: rm -rf DeployFile
+        run: |
+          rm -rf DeployFile/*
+          rm -rf DeployFile/.* 2>/dev/null || true
 
       - name: Checkout main source
         uses: actions/checkout@v4
