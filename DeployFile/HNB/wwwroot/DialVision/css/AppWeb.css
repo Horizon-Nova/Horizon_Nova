@@ -1,0 +1,24 @@
+﻿img {
+    -webkit-user-drag: none;
+    user-drag: none;
+}
+* {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+html, body {
+    touch-action: manipulation; /* 禁止雙指縮放/雙擊縮放 */
+    overflow: hidden; /* 若你想鎖住畫面上下不滑動 */
+}
+button {
+    -webkit-user-drag: none; /* Chrome/Safari */
+    -khtml-user-drag: none; /* Konqueror */
+    -moz-user-drag: none; /* Firefox */
+    -o-user-drag: none; /* Opera */
+    user-drag: none; /* 標準屬性 */
+    /* 如有選取樣式也一起禁掉 */
+    -webkit-user-select: none;
+    user-select: none;
+}
