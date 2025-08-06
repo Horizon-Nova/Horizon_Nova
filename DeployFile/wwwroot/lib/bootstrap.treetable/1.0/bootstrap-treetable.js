@@ -406,7 +406,7 @@
             });
             return $tr;
         }
-        // 注册刷新按钮点击事件
+        // 注册刷新按钮点擊事件
         var registerRefreshBtnClickEvent = function (btn) {
             $(btn).off('click').on('click', function () {
                 target.refresh();
@@ -423,14 +423,14 @@
                 }
             });
         }
-        // 注册行点击选中事件
+        // 注册行点擊选中事件
         var registerRowClickEvent = function () {
             target.find("tbody").find("tr").unbind();
             target.find("tbody").find("tr").click(function () {
                 target.rowClickHandler(this);
             });
         }
-        // 注册小图标点击事件--展开缩起
+        // 注册小图标点擊事件--展开缩起
         var registerExpanderEvent = function () {
             target.find("tbody").find("tr").find(".treetable-expander").unbind();
             target.find("tbody").find("tr").find(".treetable-expander").click(function () {
@@ -444,7 +444,7 @@
                 item[options.parentCode] == '';
             return _defaultRootFlag;
         }
-        // 行点击选中事件
+        // 行点擊选中事件
         target.rowClickHandler = function (tr) {
             if (target.hasSelectItem) {
                 var _ipt = $(tr).find("input[name='select_item']");
@@ -463,7 +463,7 @@
                 }
             }
         }
-        // 小图标点击事件
+        // 小图标点擊事件
         target.rowExpandHandler = function (span) {
             var _isExpanded = $(span).hasClass(options.expanderExpandedClass);
             var _isCollapsed = $(span).hasClass(options.expanderCollapsedClass);
