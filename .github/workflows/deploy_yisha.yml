@@ -17,8 +17,10 @@ jobs:
           clean: true
 
       - name: Ensure DeployFile exists
-        run: mkdir -p DeployFile
-
+        run: |
+        mkdir -p DeployFile
+        touch DeployFile/.gitkeep
+        
       - name: Clean old deploy output
         run: |
           rm -rf DeployFile/*
