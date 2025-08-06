@@ -122,7 +122,7 @@ namespace YiSha.Business.OrganizationManage
                             case (int)PlatformEnum.Web:
                                 if (GlobalContext.SystemConfig.LoginMultiple)
                                 {
-                                    #region 多次登錄用同一個token
+                                    #region 多次登入用同一個token
                                     if (string.IsNullOrEmpty(user.WebToken))
                                     {
                                         user.WebToken = SecurityHelper.GetGuid(true);
@@ -142,7 +142,7 @@ namespace YiSha.Business.OrganizationManage
                         await GetUserBelong(user);
 
                         obj.Data = user;
-                        obj.Message = "登錄成功";
+                        obj.Message = "登入成功";
                         obj.Tag = 1;
                     }
                     else

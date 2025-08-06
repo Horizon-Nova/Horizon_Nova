@@ -204,13 +204,13 @@ CREATE TABLE IF NOT EXISTS `SysUser` (
   `Mobile`              varchar(11)         NOT NULL       COMMENT '手機',
   `QQ`                  varchar(20)         NOT NULL       COMMENT 'QQ',
   `WeChat`              varchar(20)         NOT NULL       COMMENT '微信',
-  `LoginCount`         int(11)             NOT NULL       COMMENT '登錄次數',
+  `LoginCount`         int(11)             NOT NULL       COMMENT '登入次數',
   `UserStatus`         int(11)             NOT NULL       COMMENT '使用者狀態(0禁用 1啟用)',
   `IsSystem`           int(11)             NOT NULL       COMMENT '系统使用者(0不是 1是[系统使用者拥有所有的權限])',
   `IsOnline`           int(11)             NOT NULL       COMMENT '在線(0不是 1是)',
-  `FirstVisit`         datetime            NOT NULL       COMMENT '首次登錄時間',
-  `PreviousVisit`      datetime            NOT NULL       COMMENT '上一次登錄時間',
-  `LastVisit`          datetime            NOT NULL       COMMENT '最後一次登錄時間',
+  `FirstVisit`         datetime            NOT NULL       COMMENT '首次登入時間',
+  `PreviousVisit`      datetime            NOT NULL       COMMENT '上一次登入時間',
+  `LastVisit`          datetime            NOT NULL       COMMENT '最後一次登入時間',
   `Remark`              varchar(200)        NOT NULL       COMMENT '備注',
   `WebToken`           varchar(32)         NOT NULL       COMMENT '後台Token',
   `ApiToken`           varchar(32)         NOT NULL       COMMENT 'ApiToken',
@@ -267,7 +267,7 @@ CREATE TABLE IF NOT EXISTS `SysLogLogin` (
   `Remark`              varchar(50)     NOT NULL       COMMENT '備注',
   `ExtraRemark`        text            NOT NULL       COMMENT '額外備注',
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB COMMENT '登錄日誌表';
+) ENGINE=InnoDB COMMENT '登入日誌表';
 
 DROP TABLE IF EXISTS `SysLogOperate`;
 CREATE TABLE IF NOT EXISTS `SysLogOperate` (

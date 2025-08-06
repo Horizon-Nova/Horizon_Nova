@@ -5,32 +5,32 @@
 	<div class="desc">
 		<p></p>
 		<div class="longdesc">
-			<p>双击節點時，是否自動展開父節點的標識</p>
+			<p>双擊節點時，是否自動展開父節點的標識</p>
 			<p>默認值: true</p>
 		</div>
 	</div>
 	<h3>Boolean 格式說明</h3>
 	<div class="desc">
-	<p> true / false 分別表示双击節點 切換 / 不切換 展開狀態</p>
+	<p> true / false 分別表示双擊節點 切換 / 不切換 展開狀態</p>
 	</div>
 	<h3>Function 參數說明</h3>
 	<div class="desc">
 	<h4><b>treeId</b><span>String</span></h4>
 	<p>對應 zTree 的 <b class="highlight_red">treeId</b>，便於使用者操控</p>
 	<h4 class="topLine"><b>treeNode</b><span>JSON</span></h4>
-	<p>需要設置是否双击切換展開狀態的節點 JSON 資料對象</p>
+	<p>需要設置是否双擊切換展開狀態的節點 JSON 資料對象</p>
 	<h4 class="topLine"><b>返回值</b><span>Boolean</span></h4>
 	<p>返回值同 Boolean 格式的資料</p>
 	</div>
 	<h3>setting 举例</h3>
-	<h4>1. 取消默認双击展開父節點的功能</h4>
+	<h4>1. 取消默認双擊展開父節點的功能</h4>
 	<pre xmlns=""><code>var setting = {
 	view: {
 		dblClickExpand: false
 	}
 };
 ......</code></pre>
-	<h4>2. 設置 zTree 僅僅 level=0 的父節點取消双击展開的功能</h4>
+	<h4>2. 設置 zTree 僅僅 level=0 的父節點取消双擊展開的功能</h4>
 	<pre xmlns=""><code>function dblClickExpand(treeId, treeNode) {
 	return treeNode.level > 0;
 };

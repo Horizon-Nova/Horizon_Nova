@@ -43,11 +43,11 @@ namespace YiSha.Admin.Web.Controllers
                     Operator.Instance.RemoveCurrent();
                 }
 
-                #region 沒有登錄
+                #region 沒有登入
                 if (context.HttpContext.Request.IsAjaxRequest())
                 {
                     TData obj = new TData();
-                    obj.Message = "抱歉，沒有登錄或登錄已超時";
+                    obj.Message = "抱歉，沒有登入或登入已超時";
                     context.Result = new JsonResult(obj);
                     return;
                 }

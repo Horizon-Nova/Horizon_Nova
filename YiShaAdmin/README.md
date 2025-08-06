@@ -20,7 +20,7 @@
 - 選單管理：配置系统選單，操作權限，按鈕權限標識
 - 通用字典：系统里動態改變的資料，像文章類型，用字典進行維護，不變的資料，可以用枚举
 - 行政區划：全国的省市县三級資料，展示树形資料的使用
-- 系统日誌（登錄日誌、操作日誌、Api日誌）：查看系统的登錄、操作、Api調用日誌
+- 系统日誌（登入日誌、操作日誌、Api日誌）：查看系统的登入、操作、Api調用日誌
 - 定時任務：在線（添加、修改、删除）任務調度，包含執行結果日誌
 - 系统Api：Api檔案與测试工具
 - 資料表管理：查看當前資料庫所有表、字段及記錄總數
@@ -40,8 +40,8 @@
 
 ## 演示圖
 
-![登錄頁面](https://raw.githubusercontent.com/liukuo362573/YiShaAdmin/master/YiSha.Web/YiSha.Admin.Web/wwwroot/image/demo_1.jpg)
-![登錄進去首頁](https://raw.githubusercontent.com/liukuo362573/YiShaAdmin/master/YiSha.Web/YiSha.Admin.Web/wwwroot/image/demo_2.png)
+![登入頁面](https://raw.githubusercontent.com/liukuo362573/YiShaAdmin/master/YiSha.Web/YiSha.Admin.Web/wwwroot/image/demo_1.jpg)
+![登入進去首頁](https://raw.githubusercontent.com/liukuo362573/YiShaAdmin/master/YiSha.Web/YiSha.Admin.Web/wwwroot/image/demo_2.png)
 ![使用者列表](https://raw.githubusercontent.com/liukuo362573/YiShaAdmin/master/YiSha.Web/YiSha.Admin.Web/wwwroot/image/demo_3.png)
 ![使用者列表修改](https://raw.githubusercontent.com/liukuo362573/YiShaAdmin/master/YiSha.Web/YiSha.Admin.Web/wwwroot/image/demo_4.png)
 

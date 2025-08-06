@@ -74,7 +74,7 @@ namespace YiSha.Admin.Web.Controllers
             if (user != null)
             {
                 #region 退出系统
-                // 如果不允許同一個使用者多次登錄，當使用者登出的時候，就不在線了
+                // 如果不允許同一個使用者多次登入，當使用者登出的時候，就不在線了
                 if (!GlobalContext.SystemConfig.LoginMultiple)
                 {
                     await userBLL.UpdateUser(new UserEntity { Id = user.UserId, IsOnline = 0 });
@@ -142,16 +142,6 @@ namespace YiSha.Admin.Web.Controllers
         public async Task<IActionResult> LoginJson(string userName, string password, string captchaCode)
         {
             TData obj = new TData();
-            if (string.IsNullOrEmpty(captchaCode))
-            {
-                obj.Message = "驗證碼不能為空";
-                return Json(obj);
-            }
-            if (captchaCode != new SessionHelper().GetSession("CaptchaCode").ParseToString())
-            {
-                obj.Message = "驗證碼錯誤，請重新輸入";
-                return Json(obj);
-            }
             TData<UserEntity> userObj = await userBLL.CheckLogin(userName, password, (int)PlatformEnum.Web);
             if (userObj.Tag == 1)
             {

@@ -49,7 +49,7 @@
         showRefresh: true,                  // 是否顯示刷新按鈕
         showToggle: true,                   // 是否顯示詳细視圖和列表視圖的切換按鈕
         minimumCountColumns: 2,             // 最少允許的列數
-        clickToSelect: true,                // 是否啟用點击選中行
+        clickToSelect: true,                // 是否啟用點擊選中行
         height: undefined,                  // 行高，如果沒有設置height属性，表格自動根据記錄條數覺得表格高度
         uniqueId: "Id",                     // 每一行的唯一標識，一般為主鍵列
         cardView: false,                    // 是否顯示詳细視圖

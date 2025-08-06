@@ -86,7 +86,7 @@
             uploadExtra: '表單資料上傳'
         },
         dropZoneTitle: '拖拽文件到這里 &hellip;<br>支持多文件同時上傳',
-        dropZoneClickTitle: '<br>(或點击{files}按鈕選擇文件)',
+        dropZoneClickTitle: '<br>(或點擊{files}按鈕選擇文件)',
         fileActionSettings: {
             removeTitle: '删除文件',
             uploadTitle: '上傳文件',

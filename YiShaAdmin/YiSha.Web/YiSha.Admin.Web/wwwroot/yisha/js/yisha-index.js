@@ -359,7 +359,7 @@ $(function () {
         scrollToTab($('.menuTab.active'));
     });
 
-    // 點击選項卡選單
+    // 點擊選項卡選單
     $('.menuTabs').on('click', '.menuTab', function activeTab() {
         if (!$(this).hasClass('active')) {
             var currentId = $(this).data('id');

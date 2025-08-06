@@ -18,7 +18,7 @@
         public bool Debug { get; set; }
 
         /// <summary>
-        /// 允許一個使用者在多個電脑同時登錄
+        /// 允許一個使用者在多個電脑同時登入
         /// </summary>
         public bool LoginMultiple { get; set; }
 

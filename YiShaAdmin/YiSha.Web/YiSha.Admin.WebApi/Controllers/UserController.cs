@@ -26,7 +26,7 @@ namespace YiSha.Admin.WebApi.Controllers
 
         #region 提交資料
         /// <summary>
-        /// 使用者登錄
+        /// 使用者登入
         /// </summary>
         /// <param name="userName"></param>
         /// <param name="password"></param>
@@ -48,7 +48,7 @@ namespace YiSha.Admin.WebApi.Controllers
         }
 
         /// <summary>
-        /// 使用者退出登錄
+        /// 使用者退出登入
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>
