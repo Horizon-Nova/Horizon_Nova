@@ -16,8 +16,8 @@ jobs:
           fetch-depth: 0
           clean: true
 
-      - name: Clean old HNB deploy output
-        run: rm -rf DeployFile/HNB
+      - name: Clean old deploy output
+        run: rm -rf DeployFile
 
       - name: Checkout main source
         uses: actions/checkout@v4
@@ -30,12 +30,12 @@ jobs:
         run: |
           dotnet restore
           dotnet build -c Release
-          dotnet publish -c Release -o ../../DeployFile/HNB
+          dotnet publish -c Release -o ../../DeployFile
 
       - name: Commit & Push to Deploy
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add DeployFile/HNB
-          git commit -m "Update HNB deploy"
+          git add DeployFile
+          git commit -m "Update DeployFile from HNB"
           git push origin Deploy
