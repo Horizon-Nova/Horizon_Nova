@@ -20,6 +20,8 @@
 
   <ItemGroup>
     <Folder Include="API\" />
+    <Folder Include="Areas\Company\Data\" />
+    <Folder Include="Areas\Company\Views\" />
     <Folder Include="Areas\DialVision\Data\" />
     <Folder Include="Areas\DialVision\Models\" />
     <Folder Include="Areas\HNB_WEB\Data\" />
