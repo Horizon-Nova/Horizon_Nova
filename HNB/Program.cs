@@ -2,12 +2,12 @@ using HNB.Areas.HNB_WEB.Extensions;
 using HNB.Extensions;
 using HNB.Filters;
 using HNB.Middleware;
-using HNB.Models;
 using HNB.Utilities;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
+using Models.Hnbdata;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,12 +18,13 @@ builder.Services.AddControllersWithViews(options =>
 });
 
 #if DEBUG
-builder.Services.AddDbContext<HnbdataContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("TestConnection")));
+builder.Services.AddDbContext<HnbdataDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("Hnbdata")));
 #else
-builder.Services.AddDbContext<HnbdataContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("TestConnection")));
+builder.Services.AddDbContext<HnbdataDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("Hnbdata")));
 #endif
+
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient();

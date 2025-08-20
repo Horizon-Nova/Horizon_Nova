@@ -1,77 +1,88 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
-namespace HNB.Models;
+namespace Models.Hnbdata;
 
-public partial class ErrorLog
+[Table("error_logs", Schema = "dbo")]
+public partial class error_log
 {
     /// <summary>
     /// 主鍵
     /// </summary>
-    public int Id { get; set; }
+    [Key]
+    public int id { get; set; }
 
     /// <summary>
     /// 層級代碼：0=Middleware, 1=Filter, 2=ExceptionHandler, 3=Background
     /// </summary>
-    public short Stage { get; set; }
+    public short stage { get; set; }
 
     /// <summary>
     /// 層級名稱：Middleware / Filter / ExceptionHandler / Background
     /// </summary>
-    public string Layer { get; set; } = null!;
+    [StringLength(50)]
+    public string layer { get; set; } = null!;
 
     /// <summary>
     /// 簡易函數描述（例如 Controller/Action）
     /// </summary>
-    public string Function { get; set; } = null!;
+    [StringLength(255)]
+    public string function { get; set; } = null!;
 
     /// <summary>
     /// 方法全名，例如 Namespace.Controller.Action()
     /// </summary>
-    public string? FunctionFull { get; set; }
+    public string? function_full { get; set; }
 
     /// <summary>
     /// 錯誤訊息（完整 ToString）
     /// </summary>
-    public string Message { get; set; } = null!;
+    public string message { get; set; } = null!;
 
     /// <summary>
     /// 堆疊追蹤
     /// </summary>
-    public string? StackTrace { get; set; }
+    public string? stack_trace { get; set; }
 
     /// <summary>
     /// 請求路徑（Request.Path）
     /// </summary>
-    public string? Path { get; set; }
+    public string? path { get; set; }
 
     /// <summary>
     /// HTTP 方法（GET/POST/PUT/...）
     /// </summary>
-    public string? HttpMethod { get; set; }
+    [StringLength(10)]
+    public string? http_method { get; set; }
 
     /// <summary>
     /// 回應狀態碼（500/404/...）
     /// </summary>
-    public int? StatusCode { get; set; }
+    public int? status_code { get; set; }
 
     /// <summary>
     /// 使用者 ID（HttpContext.User.Identity.Name）
     /// </summary>
-    public string? UserId { get; set; }
+    [StringLength(64)]
+    public string? user_id { get; set; }
 
     /// <summary>
     /// 請求唯一識別碼（HttpContext.TraceIdentifier）
     /// </summary>
-    public string? TraceId { get; set; }
+    [StringLength(100)]
+    public string? trace_id { get; set; }
 
     /// <summary>
     /// 附加資料（如 headers, query, ip, user-agent）
     /// </summary>
-    public string? Extra { get; set; }
+    [Column(TypeName = "jsonb")]
+    public string? extra { get; set; }
 
     /// <summary>
     /// 紀錄建立時間
     /// </summary>
-    public DateTime? CreatedAt { get; set; }
+    public DateTime? created_at { get; set; }
 }

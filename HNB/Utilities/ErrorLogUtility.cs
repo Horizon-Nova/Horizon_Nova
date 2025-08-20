@@ -1,5 +1,4 @@
-﻿using HNB.Models;
-using HNB.Services;
+﻿using HNB.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;

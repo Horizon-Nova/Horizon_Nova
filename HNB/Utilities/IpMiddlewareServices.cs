@@ -1,6 +1,6 @@
-﻿using HNB.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using Models.Hnbdata;
 
 namespace HNB.Utilities;
 
@@ -12,12 +12,12 @@ public class IpMiddlewareServices
     private const int LIMIT = 20;          // 1 分鐘內請求上限
     private const int BLOCK_MINUTES = 10;   // 違規後封鎖時間
 
-    private readonly HnbdataContext _db;
+    private readonly HnbdataDbContext _db;
     private readonly IMemoryCache _cache;
     private readonly ILogger<IpMiddlewareServices> _logger;
     private readonly IHostEnvironment _env;
 
-    public IpMiddlewareServices(HnbdataContext db,IMemoryCache cache,ILogger<IpMiddlewareServices> logger, IHostEnvironment env)
+    public IpMiddlewareServices(HnbdataDbContext db,IMemoryCache cache,ILogger<IpMiddlewareServices> logger, IHostEnvironment env)
     {
         _db = db;
         _cache = cache;
@@ -45,9 +45,9 @@ public class IpMiddlewareServices
         var isBlocked = await _cache.GetOrCreateAsync($"blocked:{ip}", async entry =>
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1);
-            return await _db.BlockedIps
-                .AnyAsync(b => b.Ip == ip &&
-                               (b.ExpiresAt == null || b.ExpiresAt > DateTime.UtcNow));
+            return await _db.blocked_ips
+                .AnyAsync(b => b.ip == ip &&
+                               (b.expires_at == null || b.expires_at > DateTime.UtcNow));
         });
 
         if (isBlocked) return (true, false);
@@ -76,12 +76,12 @@ public class IpMiddlewareServices
     {
         var now = DateTime.UtcNow;
 
-        _db.BlockedIps.Add(new BlockedIp
+        _db.blocked_ips.Add(new blocked_ip
         {
-            Ip = ip,
-            Reason = reason,
-            CreatedAt = now,
-            ExpiresAt = now.AddMinutes(BLOCK_MINUTES)
+            ip = ip,
+            reason = reason,
+            created_at = now,
+            expires_at = now.AddMinutes(BLOCK_MINUTES)
         });
         await _db.SaveChangesAsync();
 

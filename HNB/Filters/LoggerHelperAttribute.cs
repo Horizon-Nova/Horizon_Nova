@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using HNB.Models;
 using System;
 using System.IO;
 using System.Text;
@@ -10,6 +9,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Linq;
 using HNB.Helpers;
+using Models.Hnbdata;
 
 namespace HNB.Filters;
 
@@ -90,31 +90,31 @@ public class RequestResponseLoggerFilter : IAsyncResourceFilter
 
         string CleanBody(string body) =>
             LogSanitizer.Clean(body.Length > MaxBodyLen? body[..MaxBodyLen] + "…(truncated)": body);
-        var record = new AccessRecord
+        var record = new access_record
         {
-            Id = Guid.NewGuid(),
-            LogType = "action",
-            UserName = LogSanitizer.Clean(http.User.Identity?.Name ?? "Anonymous"),
-            Roles = LogSanitizer.Clean(
+            id = Guid.NewGuid(),
+            log_type = "action",
+            user_name = LogSanitizer.Clean(http.User.Identity?.Name ?? "Anonymous"),
+            roles = LogSanitizer.Clean(
                                http.User.Identity?.IsAuthenticated == true
                                ? string.Join(',', http.User.Claims
                                    .Where(c => c.Type == System.Security.Claims.ClaimTypes.Role)
                                    .Select(c => c.Value))
                                : "Anonymous"),
-            RequestPath = LogSanitizer.Clean(http.Request.Path + http.Request.QueryString),
-            Ip = LogSanitizer.Clean(GetClientIp(http)),
-            Result = LogSanitizer.Clean(
+            request_path = LogSanitizer.Clean(http.Request.Path + http.Request.QueryString),
+            ip = LogSanitizer.Clean(GetClientIp(http)),
+            result = LogSanitizer.Clean(
                                ex == null ? "執行成功" : $"執行失敗：{ex.Message}"),
-            UserAgent = LogSanitizer.Clean(http.Request.Headers["User-Agent"].ToString()),
-            HttpMethod = LogSanitizer.Clean(http.Request.Method),
-            RequestBody = CleanBody(reqBody),
-            ResponseBody = CleanBody(respBody),
-            StatusCode = http.Response.StatusCode,
-            DurationMs = duration,
+            user_agent = LogSanitizer.Clean(http.Request.Headers["User-Agent"].ToString()),
+            http_method = LogSanitizer.Clean(http.Request.Method),
+            request_body = CleanBody(reqBody),
+            response_body = CleanBody(respBody),
+            status_code = http.Response.StatusCode,
+            duration_ms = duration,
         };
 
-        var db = http.RequestServices.GetRequiredService<HnbdataContext>();
-        db.AccessRecords.Add(record);
+        var db = http.RequestServices.GetRequiredService<HnbdataDbContext>();
+        db.access_records.Add(record);
         await db.SaveChangesAsync();
     }
 

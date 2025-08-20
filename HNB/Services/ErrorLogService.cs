@@ -1,6 +1,6 @@
-﻿using HNB.Models;
-using HNB.Repositories;
+﻿using HNB.Repositories;
 using HNB.Helpers;
+using Models.Hnbdata;
 
 namespace HNB.Services;
 
@@ -32,20 +32,20 @@ public class ErrorLogService
             }
         }
 
-        var log = new ErrorLog
+        var log = new error_log
         {
-            Stage = stage,
-            Layer = LogSanitizer.Clean(layer),
-            Function = LogSanitizer.Clean(context.Request.Path),
-            FunctionFull = LogSanitizer.Clean(functionFull),
-            Message = LogSanitizer.Clean(ex.Message),
-            StackTrace = LogSanitizer.Clean(ex.StackTrace),
-            Path = LogSanitizer.Clean(context.Request.Path),
-            HttpMethod = LogSanitizer.Clean(context.Request.Method),
-            StatusCode = context.Response?.StatusCode,
-            UserId = LogSanitizer.Clean(context.User.Identity?.Name ?? "Anonymous"),
-            TraceId = LogSanitizer.Clean(context.TraceIdentifier),
-            Extra = null,
+            stage = stage,
+            layer = LogSanitizer.Clean(layer),
+            function = LogSanitizer.Clean(context.Request.Path),
+            function_full = LogSanitizer.Clean(functionFull),
+            message = LogSanitizer.Clean(ex.Message),
+            stack_trace = LogSanitizer.Clean(ex.StackTrace),
+            path = LogSanitizer.Clean(context.Request.Path),
+            http_method = LogSanitizer.Clean(context.Request.Method),
+            status_code = context.Response?.StatusCode,
+            user_id = LogSanitizer.Clean(context.User.Identity?.Name ?? "Anonymous"),
+            trace_id = LogSanitizer.Clean(context.TraceIdentifier),
+            extra = null,
         };
 
         await _repo.InsertAsync(log);

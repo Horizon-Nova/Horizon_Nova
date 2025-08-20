@@ -1,19 +1,19 @@
-﻿using HNB.Models;
+﻿using Models.Hnbdata;
 
 namespace HNB.Repositories;
 
 public class ErrorLogRepository
 {
-    private readonly HnbdataContext _db;
+    private readonly HnbdataDbContext _db;
 
-    public ErrorLogRepository(HnbdataContext db)
+    public ErrorLogRepository(HnbdataDbContext db)
     {
         _db = db;
     }
 
-    public async Task InsertAsync(ErrorLog log)
+    public async Task InsertAsync(error_log log)
     {
-        _db.ErrorLogs.Add(log);
+        _db.error_logs.Add(log);
         await _db.SaveChangesAsync();
     }
 }
