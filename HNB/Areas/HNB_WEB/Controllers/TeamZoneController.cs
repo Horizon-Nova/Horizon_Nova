@@ -14,15 +14,12 @@ public class TeamZoneController : Controller
         _teamZoneServices = teamZoneServices;
     }
 
-    public IActionResult Index()
-    {
-        _teamZoneServices.PopulateTeamZoneViewBag(ViewBag);
-        return View();
-    }
-
-    public IActionResult Skin()
+    public IActionResult NovaHome()
         => View();
-
-    public IActionResult Welcome()
+    public IActionResult Consultation()
+        => View();
+    public IActionResult Portfolio()
+        => View();
+    public IActionResult NotFound()
         => View();
 }

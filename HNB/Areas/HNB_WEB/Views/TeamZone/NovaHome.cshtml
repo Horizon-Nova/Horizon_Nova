@@ -1,0 +1,279 @@
+﻿@{
+    ViewData["Title"] = "Horizon-Nova";
+    Layout = "~/Areas/HNB_WEB/Views/Shared/_Layout.cshtml";
+}
+<!-- Header -->
+<header class="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+    <div class="mx-auto max-w-6xl px-4 py-4 flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+            <div class="h-10 w-10 rounded-lg flex items-center justify-center">
+                <img src="~/image/Horizon Nova Logo1.png" alt="HN" class="h-10 w-10 rounded-lg object-cover" />
+            </div>
+            <span class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                Horizon-Nova
+            </span>
+        </div>
+        <nav class="hidden md:flex space-x-6">
+            <a href="#services" class="text-gray-600 hover:text-blue-600 transition-colors">服務項目</a>
+            <a href="#about" class="text-gray-600 hover:text-blue-600 transition-colors">關於我們</a>
+            <a href="#contact" class="text-gray-600 hover:text-blue-600 transition-colors">聯絡我們</a>
+        </nav>
+    </div>
+</header>
+
+<!-- Hero -->
+<section class="relative py-20 px-4 overflow-hidden min-h-[70vh]">
+    <!-- 背景裝飾 -->
+    <div class="absolute inset-0 overflow-hidden">
+        <div class="absolute -top-1/2 -left-1/2 w-full h-full animate-spin opacity-10" style="animation-duration:6s;">
+            <div class="w-96 h-96 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full blur-3xl"></div>
+        </div>
+        <div class="absolute -bottom-1/2 -right-1/2 w-full h-full animate-pulse opacity-10">
+            <div class="w-96 h-96 bg-gradient-to-l from-purple-500 to-pink-500 rounded-full blur-3xl"></div>
+        </div>
+    </div>
+
+    <div class="mx-auto max-w-6xl relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <!-- 文字 -->
+        <div class="text-center lg:text-left">
+            <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">
+                Horizon-Nova
+            </h1>
+            <p class="text-xl md:text-2xl text-gray-600 mb-6">開發只是開始，未來由我們領航</p>
+            <p class="text-lg text-gray-500 mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+                專業的軟體開發團隊，提供全方位的技術解決方案，從概念到實現，我們與您一起創造數位未來
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                <a class="inline-flex items-center justify-center px-8 py-3 rounded-md text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition transform hover:scale-105"
+                   href="@Url.Action("Consultation", "TeamZone")">
+                    立即諮詢
+                    <i data-lucide="arrow-right" class="w-5 h-5 ml-2"></i>
+                </a>
+                <a class="inline-flex items-center justify-center px-8 py-3 rounded-md border-2 border-blue-600 text-blue-600 hover:bg-blue-50 transition transform hover:scale-105"
+                   href="@Url.Action("Portfolio", "TeamZone")">
+                    查看作品
+                </a>
+
+
+            </div>
+        </div>
+
+        <!-- 視覺容器 -->
+        <div class="relative">
+            <div class="relative bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl overflow-hidden shadow-2xl transform hover:scale-105 transition">
+                <div class="aspect-video flex items-center justify-center relative text-white">
+                    <!-- 浮動圖示 -->
+                    <div class="absolute inset-0">
+                        <div class="absolute top-4 left-4 animate-bounce delay-1000">
+                            <div class="bg-blue-500/20 backdrop-blur-sm rounded-lg p-2">
+                                <i data-lucide="code" class="h-6 w-6 text-blue-400"></i>
+                            </div>
+                        </div>
+                        <div class="absolute top-4 right-4 animate-bounce delay-1500">
+                            <div class="bg-green-500/20 backdrop-blur-sm rounded-lg p-2">
+                                <i data-lucide="globe" class="h-6 w-6 text-green-400"></i>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-4 left-4 animate-bounce delay-2000">
+                            <div class="bg-purple-500/20 backdrop-blur-sm rounded-lg p-2">
+                                <i data-lucide="smartphone" class="h-6 w-6 text-purple-400"></i>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-4 right-4 animate-bounce delay-2500">
+                            <div class="bg-orange-500/20 backdrop-blur-sm rounded-lg p-2">
+                                <i data-lucide="database" class="h-6 w-6 text-orange-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 中央播放符 -->
+                    <div class="text-center z-10">
+                        <div class="mb-4">
+                            <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto animate-pulse">
+                                <div class="w-0 h-0 border-l-[6px] border-l-white border-y-[4px] border-y-transparent ml-1"></div>
+                            </div>
+                        </div>
+                        <div class="text-sm opacity-80">工作室展示影片</div>
+                    </div>
+                    <!-- 格線背景 -->
+                    <div class="absolute inset-0 opacity-10">
+                        <div class="grid grid-cols-8 grid-rows-6 h-full w-full">
+                            @for (var i = 0; i < 48; i++)
+                            {
+                                <div class="border border-white/10"></div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute inset-0 bg-black/0 hover:bg-black/10 transition cursor-pointer"></div>
+            </div>
+            <!-- 浮動統計 -->
+            <div class="absolute -bottom-4 -left-4 bg-white rounded-xl shadow-lg p-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i data-lucide="star" class="h-5 w-5 text-green-600"></i>
+                    </div>
+                    <div>
+                        <div class="text-lg font-bold text-gray-800">6+</div>
+                        <div class="text-xs text-gray-600">完成專案</div>
+                    </div>
+                </div>
+            </div>
+            <div class="absolute -top-4 -right-4 bg-white rounded-xl shadow-lg p-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i data-lucide="cpu" class="h-5 w-5 text-blue-600"></i>
+                    </div>
+                    <div>
+                        <div class="text-lg font-bold text-gray-800">5</div>
+                        <div class="text-xs text-gray-600">技術領域</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Services -->
+<section id="services" class="py-20 px-4 bg-white">
+    <div class="mx-auto max-w-6xl">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl font-bold mb-4 text-gray-800">專業服務項目</h2>
+            <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                我們提供完整的軟體開發服務，從前端到後端，從設計到部署，一站式解決您的技術需求
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            @{
+                var cards = new[] {
+                        new { icon="code", color="text-blue-600", title="軟體開發", desc="客製化軟體解決方案，滿足企業特殊需求",
+                        features=new[]{"桌面應用程式","系統整合","API開發"} },
+                        new { icon="globe", color="text-green-600", title="Web系統", desc="現代化網頁應用程式與企業級系統開發",
+                        features=new[]{"響應式網站","電商平台","管理系統"} },
+                        new { icon="smartphone", color="text-purple-600", title="手機APP", desc="跨平台行動應用程式開發",
+                        features=new[]{"iOS應用","Android應用","跨平台開發"} },
+                        new { icon="database", color="text-orange-600", title="資料庫", desc="數據庫設計、優化與維護服務",
+                        features=new[]{"資料庫設計","效能優化","數據分析"} },
+                        new { icon="cpu", color="text-red-600", title="AIoT", desc="AI人工智慧與物聯網整合解決方案",
+                        features=new[]{"智慧設備","數據分析","自動化系統"} }
+                        };
+            }
+            @foreach (var c in cards)
+            {
+                <div class="hover:shadow-lg transition border-0 shadow-md group hover:scale-105 rounded-xl bg-white">
+                    <div class="text-center p-6">
+                        <div class="flex justify-center mb-4 group-hover:scale-110 transition">
+                            <i data-lucide="@c.icon" class="h-12 w-12 @c.color"></i>
+                        </div>
+                        <div class="text-xl font-bold text-gray-800">@c.title</div>
+                        <div class="text-gray-600 mt-1">@c.desc</div>
+                        <ul class="mt-4 space-y-2">
+                            @foreach (var f in c.features)
+                            {
+                                <li class="flex items-center text-sm text-gray-600">
+                                    <i data-lucide="star" class="h-4 w-4 text-yellow-500 mr-2"></i>@f
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- About -->
+<section id="about" class="py-20 px-4 bg-gradient-to-r from-blue-50 to-purple-50">
+    <div class="mx-auto max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div>
+            <h2 class="text-4xl font-bold mb-6 text-gray-800">關於 Horizon-Nova</h2>
+            <p class="text-lg text-gray-600 mb-6 leading-relaxed">
+                我們專注於創新技術解決方案與企業級系統：軟體開發、Web 系統、手機 APP、資料庫與 AIoT 整合。
+            </p>
+            <div class="grid grid-cols-2 gap-4">
+                @foreach (var a in new[] { "專業團隊，豐富經驗", "客製化解決方案", "完善的售後服務", "持續技術支援" })
+                {
+                    <span class="inline-flex items-center rounded px-3 py-2 bg-blue-100 text-blue-800 text-sm font-medium">@a</span>
+                }
+            </div>
+        </div>
+        <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white">
+            <h3 class="text-2xl font-bold mb-4">為什麼選擇我們？</h3>
+            <ul class="space-y-4">
+                @foreach (var item in new[] { "豐富的跨領域技術經驗", "客製化的解決方案設計", "完整的專案管理流程", "持續的技術支援服務" })
+                {
+                    <li class="flex items-start">
+                        <i data-lucide="arrow-right" class="h-5 w-5 mr-3 mt-1 flex-shrink-0"></i>
+                        <span>@item</span>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- Contact + Footer -->
+<section id="contact" class="py-20 px-4 bg-white">
+    <div class="mx-auto max-w-4xl text-center">
+        <h2 class="text-4xl font-bold mb-4 text-gray-800">聯絡我們</h2>
+        <p class="text-lg text-gray-600">準備開始您的數位轉型之旅嗎？讓我們一起領航未來</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+            <div class="text-center border rounded-xl p-6 shadow-sm">
+                <div class="flex justify-center mb-4"><i data-lucide="mail" class="h-12 w-12 text-blue-600"></i></div>
+                <div class="text-lg font-semibold">電子郵件</div>
+                <div class="text-gray-600 mt-1">contact@horizon-nova.com</div>
+            </div>
+            <div class="text-center border rounded-xl p-6 shadow-sm">
+                <div class="flex justify-center mb-4"><i data-lucide="phone" class="h-12 w-12 text-green-600"></i></div>
+                <div class="text-lg font-semibold">聯絡電話</div>
+                <div class="text-gray-600 mt-1">+886-2-1234-5678</div>
+            </div>
+            <div class="text-center border rounded-xl p-6 shadow-sm">
+                <div class="flex justify-center mb-4"><i data-lucide="map-pin" class="h-12 w-12 text-red-600"></i></div>
+                <div class="text-lg font-semibold">辦公地址</div>
+                <div class="text-gray-600 mt-1">台北市信義區<br />科技大樓</div>
+            </div>
+        </div>
+        <div class="mt-12">
+            <a class="inline-flex items-center justify-center px-12 py-3 rounded-md text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+               href="@Url.Action("Consultation", "TeamZone")">
+                立即開始合作 <i data-lucide="arrow-right" class="w-5 h-5 ml-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<footer class="bg-gray-800 text-white py-12 px-4">
+    <div class="mx-auto max-w-6xl grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div>
+            <div class="flex items-center space-x-2 mb-4">
+                <div class="h-8 w-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                    <span class="text-white font-bold">HN</span>
+                </div>
+                <span class="text-xl font-bold">Horizon-Nova</span>
+            </div>
+            <p class="text-gray-400">開發只是開始，未來由我們領航</p>
+        </div>
+        <div>
+            <h3 class="text-lg font-semibold mb-4">服務項目</h3>
+            <ul class="space-y-2 text-gray-400">
+                <li>軟體開發</li>
+                <li>Web 系統</li>
+                <li>手機 APP</li>
+                <li>資料庫</li>
+                <li>AIoT</li>
+            </ul>
+        </div>
+        <div>
+            <h3 class="text-lg font-semibold mb-4">聯絡資訊</h3>
+            <div class="space-y-2 text-gray-400">
+                <p>contact@horizon-nova.com</p>
+                <p>+886-2-1234-5678</p>
+                <p>台北市信義區科技大樓</p>
+            </div>
+        </div>
+    </div>
+    <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+        <p>&copy; @DateTime.Now.Year Horizon-Nova. All rights reserved.</p>
+    </div>
+</footer>

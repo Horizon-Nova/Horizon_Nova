@@ -1,0 +1,299 @@
+﻿@{
+    ViewData["Title"] = "專案作品展示";
+    Layout = "~/Areas/HNB_WEB/Views/Shared/_Layout.cshtml";
+}
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <!-- Header -->
+    <header class="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+        <div class="mx-auto max-w-6xl px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <a class="inline-flex items-center text-slate-700 hover:text-slate-900"
+                   href="@Url.Action("NovaHome", "TeamZone")"
+                    <i data-lucide="arrow-left" class="h-4 w-4 mr-2"></i> 返回首頁
+                </a>
+                <div class="h-8 border-l border-gray-300"></div>
+                <div class="flex items-center space-x-2">
+                    <div class="h-10 w-10 rounded-lg flex items-center justify-center">
+                        <img src="~/image/Horizon Nova Logo1.png" alt="HN" class="h-10 w-10 rounded-lg object-cover" />
+                    </div>
+                    <span class="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                        Horizon-Nova
+                    </span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="mx-auto max-w-6xl px-4 py-12">
+        <!-- Title -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                專案作品展示
+            </h1>
+            <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                我們的專業團隊致力於創造創新的技術解決方案，以下是我們的精選作品
+            </p>
+        </div>
+
+        <!-- Statistics -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+            <div class="text-center">
+                <div class="text-3xl font-bold text-blue-600 mb-2">6+</div>
+                <div class="text-gray-600">完成專案</div>
+            </div>
+            <div class="text-center">
+                <div class="text-3xl font-bold text-green-600 mb-2">3</div>
+                <div class="text-gray-600">技術領域</div>
+            </div>
+            <div class="text-center">
+                <div class="text-3xl font-bold text-purple-600 mb-2">15+</div>
+                <div class="text-gray-600">核心技術</div>
+            </div>
+            <div class="text-center">
+                <div class="text-3xl font-bold text-orange-600 mb-2">100%</div>
+                <div class="text-gray-600">客戶滿意度</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="w-full">
+            <div class="grid grid-cols-3 mb-8 rounded-xl overflow-hidden border">
+                <button data-tab="mobile" class="tab-btn px-4 py-2 bg-white hover:bg-gray-50 border-r font-medium flex items-center justify-center gap-2 active">
+                    <i data-lucide="smartphone" class="h-4 w-4"></i><span>手機APP</span>
+                </button>
+                <button data-tab="software" class="tab-btn px-4 py-2 bg-white hover:bg-gray-50 border-r font-medium flex items-center justify-center gap-2">
+                    <i data-lucide="code" class="h-4 w-4"></i><span>軟體系統</span>
+                </button>
+                <button data-tab="web" class="tab-btn px-4 py-2 bg-white hover:bg-gray-50 font-medium flex items-center justify-center gap-2">
+                    <i data-lucide="globe" class="h-4 w-4"></i><span>Web系統</span>
+                </button>
+            </div>
+
+            <!-- Mobile -->
+            <div data-panel="mobile" class="tab-panel space-y-6">
+                <div class="flex items-center space-x-3 mb-2">
+                    <i data-lucide="smartphone" class="h-6 w-6 text-blue-600"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">手機APP開發</h2>
+                    <span class="inline-flex items-center px-2 py-1 rounded bg-blue-100 text-blue-800 text-sm">2 個專案</span>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    @* 智慧查表 *@
+                    <div class="hover:shadow-lg transition border-0 shadow-md group hover:scale-105 rounded-xl bg-white">
+                        <div class="p-6 border-b">
+                            <div class="flex items-start justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="p-2 rounded-lg bg-blue-50">
+                                        <i data-lucide="camera" class="h-8 w-8 text-blue-600"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-xl font-bold text-gray-800">智慧查表</div>
+                                        <div class="text-gray-600 mt-1">AI 基礎訓練 + 物件偵測，自動擷取與即時顯示</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <div>
+                                <h4 class="font-semibold text-sm text-gray-700 mb-2">專案亮點</h4>
+                                <div class="flex flex-wrap gap-2">
+                                    @foreach (var chip in new[] { "免拍照自動擷取", "即時調整界面", "成本效益高" })
+                                    {
+                                        <span class="inline-flex items-center px-2 py-1 rounded bg-blue-100 text-blue-800 text-sm">@chip</span>
+                                    }
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-sm text-gray-700 mb-2">技術棧</h4>
+                                <div class="flex flex-wrap gap-2">
+                                    @foreach (var tech in new[] { "AI/ML", "物件偵測", "WebView", "數據分析" })
+                                    {
+                                        <span class="inline-flex items-center px-2 py-1 rounded border text-gray-600 text-sm">@tech</span>
+                                    }
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-sm text-gray-700 mb-2">主要功能</h4>
+                                <div class="grid grid-cols-1 gap-1">
+                                    @foreach (var f in new[] { "AI物件偵測技術", "自動數據擷取", "數字AI辨識", "即時數據顯示" })
+                                    {
+                                        <div class="flex items-center text-sm text-gray-600">
+                                            <div class="h-1.5 w-1.5 rounded-full bg-blue-500 mr-2"></div>@f
+                                        </div>
+                                    }
+                                    <div class="text-sm text-gray-500 mt-1">+2 項功能…</div>
+                                </div>
+                            </div>
+                            <div class="pt-2">
+                                <button class="w-full inline-flex items-center justify-center px-4 py-2 rounded-md border hover:bg-gray-50">
+                                    <i data-lucide="eye" class="h-4 w-4 mr-2"></i> 查看詳細資訊
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    @* TAGV *@
+                    <div class="hover:shadow-lg transition border-0 shadow-md group hover:scale-105 rounded-xl bg-white">
+                        <div class="p-6 border-b">
+                            <div class="flex items-start justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="p-2 rounded-lg bg-blue-50">
+                                        <i data-lucide="scan-line" class="h-8 w-8 text-green-600"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-xl font-bold text-gray-800">TAGV</div>
+                                        <div class="text-gray-600 mt-1">AprilTag 快速 ID 掃描，支援懸浮廣告與資料申請</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <div>
+                                <h4 class="font-semibold text-sm text-gray-700 mb-2">專案亮點</h4>
+                                <div class="flex flex-wrap gap-2">
+                                    @foreach (var chip in new[] { "比QRCode更快速", "懸浮廣告功能", "高精度識別" })
+                                    {
+                                        <span class="inline-flex items-center px-2 py-1 rounded bg-blue-100 text-blue-800 text-sm">@chip</span>
+                                    }
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-sm text-gray-700 mb-2">技術棧</h4>
+                                <div class="flex flex-wrap gap-2">
+                                    @foreach (var tech in new[] { "AprilTag", "ID識別", "廣告系統", "掃描技術" })
+                                    {
+                                        <span class="inline-flex items-center px-2 py-1 rounded border text-gray-600 text-sm">@tech</span>
+                                    }
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-sm text-gray-700 mb-2">主要功能</h4>
+                                <div class="grid grid-cols-1 gap-1">
+                                    @foreach (var f in new[] { "AprilTag技術", "快速ID掃描", "取代QRCode", "特定ID申請系統" })
+                                    {
+                                        <div class="flex items-center text-sm text-gray-600">
+                                            <div class="h-1.5 w-1.5 rounded-full bg-blue-500 mr-2"></div>@f
+                                        </div>
+                                    }
+                                    <div class="text-sm text-gray-500 mt-1">+2 項功能…</div>
+                                </div>
+                            </div>
+                            <div class="pt-2">
+                                <button class="w-full inline-flex items-center justify-center px-4 py-2 rounded-md border hover:bg-gray-50">
+                                    <i data-lucide="eye" class="h-4 w-4 mr-2"></i> 查看詳細資訊
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Software -->
+            <div data-panel="software" class="tab-panel space-y-6 hidden">
+                <div class="flex items-center space-x-3 mb-2">
+                    <i data-lucide="code" class="h-6 w-6 text-purple-600"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">軟體系統開發</h2>
+                    <span class="inline-flex items-center px-2 py-1 rounded bg-purple-100 text-purple-800 text-sm">1 個專案</span>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="hover:shadow-lg transition border-0 shadow-md group hover:scale-105 rounded-xl bg-white">
+                        <div class="p-6 border-b">
+                            <div class="flex items-start space-x-3">
+                                <div class="p-2 rounded-lg bg-purple-50">
+                                    <i data-lucide="server" class="h-8 w-8 text-purple-600"></i>
+                                </div>
+                                <div>
+                                    <div class="text-xl font-bold text-gray-800">監控 AI Server</div>
+                                    <div class="text-gray-600 mt-1">即時監控、異常警報、歷史分析與自動化報告</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <div>
+                                <h4 class="font-semibold text-sm text-gray-700 mb-2">專案亮點</h4>
+                                <div class="flex flex-wrap gap-2">
+                                    @foreach (var chip in new[] { "24/7即時監控", "智能異常偵測", "完整數據追蹤" })
+                                    {
+                                        <span class="inline-flex items-center px-2 py-1 rounded bg-purple-100 text-purple-800 text-sm">@chip</span>
+                                    }
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-sm text-gray-700 mb-2">技術棧</h4>
+                                <div class="flex flex-wrap gap-2">
+                                    @foreach (var tech in new[] { "AI監控", "數據分析", "即時追蹤", "警報系統" })
+                                    {
+                                        <span class="inline-flex items-center px-2 py-1 rounded border text-gray-600 text-sm">@tech</span>
+                                    }
+                                </div>
+                            </div>
+                            <div class="pt-2">
+                                <button class="w-full inline-flex items-center justify-center px-4 py-2 rounded-md border hover:bg-gray-50">
+                                    <i data-lucide="eye" class="h-4 w-4 mr-2"></i> 查看詳細資訊
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Web -->
+            <div data-panel="web" class="tab-panel space-y-6 hidden">
+                <div class="flex items-center space-x-3 mb-2">
+                    <i data-lucide="globe" class="h-6 w-6 text-green-600"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">Web網站系統</h2>
+                    <span class="inline-flex items-center px-2 py-1 rounded bg-green-100 text-green-800 text-sm">3 個專案</span>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                    @foreach (var proj in new[]{
+                                        new[]{"Missa","簽核流程、文書、權限控管、API 整合與資安"},
+                                        new[]{ "EOS 系統", "AI叢集管理，提供監控表檢視當前AI資訊、伺服器狀況與使用量" },
+                                        new[]{ "DAV 系統", "倉儲管理系統，支援倉庫地圖繪製、表單管理，並結合 AprilTag 實現快速盤點與定位" }
+                                        })
+                    {
+                        <div class="hover:shadow-lg transition border-0 shadow-md group hover:scale-105 rounded-xl bg-white">
+                            <div class="p-6">
+                                <div class="text-xl font-bold text-gray-800">@proj[0]</div>
+                                <div class="text-gray-600 mt-1">@proj[1]</div>
+                                <div class="mt-4">
+                                    <button class="w-full inline-flex items-center justify-center px-4 py-2 rounded-md border hover:bg-gray-50">
+                                        查看詳細資訊
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="text-center mt-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white">
+            <h3 class="text-2xl font-bold mb-4">有興趣了解更多？</h3>
+            <p class="text-lg mb-6 opacity-90">我們很樂意為您介紹這些專案的詳細技術實作和解決方案</p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a class="inline-flex items-center justify-center px-6 py-3 rounded-md bg-white text-blue-600 hover:bg-gray-100"
+                   href="@Url.Action("Consultation", "TeamZone")">立即諮詢</a>
+                <a class="inline-flex items-center justify-center px-6 py-3 rounded-md border-2 border-white text-white hover:bg-white hover:text-blue-600"
+                   href="#">聯絡我們</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+          const buttons = document.querySelectorAll('.tab-btn');
+          const panels = document.querySelectorAll('.tab-panel');
+          const activate = (name) => {
+            buttons.forEach(b => b.classList.remove('active','bg-gray-100'));
+            panels.forEach(p => p.classList.add('hidden'));
+            document.querySelector(`.tab-btn[data-tab="${name}"]`)?.classList.add('active','bg-gray-100');
+            document.querySelector(`[data-panel="${name}"]`)?.classList.remove('hidden');
+            lucide?.createIcons();
+          };
+          buttons.forEach(b => b.addEventListener('click', () => activate(b.getAttribute('data-tab'))));
+          activate('mobile');
+        })();
+    </script>
+}

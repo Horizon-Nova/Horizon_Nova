@@ -1,0 +1,29 @@
+﻿@{
+    Layout = null;
+    var title = ViewData["Title"] as string ?? "Horizon-Nova";
+}
+<!DOCTYPE html>
+<html lang="zh-Hant" class="h-full">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@title</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    @RenderSection("Head", required: false)
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-800 antialiased">
+    <main class="min-h-screen">
+        @RenderBody()
+    </main>
+
+    <script>
+        (function(){ try { lucide?.createIcons(); } catch(e){} })();
+    </script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

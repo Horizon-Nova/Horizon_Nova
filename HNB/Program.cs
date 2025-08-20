@@ -99,6 +99,6 @@ app.MapControllerRoute(
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Overview}/{action=Team_introduction}/{id?}");
+    pattern: "{controller= }/{action= }/{id?}");
 
 app.Run();
