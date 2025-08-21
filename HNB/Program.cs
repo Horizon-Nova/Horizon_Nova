@@ -71,7 +71,7 @@ builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 
-app.UseExceptionHandler("/Home/Error");
+app.UseExceptionHandler("/Areas/HNB_WEB/Views/TeamZone/NotFound");
 app.UseHsts();
 
 app.UseMiddleware<ExceptionLoggingMiddleware>();

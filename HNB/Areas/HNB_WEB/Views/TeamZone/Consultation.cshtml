@@ -2,18 +2,21 @@
     ViewData["Title"] = "立即諮詢";
     Layout = "~/Areas/HNB_WEB/Views/Shared/_Layout.cshtml";
 }
+
 <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-    <!-- Header -->
+
+    <!-- Header（返回首頁 + 品牌） -->
     <header class="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
-        <div class="mx-auto max-w-6xl px-4 py-4 flex justify-between items-center">
-            <div class="flex items-center space-x-4">
-                <a class="inline-flex items-center text-slate-700 hover:text-slate-900"
-                   href="@Url.Action("NovaHome", "TeamZone")">
-                    <i data-lucide="arrow-left" class="h-4 w-4 mr-2"></i> 返回首頁
+        <div class="container mx-auto px-3 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <a href='@Url.Action("NovaHome", "TeamZone", new { area = "HNB_WEB" })'
+                   class="inline-flex items-center gap-2 px-2 py-2 rounded-md text-gray-700 hover:bg-gray-100 transition">
+                    <i data-lucide="arrow-left" class="h-4 w-4"></i>
+                    <span>返回首頁</span>
                 </a>
                 <div class="h-8 border-l border-gray-300"></div>
-                <div class="flex items-center space-x-2">
-                    <div class="h-10 w-10 rounded-lg flex items-center justify-center">
+                <div class="flex items-center gap-2">
+                    <div class="h-10 w-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                         <img src="~/image/Horizon Nova Logo1.png" alt="HN" class="h-10 w-10 rounded-lg object-cover" />
                     </div>
                     <span class="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
@@ -24,223 +27,283 @@
         </div>
     </header>
 
-    <div class="mx-auto max-w-5xl px-4 py-12">
-        <!-- Title -->
-        <div class="text-center mb-12">
-            <h1 class="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                立即諮詢
-            </h1>
-            <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-                告訴我們您的需求，我們將為您量身打造最適合的解決方案
-            </p>
-        </div>
+    <div class="container mx-auto px-4 py-12">
+        <div class="max-w-4xl mx-auto">
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Form -->
-            <div class="lg:col-span-2">
-                <div class="rounded-xl border bg-white shadow-sm">
-                    <div class="p-6 border-b">
-                        <div class="flex items-center space-x-2">
-                            <i data-lucide="send" class="h-5 w-5 text-blue-600"></i>
-                            <div class="font-semibold">諮詢表單</div>
-                        </div>
-                        <p class="text-sm text-gray-600 mt-1">請填寫以下資訊，我們將盡快與您聯繫</p>
-                    </div>
-                    <div class="p-6">
-                        <form id="consultForm" class="space-y-6">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium mb-1" for="name">姓名 *</label>
-                                    <input id="name" name="name" required class="w-full rounded-md border-slate-300 focus:border-blue-500 focus:ring-blue-500" />
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium mb-1" for="company">公司名稱</label>
-                                    <input id="company" name="company" class="w-full rounded-md border-slate-300 focus:border-blue-500 focus:ring-blue-500" />
-                                </div>
-                            </div>
+            <!-- Title -->
+            <div class="text-center mb-10">
+                <h1 class="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    立即諮詢
+                </h1>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                    告訴我們您的需求，我們將為您量身打造最適合的解決方案
+                </p>
+            </div>
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium mb-1" for="email">電子郵件 *</label>
-                                    <input id="email" type="email" name="email" required class="w-full rounded-md border-slate-300 focus:border-blue-500 focus:ring-blue-500" />
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium mb-1" for="phone">聯絡電話 *</label>
-                                    <input id="phone" name="phone" required class="w-full rounded-md border-slate-300 focus:border-blue-500 focus:ring-blue-500" />
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium mb-2">需要的服務項目 *</label>
-                                <div class="grid grid-cols-2 md:grid-cols-3 gap-3" id="svcGrid">
-                                    @{
-                                        var svcs = new[]{
-                                                                        new[]{ "software","軟體開發","code"},
-                                                                        new[]{ "web","Web系統","globe"},
-                                                                        new[]{ "mobile","手機APP","smartphone"},
-                                                                        new[]{ "database","資料庫","database"},
-                                                                        new[]{ "aiot","AIoT","cpu"}
-                                                                        };
-                                    }
-                                    @foreach (var s in svcs)
-                                    {
-                                        <label class="flex items-center space-x-2 p-3 rounded-lg border cursor-pointer transition bg-white hover:bg-gray-50">
-                                            <input type="checkbox" name="services" value="@s[0]" class="h-4 w-4 text-blue-600 rounded" />
-                                            <i data-lucide="@s[2]" class="h-4 w-4"></i>
-                                            <span class="text-sm font-medium">@s[1]</span>
-                                        </label>
-                                    }
-                                </div>
-                                <p class="text-xs text-gray-500 mt-1">至少勾選一項</p>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium mb-1">預算範圍</label>
-                                    <select name="budget" class="w-full rounded-md border-slate-300 focus:border-blue-500 focus:ring-blue-500">
-                                        @foreach (var r in new[] { "10萬以下", "10-30萬", "30-50萬", "50-100萬", "100萬以上", "需要討論" })
-                                        {
-                                            <option>@r</option>
-                                        }
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium mb-1">預期時程</label>
-                                    <select name="timeline" class="w-full rounded-md border-slate-300 focus:border-blue-500 focus:ring-blue-500">
-                                        @foreach (var t in new[] { "1個月內", "2-3個月", "3-6個月", "6個月以上", "彈性時程" })
-                                        {
-                                            <option>@t</option>
-                                        }
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium mb-1">偏好聯絡方式</label>
-                                <select name="contactPreference" class="w-full rounded-md border-slate-300 focus:border-blue-500 focus:ring-blue-500">
-                                    <option value="email">電子郵件</option>
-                                    <option value="phone">電話聯繫</option>
-                                    <option value="line">LINE 訊息</option>
-                                    <option value="meeting">面談會議</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium mb-1" for="desc">專案描述</label>
-                                <textarea id="desc" name="description" rows="4" class="w-full rounded-md border-slate-300 focus:border-blue-500 focus:ring-blue-500"
-                                          placeholder="請詳細描述您的專案需求、目標和期望..."></textarea>
-                            </div>
-
-                            <button type="submit"
-                                    class="w-full inline-flex items-center justify-center px-4 py-3 rounded-md text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-                                <i data-lucide="send" class="mr-2 h-4 w-4"></i> 送出諮詢申請
-                            </button>
-                        </form>
-
-                        <!-- 成功訊息 -->
-                        <div id="successCard" class="hidden text-center space-y-4 mt-6">
-                            <div class="flex justify-center">
-                                <i data-lucide="check-circle" class="h-16 w-16 text-green-600"></i>
-                            </div>
-                            <div class="text-2xl font-bold text-green-600">諮詢申請已送出！</div>
-                            <div class="text-sm text-gray-600 space-y-1">
-                                <p>✓ 我們將在 24 小時內與您聯繫</p>
-                                <p>✓ 提供專業的解決方案建議</p>
-                                <p>✓ 安排詳細的需求討論</p>
-                            </div>
-                            <div class="flex gap-3">
-                                <a class="flex-1 inline-flex items-center justify-center px-4 py-2 rounded-md border"
-                                   asp-controller="Home" asp-action="Index">返回首頁</a>
-                                <button id="againBtn" class="flex-1 inline-flex items-center justify-center px-4 py-2 rounded-md text-white bg-blue-600 hover:bg-blue-700">
-                                    再次諮詢
-                                </button>
-                            </div>
-                        </div>
+            <!-- 錯誤提示（模擬 toast：需要時顯示） -->
+            <div id="errorToast" class="hidden mb-6 rounded-lg border border-red-200 bg-red-50 text-red-700 px-4 py-3">
+                <div class="flex items-start gap-2">
+                    <i data-lucide="alert-circle" class="h-5 w-5 mt-0.5"></i>
+                    <div>
+                        <div class="font-semibold">請填寫必要資訊</div>
+                        <div class="text-sm">姓名、電子郵件、電話和至少一項服務項目為必填欄位</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Sidebar -->
-            <div class="space-y-6">
-                <div class="rounded-xl border bg-white shadow-sm p-6">
-                    <div class="text-lg font-semibold mb-4">聯絡資訊</div>
-                    <div class="flex items-center space-x-3 mb-4">
-                        <div class="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                            <i data-lucide="clock" class="h-5 w-5 text-blue-600"></i>
-                        </div>
-                        <div>
-                            <p class="font-medium">回覆時間</p>
-                            <p class="text-sm text-gray-600">24小時內</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center space-x-3">
-                        <div class="h-10 w-10 bg-green-100 rounded-lg flex items-center justify-center">
-                            <i data-lucide="users" class="h-5 w-5 text-green-600"></i>
-                        </div>
-                        <div>
-                            <p class="font-medium">專業團隊</p>
-                            <p class="text-sm text-gray-600">經驗豐富</p>
-                        </div>
-                    </div>
-                </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-                <div class="rounded-xl border bg-white shadow-sm p-6">
-                    <div class="text-lg font-semibold mb-4">諮詢流程</div>
-                    <ol class="space-y-4">
-                        @foreach (var step in new[] { "需求分析", "方案提議", "報價討論", "開始合作" })
-                        {
-                            <li class="flex items-start space-x-3">
-                                <span class="inline-flex items-center justify-center h-6 w-6 rounded bg-blue-600 text-white text-sm font-semibold">@Array.IndexOf(new[] { "需求分析", "方案提議", "報價討論", "開始合作" }, step)+1</span>
-                                <div>
-                                    <p class="font-medium">@step</p>
-                                    <p class="text-sm text-gray-600">@((step == "需求分析") ? "深入了解您的需求" : (step == "方案提議") ? "提供客製化解決方案" : (step == "報價討論") ? "透明合理的報價" : "專案正式啟動")</p>
+                <!-- Left：表單 -->
+                <div id="consultationFormWrap" class="lg:col-span-2">
+                    <div class="rounded-2xl border border-gray-200 bg-white shadow-sm">
+                        <div class="py-3 px-6">
+                            <div class="flex items-center gap-2 text-gray-900 font-semibold">
+                                <i data-lucide="send" class="h-5 w-5 text-blue-600"></i>
+                                <span class="text-2xl">諮詢表單</span>
+                            </div>
+                            <p class="text-sm text-gray-500">請填寫以下資訊，我們將盡快與您聯繫</p>
+                        </div>
+
+                        <div class="py-3 px-6">
+                            <form id="consultationForm" class="space-y-6">
+
+                                <!-- 基本資料 -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="space-y-2">
+                                        <label for="name" class="text-sm font-medium">姓名 *</label>
+                                        <input id="name" name="name" type="text" placeholder="請輸入您的姓名"
+                                               class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label for="company" class="text-sm font-medium">公司名稱</label>
+                                        <input id="company" name="company" type="text" placeholder="請輸入公司名稱（選填）"
+                                               class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                    </div>
                                 </div>
-                            </li>
-                        }
-                    </ol>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="space-y-2">
+                                        <label for="email" class="text-sm font-medium">電子郵件 *</label>
+                                        <input id="email" name="email" type="email" placeholder="your@email.com"
+                                               class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label for="phone" class="text-sm font-medium">聯絡電話 *</label>
+                                        <input id="phone" name="phone" type="text" placeholder="09XX-XXX-XXX"
+                                               class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                                    </div>
+                                </div>
+
+                                <!-- 服務項目 -->
+                                <div class="space-y-3">
+                                    <label class="text-sm font-medium">需要的服務項目 *</label>
+                                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3" id="servicesGrid">
+                                        <!-- software -->
+                                        <label for="svc_software"
+                                               class="svc-tile flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-all bg-white border-gray-200 hover:bg-gray-50">
+                                            <input id="svc_software" name="services" type="checkbox" value="software" class="peer sr-only">
+                                            <span class="inline-flex items-center justify-center w-5 h-5 rounded border border-gray-300 peer-checked:bg-blue-600 peer-checked:border-blue-600"></span>
+                                            <i data-lucide="code" class="h-4 w-4"></i>
+                                            <span class="text-sm font-medium">軟體開發</span>
+                                        </label>
+                                        <!-- web -->
+                                        <label for="svc_web"
+                                               class="svc-tile flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-all bg-white border-gray-200 hover:bg-gray-50">
+                                            <input id="svc_web" name="services" type="checkbox" value="web" class="peer sr-only">
+                                            <span class="inline-flex items-center justify-center w-5 h-5 rounded border border-gray-300 peer-checked:bg-blue-600 peer-checked:border-blue-600"></span>
+                                            <i data-lucide="globe" class="h-4 w-4"></i>
+                                            <span class="text-sm font-medium">Web系統</span>
+                                        </label>
+                                        <!-- mobile -->
+                                        <label for="svc_mobile"
+                                               class="svc-tile flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-all bg-white border-gray-200 hover:bg-gray-50">
+                                            <input id="svc_mobile" name="services" type="checkbox" value="mobile" class="peer sr-only">
+                                            <span class="inline-flex items-center justify-center w-5 h-5 rounded border border-gray-300 peer-checked:bg-blue-600 peer-checked:border-blue-600"></span>
+                                            <i data-lucide="smartphone" class="h-4 w-4"></i>
+                                            <span class="text-sm font-medium">手機APP</span>
+                                        </label>
+                                        <!-- database -->
+                                        <label for="svc_database"
+                                               class="svc-tile flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-all bg-white border-gray-200 hover:bg-gray-50">
+                                            <input id="svc_database" name="services" type="checkbox" value="database" class="peer sr-only">
+                                            <span class="inline-flex items-center justify-center w-5 h-5 rounded border border-gray-300 peer-checked:bg-blue-600 peer-checked:border-blue-600"></span>
+                                            <i data-lucide="database" class="h-4 w-4"></i>
+                                            <span class="text-sm font-medium">資料庫</span>
+                                        </label>
+                                        <!-- aiot -->
+                                        <label for="svc_aiot"
+                                               class="svc-tile flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-all bg-white border-gray-200 hover:bg-gray-50">
+                                            <input id="svc_aiot" name="services" type="checkbox" value="aiot" class="peer sr-only">
+                                            <span class="inline-flex items-center justify-center w-5 h-5 rounded border border-gray-300 peer-checked:bg-blue-600 peer-checked:border-blue-600"></span>
+                                            <i data-lucide="cpu" class="h-4 w-4"></i>
+                                            <span class="text-sm font-medium">AIoT</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- 預算 / 時程 -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="space-y-2">
+                                        <label for="budget" class="text-sm font-medium">預算範圍</label>
+                                        <sl-select name="budget" placeholder="請選擇預算範圍" class="w-full">
+                                            <sl-option value="10萬以下">10萬以下</sl-option>
+                                            <sl-option value="10-30萬">10-30萬</sl-option>
+                                            <sl-option value="30-50萬">30-50萬</sl-option>
+                                            <sl-option value="50-100萬">50-100萬</sl-option>
+                                            <sl-option value="100萬以上">100萬以上</sl-option>
+                                            <sl-option value="需要討論">需要討論</sl-option>
+                                        </sl-select>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label for="timeline" class="text-sm font-medium">預期時程</label>
+                                        <sl-select name="timeline" placeholder="請選擇預期完成時程" class="w-full">
+                                            <sl-option value="1個月內">1個月內</sl-option>
+                                            <sl-option value="2-3個月">2-3個月</sl-option>
+                                            <sl-option value="3-6個月">3-6個月</sl-option>
+                                            <sl-option value="6個月以上">6個月以上</sl-option>
+                                            <sl-option value="彈性時程">彈性時程</sl-option>
+                                        </sl-select>
+                                    </div>
+                                </div>
+
+                                <!-- 偏好聯絡方式 -->
+                                <div class="space-y-2">
+                                    <label for="contactPreference" class="text-sm font-medium">偏好聯絡方式</label>
+                                    <sl-select name="contactPreference" placeholder="請選擇偏好的聯絡方式" class="w-full">
+                                        <sl-option value="email">電子郵件</sl-option>
+                                        <sl-option value="phone">電話聯繫</sl-option>
+                                        <sl-option value="line">LINE 訊息</sl-option>
+                                        <sl-option value="meeting">面談會議</sl-option>
+                                    </sl-select>
+                                </div>
+
+                                <!-- 專案描述 -->
+                                <div class="space-y-2">
+                                    <label for="description" class="text-sm font-medium">專案描述</label>
+                                    <textarea id="description" name="description" rows="4"
+                                              placeholder="請詳細描述您的專案需求、目標和期望..."
+                                              class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                                </div>
+
+                                <!-- 送出 -->
+                                <button type="submit"
+                                        class="w-full inline-flex items-center justify-center gap-2 rounded-md text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-4 py-2">
+                                    <i data-lucide="send" class="h-4 w-4"></i>
+                                    送出諮詢申請
+                                </button>
+
+                            </form>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="rounded-xl border bg-white shadow-sm p-6">
-                    <div class="text-lg font-semibold mb-4">為什麼選擇我們</div>
-                    @foreach (var why in new[] { "專業技術團隊", "豐富專案經驗", "客製化解決方案", "完善售後服務" })
-                    {
-                        <div class="flex items-center space-x-2 mb-2">
-                            <i data-lucide="check-circle" class="h-4 w-4 text-green-600"></i>
-                            <span class="text-sm">@why</span>
+                <!-- Right：側欄 -->
+                <div class="space-y-6">
+                    <!-- 聯絡資訊 -->
+                    <div class="rounded-2xl border border-gray-200 bg-white shadow-sm">
+                        <div class="pt-3 px-6">
+                            <div class="text-lg font-semibold">聯絡資訊</div>
                         </div>
-                    }
+                        <div class="py-3 px-6 space-y-4">
+                            <div class="flex items-center gap-3">
+                                <div class="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="clock" class="h-5 w-5 text-blue-600"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium">回覆時間</p>
+                                    <p class="text-sm text-gray-600">24小時內</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="h-10 w-10 bg-green-100 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="users" class="h-5 w-5 text-green-600"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium">專業團隊</p>
+                                    <p class="text-sm text-gray-600">經驗豐富</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 諮詢流程 -->
+                    <div class="rounded-2xl border border-gray-200 bg-white shadow-sm">
+                        <div class="pt-3 px-6">
+                            <div class="text-lg font-semibold">諮詢流程</div>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            @for (var i = 1; i <= 4; i++)
+                            {
+                                var titles = new[] { "需求分析", "方案提議", "報價討論", "開始合作" };
+                                var descs = new[] { "深入了解您的需求", "提供客製化解決方案", "透明合理的報價", "專案正式啟動" };
+                                <div class="flex items-start gap-3">
+                                    <span class="inline-flex items-center justify-center rounded-full bg-blue-600 text-white text-sm font-semibold w-6 h-6">@i</span>
+                                    <div>
+                                        <p class="font-medium">@titles[i - 1]</p>
+                                        <p class="text-sm text-gray-600">@descs[i - 1]</p>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- 為什麼選擇我們 -->
+                    <div class="rounded-2xl border border-gray-200 bg-white shadow-sm">
+                        <div class="pt-3 px-6">
+                            <div class="text-lg font-semibold">為什麼選擇我們</div>
+                        </div>
+                        <div class="p-6 space-y-3">
+                            @foreach (var item in new[] { "專業技術團隊", "豐富專案經驗", "客製化解決方案", "完善售後服務" })
+                            {
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="check-circle" class="h-4 w-4 text-green-600"></i>
+                                    <span class="text-sm">@item</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 送出成功畫面（與 TSX 一致的內容與樣式） -->
+    <div id="consultationSuccess" class="hidden min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-4">
+        <div class="rounded-2xl border border-gray-200 bg-white shadow-sm max-w-md w-full text-center">
+            <div class="p-6 border-b">
+                <div class="flex justify-center mb-4">
+                    <i data-lucide="check-circle" class="h-16 w-16 text-green-600"></i>
+                </div>
+                <div class="text-2xl font-bold text-green-600">諮詢申請已送出！</div>
+                <p class="text-sm text-gray-500 mt-1">感謝您的信任，我們已收到您的諮詢申請</p>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="text-sm text-gray-600 space-y-2 text-left max-w-xs mx-auto">
+                    <p>✓ 我們將在 24 小時內與您聯繫</p>
+                    <p>✓ 提供專業的解決方案建議</p>
+                    <p>✓ 安排詳細的需求討論</p>
+                </div>
+                <div class="flex gap-3">
+                    <a href='@Url.Action("NovaHome", "TeamZone", new { area = "HNB_WEB" })'
+                       class="flex-1 inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-gray-700 hover:bg-gray-50">
+                        返回首頁
+                    </a>
+                    <button id="againBtn"
+                            class="flex-1 inline-flex items-center justify-center rounded-md bg-blue-600 hover:bg-blue-700 text-white px-4 py-2">
+                        再次諮詢
+                    </button>
                 </div>
             </div>
         </div>
     </div>
+
 </div>
 
 @section Scripts {
-    <script>
-        (() => {
-          const form = document.getElementById('consultForm');
-          const success = document.getElementById('successCard');
-          const again = document.getElementById('againBtn');
 
-          form?.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const required = ['name','email','phone'];
-            const valid = required.every(id => document.getElementById(id)?.value.trim());
-            const anySvc = [...document.querySelectorAll('input[name="services"]:checked')].length > 0;
-            if (!valid || !anySvc) {
-              alert('請填寫姓名、Email、電話，並至少勾選一項服務');
-              return;
-            }
-            form.classList.add('hidden');
-            success.classList.remove('hidden');
-            lucide?.createIcons();
-          });
 
-          again?.addEventListener('click', () => {
-            form.reset();
-            success.classList.add('hidden');
-            form.classList.remove('hidden');
-          });
-        })();
-    </script>
 }
+<style>
+
+</style>

@@ -1,5 +1,37 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@{
+    ViewData["Title"] = "專案詳細 - Horizon-Nova";
+    Layout = "~/Areas/HNB_WEB/Views/Shared/_Layout.cshtml";
+    var partialName = (string)Model ?? "_ProjectNotFound";
+}
+
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <!-- Header：返回 + 品牌 -->
+    <header class="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <a href='@Url.Action("Portfolio", "TeamZone", new { area = "HNB_WEB" })'
+                   class="inline-flex items-center gap-2 px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 transition">
+                    <i data-lucide="arrow-left" class="h-4 w-4"></i>
+                    <span>返回作品</span>
+                </a>
+                <div class="h-8 border-l border-gray-300"></div>
+                <div class="flex items-center gap-2">
+                    <div class="h-8 w-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-sm">HN</span>
+                    </div>
+                    <span class="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                        Horizon-Nova
+                    </span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-4 py-10">
+        @await Html.PartialAsync(partialName)
+    </div>
+</div>
+
+@section Scripts {
+    <script>window.lucide?.createIcons();</script>
 }

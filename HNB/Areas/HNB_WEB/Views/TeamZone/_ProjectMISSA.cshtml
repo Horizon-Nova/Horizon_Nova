@@ -1,0 +1,282 @@
+@{
+    ViewData["Title"] = "Missa（Web系統） - Horizon-Nova";
+    Layout = "~/Areas/HNB_WEB/Views/Shared/_Layout.cshtml";
+}
+<section class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <!-- Header -->
+    <header class="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+        <div class="container mx-auto px-3 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <a href='@Url.Action("Portfolio", "TeamZone", new { area = "HNB_WEB" })'
+                   class="inline-flex items-center gap-2 rounded-md px-3 py-2 text-gray-700 hover:bg-gray-100">
+                    <i data-lucide="arrow-left" class="h-4 w-4"></i><span>返回作品展示</span>
+                </a>
+                <div class="h-8 border-l border-gray-300"></div>
+                <div class="flex items-center space-x-2">
+                    <div class="h-10 w-10 bg-gradient-to-r from-orange-600 to-yellow-500 rounded-lg flex items-center justify-center">
+                        <i data-lucide="file-text" class="h-8 w-8 text-orange-600"></i>
+                    </div>
+                    <span class="text-xl font-bold bg-gradient-to-r from-orange-600 to-yellow-500 bg-clip-text text-transparent">
+                        Missa
+                    </span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-4 py-12">
+        <div class="max-w-6xl mx-auto">
+
+            <!-- Project Header -->
+            <div class="mb-8">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="p-3 bg-white rounded-xl shadow-lg ring-1 ring-gray-200">
+                        <i data-lucide="file-text" class="h-8 w-8 text-orange-600"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-3 mb-2">
+                            <h1 class="text-4xl font-bold text-gray-800">Missa</h1>
+                            <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium bg-orange-100 text-orange-800">Web系統</span>
+                        </div>
+                        <p class="text-lg text-gray-600">
+                            用於處理簽核和一般文書系統，內置完整的企業管理功能
+                        </p>
+                        <p class="text-gray-700 mt-2">
+                            Missa是一套全方位的企業管理系統，專為現代企業的數位化需求而設計。系統整合了簽核流程、文書處理、人員管理等核心功能，並提供強大的API介面和安全防護機制。
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap gap-2">
+                    @foreach (var tech in new[] { "簽核系統", "API", "資料庫", "權限管理", "React", "Node.js" })
+                    {
+                        <span class="inline-flex items-center rounded-full px-3 py-1 text-sm bg-orange-100 text-orange-800 hover:bg-orange-200 transition">@tech</span>
+                    }
+                </div>
+            </div>
+
+            <!-- Project Images -->
+            <div class="mb-12">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    @for (var i = 1; i <= 3; i++)
+                    {
+                        <div class="aspect-video bg-gray-200 rounded-lg overflow-hidden">
+                            <div class="w-full h-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center">
+                                <span class="text-gray-600">系統截圖 @i</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="w-full">
+                <div class="grid grid-cols-4 mb-8 gap-2 bg-gray-100 p-1 rounded-xl">
+                    <button type="button" data-tab="overview"
+                            class="tab-btn w-full inline-flex items-center justify-center px-3 py-2 rounded-lg text-gray-500 hover:text-gray-700">
+                        專案概述
+                    </button>
+                    <button type="button" data-tab="features"
+                            class="tab-btn w-full inline-flex items-center justify-center px-3 py-2 rounded-lg text-gray-500 hover:text-gray-700">
+                        功能特色
+                    </button>
+                    <button type="button" data-tab="technical"
+                            class="tab-btn w-full inline-flex items-center justify-center px-3 py-2 rounded-lg text-gray-500 hover:text-gray-700">
+                        技術實作
+                    </button>
+                    <button type="button" data-tab="results"
+                            class="tab-btn w-full inline-flex items-center justify-center px-3 py-2 rounded-lg text-gray-500 hover:text-gray-700">
+                        成果展示
+                    </button>
+                </div>
+
+                <!-- Overview -->
+                <section id="tab-overview" class="tab-pane space-y-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <article class="lg:col-span-2 rounded-2xl bg-white ring-1 ring-gray-200 shadow-sm">
+                            <header class="p-6 pb-0">
+                                <h2 class="text-2xl font-semibold text-gray-800">專案介紹</h2>
+                            </header>
+                            <div class="p-6 space-y-6">
+                                <p class="text-gray-700 leading-relaxed"></p>
+                                    Missa是一套全方位的企業管理系統，專為現代企業的數位化需求而設計。系統整合了簽核流程、文書處理、人員管理等核心功能，並提供強大的API介面和安全防護機制。
+                                </p>
+
+                                <div>
+                                    <h4 class="font-semibold mb-3">主要挑戰</h4>
+                                    <ul class="space-y-2">
+                                        @foreach (var c in new[] {
+                                            "複雜簽核流程的設計",
+                                            "大量併發用戶的處理",
+                                            "資料安全性要求"
+                                        })
+                                        {
+                                            <li class="flex items-start gap-2 text-gray-700">
+                                                <i data-lucide="target" class="h-4 w-4 text-red-500 mt-0.5"></i><span>@c</span>
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+
+                                <div>
+                                    <h4 class="font-semibold mb-3">解決方案</h4>
+                                    <ul class="space-y-2">
+                                        @foreach (var s in new[] {
+                                            "工作流引擎設計彈性流程",
+                                            "負載均衡和快取優化",
+                                            "端到端加密和權限控制"
+                                        })
+                                        {
+                                            <li class="flex items-start gap-2 text-gray-700">
+                                                <i data-lucide="zap" class="h-4 w-4 text-orange-600 mt-0.5"></i><span>@s</span>
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- 右側資訊 -->
+                        <aside class="space-y-6">
+                            <article class="rounded-2xl bg-white ring-1 ring-gray-200 shadow-sm">
+                                <header class="p-6 pb-0"><h3 class="text-lg font-semibold">專案資訊</h3></header>
+                                <div class="p-6 space-y-4">
+                                    <div class="flex items-center gap-3">
+                                        <i data-lucide="calendar" class="h-5 w-5 text-orange-600"></i>
+                                        <div><p class="font-medium">開發時程</p><p class="text-sm text-gray-600">12個月</p></div>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <i data-lucide="users" class="h-5 w-5 text-orange-600"></i>
+                                        <div><p class="font-medium">團隊規模</p><p class="text-sm text-gray-600">6人</p></div>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <i data-lucide="database" class="h-5 w-5 text-orange-600"></i>
+                                        <div><p class="font-medium">客戶</p><p class="text-sm text-gray-600">大型企業</p></div>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <i data-lucide="check-circle-2" class="h-5 w-5 text-orange-600"></i>
+                                        <div><p class="font-medium">專案狀態</p><p class="text-sm text-gray-600">已完成並持續更新</p></div>
+                                    </div>
+                                </div>
+                            </article>
+
+                            <article class="rounded-2xl bg-white ring-1 ring-gray-200 shadow-sm">
+                                <header class="p-6 pb-0"><h3 class="text-lg font-semibold">使用技術</h3></header>
+                                <div class="p-6 flex flex-wrap gap-2">
+                                    @foreach (var t in new[] { "簽核系統", "API", "資料庫", "權限管理", "React", "Node.js" })
+                                    {
+                                        <span class="inline-flex items-center rounded px-2.5 py-1 text-xs ring-1 ring-gray-300 text-gray-700">@t</span>
+                                    }
+                                </div>
+                            </article>
+                        </aside>
+                    </div>
+                </section>
+
+                <!-- Features -->
+                <section id="tab-features" class="tab-pane hidden space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        @foreach (var f in new[] {
+                            ("簽核流程管理","靈活的簽核流程設計，支援多級審核和並行簽核"),
+                            ("文書處理系統","完整的文件管理和版本控制功能"),
+                            ("人員管理","組織架構管理和員工資訊維護"),
+                            ("API整合","RESTful API介面，支援第三方系統整合")
+                        })
+                        {
+                            <article class="rounded-2xl bg-white ring-1 ring-gray-200 shadow-sm hover:shadow-md transition">
+                                <header class="p-6 pb-0">
+                                    <h3 class="text-lg font-semibold flex items-center gap-2">
+                                        <i data-lucide="check-circle-2" class="h-5 w-5 text-orange-600"></i>@f.Item1
+                                    </h3>
+                                </header>
+                                <div class="p-6 text-gray-700">@f.Item2</div>
+                            </article>
+                        }
+                    </div>
+                </section>
+
+                <!-- Technical -->
+                <section id="tab-technical" class="tab-pane hidden space-y-6">
+                    <article class="rounded-2xl bg-white ring-1 ring-gray-200 shadow-sm">
+                        <header class="p-6 pb-0">
+                            <h3 class="text-xl font-semibold">技術架構</h3>
+                            <p class="text-gray-600 text-sm">專案的技術實作細節和架構設計</p>
+                        </header>
+                        <div class="p-6">
+                            <div class="aspect-video bg-gray-100 rounded-lg flex items-center justify-center mb-6">
+                                <span class="text-gray-500">技術架構圖</span>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-semibold mb-3">核心技術</h4>
+                                    <ul class="space-y-2">
+                                        @foreach (var t in new[] { "React", "Node.js", "API", "資料庫" })
+                                        {
+                                            <li class="flex items-center gap-2"><i data-lucide="code" class="h-4 w-4 text-orange-500"></i><span>@t</span></li>
+                                        }
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold mb-3">開發工具</h4>
+                                    <ul class="space-y-2">
+                                        @foreach (var t in new[] { "簽核系統", "權限管理", "快取優化" })
+                                        {
+                                            <li class="flex items-center gap-2"><i data-lucide="server" class="h-4 w-4 text-yellow-500"></i><span>@t</span></li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                </section>
+
+                <!-- Results -->
+                <section id="tab-results" class="tab-pane hidden space-y-6">
+                    <article class="rounded-2xl bg-white ring-1 ring-gray-200 shadow-sm">
+                        <header class="p-6 pb-0">
+                            <h3 class="text-xl font-semibold">專案成果</h3>
+                            <p class="text-gray-600 text-sm">量化的專案成效和改善指標</p>
+                        </header>
+                        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <ul class="space-y-3">
+                                @foreach (var r in new[] { "簽核效率提升70%", "系統回應時間<2秒", "安全性評級A+" })
+                                {
+                                    <li class="flex items-center gap-3">
+                                        <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                                            <i data-lucide="check-circle-2" class="h-4 w-4 text-orange-600"></i>
+                                        </div>
+                                        <span class="font-medium text-gray-800">@r</span>
+                                    </li>
+                                }
+                            </ul>
+                            <div class="bg-gradient-to-br from-orange-50 to-yellow-50 rounded-lg p-6">
+                                <h4 class="font-semibold mb-4">客戶回饋</h4>
+                                <p class="text-gray-700 italic">
+                                    「系統簽核流程彈性高，效能優異，安全性有保障。」
+                                </p>
+                                <p class="text-gray-600 text-sm mt-2">— 大型企業</p>
+                            </div>
+                        </div>
+                    </article>
+                </section>
+            </div>
+
+            <!-- CTA -->
+            <div class="mt-12 text-center">
+                <div class="rounded-2xl overflow-hidden">
+                    <div class="bg-gradient-to-r from-orange-600 to-yellow-500 text-white"></div>
+                        <div class="py-8 px-6">
+                            <h3 class="text-2xl font-bold mb-2">對此專案有興趣？</h3>
+                            <p class="mb-6 opacity-90">讓我們為您打造類似的解決方案</p>
+                            <a href='@Url.Action("Consultation", "TeamZone", new { area = "HNB_WEB" })'
+                               class="inline-flex items-center justify-center gap-2 rounded-md bg-white text-orange-600 px-6 py-3 hover:bg-gray-100"></a>
+                                立即諮詢 <i data-lucide="arrow-right" class="h-5 w-5"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
