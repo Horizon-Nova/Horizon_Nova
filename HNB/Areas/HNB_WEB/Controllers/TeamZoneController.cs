@@ -32,4 +32,5 @@ public class TeamZoneController(TeamZoneServices sev) : Controller
 
     public IActionResult NotFound()
         => View();
+
 }

@@ -1,0 +1,288 @@
+﻿@{
+    var topMenus = new[] {
+        new {
+            Id = "api-security",
+            Icon = "shield",
+            Title = "API安全控管",
+            Enabled = true,
+            ChildrenCount = 3,
+            Children = new object[] {
+                new { Title = "API金鑰管理", Enabled = true, Components = new object[] {
+                    new { Title = "新增按鈕", Enabled = true, Kind = "元件" }
+                }}
+            }
+        },
+        new {
+            Id = "user-management",
+            Icon = "users",
+            Title = "權限管理",
+            Enabled = true,
+            ChildrenCount = 1,
+            Children = new object[] {
+                new { Title = "用戶管理", Enabled = true, Components = new object[] { } }
+            }
+        }
+    };
+}
+
+
+<div class="bms-tabcard p-3">
+    <div class="mb-4">
+        <div class="d-flex align-items-center mb-1">
+            <i data-lucide="folder-tree" class="me-2" style="width:32px;height:32px;"></i>
+            <h1 class="fw-bold fs-3 mb-0">目錄管理</h1>
+        </div>
+        <p class="text-secondary mb-0">管理側欄導航目錄結構，控制頁面和元件的顯示權限</p>
+    </div>
+
+    @* 工具列 *@
+    <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3">
+        <div class="d-flex gap-2">
+            <button class="btn btn-dark" id="btnAddDir">
+                <i data-lucide="plus" class="icon-text me-1"></i> 新增目錄
+            </button>
+            <button class="btn btn-outline-dark" id="btnAutoDetect">
+                <i data-lucide="refresh-cw" class="icon-text me-1"></i> 自動偵測元件
+            </button>
+        </div>
+
+        <button class="btn btn-outline-secondary btn-sm" id="btnRefresh">
+            <i data-lucide="refresh-cw" class="icon-text me-1"></i> 刷新
+        </button>
+    </div>
+
+
+    <!-- #region 搜尋與篩選 -->
+    <div class="d-flex flex-wrap gap-2 align-items-center p-3 bg-light rounded-3 mb-3">
+        <div class="flex-grow-1 position-relative">
+            <i data-lucide="search" class="icon-text text-secondary position-absolute" style="left:12px; top:50%; transform:translateY(-50%);"></i>
+            <input type="text" id="txtSearch" class="form-control ps-5" placeholder="搜索目錄、子目錄或元件名稱…">
+        </div>
+
+        <div class="input-group" style="width:220px;">
+            <span class="input-group-text bg-white">
+                <i data-lucide="filter" class="icon-text"></i>
+            </span>
+            <select id="selStatus" class="form-select">
+                <option value="all">全部狀態</option>
+                <option value="enabled">已啟用</option>
+                <option value="disabled">已停用</option>
+            </select>
+        </div>
+
+        <button class="btn btn-outline-secondary btn-sm" id="btnToggleAll">全部展開</button>
+    </div>
+    <!-- #endregion -->
+    <!-- #region 目錄卡片列表 -->
+    <div class="vstack gap-3" id="dirList">
+        @foreach (var menu in topMenus)
+        {
+            var opened = true; // 預設展開；之後可由資料或使用者偏好控制
+                               <div class="card border-0 shadow-sm" data-node="@menu.Id" data-type="top" data-title="@menu.Title" data-enabled="@(menu.Enabled ? "1" : "0")">
+                                   <div class="card-header bg-white py-3">
+                                       <div class="d-flex justify-content-between align-items-center">
+                                           <div class="d-flex align-items-center gap-2">
+                                               <button type="button" class="btn btn-sm btn-link p-0 text-decoration-none btn-collapse" data-target="#body-@menu.Id" aria-expanded="@(opened.ToString().ToLower())">
+                                                   <i data-lucide="@(opened ? "chevron-down" : "chevron-right")" class="icon-text"></i>
+                                               </button>
+                                               <i data-lucide="@menu.Icon" class="icon-text" style="width:20px;height:20px;"></i>
+                                               <span class="fw-semibold">@menu.Title</span>
+                                               <span class="badge text-bg-secondary">主目錄</span>
+                                               <span class="badge bg-white border text-secondary">@menu.ChildrenCount 個子目錄</span>
+                                           </div>
+                                           <div class="d-flex align-items-center gap-2">
+                                               <div class="form-check form-switch m-0">
+                                                   <input class="form-check-input switch-enabled" type="checkbox" role="switch" @(menu.Enabled ? "checked" : "")>
+                                               </div>
+                                               <button class="btn btn-outline-secondary btn-sm"><i data-lucide="pencil" class="icon-text"></i></button>
+                                               <button class="btn btn-outline-secondary btn-sm"><i data-lucide="trash-2" class="icon-text"></i></button>
+                                           </div>
+                                       </div>
+                                   </div>
+
+                <div id="body-@menu.Id" class="card-body pt-0 collapse @(opened ? "show" : "")">
+                    <div class="ms-4 vstack gap-2">
+
+                        @* 這裡把 menu.Children 當成物件集合迭代，並將每個元素轉為 dynamic *@
+                        @foreach (var childObj in (System.Collections.IEnumerable)menu.Children)
+                        {
+                            dynamic child = childObj;
+
+                            <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded-3"
+                                 data-type="child" data-title="@child.Title" data-enabled="@(child.Enabled ? "1" : "0")">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="ms-1" style="width:16px;height:16px;border-left:2px solid #adb5bd;border-bottom:2px solid #adb5bd;"></span>
+                                    <span>@child.Title</span>
+                                    <span class="badge bg-white border text-secondary">子目錄</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="form-check form-switch m-0">
+                                        <input class="form-check-input switch-enabled" type="checkbox" role="switch" @(child.Enabled ? "checked" : "")>
+                                    </div>
+                                    <button class="btn btn-outline-secondary btn-sm"><i data-lucide="pencil" class="icon-text"></i></button>
+                                </div>
+                            </div>
+
+                            @* 元件列（如果有） *@
+                            @if (child.Components is Array comps && comps.Length > 0)
+                            {
+                                <div class="ms-4 vstack gap-2">
+                                    @foreach (var compObj in comps)
+                                    {
+                                        dynamic comp = compObj;
+                                        bool cmpEnabled = (bool)comp.Enabled;
+                                        string cmpTitle = (string)comp.Title;
+
+                                        <div class="d-flex justify-content-between align-items-center p-2 border rounded"
+                                             data-type="component" data-title="@cmpTitle" data-enabled="@(cmpEnabled ? "1" : "0")">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span class="d-inline-block" style="width:10px;height:10px;border-radius:50%;background:#22c55e;"></span>
+                                                <span class="small">@cmpTitle</span>
+                                                <span class="badge text-bg-secondary">元件</span>
+                                            </div>
+                                            <div class="d-flex align-items-center gap-1">
+                                                <div class="form-check form-switch m-0">
+                                                    <input class="form-check-input switch-enabled" type="checkbox" role="switch" @(cmpEnabled ? "checked" : "")>
+                                                </div>
+                                                <button class="btn btn-ghost btn-sm p-1"><i data-lucide="pencil" class="icon-text" style="width:14px;height:14px;"></i></button>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        }
+
+                    </div>
+                </div>
+
+            </div>
+        }
+    </div>
+    <!-- #endregion -->
+    <!-- #region 分隔線 -->
+    <hr class="my-4">
+    <!-- #endregion -->
+    <!-- #region 說明 -->
+    <div class="p-4 rounded-3" style="background:#eff6ff;">
+        <h6 class="fw-semibold mb-2 d-flex align-items-center">
+            <i data-lucide="info" class="icon-text me-2" style="color:#2563eb;"></i>
+            自動偵測說明
+        </h6>
+        <ul class="small text-secondary mb-0">
+            <li>系統會自動掃描各頁面的按鈕和元件</li>
+            <li>可以手動新增自定義元件</li>
+            <li>透過開關控制元件的顯示/隱藏</li>
+            <li>支援 主目錄 → 子目錄 → 元件 的層級結構</li>
+        </ul>
+    </div>
+    <!-- #endregion -->
+
+</div>
+
+<script>
+    // #region Icon 尺寸工具
+    (function ensureIconHelpers(){
+      const id='bms-icon-helpers';
+      if(!document.getElementById(id)){
+        const s=document.createElement('style'); s.id=id;
+        s.textContent = `.icon-text{width:1em;height:1em;vertical-align:-.125em}`;
+        document.head.appendChild(s);
+      }
+    })();
+    function renderIcons(){ if(window.lucide?.createIcons) lucide.createIcons(); }
+    renderIcons();
+    // #endregion
+
+    // #region 狀態管理
+    window._dirState = window._dirState || {
+      expanded: {},         // { nodeId: true/false }
+    };
+    // 初始化展開狀態（依目前 DOM collapse.show）
+    document.querySelectorAll('[id^="body-"]').forEach(el=>{
+      const id = el.id.replace('body-','');
+      _dirState.expanded[id] = el.classList.contains('show');
+    });
+    // #endregion
+
+    // #region 事件：展開/收合（每張卡）
+    document.querySelectorAll('.btn-collapse').forEach(btn=>{
+      btn.addEventListener('click', function(){
+        const target = document.querySelector(this.dataset.target);
+        const id = this.dataset.target.replace('#body-','');
+        const isOpen = target.classList.contains('show');
+        const icon = this.querySelector('[data-lucide]');
+        // 切換
+        const c = new bootstrap.Collapse(target, { toggle: !isOpen });
+        setTimeout(()=>{  // 動畫後再記錄狀態
+          _dirState.expanded[id] = !isOpen;
+          if(icon){ icon.setAttribute('data-lucide', !isOpen ? 'chevron-down' : 'chevron-right'); renderIcons(); }
+        }, 250);
+      });
+    });
+    // #endregion
+
+    // #region 事件：全部展開/收起
+    document.getElementById('btnToggleAll')?.addEventListener('click', function(){
+      const list = document.querySelectorAll('[id^="body-"]');
+      const allOpen = Array.from(list).every(el => el.classList.contains('show'));
+      list.forEach(el=>{
+        const id = el.id.replace('body-','');
+        const wantOpen = !allOpen;
+        const has = el.classList.contains('show');
+        if (wantOpen !== has) new bootstrap.Collapse(el, { toggle: true });
+        _dirState.expanded[id] = wantOpen;
+        const btn = document.querySelector(`.btn-collapse[data-target="#${el.id}"] [data-lucide]`);
+        if(btn){ btn.setAttribute('data-lucide', wantOpen ? 'chevron-down' : 'chevron-right'); }
+      });
+      renderIcons();
+      this.textContent = allOpen ? '全部展開' : '全部收起';
+    });
+    // #endregion
+
+    // #region 搜尋 & 狀態篩選
+    function applyFilter(){
+      const kw = (document.getElementById('txtSearch')?.value || '').trim().toLowerCase();
+      const st = document.getElementById('selStatus')?.value || 'all';
+
+      // 根據每層 data-title / data-enabled 判斷是否顯示
+      document.querySelectorAll('#dirList [data-type]').forEach(node=>{
+        const title = (node.getAttribute('data-title') || '').toLowerCase();
+        const enabled = node.getAttribute('data-enabled') === '1';
+        let match = true;
+
+        if (kw) match = title.includes(kw);
+        if (match && st !== 'all') {
+          match = (st === 'enabled') ? enabled : !enabled;
+        }
+        node.classList.toggle('d-none', !match);
+      });
+    }
+    document.getElementById('txtSearch')?.addEventListener('input', applyFilter);
+    document.getElementById('selStatus')?.addEventListener('change', applyFilter);
+    // #endregion
+
+    // #region 假事件：新增/自動偵測/刷新
+    $('#btnAddDir').on('click', function(){
+      alert('（示範）新增目錄');
+    });
+    $('#btnAutoDetect').on('click', function(){
+      alert('（示範）自動偵測元件');
+    });
+    $('#btnRefresh').on('click', function(){
+      location.reload();
+    });
+    // #endregion
+
+    // #region Switch 事件（之後可串 API）
+    document.querySelectorAll('.switch-enabled').forEach(sw=>{
+      sw.addEventListener('change', function(){
+        const row = this.closest('[data-type]');
+        if(!row) return;
+        row.setAttribute('data-enabled', this.checked ? '1' : '0');
+        applyFilter();
+      });
+    });
+    // #endregion
+
+    renderIcons();
+</script>
