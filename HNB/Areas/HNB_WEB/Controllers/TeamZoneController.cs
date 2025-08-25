@@ -11,25 +11,23 @@ public class TeamZoneController(TeamZoneServices sev) : Controller
         => View();
     public IActionResult Consultation()
         => View();
-    public IActionResult Portfolio()
-        => View();
 
     public IActionResult ProjectDetail(string id)
     {
-        // 依 id 對應到部分視圖名稱
-        var partial = (id ?? "").ToLowerInvariant() switch
-        {
-            "warehouse" => "_ProjectWarehouse",
-            "smart-meter" => "_ProjectSmartMeter",
-            "tagv" => "_ProjectTAGV",
-            "ai-monitor" => "_ProjectAIMonitor",
-            "missa" => "_ProjectMISSA",
-            "eos" => "_ProjectEOS",
+        sev.ViewBagModelPortfolio(ViewBag);
 
-            _ => "NotFound"
-        };
+        sev.ViewBagModelProjectDetail(ViewBag, id);
 
-        return View(partial);
+        if (ViewBag.NotFound == true)
+            return NotFound();
+
+        return View();
+    }
+
+    public IActionResult Portfolio()
+    {
+        sev.ViewBagModelPortfolio(ViewBag);
+        return View();
     }
 
     public IActionResult NotFound()
