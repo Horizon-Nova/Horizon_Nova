@@ -10,40 +10,12 @@ public class TeamZoneServices(TeamZoneRepositories res)
     //#region Portfolio
 
     ///// <summary>作品清單頁</summary>
-    //public void ViewBagModelPortfolio(dynamic viewBag)
-    //{
-    //    var categories = res.Project1CategoryLabelsMapping();
-    //    viewBag.ProjectCategories = categories; // List<(category, category_label)>
+    public void ViewBagModelPortfolio(dynamic viewBag)
+    {
+        var TBMap = res.ProjecttagMapping();
 
-    //    var sections = new Dictionary<string, List<project>>(StringComparer.OrdinalIgnoreCase);
-    //    foreach (var (category, _) in categories)
-    //        sections[category] = res.Project1ListByCategoryMapping(category);
-    //    viewBag.PortfolioSections = sections;
-
-    //    var techMap = new Dictionary<long, List<string>>();
-    //    var featMap = new Dictionary<long, List<string>>();
-    //    var highlightMap = new Dictionary<long, List<string>>();
-
-    //    foreach (var list in sections.Values)
-    //    {
-    //        foreach (var p in list)
-    //        {
-    //            if (!techMap.ContainsKey(p.project_id))
-    //                techMap[p.project_id] = ToList(p.tech_stack_json);
-
-    //            if (!featMap.ContainsKey(p.project_id))
-    //                featMap[p.project_id] = ToList(p.features_json);
-
-    //            // 如果有亮點欄位：highlight_json
-    //            // if (!highlightMap.ContainsKey(p.project_id))
-    //            //     highlightMap[p.project_id] = ToList(p.highlights_json);
-    //        }
-    //    }
-
-    //    viewBag.ProjectTechListMap = techMap;       // IDictionary<long, List<string>>
-    //    viewBag.ProjectFeatListMap = featMap;       // IDictionary<long, List<string>>
-    //    viewBag.ProjectHighlightListMap = highlightMap; // 可選
-    //}
+        viewBag.PortfolioTabsMap = TBMap;
+    }
 
     //#endregion
 

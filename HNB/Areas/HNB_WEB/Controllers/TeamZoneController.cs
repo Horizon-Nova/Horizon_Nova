@@ -26,7 +26,7 @@ public class TeamZoneController(TeamZoneServices sev) : Controller
 
     public IActionResult Portfolio()
     {
-        //sev.ViewBagModelPortfolio(ViewBag);
+        sev.ViewBagModelPortfolio(ViewBag);
         return View();
     }
 
