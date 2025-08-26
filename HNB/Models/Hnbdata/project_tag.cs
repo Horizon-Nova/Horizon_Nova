@@ -7,34 +7,42 @@ using Microsoft.EntityFrameworkCore;
 namespace Models.Hnbdata;
 
 /// <summary>
-/// 作品與標籤關聯（複合主鍵避免重複）
+/// ProjectTags（畫面 icon 專區）
 /// </summary>
-[PrimaryKey("project_id", "tag_id")]
 [Table("project_tags", Schema = "dbo")]
+[Index("category", Name = "project_tags_category_key", IsUnique = true)]
 public partial class project_tag
 {
-    /// <summary>
-    /// 所屬專案 ID
-    /// </summary>
     [Key]
-    public long project_id { get; set; }
+    public int id { get; set; }
 
     /// <summary>
-    /// 所屬標籤 ID
+    /// 專案大類（例如 手機APP、軟體系統、Web系統）
     /// </summary>
-    [Key]
-    public int tag_id { get; set; }
+    [StringLength(100)]
+    public string category { get; set; } = null!;
 
     /// <summary>
-    /// 建立時間
+    /// 專案大類 icon 名稱
     /// </summary>
-    public DateTime? created_at { get; set; }
+    [StringLength(255)]
+    public string? icon { get; set; }
 
-    [ForeignKey("project_id")]
-    [InverseProperty("project_tags")]
-    public virtual project project { get; set; } = null!;
+    /// <summary>
+    /// 專案大類 icon 顏色 (#HEX 或文字)
+    /// </summary>
+    [StringLength(50)]
+    public string? icon_color { get; set; }
 
-    [ForeignKey("tag_id")]
-    [InverseProperty("project_tags")]
-    public virtual tag tag { get; set; } = null!;
+    /// <summary>
+    /// 創建時間
+    /// </summary>
+    [Column(TypeName = "timestamp without time zone")]
+    public DateTime created_at { get; set; }
+
+    /// <summary>
+    /// 更新時間
+    /// </summary>
+    [Column(TypeName = "timestamp without time zone")]
+    public DateTime updated_at { get; set; }
 }

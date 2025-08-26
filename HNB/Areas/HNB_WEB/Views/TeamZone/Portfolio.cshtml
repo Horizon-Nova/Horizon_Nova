@@ -1,309 +1,58 @@
-﻿@using Models.Hnbdata
-@{
-    ViewData["Title"] = "專案作品展示 - Horizon-Nova";
+﻿@{
+    ViewData["Title"] = "作品集 Portfolio - Horizon Nova";
     Layout = "~/Areas/HNB_WEB/Views/Shared/_Layout.cshtml";
-    var categories = ViewBag.ProjectCategories as List<(string category, string category_label)>
-                 ?? new List<(string, string)>();
-    var sections = ViewBag.PortfolioSections
-                   as IDictionary<string, List<Models.Hnbdata.project>>;
-    var techMap = ViewBag.ProjectTechListMap as IDictionary<long, List<string>>
-     ?? new Dictionary<long, List<string>>();
-    var featMap = ViewBag.ProjectFeatListMap as IDictionary<long, List<string>>
-                  ?? new Dictionary<long, List<string>>();
-    var highlightMap = ViewBag.ProjectHighlightListMap as IDictionary<long, List<string>>
-                  ?? new Dictionary<long, List<string>>();
-    bool firstPane = true;
-    bool first = true;
-
 }
 
-<div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-    <!-- Header -->
-    <header class="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
-        <div class="container mx-auto px-3 py-3 flex justify-between items-center">
-            <div class="flex items-center space-x-4">
-                <a href='@Url.Action("NovaHome", "TeamZone", new { area = "HNB_WEB" })'
-                   class="inline-flex items-center gap-2 text-gray-700 hover:bg-gray-100 px-3 py-2 rounded-md transition">
-                    <i data-lucide="arrow-left" class="h-4 w-4"></i>
-                    <span>返回首頁</span>
-                </a>
-                <div class="h-8 border-l border-gray-300"></div>
-                <div class="flex items-center space-x-2">
-                    <div class="h-10 w-10 rounded-lg flex items-center justify-center">
-                        <img src="~/image/Horizon Nova Logo1.png" alt="HN" class="h-10 w-10 rounded-lg object-cover" />
-                    </div>
-                    <span class="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                        Horizon-Nova
-                    </span>
+<!-- Header -->
+<header class="border-bottom bg-white sticky-top">
+    <div class="p-3">
+        <div class="d-flex align-items-center gap-3">
+            <a asp-area="HNB_WEB" asp-controller="TeamZone" asp-action="NovaHome"
+               class="btn btn-sm text-dark d-flex align-items-center shadow-none border-0 bg-transparent">
+                <i data-lucide="arrow-left" class="icon-md me-2"></i>返回首頁
+            </a>
+            <div class="vr"></div>
+            <div class="d-flex align-items-center gap-2">
+                <div class="logo-nova">
+                    <img src="~/image/Horizon Nova Logo1.png" alt="HN" />
                 </div>
-            </div>
-        </div>
-    </header>
-
-    <div class="container mx-auto px-4 py-12">
-        <div class="max-w-6xl mx-auto">
-            <!-- Title -->
-            <div class="text-center mb-12">
-                <h1 class="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                    專案作品展示
-                </h1>
-                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-                    我們的專業團隊致力於創造創新的技術解決方案，以下是我們的精選作品
-                </p>
-            </div>
-
-            <!-- Statistics（2秒緩出動畫） -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
-                <div class="text-center">
-                    <div class="text-3xl font-bold text-blue-600 mb-2" data-count-target="6+">0</div>
-                    <div class="text-gray-600">完成專案</div>
-                </div>
-                <div class="text-center">
-                    <div class="text-3xl font-bold text-green-600 mb-2" data-count-target="3">0</div>
-                    <div class="text-gray-600">技術領域</div>
-                </div>
-                <div class="text-center">
-                    <div class="text-3xl font-bold text-purple-600 mb-2" data-count-target="15+">0</div>
-                    <div class="text-gray-600">核心技術</div>
-                </div>
-                <div class="text-center">
-                    <div class="text-3xl font-bold text-orange-600 mb-2" data-count-target="100%">0</div>
-                    <div class="text-gray-600">客戶滿意度</div>
-                </div>
-            </div>
-
-            <!-- Tabs（手機APP / 軟體系統 / Web系統） -->
-            <div class="w-full">
-
-                <!-- Segmented Tabs（按鈕列） -->
-                <div class="mb-8 grid grid-cols-3 gap-2 bg-gray-100 p-1 rounded-xl">
-
-                    @foreach (var cat in categories)
-                    {
-                        <button type="button" data-tab="@cat.category.ToLower()"
-                                class="tab-btn w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg
-                       text-gray-500 hover:text-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500
-                       @(first ? "bg-white text-blue-600" : "")">
-                            <i data-lucide="@(cat.category.ToLower() switch { "mobile" => "smartphone", "software" => "code", "web" => "globe", _ => "box" })" class="h-4 w-4"></i>
-                            <span>@cat.category_label</span>
-                        </button>
-                        first = false;
-                    }
-                </div>
-
-                @foreach (var (category, category_label) in categories)
-                {
-                    var list = sections.ContainsKey(category) ? sections[category] : new List<Models.Hnbdata.project>();
-                    var catKey = (category ?? "other").ToLower();
-                    var catLabel = string.IsNullOrWhiteSpace(category_label) ? category : category_label;
-
-                    <section id="tab-@catKey" class="tab-pane @(firstPane ? "" : "hidden") space-y-6">
-                        <div class="flex items-center space-x-3 mb-2">
-                            <i data-lucide="@(catKey switch { "mobile" => "smartphone", "software" => "code", "web" => "globe", _ => "box" })" class="h-6 w-6 text-blue-600"></i>
-                            <h2 class="text-2xl font-bold text-gray-800">@catLabel</h2>
-                            <span class="inline-flex items-center rounded-full px-3 py-1 text-sm bg-blue-100 text-blue-800">
-                                @list.Count 個專案
-                            </span>
-                        </div>
-
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            @foreach (var p in list)
-                            {
-                                var techs = techMap.ContainsKey(p.project_id) ? techMap[p.project_id] : new List<string>();
-                                var feats = featMap.ContainsKey(p.project_id) ? featMap[p.project_id] : new List<string>();
-                                var highlights = highlightMap.ContainsKey(p.project_id) ? highlightMap[p.project_id] : new List<string>();
-
-                                <article class="hover:shadow-lg transition-all duration-300 border-0 shadow-md group hover:scale-105 rounded-xl bg-white">
-                                    <header class="p-6 pb-0">
-                                        <div class="flex items-start gap-3">
-                                            <div class="p-2 rounded-lg @p.icon_bg_class">
-                                                <i data-lucide="@p.icon_key" class="h-8 w-8 @p.icon_color_class"></i>
-                                            </div>
-                                            <div>
-                                                <h3 class="text-xl font-bold text-gray-800">@p.title</h3>
-                                                <p class="text-gray-600 mt-1">@p.subtitle</p>
-                                            </div>
-                                        </div>
-                                    </header>
-                                    <div class="p-6 space-y-4">
-                                        <!-- 亮點 -->
-                                        <div>
-                                            <h4 class="font-semibold text-sm text-gray-700 mb-2">專案亮點</h4>
-                                            <div class="flex flex-wrap gap-2">
-                                                @foreach (var h in highlights)
-                                                {
-                                                    <span class="inline-flex items-center rounded-full px-3 py-1 text-sm bg-blue-100 text-blue-800 hover:bg-blue-200">@h</span>
-                                                }
-                                            </div>
-                                        </div>
-                                        <!-- 技術棧 -->
-                                        <div>
-                                            <h4 class="font-semibold text-sm text-gray-700 mb-2">技術棧</h4>
-                                            <div class="flex flex-wrap gap-2">
-                                                @foreach (var t in techs)
-                                                {
-                                                    <span class="inline-flex items-center rounded px-2 py-1 text-xs border text-gray-600">@t</span>
-                                                }
-                                            </div>
-                                        </div>
-                                        <!-- 功能 -->
-                                        <div>
-                                            <h4 class="font-semibold text-sm text-gray-700 mb-2">主要功能</h4>
-                                            <div class="grid grid-cols-1 gap-1">
-                                                @foreach (var f in feats)
-                                                {
-                                                    <div class="flex items-center text-sm text-gray-600">
-                                                        <div class="h-1.5 w-1.5 rounded-full bg-blue-500 mr-2"></div>@f
-                                                    </div>
-                                                }
-                                                @if (feats.Count > 4)
-                                                {
-                                                    <div class="text-sm text-gray-500 mt-1">+@((feats.Count - 4)) 項功能...</div>
-                                                }
-                                            </div>
-                                        </div>
-                                        <div class="pt-2">
-                                            <a href="@Url.Action("ProjectDetail", "TeamZone", new { area = "HNB_WEB", id = p.slug })"
-                                               class="w-full inline-flex items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300">
-                                                <i data-lucide="eye" class="h-4 w-4"></i> 查看詳細資訊 <i data-lucide="arrow-right" class="h-4 w-4"></i>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </article>
-                            }
-                        </div>
-                    </section>
-
-                    firstPane = false;
-                }
+                <span class="fw-bold fs-5 text-gradient-nova">Horizon-Nova</span>
 
             </div>
-
-            <!-- Team -->
-            <section class="mt-16 mb-16">
-                <div class="text-center mb-12">
-                    <h2 class="text-3xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                        專業團隊
-                    </h2>
-                    <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-                        我們的團隊由經驗豐富的專業人士組成，致力於為客戶提供最優質的技術解決方案
-                    </p>
-                </div>
-
-                @{
-                    var team = new[] {
-                new { name="Alex Chen", role="技術總監", avatar="AC", desc="10年+軟體開發經驗，專精AI/ML和系統架構設計", skills=new[]{"AI/ML","系統架構","全端開發"} },
-                new { name="Sarah Wang", role="前端工程師", avatar="SW", desc="UI/UX設計專家，專注於使用者體驗優化", skills=new[]{"React","UI/UX","TypeScript"} },
-                new { name="Mike Liu", role="後端工程師", avatar="ML", desc="資料庫和API設計專家，雲端架構經驗豐富", skills=new[]{"Node.js","Python","雲端架構"} },
-                new { name="Emily Zhang", role="產品經理", avatar="EZ", desc="產品策略和專案管理專家，擅長需求分析", skills=new[]{"產品策略","專案管理","需求分析"} }
-                };
-                }
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    @for (var i = 0; i < team.Length; i++)
-                    {
-                        var m = team[i];
-                        <article class="hover:shadow-lg transition-all duration-300 text-center group rounded-xl bg-white border-0 shadow-md">
-                            <header class="p-6 pb-4">
-                                <div class="mb-4 flex justify-center">
-                                    <div class="w-20 h-20 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xl group-hover:scale-105 transition-transform duration-300">
-                                        @m.avatar
-                                    </div>
-                                </div>
-                                <h3 class="text-xl text-gray-800 font-bold">@m.name</h3>
-                                <p class="text-blue-600 font-medium">@m.role</p>
-                            </header>
-                            <div class="px-6 pb-6 space-y-4">
-                                <p class="text-gray-600 text-sm leading-relaxed">@m.desc</p>
-                                <div class="flex flex-wrap gap-1 justify-center">
-                                    @foreach (var s in m.skills)
-                                    {
-                                        <span class="inline-flex items-center rounded-full px-2 py-1 text-xs bg-blue-100 text-blue-800">@s</span>
-                                    }
-                                </div>
-                                <div class="flex justify-center space-x-3 pt-2">
-                                    <a class="h-8 w-8 inline-flex items-center justify-center rounded-md hover:bg-gray-100" href="https://github.com/Horizon-Nova"><i data-lucide="github" class="h-4 w-4 text-gray-600"></i></a>
-                                    <a class="h-8 w-8 inline-flex items-center justify-center rounded-md hover:bg-blue-100" href="#"><i data-lucide="linkedin" class="h-4 w-4 text-blue-600"></i></a>
-                                    <a class="h-8 w-8 inline-flex items-center justify-center rounded-md hover:bg-blue-100" href="#"><i data-lucide="twitter" class="h-4 w-4 text-blue-500"></i></a>
-                                </div>
-                            </div>
-                        </article>
-                    }
-                </div>
-            </section>
-
-            <!-- CTA -->
-            <section class="text-center mt-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white">
-                <h3 class="text-2xl font-bold mb-4">有興趣了解更多？</h3>
-                <p class="text-lg mb-6 opacity-90">我們很樂意為您介紹這些專案的詳細技術實作和解決方案</p>
-                <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href='@Url.Action("Consultation", "TeamZone", new { area = "HNB_WEB" })'
-                       class="inline-flex items-center justify-center px-6 py-3 rounded-md bg-white text-blue-600 hover:bg-gray-100">
-                        立即諮詢
-                    </a>
-                    <a href='@Url.Action("Consultation", "TeamZone", new { area = "HNB_WEB" })'
-                       class="inline-flex items-center justify-center px-6 py-3 rounded-md border-2 border-white text-white hover:bg-white hover:text-blue-600">
-                        聯絡我們
-                    </a>
-                </div>
-            </section>
         </div>
     </div>
-</div>
+</header>
 
-@section Scripts {
-    <script>
-        // ---- Animated numbers (2s, ease-out cubic)
-        (function animateCounters(){
-          const DURATION = 2000;
-          const FPS = 60;
-          const STEP = 1000 / FPS;
+<section class="py-5">
+    <div class="container">
+        <!-- Title Section -->
+        <div class="text-center mb-5">
+            <h1 class="fw-bold mb-3 fs-1 text-gradient-nova">
+                專案作品展示
+            </h1>
+            <p class="fs-5 text-muted mx-auto" style="max-width: 40rem;">
+                我們的專業團隊致力於創造創新的技術解決方案，以下是我們的精選作品
+            </p>
+        </div>
 
-          document.querySelectorAll('[data-count-target]').forEach(el => {
-            const raw = (el.getAttribute('data-count-target') || '').trim();
-            const m = raw.match(/^(\D*?)(-?\d+(?:\.\d+)?)(.*)$/);
-            const prefix  = m ? m[1] : '';
-            const targetN = m ? parseFloat(m[2]) : 0;
-            const suffix  = m ? m[3] : '';
-            const fromN   = parseFloat(el.getAttribute('data-count-from') || 0);
-            const decimals = parseInt(el.getAttribute('data-count-decimals') || 0, 10);
-
-            let frame = 0, total = Math.round(DURATION / STEP);
-            const timer = setInterval(() => {
-              frame++;
-              const p = frame / total;
-              const t = 1 - Math.pow(1 - p, 3); // ease-out cubic
-              const val = fromN + (targetN - fromN) * t;
-              el.textContent = `${prefix}${val.toFixed(decimals)}${suffix}`;
-
-              if (frame >= total) {
-                el.textContent = `${prefix}${targetN.toFixed(decimals)}${suffix}`;
-                clearInterval(timer);
-              }
-            }, STEP);
-          });
-        })();
-
-        // ---- Tabs
-        (function tabs(){
-          const btns = document.querySelectorAll('.tab-btn');
-          const panes = {
-            mobile: document.getElementById('tab-mobile'),
-            software: document.getElementById('tab-software'),
-            web: document.getElementById('tab-web')
-          };
-          function activate(name){
-            btns.forEach(b => {
-              const active = b.getAttribute('data-tab') === name;
-              b.classList.toggle('bg-white', active);
-              b.classList.toggle('border-blue-600', active);
-              b.classList.toggle('text-blue-600', active);
-            });
-            Object.keys(panes).forEach(k => panes[k].classList.toggle('hidden', k !== name));
-            window.lucide?.createIcons();
-          }
-          btns.forEach(b => b.addEventListener('click', () => activate(b.getAttribute('data-tab'))));
-          activate('mobile'); // default
-        })();
-        window.lucide?.createIcons();
-    </script>
-}
+        <!-- Statistics -->
+        <div class="row text-center g-4 mb-5">
+            <div class="col-6 col-md-3">
+                <div class="fs-2 fw-bold text-primary mb-2">25+</div>
+                <div class="text-muted">完成專案</div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="fs-2 fw-bold text-success mb-2">12</div>
+                <div class="text-muted">技術領域</div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="fs-2 fw-bold text-purple mb-2">30+</div>
+                <div class="text-muted">核心技術</div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="fs-2 fw-bold text-warning mb-2">98%</div>
+                <div class="text-muted">客戶滿意度</div>
+            </div>
+        </div>
+    </div>
+</section>

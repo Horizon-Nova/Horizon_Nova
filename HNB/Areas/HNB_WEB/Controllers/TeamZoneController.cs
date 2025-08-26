@@ -14,19 +14,19 @@ public class TeamZoneController(TeamZoneServices sev) : Controller
 
     public IActionResult ProjectDetail(string id)
     {
-        sev.ViewBagModelPortfolio(ViewBag);
+        //sev.ViewBagModelPortfolio(ViewBag);
 
-        sev.ViewBagModelProjectDetail(ViewBag, id);
+        //sev.ViewBagModelProjectDetail(ViewBag, id);
 
-        if (ViewBag.NotFound == true)
-            return NotFound();
+        //if (ViewBag.NotFound == true)
+        //    return NotFound();
 
         return View();
     }
 
     public IActionResult Portfolio()
     {
-        sev.ViewBagModelPortfolio(ViewBag);
+        //sev.ViewBagModelPortfolio(ViewBag);
         return View();
     }
 

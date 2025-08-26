@@ -40,8 +40,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="wwwroot\HNB_WEB\css\LayoutDashboard.css" />
-    <None Include="wwwroot\HNB_WEB\js\LayoutDashboard.js" />
+    <None Include="wwwroot\HNB_WEB\css\Layout.css" />
+    <None Include="wwwroot\HNB_WEB\js\Layout.js" />
   </ItemGroup>
 
   <ItemGroup>
