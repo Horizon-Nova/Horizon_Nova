@@ -7,23 +7,27 @@
     --bms-pill-hover: #f4f7ff;
     --bs-body-font-size: .875rem;
     --bs-body-line-height: 1.25rem;
-    --item-background-color: hsla(210, 40%, 96%, 1);
+    --button-background-color: hsla(0 0% 100%, 1);
 }
 
-body {
+html, body {
     font-size: var(--bs-body-font-size);
     line-height: var(--bs-body-line-height);
     color: black;
+    background: linear-gradient(to bottom right, #f8fafc, #eff6ff);
+    height: 100%;
 }
+
 
 .text-gradient-nova {
     --nova-start: #2563eb;
     --nova-end: #7c3aed;
     color: var(--nova-start);
 }
-@supports (-webkit-background-clip: text) and (-webkit-text-fill-color: transparent) {
+
+@supports(-webkit-background-clip:text) {
     .text-gradient-nova {
-        background-image: linear-gradient(90deg, var(--nova-start), var(--nova-end));
+        background-image: linear-gradient(90deg,var(--nova-start),var(--nova-end));
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }
@@ -44,3 +48,32 @@ body {
         border-radius: 0.5rem;
         object-fit: cover;
     }
+
+.text-nova-purple {
+    color: #6f42c1 !important;
+}
+
+/* #region Portfolio Tabs */
+/* 柔和版 nav-pills：活躍時不是藍底，而是白底＋陰影、文字轉深色 */
+.nav-pills-soft {
+    --pill-active-bg: var(--bs-body-bg);
+    --pill-active-color: var(--bs-body-color);
+}
+
+    .nav-pills-soft .nav-link {
+        color: var(--bs-secondary-color);
+    }
+
+        .nav-pills-soft .nav-link.active {
+            background-color: var(--pill-active-bg);
+            color: var(--pill-active-color);
+            box-shadow: var(--bs-box-shadow-sm);
+        }
+
+/* 小圖示尺寸工具 */
+.icon-18 svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* #endregion */
