@@ -54,26 +54,34 @@ html, body {
 }
 
 /* #region Portfolio Tabs */
-/* 柔和版 nav-pills：活躍時不是藍底，而是白底＋陰影、文字轉深色 */
 .nav-pills-soft {
     --pill-active-bg: var(--bs-body-bg);
     --pill-active-color: var(--bs-body-color);
 }
 
     .nav-pills-soft .nav-link {
-        color: var(--bs-secondary-color);
+        color: var(--bs-secondary-color); /* 灰色 */
     }
+
+        .nav-pills-soft .nav-link i svg {
+            stroke: var(--bs-secondary-color); /* icon 預設灰色 */
+        }
 
         .nav-pills-soft .nav-link.active {
             background-color: var(--pill-active-bg);
-            color: var(--pill-active-color);
+            color: var(--pill-active-color); /* 黑色 */
             box-shadow: var(--bs-box-shadow-sm);
         }
+
+            .nav-pills-soft .nav-link.active i svg {
+                stroke: var(--bs-body-color); /* icon 黑色 */
+            }
 
 /* 小圖示尺寸工具 */
 .icon-18 svg {
     width: 18px;
     height: 18px;
 }
+
 
 /* #endregion */
