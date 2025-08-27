@@ -4,91 +4,58 @@
     var tabs = ViewBag.PortfolioTabsMap as List<Models.Hnbdata.project_tag>;
 }
 
-<!-- Header -->
-<header class="border-bottom bg-white bg-opacity-75 sticky-top" style="backdrop-filter: blur(4px);">
-    <div class="container px-3 py-3 d-flex justify-content-between align-items-center">
-        <div class="d-flex align-items-center gap-3">
-            <a asp-area="HNB_WEB" asp-controller="TeamZone" asp-action="NovaHome"
-               class="btn btn-sm text-dark d-flex align-items-center shadow-none border-0 bg-transparent">
-                <i data-lucide="arrow-left" class="me-2" style="width:20px; height:20px;"></i>
-                <span>返回首頁</span>
-            </a>
-            <div class="vr"></div>
-            <div class="d-flex align-items-center gap-2">
-                <div class="logo-nova">
-                    <img src="~/image/Horizon Nova Logo1.png" alt="HN" />
-                </div>
-                <span class="fw-bold fs-5 text-gradient-nova">Horizon-Nova</span>
-            </div>
-        </div>
-    </div>
-</header>
 
-<div class="container px-4 py-5">
-    <div class="mx-auto" style="max-width: 1152px;">
-        <section>
-            <!-- Title Section -->
-            <div class="row justify-content-center text-center mb-5">
-                <div class="col-lg-8">
-                    <h1 class="fw-bold mb-3 fs-1 text-gradient-nova">專案作品展示</h1>
-                    <p class="fs-5 text-muted">
-                        我們的專業團隊致力於創造創新的技術解決方案，以下是我們的精選作品
-                    </p>
-                </div>
+
+<section class="py-5">
+    <div class="container px-4">
+        <div class="mx-auto max-w-6xl">
+
+            <!-- Title -->
+            <div class="text-center mb-5">
+                <h1 class="fw-bold mb-3 fs-1 text-gradient-nova">專案作品展示</h1>
+                <p class="fs-5 text-muted mx-auto" style="max-width:40rem;">
+                    我們的專業團隊致力於創造創新的技術解決方案，以下是我們的精選作品
+                </p>
             </div>
 
             <!-- Statistics -->
             <div class="row text-center g-4 mb-5">
                 <div class="col-6 col-md-3">
-                    <div class="gsap-counter display-6 fw-bold text-primary mb-2"
-                         data-target="6" data-suffix="+" data-duration="1.2">
-                        0
-                    </div>
+                    <div class="gsap-counter display-6 fw-bold text-primary mb-2" data-target="6" data-suffix="+">0</div>
                     <div class="text-muted">完成專案</div>
                 </div>
                 <div class="col-6 col-md-3">
-                    <div class="gsap-counter display-6 fw-bold text-success mb-2"
-                         data-target="3" data-duration="1.2">
-                        0
-                    </div>
+                    <div class="gsap-counter display-6 fw-bold text-success mb-2" data-target="3">0</div>
                     <div class="text-muted">技術領域</div>
                 </div>
                 <div class="col-6 col-md-3">
-                    <div class="gsap-counter display-6 fw-bold text-nova-purple mb-2"
-                         data-target="15" data-suffix="+" data-duration="1.2">
-                        0
-                    </div>
+                    <div class="gsap-counter display-6 fw-bold text-nova-purple mb-2" data-target="15" data-suffix="+">0</div>
                     <div class="text-muted">核心技術</div>
                 </div>
                 <div class="col-6 col-md-3">
-                    <div class="gsap-counter display-6 fw-bold text-warning mb-2"
-                         data-target="100" data-suffix="%" data-duration="1.2">
-                        0
-                    </div>
+                    <div class="gsap-counter display-6 fw-bold text-warning mb-2" data-target="100" data-suffix="%">0</div>
                     <div class="text-muted">客戶滿意度</div>
                 </div>
             </div>
 
-        </section>
+            <!-- Portfolio Tabs -->
+            <div class="bg-body-tertiary rounded-3 p-1 mb-4">
+                <ul class="nav nav-pills nav-fill nav-pills-soft" role="tablist">
+                    @for (var i = 0; i < (tabs?.Count ?? 0); i++)
+                    {
+                        var tab = tabs[i];
+                        <li class="nav-item" role="presentation">
+                            <button type="button"
+                                    class="nav-link d-flex align-items-center justify-content-center gap-2 @(i == 0 ? "active" : "")"
+                                    role="tab" aria-selected="@(i == 0 ? "true" : "false")">
+                                <i data-lucide="@tab.icon" class="icon-18"></i>
+                                <span>@tab.category</span>
+                            </button>
+                        </li>
+                    }
+                </ul>
+            </div>
 
-        <!-- Portfolio Tabs -->
-        <div class="bg-body-tertiary rounded-3 p-1 mb-4">
-            <ul class="nav nav-pills nav-fill nav-pills-soft" role="tablist">
-                @for (var i = 0; i < (tabs?.Count ?? 0); i++)
-                {
-                    var tab = tabs[i];
-                    <li class="nav-item" role="presentation">
-                        <button type="button"
-                                class="nav-link d-flex align-items-center justify-content-center gap-2 @(i == 0 ? "active" : "")"
-                                role="tab"
-                                aria-selected="@(i == 0 ? "true" : "false")">
-                            <i data-lucide="@tab.icon" style="width:18px;height:18px;color:@tab.icon_color;"></i>
-                            <span>@tab.category</span>
-                        </button>
-                    </li>
-                }
-            </ul>
         </div>
-
     </div>
-</div>
+</section>
