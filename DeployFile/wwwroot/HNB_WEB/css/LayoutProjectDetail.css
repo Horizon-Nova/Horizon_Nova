@@ -11,8 +11,6 @@
 }
 
 html, body {
-    font-size: var(--bs-body-font-size);
-    line-height: var(--bs-body-line-height);
     color: black;
     background: linear-gradient(to bottom right, #f8fafc, #eff6ff);
     height: 100%;
@@ -32,6 +30,7 @@ html, body {
         -webkit-text-fill-color: transparent;
     }
 }
+
 .logo-nova {
     width: 2.5rem; /* h-10 */
     height: 2.5rem; /* w-10 */
@@ -88,11 +87,4 @@ html, body {
 .badge-tonal {
     color: var(--color);
     background-color: color-mix(in srgb, var(--color) 15%, transparent);
-}
-video::-webkit-media-controls {
-    display: none !important;
-}
-
-video::-webkit-media-controls-enclosure {
-    display: none !important;
 }
