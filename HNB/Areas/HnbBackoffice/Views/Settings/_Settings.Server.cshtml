@@ -1,0 +1,103 @@
+@functions{
+    string FormatBytes(long bytes) {
+        if (bytes == 0) return "0 Bytes";
+        string[] sizes = { "Bytes", "KB", "MB", "GB", "TB" };
+        int i = (int)Math.Floor(Math.Log(bytes, 1024));
+        return $"{Math.Round(bytes / Math.Pow(1024, i), 2)} {sizes[i]}";
+    }
+}
+@{
+    var hostname = "admin-server-01";
+    var os = "Ubuntu 22.04 LTS";
+    var version = "Linux 5.15.0";
+    var uptime = "15 天 3 小時 42 分鐘";
+    var cpuCores = 8;
+    var cpuUsage = 35.2;
+    var memTotal = 16384L * 1024L * 1024L;
+    var memUsed  =  8192L * 1024L * 1024L;
+    var diskTotal= 500000L * 1024L * 1024L;
+    var diskUsed = 250000L * 1024L * 1024L;
+    var netIn    = 1024000000L;
+    var netOut   =  512000000L;
+}
+
+<div class="bg-white border rounded-xl p-6 space-y-6">
+    <header>
+        <h2 class="text-xl font-semibold flex items-center gap-2">
+            <i data-lucide="server" class="h-5 w-5"></i>
+            伺服器資訊
+        </h2>
+        <p class="text-slate-500">即時伺服器狀態監控和系統資源使用情況</p>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="space-y-3">
+            <h3 class="text-lg font-semibold">系統資訊</h3>
+            <div class="flex justify-between"><span class="text-slate-500">主機名稱:</span><span class="font-mono">@hostname</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">作業系統:</span><span>@os</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">核心版本:</span><span>@version</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">系統運行時間:</span><span>@uptime</span></div>
+        </div>
+
+        <div class="space-y-3">
+            <h3 class="text-lg font-semibold">網路狀態</h3>
+            <div class="flex justify-between"><span class="text-slate-500">入站流量:</span><span>@FormatBytes(netIn)</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">出站流量:</span><span>@FormatBytes(netOut)</span></div>
+        </div>
+    </div>
+
+    <div class="space-y-6">
+        <h3 class="text-lg font-semibold">資源使用率</h3>
+
+        <!-- CPU -->
+        <div class="space-y-2">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="cpu" class="h-5 w-5"></i>
+                    <span class="font-medium">CPU 使用率</span>
+                </div>
+                <span class="text-sm text-slate-500">@cpuCores 核心</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded h-2">
+                <div class="bg-blue-600 h-2 rounded" style="width:@cpuUsage%"></div>
+            </div>
+            <div class="flex justify-between text-sm">
+                <span>@cpuUsage%</span><span class="text-slate-500">100%</span>
+            </div>
+        </div>
+
+        <!-- Memory -->
+        @{
+            var memPct = (double)memUsed / memTotal * 100.0;
+        }
+        <div class="space-y-2">
+            <div class="flex items-center gap-2">
+                <i data-lucide="memory-stick" class="h-5 w-5"></i>
+                <span class="font-medium">記憶體使用率</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded h-2">
+                <div class="bg-green-600 h-2 rounded" style="width:@memPct%"></div>
+            </div>
+            <div class="flex justify-between text-sm">
+                <span>@FormatBytes(memUsed)</span><span class="text-slate-500">@FormatBytes(memTotal)</span>
+            </div>
+        </div>
+
+        <!-- Disk -->
+        @{
+            var diskPct = (double)diskUsed / diskTotal * 100.0;
+        }
+        <div class="space-y-2">
+            <div class="flex items-center gap-2">
+                <i data-lucide="hard-drive" class="h-5 w-5"></i>
+                <span class="font-medium">磁碟使用率</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded h-2">
+                <div class="bg-purple-600 h-2 rounded" style="width:@diskPct%"></div>
+            </div>
+            <div class="flex justify-between text-sm">
+                <span>@FormatBytes(diskUsed)</span><span class="text-slate-500">@FormatBytes(diskTotal)</span>
+            </div>
+        </div>
+    </div>
+</div>

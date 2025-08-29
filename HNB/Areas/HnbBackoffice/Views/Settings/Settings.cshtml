@@ -1,0 +1,75 @@
+﻿@{
+    ViewData["Title"] = "系統設定 - 後台管理系統";
+    Layout = "~/Areas/HnbBackoffice/Views/Shared/_Layout.cshtml";
+
+    var t = Context.Request.Query["t"].ToString();
+    var activeTab = string.IsNullOrEmpty(t) ? "system" : t.ToLowerInvariant();
+}
+
+<section class="space-y-6">
+    <header class="flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-bold flex items-center gap-3">
+                <i data-lucide="settings" class="h-8 w-8"></i>
+                系統設定
+            </h1>
+            <p class="text-slate-500">完整的系統配置和管理功能</p>
+        </div>
+    </header>
+
+    <!-- Tabs -->
+    <div>
+        <div class="grid grid-cols-6 gap-2 border rounded-lg p-1 bg-white">
+            <a href="@Url.Action("Settings", "Settings", new { area = "HnbBackoffice", t = "system" })"
+               class="text-center px-3 py-2 rounded-md @(activeTab == "system" ? "bg-slate-900 text-white" : "hover:bg-slate-100")">
+                系統設定
+            </a>
+            <a href="@Url.Action("Settings", "Settings", new { area = "HnbBackoffice", t = "security" })"
+               class="text-center px-3 py-2 rounded-md @(activeTab == "security" ? "bg-slate-900 text-white" : "hover:bg-slate-100")">
+                安全設定
+            </a>
+            <a href="@Url.Action("Settings", "Settings", new { area = "HnbBackoffice", t = "notification" })"
+               class="text-center px-3 py-2 rounded-md @(activeTab == "notification" ? "bg-slate-900 text-white" : "hover:bg-slate-100")">
+                通知設定
+            </a>
+            <a href="@Url.Action("Settings", "Settings", new { area = "HnbBackoffice", t = "database" })"
+               class="text-center px-3 py-2 rounded-md @(activeTab == "database" ? "bg-slate-900 text-white" : "hover:bg-slate-100")">
+                資料庫
+            </a>
+            <a href="@Url.Action("Settings", "Settings", new { area = "HnbBackoffice", t = "schedule" })"
+               class="text-center px-3 py-2 rounded-md @(activeTab == "schedule" ? "bg-slate-900 text-white" : "hover:bg-slate-100")">
+                排程任務
+            </a>
+            <a href="@Url.Action("Settings", "Settings", new { area = "HnbBackoffice", t = "server" })"
+               class="text-center px-3 py-2 rounded-md @(activeTab == "server" ? "bg-slate-900 text-white" : "hover:bg-slate-100")">
+                伺服器資訊
+            </a>
+        </div>
+    </div>
+
+    <!-- Tab Contents -->
+    <div class="space-y-4">
+        @switch (activeTab)
+        {
+            case "security":
+                @Html.Partial("_Settings.Security")
+                break;
+            case "notification":
+                @Html.Partial("_Settings.Notification")
+                break;
+            case "database":
+                @Html.Partial("_Settings.Database")
+                break;
+            case "schedule":
+                @Html.Partial("_Settings.Schedule")
+                break;
+            case "server":
+                @Html.Partial("_Settings.Server")
+                break;
+            case "system":
+            default:
+                @Html.Partial("_Settings.System")
+                break;
+        }
+    </div>
+</section>

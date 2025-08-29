@@ -7,39 +7,57 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="API\**" />
+    <Compile Remove="Areas\Company\**" />
     <Compile Remove="Areas\HNB_WEB\Data\**" />
     <Compile Remove="Areas\HNB_WEB\Models\**" />
     <Compile Remove="Areas\OrganizationManage\**" />
+    <Compile Remove="BackSystem\**" />
+    <Content Remove="API\**" />
+    <Content Remove="Areas\Company\**" />
     <Content Remove="Areas\HNB_WEB\Data\**" />
     <Content Remove="Areas\HNB_WEB\Models\**" />
     <Content Remove="Areas\OrganizationManage\**" />
+    <Content Remove="BackSystem\**" />
+    <EmbeddedResource Remove="API\**" />
+    <EmbeddedResource Remove="Areas\Company\**" />
     <EmbeddedResource Remove="Areas\HNB_WEB\Data\**" />
     <EmbeddedResource Remove="Areas\HNB_WEB\Models\**" />
     <EmbeddedResource Remove="Areas\OrganizationManage\**" />
+    <EmbeddedResource Remove="BackSystem\**" />
+    <None Remove="API\**" />
+    <None Remove="Areas\Company\**" />
     <None Remove="Areas\HNB_WEB\Data\**" />
     <None Remove="Areas\HNB_WEB\Models\**" />
     <None Remove="Areas\OrganizationManage\**" />
+    <None Remove="BackSystem\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="wwwroot\HnbBackoffice\css\Layout.css" />
+    <Content Remove="wwwroot\HnbBackoffice\js\Layout.js" />
   </ItemGroup>
 
   <ItemGroup>
     <None Remove="Areas\HNB_WEB\HNB_WEB_Postgre Specification.XLSX" />
     <None Remove="BuildModels.bat" />
     <None Remove="ProjectPush.bat" />
+    <None Remove="ScaffoldingReadMe.txt" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="API\" />
-    <Folder Include="Areas\Company\Data\" />
-    <Folder Include="Areas\Company\Views\" />
     <Folder Include="Areas\DialVision\Data\" />
     <Folder Include="Areas\DialVision\Models\" />
+    <Folder Include="Areas\HnbBackoffice\Models\" />
     <Folder Include="Areas\HNB_WEB\Utilities\" />
+    <Folder Include="Views\Shared\" />
     <Folder Include="wwwroot\HNB_WEB\image\" />
-    <Folder Include="BackSystem\" />
     <Folder Include="Data\" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="wwwroot\HnbBackoffice\css\Layout.css" />
+    <None Include="wwwroot\HnbBackoffice\js\Layout.js" />
     <None Include="wwwroot\HNB_WEB\css\Layout.css" />
     <None Include="wwwroot\HNB_WEB\js\Layout.js" />
   </ItemGroup>

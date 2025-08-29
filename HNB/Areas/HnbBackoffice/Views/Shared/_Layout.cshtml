@@ -1,0 +1,173 @@
+﻿@{
+    Layout = null;
+    var title = ViewData["Title"] as string ?? "後台管理系統";
+    var userName = ViewBag.UserName as string ?? "Admin";
+    var userEmail = ViewBag.UserEmail as string ?? "admin@example.com";
+    var userRole = ViewBag.UserRole as string ?? "Admin";
+}
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@title</title>
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- 自訂樣式 -->
+    <link rel="stylesheet" href="~/HnbBackoffice/css/Layout.css" />
+</head>
+<body class="h-screen w-screen bg-gradient-to-br from-slate-50 to-blue-50 text-slate-900">
+
+    <div class="h-screen flex">
+        <!-- Sidebar -->
+        <aside id="sidebar"
+               class="relative bg-white border-r border-slate-200 transition-all duration-300 w-64 data-[collapsed=true]:w-16">
+            <div class="flex h-16 items-center justify-between px-4 border-b border-slate-200">
+                <h2 class="text-lg font-semibold truncate hidden data-[collapsed=false]:block"
+                    data-collapsed-target>
+                    管理系統
+                </h2>
+                <button id="btnToggleSidebar"
+                        type="button"
+                        class="h-8 w-8 inline-flex items-center justify-center rounded-md hover:bg-slate-100"
+                        title="收合/展開">
+                    <i id="iconChevron" data-lucide="chevron-left" class="h-4 w-4"></i>
+                </button>
+            </div>
+
+            <nav class="px-3 py-4 overflow-y-auto h-[calc(100vh-4rem)] space-y-2">
+                <a href="@Url.Action("", "", new { area="HnbBackoffice" })"
+                   class="w-full flex items-center gap-2 rounded-md px-3 py-2 hover:bg-slate-100">
+                    <i data-lucide="shield" class="h-4 w-4 shrink-0"></i>
+                    <span class="truncate" data-collapsed-target>API 安全控管</span>
+                </a>
+                <a href="@Url.Action("", "", new { area = "HnbBackoffice" })"
+                   class="w-full flex items-center gap-2 rounded-md px-3 py-2 hover:bg-slate-100">
+                    <i data-lucide="users" class="h-4 w-4 shrink-0"></i>
+                    <span class="truncate" data-collapsed-target>權限管理</span>
+                </a>
+                <a href="@Url.Action("", "", new { area = "HnbBackoffice" })"
+                   class="w-full flex items-center gap-2 rounded-md px-3 py-2 hover:bg-slate-100">
+                    <i data-lucide="key" class="h-4 w-4 shrink-0"></i>
+                    <span class="truncate" data-collapsed-target>KEY 保管</span>
+                </a>
+                <a href="@Url.Action("", "", new { area = "HnbBackoffice" })"
+                   class="w-full flex items-center gap-2 rounded-md px-3 py-2 hover:bg-slate-100">
+                    <i data-lucide="brain" class="h-4 w-4 shrink-0"></i>
+                    <span class="truncate" data-collapsed-target>AI模型管理</span>
+                </a>
+                <a href="@Url.Action("Settings", "Settings", new { area = "HnbBackoffice" })"
+                   class="w-full flex items-center gap-2 rounded-md px-3 py-2 hover:bg-slate-100">
+                    <i data-lucide="settings" class="h-4 w-4 shrink-0"></i>
+                    <span class="truncate" data-collapsed-target>系統設定</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Header -->
+            <header class="h-16 border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+                <div class="flex h-16 items-center justify-between px-6">
+                    <h1 class="text-xl font-semibold truncate">後台管理系統</h1>
+                    <div class="relative">
+                        <button id="btnUserMenu"
+                                type="button"
+                                class="relative h-8 w-8 rounded-full ring-1 ring-slate-200 bg-white flex items-center justify-center hover:bg-slate-50"
+                                aria-haspopup="menu"
+                                aria-expanded="false">
+                            <span class="text-sm font-medium">
+                                @userName.Substring(0, 1).ToUpper()
+                            </span>
+                        </button>
+                        <!-- Dropdown -->
+                        <div id="userMenu"
+                             class="hidden absolute right-0 mt-2 w-56 rounded-md border border-slate-200 bg-white shadow-md p-2 z-50"
+                             role="menu" aria-labelledby="btnUserMenu">
+                            <div class="px-3 py-2">
+                                <p class="text-sm font-medium leading-none">@userName</p>
+                                <p class="text-xs leading-none text-slate-500">@userEmail</p>
+                                <p class="text-xs leading-none text-slate-500 mt-1">角色: @userRole</p>
+                            </div>
+                            <div class="my-2 h-px bg-slate-200"></div>
+                            <a class="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-slate-100" href="#">
+                                <i data-lucide="user" class="h-4 w-4"></i> 個人資料
+                            </a>
+                            <div class="my-2 h-px bg-slate-200"></div>
+                            <form method="post" action="@Url.Action("", "Backoffice", new { area = "HnbBackoffice" })">
+                                <button type="submit"
+                                        class="w-full text-left flex items-center gap-2 px-3 py-2 rounded-md hover:bg-slate-100">
+                                    <i data-lucide="log-out" class="h-4 w-4"></i> 登出
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <main class="flex-1 overflow-auto p-6">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <script src="~/HnbBackoffice/js/Layout.js"></script>
+
+    <script>
+        // Sidebar 折疊
+        (function () {
+            const sidebar = document.getElementById('sidebar');
+            const btnToggle = document.getElementById('btnToggleSidebar');
+            const iconChevron = document.getElementById('iconChevron');
+            const collapsedFlag = 'data-collapsed';
+
+            const applyCollapsedUI = () => {
+                const isCollapsed = sidebar.getAttribute(collapsedFlag) === 'true';
+                document.querySelectorAll('[data-collapsed-target]').forEach(el => {
+                    if (isCollapsed) el.classList.add('hidden'); else el.classList.remove('hidden');
+                });
+                if (window.lucide && iconChevron) {
+                    iconChevron.setAttribute('data-lucide', isCollapsed ? 'chevron-right' : 'chevron-left');
+                    window.lucide.createIcons();
+                }
+            };
+
+            btnToggle?.addEventListener('click', () => {
+                const isCollapsed = sidebar.getAttribute(collapsedFlag) === 'true';
+                sidebar.setAttribute(collapsedFlag, String(!isCollapsed));
+                applyCollapsedUI();
+            });
+
+            if (!sidebar.hasAttribute(collapsedFlag)) sidebar.setAttribute(collapsedFlag, 'false');
+            applyCollapsedUI();
+        })();
+
+        // User Menu Dropdown
+        (function () {
+            const btn = document.getElementById('btnUserMenu');
+            const menu = document.getElementById('userMenu');
+            if (!btn || !menu) return;
+
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                menu.classList.toggle('hidden');
+                btn.setAttribute('aria-expanded', menu.classList.contains('hidden') ? 'false' : 'true');
+            });
+
+            document.addEventListener('click', () => {
+                if (!menu.classList.contains('hidden')) {
+                    menu.classList.add('hidden');
+                    btn.setAttribute('aria-expanded', 'false');
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

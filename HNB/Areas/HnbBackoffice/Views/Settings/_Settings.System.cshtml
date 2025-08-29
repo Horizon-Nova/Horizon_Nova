@@ -1,0 +1,62 @@
+﻿@{
+    var siteName = "後台管理系統";
+    var siteUrl = "https://admin.example.com";
+    var adminEmail = "admin@example.com";
+    var timezone = "Asia/Taipei";
+    var maintenance = false;
+    var debugMode = false;
+}
+
+<div class="bg-white border rounded-xl p-6 space-y-6">
+    <header>
+        <h2 class="text-xl font-semibold flex items-center gap-2">
+            <i data-lucide="settings" class="h-5 w-5"></i>
+            系統設定
+        </h2>
+        <p class="text-slate-500">基本系統配置和全域設定</p>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="space-y-4">
+            <label class="block text-sm font-medium">網站名稱</label>
+            <input class="w-full rounded-md border px-3 py-2" value="@siteName" />
+
+            <label class="block text-sm font-medium">網站網址</label>
+            <input class="w-full rounded-md border px-3 py-2" value="@siteUrl" />
+
+            <label class="block text-sm font-medium">管理員信箱</label>
+            <input type="email" class="w-full rounded-md border px-3 py-2" value="@adminEmail" />
+        </div>
+
+        <div class="space-y-4">
+            <label class="block text-sm font-medium">時區設定</label>
+            <select class="w-full rounded-md border px-3 py-2">
+                <option value="Asia/Taipei" selected>Asia/Taipei (GMT+8)</option>
+                <option value="UTC">UTC (GMT+0)</option>
+            </select>
+
+            <div class="flex items-center justify-between">
+                <div>
+                    <label class="block text-sm font-medium">維護模式</label>
+                    <p class="text-xs text-slate-500">啟用後網站將顯示維護頁面</p>
+                </div>
+                <input type="checkbox" class="h-5 w-5" @(maintenance ? "checked" : "") />
+            </div>
+
+            <div class="flex items-center justify-between">
+                <div>
+                    <label class="block text-sm font-medium">偵錯模式</label>
+                    <p class="text-xs text-slate-500">顯示詳細的錯誤訊息</p>
+                </div>
+                <input type="checkbox" class="h-5 w-5" @(debugMode ? "checked" : "") />
+            </div>
+        </div>
+    </div>
+
+    <div class="flex justify-end gap-2">
+        <button class="px-4 py-2 rounded-md border">重設</button>
+        <button class="px-4 py-2 rounded-md bg-slate-900 text-white">
+            <i data-lucide="save" class="h-4 w-4 inline-block mr-1"></i> 保存設定
+        </button>
+    </div>
+</div>

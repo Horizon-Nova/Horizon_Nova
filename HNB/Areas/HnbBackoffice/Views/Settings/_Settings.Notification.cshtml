@@ -1,0 +1,68 @@
+@{
+    var mailTemplates = new[] { "歡迎信", "密碼重設", "系統通知" };
+    var notifyTypes = new[] { "系統警報", "安全事件", "用戶活動" };
+}
+
+<div class="bg-white border rounded-xl p-6 space-y-6">
+    <header>
+        <h2 class="text-xl font-semibold flex items-center gap-2">
+            <i data-lucide="bell" class="h-5 w-5"></i>
+            通知設定
+        </h2>
+        <p class="text-slate-500">設定系統通知和警報機制</p>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="flex items-center justify-between p-4 border rounded-lg">
+            <div>
+                <div class="font-medium">電子郵件通知</div>
+                <p class="text-xs text-slate-500">透過郵件發送通知</p>
+            </div>
+            <input type="checkbox" class="h-5 w-5" checked />
+        </div>
+        <div class="flex items-center justify-between p-4 border rounded-lg">
+            <div>
+                <div class="font-medium">簡訊通知</div>
+                <p class="text-xs text-slate-500">透過簡訊發送通知</p>
+            </div>
+            <input type="checkbox" class="h-5 w-5" />
+        </div>
+        <div class="flex items-center justify-between p-4 border rounded-lg">
+            <div>
+                <div class="font-medium">推播通知</div>
+                <p class="text-xs text-slate-500">瀏覽器推播通知</p>
+            </div>
+            <input type="checkbox" class="h-5 w-5" checked />
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+            <div class="text-base font-semibold mb-3">郵件模板</div>
+            <div class="space-y-2">
+                @foreach (var t in mailTemplates)
+                {
+                    <div class="flex items-center justify-between p-3 border rounded">
+                        <span>@t</span>
+                        <button class="px-2 py-1 rounded-md border">
+                            <i data-lucide="edit" class="h-4 w-4"></i>
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div>
+            <div class="text-base font-semibold mb-3">通知類型</div>
+            <div class="space-y-2">
+                @foreach (var n in notifyTypes)
+                {
+                    <div class="flex items-center justify-between p-3 border rounded">
+                        <span>@n</span>
+                        <input type="checkbox" class="h-5 w-5" checked />
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
