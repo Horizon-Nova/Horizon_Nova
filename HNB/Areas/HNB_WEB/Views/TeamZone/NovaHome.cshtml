@@ -72,7 +72,7 @@
                             <div class="aspect-video bg-gradient-to-br from-blue-900 via-purple-900 to-gray-900 flex items-center justify-center relative">
                                 <!-- Animated Elements -->
                                 <div class="absolute inset-0 flex items-center justify-center">
-                                    <!-- Floating Code Elements -->
+                                    <!-- 四角浮動 Icon -->
                                     <div class="absolute top-4 left-4 animate-bounce delay-1000">
                                         <div class="bg-blue-500/20 backdrop-blur-sm rounded-lg p-2">
                                             <i data-lucide="code" class="h-6 w-6 text-blue-400"></i>
@@ -94,37 +94,20 @@
                                         </div>
                                     </div>
 
-                                    <!-- Center Content -->
-                                    <div class="text-center text-white z-10">
-                                        <div class="mb-4">
-                                            <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto animate-pulse">
-                                                <div class="w-0 h-0 border-l-[6px] border-l-white border-y-[4px] border-y-transparent ml-1"></div>
-                                            </div>
-                                        </div>
-                                        <p class="text-sm opacity-80">工作室展示影片</p>
-                                        <p class="text-xs opacity-60 mt-1">點擊播放</p>
-                                    </div>
-                                </div>
-
-                                <!-- Animated Grid Background -->
-                                <div class="absolute inset-0 opacity-10">
-                                    <div class="grid grid-cols-8 grid-rows-6 h-full w-full">
-                                        @for (var i = 0; i < 48; i++)
-                                        {
-                                            <div class="border border-white/10 animate-pulse" style="animation-delay:@($"{i * 100}ms")"></div>
-                                        }
-                                    </div>
+                                    <video class="w-full h-full object-cover"
+                                           src="~/HNB_WEB/Video/introduce.mp4"
+                                           autoplay
+                                           muted
+                                           loop
+                                           playsinline
+                                           preload="auto"
+                                           disablepictureinpicture
+                                           controlslist="nodownload noplaybackrate noremoteplayback"
+                                           oncontextmenu="return false">
+                                    </video>
                                 </div>
                             </div>
 
-                            <!-- Video Controls Overlay -->
-                            <div class="absolute inset-0 bg-black/0 hover:bg-black/10 transition-all duration-300 cursor-pointer group">
-                                <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                    <div class="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-                                        <div class="w-0 h-0 border-l-[12px] border-l-white border-y-[8px] border-y-transparent ml-1"></div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
 
                         <!-- Floating Stats -->
@@ -348,7 +331,7 @@
                             <i data-lucide="mail" class="h-12 w-12 text-blue-600"></i>
                         </div>
                         <div class="text-lg font-semibold">電子郵件</div>
-                        <div class="text-gray-600 mt-1">contact@horizon-nova.com</div>
+                        <div class="text-gray-600 mt-1"></div>
                     </div>
                 </div>
 
@@ -358,7 +341,7 @@
                             <i data-lucide="phone" class="h-12 w-12 text-green-600"></i>
                         </div>
                         <div class="text-lg font-semibold">聯絡電話</div>
-                        <div class="text-gray-600 mt-1">+886-2-1234-5678</div>
+                        <div class="text-gray-600 mt-1"></div>
                     </div>
                 </div>
 
@@ -368,7 +351,7 @@
                             <i data-lucide="map-pin" class="h-12 w-12 text-red-600"></i>
                         </div>
                         <div class="text-lg font-semibold">辦公地址</div>
-                        <div class="text-gray-600 mt-1">台北市信義區<br />科技大樓</div>
+                        <div class="text-gray-600 mt-1"><br /></div>
                     </div>
                 </div>
             </div>
@@ -413,9 +396,7 @@
                 <div>
                     <h3 class="text-lg font-semibold mb-4">聯絡資訊</h3>
                     <div class="space-y-2 text-gray-400">
-                        <p>contact@horizon-nova.com</p>
-                        <p>+886-2-1234-5678</p>
-                        <p>台北市信義區科技大樓</p>
+
                     </div>
                 </div>
             </div>

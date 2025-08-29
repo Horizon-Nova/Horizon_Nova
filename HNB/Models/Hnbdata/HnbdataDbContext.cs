@@ -21,6 +21,8 @@ public partial class HnbdataDbContext : DbContext
 
     public virtual DbSet<project_tag> project_tags { get; set; }
 
+    public virtual DbSet<team_member> team_members { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<access_record>(entity =>
@@ -100,6 +102,7 @@ public partial class HnbdataDbContext : DbContext
             entity.ToTable("project_tags", "dbo", tb => tb.HasComment("ProjectTags（畫面 icon 專區）"));
 
             entity.Property(e => e.category).HasComment("專案大類（例如 手機APP、軟體系統、Web系統）");
+            entity.Property(e => e.code).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.created_at)
                 .HasDefaultValueSql("now()")
                 .HasComment("創建時間");
@@ -108,6 +111,13 @@ public partial class HnbdataDbContext : DbContext
             entity.Property(e => e.updated_at)
                 .HasDefaultValueSql("now()")
                 .HasComment("更新時間");
+        });
+
+        modelBuilder.Entity<team_member>(entity =>
+        {
+            entity.HasKey(e => e.id).HasName("team_member_pkey");
+
+            entity.Property(e => e.is_active).HasDefaultValue(true);
         });
 
         OnModelCreatingPartial(modelBuilder);

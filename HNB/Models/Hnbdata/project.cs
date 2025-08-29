@@ -42,18 +42,17 @@ public partial class project
     /// <summary>
     /// 專案亮點（可逗號分隔）
     /// </summary>
-    public string? highlight { get; set; }
+    public List<string>? highlight { get; set; }
 
     /// <summary>
     /// 主要功能（可逗號分隔）
     /// </summary>
-    public string? features { get; set; }
+    public List<string>? features { get; set; }
 
     /// <summary>
     /// 專案截圖檔名（多筆以逗號分隔）
     /// </summary>
-    [StringLength(500)]
-    public string? screenshots { get; set; }
+    public List<string>? screenshots { get; set; }
 
     /// <summary>
     /// 專案介紹（詳細）
@@ -63,12 +62,12 @@ public partial class project
     /// <summary>
     /// 主要挑戰
     /// </summary>
-    public string? challenges { get; set; }
+    public List<string>? challenges { get; set; }
 
     /// <summary>
     /// 解決方案
     /// </summary>
-    public string? solution { get; set; }
+    public List<string>? solution { get; set; }
 
     /// <summary>
     /// 開發時程（例如：6個月）
@@ -96,7 +95,7 @@ public partial class project
     /// <summary>
     /// 技術棧
     /// </summary>
-    public string? tech_stack { get; set; }
+    public List<string>? tech_stack { get; set; }
 
     /// <summary>
     /// 功能主特色
@@ -106,12 +105,12 @@ public partial class project
     /// <summary>
     /// 功能特色簡介
     /// </summary>
-    public string? feature_intro { get; set; }
+    public List<string>? feature_intro { get; set; }
 
     /// <summary>
     /// 開發工具
     /// </summary>
-    public string? dev_tools { get; set; }
+    public List<string>? dev_tools { get; set; }
 
     /// <summary>
     /// 技術架構圖檔名
@@ -132,7 +131,7 @@ public partial class project
     /// <summary>
     /// 客戶回饋（JSON）
     /// </summary>
-    [Column(TypeName = "json")]
+    [StringLength(1000)]
     public string? feedback { get; set; }
 
     /// <summary>

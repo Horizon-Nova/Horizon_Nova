@@ -1,21 +1,24 @@
-﻿@{
-    ViewData["Title"] = "智慧查表（手機APP） - Horizon-Nova";
-    Layout = "~/Areas/HNB_WEB/Views/Shared/_Layout.cshtml";
+﻿@model Models.Hnbdata.project;
+@{
+    ViewData["Title"] = "詳細資訊 - Horizon-Nova";
+    Layout = "~/Areas/HNB_WEB/Views/Shared/_LayoutProjectDetail.cshtml";
 }
-@* 智慧查表（手機APP） *@
-<section class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+<!-- 建議：在最外層用 CSS 變數控制主色（--color） -->
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50" style="--color: #2563eb;">
     <!-- Header -->
     <header class="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
-        <div class="container mx-auto px-3 py-3 flex justify-between items-center">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-4">
-                <a href='@Url.Action("Portfolio", "TeamZone", new { area = "HNB_WEB" })'
-                   class="inline-flex items-center gap-2 rounded-md px-3 py-2 text-gray-700 hover:bg-gray-100">
-                    <i data-lucide="arrow-left" class="h-4 w-4"></i><span>返回作品展示</span>
+                <a href="@Url.Action("Portfolio", "TeamZone", new { area = "HNB_WEB" })"
+                   class="inline-flex items-center gap-2 text-gray-700 hover:bg-gray-100 px-3 py-2 rounded-md transition">
+                    <i data-lucide="arrow-left" class="h-4 w-4"></i>
+                    <span>返回作品展示</span>
                 </a>
+
                 <div class="h-8 border-l border-gray-300"></div>
                 <div class="flex items-center space-x-2">
-                    <div class="h-10 w-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                        <img src="~/image/Horizon Nova Logo1.png" alt="HN" class="h-10 w-10 rounded-lg object-cover" />
+                    <div class="h-10 w-10 rounded-lg overflow-hidden bg-white shadow">
+                        <img src="~/image/Horizon Nova Logo1.png" alt="HN" class="h-10 w-10 object-cover" />
                     </div>
                     <span class="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                         Horizon-Nova
@@ -27,229 +30,341 @@
 
     <div class="container mx-auto px-4 py-12">
         <div class="max-w-6xl mx-auto">
-
             <!-- Project Header -->
             <div class="mb-8">
-                <div class="flex items-center gap-4 mb-4">
-                    <div class="p-3 bg-white rounded-xl shadow-lg ring-1 ring-gray-200">
-                        <i data-lucide="camera" class="h-5 w-5 text-blue-600"></i>
+                <div class="flex items-center space-x-4 mb-4">
+                    <div class="p-3 bg-white rounded-xl shadow-lg">
+                        <i data-lucide="@Model.icon"class="h-8 w-8"style="color:@Model.icon_color"></i>
                     </div>
                     <div>
-                        <div class="flex items-center gap-3 mb-2">
-                            <h1 class="text-4xl font-bold text-gray-800"><!-- 專案標題 --></h1>
-                            <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium bg-blue-100 text-blue-800"><!-- 類別 --></span>
+                        <div class="flex items-center space-x-3 mb-2">
+                            <h1 class="text-4xl font-bold text-gray-800">
+                                @Model.name
+                            </h1>
+                            <!-- 類別徽章 -->
+                            <span class="inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold"
+                                  style="background-color:color-mix(in srgb,@Model.icon_color 15%,transparent);color:@Model.icon_color;">
+                                @Model.category
+                            </span>
                         </div>
-                        <p class="text-lg text-gray-600"><!-- 專案簡介 --></p>
+                        <p class="text-lg text-gray-600">
+                            @Model.summary
+                        </p>
                     </div>
                 </div>
-
-                <div class="flex flex-wrap gap-2">
-                    <!-- 標籤（亮點） -->
-                    <!-- <span class="inline-flex items-center rounded-full px-3 py-1 text-sm bg-blue-100 text-blue-800">...</span> -->
-                </div>
             </div>
+
 
             <!-- Project Images -->
-            <div class="mb-12">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    @for (var i = 1; i <= 3; i++)
-                    {
-                        <div class="aspect-video rounded-lg overflow-hidden shadow">
-                            <div class="w-full h-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center">
-                                @* <span class="text-gray-600">專案截圖 @i</span> *@
-                                <img src="" alt="No Image" class="w-full h-full object-cover" />
-                            </div>
-                        </div>
-                    }
+            @if (Model.screenshots != null && Model.screenshots.Any())
+            {
+                <div class="mb-12">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        @foreach (var shot in Model.screenshots.Take(3))
+                        {
+                            if (!string.IsNullOrWhiteSpace(shot))
+                            {
+                                <div class="aspect-video bg-gray-200 rounded-lg overflow-hidden">
+                                    <img src="@shot" alt="專案截圖" class="w-full h-full object-cover" />
+                                </div>
+                            }
+                        }
+                    </div>
                 </div>
-            </div>
+            }
 
             <!-- Tabs -->
-            <div class="w-full">
-                <div class="grid grid-cols-4 mb-8 gap-2 bg-gray-100 p-1 rounded-xl">
-                    <button type="button" data-tab="overview"
-                            class="tab-btn w-full inline-flex items-center justify-center px-3 py-2 rounded-lg text-gray-500 hover:text-gray-700">
-                        專案概述
-                    </button>
-                    <button type="button" data-tab="features"
-                            class="tab-btn w-full inline-flex items-center justify-center px-3 py-2 rounded-lg text-gray-500 hover:text-gray-700">
-                        功能特色
-                    </button>
-                    <button type="button" data-tab="technical"
-                            class="tab-btn w-full inline-flex items-center justify-center px-3 py-2 rounded-lg text-gray-500 hover:text-gray-700">
-                        技術實作
-                    </button>
-                    <button type="button" data-tab="results"
-                            class="tab-btn w-full inline-flex items-center justify-center px-3 py-2 rounded-lg text-gray-500 hover:text-gray-700">
-                        成果展示
-                    </button>
+            <!-- Tabs -->
+            <div data-tabs-root class="w-full">
+                <div class="grid grid-cols-4 gap-2 mb-8 text-sm">
+                    <button class="tab-btn px-3 py-2 rounded bg-white shadow font-medium" data-tab="overview">專案概述</button>
+                    <button class="tab-btn px-3 py-2 rounded hover:bg-white/70" data-tab="features">功能特色</button>
+                    <button class="tab-btn px-3 py-2 rounded hover:bg-white/70" data-tab="technical">技術實作</button>
+                    <button class="tab-btn px-3 py-2 rounded hover:bg-white/70" data-tab="results">成果展示</button>
                 </div>
 
                 <!-- Overview -->
-                <section id="tab-overview" class="tab-pane space-y-6">
+                <section class="tab-pane space-y-6" data-pane="overview">
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <article class="lg:col-span-2 rounded-2xl bg-white ring-1 ring-gray-200 shadow-sm">
-                            <header class="p-6 pb-0">
-                                <h2 class="text-2xl font-semibold text-gray-800">專案介紹</h2>
-                            </header>
-                            <div class="p-6 space-y-6">
-                                <p class="text-gray-700 leading-relaxed"><!-- 專案介紹內容 --></p>
-
-                                <div>
-                                    <h4 class="font-semibold mb-3">主要挑戰</h4>
-                                    <ul class="space-y-2"><!-- <li class="flex items-start gap-2 text-gray-700"><i data-lucide="target" class="h-4 w-4 text-red-500 mt-0.5"></i><span>...</span></li> --></ul>
+                        <div class="lg:col-span-2">
+                            <div class="bg-white rounded-xl shadow">
+                                <div class="p-5">
+                                    <h3 class="text-2xl font-semibold">專案介紹</h3>
                                 </div>
+                                <div class="px-5 pb-5">
+                                    <p class="text-gray-700 leading-relaxed mb-6">
+                                        @Model.intro
+                                    </p>
+                                    <h4 class="font-semibold mb-3">主要挑戰</h4>
+                                    <ul class="space-y-2 mb-6">
+                                        @foreach (var c in (Model.challenges ?? new List<string>()))
+                                        {
+                                            if (!string.IsNullOrWhiteSpace(c))
+                                            {
+                                                <li class="flex items-start space-x-2">
+                                                    <i data-lucide="target" class="h-4 w-4 text-red-500 mt-1 flex-shrink-0"></i>
+                                                    <span class="text-gray-700">@c</span>
+                                                </li>
+                                            }
+                                        }
+                                    </ul>
 
-                                <div>
                                     <h4 class="font-semibold mb-3">解決方案</h4>
-                                    <ul class="space-y-2"><!-- <li class="flex items-start gap-2 text-gray-700"><i data-lucide="zap" class="h-4 w-4 text-green-600 mt-0.5"></i><span>...</span></li> --></ul>
+                                    <ul class="space-y-2">
+                                        @foreach (var s in (Model.solution ?? new List<string>()))
+                                        {
+                                            if (!string.IsNullOrWhiteSpace(s))
+                                            {
+                                                <li class="flex items-start space-x-2">
+                                                    <i data-lucide="zap" class="h-4 w-4 text-green-500 mt-1 flex-shrink-0"></i>
+                                                    <span class="text-gray-700">@s</span>
+                                                </li>
+                                            }
+                                        }
+                                    </ul>
+
                                 </div>
                             </div>
-                        </article>
+                        </div>
 
-                        <!-- 右側資訊 -->
-                        <aside class="space-y-6">
-                            <article class="rounded-2xl bg-white ring-1 ring-gray-200 shadow-sm">
-                                <header class="p-6 pb-0"><h3 class="text-lg font-semibold">專案資訊</h3></header>
-                                <div class="p-6 space-y-4">
-                                    <!--
-                                    <div class="flex items-center gap-3">
-                                        <i data-lucide="calendar" class="h-5 w-5 text-blue-600"></i>
-                                        <div><p class="font-medium">開發時程</p><p class="text-sm text-gray-600">...</p></div>
-                                    </div>
-                                    <div class="flex items-center gap-3">
-                                        <i data-lucide="users" class="h-5 w-5 text-green-600"></i>
-                                        <div><p class="font-medium">團隊規模</p><p class="text-sm text-gray-600">...</p></div>
-                                    </div>
-                                    <div class="flex items-center gap-3">
-                                        <i data-lucide="database" class="h-5 w-5 text-purple-600"></i>
-                                        <div><p class="font-medium">客戶</p><p class="text-sm text-gray-600">...</p></div>
-                                    </div>
-                                    <div class="flex items-center gap-3">
-                                        <i data-lucide="check-circle-2" class="h-5 w-5 text-green-600"></i>
-                                        <div><p class="font-medium">專案狀態</p><p class="text-sm text-gray-600">...</p></div>
-                                    </div>
-                                    -->
+                        <div class="space-y-6">
+                            <!-- Project Info -->
+                            <div class="bg-white rounded-xl shadow">
+                                <div class="p-5 border-b">
+                                    <h3 class="text-lg font-semibold">專案資訊</h3>
                                 </div>
-                            </article>
+                                <div class="p-5 space-y-4">
+                                    @if (!string.IsNullOrWhiteSpace(Model.duration))
+                                    {
+                                        <div class="flex items-center space-x-3">
+                                            <i data-lucide="calendar" class="h-5 w-5" style="color: var(--color)"></i>
+                                            <div>
+                                                <p class="font-medium">開發時程</p>
+                                                <p class="text-sm text-gray-600">@Model.duration</p>
+                                            </div>
+                                        </div>
+                                    }
+                                    @if (Model.team_size.HasValue)
+                                    {
+                                        <div class="flex items-center space-x-3">
+                                            <i data-lucide="users" class="h-5 w-5 text-green-600"></i>
+                                            <div>
+                                                <p class="font-medium">團隊規模</p>
+                                                <p class="text-sm text-gray-600">@Model.team_size 人</p>
+                                            </div>
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(Model.client))
+                                    {
+                                        <div class="flex items-center space-x-3">
+                                            <i data-lucide="database" class="h-5 w-5 text-purple-600"></i>
+                                            <div>
+                                                <p class="font-medium">客戶</p>
+                                                <p class="text-sm text-gray-600">@Model.client</p>
+                                            </div>
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(Model.status))
+                                    {
+                                        <div class="flex items-center space-x-3">
+                                            <i data-lucide="check-circle" class="h-5 w-5 text-green-600"></i>
+                                            <div>
+                                                <p class="font-medium">專案狀態</p>
+                                                <p class="text-sm text-gray-600">@Model.status</p>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
 
-                            <article class="rounded-2xl bg-white ring-1 ring-gray-200 shadow-sm">
-                                <header class="p-6 pb-0"><h3 class="text-lg font-semibold">使用技術</h3></header>
-                                <div class="p-6 flex flex-wrap gap-2">
-                                    <!-- <span class="inline-flex items-center rounded px-2.5 py-1 text-xs ring-1 ring-gray-300 text-gray-700">...</span> -->
+                            <!-- Technologies -->
+                            <div class="bg-white rounded-xl shadow">
+                                <div class="p-5 border-b">
+                                    <h3 class="text-lg font-semibold">使用技術</h3>
                                 </div>
-                            </article>
-                        </aside>
+                                <div class="p-5">
+                                    <div class="flex flex-wrap gap-2">
+                                        @foreach (var t in (Model.tech_stack ?? new List<string>()))
+                                        {
+                                            if (!string.IsNullOrWhiteSpace(t))
+                                            {
+                                                <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent hover:bg-secondary/80 bg-gray-100 text-gray-700">@t</span>
+                                            }
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </section>
 
                 <!-- Features -->
-                <section id="tab-features" class="tab-pane hidden space-y-6">
+                <section class="tab-pane hidden space-y-6" data-pane="features">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!--
-                        <article class="rounded-2xl bg-white ring-1 ring-gray-200 shadow-sm hover:shadow-md transition">
-                            <header class="p-6 pb-0">
-                                <h3 class="text-lg font-semibold flex items-center gap-2">
-                                    <i data-lucide="check-circle-2" class="h-5 w-5 text-green-600"></i>...
-                                </h3>
-                            </header>
-                            <div class="p-6 text-gray-700">...</div>
-                        </article>
-                        -->
+                        @if (Model.features != null && Model.features.Any())
+                        {
+                            @for (int i = 0; i < (Model.features?.Count ?? 0); i++)
+                            {
+                                var f = Model.features[i];
+                                if (string.IsNullOrWhiteSpace(f)) { continue; }
+
+                                <div class="bg-white rounded-xl shadow hover:shadow-lg transition-all duration-300">
+                                    <div class="p-5 border-b">
+                                        <h3 class="text-lg font-semibold flex items-center gap-2">
+                                            <i data-lucide="check-circle" class="h-5 w-5 text-green-600"></i>
+                                            <span>@f</span>
+                                        </h3>
+                                    </div>
+                                    <div class="p-5">
+                                        <p class="text-gray-700">
+                                            @((Model.feature_intro != null && i < Model.feature_intro.Count && !string.IsNullOrWhiteSpace(Model.feature_intro[i])) ? Model.feature_intro[i] : "尚未開放功能詳細資訊")
+                                        </p>
+                                    </div>
+                                </div>
+                            }
+                        }
                     </div>
                 </section>
 
                 <!-- Technical -->
-                <section id="tab-technical" class="tab-pane hidden space-y-6">
-                    <article class="rounded-2xl bg-white ring-1 ring-gray-200 shadow-sm">
-                        <header class="p-6 pb-0">
-                            <h3 class="text-xl font-semibold">技術架構</h3>
-                            <p class="text-gray-600 text-sm">專案的技術實作細節和架構設計</p>
-                        </header>
-                        <div class="p-6">
-                            <div class="aspect-video bg-gray-100 rounded-lg flex items-center justify-center mb-6">
-                                <span class="text-gray-500">技術架構圖</span>
-                            </div>
+                <section class="tab-pane hidden space-y-6" data-pane="technical">
+                    <div class="bg-white rounded-xl shadow">
+                        <div class="p-5">
+                            <h3 class="text-lg font-semibold">技術架構</h3>
+                            <p class="text-sm text-gray-600">專案的技術實作細節和架構設計</p>
+                        </div>
+                        <div class="p-5">
+                            @if (!string.IsNullOrWhiteSpace(Model.arch_img))
+                            {
+                                <div class="aspect-video bg-gray-100 rounded-lg flex items-center justify-center mb-6 overflow-hidden">
+                                    <img src="@Model.arch_img" alt="architecture" class="w-full h-full object-contain" />
+
+                                </div>
+                            }
+
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <h4 class="font-semibold mb-3">核心技術</h4>
-                                    <ul class="space-y-2"><!-- <li class="flex items-center gap-2"><i data-lucide="code" class="h-4 w-4 text-blue-500"></i><span>...</span></li> --></ul>
+                                    <ul class="space-y-2">
+                                        @foreach (var core in Model.tech_stack?.Take(3) ?? Enumerable.Empty<string>())
+                                        {
+                                            if (!string.IsNullOrWhiteSpace(core))
+                                            {
+                                                <li class="flex items-center space-x-2">
+                                                    <i data-lucide="code" class="h-4 w-4 text-blue-500"></i>
+                                                    <span>@core</span>
+                                                </li>
+                                            }
+                                        }
+                                    </ul>
                                 </div>
                                 <div>
                                     <h4 class="font-semibold mb-3">開發工具</h4>
-                                    <ul class="space-y-2"><!-- <li class="flex items-center gap-2"><i data-lucide="server" class="h-4 w-4 text-green-500"></i><span>...</span></li> --></ul>
+                                    <ul class="space-y-2">
+                                        @foreach (var tool in Model.tech_stack ?? new List<string>())
+                                        {
+                                            if (!string.IsNullOrWhiteSpace(tool))
+                                            {
+                                                <li class="flex items-center space-x-2">
+                                                    <i data-lucide="server" class="h-4 w-4 text-green-600"></i>
+                                                    <span>@tool</span>
+                                                </li>
+                                            }
+                                        }
+
+                                    </ul>
                                 </div>
                             </div>
                         </div>
-                    </article>
+                    </div>
                 </section>
 
+
                 <!-- Results -->
-                <section id="tab-results" class="tab-pane hidden space-y-6">
-                    <article class="rounded-2xl bg-white ring-1 ring-gray-200 shadow-sm">
-                        <header class="p-6 pb-0">
-                            <h3 class="text-xl font-semibold">專案成果</h3>
-                            <p class="text-gray-600 text-sm">量化的專案成效和改善指標</p>
-                        </header>
-                        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <ul class="space-y-3"><!-- <li class="flex items-center gap-3">...</li> --></ul>
-                            <div class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-6">
-                                <h4 class="font-semibold mb-4">客戶回饋</h4>
-                                <p class="text-gray-700 italic"><!-- 引言 --></p>
-                                <p class="text-gray-600 text-sm mt-2"><!-- 客戶名稱 --></p>
+                <section class="tab-pane hidden space-y-6" data-pane="results">
+                    <div class="bg-white rounded-xl shadow">
+                        <div class="p-5 border-b">
+                            <h3 class="text-lg font-semibold">專案成果</h3>
+                            <p class="text-sm text-gray-600">量化的專案成效與改善指標</p>
+                        </div>
+                        <div class="p-5">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <ul class="space-y-3">
+                                    @{
+                                        var outcomes = (Model.outcome_summary ?? "")
+                                        .Split(new[] { ';', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                                        .Concat((Model.outcome_performance ?? "")
+                                        .Split(new[] { ';', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+                                    }
+                                    @foreach (var r in outcomes)
+                                    {
+                                        <li class="flex items-center space-x-3">
+                                            <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                                <i data-lucide="check-circle" class="h-4 w-4 text-green-600"></i>
+                                            </div>
+                                            <span class="font-medium text-gray-800">@r</span>
+                                        </li>
+                                    }
+                                </ul>
+                                <div class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-6">
+                                    <h4 class="font-semibold mb-4">客戶回饋</h4>
+                                    <p class="text-gray-700 italic">
+                                        @(!string.IsNullOrWhiteSpace(Model.feedback)
+                                                                                ? Model.feedback
+                                                                                : "此專案帶來顯著效益與改善。")
+                                    </p>
+                                    @if (!string.IsNullOrWhiteSpace(Model.client))
+                                    {
+                                        <p class="text-gray-600 text-sm mt-2">- @Model.client</p>
+                                    }
+                                </div>
                             </div>
                         </div>
-                    </article>
+                    </div>
                 </section>
             </div>
 
             <!-- CTA -->
             <div class="mt-12 text-center">
-                <div class="rounded-2xl overflow-hidden">
-                    <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-                        <div class="py-8 px-6">
-                            <h3 class="text-2xl font-bold mb-2">對此專案有興趣？</h3>
-                            <p class="mb-6 opacity-90">讓我們為您打造類似的解決方案</p>
-                            <a href='@Url.Action("Consultation", "TeamZone", new { area = "HNB_WEB" })'
-                               class="inline-flex items-center justify-center gap-2 rounded-md bg-white text-blue-600 px-6 py-3 hover:bg-gray-100">
-                                立即諮詢 <i data-lucide="arrow-right" class="h-5 w-5"></i>
-                            </a>
-                        </div>
+                <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl shadow">
+                    <div class="py-8 px-6">
+                        <h3 class="text-2xl font-bold mb-4">對此專案有興趣？</h3>
+                        <p class="mb-6">讓我們為您打造類似的解決方案</p>
+                        <a href="javascript:void(0)"
+                           class="inline-flex items-center gap-2 bg-white text-blue-600 hover:bg-gray-100 px-5 py-3 rounded-lg font-semibold">
+                            立即諮詢
+                            <i data-lucide="arrow-right" class="h-5 w-5"></i>
+                        </a>
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
-</section>
+</div>
 
 @section Scripts {
     <script>
-        // Segmented tabs 切換（預設開 overview）
-        (function(){
-          const btns = document.querySelectorAll('.tab-btn');
-          const panes = {
-            overview:  document.getElementById('tab-overview'),
-            features:  document.getElementById('tab-features'),
-            technical: document.getElementById('tab-technical'),
-            results:   document.getElementById('tab-results')
-          };
-          function activate(name){
-            btns.forEach(b=>{
-              const active = b.getAttribute('data-tab')===name;
+        // 輕量 Tabs 切換
+        document.addEventListener('DOMContentLoaded', () => {
+          const root = document.querySelector('[data-tabs-root]');
+          if (!root) return;
+
+          const btns = root.querySelectorAll('.tab-btn');
+          const panes = root.querySelectorAll('.tab-pane');
+
+          const show = (tab) => {
+            panes.forEach(p => p.classList.toggle('hidden', p.getAttribute('data-pane') !== tab));
+            btns.forEach(b => {
+              const active = b.getAttribute('data-tab') === tab;
               b.classList.toggle('bg-white', active);
-              b.classList.toggle('text-gray-900', active);
-              b.classList.toggle('shadow-sm', active);
-              b.classList.toggle('ring-1', active);
-              b.classList.toggle('ring-gray-200', active);
-              b.classList.toggle('text-gray-500', !active);
+              b.classList.toggle('shadow', active);
             });
-            Object.keys(panes).forEach(k=>panes[k].classList.toggle('hidden', k!==name));
-            window.lucide?.createIcons();
-          }
-          btns.forEach(b=>b.addEventListener('click',()=>activate(b.getAttribute('data-tab'))));
-          activate('overview');
-        })();
-        window.lucide?.createIcons();
+          };
+
+          show('overview');
+          btns.forEach(b => b.addEventListener('click', () => show(b.getAttribute('data-tab'))));
+
+          // 重新渲染 lucide（若已全域處理可移除）
+        });
     </script>
 }

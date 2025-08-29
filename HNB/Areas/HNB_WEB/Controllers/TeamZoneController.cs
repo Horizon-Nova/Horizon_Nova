@@ -12,16 +12,10 @@ public class TeamZoneController(TeamZoneServices sev) : Controller
     public IActionResult Consultation()
         => View();
 
-    public IActionResult ProjectDetail(string id)
+    public IActionResult ProjectDetail(int id)
     {
-        //sev.ViewBagModelPortfolio(ViewBag);
-
-        //sev.ViewBagModelProjectDetail(ViewBag, id);
-
-        //if (ViewBag.NotFound == true)
-        //    return NotFound();
-
-        return View();
+        var model = sev.ProjectDetailData(id);
+        return View(model);
     }
 
     public IActionResult Portfolio()

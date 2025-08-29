@@ -45,4 +45,7 @@ public partial class project_tag
     /// </summary>
     [Column(TypeName = "timestamp without time zone")]
     public DateTime updated_at { get; set; }
+
+    [StringLength(50)]
+    public string code { get; set; } = null!;
 }
