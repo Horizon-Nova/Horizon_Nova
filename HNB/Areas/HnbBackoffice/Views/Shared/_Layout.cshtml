@@ -20,7 +20,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <!-- 自訂樣式 -->
-    <link rel="stylesheet" href="~/HnbBackoffice/css/Layout.css" />
+    <link rel="stylesheet" href="~/HnbBackoffice/css/LayoutBackoffice.css" />
 </head>
 <body class="h-screen w-screen bg-gradient-to-br from-slate-50 to-blue-50 text-slate-900">
 
@@ -118,56 +118,7 @@
         </div>
     </div>
 
-    <script src="~/HnbBackoffice/js/Layout.js"></script>
+    <script src="~/HnbBackoffice/js/LayoutBackoffice.js"></script>
 
-    <script>
-        // Sidebar 折疊
-        (function () {
-            const sidebar = document.getElementById('sidebar');
-            const btnToggle = document.getElementById('btnToggleSidebar');
-            const iconChevron = document.getElementById('iconChevron');
-            const collapsedFlag = 'data-collapsed';
-
-            const applyCollapsedUI = () => {
-                const isCollapsed = sidebar.getAttribute(collapsedFlag) === 'true';
-                document.querySelectorAll('[data-collapsed-target]').forEach(el => {
-                    if (isCollapsed) el.classList.add('hidden'); else el.classList.remove('hidden');
-                });
-                if (window.lucide && iconChevron) {
-                    iconChevron.setAttribute('data-lucide', isCollapsed ? 'chevron-right' : 'chevron-left');
-                    window.lucide.createIcons();
-                }
-            };
-
-            btnToggle?.addEventListener('click', () => {
-                const isCollapsed = sidebar.getAttribute(collapsedFlag) === 'true';
-                sidebar.setAttribute(collapsedFlag, String(!isCollapsed));
-                applyCollapsedUI();
-            });
-
-            if (!sidebar.hasAttribute(collapsedFlag)) sidebar.setAttribute(collapsedFlag, 'false');
-            applyCollapsedUI();
-        })();
-
-        // User Menu Dropdown
-        (function () {
-            const btn = document.getElementById('btnUserMenu');
-            const menu = document.getElementById('userMenu');
-            if (!btn || !menu) return;
-
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                menu.classList.toggle('hidden');
-                btn.setAttribute('aria-expanded', menu.classList.contains('hidden') ? 'false' : 'true');
-            });
-
-            document.addEventListener('click', () => {
-                if (!menu.classList.contains('hidden')) {
-                    menu.classList.add('hidden');
-                    btn.setAttribute('aria-expanded', 'false');
-                }
-            });
-        })();
-    </script>
 </body>
 </html>

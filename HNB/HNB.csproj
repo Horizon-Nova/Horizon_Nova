@@ -34,11 +34,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Remove="wwwroot\HnbBackoffice\css\Layout.css" />
-    <Content Remove="wwwroot\HnbBackoffice\js\Layout.js" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Remove="Areas\HnbBackoffice\HnbBackoffice_Postgre Specification.XLSX" />
     <None Remove="Areas\HNB_WEB\HNB_WEB_Postgre Specification.XLSX" />
     <None Remove="BuildModels.bat" />
@@ -58,8 +53,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="wwwroot\HnbBackoffice\css\Layout.css" />
-    <None Include="wwwroot\HnbBackoffice\js\Layout.js" />
+    <None Include="wwwroot\HnbBackoffice\css\LayoutBackoffice.css" />
+    <None Include="wwwroot\HnbBackoffice\js\LayoutBackoffice.js" />
     <None Include="wwwroot\HNB_WEB\css\Layout.css" />
     <None Include="wwwroot\HNB_WEB\js\Layout.js" />
   </ItemGroup>
