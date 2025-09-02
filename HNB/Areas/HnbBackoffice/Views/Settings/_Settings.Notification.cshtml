@@ -1,6 +1,12 @@
+@model Models.HnbHnbBackoffice.vw_system_config_notification
+
 @{
-    var mailTemplates = new[] { "歡迎信", "密碼重設", "系統通知" };
-    var notifyTypes = new[] { "系統警報", "安全事件", "用戶活動" };
+    var enabledSet = new HashSet<string>(Model.notify_status ?? new List<string>(), StringComparer.OrdinalIgnoreCase);
+    var types = Model.notify_types ?? new List<string>();
+
+    var names = Model.mail_template ?? new List<string>();
+    var ids = Model.mail_template_id ?? new List<long>();
+    var count = Math.Min(names.Count, ids.Count);
 }
 
 <div class="bg-white border rounded-xl p-6 space-y-6">
@@ -18,21 +24,23 @@
                 <div class="font-medium">電子郵件通知</div>
                 <p class="text-xs text-slate-500">透過郵件發送通知</p>
             </div>
-            <input type="checkbox" class="h-5 w-5" checked />
+            <input type="checkbox" class="h-5 w-5" @(Model.email_notification == true ? "checked" : "") />
         </div>
+
         <div class="flex items-center justify-between p-4 border rounded-lg">
             <div>
                 <div class="font-medium">簡訊通知</div>
                 <p class="text-xs text-slate-500">透過簡訊發送通知</p>
             </div>
-            <input type="checkbox" class="h-5 w-5" />
+            <input type="checkbox" class="h-5 w-5" @(Model.sms_notification == true ? "checked" : "") />
         </div>
+
         <div class="flex items-center justify-between p-4 border rounded-lg">
             <div>
                 <div class="font-medium">推播通知</div>
                 <p class="text-xs text-slate-500">瀏覽器推播通知</p>
             </div>
-            <input type="checkbox" class="h-5 w-5" checked />
+            <input type="checkbox" class="h-5 w-5" @(Model.push_notification == true ? "checked" : "") />
         </div>
     </div>
 
@@ -40,27 +48,49 @@
         <div>
             <div class="text-base font-semibold mb-3">郵件模板</div>
             <div class="space-y-2">
-                @foreach (var t in mailTemplates)
+                @if (count == 0)
                 {
-                    <div class="flex items-center justify-between p-3 border rounded">
-                        <span>@t</span>
-                        <button class="px-2 py-1 rounded-md border">
-                            <i data-lucide="edit" class="h-4 w-4"></i>
-                        </button>
-                    </div>
+                    <div class="p-3 border rounded text-slate-500 text-sm">目前沒有已設定的郵件模板</div>
+                }
+                else
+                {
+                    for (var i = 0; i < count; i++)
+                    {
+                        <div class="flex items-center justify-between p-3 border rounded">
+                            <div class="flex flex-col">
+                                <span class="font-medium">@names[i]</span>
+                            </div>
+
+                            <button type="button" class="px-2 py-1 rounded-md border">
+                                <i data-lucide="edit" class="h-4 w-4"></i>
+                            </button>
+
+                            <input type="hidden" name="mail_template[@i]" value="@names[i]" />
+                            <input type="hidden" name="mail_template_id[@i]" value="@ids[i]" />
+                        </div>
+                    }
                 }
             </div>
         </div>
 
+        <!-- 通知類型清單（以 notify_status 判斷勾選） -->
         <div>
             <div class="text-base font-semibold mb-3">通知類型</div>
             <div class="space-y-2">
-                @foreach (var n in notifyTypes)
+                @if (types.Count == 0)
                 {
-                    <div class="flex items-center justify-between p-3 border rounded">
-                        <span>@n</span>
-                        <input type="checkbox" class="h-5 w-5" checked />
-                    </div>
+                    <div class="p-3 border rounded text-slate-500 text-sm">目前沒有可用的通知類型</div>
+                }
+                else
+                {
+                    foreach (var n in types)
+                    {
+                        var isOn = enabledSet.Contains(n);
+                        <div class="flex items-center justify-between p-3 border rounded">
+                            <span>@n</span>
+                            <input type="checkbox" class="h-5 w-5" @(isOn ? "checked" : "") />
+                        </div>
+                    }
                 }
             </div>
         </div>

@@ -1,4 +1,5 @@
 using HNB.Areas.HNB_WEB.Extensions;
+using HNB.Areas.HnbBackoffice.Extensions;
 using HNB.Extensions;
 using HNB.Filters;
 using HNB.Middleware;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Models.Hnbdata;
+using Models.HnbHnbBackoffice;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,14 +19,10 @@ builder.Services.AddControllersWithViews(options =>
     options.Filters.Add<RequestResponseLoggerFilter>(); // °O¿ý½Ð¨D
 });
 
-#if DEBUG
 builder.Services.AddDbContext<HnbdataDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Hnbdata")));
-#else
-builder.Services.AddDbContext<HnbdataDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("Hnbdata")));
-#endif
-
+builder.Services.AddDbContext<HnbHnbBackofficeDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("HnbHnbBackoffice")));
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient();
@@ -33,6 +31,7 @@ builder.Services.AddHttpClient();
 builder.Services
     .AddGitHubAccessModule()
     .AddErrorLogServiceModule()
+    .AddSettingsModule()
     .AddTeamZoneModule()
     .AddIpMiddlewareServicesModule();
 

@@ -1,11 +1,4 @@
-﻿@{
-    var siteName = "後台管理系統";
-    var siteUrl = "https://admin.example.com";
-    var adminEmail = "admin@example.com";
-    var timezone = "Asia/Taipei";
-    var maintenance = false;
-    var debugMode = false;
-}
+﻿@model Models.HnbHnbBackoffice.vw_system_config_system
 
 <div class="bg-white border rounded-xl p-6 space-y-6">
     <header>
@@ -19,20 +12,23 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="space-y-4">
             <label class="block text-sm font-medium">網站名稱</label>
-            <input class="w-full rounded-md border px-3 py-2" value="@siteName" />
+            <input class="w-full rounded-md border px-3 py-2"
+                   value="@(Model?.website_name ?? string.Empty)" />
 
             <label class="block text-sm font-medium">網站網址</label>
-            <input class="w-full rounded-md border px-3 py-2" value="@siteUrl" />
+            <input class="w-full rounded-md border px-3 py-2"
+                   value="@(Model?.website_url ?? string.Empty)" />
 
             <label class="block text-sm font-medium">管理員信箱</label>
-            <input type="email" class="w-full rounded-md border px-3 py-2" value="@adminEmail" />
+            <input type="email" class="w-full rounded-md border px-3 py-2"
+                   value="@(Model?.admin_email ?? string.Empty)" />
         </div>
 
         <div class="space-y-4">
             <label class="block text-sm font-medium">時區設定</label>
             <select class="w-full rounded-md border px-3 py-2">
-                <option value="Asia/Taipei" selected>Asia/Taipei (GMT+8)</option>
-                <option value="UTC">UTC (GMT+0)</option>
+                <option value="Asia/Taipei" @(Model?.timezone == "Asia/Taipei" ? "selected" : null)>Asia/Taipei (GMT+8)</option>
+                <option value="UTC" @(Model?.timezone == "UTC" ? "selected" : null)>UTC (GMT+0)</option>
             </select>
 
             <div class="flex items-center justify-between">
@@ -40,7 +36,7 @@
                     <label class="block text-sm font-medium">維護模式</label>
                     <p class="text-xs text-slate-500">啟用後網站將顯示維護頁面</p>
                 </div>
-                <input type="checkbox" class="h-5 w-5" @(maintenance ? "checked" : "") />
+                <input type="checkbox" class="h-5 w-5" @(Model?.maintenance_mode == true ? "checked" : null) />
             </div>
 
             <div class="flex items-center justify-between">
@@ -48,7 +44,7 @@
                     <label class="block text-sm font-medium">偵錯模式</label>
                     <p class="text-xs text-slate-500">顯示詳細的錯誤訊息</p>
                 </div>
-                <input type="checkbox" class="h-5 w-5" @(debugMode ? "checked" : "") />
+                <input type="checkbox" class="h-5 w-5" @(Model?.debug_mode == true ? "checked" : null) />
             </div>
         </div>
     </div>

@@ -4,6 +4,9 @@
 
     var t = Context.Request.Query["t"].ToString();
     var activeTab = string.IsNullOrEmpty(t) ? "system" : t.ToLowerInvariant();
+
+    var currentPartial = (string)ViewData["CurrentPartial"]!;
+    var currentModel = ViewData["CurrentModel"];
 }
 
 <section class="space-y-6">
@@ -47,29 +50,7 @@
         </div>
     </div>
 
-    <!-- Tab Contents -->
     <div class="space-y-4">
-        @switch (activeTab)
-        {
-            case "security":
-                @Html.Partial("_Settings.Security")
-                break;
-            case "notification":
-                @Html.Partial("_Settings.Notification")
-                break;
-            case "database":
-                @Html.Partial("_Settings.Database")
-                break;
-            case "schedule":
-                @Html.Partial("_Settings.Schedule")
-                break;
-            case "server":
-                @Html.Partial("_Settings.Server")
-                break;
-            case "system":
-            default:
-                @Html.Partial("_Settings.System")
-                break;
-        }
+        @await Html.PartialAsync(currentPartial, currentModel)
     </div>
 </section>

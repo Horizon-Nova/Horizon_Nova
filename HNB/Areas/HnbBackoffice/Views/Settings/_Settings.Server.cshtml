@@ -1,5 +1,8 @@
-@functions{
-    string FormatBytes(long bytes) {
+@model Models.HnbHnbBackoffice.vw_system_config_server
+
+@functions {
+    string FormatBytes(long bytes)
+    {
         if (bytes == 0) return "0 Bytes";
         string[] sizes = { "Bytes", "KB", "MB", "GB", "TB" };
         int i = (int)Math.Floor(Math.Log(bytes, 1024));
@@ -7,18 +10,12 @@
     }
 }
 @{
-    var hostname = "admin-server-01";
-    var os = "Ubuntu 22.04 LTS";
-    var version = "Linux 5.15.0";
-    var uptime = "15 天 3 小時 42 分鐘";
-    var cpuCores = 8;
-    var cpuUsage = 35.2;
-    var memTotal = 16384L * 1024L * 1024L;
-    var memUsed  =  8192L * 1024L * 1024L;
-    var diskTotal= 500000L * 1024L * 1024L;
-    var diskUsed = 250000L * 1024L * 1024L;
-    var netIn    = 1024000000L;
-    var netOut   =  512000000L;
+    double diskUsed = Model.disk_usage?.Count > 0 ? Convert.ToDouble(Model.disk_usage[0]) : 0;
+    double diskTotal = Model.disk_usage?.Count > 1 ? Convert.ToDouble(Model.disk_usage[1]) : 1;
+    var diskPct = (diskTotal > 0) ? (diskUsed / diskTotal * 100.0) : 0;
+    double memUsed = Convert.ToDouble(Model.memory_usage[0]);
+    double memTotal = Convert.ToDouble(Model.memory_usage[1]);
+    var memPct = (double)memUsed / memTotal * 100.0;
 }
 
 <div class="bg-white border rounded-xl p-6 space-y-6">
@@ -31,18 +28,20 @@
     </header>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- 系統資訊 -->
         <div class="space-y-3">
             <h3 class="text-lg font-semibold">系統資訊</h3>
-            <div class="flex justify-between"><span class="text-slate-500">主機名稱:</span><span class="font-mono">@hostname</span></div>
-            <div class="flex justify-between"><span class="text-slate-500">作業系統:</span><span>@os</span></div>
-            <div class="flex justify-between"><span class="text-slate-500">核心版本:</span><span>@version</span></div>
-            <div class="flex justify-between"><span class="text-slate-500">系統運行時間:</span><span>@uptime</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">主機名稱:</span><span class="font-mono">@Model.host_name</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">作業系統:</span><span>@Model.operating_system</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">核心版本:</span><span>@Model.kernel_version</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">系統運行時間:</span><span>@Model.uptime</span></div>
         </div>
 
+        <!-- 網路狀態 -->
         <div class="space-y-3">
             <h3 class="text-lg font-semibold">網路狀態</h3>
-            <div class="flex justify-between"><span class="text-slate-500">入站流量:</span><span>@FormatBytes(netIn)</span></div>
-            <div class="flex justify-between"><span class="text-slate-500">出站流量:</span><span>@FormatBytes(netOut)</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">入站流量:</span><span>@Model.inbound_traffic</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">出站流量:</span><span>@Model.outbound_traffic</span></div>
         </div>
     </div>
 
@@ -56,20 +55,17 @@
                     <i data-lucide="cpu" class="h-5 w-5"></i>
                     <span class="font-medium">CPU 使用率</span>
                 </div>
-                <span class="text-sm text-slate-500">@cpuCores 核心</span>
+                <span class="text-sm text-slate-500">@Model.cpu_usage?[0] 核心</span>
             </div>
             <div class="w-full bg-slate-100 rounded h-2">
-                <div class="bg-blue-600 h-2 rounded" style="width:@cpuUsage%"></div>
+                <div class="bg-blue-600 h-2 rounded" style="width:@Model.cpu_usage?[1]%"></div>
             </div>
             <div class="flex justify-between text-sm">
-                <span>@cpuUsage%</span><span class="text-slate-500">100%</span>
+                <span>@Model.cpu_usage?[1]%</span><span class="text-slate-500">100%</span>
             </div>
         </div>
 
         <!-- Memory -->
-        @{
-            var memPct = (double)memUsed / memTotal * 100.0;
-        }
         <div class="space-y-2">
             <div class="flex items-center gap-2">
                 <i data-lucide="memory-stick" class="h-5 w-5"></i>
@@ -79,14 +75,12 @@
                 <div class="bg-green-600 h-2 rounded" style="width:@memPct%"></div>
             </div>
             <div class="flex justify-between text-sm">
-                <span>@FormatBytes(memUsed)</span><span class="text-slate-500">@FormatBytes(memTotal)</span>
+                <span>@FormatBytes((long)memUsed)</span>
+                <span class="text-slate-500">@FormatBytes((long)memTotal)</span>
             </div>
         </div>
 
         <!-- Disk -->
-        @{
-            var diskPct = (double)diskUsed / diskTotal * 100.0;
-        }
         <div class="space-y-2">
             <div class="flex items-center gap-2">
                 <i data-lucide="hard-drive" class="h-5 w-5"></i>
@@ -96,7 +90,8 @@
                 <div class="bg-purple-600 h-2 rounded" style="width:@diskPct%"></div>
             </div>
             <div class="flex justify-between text-sm">
-                <span>@FormatBytes(diskUsed)</span><span class="text-slate-500">@FormatBytes(diskTotal)</span>
+                <span>@FormatBytes((long)diskUsed)</span>
+                <span class="text-slate-500">@FormatBytes((long)diskTotal)</span>
             </div>
         </div>
     </div>

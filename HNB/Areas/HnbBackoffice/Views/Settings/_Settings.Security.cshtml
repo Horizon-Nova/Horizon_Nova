@@ -1,9 +1,4 @@
-@{
-    var sessionTimeout = 3600;
-    var maxLoginAttempts = 5;
-    var enableTwoFactor = true;
-    var ipWhitelist = new[] { "127.0.0.1", "192.168.1.0/24" };
-}
+@model Models.HnbHnbBackoffice.vw_system_config_security
 
 <div class="bg-white border rounded-xl p-6 space-y-6">
     <header>
@@ -17,23 +12,32 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="space-y-4">
             <label class="block text-sm font-medium">會話逾時 (秒)</label>
-            <input type="number" class="w-full rounded-md border px-3 py-2" value="@sessionTimeout" />
+            <input type="number" class="w-full rounded-md border px-3 py-2"
+                   value="@Model.session_timeout" />
 
             <label class="block text-sm font-medium">最大登入嘗試次數</label>
-            <input type="number" class="w-full rounded-md border px-3 py-2" value="@maxLoginAttempts" />
+            <input type="number" class="w-full rounded-md border px-3 py-2"
+                   value="@Model.max_login_attempts" />
 
             <div class="flex items-center justify-between">
                 <div>
                     <label class="block text-sm font-medium">雙因子驗證</label>
                     <p class="text-xs text-slate-500">提升帳戶安全性</p>
                 </div>
-                <input type="checkbox" class="h-5 w-5" @(enableTwoFactor ? "checked" : "") />
+                <input type="checkbox" class="h-5 w-5"
+                       @(Model.two_factor_auth == true ? "checked" : "") />
             </div>
         </div>
 
         <div>
             <label class="block text-sm font-medium mb-2">IP 白名單（每行一個）</label>
-            <textarea rows="8" class="w-full rounded-md border px-3 py-2">@string.Join("\n", ipWhitelist)</textarea>
+            <textarea rows="8" class="w-full rounded-md border px-3 py-2">
+@(
+    string.IsNullOrWhiteSpace(Model.ip_whitelist)
+        ? ""
+        : string.Join("\n", System.Text.Json.JsonSerializer.Deserialize<List<string>>(Model.ip_whitelist))
+)
+            </textarea>
         </div>
     </div>
 </div>

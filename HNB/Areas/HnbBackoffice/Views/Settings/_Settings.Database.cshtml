@@ -1,9 +1,7 @@
+@model Models.HnbHnbBackoffice.vw_system_config_database
+
 @{
-    var dbHost = "localhost";
-    var dbPort = 3306;
-    var dbName = "admin_system";
-    var autoBackup = true;
-    var frequency = "daily"; // hourly | daily | weekly
+    var freq = Model.backup_frequency?.Trim();
 }
 
 <div class="bg-white border rounded-xl p-6 space-y-6">
@@ -18,28 +16,33 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="space-y-4">
             <label class="block text-sm font-medium">主機位址</label>
-            <input class="w-full rounded-md border px-3 py-2" value="@dbHost" />
+            <input class="w-full rounded-md border px-3 py-2"
+                   value="@Model.db_host" />
 
             <label class="block text-sm font-medium">連接埠</label>
-            <input type="number" class="w-full rounded-md border px-3 py-2" value="@dbPort" />
+            <input type="number" class="w-full rounded-md border px-3 py-2"
+                   value="@Model.db_port" />
 
             <label class="block text-sm font-medium">資料庫名稱</label>
-            <input class="w-full rounded-md border px-3 py-2" value="@dbName" />
+            <input class="w-full rounded-md border px-3 py-2"
+                   value="@Model.db_name" />
         </div>
 
         <div class="space-y-4 p-4 border rounded-lg">
             <div class="text-base font-semibold">備份設定</div>
+
             <div class="flex items-center justify-between">
                 <span>啟用自動備份</span>
-                <input type="checkbox" class="h-5 w-5" @(autoBackup ? "checked" : "") />
+                <input type="checkbox" class="h-5 w-5"
+                       @(Model.auto_backup_enabled == true ? "checked" : "") />
             </div>
 
             <div class="grid gap-2">
                 <label class="block text-sm font-medium">備份頻率</label>
                 <select class="w-full rounded-md border px-3 py-2">
-                    <option value="hourly" @(frequency=="hourly"?"selected":"")>每小時</option>
-                    <option value="daily" @(frequency=="daily"?"selected":"")>每日</option>
-                    <option value="weekly" @(frequency=="weekly"?"selected":"")>每週</option>
+                    <option value="hourly" @(freq == "hourly" ? "selected" : "")>每小時</option>
+                    <option value="daily" @(freq == "daily" ? "selected" : "")>每日</option>
+                    <option value="weekly" @(freq == "weekly" ? "selected" : "")>每週</option>
                 </select>
             </div>
         </div>
