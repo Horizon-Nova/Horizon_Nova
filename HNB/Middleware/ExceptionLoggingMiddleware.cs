@@ -28,11 +28,8 @@ public class ExceptionLoggingMiddleware
                 logger.LogError(logEx, "Middleware logging failed");
             }
 
-            if (!context.Response.HasStarted)
-            {
-                context.Response.StatusCode = 500;
-                await context.Response.WriteAsJsonAsync(new { error = "系統錯誤", trace = context.TraceIdentifier });
-            }
+            throw;
         }
     }
+
 }

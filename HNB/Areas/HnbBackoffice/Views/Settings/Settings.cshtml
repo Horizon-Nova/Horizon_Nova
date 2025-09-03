@@ -1,56 +1,79 @@
-﻿@{
-    ViewData["Title"] = "系統設定 - 後台管理系統";
-    Layout = "~/Areas/HnbBackoffice/Views/Shared/_Layout.cshtml";
+﻿@{  
+    ViewData["Title"] = "系統設定 - 後台管理系統";  
+    Layout = "~/Areas/HnbBackoffice/Views/Shared/_Layout.cshtml";  
+    var tabUrl = Url.Action("SettingsTab", "Settings", new { area = "HnbBackoffice" })!;  
+}  
 
-    var t = Context.Request.Query["t"].ToString();
-    var activeTab = string.IsNullOrEmpty(t) ? "system" : t.ToLowerInvariant();
+<section class="space-y-6">  
+    <header class="flex items-center justify-between">  
+        <div>  
+            <h1 class="text-3xl font-bold flex items-center gap-3">  
+                <i data-lucide="settings" class="h-8 w-8"></i> 系統設定  
+            </h1>  
+            <p class="text-slate-500">完整的系統配置和管理功能</p>  
+        </div>  
+    </header>  
 
-    var currentPartial = (string)ViewData["CurrentPartial"]!;
-    var currentModel = ViewData["CurrentModel"];
+    <div>  
+        <div id="settingsTabs" class="grid grid-cols-6 gap-2 border rounded-lg p-1 bg-white">  
+            <button type="button" class="hn-tab px-3 py-2 rounded-md" data-tab="system">系統設定</button>  
+            <button type="button" class="hn-tab px-3 py-2 rounded-md" data-tab="security">安全設定</button>  
+            <button type="button" class="hn-tab px-3 py-2 rounded-md" data-tab="notification">通知設定</button>  
+            <button type="button" class="hn-tab px-3 py-2 rounded-md" data-tab="database">資料庫</button>  
+            <button type="button" class="hn-tab px-3 py-2 rounded-md" data-tab="schedule">排程任務</button>  
+            <button type="button" class="hn-tab px-3 py-2 rounded-md" data-tab="server">伺服器資訊</button>  
+        </div>  
+    </div>  
+
+    <div id="tabContent" class="space-y-4 min-h-[200px]">
+        <span class="animate-pulse text-slate-400">載入中…</span>
+    </div>
+</section>  
+
+@section Scripts {  
+    <script>  
+        (function () {  
+          const TAB_URL = '@Url.Action("SettingsTab", "Settings", new { area = "HnbBackoffice" })';  
+          const $tabs = $('#settingsTabs .hn-tab');  
+          const $content = $('#tabContent');  
+          const DEFAULT_TAB = 'system';  
+
+          function setActive(tab) {  
+            $tabs.removeClass('bg-slate-900 text-white');  
+            $tabs.filter('[data-tab="' + tab + '"]').addClass('bg-slate-900 text-white');  
+          }  
+
+          function loadTab(tab) {  
+            setActive(tab);  
+            $content.html('<div class="text-slate-400">載入中…</div>');  
+
+            const token = $('input[name="__RequestVerificationToken"]').val();  
+
+            $.ajax({  
+              type: 'GET',  
+              url: TAB_URL,  
+              data: { t: tab },  
+              headers: token ? { 'RequestVerificationToken': token } : undefined,  
+              success: function (html) {  
+                $content.html(html);  
+                if (window.lucide) lucide.createIcons();  
+              },  
+              error: function (xhr) {  
+                $content.html('<div class="text-red-600">載入失敗，請稍後再試。</div>');  
+                console.error('SettingsTab error:', xhr);  
+              }  
+            });  
+          }  
+
+          // 點擊分頁（純 AJAX，不做導航）  
+          $('#settingsTabs').on('click', '.hn-tab', function (e) {  
+            e.preventDefault();  
+            const tab = $(this).data('tab');  
+            loadTab(tab);  
+          });  
+
+          // 初始載入  
+          loadTab(DEFAULT_TAB);  
+        })();  
+    </script>  
 }
-
-<section class="space-y-6">
-    <header class="flex items-center justify-between">
-        <div>
-            <h1 class="text-3xl font-bold flex items-center gap-3">
-                <i data-lucide="settings" class="h-8 w-8"></i>
-                系統設定
-            </h1>
-            <p class="text-slate-500">完整的系統配置和管理功能</p>
-        </div>
-    </header>
-
-    <!-- Tabs -->
-    <div>
-        <div class="grid grid-cols-6 gap-2 border rounded-lg p-1 bg-white">
-            <a href="@Url.Action("Settings", "Settings", new { area = "HnbBackoffice", t = "system" })"
-               class="text-center px-3 py-2 rounded-md @(activeTab == "system" ? "bg-slate-900 text-white" : "hover:bg-slate-100")">
-                系統設定
-            </a>
-            <a href="@Url.Action("Settings", "Settings", new { area = "HnbBackoffice", t = "security" })"
-               class="text-center px-3 py-2 rounded-md @(activeTab == "security" ? "bg-slate-900 text-white" : "hover:bg-slate-100")">
-                安全設定
-            </a>
-            <a href="@Url.Action("Settings", "Settings", new { area = "HnbBackoffice", t = "notification" })"
-               class="text-center px-3 py-2 rounded-md @(activeTab == "notification" ? "bg-slate-900 text-white" : "hover:bg-slate-100")">
-                通知設定
-            </a>
-            <a href="@Url.Action("Settings", "Settings", new { area = "HnbBackoffice", t = "database" })"
-               class="text-center px-3 py-2 rounded-md @(activeTab == "database" ? "bg-slate-900 text-white" : "hover:bg-slate-100")">
-                資料庫
-            </a>
-            <a href="@Url.Action("Settings", "Settings", new { area = "HnbBackoffice", t = "schedule" })"
-               class="text-center px-3 py-2 rounded-md @(activeTab == "schedule" ? "bg-slate-900 text-white" : "hover:bg-slate-100")">
-                排程任務
-            </a>
-            <a href="@Url.Action("Settings", "Settings", new { area = "HnbBackoffice", t = "server" })"
-               class="text-center px-3 py-2 rounded-md @(activeTab == "server" ? "bg-slate-900 text-white" : "hover:bg-slate-100")">
-                伺服器資訊
-            </a>
-        </div>
-    </div>
-
-    <div class="space-y-4">
-        @await Html.PartialAsync(currentPartial, currentModel)
-    </div>
-</section>

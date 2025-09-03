@@ -33,6 +33,7 @@ builder.Services
     .AddErrorLogServiceModule()
     .AddSettingsModule()
     .AddTeamZoneModule()
+    .AddSystemMonitorHostedModule()
     .AddIpMiddlewareServicesModule();
 
 // Data-Protection ª÷Æ_

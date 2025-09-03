@@ -1,8 +1,11 @@
-﻿using HNB.Repositories;
+﻿using HNB.BackgroundServices;
+using HNB.Repositories;
 //using HNB.Repositories;
 using HNB.Services;
 using HNB.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+using Models.HnbHnbBackoffice;
+
 //using HNB.BackSystem;
 using static Microsoft.AspNetCore.Razor.Language.TagHelperMetadata;
 //using HNB.Repositories;
@@ -31,5 +34,13 @@ public static class ServiceRegistrationExtensions
         services.AddScoped<ErrorLogRepository>();
         return services;
     }
+    /// <summary> DI注入管理 SystemMonitorHosted 功能 </summary>
+    public static IServiceCollection AddSystemMonitorHostedModule(this IServiceCollection services)
+    {
+        services.AddScoped<SystemMonitorHostedRepositories>();
+        services.AddHostedService<SystemMonitorHostedService>();
+        return services;
+    }
+
 
 }

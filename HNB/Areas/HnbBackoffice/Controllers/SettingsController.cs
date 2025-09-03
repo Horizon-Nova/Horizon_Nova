@@ -6,31 +6,36 @@ namespace HNB.Areas.HnbBackoffice.Controllers;
 [Area("HnbBackoffice")]
 public class SettingsController(SettingsServices svc) : Controller
 {
-    public IActionResult Settings(string t = "system")
+    public IActionResult Settings()
+        => View();
+
+    public IActionResult SettingsTab(string t = "system")
     {
-        var system = svc.GetVwSystemConfigSystem().FirstOrDefault();
-        var security = svc.GetVwSystemConfigSecurity().FirstOrDefault();
-        var notification = svc.GetVwSystemConfigNotification().FirstOrDefault();
-        var database = svc.GetVwSystemConfigDatabase().FirstOrDefault();
-        var server = svc.GetVwSystemConfigServer().FirstOrDefault();
+        var tab = NormalizeTab(t);
+        var (partial, model) = GetTabPartialAndModel(tab);
+        return PartialView(partial, model);
+    }
 
-        var map = new Dictionary<string, (string Partial, object? Model)>
+    private static string NormalizeTab(string? t)
+    {
+        if (string.IsNullOrWhiteSpace(t)) return "system";
+        t = t.ToLowerInvariant();
+        return t is "system" or "security" or "notification" or "database" or "schedule" or "server"
+            ? t
+            : "system";
+    }
+
+    private (string Partial, object? Model) GetTabPartialAndModel(string tab)
+    {
+        return tab switch
         {
-            ["system"] = ("_Settings.System", system),
-            ["security"] = ("_Settings.Security", security),
-            ["notification"] = ("_Settings.Notification", notification),
-            ["database"] = ("_Settings.Database", database),
-            ["schedule"] = ("_Settings.Schedule", null),
-            ["server"] = ("_Settings.Server", server),
+            "system" => ("_Settings.System", svc.GetVwSystemConfigSystem().FirstOrDefault()),
+            "security" => ("_Settings.Security", svc.GetVwSystemConfigSecurity().FirstOrDefault()),
+            "notification" => ("_Settings.Notification", svc.GetVwSystemConfigNotification().FirstOrDefault()),
+            "database" => ("_Settings.Database", svc.GetVwSystemConfigDatabase().FirstOrDefault()),
+            "schedule" => ("_Settings.Schedule", null),
+            "server" => ("_Settings.Server", svc.GetVwSystemConfigServer().FirstOrDefault()),
+            _ => ("_Settings.System", svc.GetVwSystemConfigSystem().FirstOrDefault()),
         };
-
-        var tab = string.IsNullOrWhiteSpace(t) ? "system" : t.ToLowerInvariant();
-        if (!map.ContainsKey(tab)) tab = "system";
-
-        ViewBag.ActiveTab = tab;
-        ViewData["CurrentPartial"] = map[tab].Partial;
-        ViewData["CurrentModel"] = map[tab].Model;
-
-        return View();
     }
 }

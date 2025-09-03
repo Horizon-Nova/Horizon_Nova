@@ -31,18 +31,32 @@ public class RequestResponseLoggerFilter : IAsyncResourceFilter
         await using var memStream = new MemoryStream();
         http.Response.Body = memStream;
 
-        var start = DateTime.Now;
-        var executed = await next();
-        var duration = (DateTime.Now - start).TotalMilliseconds;
+        var start = DateTime.UtcNow;
+        Exception? error = null;
+        string respText = string.Empty;
 
-        /* ---------- 讀 Response ---------- */
-        memStream.Seek(0, SeekOrigin.Begin);
-        string respText = await ReadResponseBodyAsync(http.Response);
-        memStream.Seek(0, SeekOrigin.Begin);
-        await memStream.CopyToAsync(originalBody);
+        try
+        {
+            var executed = await next();
+            error = executed.Exception;
 
-        /* ---------- 寫入 DB ---------- */
-        await LogToDbAsync(http, reqBody, respText, duration, executed.Exception);
+            memStream.Seek(0, SeekOrigin.Begin);
+            respText = await ReadResponseBodyAsync(http.Response);
+        }
+        catch (Exception ex)
+        {
+            error = ex;
+            throw;
+        }
+        finally
+        {
+            memStream.Seek(0, SeekOrigin.Begin);
+            await memStream.CopyToAsync(originalBody);
+            http.Response.Body = originalBody;
+
+            var duration = (DateTime.UtcNow - start).TotalMilliseconds;
+            await LogToDbAsync(http, reqBody, respText, duration, error);
+        }
     }
 
     /* ----------------- Helper ----------------- */

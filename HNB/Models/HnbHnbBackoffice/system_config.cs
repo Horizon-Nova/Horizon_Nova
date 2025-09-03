@@ -23,25 +23,25 @@ public partial class system_config
     /// 網站名稱
     /// </summary>
     [StringLength(255)]
-    public string website_name { get; set; } = null!;
+    public string? website_name { get; set; }
 
     /// <summary>
     /// 網站網址
     /// </summary>
     [StringLength(255)]
-    public string website_url { get; set; } = null!;
+    public string? website_url { get; set; }
 
     /// <summary>
     /// 管理員信箱
     /// </summary>
     [StringLength(255)]
-    public string admin_email { get; set; } = null!;
+    public string? admin_email { get; set; }
 
     /// <summary>
     /// 時區設定
     /// </summary>
     [StringLength(64)]
-    public string timezone { get; set; } = null!;
+    public string? timezone { get; set; }
 
     /// <summary>
     /// 維護模式
@@ -57,13 +57,13 @@ public partial class system_config
     /// 會話逾時 (秒)
     /// </summary>
     [StringLength(10)]
-    public string session_timeout { get; set; } = null!;
+    public string? session_timeout { get; set; }
 
     /// <summary>
     /// 最大登入嘗試次數
     /// </summary>
     [StringLength(10)]
-    public string max_login_attempts { get; set; } = null!;
+    public string? max_login_attempts { get; set; }
 
     /// <summary>
     /// 雙因子驗證
@@ -105,19 +105,19 @@ public partial class system_config
     /// 資料庫主機位址
     /// </summary>
     [StringLength(255)]
-    public string db_host { get; set; } = null!;
+    public string? db_host { get; set; }
 
     /// <summary>
     /// 資料庫連接埠
     /// </summary>
     [StringLength(10)]
-    public string db_port { get; set; } = null!;
+    public string? db_port { get; set; }
 
     /// <summary>
     /// 資料庫名稱
     /// </summary>
     [StringLength(128)]
-    public string db_name { get; set; } = null!;
+    public string? db_name { get; set; }
 
     /// <summary>
     /// 備份頻率 (text[]: 每小時、每日、每周)
@@ -167,17 +167,17 @@ public partial class system_config
     public string? outbound_traffic { get; set; }
 
     /// <summary>
-    /// CPU 使用率 (JSON 格式)
+    /// CPU 使用率 (陣列格式)
     /// </summary>
     public List<string>? cpu_usage { get; set; }
 
     /// <summary>
-    /// 記憶體使用率 (JSON 格式)
+    /// 記憶體使用率 (陣列格式)
     /// </summary>
     public List<string>? memory_usage { get; set; }
 
     /// <summary>
-    /// 磁碟使用率 (JSON 格式)
+    /// 磁碟使用率 (陣列格式)
     /// </summary>
     public List<string>? disk_usage { get; set; }
 
