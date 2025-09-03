@@ -17,8 +17,8 @@ namespace HNB.BackgroundServices;
 #region Options
 public sealed class SystemMonitorOptions
 {
-    public int SystemConfigId { get; set; } = 60;
-    public TimeSpan Interval { get; set; } = TimeSpan.FromMinutes(1);
+    public int SystemConfigId { get; set; } = 1;
+    public TimeSpan Interval { get; set; } = TimeSpan.FromMinutes(3);
 }
 #endregion
 
