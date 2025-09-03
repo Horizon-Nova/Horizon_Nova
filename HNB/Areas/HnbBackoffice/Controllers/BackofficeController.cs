@@ -7,4 +7,7 @@ public class BackofficeController : Controller
 {
     public IActionResult Dashboard()
         => View();
+
+    public IActionResult Login()
+        => View();
 }

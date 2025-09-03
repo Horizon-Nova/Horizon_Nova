@@ -21,7 +21,7 @@ public class GitHubAccessController : Controller
     }
 
     // 登入畫面
-    public IActionResult HNBAccess() => View();
+    //public IActionResult HNBAccess() => View();
 
     // 取登入連結
     [IgnoreAntiforgeryToken]

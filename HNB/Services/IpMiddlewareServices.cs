@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Caching.Memory;
 using Models.Hnbdata;
 
-namespace HNB.Utilities;
+namespace HNB.Services;
 
 /// <summary>
 /// 封裝所有與 IP 安全／Rate-limit／黑名單 相關的商業邏輯與資料存取。
@@ -59,10 +59,10 @@ public class IpMiddlewareServices
             return 0;
         })!;
 
-        hits = (int)hits + 1;
+        hits = hits + 1;
         _cache.Set($"hits:{ip}", hits, TimeSpan.FromMinutes(1));
 
-        if ((int)hits > LIMIT)
+        if (hits > LIMIT)
         {
             await BlockIpAsync(ip, "Rate limit exceeded");
             return (false, true);

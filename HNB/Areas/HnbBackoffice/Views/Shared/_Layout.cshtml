@@ -44,6 +44,11 @@
             </div>
 
             <nav class="px-3 py-4 overflow-y-auto h-[calc(100vh-4rem)] space-y-2">
+                <a href="@Url.Action("Dashboard", "Backoffice", new { area = "HnbBackoffice" })"
+                   class="w-full flex items-center gap-2 rounded-md px-3 py-2 hover:bg-slate-100">
+                    <i data-lucide="layout-dashboard" class="h-4 w-4 shrink-0"></i>
+                    <span class="truncate" data-collapsed-target>Dashboard</span>
+                </a>
                 <a href="@Url.Action("", "", new { area="HnbBackoffice" })"
                    class="w-full flex items-center gap-2 rounded-md px-3 py-2 hover:bg-slate-100">
                     <i data-lucide="shield" class="h-4 w-4 shrink-0"></i>
