@@ -10,15 +10,15 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Models.HnbHnbBackoffice;
-using HNB.Repositories;
+using HNB.Areas.HnbBackoffice.Repositories;
 
-namespace HNB.BackgroundServices;
+namespace HNB.Areas.HnbBackoffice.BackgroundServices;
 
 #region Options
 public sealed class SystemMonitorOptions
 {
     public int SystemConfigId { get; set; } = 1;
-    public TimeSpan Interval { get; set; } = TimeSpan.FromMinutes(3);
+    public TimeSpan Interval { get; set; } = TimeSpan.FromMinutes(60);
 }
 #endregion
 

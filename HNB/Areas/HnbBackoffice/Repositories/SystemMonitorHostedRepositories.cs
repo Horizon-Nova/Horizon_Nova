@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Models.HnbHnbBackoffice;
 
-namespace HNB.Repositories;
+namespace HNB.Areas.HnbBackoffice.Repositories;
 
 public class SystemMonitorHostedRepositories(HnbHnbBackofficeDbContext db)
 {

@@ -11,6 +11,8 @@ public partial class HnbHnbBackofficeDbContext : DbContext
     {
     }
 
+    public virtual DbSet<security_ip_key> security_ip_keys { get; set; }
+
     public virtual DbSet<system_config> system_configs { get; set; }
 
     public virtual DbSet<vw_system_config_database> vw_system_config_databases { get; set; }
@@ -25,6 +27,23 @@ public partial class HnbHnbBackofficeDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.HasPostgresExtension("dbo", "pgcrypto");
+
+        modelBuilder.Entity<security_ip_key>(entity =>
+        {
+            entity.HasKey(e => e.id).HasName("security_ip_keys_pkey");
+
+            entity.Property(e => e.created_at).HasDefaultValueSql("now()");
+            entity.Property(e => e.disabled).HasDefaultValue(false);
+            entity.Property(e => e.expires_at)
+                .HasDefaultValueSql("(now() + '01:00:00'::interval)")
+                .HasComment("失效時間");
+            entity.Property(e => e.ip_addr).HasComment("IPv4/IPv6");
+            entity.Property(e => e.key).HasComment("DB 自動產生");
+            entity.Property(e => e.key_components).HasComment("單一字串");
+            entity.Property(e => e.time_param).HasComment("基準時間");
+        });
+
         modelBuilder.Entity<system_config>(entity =>
         {
             entity.HasKey(e => e.id).HasName("system_config_pkey");

@@ -1,4 +1,5 @@
-﻿using HNB.BackgroundServices;
+﻿using HNB.Areas.HnbBackoffice.BackgroundServices;
+using HNB.Areas.HnbBackoffice.Repositories;
 using HNB.Repositories;
 //using HNB.Repositories;
 using HNB.Services;
@@ -33,13 +34,7 @@ public static class ServiceRegistrationExtensions
         services.AddScoped<ErrorLogRepository>();
         return services;
     }
-    /// <summary> DI注入管理 SystemMonitorHosted 功能 </summary>
-    public static IServiceCollection AddSystemMonitorHostedModule(this IServiceCollection services)
-    {
-        services.AddScoped<SystemMonitorHostedRepositories>();
-        services.AddHostedService<SystemMonitorHostedService>();
-        return services;
-    }
+
 
 
 }

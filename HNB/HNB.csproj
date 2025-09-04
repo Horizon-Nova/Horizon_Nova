@@ -69,6 +69,7 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite" Version="9.0.4" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.11" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.7" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
     <PackageReference Include="Tokenizers.DotNet" Version="1.2.1" />
     <PackageReference Include="Tokenizers.DotNet.runtime.win-x64" Version="1.2.1" />
   </ItemGroup>
