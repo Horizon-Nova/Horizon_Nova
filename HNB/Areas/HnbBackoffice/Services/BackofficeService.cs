@@ -14,7 +14,7 @@ public class BackofficeService
     {
         _dm = new DirectoryManagerUtilities(cfg);
     }
-
+    #region 檔案總管 (File Manager)
     /* ===== 查詢（直接委派） ===== */
     public string NormalizePath(string? path) => _dm.NormalizePath(path);
     public bool CanAddHere(string _) => true;
@@ -165,4 +165,7 @@ public class BackofficeService
             ? contentType : "application/octet-stream";
         return (stream, safe, ct);
     }
+
+    #endregion
+
 }

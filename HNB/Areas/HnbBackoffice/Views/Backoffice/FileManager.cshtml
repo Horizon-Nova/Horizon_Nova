@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "檔案總管";
+    ViewData["Title"] = "檔案總管 - 後台管理系統";
     Layout = "~/Areas/HnbBackoffice/Views/Shared/_Layout.cshtml";
 
     var currentPath = (string)ViewData["CurrentPath"]!;
@@ -76,11 +76,12 @@
                                 <span>上傳資料夾</span>
                                 <input id="dirInput" type="file" class="hidden" webkitdirectory directory multiple />
                             </label>
-
-                            <form id="refreshForm" method="get" action="@Url.Action("FileManager")" class="hidden">
-                                <input type="hidden" name="path" value="@currentPath" />
-                            </form>
-                            <button id="btnRefresh" class="text-sm text-gray-600 hover:text-gray-800" form="refreshForm" type="submit">重新整理</button>
+                            <button id="btnRefresh"
+                                    class="text-sm text-gray-600 hover:text-gray-800"
+                                    type="button"
+                                    onclick="reloadHere()">
+                                重新整理
+                            </button>
                         </div>
                         <button type="submit" class="sr-only" aria-hidden="true">Upload</button>
                     </form>
@@ -267,7 +268,6 @@
         function AddFolderInline(){ inlineNew('folder'); }
         function AddFileInline(){ inlineNew('file'); }
 
-        /* ====== 重新整理 ====== */
         function reloadHere(){
           location.href = '@Url.Action("FileManager", "Backoffice", new { area = "HnbBackoffice" })'
                           + '?path=' + encodeURIComponent(CURRENT_PATH);
