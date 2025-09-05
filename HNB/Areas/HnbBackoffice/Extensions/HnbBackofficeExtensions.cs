@@ -14,6 +14,12 @@ public static class HnbBackofficeExtensions
         services.AddScoped<SettingsServices>();
         services.AddScoped<SettingsRepositories>();
         return services;
+    }
+    /// <summary> DI注入管理 Backoffice 功能 </summary>
+    public static IServiceCollection AddBackofficeModule(this IServiceCollection services)
+    {
+        services.AddScoped<BackofficeService>();
+        return services;
     }    
     /// <summary> DI注入管理 SystemMonitorHosted 功能 </summary>
     public static IServiceCollection AddSystemMonitorHostedModule(this IServiceCollection services)

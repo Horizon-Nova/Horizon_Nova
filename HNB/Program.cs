@@ -32,6 +32,7 @@ builder.Services
     .AddGitHubAccessModule()
     .AddErrorLogServiceModule()
     .AddSettingsModule()
+    .AddBackofficeModule()
     .AddTeamZoneModule()
     .AddDbKeyJwtModule()
     .AddSystemMonitorHostedModule()
