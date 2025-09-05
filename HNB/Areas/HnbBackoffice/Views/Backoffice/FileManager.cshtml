@@ -196,15 +196,18 @@
         }
 
         /* ===== 名稱驗證 ===== */
-        function validateName(raw){
-          if(!raw) return { ok:false, msg:'名稱不可為空' };
+        function validateName(raw, opts = { allowNonAscii: true }){
+          if(raw == null) return { ok:false, msg:'名稱不可為空' };
           let name = String(raw).trim();
           if(!name) return { ok:false, msg:'名稱不可只有空白' };
           if(name === '.' || name === '..') return { ok:false, msg:'名稱不可為 . 或 ..' };
           if(/[\\\/:\*\?"<>\|]/.test(name)) return { ok:false, msg:'不可包含 / \\ : * ? " < > |' };
+          if(!opts.allowNonAscii && /[^\x00-\x7F]/.test(name))
+            return { ok:false, msg:'資料夾名稱僅限英文/數字/空白/.-_' };
           if(name.length > 128) return { ok:false, msg:'名稱不可超過 128 字元' };
           return { ok:true, name };
         }
+
 
         /* ====== 左樹 inline 新增 ====== */
         function inlineNew(kind){
@@ -233,29 +236,32 @@
           const clearErr = ()=>{ $err.addClass('hidden').text(''); $ipt.removeClass('ring-1 ring-red-500'); };
           const cancel = ()=> $("#inlineNewRow").remove();
 
-          $ipt.on('keydown', function(e){
-            if (e.key === 'Escape') { cancel(); }
-            if (e.key === 'Enter') {
-              const chk = validateName($ipt.val());
-              if (!chk.ok) { showErr(chk.msg); return; }
-              clearErr();
+        $ipt.on('keydown', function(e){
+          // 避免中文輸入法尚在組字時誤觸 Enter
+          if (e.isComposing || e.keyCode === 229) return;
 
-              const url = kind === 'folder'
-                ? '@Url.Action("CreateFolder", "Backoffice", new { area = "HnbBackoffice" })'
-                : '@Url.Action("CreateEmptyFile", "Backoffice", new { area = "HnbBackoffice" })';
+          if (e.key === 'Escape') { cancel(); return; }
+          if (e.key === 'Enter') {
+            const chk = validateName($ipt.val(), { allowNonAscii: kind !== 'folder' }); // <- 用 .val()
+            if (!chk.ok) { showErr(chk.msg); return; }
+            clearErr();
 
-              $.ajax({
-                type: 'POST',
-                url,
-                data: kind === 'folder'
-                      ? { path: CURRENT_PATH, folderName: chk.name }
-                      : { path: CURRENT_PATH, fileName: chk.name },
-                headers: { 'RequestVerificationToken': antiforgery() },
-                success: function(){ reloadHere(); },
-                error: function(xhr){ showErr(xhr.responseJSON?.error || xhr.responseText || '失敗，請稍後再試。'); }
-              });
-            }
-          });
+            const url = kind === 'folder'
+              ? '@Url.Action("CreateFolder", "Backoffice", new { area = "HnbBackoffice" })'
+              : '@Url.Action("CreateEmptyFile", "Backoffice", new { area = "HnbBackoffice" })';
+
+            $.ajax({
+              type: 'POST',
+              url,
+              data: kind === 'folder'
+                    ? { path: CURRENT_PATH, folderName: chk.name }
+                    : { path: CURRENT_PATH, fileName: chk.name },
+              headers: { 'RequestVerificationToken': antiforgery() },
+              success: function(){ reloadHere(); },
+              error: function(xhr){ showErr(xhr.responseJSON?.error || xhr.responseText || '失敗，請稍後再試。'); }
+            });
+          }
+        });
           $ipt.on('blur', ()=> setTimeout(cancel, 100));
         }
         function AddFolderInline(){ inlineNew('folder'); }
@@ -393,7 +399,7 @@
             $wrap.remove(); $nameCell.show(); $row.data('editing', false);
           }
           function commit(){
-            const chk = validateName($ipt.val());
+            const chk = validateName($ipt.val(), { allowNonAscii: kind !== 'folder' });
             if(!chk.ok){ alert(chk.msg); return; }
             if(chk.name === orig){ finish(); return; }
 

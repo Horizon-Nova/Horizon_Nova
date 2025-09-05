@@ -48,14 +48,21 @@ public class BackofficeService
             var rel = (f.FileName ?? "").Replace('\\', '/').Trim('/');
             if (string.IsNullOrWhiteSpace(rel)) continue;
 
+            rel = System.Net.WebUtility.HtmlDecode(rel);
+
             var safeRel = _dm.SanitizePathSegments(rel);
             if (string.IsNullOrWhiteSpace(safeRel)) continue;
+
+            var segs = safeRel.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < segs.Length - 1; i++)
+                _dm.EnsureFolderAsciiOnlyOrThrow(segs[i]);
 
             var dirPart = Path.GetDirectoryName("/" + safeRel)?.Replace('\\', '/') ?? "/";
             var filePart = _dm.SanitizeName(Path.GetFileName(safeRel));
 
             var targetVDir = _dm.NormalizePath((virtualPath ?? "/").TrimEnd('/') + "/" + (dirPart?.Trim('/') ?? ""));
-            if (_dm.IsProtected(targetVDir, filePart)) throw new InvalidOperationException("保護路徑，禁止上傳");
+            if (_dm.IsProtected(targetVDir, filePart))
+                throw new InvalidOperationException("保護路徑，禁止上傳");
 
             var absDir = _dm.GetSafeAbsolutePath(targetVDir);
             Directory.CreateDirectory(absDir);
@@ -66,10 +73,13 @@ public class BackofficeService
         }
     }
 
+
     public void CreateFolder(string virtualPath, string folderName)
     {
         var absDir = _dm.GetSafeAbsolutePath(virtualPath);
         Directory.CreateDirectory(absDir);
+
+        _dm.EnsureFolderAsciiOnlyOrThrow(folderName);
 
         var safe = _dm.SanitizeName(folderName);
         if (string.IsNullOrWhiteSpace(safe)) throw new InvalidOperationException("資料夾名稱不合法");
@@ -128,6 +138,9 @@ public class BackofficeService
     public void RenameFolder(string virtualPath, string oldName, string newName)
     {
         var absDir = _dm.GetSafeAbsolutePath(virtualPath);
+
+        _dm.EnsureFolderAsciiOnlyOrThrow(newName);
+
         var src = Path.Combine(absDir, _dm.SanitizeName(oldName));
         var newSafe = _dm.SanitizeName(newName);
         if (string.IsNullOrWhiteSpace(newSafe)) throw new InvalidOperationException("新資料夾名稱不合法");

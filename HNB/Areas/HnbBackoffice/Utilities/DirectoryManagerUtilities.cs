@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Net;
+using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
 
@@ -12,6 +13,7 @@ public sealed class DirectoryManagerUtilities
     private readonly string[] _ignorePatternsFromConfig;
     private readonly string _ignoreFileName;
     private readonly List<Regex> _protectedRegexes = new();
+    private static readonly Regex FolderAsciiRegex = new(@"^[A-Za-z0-9 _.\-]+$", RegexOptions.Compiled);
 
     private static readonly Regex InvalidChars = new(@"[\\/:*?""<>|]", RegexOptions.Compiled);
 
@@ -52,7 +54,7 @@ public sealed class DirectoryManagerUtilities
 
     public string SanitizeName(string raw)
     {
-        var name = (raw ?? "").Trim();
+        var name = System.Net.WebUtility.HtmlDecode(raw ?? string.Empty).Trim();
         if (name is "." or "..") return "";
         name = InvalidChars.Replace(name, "");
         if (name.Length > 128) name = name[..128];
@@ -88,6 +90,16 @@ public sealed class DirectoryManagerUtilities
         do { candidate = Path.Combine(parent, $"{name} ({i++})"); }
         while (Directory.Exists(candidate));
         return candidate;
+    }
+
+    // 資料夾命名判斷：不允許中文/非 ASCII，允許 英數、空白、. _ -
+    public void EnsureFolderAsciiOnlyOrThrow(string? rawName)
+    {
+        var name = WebUtility.HtmlDecode(rawName ?? string.Empty).Trim();
+        if (string.IsNullOrWhiteSpace(name))
+            throw new InvalidOperationException("資料夾名稱不可為空");
+        if (!FolderAsciiRegex.IsMatch(name))
+            throw new InvalidOperationException("資料夾名稱僅限英文/數字/空白/.-_（不允許中文或其他非 ASCII 字元）");
     }
 
     /* ====== Ignore / Protect 名單 ====== */
