@@ -211,6 +211,9 @@ public sealed class DirectoryManagerUtilities
             foreach (var dir in Directory.EnumerateDirectories(curAbs).OrderBy(Path.GetFileName))
             {
                 var name = Path.GetFileName(dir);
+
+                if (IsProtected(curV, name)) continue;
+
                 var childV = curV == "/" ? "/" + name : curV + "/" + name;
                 tree.Add((name, childV, depth));
                 Dfs(childV, depth + 1);
@@ -225,6 +228,7 @@ public sealed class DirectoryManagerUtilities
         return Directory.EnumerateDirectories(abs)
             .OrderBy(Path.GetFileName)
             .Select(d => (Path.GetFileName(d), (DateTime?)Directory.GetLastWriteTimeUtc(d)))
+            .Where(t => !IsProtected(virtualPath, t.Item1))
             .ToList();
     }
 
@@ -234,11 +238,11 @@ public sealed class DirectoryManagerUtilities
         Directory.CreateDirectory(abs);
         return Directory.EnumerateFiles(abs)
             .OrderBy(Path.GetFileName)
-            .Select(f =>
-            {
+            .Select(f => {
                 var fi = new FileInfo(f);
                 return (fi.Name, fi.Length, (DateTime?)fi.LastWriteTimeUtc);
             })
+            .Where(t => !IsProtected(virtualPath, t.Item1))
             .ToList();
     }
 }
