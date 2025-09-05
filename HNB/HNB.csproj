@@ -44,7 +44,6 @@
   <ItemGroup>
     <Folder Include="Areas\DialVision\Data\" />
     <Folder Include="Areas\DialVision\Models\" />
-    <Folder Include="Areas\HnbBackoffice\Utilities\" />
     <Folder Include="Areas\HNB_WEB\Utilities\" />
     <Folder Include="Views\Shared\" />
     <Folder Include="wwwroot\HNB_WEB\image\" />
@@ -63,6 +62,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.FileSystemGlobbing" Version="9.0.8" />
     <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.17.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
