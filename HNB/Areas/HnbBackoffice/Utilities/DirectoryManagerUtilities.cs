@@ -7,7 +7,7 @@ namespace HNB.Areas.HnbBackoffice.Utilities;
 
 public sealed class DirectoryManagerUtilities
 {
-    /* ===== 設定 & 欄位 ===== */
+    #region 設定 & 欄位
     private readonly string _root;
     private readonly bool _ignoreCase;
     private readonly string[] _ignorePatternsFromConfig;
@@ -16,7 +16,9 @@ public sealed class DirectoryManagerUtilities
     private static readonly Regex FolderAsciiRegex = new(@"^[A-Za-z0-9 _.\-]+$", RegexOptions.Compiled);
 
     private static readonly Regex InvalidChars = new(@"[\\/:*?""<>|]", RegexOptions.Compiled);
+    #endregion
 
+    #region 建構子
     public DirectoryManagerUtilities(IConfiguration cfg)
     {
         _root = Path.GetFullPath(cfg["Storage:Root"] ?? "/app/storage");
@@ -27,9 +29,9 @@ public sealed class DirectoryManagerUtilities
         Directory.CreateDirectory(_root);
         BuildIgnoreRegexCache();
     }
+    #endregion
 
-    /* ====== Path / Name Utilities ====== */
-
+    #region Path / Name Utilities
     public string NormalizePath(string? path)
     {
         var p = (path ?? "/").Replace('\\', '/').Trim();
@@ -101,9 +103,9 @@ public sealed class DirectoryManagerUtilities
         if (!FolderAsciiRegex.IsMatch(name))
             throw new InvalidOperationException("資料夾名稱僅限英文/數字/空白/.-_（不允許中文或其他非 ASCII 字元）");
     }
+    #endregion
 
-    /* ====== Ignore / Protect 名單 ====== */
-
+    #region Ignore / Protect 名單
     /// <summary>
     /// 是否命中保護名單（.gitignore 風格）：
     /// - pattern 例： "lost+found/**", ".git/**", "*.env", ".DS_Store"
@@ -191,9 +193,9 @@ public sealed class DirectoryManagerUtilities
         sb.Append('$');
         return new Regex(sb.ToString(), options);
     }
+    #endregion
 
-    /* ====== 麵包屑 / 樹 / 清單 ====== */
-
+    #region 麵包屑 / 樹 / 清單
     public List<(string Name, string VirtualPath)> BuildBreadcrumb(string virtualPath)
     {
         var v = NormalizePath(virtualPath);
@@ -258,5 +260,5 @@ public sealed class DirectoryManagerUtilities
             .Where(t => !IsProtected(virtualPath, t.Item1))
             .ToList();
     }
-
+    #endregion
 }

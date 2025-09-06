@@ -5,11 +5,11 @@ using HNB.Areas.HnbBackoffice.Utilities;
 using System.IO.Compression;
 using System.Text;
 
-
 namespace HNB.Areas.HnbBackoffice.Services;
 
 public class BackofficeService
 {
+    #region 欄位 & 建構子
     private readonly DirectoryManagerUtilities _dm;
     private static readonly FileExtensionContentTypeProvider Ct = new();
 
@@ -17,17 +17,18 @@ public class BackofficeService
     {
         _dm = new DirectoryManagerUtilities(cfg);
     }
-    #region 檔案總管 (File Manager)
-    /* ===== 查詢（直接委派） ===== */
+    #endregion
+
+    #region 檔案總管 - 查詢 (直接委派)
     public string NormalizePath(string? path) => _dm.NormalizePath(path);
     public bool CanAddHere(string _) => true;
     public List<(string Name, string VirtualPath, int Depth)> BuildTree() => _dm.BuildTree();
     public List<(string Name, string VirtualPath)> BuildBreadcrumb(string virtualPath) => _dm.BuildBreadcrumb(virtualPath);
     public List<(string Name, DateTime? LastWriteUtc)> ListFolders(string virtualPath) => _dm.ListFolders(virtualPath);
     public List<(string Name, long Size, DateTime? LastWriteUtc)> ListFiles(string virtualPath) => _dm.ListFiles(virtualPath);
+    #endregion
 
-    /* ===== 動作（業務規則 + Utilities） ===== */
-
+    #region 檔案總管 - 上傳
     public async Task UploadAsync(string virtualPath, IFormFile file, CancellationToken ct = default)
     {
         var absDir = _dm.GetSafeAbsolutePath(virtualPath);
@@ -75,8 +76,9 @@ public class BackofficeService
             await f.CopyToAsync(fs, ct);
         }
     }
+    #endregion
 
-
+    #region 檔案總管 - 建立
     public void CreateFolder(string virtualPath, string folderName)
     {
         var absDir = _dm.GetSafeAbsolutePath(virtualPath);
@@ -104,7 +106,9 @@ public class BackofficeService
         var target = _dm.EnsureUniqueFile(Path.Combine(absDir, safe));
         File.WriteAllBytes(target, Array.Empty<byte>());
     }
+    #endregion
 
+    #region 檔案總管 - 刪除
     public void DeleteFile(string virtualPath, string fileName)
     {
         if (_dm.IsProtected(virtualPath, fileName)) throw new InvalidOperationException("保護路徑，禁止刪除");
@@ -122,7 +126,9 @@ public class BackofficeService
         var dir = Path.Combine(absDir, safe);
         if (Directory.Exists(dir)) Directory.Delete(dir, recursive: true);
     }
+    #endregion
 
+    #region 檔案總管 - 重新命名
     public void RenameFile(string virtualPath, string oldName, string newName)
     {
         var absDir = _dm.GetSafeAbsolutePath(virtualPath);
@@ -155,7 +161,9 @@ public class BackofficeService
 
         Directory.Move(src, dst);
     }
+    #endregion
 
+    #region 檔案總管 - 開啟 / 下載
     public (Stream Stream, string FileName, string ContentType) OpenRead(string virtualPath, string fileName)
     {
         var absDir = _dm.GetSafeAbsolutePath(virtualPath);
@@ -218,14 +226,17 @@ public class BackofficeService
         var (s, _, ct) = OpenRead(virtualPath, fileName);
         return (s, ct);
     }
+    #endregion
 
+    #region 檔案總管 - 文字檔編輯
     // 純文字類型判斷（可編輯/可文字預覽）
     private static readonly HashSet<string> EditableExt = new(StringComparer.OrdinalIgnoreCase)
-{
-    ".txt",".md",".json",".jsonl",".js",".ts",".css",".scss",".sass",
-    ".cs",".cshtml",".html",".htm",".xml",".yml",".yaml",".ini",".conf",".cfg",
-    ".log",".py",".sh",".bat",".ps1",".sql",".env",".properties",".toml",".gitignore",".editorconfig"
-};
+    {
+        ".txt",".md",".json",".jsonl",".js",".ts",".css",".scss",".sass",
+        ".cs",".cshtml",".html",".htm",".xml",".yml",".yaml",".ini",".conf",".cfg",
+        ".log",".py",".sh",".bat",".ps1",".sql",".env",".properties",".toml",".gitignore",".editorconfig"
+    };
+
     private static bool IsEditable(string fileName) => EditableExt.Contains(Path.GetExtension(fileName));
 
     // 讀取文字檔（含簡單 BOM 偵測；預設上限 1MB）
@@ -278,7 +289,5 @@ public class BackofficeService
 
         File.WriteAllText(full, content ?? string.Empty, enc);
     }
-
     #endregion
-
 }
