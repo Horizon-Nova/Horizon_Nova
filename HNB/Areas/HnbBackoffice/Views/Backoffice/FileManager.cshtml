@@ -494,44 +494,103 @@
           $('#pvEditBar').addClass('hidden');
           CURRENT_EDIT_NAME = null;
         }
+        function absUrl(u){
+          try { return new URL(u, window.location.origin).toString(); }
+          catch { return window.location.origin + u; }
+        }
 
         function PreviewFile(name){
           const ext = (name.split('.').pop() || '').toLowerCase();
           const url = fileRawUrl(name);
 
-          // 圖片
+          // 影像
           if (['png','jpg','jpeg','gif','webp','bmp','svg'].includes(ext)){
             showPanel('預覽：' + name, `<img src="${url}" class="max-h-[70vh] mx-auto" />`);
             return;
           }
-          // 影片
+          // 影音
           if (['mp4','webm','ogg','mov','mkv'].includes(ext)){
             showPanel('預覽：' + name, `<video src="${url}" controls class="w-full max-h-[70vh]"></video>`);
             return;
           }
-          // 音訊
           if (['mp3','wav','ogg','m4a','flac'].includes(ext)){
             showPanel('預覽：' + name, `<audio src="${url}" controls class="w-full"></audio>`);
             return;
           }
-          // Office/PDF 不支援預覽（照你的需求）
-          if (['pdf','doc','docx','xls','xlsx','ppt','pptx'].includes(ext)){
-            showPanel('預覽：' + name, `<div class="text-slate-600">此檔案類型不支援預覽。</div>`);
+
+          // === PDF：直接 iframe（瀏覽器原生 PDF viewer） ===
+          if (ext === 'pdf'){
+            showPanel('預覽：' + name, `<iframe src="${url}#toolbar=1&navpanes=0" class="w-full h-[70vh]"></iframe>`);
             return;
           }
-          // 純文字類型：走 ReadText
+
+          // === Word / Excel / PowerPoint 預覽但不可編輯 ===
+          // .docx -> mammoth；.xlsx -> SheetJS；.pptx -> Office Web Viewer 內嵌
+          if (ext === 'docx'){
+            $.ajax({
+              url: url, type: 'GET', xhrFields: { responseType: 'arraybuffer' }
+            }).done(function(buf){
+              window.mammoth.convertToHtml({ arrayBuffer: buf }).then(function(result){
+                const html = `<div class="text-sm leading-6">${result.value}</div>`;
+                showPanel('預覽：' + name, html);
+              }).catch(function(){
+                // 失敗時退回 Office 內嵌
+                const eurl = 'https://view.officeapps.live.com/op/embed.aspx?src=' + encodeURIComponent(absUrl(url));
+                showPanel('預覽：' + name, `
+                  <iframe src="${eurl}" class="w-full h-[70vh]" allowfullscreen></iframe>
+                  <div class="text-xs text-slate-500 mt-2">若無法載入，請確認此檔案是否可被外部檢視或改以下載方式開啟。</div>
+                `);
+              });
+            }).fail(function(){ alert('讀取失敗'); });
+            return;
+          }
+
+          if (ext === 'xlsx'){
+            $.ajax({
+              url: url, type: 'GET', xhrFields: { responseType: 'arraybuffer' }
+            }).done(function(buf){
+              try{
+                const wb = XLSX.read(new Uint8Array(buf), { type: 'array' });
+                const first = wb.SheetNames[0];
+                const html = XLSX.utils.sheet_to_html(wb.Sheets[first], { id: 'xlsx-preview' });
+                showPanel('預覽：' + name, `<div class="overflow-auto max-h-[70vh] text-sm">${html}</div>`);
+              }catch(e){
+                const eurl = 'https://view.officeapps.live.com/op/embed.aspx?src=' + encodeURIComponent(absUrl(url));
+                showPanel('預覽：' + name, `
+                  <iframe src="${eurl}" class="w-full h-[70vh]" allowfullscreen></iframe>
+                  <div class="text-xs text-slate-500 mt-2">若無法載入，請確認此檔案是否可被外部檢視或改以下載方式開啟。</div>
+                `);
+              }
+            }).fail(function(){ alert('讀取失敗'); });
+            return;
+          }
+
+          if (ext === 'pptx' || ext === 'ppt'){
+            const eurl = 'https://view.officeapps.live.com/op/embed.aspx?src=' + encodeURIComponent(absUrl(url));
+            showPanel('預覽：' + name, `
+              <iframe src="${eurl}" class="w-full h-[70vh]" allowfullscreen></iframe>
+              <div class="text-xs text-slate-500 mt-2">若無法載入，可能因檔案無對外存取；請改用下載後開啟。</div>
+            `);
+            return;
+          }
+
+          // 其他副檔名：當作純文字試讀；若不是文字，會顯示亂碼（可再加副檔名白名單）
           $.ajax({
             url: '@Url.Action("ReadText", "Backoffice", new { area = "HnbBackoffice" })',
             type: 'GET',
             data: { path: CURRENT_PATH, name },
             success: function(res){
-              if(!res?.ok){ alert(res?.error || '讀取失敗'); return; }
+              if(!res?.ok){
+                showPanel('預覽：' + name, `<div class="text-slate-600">此檔案類型暫不支援預覽。</div>`);
+                return;
+              }
               const escaped = htmlEscape(res.content ?? '');
-              const meta = res.lastWriteUtc ? `<div class="text-xs text-slate-500 mb-2">LastWriteUtc: ${res.lastWriteUtc}</div>` : '';
               const pre = `<pre class="whitespace-pre-wrap font-mono text-xs border rounded p-3 bg-slate-50 light:bg-slate-800">${escaped}</pre>`;
-              showPanel('預覽：' + name, meta + pre);
+              showPanel('預覽：' + name, pre);
             },
-            error: function(xhr){ alert(xhr.responseJSON?.error || xhr.responseText || '讀取失敗'); }
+            error: function(){
+              showPanel('預覽：' + name, `<div class="text-slate-600">此檔案類型暫不支援預覽。</div>`);
+            }
           });
         }
 
