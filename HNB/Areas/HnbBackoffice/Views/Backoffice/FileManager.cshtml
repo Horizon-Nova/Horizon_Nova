@@ -231,26 +231,27 @@
     <script>
         const CURRENT_PATH = '@(ViewData["CurrentPath"] as string ?? "/")';
 
-        /* ===== Anti-Forgery ===== */
-        function antiforgery() {
+        // #region Anti-Forgery
+        function antiforgery(){
           return $('input[name="__RequestVerificationToken"]').val() ?? '';
         }
+        // #endregion
 
-        /* ===== 名稱驗證 ===== */
+        // #region Minimal Name Validation
+        // 僅做最小檢查；實際規則交由後端檢驗
         function validateName(raw, opts = { allowNonAscii: true }){
-          if(raw == null) return { ok:false, msg:'名稱不可為空' };
+          if (raw == null) return { ok:false, msg:'名稱不可為空' };
           let name = String(raw).trim();
-          if(!name) return { ok:false, msg:'名稱不可只有空白' };
-          if(name === '.' || name === '..') return { ok:false, msg:'名稱不可為 . 或 ..' };
-          if(/[\\\/:\*\?"<>\|]/.test(name)) return { ok:false, msg:'不可包含 / \\ : * ? " < > |' };
-          if(!opts.allowNonAscii && /[^\x00-\x7F]/.test(name))
-            return { ok:false, msg:'資料夾名稱僅限英文/數字/空白/.-_' };
-          if(name.length > 128) return { ok:false, msg:'名稱不可超過 128 字元' };
+          if (!name) return { ok:false, msg:'名稱不可只有空白' };
+          if (name === '.' || name === '..') return { ok:false, msg:'名稱不可為 . 或 ..' };
+          if (/[\\\/:\*\?"<>\|]/.test(name)) return { ok:false, msg:'不可包含 / \\ : * ? " < > |' };
+          if (!opts.allowNonAscii && /[^\x00-\x7F]/.test(name)) return { ok:false, msg:'資料夾名稱僅限英文/數字/空白/.-_' };
+          if (name.length > 128) return { ok:false, msg:'名稱不可超過 128 字元' };
           return { ok:true, name };
         }
+        // #endregion
 
-
-        /* ====== 左樹 inline 新增 ====== */
+        // #region Tree Inline Create
         function inlineNew(kind){
           $("#inlineNewRow").remove();
           const depth = (CURRENT_PATH === '/' ? 0 : CURRENT_PATH.split('/').filter(Boolean).length) + 1;
@@ -277,43 +278,44 @@
           const clearErr = ()=>{ $err.addClass('hidden').text(''); $ipt.removeClass('ring-1 ring-red-500'); };
           const cancel = ()=> $("#inlineNewRow").remove();
 
-        $ipt.on('keydown', function(e){
-          // 避免中文輸入法尚在組字時誤觸 Enter
-          if (e.isComposing || e.keyCode === 229) return;
+          $ipt.on('keydown', function(e){
+            if (e.isComposing || e.keyCode === 229) return; // IME 組字
+            if (e.key === 'Escape') { cancel(); return; }
+            if (e.key === 'Enter') {
+              const chk = validateName($ipt.val(), { allowNonAscii: kind !== 'folder' });
+              if (!chk.ok) { showErr(chk.msg); return; }
+              clearErr();
 
-          if (e.key === 'Escape') { cancel(); return; }
-          if (e.key === 'Enter') {
-            const chk = validateName($ipt.val(), { allowNonAscii: kind !== 'folder' }); // <- 用 .val()
-            if (!chk.ok) { showErr(chk.msg); return; }
-            clearErr();
+              const url = kind === 'folder'
+                ? '@Url.Action("CreateFolder", "Backoffice", new { area = "HnbBackoffice" })'
+                : '@Url.Action("CreateEmptyFile", "Backoffice", new { area = "HnbBackoffice" })';
 
-            const url = kind === 'folder'
-              ? '@Url.Action("CreateFolder", "Backoffice", new { area = "HnbBackoffice" })'
-              : '@Url.Action("CreateEmptyFile", "Backoffice", new { area = "HnbBackoffice" })';
-
-            $.ajax({
-              type: 'POST',
-              url,
-              data: kind === 'folder'
-                    ? { path: CURRENT_PATH, folderName: chk.name }
-                    : { path: CURRENT_PATH, fileName: chk.name },
-              headers: { 'RequestVerificationToken': antiforgery() },
-              success: function(){ reloadHere(); },
-              error: function(xhr){ showErr(xhr.responseJSON?.error || xhr.responseText || '失敗，請稍後再試。'); }
-            });
-          }
-        });
+              $.ajax({
+                type: 'POST',
+                url,
+                data: kind === 'folder'
+                      ? { path: CURRENT_PATH, folderName: chk.name }
+                      : { path: CURRENT_PATH, fileName: chk.name },
+                headers: { 'RequestVerificationToken': antiforgery() },
+                success: function(){ reloadHere(); },
+                error: function(xhr){ showErr(xhr.responseJSON?.error || xhr.responseText || '失敗，請稍後再試。'); }
+              });
+            }
+          });
           $ipt.on('blur', ()=> setTimeout(cancel, 100));
         }
         function AddFolderInline(){ inlineNew('folder'); }
         function AddFileInline(){ inlineNew('file'); }
+        // #endregion
 
+        // #region Navigate
         function reloadHere(){
           location.href = '@Url.Action("FileManager", "Backoffice", new { area = "HnbBackoffice" })'
                           + '?path=' + encodeURIComponent(CURRENT_PATH);
         }
+        // #endregion
 
-        /* ====== 刪除 ====== */
+        // #region Delete
         function DeleteFile(name){
           if(!confirm('確認刪除檔案？')) return;
           $.ajax({
@@ -336,8 +338,9 @@
             error: function(xhr){ alert(xhr.responseJSON?.error || xhr.responseText || '刪除失敗，請稍後再試。'); }
           });
         }
+        // #endregion
 
-        /* ====== 上傳：檔案（拖曳/點擊，多檔逐一） ====== */
+        // #region Upload - Files (drag/click)
         const $dz = $('#dropzone');
         const $fi = $('#fileInput');
         $('#clickUpload').on('click', function(){ $fi.trigger('click'); });
@@ -396,15 +399,16 @@
             });
           });
         }
+        // #endregion
 
-        /* ====== 上傳：整個資料夾（UploadMany） ====== */
+        // #region Upload - Directory (UploadMany)
         $('#dirInput').on('change', function(){
           const files = Array.from(this.files ?? []);
           if(files.length === 0) return;
 
           const fd = new FormData();
           fd.append('path', CURRENT_PATH);
-          // 關鍵：用 webkitRelativePath 當檔名，後端可從 IFormFile.FileName 取到相對路徑
+          // 使用 webkitRelativePath 讓後端從 IFormFile.FileName 取得相對路徑
           files.forEach(f => fd.append('files', f, f.webkitRelativePath || f.name));
 
           $.ajax({
@@ -420,8 +424,9 @@
 
           this.value = '';
         });
+        // #endregion
 
-        /* ====== 清單列 inline 重新命名 ====== */
+        // #region Inline Rename (list row)
         function RenameInline(kind, oldName){
           const $row = $(`[data-name="${cssEscape(oldName)}"][data-type="${kind}"]`);
           const $nameCell = $row.find('.item-name');
@@ -465,29 +470,20 @@
           $ok.on('click', commit);
           $cancel.on('click', finish);
         }
+        // #endregion
 
-        /* ====== helpers ====== */
-        function htmlEscape(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-        function cssEscape(s){ return String(s).replace(/(["\\.#:[\]()])/g, '\\$1'); }
-
-        /* ====== init ====== */
-        $(function(){ lucide.createIcons(); });
-
-        let CURRENT_EDIT_NAME = null;
-
+        // #region Preview / Edit Panel
         function fileRawUrl(name){
           return '@Url.Action("Raw", "Backoffice", new { area = "HnbBackoffice" })'
                  + '?path=' + encodeURIComponent(CURRENT_PATH)
                  + '&name=' + encodeURIComponent(name);
         }
-
         function showPanel(title, html, isEdit=false){
           $('#pvTitle').text(title);
           $('#pvBody').html(html);
           $('#pvEditBar').toggleClass('hidden', !isEdit);
           $('#previewPanel').removeClass('hidden');
         }
-
         function ClosePreview(){
           $('#previewPanel').addClass('hidden');
           $('#pvBody').empty();
@@ -503,7 +499,7 @@
           const ext = (name.split('.').pop() || '').toLowerCase();
           const url = fileRawUrl(name);
 
-          // 影像
+          // 圖像
           if (['png','jpg','jpeg','gif','webp','bmp','svg'].includes(ext)){
             showPanel('預覽：' + name, `<img src="${url}" class="max-h-[70vh] mx-auto" />`);
             return;
@@ -517,54 +513,46 @@
             showPanel('預覽：' + name, `<audio src="${url}" controls class="w-full"></audio>`);
             return;
           }
-
-          // === PDF：直接 iframe（瀏覽器原生 PDF viewer） ===
+          // PDF
           if (ext === 'pdf'){
             showPanel('預覽：' + name, `<iframe src="${url}#toolbar=1&navpanes=0" class="w-full h-[70vh]"></iframe>`);
             return;
           }
-
-          // === Word / Excel / PowerPoint 預覽但不可編輯 ===
-          // .docx -> mammoth；.xlsx -> SheetJS；.pptx -> Office Web Viewer 內嵌
+          // Word / Excel / PowerPoint（不可編輯）
           if (ext === 'docx'){
-            $.ajax({
-              url: url, type: 'GET', xhrFields: { responseType: 'arraybuffer' }
-            }).done(function(buf){
-              window.mammoth.convertToHtml({ arrayBuffer: buf }).then(function(result){
-                const html = `<div class="text-sm leading-6">${result.value}</div>`;
-                showPanel('預覽：' + name, html);
-              }).catch(function(){
-                // 失敗時退回 Office 內嵌
-                const eurl = 'https://view.officeapps.live.com/op/embed.aspx?src=' + encodeURIComponent(absUrl(url));
-                showPanel('預覽：' + name, `
-                  <iframe src="${eurl}" class="w-full h-[70vh]" allowfullscreen></iframe>
-                  <div class="text-xs text-slate-500 mt-2">若無法載入，請確認此檔案是否可被外部檢視或改以下載方式開啟。</div>
-                `);
-              });
-            }).fail(function(){ alert('讀取失敗'); });
+            $.ajax({ url: url, type: 'GET', xhrFields: { responseType: 'arraybuffer' } })
+              .done(function(buf){
+                window.mammoth.convertToHtml({ arrayBuffer: buf }).then(function(result){
+                  const html = `<div class="text-sm leading-6">${result.value}</div>`;
+                  showPanel('預覽：' + name, html);
+                }).catch(function(){
+                  const eurl = 'https://view.officeapps.live.com/op/embed.aspx?src=' + encodeURIComponent(absUrl(url));
+                  showPanel('預覽：' + name, `
+                    <iframe src="${eurl}" class="w-full h-[70vh]" allowfullscreen></iframe>
+                    <div class="text-xs text-slate-500 mt-2">若無法載入，請改以下載方式開啟。</div>
+                  `);
+                });
+              }).fail(function(){ alert('讀取失敗'); });
             return;
           }
-
           if (ext === 'xlsx'){
-            $.ajax({
-              url: url, type: 'GET', xhrFields: { responseType: 'arraybuffer' }
-            }).done(function(buf){
-              try{
-                const wb = XLSX.read(new Uint8Array(buf), { type: 'array' });
-                const first = wb.SheetNames[0];
-                const html = XLSX.utils.sheet_to_html(wb.Sheets[first], { id: 'xlsx-preview' });
-                showPanel('預覽：' + name, `<div class="overflow-auto max-h-[70vh] text-sm">${html}</div>`);
-              }catch(e){
-                const eurl = 'https://view.officeapps.live.com/op/embed.aspx?src=' + encodeURIComponent(absUrl(url));
-                showPanel('預覽：' + name, `
-                  <iframe src="${eurl}" class="w-full h-[70vh]" allowfullscreen></iframe>
-                  <div class="text-xs text-slate-500 mt-2">若無法載入，請確認此檔案是否可被外部檢視或改以下載方式開啟。</div>
-                `);
-              }
-            }).fail(function(){ alert('讀取失敗'); });
+            $.ajax({ url: url, type: 'GET', xhrFields: { responseType: 'arraybuffer' } })
+              .done(function(buf){
+                try{
+                  const wb = XLSX.read(new Uint8Array(buf), { type: 'array' });
+                  const first = wb.SheetNames[0];
+                  const html = XLSX.utils.sheet_to_html(wb.Sheets[first], { id: 'xlsx-preview' });
+                  showPanel('預覽：' + name, `<div class="overflow-auto max-h-[70vh] text-sm">${html}</div>`);
+                }catch(e){
+                  const eurl = 'https://view.officeapps.live.com/op/embed.aspx?src=' + encodeURIComponent(absUrl(url));
+                  showPanel('預覽：' + name, `
+                    <iframe src="${eurl}" class="w-full h-[70vh]" allowfullscreen></iframe>
+                    <div class="text-xs text-slate-500 mt-2">若無法載入，請改以下載方式開啟。</div>
+                  `);
+                }
+              }).fail(function(){ alert('讀取失敗'); });
             return;
           }
-
           if (ext === 'pptx' || ext === 'ppt'){
             const eurl = 'https://view.officeapps.live.com/op/embed.aspx?src=' + encodeURIComponent(absUrl(url));
             showPanel('預覽：' + name, `
@@ -574,7 +562,7 @@
             return;
           }
 
-          // 其他副檔名：當作純文字試讀；若不是文字，會顯示亂碼（可再加副檔名白名單）
+          // 其他：嘗試當文字讀取（後端若不允許會回錯）
           $.ajax({
             url: '@Url.Action("ReadText", "Backoffice", new { area = "HnbBackoffice" })',
             type: 'GET',
@@ -594,8 +582,9 @@
           });
         }
 
+        let CURRENT_EDIT_NAME = null;
+
         function EditFile(name){
-          // 讀入文本後顯示 textarea
           $.ajax({
             url: '@Url.Action("ReadText", "Backoffice", new { area = "HnbBackoffice" })',
             type: 'GET',
@@ -627,5 +616,15 @@
             error: function(xhr){ alert(xhr.responseJSON?.error || xhr.responseText || '儲存失敗'); }
           });
         }
+        // #endregion
+
+        // #region Helpers
+        function htmlEscape(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+        function cssEscape(s){
+          if (window.CSS && CSS.escape) return CSS.escape(String(s));
+          return String(s).replace(/(["\\.#:\[\]\(\) ])/g, '\\$1');
+        }
+        $(function(){ lucide.createIcons(); });
+        // #endregion
     </script>
 }
