@@ -233,10 +233,11 @@ public sealed class DirectoryManagerUtilities
         }
     }
 
+    // DirectoryManagerUtilities.cs
     public List<(string Name, DateTime? LastWriteUtc)> ListFolders(string virtualPath)
     {
         var abs = GetSafeAbsolutePath(virtualPath);
-        Directory.CreateDirectory(abs);
+        if (!Directory.Exists(abs)) return new();
         return Directory.EnumerateDirectories(abs)
             .OrderBy(Path.GetFileName)
             .Select(d => (Path.GetFileName(d), (DateTime?)Directory.GetLastWriteTimeUtc(d)))
@@ -247,7 +248,7 @@ public sealed class DirectoryManagerUtilities
     public List<(string Name, long Size, DateTime? LastWriteUtc)> ListFiles(string virtualPath)
     {
         var abs = GetSafeAbsolutePath(virtualPath);
-        Directory.CreateDirectory(abs);
+        if (!Directory.Exists(abs)) return new();
         return Directory.EnumerateFiles(abs)
             .OrderBy(Path.GetFileName)
             .Select(f => {
@@ -257,4 +258,5 @@ public sealed class DirectoryManagerUtilities
             .Where(t => !IsProtected(virtualPath, t.Item1))
             .ToList();
     }
+
 }
