@@ -19,9 +19,9 @@
 
     <div class="grid grid-cols-12 gap-6">
         <div class="col-span-12 bg-white border rounded-xl p-6 space-y-6">
-            <div class="grid grid-cols-12 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
                 <!-- 左側資料夾樹 -->
-                <aside class="col-span-3 bg-white border rounded-lg p-4 space-y-3">
+                <aside class="col-span-12 md:col-span-3 md:sticky md:top-2 bg-white border rounded-lg p-4 space-y-3 order-1">
                     <div class="flex items-center justify-between">
                         <h3 class="text-sm font-semibold flex items-center gap-1">
                             <i data-lucide="folders" class="w-4 h-4"></i> 資料夾
@@ -54,7 +54,7 @@
                 </aside>
 
                 <!-- 右側檔案清單 -->
-                <main class="col-span-9 bg-white border rounded-lg p-4 space-y-6">
+                <main class="col-span-12 md:col-span-9 bg-white border rounded-lg p-4 space-y-6 order-2">
 
                     <!-- 拖曳/點擊/資料夾 上傳 -->
                     <form asp-action="Upload" method="post" enctype="multipart/form-data" class="space-y-2">
@@ -136,6 +136,10 @@
                                         <td class="py-2 text-slate-400">—</td>
                                         <td class="py-2">@d.LastWriteUtc?.ToString("yyyy/MM/dd HH:mm")</td>
                                         <td class="py-2 text-right space-x-2">
+                                            <a class="inline-flex items-center gap-1 px-2 py-1 bg-emerald-100 text-emerald-700 rounded-md hover:bg-emerald-200 text-xs"
+                                               href="@Url.Action("DownloadFolderZip", "Backoffice", new { area = "HnbBackoffice", path = currentPath, name = d.Name })">
+                                                下載 ZIP
+                                            </a>
                                             <button type="button" class="inline-flex items-center gap-1 px-2 py-1 bg-slate-100 text-slate-700 rounded-md hover:bg-slate-200 text-xs"
                                                     onclick="RenameInline('folder', '@d.Name')">
                                                 重新命名
@@ -165,8 +169,20 @@
                                         <td class="py-2">@human</td>
                                         <td class="py-2">@f.LastWriteUtc?.ToString("yyyy/MM/dd HH:mm")</td>
                                         <td class="py-2 text-right space-x-2">
+                                            <!-- 新增：預覽 / 編輯 -->
+                                            <button type="button" class="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-700 rounded-md hover:bg-purple-200 text-xs"
+                                                    onclick="PreviewFile('@f.Name')">
+                                                預覽
+                                            </button>
+                                            <button type="button" class="inline-flex items-center gap-1 px-2 py-1 bg-amber-100 text-amber-700 rounded-md hover:bg-amber-200 text-xs"
+                                                    onclick="EditFile('@f.Name')">
+                                                編輯
+                                            </button>
+
                                             <a class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 text-xs"
-                                               href="@Url.Action("Download", "Backoffice", new { area = "HnbBackoffice", path = currentPath, name = f.Name })">下載</a>
+                                               href="@Url.Action("Download", "Backoffice", new { area = "HnbBackoffice", path = currentPath, name = f.Name })">
+                                                下載
+                                            </a>
                                             <button type="button" class="inline-flex items-center gap-1 px-2 py-1 bg-slate-100 text-slate-700 rounded-md hover:bg-slate-200 text-xs"
                                                     onclick="RenameInline('file', '@f.Name')">
                                                 重新命名
@@ -181,6 +197,30 @@
                             </tbody>
                         </table>
                     </div>
+
+                    <!-- 新增：預覽 / 編輯面板（隱藏，點按鈕才顯示） -->
+                    <div id="previewPanel" class="hidden fixed inset-0 bg-black/40 z-50">
+                        <div class="absolute inset-0 flex items-center justify-center p-4">
+                            <div class="bg-white light:bg-slate-900 w-full max-w-5xl rounded-xl shadow-xl overflow-hidden">
+                                <div class="flex items-center justify-between px-4 py-3 border-b">
+                                    <div class="font-semibold" id="pvTitle">預覽</div>
+                                    <div class="flex items-center gap-2">
+                                        <button class="px-2 py-1 text-sm rounded bg-slate-100 hover:bg-slate-200" onclick="ClosePreview()">關閉</button>
+                                    </div>
+                                </div>
+                                <div id="pvBody" class="p-4 max-h-[70vh] overflow-auto text-sm"></div>
+                                <div id="pvEditBar" class="hidden border-t px-4 py-3 flex justify-end gap-2">
+                                    <select id="pvEncoding" class="border rounded px-2 py-1 text-sm">
+                                        <option value="utf-8">UTF-8</option>
+                                        <option value="utf-8-bom">UTF-8 (BOM)</option>
+                                    </select>
+                                    <button class="px-3 py-1.5 text-sm rounded bg-blue-600 text-white hover:bg-blue-700" onclick="SaveEdit()">儲存</button>
+                                    <button class="px-3 py-1.5 text-sm rounded bg-slate-100 hover:bg-slate-200" onclick="ClosePreview()">取消</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </main>
             </div>
         </div>
@@ -432,5 +472,101 @@
 
         /* ====== init ====== */
         $(function(){ lucide.createIcons(); });
+
+        let CURRENT_EDIT_NAME = null;
+
+        function fileRawUrl(name){
+          return '@Url.Action("Raw", "Backoffice", new { area = "HnbBackoffice" })'
+                 + '?path=' + encodeURIComponent(CURRENT_PATH)
+                 + '&name=' + encodeURIComponent(name);
+        }
+
+        function showPanel(title, html, isEdit=false){
+          $('#pvTitle').text(title);
+          $('#pvBody').html(html);
+          $('#pvEditBar').toggleClass('hidden', !isEdit);
+          $('#previewPanel').removeClass('hidden');
+        }
+
+        function ClosePreview(){
+          $('#previewPanel').addClass('hidden');
+          $('#pvBody').empty();
+          $('#pvEditBar').addClass('hidden');
+          CURRENT_EDIT_NAME = null;
+        }
+
+        function PreviewFile(name){
+          const ext = (name.split('.').pop() || '').toLowerCase();
+          const url = fileRawUrl(name);
+
+          // 圖片
+          if (['png','jpg','jpeg','gif','webp','bmp','svg'].includes(ext)){
+            showPanel('預覽：' + name, `<img src="${url}" class="max-h-[70vh] mx-auto" />`);
+            return;
+          }
+          // 影片
+          if (['mp4','webm','ogg','mov','mkv'].includes(ext)){
+            showPanel('預覽：' + name, `<video src="${url}" controls class="w-full max-h-[70vh]"></video>`);
+            return;
+          }
+          // 音訊
+          if (['mp3','wav','ogg','m4a','flac'].includes(ext)){
+            showPanel('預覽：' + name, `<audio src="${url}" controls class="w-full"></audio>`);
+            return;
+          }
+          // Office/PDF 不支援預覽（照你的需求）
+          if (['pdf','doc','docx','xls','xlsx','ppt','pptx'].includes(ext)){
+            showPanel('預覽：' + name, `<div class="text-slate-600">此檔案類型不支援預覽。</div>`);
+            return;
+          }
+          // 純文字類型：走 ReadText
+          $.ajax({
+            url: '@Url.Action("ReadText", "Backoffice", new { area = "HnbBackoffice" })',
+            type: 'GET',
+            data: { path: CURRENT_PATH, name },
+            success: function(res){
+              if(!res?.ok){ alert(res?.error || '讀取失敗'); return; }
+              const escaped = htmlEscape(res.content ?? '');
+              const meta = res.lastWriteUtc ? `<div class="text-xs text-slate-500 mb-2">LastWriteUtc: ${res.lastWriteUtc}</div>` : '';
+              const pre = `<pre class="whitespace-pre-wrap font-mono text-xs border rounded p-3 bg-slate-50 light:bg-slate-800">${escaped}</pre>`;
+              showPanel('預覽：' + name, meta + pre);
+            },
+            error: function(xhr){ alert(xhr.responseJSON?.error || xhr.responseText || '讀取失敗'); }
+          });
+        }
+
+        function EditFile(name){
+          // 讀入文本後顯示 textarea
+          $.ajax({
+            url: '@Url.Action("ReadText", "Backoffice", new { area = "HnbBackoffice" })',
+            type: 'GET',
+            data: { path: CURRENT_PATH, name },
+            success: function(res){
+              if(!res?.ok){ alert(res?.error || '讀取失敗'); return; }
+              CURRENT_EDIT_NAME = name;
+              const escaped = htmlEscape(res.content ?? '');
+              const ta = `<textarea id="pvEditor" class="w-full h-[60vh] font-mono text-xs border rounded p-3" spellcheck="false">${escaped}</textarea>`;
+              $('#pvEncoding').val((res.encoding || 'utf-8').toLowerCase().startsWith('utf-8') ? 'utf-8' : 'utf-8');
+              showPanel('編輯：' + name, ta, true);
+              setTimeout(()=> document.getElementById('pvEditor')?.focus(), 0);
+            },
+            error: function(xhr){ alert(xhr.responseJSON?.error || xhr.responseText || '讀取失敗'); }
+          });
+        }
+
+        function SaveEdit(){
+          const name = CURRENT_EDIT_NAME;
+          if(!name) { ClosePreview(); return; }
+          const content = $('#pvEditor').val() ?? '';
+          const encoding = $('#pvEncoding').val() ?? 'utf-8';
+          $.ajax({
+            url: '@Url.Action("SaveText", "Backoffice", new { area = "HnbBackoffice" })',
+            type: 'POST',
+            data: { path: CURRENT_PATH, name, content, encoding },
+            headers: { 'RequestVerificationToken': antiforgery() },
+            success: function(){ ClosePreview(); reloadHere(); },
+            error: function(xhr){ alert(xhr.responseJSON?.error || xhr.responseText || '儲存失敗'); }
+          });
+        }
     </script>
 }

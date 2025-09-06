@@ -157,6 +157,55 @@ public class BackofficeController(DbKeyJwtService DBsvc, BackofficeService svc, 
         return File(stream, contentType, fileName);
     }
 
+    // 資料夾下載 ZIP
+    [HttpGet]
+    public IActionResult DownloadFolderZip([Required] string name, string? path = "/")
+    {
+        var vPath = svc.NormalizePath(path ?? "/");
+        try
+        {
+            var (stream, fileName, ct) = svc.ZipFolder(vPath, name);
+            return File(stream, ct, fileName);
+        }
+        catch (Exception ex) { return ErrorOrRedirect(vPath, ex); }
+    }
+
+    // 原檔 inline（預覽用：<img src> / <video src> ...）
+    [HttpGet]
+    public IActionResult Raw([Required] string name, string? path = "/")
+    {
+        var vPath = svc.NormalizePath(path ?? "/");
+        var (stream, ct) = svc.OpenRaw(vPath, name);
+        return File(stream, ct); // 不帶檔名 => inline
+    }
+
+    // 讀文字檔（預覽/編輯）
+    [HttpGet]
+    public IActionResult ReadText([Required] string name, string? path = "/")
+    {
+        var vPath = svc.NormalizePath(path ?? "/");
+        try
+        {
+            var (content, encoding, last) = svc.ReadTextFile(vPath, name);
+            return Json(new { ok = true, content, encoding, lastWriteUtc = last });
+        }
+        catch (Exception ex) { return BadRequest(new { ok = false, error = ex.Message }); }
+    }
+
+    // 存文字檔（編輯用）
+    [HttpPost, ValidateAntiForgeryToken]
+    public IActionResult SaveText([Required] string name, [Required] string content, string? encoding = "utf-8", string? path = "/")
+    {
+        var vPath = svc.NormalizePath(path ?? "/");
+        try
+        {
+            svc.SaveTextFile(vPath, name, content, encoding);
+            return OkOrRedirect(vPath, new { name });
+        }
+        catch (Exception ex) { return ErrorOrRedirect(vPath, ex); }
+    }
+
+
     #endregion
 
     #region 私有方法

@@ -2,6 +2,9 @@
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
 using HNB.Areas.HnbBackoffice.Utilities;
+using System.IO.Compression;
+using System.Text;
+
 
 namespace HNB.Areas.HnbBackoffice.Services;
 
@@ -164,6 +167,116 @@ public class BackofficeService
         var ct = new FileExtensionContentTypeProvider().TryGetContentType(safe, out var contentType)
             ? contentType : "application/octet-stream";
         return (stream, safe, ct);
+    }
+
+    // 1) 資料夾壓縮為 ZIP，回傳可串流的檔案（用暫存檔 + DeleteOnClose）
+    public (Stream Stream, string FileName, string ContentType) ZipFolder(string virtualPath, string folderName)
+    {
+        if (_dm.IsProtected(virtualPath, folderName))
+            throw new InvalidOperationException("保護路徑，禁止壓縮");
+
+        var absParent = _dm.GetSafeAbsolutePath(virtualPath);
+        var safe = _dm.SanitizeName(folderName);
+        var absTargetDir = Path.Combine(absParent, safe);
+        if (!Directory.Exists(absTargetDir))
+            throw new DirectoryNotFoundException("資料夾不存在");
+
+        var temp = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + ".zip");
+        var fs = new FileStream(temp, FileMode.Create, FileAccess.ReadWrite, FileShare.Read, 1 << 16, FileOptions.DeleteOnClose);
+
+        using (var zip = new ZipArchive(fs, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            var baseV = NormalizePath((virtualPath ?? "/").TrimEnd('/') + "/" + safe);
+            AddDir(absTargetDir, baseV, "");
+            void AddDir(string absDir, string vDir, string rel)
+            {
+                foreach (var dir in Directory.EnumerateDirectories(absDir))
+                {
+                    var name = Path.GetFileName(dir);
+                    if (_dm.IsProtected(vDir, name)) continue;
+                    var nextV = vDir == "/" ? "/" + name : vDir + "/" + name;
+                    AddDir(dir, nextV, rel + name + "/");
+                }
+                foreach (var file in Directory.EnumerateFiles(absDir))
+                {
+                    var name = Path.GetFileName(file);
+                    if (_dm.IsProtected(vDir, name)) continue;
+                    var entry = zip.CreateEntry(rel + name, CompressionLevel.Fastest);
+                    using var src = File.OpenRead(file);
+                    using var dst = entry.Open();
+                    src.CopyTo(dst);
+                }
+            }
+        }
+        fs.Position = 0;
+        return (fs, safe + ".zip", "application/zip");
+    }
+
+    // 以「inline」方式讀檔（給預覽 <img>/<video> 等用）
+    public (Stream Stream, string ContentType) OpenRaw(string virtualPath, string fileName)
+    {
+        var (s, _, ct) = OpenRead(virtualPath, fileName);
+        return (s, ct);
+    }
+
+    // 純文字類型判斷（可編輯/可文字預覽）
+    private static readonly HashSet<string> EditableExt = new(StringComparer.OrdinalIgnoreCase)
+{
+    ".txt",".md",".json",".jsonl",".js",".ts",".css",".scss",".sass",
+    ".cs",".cshtml",".html",".htm",".xml",".yml",".yaml",".ini",".conf",".cfg",
+    ".log",".py",".sh",".bat",".ps1",".sql",".env",".properties",".toml",".gitignore",".editorconfig"
+};
+    private static bool IsEditable(string fileName) => EditableExt.Contains(Path.GetExtension(fileName));
+
+    // 讀取文字檔（含簡單 BOM 偵測；預設上限 1MB）
+    public (string Content, string EncodingName, DateTime? LastWriteUtc) ReadTextFile(string virtualPath, string fileName, long maxBytes = 1_048_576)
+    {
+        if (!IsEditable(fileName))
+            throw new InvalidOperationException("此檔案類型不支援線上查看/編輯");
+
+        var absDir = _dm.GetSafeAbsolutePath(virtualPath);
+        var safe = _dm.SanitizeName(fileName);
+        var full = Path.Combine(absDir, safe);
+        if (!File.Exists(full)) throw new FileNotFoundException();
+
+        var fi = new FileInfo(full);
+        if (fi.Length > maxBytes)
+            throw new InvalidOperationException($"檔案過大（{fi.Length:N0} bytes），超過上限 {maxBytes:N0}。");
+
+        using var fs = File.OpenRead(full);
+        // BOM 偵測
+        var preamble = new byte[4];
+        var read = fs.Read(preamble, 0, 4);
+        fs.Position = 0;
+
+        Encoding enc = Encoding.UTF8;
+        if (read >= 3 && preamble[0] == 0xEF && preamble[1] == 0xBB && preamble[2] == 0xBF) enc = new UTF8Encoding(true);
+        else if (read >= 2 && preamble[0] == 0xFF && preamble[1] == 0xFE) enc = Encoding.Unicode;           // UTF-16 LE
+        else if (read >= 2 && preamble[0] == 0xFE && preamble[1] == 0xFF) enc = Encoding.BigEndianUnicode;  // UTF-16 BE
+
+        using var sr = new StreamReader(fs, enc, detectEncodingFromByteOrderMarks: true);
+        var text = sr.ReadToEnd();
+        return (text, enc.WebName, fi.LastWriteTimeUtc);
+    }
+
+    // 儲存文字檔（UTF-8 / UTF-8 BOM 可選）
+    public void SaveTextFile(string virtualPath, string fileName, string content, string? encodingName = "utf-8")
+    {
+        if (_dm.IsProtected(virtualPath, fileName))
+            throw new InvalidOperationException("保護路徑，禁止寫入");
+        if (!IsEditable(fileName))
+            throw new InvalidOperationException("此檔案類型不支援線上編輯");
+
+        var absDir = _dm.GetSafeAbsolutePath(virtualPath);
+        var safe = _dm.SanitizeName(fileName);
+        var full = Path.Combine(absDir, safe);
+        if (!File.Exists(full)) throw new FileNotFoundException();
+
+        var enc = encodingName?.Equals("utf-8-bom", StringComparison.OrdinalIgnoreCase) == true
+            ? new UTF8Encoding(encoderShouldEmitUTF8Identifier: true)
+            : Encoding.UTF8;
+
+        File.WriteAllText(full, content ?? string.Empty, enc);
     }
 
     #endregion
