@@ -14,7 +14,6 @@ public class OperationPermissionFilter : IAuthorizationFilter
     {
         if (!context.HttpContext.User.Identity?.IsAuthenticated ?? true)
         {
-            context.Result = new RedirectToActionResult("HNBAccess", "GitHubAccess", null);
         }
     }
 }

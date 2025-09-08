@@ -15,6 +15,8 @@ public partial class HnbHnbBackofficeDbContext : DbContext
 
     public virtual DbSet<system_config> system_configs { get; set; }
 
+    public virtual DbSet<user_profile> user_profiles { get; set; }
+
     public virtual DbSet<vw_system_config_database> vw_system_config_databases { get; set; }
 
     public virtual DbSet<vw_system_config_notification> vw_system_config_notifications { get; set; }
@@ -100,6 +102,47 @@ public partial class HnbHnbBackofficeDbContext : DbContext
             entity.Property(e => e.uptime).HasComment("系統運行時間");
             entity.Property(e => e.website_name).HasComment("網站名稱");
             entity.Property(e => e.website_url).HasComment("網站網址");
+        });
+
+        modelBuilder.Entity<user_profile>(entity =>
+        {
+            entity.HasKey(e => e.id).HasName("user_profiles_pkey");
+
+            entity.ToTable("user_profiles", "dbo", tb => tb.HasComment("使用者個人資料表"));
+
+            entity.Property(e => e.id).HasComment("主鍵編號");
+            entity.Property(e => e.account).HasComment("帳號");
+            entity.Property(e => e.birthday).HasComment("生日");
+            entity.Property(e => e.blood_type).HasComment("血型");
+            entity.Property(e => e.common_equipment).HasComment("常用設備");
+            entity.Property(e => e.created_at)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasComment("資料建立時間");
+            entity.Property(e => e.device_equipment).HasComment("裝置設備");
+            entity.Property(e => e.disabled)
+                .HasDefaultValue(false)
+                .HasComment("停用");
+            entity.Property(e => e.email).HasComment("電子郵件");
+            entity.Property(e => e.emergency_contact_name).HasComment("緊急聯絡人");
+            entity.Property(e => e.emergency_contact_phone).HasComment("緊急連絡人電話");
+            entity.Property(e => e.employee_english_name).HasComment("員工名稱(英文)");
+            entity.Property(e => e.employee_id).HasComment("員工ID");
+            entity.Property(e => e.employee_name).HasComment("員工名稱");
+            entity.Property(e => e.extension).HasComment("分機號");
+            entity.Property(e => e.id_card_number).HasComment("身分證");
+            entity.Property(e => e.last_login_at).HasComment("最後登入");
+            entity.Property(e => e.last_login_ip).HasComment("IP");
+            entity.Property(e => e.location).HasComment("位置");
+            entity.Property(e => e.organization_id).HasComment("組織ID");
+            entity.Property(e => e.organization_name).HasComment("組織名稱");
+            entity.Property(e => e.password).HasComment("密碼");
+            entity.Property(e => e.permissions).HasComment("權限");
+            entity.Property(e => e.phone).HasComment("電話");
+            entity.Property(e => e.screen_component_whitelist).HasComment("畫面元件白名單");
+            entity.Property(e => e.screen_whitelist).HasComment("畫面白名單");
+            entity.Property(e => e.updated_at)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasComment("資料最後更新時間");
         });
 
         modelBuilder.Entity<vw_system_config_database>(entity =>

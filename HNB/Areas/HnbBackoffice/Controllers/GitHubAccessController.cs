@@ -1,7 +1,7 @@
-﻿using HNB.Services;
+﻿using HNB.Areas.HnbBackoffice.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HNB.Controllers;
+namespace HNB.Areas.HnbBackoffice.Controllers;
 
 public class GitHubAccessController : Controller
 {

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
-namespace HNB.Services;
+namespace HNB.Areas.HnbBackoffice.Services;
 
 public class GitHubAccessServices
 {

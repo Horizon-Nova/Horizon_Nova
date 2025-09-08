@@ -29,12 +29,12 @@ public partial class security_ip_key
     /// </summary>
     public long time_param { get; set; }
 
-    public DateTime? created_at { get; set; }
+    public DateTime created_at { get; set; }
 
     /// <summary>
     /// 失效時間
     /// </summary>
-    public DateTime? expires_at { get; set; }
+    public DateTime expires_at { get; set; }
 
     public string? note { get; set; }
 

@@ -44,8 +44,10 @@
   <ItemGroup>
     <Folder Include="Areas\DialVision\Data\" />
     <Folder Include="Areas\DialVision\Models\" />
+    <Folder Include="Areas\HnbBackoffice\Filters\" />
     <Folder Include="Areas\HnbBackoffice\storage\" />
     <Folder Include="Areas\HNB_WEB\Utilities\" />
+    <Folder Include="Controllers\" />
     <Folder Include="Views\Shared\" />
     <Folder Include="wwwroot\HNB_WEB\image\" />
     <Folder Include="Data\" />
