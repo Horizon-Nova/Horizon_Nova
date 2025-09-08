@@ -114,7 +114,8 @@
                                 <i data-lucide="user" class="h-4 w-4"></i> 個人資料
                             </a>
                             <div class="my-2 h-px bg-slate-200"></div>
-                            <form method="post" action="@Url.Action("", "Backoffice", new { area = "HnbBackoffice" })">
+                            <form method="post" action="@Url.Action("Logout", "Authorize", new { area = "HnbBackoffice" })">
+                                @Html.AntiForgeryToken()
                                 <button type="submit"
                                         class="w-full text-left flex items-center gap-2 px-3 py-2 rounded-md hover:bg-slate-100">
                                     <i data-lucide="log-out" class="h-4 w-4"></i> 登出

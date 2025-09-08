@@ -35,4 +35,10 @@ public static class HnbBackofficeExtensions
         services.AddScoped<DbKeyJwtService>();
         return services;
     }
+    /// <summary> DI注入管理 Authorize 功能 </summary>
+    public static IServiceCollection AddAuthorizeModule(this IServiceCollection services)
+    {
+        services.AddScoped<AuthorizeService>();
+        return services;
+    }
 }

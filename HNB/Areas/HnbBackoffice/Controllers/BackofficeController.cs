@@ -1,4 +1,5 @@
-﻿using HNB.Areas.HnbBackoffice.Services;
+﻿using HNB.Areas.HnbBackoffice.Filters;
+using HNB.Areas.HnbBackoffice.Services;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Models.HnbHnbBackoffice;
@@ -7,37 +8,16 @@ using System.ComponentModel.DataAnnotations;
 namespace HNB.Areas.HnbBackoffice.Controllers;
 
 [Area("HnbBackoffice")]
-public class BackofficeController(DbKeyJwtService DBsvc, BackofficeService svc, IConfiguration cfg) : Controller
+[OperationPermission(requireIpMatch: true, verifyDb: true)]
+public class BackofficeController(BackofficeService svc, IConfiguration cfg) : Controller
 {
     #region Dashboard (儀錶板)
     public IActionResult Dashboard()
         => View();
     #endregion
 
-    #region Login/Logout (登入/登出)
-    [HttpPost]
-    public async Task<IActionResult> Login([FromBody] LoginRequest req, CancellationToken ct)
-    {
-        if (req?.Username == "admin" && req?.Password == "123456")
-        {
-            var (token, exp) = await DBsvc.IssueTokenAfterLoginAsync(
-                ctx: HttpContext,
-                keyComponents: req.Username,
-                note: "登入產生",
-                ct: ct);
-
-            return Ok(new { ok = true, token, expires_at = exp });
-        }
-
-        return Unauthorized(new { ok = false, error = "invalid_credential" });
-    }
-
-    public record LoginRequest(string Username, string Password);
-    #endregion
-
     #region FileManager (檔案總管)
 
-    // ========== 小幫手：集中處理 Path 與錯誤回應 ==========
     #region Helpers
     private string V(string? path) => svc.NormalizePath(path ?? "/");
 
@@ -56,7 +36,6 @@ public class BackofficeController(DbKeyJwtService DBsvc, BackofficeService svc, 
     }
     #endregion
 
-    // ========== 畫面 ==========
     public IActionResult FileManager(string? path = "/")
     {
         var vPath = V(path);

@@ -35,6 +35,7 @@ builder.Services
     .AddBackofficeModule()
     .AddTeamZoneModule()
     .AddDbKeyJwtModule()
+    .AddAuthorizeModule()
     .AddSystemMonitorHostedModule()
     .AddIpMiddlewareServicesModule();
 
@@ -48,6 +49,19 @@ builder.Services.Configure<ForwardedHeadersOptions>(opt =>
     opt.KnownNetworks.Clear();
     opt.KnownProxies.Clear();
 });
+var keyPath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "DataProtectionKeys");
+builder.Services.AddDataProtection()
+                .PersistKeysToFileSystem(new DirectoryInfo(keyPath));
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(opts =>
+    {
+        opts.LoginPath = "/HnbBackoffice/Backoffice/Login";
+        opts.AccessDeniedPath = "/HnbBackoffice/Backoffice/Login";
+        opts.Cookie.HttpOnly = true;                          // 避免 JS 取用 Cookie
+        opts.Cookie.SecurePolicy = CookieSecurePolicy.Always; // 僅限 HTTPS 傳輸
+        opts.Cookie.SameSite = SameSiteMode.Strict;           // 禁止跨站帶 Cookie（可防 CSRF 類問題）
+    });
 
 // Session 啟用
 builder.Services.AddSession();

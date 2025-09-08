@@ -3,72 +3,48 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HNB.Areas.HnbBackoffice.Controllers;
 
-public class GitHubAccessController : Controller
+[Area("HnbBackoffice")]
+public class GitHubAccessController(GitHubAccessServices svc) : Controller
 {
-    private readonly GitHubAccessServices _services;
-    private readonly IConfiguration _config;
-    private readonly string _clientId, _clientSecret, _orgName, _callbackUrl;
-
-    public GitHubAccessController(GitHubAccessServices services, IConfiguration config)
-    {
-        _services = services;
-        _config = config;
-
-        _clientId = config["GitHubOAuth:ClientId"];
-        _clientSecret = config["GitHubOAuth:ClientSecret"];
-        _orgName = config["GitHubOAuth:OrgName"];
-        _callbackUrl = config["GitHubOAuth:CallbackUrl"];
-    }
-
-    // 登入畫面
-    //public IActionResult HNBAccess() => View();
-
-    // 取登入連結
+    #region 取得登入連結（支援 popup）
+    [HttpGet("github-access/login")]
     [IgnoreAntiforgeryToken]
-    public IActionResult RedirectGitHub()
+    public IActionResult RedirectGitHub(string? returnUrl = null, bool popup = false)
     {
-        var state = Guid.NewGuid().ToString("N");
-        HttpContext.Session.SetString("OAuthState", state);
-
-        var authorizeUrl =
-            $"https://github.com/login/oauth/authorize" +
-            $"?client_id={_clientId}" +
-            $"&scope=read:user%20read:org" +
-            $"&redirect_uri={_callbackUrl}" +
-            $"&state={state}";
-
+        var authorizeUrl = svc.BuildAuthorizeUrl(HttpContext, returnUrl, popup);
         return Redirect(authorizeUrl);
     }
+    #endregion
 
-
-
+    #region GitHub 回呼（popup 用 postMessage，否則一般 Redirect）
     [HttpGet("github-access/callback")]
-    public async Task<IActionResult> Callback(string code, string state)
+    public async Task<IActionResult> Callback(string code, string state, string? returnUrl, CancellationToken ct)
     {
-        var expectedState = HttpContext.Session.GetString("OAuthState");
-        HttpContext.Session.Remove("OAuthState");
+        var result = await svc.HandleCallbackAsync(HttpContext, code, state, returnUrl,
+            fallbackPath: "/HnbBackoffice/Backoffice/Dashboard", ct: ct);
 
-        if (string.IsNullOrEmpty(expectedState) || expectedState != state)
+        if (!result.Success)
         {
-            TempData["Error"] = "無效的驗證請求，請重試。";
-            return RedirectToAction("HNBAccess");
+            TempData["Error"] = result.Error ?? "登入失敗";
+            return Redirect("/HnbBackoffice/Authorize/Login");
         }
 
-        var results = await _services.TrySignInFromCodeAsync(code);
+        if (result.IsPopup)
+        {
+            var html = $@"<!doctype html><meta charset=""utf-8""><script>
+try {{
+  if (window.opener) {{
+    window.opener.postMessage({{ type:'GH_AUTH_DONE', redirectTo:'{result.RedirectTo}' }}, window.location.origin);
+  }}
+}} catch(e) {{}} finally {{
+  window.close();
+  setTimeout(function(){{ location.href = '{result.RedirectTo}'; }}, 300);
+}}
+</script>";
+            return Content(html, "text/html; charset=utf-8");
+        }
 
-        if (results)
-            return RedirectToAction("Team_introduction", "Overview");
-
-        TempData["Error"] = "登入失敗，請確認您是否為 Horizon Nova 組織成員。";
-        return RedirectToAction("HNBAccess");
+        return Redirect(result.RedirectTo);
     }
-
-
-    [HttpGet]
-    public async Task<IActionResult> Logout()
-    {
-        await _services.SignOutAsync();
-        return RedirectToAction("Team_introduction", "Overview");
-    }
-
+    #endregion
 }

@@ -1,141 +1,120 @@
-﻿using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Http;
+﻿using System.Net.Http.Headers;
 using System.Text.Json;
-using Microsoft.AspNetCore.Authentication;
+using HNB.Areas.HnbBackoffice.Utilities;
+
 namespace HNB.Areas.HnbBackoffice.Services;
 
-public class GitHubAccessServices
+public record GitHubCallbackResult(bool Success, string? Error, string RedirectTo, bool IsPopup);
+
+public class GitHubAccessServices(IHttpClientFactory httpFactory, IConfiguration cfg, GitHubAccessUtilities util, DbKeyJwtService jwtSvc)
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IHttpClientFactory _httpClientFactory;
-    private readonly ILogger<GitHubAccessServices> _logger;
-
-    private readonly string _clientId;
-    private readonly string _clientSecret;
-    private readonly string _orgName;
-
-    public GitHubAccessServices(IHttpContextAccessor accessor,IHttpClientFactory factory,IConfiguration config,ILogger<GitHubAccessServices> logger)
+    #region 建立授權網址（建立 state/returnUrl 與 popup 旗標）
+    public string BuildAuthorizeUrl(HttpContext http, string? returnUrl, bool popup)
     {
-        _httpContextAccessor = accessor;
-        _httpClientFactory = factory;
-        _logger = logger;
-
-        _clientId = config["GitHubOAuth:ClientId"];
-        _clientSecret = config["GitHubOAuth:ClientSecret"];
-        _orgName = config["GitHubOAuth:OrgName"];
+        util.SaveIsPopup(http, popup);
+        return util.BuildAuthorizeUrl(http, cfg, returnUrl);
     }
+    #endregion
 
-    public async Task<bool> TrySignInFromCodeAsync(string code)
+    #region 回呼流程
+    public async Task<GitHubCallbackResult> HandleCallbackAsync(
+        HttpContext http, string code, string state, string? queryReturnUrl, string fallbackPath, CancellationToken ct)
     {
-        var accessToken = await GetAccessTokenAsync(code);
-        if (string.IsNullOrEmpty(accessToken))
-            return false;
+        var (okState, err) = util.ValidateState(http, state);
+        var isPopup = util.ReadAndClearIsPopup(http);
+        if (!okState) return new(false, err, "/HnbBackoffice/Authorize/Login", isPopup);
 
-        var userInfo = await GetUserInfoAsync(accessToken);
-        if (string.IsNullOrEmpty(userInfo.Login))
-            return false;
+        var accessToken = await ExchangeTokenAsync(code, ct);
+        if (string.IsNullOrWhiteSpace(accessToken))
+            return new(false, "無法取得 GitHub access_token。", "/HnbBackoffice/Authorize/Login", isPopup);
 
-        _logger.LogInformation("GitHub login: {login}, name: {name}", userInfo.Login, userInfo.Name);
+        var user = await GetUserAsync(accessToken, ct);
+        if (user is null)
+            return new(false, "無法讀取 GitHub 使用者資訊。", "/HnbBackoffice/Authorize/Login", isPopup);
 
-        var isOrgMember = await IsOrganizationMemberAsync(accessToken, userInfo.Login);
-        if (!isOrgMember)
-            return false;
+        if (util.ShouldCheckOrg(cfg))
+        {
+            var okMember = await IsOrgMemberAsync(accessToken, user.Value.Login, ct);
+            if (!okMember)
+                return new(false, "您非指定 GitHub 組織成員。", "/HnbBackoffice/Authorize/Login", isPopup);
+        }
 
-        await SignInUserAsync(userInfo.Login, userInfo.Name, new[] { "Member" });
-        return true;
+        var (token, exp) = await jwtSvc.IssueTokenAfterLoginAsync(
+            http, $"github_{user.Value.Login}", "GitHub 登入", ct);
+
+        http.Response.Cookies.Append("HNB_API_TOKEN", token, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Path = "/",
+            Expires = exp.UtcDateTime
+        });
+
+        var redirectTo = util.PickRedirectPath(http, queryReturnUrl, fallbackPath);
+        return new(true, null, redirectTo, isPopup);
     }
+    #endregion
 
-    private async Task<string> GetAccessTokenAsync(string code)
+    #region GitHub API：交換 token
+    private async Task<string?> ExchangeTokenAsync(string code, CancellationToken ct)
     {
-        var client = _httpClientFactory.CreateClient();
-        var parameters = new Dictionary<string, string>
+        var client = httpFactory.CreateClient();
+        using var req = new HttpRequestMessage(HttpMethod.Post, "https://github.com/login/oauth/access_token")
         {
-            { "client_id", _clientId },
-            { "client_secret", _clientSecret },
-            { "code", code }
-        };
-
-        var req = new HttpRequestMessage(HttpMethod.Post, "https://github.com/login/oauth/access_token")
-        {
-            Content = new FormUrlEncodedContent(parameters)
+            Content = new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["client_id"] = cfg["GitHubOAuth:ClientId"] ?? "",
+                ["client_secret"] = cfg["GitHubOAuth:ClientSecret"] ?? "",
+                ["code"] = code
+            })
         };
         req.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-        var res = await client.SendAsync(req);
-        var json = await res.Content.ReadAsStringAsync();
-        var doc = JsonDocument.Parse(json);
+        using var res = await client.SendAsync(req, ct);
+        if (!res.IsSuccessStatusCode) return null;
 
-        return doc.RootElement.TryGetProperty("access_token", out var token)? token.GetString(): null;
+        using var doc = JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));
+        return doc.RootElement.TryGetProperty("access_token", out var token) ? token.GetString() : null;
     }
+    #endregion
 
-    private async Task<(string Login, string Name)> GetUserInfoAsync(string accessToken)
+    #region GitHub API：取得使用者
+    private async Task<(string Login, string Name)?> GetUserAsync(string accessToken, CancellationToken ct)
     {
-        var client = _httpClientFactory.CreateClient();
-        var req = new HttpRequestMessage(HttpMethod.Get, "https://api.github.com/user");
-        req.Headers.Add("Authorization", $"Bearer {accessToken}");
-        req.Headers.Add("User-Agent", "HorizonNovaApp/1.0");
+        var client = httpFactory.CreateClient();
+        using var req = new HttpRequestMessage(HttpMethod.Get, "https://api.github.com/user");
+        req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        req.Headers.UserAgent.ParseAdd("HorizonNovaApp/1.0");
 
-        var res = await client.SendAsync(req);
-        if (!res.IsSuccessStatusCode) return default;
+        using var res = await client.SendAsync(req, ct);
+        if (!res.IsSuccessStatusCode) return null;
 
-        var json = await res.Content.ReadAsStringAsync();
-        var doc = JsonDocument.Parse(json);
-
+        using var doc = JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));
         var login = doc.RootElement.GetProperty("login").GetString();
-        var name = doc.RootElement.TryGetProperty("name", out var n) ? n.GetString() : login;
-
-        return (login, name);
+        var name = doc.RootElement.TryGetProperty("name", out var n) ? (n.GetString() ?? login) : login;
+        return (login!, name!);
     }
+    #endregion
 
-    private async Task<bool> IsOrganizationMemberAsync(string accessToken, string login)
+    #region GitHub API：檢查 Org 成員
+    private async Task<bool> IsOrgMemberAsync(string accessToken, string login, CancellationToken ct)
     {
-        var client = _httpClientFactory.CreateClient();
-        var req = new HttpRequestMessage(HttpMethod.Get,
-            $"https://api.github.com/orgs/{_orgName}/memberships/{login}");
+        var org = cfg["GitHubOAuth:OrgName"] ?? "";
+        if (string.IsNullOrWhiteSpace(org)) return true;
 
-        req.Headers.Add("Authorization", $"Bearer {accessToken}");
-        req.Headers.Add("User-Agent", "HorizonNovaApp/1.0");
+        var client = httpFactory.CreateClient();
+        using var req = new HttpRequestMessage(HttpMethod.Get, $"https://api.github.com/orgs/{org}/memberships/{login}");
+        req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        req.Headers.UserAgent.ParseAdd("HorizonNovaApp/1.0");
         req.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github+json"));
 
-        var res = await client.SendAsync(req);
+        using var res = await client.SendAsync(req, ct);
         if (!res.IsSuccessStatusCode) return false;
 
-        var json = await res.Content.ReadAsStringAsync();
-        var doc = JsonDocument.Parse(json);
-
-        if (doc.RootElement.TryGetProperty("state", out var stateProp))
-            return stateProp.GetString()?.Equals("active", StringComparison.OrdinalIgnoreCase) ?? false;
-
-        return false;
+        using var doc = JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));
+        return doc.RootElement.TryGetProperty("state", out var stateProp)
+            && string.Equals(stateProp.GetString(), "active", StringComparison.OrdinalIgnoreCase);
     }
-
-    public async Task SignInUserAsync(string login, string displayName, string[] roles)
-    {
-        var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.Name, displayName ?? login),
-            new Claim(ClaimTypes.NameIdentifier, login)
-        };
-
-        foreach (var role in roles)
-            claims.Add(new Claim(ClaimTypes.Role, role));
-
-        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-
-        await _httpContextAccessor.HttpContext.SignInAsync(
-            CookieAuthenticationDefaults.AuthenticationScheme,
-            claimsPrincipal);
-    }
-
-    public async Task SignOutAsync()
-    {
-        var context = _httpContextAccessor.HttpContext;
-        if (context != null)
-            await context.SignOutAsync();
-    }
-
+    #endregion
 }
