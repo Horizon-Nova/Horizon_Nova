@@ -45,8 +45,8 @@ public class GitHubAccessServices(IHttpClientFactory httpFactory, IConfiguration
         http.Response.Cookies.Append("HNB_API_TOKEN", token, new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
+            Secure = http.Request.IsHttps,
+            SameSite = SameSiteMode.Lax,
             Path = "/",
             Expires = exp.UtcDateTime
         });

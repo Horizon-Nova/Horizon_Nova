@@ -96,7 +96,13 @@
                     <i data-lucide="github" class="w-5 h-5 text-slate-800"></i>
                 </button>
             </div>
-
+            <!-- 隱藏的彈出視窗 -->
+            <div id="ghModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center">
+                <div class="bg-white rounded-lg shadow-lg w-80 p-6 text-center">
+                    <div class="text-lg font-semibold mb-2">前往 GitHub 驗證</div>
+                    <div class="text-slate-600">請稍候…</div>
+                </div>
+            </div>
             <!-- 隱藏的登出表單（供 JS 提交，含防偽） -->
             <form id="LogoutForm"
                   action="@Url.Action("Logout", "Authorize", new { area = "HnbBackoffice" })"
@@ -107,6 +113,7 @@
 
         <p class="mt-6 text-center text-xs text-slate-500">&copy; @DateTime.Now.Year Horizon-Nova</p>
     </div>
+
 </main>
 
 @section Scripts {
@@ -131,37 +138,36 @@
             document.getElementById('FormData').submit();
         }
 
-        function GithubLogin(){
-          var ret = document.getElementById('returnUrl')?.value || '/';
-
-          var base = '@Url.Action("RedirectGitHub", "GitHubAccess", new { area = "HnbBackoffice" })';
-          var url  = base + '?returnUrl=' + encodeURIComponent(ret) + '&popup=1';
-
-          var w = 720, h = 720;
-          var y = Math.max(0, (screen.height - h) / 2);
-          var x = Math.max(0, (screen.width  - w) / 2);
-          var pop = window.open(url, 'gh_oauth',
-            'width='+w+',height='+h+',left='+x+',top='+y+',resizable=yes,scrollbars=yes');
-
-          if(!pop){ window.location.href = url; return; }
-
-          var handler = function(e){
-            if(e.origin !== location.origin) return;
-            if(!e.data || e.data.type !== 'GH_AUTH_DONE') return;
-            window.removeEventListener('message', handler);
-            var to = e.data.redirectTo || ret;
-            window.location.href = to;
-          };
-          window.addEventListener('message', handler);
-
-          setTimeout(function(){
-            try{ if(!pop || pop.closed) window.location.href = url; }catch(_){}
-          }, 60000);
+        function GithubLogin() {
+          var ret = document.getElementById('returnUrl')?.value || '/HnbBackoffice/Backoffice/Dashboard';
+          toggleGhModal(true);
+          $.ajax({
+            type: 'GET',
+            url: '/HnbBackoffice/GitHubAccess/GetAuthorizeUrl',
+            data: { returnUrl: ret },
+            success: function (res) {
+              if (res && res.ok && res.url) {
+                window.location.href = res.url;
+              } else {
+                toggleGhModal(false);
+                alert('取得授權網址失敗，請稍後再試。');
+              }
+            },
+            error: function () {
+              toggleGhModal(false);
+              alert('無法連線，請稍後再試。');
+            }
+          });
         }
 
         function LogoutFormSubmit() {
             document.getElementById('LogoutForm').submit();
         }
 
+        function toggleGhModal(show) {
+          var m = document.getElementById('ghModal');
+          if (show) { m.classList.remove('hidden'); m.classList.add('flex'); }
+          else { m.classList.add('hidden'); m.classList.remove('flex'); }
+        }
     </script>
 }
