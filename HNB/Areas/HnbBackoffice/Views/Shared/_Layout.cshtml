@@ -20,8 +20,11 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <script src="https://cdn.balkan.app/orgchart.js"></script>
 
     <!-- 自訂樣式 -->
     <link rel="stylesheet" href="~/HnbBackoffice/css/LayoutBackoffice.css" />
@@ -56,7 +59,7 @@
                     <i data-lucide="shield" class="h-4 w-4 shrink-0"></i>
                     <span class="truncate" data-collapsed-target>API 安全控管</span>
                 </a>
-                <a href="@Url.Action("", "", new { area = "HnbBackoffice" })"
+                <a href="@Url.Action("UserManagement", "UserManagement", new { area = "HnbBackoffice" })"
                    class="w-full flex items-center gap-2 rounded-md px-3 py-2 hover:bg-slate-100">
                     <i data-lucide="users" class="h-4 w-4 shrink-0"></i>
                     <span0 class="truncate" data-collapsed-target>權限管理</span0>

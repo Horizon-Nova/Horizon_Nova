@@ -112,6 +112,7 @@ public partial class HnbHnbBackofficeDbContext : DbContext
 
             entity.Property(e => e.id).HasComment("主鍵編號");
             entity.Property(e => e.account).HasComment("帳號");
+            entity.Property(e => e.avatar_updated_at).HasDefaultValueSql("CURRENT_TIMESTAMP");
             entity.Property(e => e.birthday).HasComment("生日");
             entity.Property(e => e.blood_type).HasComment("血型");
             entity.Property(e => e.common_equipment).HasComment("常用設備");

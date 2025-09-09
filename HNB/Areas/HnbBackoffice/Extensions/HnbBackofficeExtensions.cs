@@ -41,4 +41,11 @@ public static class HnbBackofficeExtensions
         services.AddScoped<AuthorizeService>();
         return services;
     }
+    /// <summary> DI注入管理 UserManagement 功能 </summary>
+    public static IServiceCollection AddUserManagementModule(this IServiceCollection services)
+    {
+        services.AddScoped<UserManagementService>();
+        services.AddScoped<UserManagementRepositories>();
+        return services;
+    }
 }

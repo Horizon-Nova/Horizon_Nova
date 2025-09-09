@@ -1,0 +1,22 @@
+﻿<div class="bg-white border rounded-xl p-6 space-y-4">
+    <header class="space-y-1">
+        <h2 class="text-xl font-semibold flex items-center gap-2">
+            <i data-lucide="hierarchy" class="w-5 h-5"></i> 組織圖
+        </h2>
+    </header>
+
+    <div id="orgTree" class="w-full h-[600px]"></div>
+</div>
+<script>
+    new OrgChart(document.getElementById("orgTree"), {
+      orientation: OrgChart.orientation.left, // 橫向
+      nodeBinding: { field_0: "name", field_1: "title" },
+      nodes: [
+        { id: 1, name: "Horizon Nova", title: "公司" },
+        { id: 2, pid: 1, name: "技術部" },
+        { id: 3, pid: 1, name: "行銷部" },
+        { id: 4, pid: 2, name: "後端組" },
+        { id: 5, pid: 2, name: "前端組" }
+      ]
+    });
+</script>

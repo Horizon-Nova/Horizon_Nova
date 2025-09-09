@@ -1,0 +1,279 @@
+﻿<div class="bg-white border rounded-xl space-y-2">
+
+    <header class="flex items-center justify-between px-6 mt-3">
+        <div>
+            <h2 class="text-xl font-semibold flex items-center gap-2">
+                <i data-lucide="square-user" class="h-5 w-5"></i>
+                用戶管理
+            </h2>
+            <p class="text-slate-500">管理帳號與權限（白名單 / 組織）</p>
+        </div>
+
+        <button type="button"
+                onclick="openModal()"
+                class="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-slate-900 text-white hover:bg-slate-800">
+            <i data-lucide="plus" class="h-4 w-4"></i>
+            新增
+        </button>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-12 border-t">
+        <aside class="md:col-span-3 border-r p-4 space-y-4">
+            <div class="space-y-2">
+                <label class="block text-sm font-medium">關鍵字</label>
+                <div class="relative">
+                    <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400"></i>
+                    <input id="q" class="w-full rounded-md border px-9 py-2" placeholder="用戶名、Email">
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <label class="block text-sm font-medium">權限類型</label>
+                <select id="perm" class="w-full rounded-md border px-3 py-2">
+                    <option value="">全部</option>
+                    <option value="whitelist">白名單</option>
+                    <option value="organization">組織</option>
+                </select>
+            </div>
+
+            <div class="space-y-2">
+                <label class="block text-sm font-medium">狀態</label>
+                <select id="status" class="w-full rounded-md border px-3 py-2">
+                    <option value="">全部</option>
+                    <option value="active">啟用</option>
+                    <option value="inactive">停用</option>
+                </select>
+            </div>
+
+            <div class="space-y-2">
+                <label class="block text-sm font-medium">所屬組織</label>
+                <select id="org" class="w-full rounded-md border px-3 py-2">
+                    <option value="">全部</option>
+                    <option value="tech">技術部</option>
+                    <option value="mkt">行銷部</option>
+                </select>
+            </div>
+
+            <div class="flex gap-2 pt-2">
+                <button id="btn-apply" class="flex-1 px-3 py-2 rounded-md bg-slate-900 text-white">
+                    <i data-lucide="filter" class="h-4 w-4 inline-block mr-1"></i> 套用
+                </button>
+                <button id="btn-reset" class="px-3 py-2 rounded-md border">重設</button>
+            </div>
+        </aside>
+
+        <!-- 右側結果表格 -->
+        <section class="md:col-span-9 p-4">
+            <header class="flex items-center justify-between mb-3">
+                <div class="text-sm text-slate-500" id="active-chips">
+                </div>
+                <div class="text-sm text-slate-500">共 N 位用戶 · 顯示 1–10</div>
+            </header>
+
+            <div class="overflow-x-auto rounded-xl border">
+                <table class="min-w-full text-sm">
+                    <thead class="bg-slate-50 sticky top-0 z-[1]">
+                        <tr class="text-left text-slate-600">
+                            <th class="px-4 py-3 font-medium">用戶名</th>
+                            <th class="px-4 py-3 font-medium">電子郵件</th>
+                            <th class="px-4 py-3 font-medium">權限類型</th>
+                            <th class="px-4 py-3 font-medium">角色 / 組織</th>
+                            <th class="px-4 py-3 font-medium">狀態</th>
+                            <th class="px-4 py-3 font-medium">最後登入</th>
+                            <th class="px-4 py-3 font-medium">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-tbody" class="divide-y">
+                        <tr><td class="px-4 py-6 text-slate-400" colspan="7">請使用左側條件篩選或直接套用</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</div>
+
+<form id="formCreateUser"
+      method="post" enctype="multipart/form-data"
+      action="@Url.Action("SubmitUserManagement", "UserManagement", new { area = "HnbBackoffice" })">
+    @Html.AntiForgeryToken()
+
+    <div id="Modal"
+         class="fixed inset-0 hidden items-end md:items-center justify-center bg-black/20"
+         style="z-index:999;"
+         role="dialog" aria-modal="true" tabindex="-1"
+         onkeydown="if(event.key==='Escape'){closeModal();}"
+         onclick="if(event.target===this){closeModal();}">
+
+        <div class="w-full md:max-w-3xl bg-white rounded-t-2xl md:rounded-xl shadow-lg
+                max-h-[85vh] overflow-y-auto md:mx-4">
+
+            <!-- Header（sticky）-->
+            <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between sticky top-0 bg-white">
+                <div class="h-1.5 w-12 bg-slate-300 rounded-full md:hidden"></div>
+                <h3 class="text-base font-semibold text-slate-900">新增用戶</h3>
+                <button type="button" onclick="closeModal()" class="rounded-md p-2 hover:bg-slate-100 text-slate-600" aria-label="關閉">
+                    <i data-lucide="x" class="h-4 w-4"></i>
+                </button>
+            </div>
+
+            <!-- Body：左表單 / 右頭像 -->
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- 左：表單（佔 2 欄） -->
+                    <div class="md:col-span-2 space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- 姓名 / 英文姓名 -->
+                            <div>
+                                <label class="block text-sm font-medium mb-1">姓名</label>
+                                <input name="employee_name" maxlength="255" required
+                                       class="w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">英文姓名</label>
+                                <input name="employee_english_name" maxlength="255"
+                                       class="w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                            </div>
+
+                            <!-- 帳號 / 密碼 -->
+                            <div>
+                                <label class="block text-sm font-medium mb-1">帳號</label>
+                                <input name="account" maxlength="255" required
+                                       class="w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">密碼</label>
+                                <input name="password" type="password" minlength="8" maxlength="255" required
+                                       class="w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                            </div>
+
+                            <!-- Email / 電話 -->
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Email</label>
+                                <input name="email" type="email" maxlength="255" required
+                                       class="w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">電話</label>
+                                <input name="phone" maxlength="50"
+                                       class="w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                            </div>
+
+                            <!-- 所屬組織ID / 員工編號 -->
+                            <div>
+                                <label class="block text-sm font-medium mb-1">所屬組織（ID）</label>
+                                <input name="organization_id" type="number" required
+                                       class="w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">員工編號</label>
+                                <input name="employee_id" maxlength="100" required
+                                       class="w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                            </div>
+
+                            <!-- 所在地 / 分機 -->
+                            <div>
+                                <label class="block text-sm font-medium mb-1">所在地</label>
+                                <input name="location" maxlength="255"
+                                       class="w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">分機</label>
+                                <input name="extension" maxlength="50"
+                                       class="w-full rounded-md border border-slate-300 px-3 py-2" />
+                            </div>
+
+                            <!-- 狀態（整列） -->
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium mb-1">狀態</label>
+                                <select name="disabled"
+                                        class="w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="false">啟用</option>
+                                    <option value="true">停用</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="formErr" class="text-red-600 text-sm hidden"></div>
+                    </div>
+
+                    <!-- 右：大頭照（佔 1 欄） -->
+                    <div class="md:col-span-1">
+                        <div class="flex flex-col items-center gap-4">
+                            <div class="relative">
+                                <img id="avatarPreview" src=""
+                                     class="h-40 w-40 rounded-full ring-1 ring-slate-300 object-cover bg-slate-100 hidden" alt="avatar preview" />
+                                <div id="avatarPlaceholder"
+                                     class="h-40 w-40 rounded-full ring-1 ring-slate-300 bg-slate-50 flex items-center justify-center text-slate-400 text-sm">
+                                    無大頭照
+                                </div>
+                            </div>
+                            <input id="avatar" name="avatar" type="file" accept="image/*" class="hidden" onchange="previewAvatar(this)" />
+                            <div class="flex gap-2">
+                                <button type="button" onclick="document.getElementById('avatar').click()"
+                                        class="p-2 rounded-md border border-slate-300 hover:bg-slate-50 text-slate-600"
+                                        title="上傳">
+                                    <i data-lucide="upload" class="h-4 w-4"></i>
+                                </button>
+
+                                <button type="button" onclick="clearAvatar()"
+                                        class="p-2 rounded-md border border-slate-300 hover:bg-slate-50 text-slate-600"
+                                        title="移除">
+                                    <i data-lucide="trash-2" class="h-4 w-4"></i>
+                                </button>
+                            </div>
+
+                            <p class="text-xs text-slate-500">支援 JPG/PNG/WEBP，大小 ≤ 2 MB。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer（sticky）-->
+            <div class="px-6 py-4 border-t border-slate-200 flex justify-end gap-2 sticky bottom-0 bg-white">
+                <button type="button" onclick="closeModal()"
+                        class="px-3 py-2 rounded-md border border-slate-300 hover:bg-slate-50 text-slate-700">
+                    取消
+                </button>
+                <button type="button" onclick="submitCreateUser()"
+                        class="px-3 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white">
+                    儲存
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    function openModal(){ $("#Modal").removeClass("hidden").addClass("flex"); }
+    function closeModal(){ $("#Modal").addClass("hidden").removeClass("flex"); }
+
+    function previewAvatar(input){
+      const f = input.files?.[0];
+      const $pv = $("#avatarPreview");
+      const $ph = $("#avatarPlaceholder");
+      if(!f){ $pv.addClass("hidden").attr("src",""); $ph.removeClass("hidden"); return; }
+      if(!/^image\/(jpeg|png|webp|jpg)$/i.test(f.type)){ alert("檔案需為 JPG/PNG/WEBP"); input.value=""; return; }
+      const rd = new FileReader();
+      rd.onload = e => { $pv.attr("src", e.target.result).removeClass("hidden"); $ph.addClass("hidden"); };
+      rd.readAsDataURL(f);
+    }
+    function clearAvatar(){
+      const $in = $("#avatar");
+      $in.val("");
+      $("#avatarPreview").addClass("hidden").attr("src","");
+      $("#avatarPlaceholder").removeClass("hidden");
+    }
+
+    function submitCreateUser(){
+      const $form = $("#formCreateUser");
+      const fd = new FormData($form[0]);
+      $.ajax({
+        type:"POST", url:$form.attr("action"),
+        data:fd, processData:false, contentType:false,
+        headers:{ "RequestVerificationToken": $form.find('input[name="__RequestVerificationToken"]').val() ?? "" },
+        success: res => { if(res?.ok){ closeModal(); alert("儲存成功"); } else { $("#formErr").text(res?.message||"儲存失敗").removeClass("hidden"); } },
+        error: xhr => { $("#formErr").text("伺服器錯誤：" + (xhr?.status||"未知")).removeClass("hidden"); }
+      });
+    }
+</script>
+

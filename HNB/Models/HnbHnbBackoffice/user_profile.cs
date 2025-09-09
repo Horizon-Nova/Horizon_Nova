@@ -166,4 +166,12 @@ public partial class user_profile
     /// 資料最後更新時間
     /// </summary>
     public DateTime? updated_at { get; set; }
+
+    [StringLength(512)]
+    public string? avatar_path { get; set; }
+
+    [StringLength(64)]
+    public string? avatar_mime { get; set; }
+
+    public DateTime? avatar_updated_at { get; set; }
 }

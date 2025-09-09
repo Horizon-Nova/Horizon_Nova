@@ -1,9 +1,11 @@
-﻿using HNB.Areas.HnbBackoffice.Services;
+﻿using HNB.Areas.HnbBackoffice.Filters;
+using HNB.Areas.HnbBackoffice.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HNB.Areas.HnbBackoffice.Controllers;
 
 [Area("HnbBackoffice")]
+[OperationPermission(requireIpMatch: true, verifyDb: true)]
 public class SettingsController(SettingsServices svc) : Controller
 {
     public IActionResult Settings()

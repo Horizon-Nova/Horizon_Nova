@@ -36,6 +36,7 @@ builder.Services
     .AddTeamZoneModule()
     .AddDbKeyJwtModule()
     .AddAuthorizeModule()
+    .AddUserManagementModule()
     .AddSystemMonitorHostedModule()
     .AddIpMiddlewareServicesModule();
 

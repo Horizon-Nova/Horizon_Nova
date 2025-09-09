@@ -1,0 +1,22 @@
+﻿@{
+    Layout = null;
+}
+<div id="orgTree" class="w-full overflow-x-auto"></div>
+
+<script src="https://cdn.balkan.app/orgchart.js"></script>
+<script>
+    // 橫向：由左往右
+    (function () {
+      const chart = new OrgChart("#orgTree", {
+        orientation: OrgChart.orientation.left, // left/right/top/bottom...
+        nodeBinding: { field_0: "name", field_1: "title" },
+        nodes: [
+          { id:1, name:"Horizon Nova", title:"公司" },
+          { id:2, pid:1, name:"技術部" },
+          { id:3, pid:1, name:"行銷部" },
+          { id:4, pid:2, name:"後端組" },
+          { id:5, pid:2, name:"前端組" }
+        ]
+      });
+    })();
+</script>

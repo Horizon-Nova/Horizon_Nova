@@ -1,0 +1,75 @@
+﻿@{
+    ViewData["Title"] = "權限管理 - 後台管理系統";
+    Layout = "~/Areas/HnbBackoffice/Views/Shared/_Layout.cshtml";
+    var tabUrl = Url.Action("UserManagementTab", "UserManagement", new { area = "HnbBackoffice" })!;
+}
+
+<section class="space-y-6">
+    <header class="flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-bold flex items-center gap-3">
+                <i data-lucide="users" class="h-8 w-8"></i> 權限管理
+            </h1>
+            <p class="text-slate-500">管理系統用戶、角色與權限（白名單 / 組織）</p>
+        </div>
+    </header>
+
+    <!-- 分頁切換 -->
+    <div>
+        <div class="grid grid-cols-4 gap-2 border rounded-lg p-1 bg-white">
+            <button class="hn-tab px-3 py-2 rounded-md bg-slate-900 text-white" data-tab="users">人員管理</button>
+            <button class="hn-tab px-3 py-2 rounded-md hover:bg-slate-100" data-tab="organizations">組織管理</button>
+            <button class="hn-tab px-3 py-2 rounded-md hover:bg-slate-100" data-tab="org-roles">組織角色</button>
+            <button class="hn-tab px-3 py-2 rounded-md hover:bg-slate-100" data-tab="org-chart">組織圖</button>
+        </div>
+    </div>
+
+    <div id="tabContent" class="space-y-4 min-h-[200px]">
+        <div class="flex items-center gap-2 text-slate-400">
+            <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>
+            載入中…
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        (function () {
+            const $content = $('#tabContent');
+
+            function loadTab(t) {
+                $content.html(`
+                    <div class="flex items-center gap-2 text-slate-400">
+                        <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> 載入中…
+                    </div>
+                `);
+
+                $.ajax({
+                    type: 'GET',
+                    url: '@tabUrl',
+                    data: { t: t },
+                    success: function (html) {
+                        $content.html(html);
+                        if (window.lucide) lucide.createIcons();
+                    },
+                    error: function () {
+                        $content.html(`
+                            <div class="text-red-600">
+                                載入失敗，請稍後再試。
+                            </div>
+                        `);
+                    }
+                });
+            }
+
+            loadTab('users');
+
+            $(document).on('click', '.hn-tab', function () {
+                $('.hn-tab').removeClass('bg-slate-900 text-white').addClass('hover:bg-slate-100');
+                $(this).removeClass('hover:bg-slate-100').addClass('bg-slate-900 text-white');
+                loadTab($(this).data('tab'));
+            });
+        })();
+
+    </script>
+}

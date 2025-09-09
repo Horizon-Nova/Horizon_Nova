@@ -40,3 +40,4 @@ public class GitHubAccessController(GitHubAccessServices svc) : Controller
     }
     #endregion
 }
+

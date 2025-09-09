@@ -48,7 +48,8 @@ public class BackofficeController(BackofficeService svc, IConfiguration cfg) : C
         return View();
     }
 
-    // ========== 上傳 ==========
+    #region 上傳
+
     [HttpPost, ValidateAntiForgeryToken]
     [RequestSizeLimit(200_000_000)]
     [Consumes("multipart/form-data")]
@@ -61,7 +62,9 @@ public class BackofficeController(BackofficeService svc, IConfiguration cfg) : C
     public Task<IActionResult> UploadMany([Required] IReadOnlyList<IFormFile> files, string? path = "/")
         => TryDoAsync(path, v => svc.UploadManyAsync(v, files), new { count = files?.Count ?? 0 });
 
-    // ========== 建立 ==========
+    #endregion
+
+    #region  建立 
     [HttpPost, ValidateAntiForgeryToken]
     public IActionResult CreateFolder([Required] string folderName, string? path = "/")
         => TryDo(path, v => { svc.CreateFolder(v, folderName); return OkOrRedirect(v, new { name = folderName }); });
@@ -70,7 +73,9 @@ public class BackofficeController(BackofficeService svc, IConfiguration cfg) : C
     public IActionResult CreateEmptyFile([Required] string fileName, string? path = "/")
         => TryDo(path, v => { svc.CreateEmptyFile(v, fileName); return OkOrRedirect(v, new { name = fileName }); });
 
-    // ========== 刪除 ==========
+    #endregion
+
+    #region  刪除 
     [HttpPost, ValidateAntiForgeryToken]
     public IActionResult DeleteFile([Required] string name, string? path = "/")
         => TryDo(path, v => { svc.DeleteFile(v, name); return OkOrRedirect(v, new { name }); });
@@ -79,7 +84,9 @@ public class BackofficeController(BackofficeService svc, IConfiguration cfg) : C
     public IActionResult DeleteFolder([Required] string name, string? path = "/")
         => TryDo(path, v => { svc.DeleteFolder(v, name); return OkOrRedirect(v, new { name }); });
 
-    // ========== 重新命名 ==========
+    #endregion
+
+    #region  重新命名 
     [HttpPost, ValidateAntiForgeryToken]
     public IActionResult RenameFile([Required] string oldName, [Required] string newName, string? path = "/")
         => TryDo(path, v => { svc.RenameFile(v, oldName, newName); return OkOrRedirect(v, new { oldName, newName }); });
@@ -88,7 +95,9 @@ public class BackofficeController(BackofficeService svc, IConfiguration cfg) : C
     public IActionResult RenameFolder([Required] string oldName, [Required] string newName, string? path = "/")
         => TryDo(path, v => { svc.RenameFolder(v, oldName, newName); return OkOrRedirect(v, new { oldName, newName }); });
 
-    // ========== 下載 / 預覽 ==========
+    #endregion
+
+    #region  下載 / 預覽 
     [HttpGet]
     public IActionResult Download([Required] string name, string? path = "/")
     {
@@ -97,13 +106,17 @@ public class BackofficeController(BackofficeService svc, IConfiguration cfg) : C
         return File(stream, contentType, fileName);
     }
 
-    // 資料夾下載 ZIP
+    #endregion
+
+    #region  資料夾下載 ZIP
     [HttpGet]
     public IActionResult DownloadFolderZip([Required] string name, string? path = "/")
         => TryDo(path, v => {
             var (stream, fileName, ct) = svc.ZipFolder(v, name);
             return File(stream, ct, fileName);
         });
+
+    #endregion
 
     // 原檔 inline（預覽用：<img src> / <video src> ...）
     [HttpGet]
@@ -114,7 +127,7 @@ public class BackofficeController(BackofficeService svc, IConfiguration cfg) : C
         return File(stream, ct); // 不帶檔名 => inline
     }
 
-    // ========== 文字檔 ==========
+    #region 文字檔 
     [HttpGet]
     public IActionResult ReadText([Required] string name, string? path = "/")
         => TryDo(path, v => {
@@ -125,6 +138,7 @@ public class BackofficeController(BackofficeService svc, IConfiguration cfg) : C
     [HttpPost, ValidateAntiForgeryToken]
     public IActionResult SaveText([Required] string name, [Required] string content, string? encoding = "utf-8", string? path = "/")
         => TryDo(path, v => { svc.SaveTextFile(v, name, content, encoding); return OkOrRedirect(v, new { name }); });
+    #endregion
 
     #endregion
 
