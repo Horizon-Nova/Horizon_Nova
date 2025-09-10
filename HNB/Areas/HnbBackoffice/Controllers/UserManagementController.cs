@@ -29,6 +29,7 @@ public class UserManagementController(UserManagementService svc) : Controller
         var partial = tab switch
         {
             "users" => "_UM.Users",
+            "usersdialog" => "_UM.UsersDialog",
             "organizations" => "_UM.Organizations",
             "org-roles" => "_UM.OrgRoles",
             "org-chart" => "_UM.OrgChart",
@@ -42,7 +43,7 @@ public class UserManagementController(UserManagementService svc) : Controller
     private static string NormalizeTab(string? t)
     {
         t = (t ?? "users").ToLowerInvariant();
-        return t is "users" or "organizations" or "org-roles" or "org-chart" ? t : "users";
+        return t is "users" or "organizations" or "org-roles" or "usersdialog" or "org-chart" ? t : "users";
     }
     #endregion
 }

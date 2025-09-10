@@ -43,11 +43,12 @@
                             var pad = n.Depth * 12;
                             <li>
                                 <a class="flex items-center gap-2 hover:bg-slate-100 px-2 py-1 rounded"
-                                   style="padding-left:@($"{pad}px")"
+                                   style="--pad:@($"{pad}px")"
                                    href="@Url.Action("FileManager", new { path = n.VirtualPath })">
                                     <i data-lucide="folder" class="w-4 h-4 text-amber-500"></i>
                                     <span>@n.Name</span>
                                 </a>
+
                             </li>
                         }
                     </ul>
@@ -228,17 +229,44 @@
 </section>
 
 @section Scripts {
+    <style>
+
+        #tree {
+            margin: 0;
+            padding-left: 0;
+            list-style: none;
+        }
+
+            #tree li {
+                margin: 0;
+            }
+
+            #tree a {
+                text-decoration: none;
+                color: inherit;
+                display: flex;
+                align-items: center;
+                gap: .5rem;
+                padding: .25rem .5rem;
+                padding-left: calc(var(--pad, 0px) + .5rem) !important;
+            }
+
+                #tree a:hover {
+                    background: rgba(0,0,0,.04);
+                }
+
+            #tree i {
+                flex: 0 0 auto;
+            }
+
+    </style>
     <script>
         const CURRENT_PATH = '@(ViewData["CurrentPath"] as string ?? "/")';
 
-        // #region Anti-Forgery
         function antiforgery(){
           return $('input[name="__RequestVerificationToken"]').val() ?? '';
         }
-        // #endregion
 
-        // #region Minimal Name Validation
-        // 僅做最小檢查；實際規則交由後端檢驗
         function validateName(raw, opts = { allowNonAscii: true }){
           if (raw == null) return { ok:false, msg:'名稱不可為空' };
           let name = String(raw).trim();
@@ -249,9 +277,7 @@
           if (name.length > 128) return { ok:false, msg:'名稱不可超過 128 字元' };
           return { ok:true, name };
         }
-        // #endregion
 
-        // #region Tree Inline Create
         function inlineNew(kind){
           $("#inlineNewRow").remove();
           const depth = (CURRENT_PATH === '/' ? 0 : CURRENT_PATH.split('/').filter(Boolean).length) + 1;
@@ -270,7 +296,7 @@
             </li>
           `);
           $("#tree").append($row);
-          lucide.createIcons();
+          if (window.lucide?.createIcons) lucide.createIcons();
 
           const $ipt = $("#inlineNewInput").focus();
           const $err = $("#inlineNewErr");
@@ -279,7 +305,7 @@
           const cancel = ()=> $("#inlineNewRow").remove();
 
           $ipt.on('keydown', function(e){
-            if (e.isComposing || e.keyCode === 229) return; // IME 組字
+            if (e.isComposing || e.keyCode === 229) return;
             if (e.key === 'Escape') { cancel(); return; }
             if (e.key === 'Enter') {
               const chk = validateName($ipt.val(), { allowNonAscii: kind !== 'folder' });
@@ -292,13 +318,19 @@
 
               $.ajax({
                 type: 'POST',
-                url,
-                data: kind === 'folder'
+                url: url,
+                data: (kind === 'folder')
                       ? { path: CURRENT_PATH, folderName: chk.name }
                       : { path: CURRENT_PATH, fileName: chk.name },
+                cache: false,
+                timeout: 30000,
                 headers: { 'RequestVerificationToken': antiforgery() },
-                success: function(){ reloadHere(); },
-                error: function(xhr){ showErr(xhr.responseJSON?.error || xhr.responseText || '失敗，請稍後再試。'); }
+                beforeSend: function(xhr, settings){},
+                success: function(res, status, xhr){ reloadHere(); },
+                error: function(xhr, status, err){
+                  showErr(xhr.responseJSON?.error || xhr.responseText || '失敗，請稍後再試。');
+                },
+                complete: function(xhr, status){}
               });
             }
           });
@@ -306,25 +338,27 @@
         }
         function AddFolderInline(){ inlineNew('folder'); }
         function AddFileInline(){ inlineNew('file'); }
-        // #endregion
 
-        // #region Navigate
         function reloadHere(){
           location.href = '@Url.Action("FileManager", "Backoffice", new { area = "HnbBackoffice" })'
                           + '?path=' + encodeURIComponent(CURRENT_PATH);
         }
-        // #endregion
 
-        // #region Delete
         function DeleteFile(name){
           if(!confirm('確認刪除檔案？')) return;
           $.ajax({
             type: 'POST',
             url: '@Url.Action("DeleteFile", "Backoffice", new { area = "HnbBackoffice" })',
-            data: { path: CURRENT_PATH, name },
+            data: { path: CURRENT_PATH, name: name },
+            cache: false,
+            timeout: 30000,
             headers: { 'RequestVerificationToken': antiforgery() },
-            success: reloadHere,
-            error: function(xhr){ alert(xhr.responseJSON?.error || xhr.responseText || '刪除失敗，請稍後再試。'); }
+            beforeSend: function(xhr, settings){},
+            success: function(res, status, xhr){ reloadHere(); },
+            error: function(xhr, status, err){
+              alert(xhr.responseJSON?.error || xhr.responseText || '刪除失敗，請稍後再試。');
+            },
+            complete: function(xhr, status){}
           });
         }
         function DeleteFolder(name){
@@ -332,15 +366,19 @@
           $.ajax({
             type: 'POST',
             url: '@Url.Action("DeleteFolder", "Backoffice", new { area = "HnbBackoffice" })',
-            data: { path: CURRENT_PATH, name },
+            data: { path: CURRENT_PATH, name: name },
+            cache: false,
+            timeout: 30000,
             headers: { 'RequestVerificationToken': antiforgery() },
-            success: reloadHere,
-            error: function(xhr){ alert(xhr.responseJSON?.error || xhr.responseText || '刪除失敗，請稍後再試。'); }
+            beforeSend: function(xhr, settings){},
+            success: function(res, status, xhr){ reloadHere(); },
+            error: function(xhr, status, err){
+              alert(xhr.responseJSON?.error || xhr.responseText || '刪除失敗，請稍後再試。');
+            },
+            complete: function(xhr, status){}
           });
         }
-        // #endregion
 
-        // #region Upload - Files (drag/click)
         const $dz = $('#dropzone');
         const $fi = $('#fileInput');
         $('#clickUpload').on('click', function(){ $fi.trigger('click'); });
@@ -350,11 +388,11 @@
           this.value = '';
         });
 
-        ['dragenter','dragover'].forEach(ev => $dz.on(ev, e => {
+        ['dragenter','dragover'].forEach(ev => $dz.on(ev, function(e){
           e.preventDefault(); e.stopPropagation();
           $dz.addClass('ring-2 ring-blue-400 bg-slate-50');
         }));
-        ['dragleave','drop'].forEach(ev => $dz.on(ev, e => {
+        ['dragleave','drop'].forEach(ev => $dz.on(ev, function(e){
           e.preventDefault(); e.stopPropagation();
           $dz.removeClass('ring-2 ring-blue-400 bg-slate-50');
         }));
@@ -387,46 +425,54 @@
             const fd = new FormData();
             fd.append('path', CURRENT_PATH);
             fd.append('file', file);
+
             $.ajax({
-              url: '@Url.Action("Upload", "Backoffice", new { area = "HnbBackoffice" })',
               type: 'POST',
+              url: '@Url.Action("Upload", "Backoffice", new { area = "HnbBackoffice" })',
               data: fd,
               processData: false,
               contentType: false,
+              cache: false,
+              timeout: 600000,
               headers: { 'RequestVerificationToken': antiforgery() },
-              success: function(){ resolve(); },
-              error: function(xhr){ reject(new Error(xhr.responseJSON?.error || xhr.responseText || '上傳失敗')); }
+              beforeSend: function(xhr, settings){},
+              success: function(res, status, xhr){ resolve(); },
+              error: function(xhr, status, err){
+                reject(new Error(xhr.responseJSON?.error || xhr.responseText || '上傳失敗'));
+              },
+              complete: function(xhr, status){}
             });
           });
         }
-        // #endregion
 
-        // #region Upload - Directory (UploadMany)
         $('#dirInput').on('change', function(){
           const files = Array.from(this.files ?? []);
           if(files.length === 0) return;
 
           const fd = new FormData();
           fd.append('path', CURRENT_PATH);
-          // 使用 webkitRelativePath 讓後端從 IFormFile.FileName 取得相對路徑
           files.forEach(f => fd.append('files', f, f.webkitRelativePath || f.name));
 
           $.ajax({
-            url: '@Url.Action("UploadMany", "Backoffice", new { area = "HnbBackoffice" })',
             type: 'POST',
+            url: '@Url.Action("UploadMany", "Backoffice", new { area = "HnbBackoffice" })',
             data: fd,
             processData: false,
             contentType: false,
+            cache: false,
+            timeout: 1200000,
             headers: { 'RequestVerificationToken': antiforgery() },
-            success: reloadHere,
-            error: function(xhr){ alert(xhr.responseJSON?.error || xhr.responseText || '資料夾上傳失敗'); }
+            beforeSend: function(xhr, settings){},
+            success: function(res, status, xhr){ reloadHere(); },
+            error: function(xhr, status, err){
+              alert(xhr.responseJSON?.error || xhr.responseText || '資料夾上傳失敗');
+            },
+            complete: function(xhr, status){}
           });
 
           this.value = '';
         });
-        // #endregion
 
-        // #region Inline Rename (list row)
         function RenameInline(kind, oldName){
           const $row = $(`[data-name="${cssEscape(oldName)}"][data-type="${kind}"]`);
           const $nameCell = $row.find('.item-name');
@@ -448,17 +494,24 @@
             if(!chk.ok){ alert(chk.msg); return; }
             if(chk.name === orig){ finish(); return; }
 
-            const url = kind === 'folder'
+            const url = (kind === 'folder')
               ? '@Url.Action("RenameFolder", "Backoffice", new { area = "HnbBackoffice" })'
               : '@Url.Action("RenameFile", "Backoffice", new { area = "HnbBackoffice" })';
 
             $.ajax({
               type: 'POST',
-              url,
+              url: url,
               data: { path: CURRENT_PATH, oldName: orig, newName: chk.name },
+              cache: false,
+              timeout: 30000,
               headers: { 'RequestVerificationToken': antiforgery() },
-              success: reloadHere,
-              error: function(xhr){ alert(xhr.responseJSON?.error || xhr.responseText || '重新命名失敗'); finish(); }
+              beforeSend: function(xhr, settings){},
+              success: function(res, status, xhr){ reloadHere(); },
+              error: function(xhr, status, err){
+                alert(xhr.responseJSON?.error || xhr.responseText || '重新命名失敗');
+                finish();
+              },
+              complete: function(xhr, status){}
             });
           }
 
@@ -470,26 +523,27 @@
           $ok.on('click', commit);
           $cancel.on('click', finish);
         }
-        // #endregion
 
-        // #region Preview / Edit Panel
         function fileRawUrl(name){
           return '@Url.Action("Raw", "Backoffice", new { area = "HnbBackoffice" })'
                  + '?path=' + encodeURIComponent(CURRENT_PATH)
                  + '&name=' + encodeURIComponent(name);
         }
+        
         function showPanel(title, html, isEdit=false){
           $('#pvTitle').text(title);
           $('#pvBody').html(html);
           $('#pvEditBar').toggleClass('hidden', !isEdit);
           $('#previewPanel').removeClass('hidden');
         }
+        
         function ClosePreview(){
           $('#previewPanel').addClass('hidden');
           $('#pvBody').empty();
           $('#pvEditBar').addClass('hidden');
           CURRENT_EDIT_NAME = null;
         }
+        
         function absUrl(u){
           try { return new URL(u, window.location.origin).toString(); }
           catch { return window.location.origin + u; }
@@ -499,12 +553,10 @@
           const ext = (name.split('.').pop() || '').toLowerCase();
           const url = fileRawUrl(name);
 
-          // 圖像
           if (['png','jpg','jpeg','gif','webp','bmp','svg'].includes(ext)){
             showPanel('預覽：' + name, `<img src="${url}" class="max-h-[70vh] mx-auto" />`);
             return;
           }
-          // 影音
           if (['mp4','webm','ogg','mov','mkv'].includes(ext)){
             showPanel('預覽：' + name, `<video src="${url}" controls class="w-full max-h-[70vh]"></video>`);
             return;
@@ -513,31 +565,54 @@
             showPanel('預覽：' + name, `<audio src="${url}" controls class="w-full"></audio>`);
             return;
           }
-          // PDF
           if (ext === 'pdf'){
             showPanel('預覽：' + name, `<iframe src="${url}#toolbar=1&navpanes=0" class="w-full h-[70vh]"></iframe>`);
             return;
           }
-          // Word / Excel / PowerPoint（不可編輯）
+
           if (ext === 'docx'){
-            $.ajax({ url: url, type: 'GET', xhrFields: { responseType: 'arraybuffer' } })
-              .done(function(buf){
+            $.ajax({
+              type: 'GET',
+              url: url,
+              data: { _: Date.now() },
+              cache: false,
+              timeout: 60000,
+              xhrFields: { responseType: 'arraybuffer' },
+              beforeSend: function(xhr, settings){
+                showPanel('預覽：' + name, '<div class="p-4 text-slate-500">讀取中…</div>');
+              },
+              success: function(buf, status, xhr){
                 window.mammoth.convertToHtml({ arrayBuffer: buf }).then(function(result){
                   const html = `<div class="text-sm leading-6">${result.value}</div>`;
                   showPanel('預覽：' + name, html);
                 }).catch(function(){
                   const eurl = 'https://view.officeapps.live.com/op/embed.aspx?src=' + encodeURIComponent(absUrl(url));
-                  showPanel('預覽：' + name, `
-                    <iframe src="${eurl}" class="w-full h-[70vh]" allowfullscreen></iframe>
-                    <div class="text-xs text-slate-500 mt-2">若無法載入，請改以下載方式開啟。</div>
-                  `);
+                  showPanel('預覽：' + name, `<iframe src="${eurl}" class="w-full h-[70vh]" allowfullscreen></iframe>
+                    <div class="text-xs text-slate-500 mt-2">若無法載入，請改以下載方式開啟。</div>`);
                 });
-              }).fail(function(){ alert('讀取失敗'); });
+              },
+              error: function(xhr, status, err){
+                const eurl = 'https://view.officeapps.live.com/op/embed.aspx?src=' + encodeURIComponent(absUrl(url));
+                showPanel('預覽：' + name, `<iframe src="${eurl}" class="w-full h-[70vh]" allowfullscreen></iframe>
+                  <div class="text-xs text-slate-500 mt-2">若無法載入，請改以下載方式開啟。</div>`);
+              },
+              complete: function(xhr, status){}
+            });
             return;
           }
+
           if (ext === 'xlsx'){
-            $.ajax({ url: url, type: 'GET', xhrFields: { responseType: 'arraybuffer' } })
-              .done(function(buf){
+            $.ajax({
+              type: 'GET',
+              url: url,
+              data: { _: Date.now() },
+              cache: false,
+              timeout: 60000,
+              xhrFields: { responseType: 'arraybuffer' },
+              beforeSend: function(xhr, settings){
+                showPanel('預覽：' + name, '<div class="p-4 text-slate-500">讀取中…</div>');
+              },
+              success: function(buf, status, xhr){
                 try{
                   const wb = XLSX.read(new Uint8Array(buf), { type: 'array' });
                   const first = wb.SheetNames[0];
@@ -545,29 +620,37 @@
                   showPanel('預覽：' + name, `<div class="overflow-auto max-h-[70vh] text-sm">${html}</div>`);
                 }catch(e){
                   const eurl = 'https://view.officeapps.live.com/op/embed.aspx?src=' + encodeURIComponent(absUrl(url));
-                  showPanel('預覽：' + name, `
-                    <iframe src="${eurl}" class="w-full h-[70vh]" allowfullscreen></iframe>
-                    <div class="text-xs text-slate-500 mt-2">若無法載入，請改以下載方式開啟。</div>
-                  `);
+                  showPanel('預覽：' + name, `<iframe src="${eurl}" class="w-full h-[70vh]" allowfullscreen></iframe>
+                    <div class="text-xs text-slate-500 mt-2">若無法載入，請改以下載方式開啟。</div>`);
                 }
-              }).fail(function(){ alert('讀取失敗'); });
-            return;
-          }
-          if (ext === 'pptx' || ext === 'ppt'){
-            const eurl = 'https://view.officeapps.live.com/op/embed.aspx?src=' + encodeURIComponent(absUrl(url));
-            showPanel('預覽：' + name, `
-              <iframe src="${eurl}" class="w-full h-[70vh]" allowfullscreen></iframe>
-              <div class="text-xs text-slate-500 mt-2">若無法載入，可能因檔案無對外存取；請改用下載後開啟。</div>
-            `);
+              },
+              error: function(xhr, status, err){
+                const eurl = 'https://view.officeapps.live.com/op/embed.aspx?src=' + encodeURIComponent(absUrl(url));
+                showPanel('預覽：' + name, `<iframe src="${eurl}" class="w-full h-[70vh]" allowfullscreen></iframe>
+                  <div class="text-xs text-slate-500 mt-2">若無法載入，請改以下載方式開啟。</div>`);
+              },
+              complete: function(xhr, status){}
+            });
             return;
           }
 
-          // 其他：嘗試當文字讀取（後端若不允許會回錯）
+          if (ext === 'pptx' || ext === 'ppt'){
+            const eurl = 'https://view.officeapps.live.com/op/embed.aspx?src=' + encodeURIComponent(absUrl(url));
+            showPanel('預覽：' + name, `<iframe src="${eurl}" class="w-full h-[70vh]" allowfullscreen></iframe>
+              <div class="text-xs text-slate-500 mt-2">若無法載入，可能因檔案無對外存取；請改用下載後開啟。</div>`);
+            return;
+          }
+
           $.ajax({
-            url: '@Url.Action("ReadText", "Backoffice", new { area = "HnbBackoffice" })',
             type: 'GET',
-            data: { path: CURRENT_PATH, name },
-            success: function(res){
+            url: '@Url.Action("ReadText", "Backoffice", new { area = "HnbBackoffice" })',
+            data: { path: CURRENT_PATH, name: name, _: Date.now() },
+            cache: false,
+            timeout: 30000,
+            beforeSend: function(xhr, settings){
+              showPanel('預覽：' + name, '<div class="p-4 text-slate-500">讀取中…</div>');
+            },
+            success: function(res, status, xhr){
               if(!res?.ok){
                 showPanel('預覽：' + name, `<div class="text-slate-600">此檔案類型暫不支援預覽。</div>`);
                 return;
@@ -576,9 +659,10 @@
               const pre = `<pre class="whitespace-pre-wrap font-mono text-xs border rounded p-3 bg-slate-50 light:bg-slate-800">${escaped}</pre>`;
               showPanel('預覽：' + name, pre);
             },
-            error: function(){
+            error: function(xhr, status, err){
               showPanel('預覽：' + name, `<div class="text-slate-600">此檔案類型暫不支援預覽。</div>`);
-            }
+            },
+            complete: function(xhr, status){}
           });
         }
 
@@ -586,10 +670,13 @@
 
         function EditFile(name){
           $.ajax({
-            url: '@Url.Action("ReadText", "Backoffice", new { area = "HnbBackoffice" })',
             type: 'GET',
-            data: { path: CURRENT_PATH, name },
-            success: function(res){
+            url: '@Url.Action("ReadText", "Backoffice", new { area = "HnbBackoffice" })',
+            data: { path: CURRENT_PATH, name: name, _: Date.now() },
+            cache: false,
+            timeout: 30000,
+            beforeSend: function(xhr, settings){},
+            success: function(res, status, xhr){
               if(!res?.ok){ alert(res?.error || '讀取失敗'); return; }
               CURRENT_EDIT_NAME = name;
               const escaped = htmlEscape(res.content ?? '');
@@ -598,7 +685,10 @@
               showPanel('編輯：' + name, ta, true);
               setTimeout(()=> document.getElementById('pvEditor')?.focus(), 0);
             },
-            error: function(xhr){ alert(xhr.responseJSON?.error || xhr.responseText || '讀取失敗'); }
+            error: function(xhr, status, err){
+              alert(xhr.responseJSON?.error || xhr.responseText || '讀取失敗');
+            },
+            complete: function(xhr, status){}
           });
         }
 
@@ -608,23 +698,26 @@
           const content = $('#pvEditor').val() ?? '';
           const encoding = $('#pvEncoding').val() ?? 'utf-8';
           $.ajax({
-            url: '@Url.Action("SaveText", "Backoffice", new { area = "HnbBackoffice" })',
             type: 'POST',
-            data: { path: CURRENT_PATH, name, content, encoding },
+            url: '@Url.Action("SaveText", "Backoffice", new { area = "HnbBackoffice" })',
+            data: { path: CURRENT_PATH, name: name, content: content, encoding: encoding },
+            cache: false,
+            timeout: 60000,
             headers: { 'RequestVerificationToken': antiforgery() },
-            success: function(){ ClosePreview(); reloadHere(); },
-            error: function(xhr){ alert(xhr.responseJSON?.error || xhr.responseText || '儲存失敗'); }
+            beforeSend: function(xhr, settings){},
+            success: function(res, status, xhr){ ClosePreview(); reloadHere(); },
+            error: function(xhr, status, err){
+              alert(xhr.responseJSON?.error || xhr.responseText || '儲存失敗');
+            },
+            complete: function(xhr, status){}
           });
         }
-        // #endregion
 
-        // #region Helpers
         function htmlEscape(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
         function cssEscape(s){
           if (window.CSS && CSS.escape) return CSS.escape(String(s));
           return String(s).replace(/(["\\.#:\[\]\(\) ])/g, '\\$1');
         }
-        $(function(){ lucide.createIcons(); });
-        // #endregion
+        $(function(){ if (window.lucide?.createIcons) lucide.createIcons(); });
     </script>
 }

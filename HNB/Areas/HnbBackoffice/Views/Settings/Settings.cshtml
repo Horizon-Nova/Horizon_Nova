@@ -30,50 +30,65 @@
     </div>
 </section>  
 
-@section Scripts {  
-    <script>  
-        (function () {  
-          const TAB_URL = '@Url.Action("SettingsTab", "Settings", new { area = "HnbBackoffice" })';  
-          const $tabs = $('#settingsTabs .hn-tab');  
-          const $content = $('#tabContent');  
-          const DEFAULT_TAB = 'system';  
+@section Scripts {
+    <script>
+        (function () {
+          var TAB_URL = '@Url.Action("SettingsTab", "Settings", new { area = "HnbBackoffice" })';
+          var $tabs = $('#settingsTabs .hn-tab');
+          var $content = $('#tabContent');
+          var DEFAULT_TAB = 'system';
 
-          function setActive(tab) {  
-            $tabs.removeClass('bg-slate-900 text-white');  
-            $tabs.filter('[data-tab="' + tab + '"]').addClass('bg-slate-900 text-white');  
-          }  
+          function setActive(tab) {
+            $tabs.removeClass('bg-slate-900 text-white').addClass('hover:bg-slate-100');
+            $tabs.filter('[data-tab="' + tab + '"]').removeClass('hover:bg-slate-100').addClass('bg-slate-900 text-white');
+          }
 
-          function loadTab(tab) {  
-            setActive(tab);  
-            $content.html('<div class="text-slate-400">載入中…</div>');  
+          function loadTab(tab) {
+            setActive(tab);
 
-            const token = $('input[name="__RequestVerificationToken"]').val();  
+            var token = $('input[name="__RequestVerificationToken"]').val() || '';
+            $.ajax({
+              type: 'GET',
+              url: TAB_URL,
+              data: { t: tab, _: Date.now() },
+              cache: false,
+              timeout: 30000,
+              headers: token ? { 'RequestVerificationToken': token } : {},
+              beforeSend: function (xhr, settings) {
+                $content.html(
+                  '<div class="flex items-center gap-2 text-slate-400">' +
+                  '  <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> 載入中…' +
+                  '</div>'
+                );
+              },
+              success: function (html, status, xhr) {
+                $content.html(html);
+                if (window.lucide && window.lucide.createIcons) { lucide.createIcons(); }
+              },
+              error: function (xhr, status, err) {
+                $content.html(
+                  '<div class="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">' +
+                  '  載入失敗（' + (xhr.status || '未知') + '）。' +
+                  '  <button type="button" class="ml-2 underline" onclick="location.reload()">重新整理</button>' +
+                  '</div>'
+                );
+                if (window.console && console.error) {
+                  console.error('SettingsTab error:', { status: xhr.status, statusText: xhr.statusText, err: err });
+                }
+              },
+              complete: function (xhr, status) {
+              }
+            });
+          }
 
-            $.ajax({  
-              type: 'GET',  
-              url: TAB_URL,  
-              data: { t: tab },  
-              headers: token ? { 'RequestVerificationToken': token } : undefined,  
-              success: function (html) {  
-                $content.html(html);  
-                if (window.lucide) lucide.createIcons();  
-              },  
-              error: function (xhr) {  
-                $content.html('<div class="text-red-600">載入失敗，請稍後再試。</div>');  
-                console.error('SettingsTab error:', xhr);  
-              }  
-            });  
-          }  
+          $('#settingsTabs').on('click', '.hn-tab', function (e) {
+            e.preventDefault();
+            var tab = $(this).data('tab');
+            loadTab(tab);
+          });
 
-          // 點擊分頁（純 AJAX，不做導航）  
-          $('#settingsTabs').on('click', '.hn-tab', function (e) {  
-            e.preventDefault();  
-            const tab = $(this).data('tab');  
-            loadTab(tab);  
-          });  
-
-          // 初始載入  
-          loadTab(DEFAULT_TAB);  
-        })();  
-    </script>  
+          loadTab(DEFAULT_TAB);
+        })();
+    </script>
 }
+
