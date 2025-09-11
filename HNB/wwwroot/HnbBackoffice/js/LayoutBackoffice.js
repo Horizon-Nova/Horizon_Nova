@@ -1,9 +1,10 @@
 ﻿document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     if (window.lucide) window.lucide.createIcons();
-
     wireSidebar();
     wireUserMenu();
+    initUserTable();
+    bindTabButtons();
 });
 
 function initTheme() {
@@ -13,7 +14,7 @@ function initTheme() {
     document.documentElement.classList.toggle('dark', useDark);
 }
 
-/* 側欄摺疊 */
+// 側欄摺疊
 function wireSidebar() {
     const sidebar = document.getElementById('sidebar');
     const btnToggle = document.getElementById('btnToggleSidebar');
@@ -42,7 +43,7 @@ function wireSidebar() {
     applyCollapsedUI();
 }
 
-/* 使用者選單 Dropdown */
+// 使用者選單 Dropdown 
 function wireUserMenu() {
     const btn = document.getElementById('btnUserMenu');
     const menu = document.getElementById('userMenu');
@@ -67,4 +68,59 @@ function wireUserMenu() {
             btn.setAttribute('aria-expanded', 'false');
         }
     });
+}
+
+function bindTabButtons(defaultTabIndex = 0) {
+    document.addEventListener('click', function (e) {
+        if (e.target.classList.contains('hn-tab')) {
+            activateTabButton(e.target);
+        }
+    });
+
+    const tabs = document.querySelectorAll('.hn-tab');
+    if (tabs.length > 0 && tabs[defaultTabIndex]) {
+        activateTabButton(tabs[defaultTabIndex]);
+    }
+}
+
+// 專門處理樣式切換
+function activateTabButton(btn) {
+    document.querySelectorAll('.hn-tab').forEach(b => {
+        b.classList.remove('bg-slate-900', 'text-white');
+        b.classList.add('hover:bg-slate-100');
+    });
+    btn.classList.remove('hover:bg-slate-100');
+    btn.classList.add('bg-slate-900', 'text-white');
+}
+
+// DataTables 初始化
+function initUserTable() {
+    const $info = document.querySelector('.md\\:col-span-9 header .text-sm.text-slate-500:last-child');
+
+    const table = $('#tablediv').DataTable({
+        pageLength: 10,
+        lengthMenu: [10, 25, 50, 100],
+        order: [],
+        columnDefs: [
+            { targets: -1, orderable: false } // 最後一欄「操作」不排序
+        ],
+        language: {
+            url: 'https://cdn.datatables.net/plug-ins/2.1.8/i18n/zh-HANT.json'
+        },
+        drawCallback: function () {
+            const api = this.api();
+            const info = api.page.info();
+            const total = info.recordsDisplay ?? info.recordsTotal ?? 0;
+            const start = total ? (info.start + 1) : 0;
+            const end = info.end;
+            if ($info) {
+                $info.textContent = `共 ${total} 位用戶 · 顯示 ${start}–${end}`;
+            }
+            if (window.lucide && lucide.createIcons) {
+                lucide.createIcons();
+            }
+        }
+    });
+
+    return table;
 }

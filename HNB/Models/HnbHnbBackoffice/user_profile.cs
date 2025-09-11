@@ -157,8 +157,8 @@ public partial class user_profile
     /// <summary>
     /// 性別（M/F）
     /// </summary>
-    [MaxLength(1)]
-    public char sex { get; set; }
+    [StringLength(5)]
+    public string? sex { get; set; }
 
     /// <summary>
     /// 工作狀態（現職/離職）
@@ -343,8 +343,13 @@ public partial class user_profile
     /// <summary>
     /// 計算欄位：由 Email 自動產生 etatung\帳號
     /// </summary>
-    public string account { get; set; } = null!;
+    public string? account { get; set; }
 
     [Key]
     public long id { get; set; }
+
+    public List<string>? salts { get; set; }
+
+    [StringLength(255)]
+    public string? password { get; set; }
 }

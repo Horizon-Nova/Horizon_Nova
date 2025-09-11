@@ -1,7 +1,6 @@
 ﻿@{  
     ViewData["Title"] = "系統設定 - 後台管理系統";  
     Layout = "~/Areas/HnbBackoffice/Views/Shared/_Layout.cshtml";  
-    var tabUrl = Url.Action("SettingsTab", "Settings", new { area = "HnbBackoffice" })!;  
 }  
 
 <section class="space-y-6">  
@@ -15,14 +14,15 @@
     </header>  
 
     <div>  
-        <div id="settingsTabs" class="grid grid-cols-6 gap-2 border rounded-lg p-1 bg-white">  
-            <button type="button" class="hn-tab px-3 py-2 rounded-md" data-tab="system">系統設定</button>  
-            <button type="button" class="hn-tab px-3 py-2 rounded-md" data-tab="security">安全設定</button>  
-            <button type="button" class="hn-tab px-3 py-2 rounded-md" data-tab="notification">通知設定</button>  
-            <button type="button" class="hn-tab px-3 py-2 rounded-md" data-tab="database">資料庫</button>  
-            <button type="button" class="hn-tab px-3 py-2 rounded-md" data-tab="schedule">排程任務</button>  
-            <button type="button" class="hn-tab px-3 py-2 rounded-md" data-tab="server">伺服器資訊</button>  
-        </div>  
+        <div class="grid grid-cols-6 gap-2 border rounded-lg p-1 bg-white">
+            <button type="button" class="hn-tab px-3 py-2 rounded-md" onclick="loadTab('system')">系統設定</button>
+            <button type="button" class="hn-tab px-3 py-2 rounded-md" onclick="loadTab('security')">安全設定</button>
+            <button type="button" class="hn-tab px-3 py-2 rounded-md" onclick="loadTab('notification')">通知設定</button>
+            <button type="button" class="hn-tab px-3 py-2 rounded-md" onclick="loadTab('database')">資料庫</button>
+            <button type="button" class="hn-tab px-3 py-2 rounded-md" onclick="loadTab('schedule')">排程任務</button>
+            <button type="button" class="hn-tab px-3 py-2 rounded-md" onclick="loadTab('server')">伺服器資訊</button>
+        </div>
+
     </div>  
 
     <div id="tabContent" class="space-y-4 min-h-[200px]">
@@ -32,63 +32,20 @@
 
 @section Scripts {
     <script>
-        (function () {
-          var TAB_URL = '@Url.Action("SettingsTab", "Settings", new { area = "HnbBackoffice" })';
-          var $tabs = $('#settingsTabs .hn-tab');
-          var $content = $('#tabContent');
-          var DEFAULT_TAB = 'system';
-
-          function setActive(tab) {
-            $tabs.removeClass('bg-slate-900 text-white').addClass('hover:bg-slate-100');
-            $tabs.filter('[data-tab="' + tab + '"]').removeClass('hover:bg-slate-100').addClass('bg-slate-900 text-white');
-          }
-
-          function loadTab(tab) {
-            setActive(tab);
-
-            var token = $('input[name="__RequestVerificationToken"]').val() || '';
-            $.ajax({
-              type: 'GET',
-              url: TAB_URL,
-              data: { t: tab, _: Date.now() },
-              cache: false,
-              timeout: 30000,
-              headers: token ? { 'RequestVerificationToken': token } : {},
-              beforeSend: function (xhr, settings) {
-                $content.html(
-                  '<div class="flex items-center gap-2 text-slate-400">' +
-                  '  <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> 載入中…' +
-                  '</div>'
-                );
-              },
-              success: function (html, status, xhr) {
-                $content.html(html);
-                if (window.lucide && window.lucide.createIcons) { lucide.createIcons(); }
-              },
-              error: function (xhr, status, err) {
-                $content.html(
-                  '<div class="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">' +
-                  '  載入失敗（' + (xhr.status || '未知') + '）。' +
-                  '  <button type="button" class="ml-2 underline" onclick="location.reload()">重新整理</button>' +
-                  '</div>'
-                );
-                if (window.console && console.error) {
-                  console.error('SettingsTab error:', { status: xhr.status, statusText: xhr.statusText, err: err });
-                }
-              },
-              complete: function (xhr, status) {
-              }
-            });
-          }
-
-          $('#settingsTabs').on('click', '.hn-tab', function (e) {
-            e.preventDefault();
-            var tab = $(this).data('tab');
-            loadTab(tab);
+        function loadTab(tab) {
+          $.ajax({
+            type: 'GET',
+            url: '@Url.Action("SettingsTab", "Settings", new { area = "HnbBackoffice" })',
+            data: { t: tab },
+            success: function (res) {
+              $('#tabContent').html(res);
+            },
+            error: function () {
+              alert('失敗，請稍後再試。');
+            }
           });
+        }
+        $(function () { loadTab('system'); });
 
-          loadTab(DEFAULT_TAB);
-        })();
     </script>
 }
-

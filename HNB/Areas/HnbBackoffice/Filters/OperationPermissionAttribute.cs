@@ -113,33 +113,26 @@ public sealed class OperationPermissionFilter : IAsyncAuthorizationFilter
     {
         var http = context.HttpContext;
 
-        http.Response.Cookies.Delete("HNB_API_TOKEN", new CookieOptions
+        foreach (var path in new[] { "/", "/HnbBackoffice" })
         {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
-            Path = "/"
-        });
-
-        var isAjax = IsAjaxRequest(http);
-
-        const string loginPath = "/HnbBackoffice/Authorize/Login";
-
-        if (isAjax)
-        {
-            context.Result = new JsonResult(new
+            http.Response.Cookies.Delete("HNB_API_TOKEN", new CookieOptions
             {
-                ok = false,
-                needLogin = true,
-                redirect = loginPath
-            })
-            { StatusCode = StatusCodes.Status401Unauthorized };
-            return;
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Path = path
+            });
         }
 
+        var isAjax = IsAjaxRequest(http);
+        if (isAjax)
+        {
+            context.Result = new JsonResult(new { ok = false })
+            { StatusCode = StatusCodes.Status404NotFound };
+            return;
+        }
         context.Result = new RedirectToActionResult("Login", "Authorize", new RouteValueDictionary(new { area = "HnbBackoffice" }));
     }
-
     private static bool IsAjaxRequest(HttpContext http)
     {
         var xrw = http.Request.Headers["X-Requested-With"].ToString();

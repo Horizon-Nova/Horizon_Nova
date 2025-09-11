@@ -57,11 +57,25 @@ builder.Services.AddDataProtection()
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(opts =>
     {
-        opts.LoginPath = "/HnbBackoffice/Backoffice/Login";
-        opts.AccessDeniedPath = "/HnbBackoffice/Backoffice/Login";
+        opts.LoginPath = string.Empty;
+        opts.AccessDeniedPath = string.Empty;
+        opts.Cookie.Name = "HNB_API_TOKEN";
         opts.Cookie.HttpOnly = true;                          // 避免 JS 取用 Cookie
         opts.Cookie.SecurePolicy = CookieSecurePolicy.Always; // 僅限 HTTPS 傳輸
         opts.Cookie.SameSite = SameSiteMode.Strict;           // 禁止跨站帶 Cookie（可防 CSRF 類問題）
+        opts.Events = new Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationEvents
+        {
+            OnRedirectToLogin = ctx =>
+            {
+                ctx.Response.StatusCode = StatusCodes.Status404NotFound;
+                return Task.CompletedTask;
+            },
+            OnRedirectToAccessDenied = ctx =>
+            {
+                ctx.Response.StatusCode = StatusCodes.Status404NotFound;
+                return Task.CompletedTask;
+            }
+        };
     });
 
 // Session 啟用

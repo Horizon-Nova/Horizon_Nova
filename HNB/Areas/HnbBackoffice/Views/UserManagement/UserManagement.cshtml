@@ -17,100 +17,39 @@
     <!-- 分頁切換 -->
     <div>
         <div class="grid grid-cols-4 gap-2 border rounded-lg p-1 bg-white">
-            <button class="hn-tab px-3 py-2 rounded-md bg-slate-900 text-white" data-tab="users">人員管理</button>
-            <button class="hn-tab px-3 py-2 rounded-md hover:bg-slate-100" data-tab="organizations">組織管理</button>
-            <button class="hn-tab px-3 py-2 rounded-md hover:bg-slate-100" data-tab="org-roles">組織角色</button>
-            <button class="hn-tab px-3 py-2 rounded-md hover:bg-slate-100" data-tab="org-chart">組織圖</button>
+            <button type="button" class="hn-tab px-3 py-2 rounded-md" onclick="loadTab('users')">人員管理</button>
+            <button type="button" class="hn-tab px-3 py-2 rounded-md" onclick="loadTab('organizations')">組織管理</button>
+            <button type="button" class="hn-tab px-3 py-2 rounded-md" onclick="loadTab('org-roles')">組織角色</button>
+            <button type="button" class="hn-tab px-3 py-2 rounded-md" onclick="loadTab('org-chart')">組織圖</button>
         </div>
+
     </div>
 
     <div id="tabContent" class="space-y-4 min-h-[200px]">
         <div class="flex items-center gap-2 text-slate-400">
-            <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>
-            載入中…
+            <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> 載入中…
         </div>
     </div>
 </section>
 
-@* 新增人員彈出視窗*@
-<form id="formCreateUser"
-      method="post" enctype="multipart/form-data"
-      action="@Url.Action("SubmitUserManagement", "UserManagement", new { area = "HnbBackoffice" })">
-    @Html.AntiForgeryToken()
-
-    <div class="modal fade" id="createUserModal" tabindex="-1"
-         aria-labelledby="createUserTitle" aria-hidden="true" data-bs-backdrop="static">
-        <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
-            <div class="modal-content">
-
-                <div class="modal-header">
-                    <h5 class="modal-title d-flex align-items-center gap-2" id="createUserTitle">
-                        <i data-lucide="user-plus" class="h-5 w-5"></i>
-                        新增用戶
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
-                </div>
-
-                <div id="formErr" class="alert alert-danger d-none mx-3 mt-2 mb-0 py-2 px-3 small"></div>
-
-                <div class="modal-body p-0">
-                    <div id="CreateUserDialog" class="p-3">
-                    </div>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
-                    <button type="button" class="btn btn-primary" onclick="submitCreateUser()">儲存</button>
-                </div>
-
-            </div>
-        </div>
-    </div>
-</form>
-
 @section Scripts {
     <script>
-        (function () {
-          var $content = $('#tabContent');
-
-          function loadTab(t) {
-            $.ajax({
-              type: 'GET',
-              url: '@tabUrl',
-              data: { t: t },
-              cache: false,
-              timeout: 30000,
-              beforeSend: function(xhr, settings){
-                $content.html(
-                  '<div class="flex items-center gap-2 text-slate-400">'+
-                  '  <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> 載入中…'+
-                  '</div>'
-                );
-              },
-              success: function(html, status, xhr){
-                $content.html(html);
-                if (window.lucide && window.lucide.createIcons) { lucide.createIcons(); }
-              },
-              error: function(xhr, status, err){
-                $content.html(
-                  '<div class="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">'+
-                  '  載入失敗（'+ (xhr.status || '未知') +'）。<button type="button" class="ml-2 underline" onclick="location.reload()">重新整理</button>'+
-                  '</div>'
-                );
-              },
-              complete: function(xhr, status){
-              }
-            });
-          }
-
-          loadTab('users');
-
-          $(document).on('click', '.hn-tab', function () {
-            $('.hn-tab').removeClass('bg-slate-900 text-white').addClass('hover:bg-slate-100');
-            $(this).removeClass('hover:bg-slate-100').addClass('bg-slate-900 text-white');
-            loadTab($(this).data('tab'));
+        function loadTab(tab) {
+          $.ajax({
+            type: 'GET',
+            url: '@Url.Action("UserManagementTab", "UserManagement", new { area = "HnbBackoffice" })',
+            data: { t: tab },
+            success: function (res) {
+              $('#tabContent').html(res);
+            },
+            error: function () {
+              alert('失敗，請稍後再試。');
+            }
           });
-        })();
-    </script>
+        }
+        $(function () { loadTab('users'); });
 
+    </script>
 }
+
+

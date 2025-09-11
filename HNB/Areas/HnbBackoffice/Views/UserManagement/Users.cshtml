@@ -1,0 +1,130 @@
+﻿<div class="bg-white border rounded-xl space-y-2">
+
+    <header class="flex items-center justify-between px-6 mt-3">
+        <div>
+            <h2 class="text-xl font-semibold flex items-center gap-2">
+                <i data-lucide="square-user" class="h-5 w-5"></i>
+                用戶管理
+            </h2>
+            <p class="text-slate-500">管理帳號與權限（白名單 / 組織）</p>
+        </div>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-12 border-t">
+        <aside class="md:col-span-3 border-r p-4 space-y-4">
+            <form id="QueryAreas">
+
+                <!-- 本人 ID：person_id -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium">本人 ID</label>
+                    <input id="person_id" name="person_id" type="number" class="w-full rounded-md border px-3 py-2" placeholder="數字，空白則不限">
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium">本人名稱</label>
+                    <input id="person_name" name="person_name" class="w-full rounded-md border px-9 py-2" placeholder="姓名（本人）">
+                </div>
+
+                <!-- 所屬組織：person_dept_id -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium">所屬組織</label>
+                    <select id="person_dept_id" name="person_dept_id" class="w-full rounded-md border px-3 py-2">
+                        <option value="">全部</option>
+                        <option value="tech">技術部</option>
+                        <option value="mkt">行銷部</option>
+                    </select>
+                </div>
+
+                <!-- 關聯人 ID：related_person_id -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium">關聯人 ID</label>
+                    <input id="related_person_id" name="related_person_id" type="number" class="w-full rounded-md border px-3 py-2" placeholder="數字，空白則不限">
+                </div>
+
+                <!-- 關聯人部門：related_dept_id -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium">關聯人部門</label>
+                    <select id="related_dept_id" name="related_dept_id" class="w-full rounded-md border px-3 py-2">
+                        <option value="">全部</option>
+                        <option value="tech">技術部</option>
+                        <option value="mkt">行銷部</option>
+                    </select>
+                </div>
+
+                <!-- 關係：relation（peer/up/down） -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium">關係</label>
+                    <select id="relation" name="relation" class="w-full rounded-md border px-3 py-2">
+                        <option value="">全部</option>
+                        <option value="peer">同部門（peer）</option>
+                        <option value="up">往上（up）</option>
+                        <option value="down">往下（down）</option>
+                    </select>
+                </div>
+
+                <div class="flex gap-2 pt-2">
+                    <button type="button" id="QueryButton" class="flex-1 px-3 py-2 rounded-md bg-slate-900 text-white" onclick="QueryButtonFuntion()">
+                        <i data-lucide="filter" class="h-4 w-4 inline-block mr-1"></i> 套用
+                    </button>
+                    <button id="btn-reset" class="px-3 py-2 rounded-md border">重設</button>
+                </div>
+            </form>
+        </aside>
+        <!-- 右側結果表格 -->
+        <section class="md:col-span-9 p-4">
+            <header class="flex items-center justify-between mb-3 flex-nowrap">
+                <div class="text-sm text-slate-500" id="active-chips"></div>
+                <div class="dt-info-top text-sm text-slate-500 whitespace-nowrap"></div>
+            </header>
+
+            <div class="overflow-x-auto rounded-xl border">
+                <table id="tablediv" class="min-w-full text-sm [&_th]:whitespace-nowrap [&_td]:whitespace-nowrap">
+                    <thead class="bg-slate-50 sticky top-0">
+                        <tr class="text-left text-slate-600">
+                            <th class="px-4 py-3">本人 ID</th>
+                            <th class="px-4 py-3">本人姓名</th>
+                            <th class="px-4 py-3">本人部門</th>
+                            <th class="px-4 py-3">關聯人 ID</th>
+                            <th class="px-4 py-3">關聯人姓名</th>
+                            <th class="px-4 py-3">關聯人部門</th>
+                            <th class="px-4 py-3">距離</th>
+                            <th class="px-4 py-3">關係</th>
+                            <th class="px-4 py-3">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-tbody" class="divide-y">
+                        <tr><td class="px-4 py-6 text-slate-400" colspan="9">請使用左側條件篩選或直接套用</td></tr>
+                    </tbody>
+                </table>
+
+            </div>
+        </section>
+    
+    </div>
+</div>
+
+<script>
+    function QueryButtonFuntion()
+    {
+        var QueryData  = $("#QueryAreas").serialize();
+        var queryButton = $("#QueryButton").first();
+        queryButton.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> 載入中...');
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("UsersResult", "UserManagement")',
+            data: QueryData,
+            success: (response) => {
+                $('#tablediv').html(response);
+            },
+            error: () => {
+                alert('查詢失敗，請稍後再試。');
+            },
+            complete: () => {
+                queryButton.prop('disabled', false).html('<i data-lucide="filter" class="h-4 w-4 inline-block mr-1"></i> 套用');
+                if (window.lucide) window.lucide.createIcons();
+            }
+        });
+    }
+    if (window.lucide) window.lucide.createIcons();
+
+</script>

@@ -9,41 +9,47 @@ namespace HNB.Areas.HnbBackoffice.Controllers;
 [OperationPermission(requireIpMatch: true, verifyDb: true)]
 public class UserManagementController(UserManagementService svc) : Controller
 {
-    #region 首頁
-    public IActionResult UserManagement() => View();
-    #endregion
+    #region 主畫面
+    public IActionResult UserManagement()
+        => View();
 
-    #region 送出（Modal 儲存）
     [HttpPost, ValidateAntiForgeryToken]
     public IActionResult SubmitUserManagement(user_profile model, IFormFile? avatar)
     {
         svc.SaveUserProfile(model, avatar);
         return Json(new { ok = true, message = "使用者資料已儲存。" });
     }
-    #endregion
 
-    #region 分頁載入
     public IActionResult UserManagementTab(string t = "users")
     {
-        var tab = NormalizeTab(t);
-        var partial = tab switch
-        {
-            "users" => "_UM.Users",
-            "usersdialog" => "_UM.UsersDialog",
-            "organizations" => "_UM.Organizations",
-            "org-roles" => "_UM.OrgRoles",
-            "org-chart" => "_UM.OrgChart",
-            _ => "_UM.Users",
-        };
-        return PartialView(partial);
+        var viewName = NormalizeTab(t);
+        return View($"{viewName}");
     }
-    #endregion
 
-    #region 工具
     private static string NormalizeTab(string? t)
     {
         t = (t ?? "users").ToLowerInvariant();
-        return t is "users" or "organizations" or "org-roles" or "usersdialog" or "org-chart" ? t : "users";
+        return t switch
+        {
+            "users" => "Users",
+            "usersdialog" => "UsersDialog",
+            "organizations" => "Organizations",
+            "org-roles" => "OrgRoles",
+            "org-chart" => "OrgChart",
+            _ => "Users"
+        };
     }
+
     #endregion
+
+    #region users (用戶管理)
+
+    public IActionResult UsersResult(person_relation_v model)
+    {
+        var data = svc.QueryUsersResult(model);
+        return View("UsersResult", data);
+    }
+
+    #endregion
+
 }

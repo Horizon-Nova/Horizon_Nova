@@ -189,6 +189,7 @@ public partial class HnbHnbBackofficeDbContext : DbContext
                 .IsFixedLength()
                 .HasComment("國籍");
             entity.Property(e => e.notifytype).HasComment("通知方式（系統設定）");
+            entity.Property(e => e.password).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.phone).HasComment("公司電話");
             entity.Property(e => e.pid).HasComment("身分證字號");
             entity.Property(e => e.pluralism).HasComment("是否兼任");
@@ -203,6 +204,7 @@ public partial class HnbHnbBackofficeDbContext : DbContext
             entity.Property(e => e.positioncode2).HasComment("第二職位代碼");
             entity.Property(e => e.regest_date).HasComment("任職日期");
             entity.Property(e => e.replace_date).HasComment("代理生效日期");
+            entity.Property(e => e.salts).HasDefaultValueSql("'{}'::text[]");
             entity.Property(e => e.sex).HasComment("性別（M/F）");
             entity.Property(e => e.status).HasComment("狀態碼（在職/停用等）");
             entity.Property(e => e.title1)

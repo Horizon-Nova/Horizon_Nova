@@ -8,6 +8,10 @@ public class UserManagementRepositories(HnbHnbBackofficeDbContext hnb)
     #region 統一的查詢屬性
    
     private IQueryable<user_profile> ValidUserProfiles => hnb.user_profiles;
+    private IQueryable<department_closure_v> department_Closure_Vs => hnb.department_closure_vs;
+    private IQueryable<person_relation_v> person_Relation_Vs => hnb.person_relation_vs.OrderBy(p => p.person_id);
+
+    #endregion
 
     public void UpdateUserProfile(user_profile model)
     {
@@ -49,7 +53,7 @@ public class UserManagementRepositories(HnbHnbBackofficeDbContext hnb)
         entity.phone = model.phone;
         entity.mobile = model.mobile;
         entity.comp_phone = model.comp_phone;
-        entity.extension = model.extension ?? string.Empty; // NOT NULL 防呆
+        entity.extension = model.extension ?? string.Empty;
 
         // 人資屬性
         entity.costcenter = model.costcenter;
@@ -58,6 +62,9 @@ public class UserManagementRepositories(HnbHnbBackofficeDbContext hnb)
         entity.manager = model.manager;
         entity.isdeptmanager = model.isdeptmanager;
         entity.status = model.status;
+        entity.account = model.account;
+        entity.password = model.password;
+        entity.salts = model.salts;
 
         entity.pid = model.pid;
         entity.birthday = model.birthday;
@@ -100,5 +107,26 @@ public class UserManagementRepositories(HnbHnbBackofficeDbContext hnb)
         hnb.SaveChanges();
     }
 
+    #region 用戶管理
+
+    public List<person_relation_v> QueryPersonrelation(person_relation_v model)
+    {
+        var query = person_Relation_Vs.AsQueryable();
+
+        query = query.Where(p =>
+            (!model.person_id.HasValue || p.person_id.ToString().Contains(model.person_id.Value.ToString())) &&
+            (string.IsNullOrWhiteSpace(model.person_dept_id) || p.person_dept_id.Contains(model.person_dept_id)) &&
+            (string.IsNullOrWhiteSpace(model.person_name) || p.person_name.Contains(model.person_name)) &&
+            (!model.related_person_id.HasValue || p.related_person_id.ToString().Contains(model.related_person_id.Value.ToString())) &&
+            (string.IsNullOrWhiteSpace(model.related_dept_id) || p.related_dept_id.Contains(model.related_dept_id)) &&
+            (string.IsNullOrWhiteSpace(model.related_person_name) || p.related_person_name.Contains(model.related_person_name)) &&
+            (string.IsNullOrWhiteSpace(model.relation) || p.relation.Contains(model.relation))
+        );
+
+
+        return query.ToList();
+    }
+
     #endregion
+
 }
