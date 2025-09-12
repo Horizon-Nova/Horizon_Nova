@@ -1,46 +1,28 @@
-﻿using System.Net;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.IO.Compression;
+﻿using HNB.Areas.HnbBackoffice.Dtos;
 using Microsoft.AspNetCore.StaticFiles;
-using Microsoft.Extensions.Configuration;
-
-namespace HNB.Areas.HnbBackoffice.Utilities;
+using System.IO.Compression;
+using System.Text.RegularExpressions;
 
 public sealed class DirectoryManagerUtilities
 {
     #region 設定 & 欄位
     private readonly string _root;
     private readonly bool _ignoreCase;
-    private readonly string[] _ignorePatternsFromConfig;
-    private readonly string _ignoreFileName;
-    private readonly List<Regex> _protectedRegexes = new();
-    private static readonly Regex FolderAsciiRegex = new(@"^[A-Za-z0-9 _.\-]+$", RegexOptions.Compiled);
     private static readonly Regex InvalidChars = new(@"[\\/:*?""<>|]", RegexOptions.Compiled);
-    private static readonly FileExtensionContentTypeProvider Ct = new();
-
-    // 可線上檢視/編輯的純文字副檔名
-    private static readonly HashSet<string> EditableExt = new(StringComparer.OrdinalIgnoreCase)
-    {
-        ".txt",".md",".json",".jsonl",".js",".ts",".css",".scss",".sass",
-        ".cs",".cshtml",".html",".htm",".xml",".yml",".yaml",".ini",".conf",".cfg",
-        ".log",".py",".sh",".bat",".ps1",".sql",".env",".properties",".toml",".gitignore",".editorconfig"
-    };
+   
     #endregion
 
     #region 建構子
     public DirectoryManagerUtilities(IConfiguration cfg)
     {
-        _root = Path.GetFullPath(cfg["Storage:Root"] ?? "/app/storage");
+        _root = Path.GetFullPath(cfg["Storage:Root"]);
         _ignoreCase = cfg.GetValue<bool>("Storage:IgnoreCase", true);
-        _ignoreFileName = cfg["Storage:IgnoreFileName"] ?? ".backofficeignore";
-        _ignorePatternsFromConfig = cfg.GetSection("Storage:IgnorePatterns").Get<string[]>() ?? Array.Empty<string>();
         Directory.CreateDirectory(_root);
-        BuildIgnoreRegexCache();
     }
     #endregion
 
-    #region Path / Name Utilities
+    #region 通用小工具
+    /// <summary> 功能：正規化虛擬路徑（/ 開頭）</summary>
     public string NormalizePath(string? path)
     {
         var p = (path ?? "/").Replace('\\', '/').Trim();
@@ -52,443 +34,306 @@ public sealed class DirectoryManagerUtilities
         return "/" + string.Join('/', segs);
     }
 
-    public string GetSafeAbsolutePath(string virtualPath)
+    /// <summary> 功能：名稱淨化 </summary>
+    private string SanitizeName(string raw)
     {
-        Directory.CreateDirectory(_root);
-        var normalized = NormalizePath(virtualPath);
-        var combined = Path.GetFullPath(Path.Combine(_root, "." + normalized));
-        var cmp = _ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
-        if (!combined.StartsWith(_root, cmp))
-            throw new InvalidOperationException("路徑不安全");
-        return combined;
-    }
-
-    public string SanitizeName(string raw)
-    {
-        var name = WebUtility.HtmlDecode(raw ?? string.Empty).Trim();
+        var name = (raw ?? string.Empty).Trim();
         if (name is "." or "..") return "";
         name = InvalidChars.Replace(name, "");
         if (name.Length > 128) name = name[..128];
         return name;
     }
 
-    public string SanitizePathSegments(string relPath)
+    /// <summary> 功能：將虛擬路徑轉為 Root 內的安全實體路徑 </summary>
+    private bool TryGetSafeAbsolutePath(string virtualPath, out string abs, out string msg)
     {
-        var parts = relPath.Split('/', StringSplitOptions.RemoveEmptyEntries)
-                           .Select(SanitizeName)
-                           .Where(s => !string.IsNullOrWhiteSpace(s));
-        return string.Join('/', parts);
+        abs = "";
+        msg = "";
+        var v = NormalizePath(virtualPath);
+        var maybe = Path.GetFullPath(Path.Combine(_root, "." + v));
+        var cmp = _ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+        if (!maybe.StartsWith(_root, cmp)) { msg = "路徑不安全"; return false; }
+        abs = maybe;
+        return true;
     }
 
-    public string EnsureUniqueFile(string absPath)
+    /// <summary> 取得安全的絕對路徑（檔案） </summary>
+    public (string? absPath, string? error) GetSafeFilePath(string virtualPath, string name)
     {
-        if (!File.Exists(absPath)) return absPath;
-        var dir = Path.GetDirectoryName(absPath)!;
-        var file = Path.GetFileNameWithoutExtension(absPath);
-        var ext = Path.GetExtension(absPath);
-        var i = 1; string candidate;
-        do { candidate = Path.Combine(dir, $"{file} ({i++}){ext}"); }
-        while (File.Exists(candidate));
-        return candidate;
+        if (!TryGetSafeAbsolutePath(virtualPath, out var baseAbs, out var msg)) return (null, msg);
+        if (string.IsNullOrWhiteSpace(name)) return (null, "檔名不可為空白");
+        var seg = name.Replace('\\', '/').Trim('/');
+        if (string.IsNullOrEmpty(seg) || InvalidChars.IsMatch(seg) || seg.Contains('/')) return (null, "檔名不合法");
+        var abs = Path.Combine(baseAbs, seg);
+        if (!System.IO.File.Exists(abs)) return (null, "檔案不存在");
+        return (abs, null);
     }
 
-    public string EnsureUniqueDirectory(string absDir)
+    /// <summary> 取得安全的絕對路徑（資料夾） </summary>
+    public (string? absPath, string? error) GetSafeDirPath(string virtualPath, string folderName)
     {
-        if (!Directory.Exists(absDir)) return absDir;
-        var parent = Path.GetDirectoryName(absDir)!;
-        var name = Path.GetFileName(absDir);
-        var i = 1; string candidate;
-        do { candidate = Path.Combine(parent, $"{name} ({i++})"); }
-        while (Directory.Exists(candidate));
-        return candidate;
+        if (!TryGetSafeAbsolutePath(virtualPath, out var baseAbs, out var msg)) return (null, msg);
+        if (string.IsNullOrWhiteSpace(folderName)) return (null, "資料夾名稱不可為空白");
+        var seg = folderName.Replace('\\', '/').Trim('/');
+        if (string.IsNullOrEmpty(seg) || InvalidChars.IsMatch(seg) || seg.Contains('/')) return (null, "資料夾名稱不合法");
+        var abs = Path.Combine(baseAbs, seg);
+        if (!Directory.Exists(abs)) return (null, "資料夾不存在");
+        return (abs, null);
     }
 
-    // 資料夾命名：僅允許 英數/空白/.-_（不允許中文或非 ASCII）
-    public void EnsureFolderAsciiOnlyOrThrow(string? rawName)
+    public string GetContentType(string fileName)
     {
-        var name = WebUtility.HtmlDecode(rawName ?? string.Empty).Trim();
-        if (string.IsNullOrWhiteSpace(name))
-            throw new InvalidOperationException("資料夾名稱不可為空");
-        if (!FolderAsciiRegex.IsMatch(name))
-            throw new InvalidOperationException("資料夾名稱僅限英文/數字/空白/.-_（不允許中文或其他非 ASCII 字元）");
+        var provider = new FileExtensionContentTypeProvider();
+        return provider.TryGetContentType(fileName, out var ct) ? ct : "application/octet-stream";
     }
+
     #endregion
 
-    #region Ignore / Protect 名單（.gitignore 風格）
-    public bool IsProtected(string virtualPath, string? name = null)
-    {
-        if (_protectedRegexes.Count == 0) return false;
+    #region 通用指令
+    /// <summary> 功能：建立檔案 </summary>
+    private void CreateFile(string absPath)
+        => File.WriteAllBytes(absPath, Array.Empty<byte>());
 
-        var v = NormalizePath(virtualPath);
-        var rel = (v == "/" ? "" : v.TrimStart('/') + "/") + (name ?? "");
-        rel = rel.Trim('/');
+    /// <summary> 功能：建立資料夾</summary>
+    private void CreateDirectory(string absPath)
+        => Directory.CreateDirectory(absPath);
 
-        // 當作資料夾語意再試一次（尾斜線）
-        var folderRel = rel.Length == 0 ? "" : rel + "/";
+    /// <summary> 功能：刪除檔案</summary>
+    private void DeleteFile(string absPath)
+        => File.Delete(absPath);
 
-        foreach (var rx in _protectedRegexes)
-            if (rx.IsMatch(rel) || (folderRel.Length > 0 && rx.IsMatch(folderRel)))
-                return true;
+    /// <summary> 功能：刪除資料夾（含內容）</summary>
+    private void DeleteDirectory(string absPath)
+        => Directory.Delete(absPath, true);
 
-        return false;
-    }
+    /// <summary> 功能：檔案改名</summary>
+    private void RenameFile(string absOld, string absNew)
+        => File.Move(absOld, absNew);
 
-    private void BuildIgnoreRegexCache()
-    {
-        _protectedRegexes.Clear();
-
-        var patterns = new List<string>(_ignorePatternsFromConfig);
-
-        // 從根目錄讀 ignore 檔
-        var ignoreFile = Path.Combine(_root, _ignoreFileName);
-        if (File.Exists(ignoreFile))
-        {
-            foreach (var ln in File.ReadAllLines(ignoreFile))
-            {
-                var t = (ln ?? "").Trim();
-                if (t.Length == 0 || t.StartsWith("#")) continue;
-                patterns.Add(t);
-            }
-        }
-
-        // 預設也保護 ignore 檔本身
-        if (!patterns.Contains(_ignoreFileName)) patterns.Add(_ignoreFileName);
-
-        var rxOpt = (_ignoreCase ? RegexOptions.IgnoreCase : 0) | RegexOptions.Compiled;
-        foreach (var p in patterns)
-        {
-            var rx = BuildGlobRegex(p, rxOpt);
-            if (rx is not null) _protectedRegexes.Add(rx);
-        }
-    }
-
-    private static Regex? BuildGlobRegex(string? pattern, RegexOptions options)
-    {
-        if (string.IsNullOrWhiteSpace(pattern)) return null;
-        var p = pattern.Replace('\\', '/').Trim();
-
-        var anchored = p.StartsWith('/');
-        if (anchored) p = p.TrimStart('/');
-
-        var sb = new StringBuilder();
-        if (!anchored) sb.Append(@"^(?:.*/)?"); else sb.Append('^');
-
-        for (int i = 0; i < p.Length; i++)
-        {
-            var c = p[i];
-            if (c == '*')
-            {
-                var isDouble = (i + 1 < p.Length && p[i + 1] == '*');
-                if (isDouble) { sb.Append(".*"); i++; }
-                else { sb.Append(@"[^/]*"); }
-                continue;
-            }
-            if (c == '?') { sb.Append(@"[^/]"); continue; }
-            if (".$^+()[]{}|".Contains(c)) sb.Append('\\').Append(c);
-            else if (c == '/') sb.Append('/');
-            else sb.Append(c);
-        }
-
-        sb.Append('$');
-        return new Regex(sb.ToString(), options);
-    }
+    /// <summary> 功能：資料夾改名</summary>
+    private void RenameDirectory(string absOld, string absNew)
+        => Directory.Move(absOld, absNew);
     #endregion
 
-    #region 麵包屑 / 樹 / 清單
-    public List<(string Name, string VirtualPath)> BuildBreadcrumb(string virtualPath)
-    {
-        var v = NormalizePath(virtualPath);
-        var list = new List<(string, string)> { ("/", "/") };
-        if (v == "/") return list;
+    #region 功能區塊
 
-        var segs = v.Split('/', StringSplitOptions.RemoveEmptyEntries);
-        var acc = "";
-        foreach (var s in segs)
-        {
-            acc = string.IsNullOrEmpty(acc) ? "/" + s : acc + "/" + s;
-            list.Add((s, acc));
-        }
-        return list;
+    /// <summary> 功能：在 prefix 虛擬資料夾建立空檔</summary>
+    public string CreateFileAt(string prefixVirtualDir, string fileName)
+    {
+        if (!TryGetSafeAbsolutePath(prefixVirtualDir, out var dirAbs, out var m)) return m;
+        var safe = SanitizeName(fileName);
+        if (string.IsNullOrWhiteSpace(safe)) return "檔名不合法";
+        CreateDirectory(dirAbs);
+        var full = Path.Combine(dirAbs, safe);
+        if (File.Exists(full)) return "目標檔案已存在";
+        CreateFile(full);
+        return "";
     }
 
-    public List<(string Name, string VirtualPath, int Depth)> BuildTree()
+    /// <summary> 功能：在 prefix 虛擬資料夾建立子資料夾</summary>
+    public string CreateDirectoryAt(string prefixVirtualDir, string folderName)
     {
-        var tree = new List<(string, string, int)> { ("根目錄", "/", 0) };
-        Dfs("/", 1);
-        return tree;
+        if (!TryGetSafeAbsolutePath(prefixVirtualDir, out var dirAbs, out var m)) return m;
+        var safe = SanitizeName(folderName);
+        if (string.IsNullOrWhiteSpace(safe)) return "資料夾名稱不合法";
+        var full = Path.Combine(dirAbs, safe);
+        if (Directory.Exists(full)) return "目標資料夾已存在";
+        CreateDirectory(full);
+        return "";
+    }
 
-        void Dfs(string curV, int depth)
+    /// <summary> 功能：刪除檔案</summary>
+    public string DeleteFileAt(string prefixVirtualDir, string nameOrRelPath)
+    {
+        if (!TryGetSafeAbsolutePath(prefixVirtualDir, out var baseAbs, out var msg)) return msg;
+        if (string.IsNullOrWhiteSpace(nameOrRelPath)) return "檔名不可為空白";
+
+        var rel = nameOrRelPath.Replace('\\', '/').Trim('/');
+        if (string.IsNullOrEmpty(rel)) return "檔名不合法";
+        var segs = rel.Split('/', StringSplitOptions.RemoveEmptyEntries);
+        foreach (var s in segs) { if (s is "." or ".." || InvalidChars.IsMatch(s)) return "路徑包含非法字元"; }
+
+        var target = Path.Combine(baseAbs, Path.Combine(segs));
+        if (!File.Exists(target)) return "檔案不存在";
+        try { File.Delete(target); return ""; }
+        catch (Exception ex) { return ex.Message; }
+    }
+
+    /// <summary> 功能：刪除資料夾（含內容）</summary>
+    public string DeleteDirectoryAt(string prefixVirtualDir, string nameOrRelPath, bool recursive = true)
+    {
+        if (!TryGetSafeAbsolutePath(prefixVirtualDir, out var baseAbs, out var msg)) return msg;
+        if (string.IsNullOrWhiteSpace(nameOrRelPath)) return "資料夾名稱不可為空白";
+
+        var rel = nameOrRelPath.Replace('\\', '/').Trim('/');
+        if (string.IsNullOrEmpty(rel)) return "資料夾名稱不合法";
+        var segs = rel.Split('/', StringSplitOptions.RemoveEmptyEntries);
+        foreach (var s in segs) { if (s is "." or ".." || InvalidChars.IsMatch(s)) return "路徑包含非法字元"; }
+
+        var target = Path.Combine(baseAbs, Path.Combine(segs));
+        if (!Directory.Exists(target)) return "資料夾不存在";
+        try { Directory.Delete(target, recursive); return ""; }
+        catch (Exception ex) { return ex.Message; }
+    }
+
+    /// <summary> 功能：檔案改名（同層內）</summary>
+    public string RenameFileAt(string prefixVirtualDir, string oldName, string newName)
+    {
+        if (!TryGetSafeAbsolutePath(prefixVirtualDir, out var baseAbs, out var msg)) return msg;
+        oldName = (oldName ?? "").Trim();
+        newName = (newName ?? "").Trim();
+        if (string.IsNullOrWhiteSpace(oldName) || string.IsNullOrWhiteSpace(newName)) return "名稱不可為空白";
+        if (string.Equals(oldName, newName, StringComparison.OrdinalIgnoreCase)) return "新舊名稱相同";
+        if (InvalidChars.IsMatch(newName) || newName.Contains('/') || newName.Contains('\\')) return "名稱含非法字元";
+
+        var src = Path.Combine(baseAbs, oldName);
+        var dst = Path.Combine(baseAbs, newName);
+        if (!System.IO.File.Exists(src)) return "來源檔案不存在";
+        if (System.IO.File.Exists(dst) || Directory.Exists(dst)) return "目標名稱已存在";
+
+        try { System.IO.File.Move(src, dst); return ""; }
+        catch (Exception ex) { return ex.Message; }
+    }
+
+    /// <summary> 功能：資料夾改名（同層內）</summary>
+    public string RenameDirectoryAt(string prefixVirtualDir, string oldName, string newName)
+    {
+        if (!TryGetSafeAbsolutePath(prefixVirtualDir, out var baseAbs, out var msg)) return msg;
+        oldName = (oldName ?? "").Trim();
+        newName = (newName ?? "").Trim();
+        if (string.IsNullOrWhiteSpace(oldName) || string.IsNullOrWhiteSpace(newName)) return "名稱不可為空白";
+        if (string.Equals(oldName, newName, StringComparison.OrdinalIgnoreCase)) return "新舊名稱相同";
+        if (InvalidChars.IsMatch(newName) || newName.Contains('/') || newName.Contains('\\')) return "名稱含非法字元";
+
+        var src = Path.Combine(baseAbs, oldName);
+        var dst = Path.Combine(baseAbs, newName);
+        if (!Directory.Exists(src)) return "來源資料夾不存在";
+        if (Directory.Exists(dst) || System.IO.File.Exists(dst)) return "目標名稱已存在";
+
+        try { Directory.Move(src, dst); return ""; }
+        catch (Exception ex) { return ex.Message; }
+    }
+
+    /// <summary> 建立 ZIP（回傳暫存檔路徑；大目錄避免吃記憶體） </summary>
+    public (string? zipPath, string? error, string downloadName) CreateZipOfDirectory(string virtualPath, string folderName)
+    {
+        var (srcDir, err) = GetSafeDirPath(virtualPath, folderName);
+        if (err != null) return (null, err, folderName + ".zip");
+
+        var tmpDir = Path.Combine(Path.GetTempPath(), "HNB_Zips");
+        Directory.CreateDirectory(tmpDir);
+        var zipName = $"{folderName}_{DateTime.UtcNow:yyyyMMddHHmmss}.zip";
+        var zipAbs = Path.Combine(tmpDir, zipName);
+
+        using (var fs = new FileStream(zipAbs, FileMode.Create, FileAccess.ReadWrite, FileShare.None))
+        using (var zip = new ZipArchive(fs, ZipArchiveMode.Create, leaveOpen: false))
         {
-            var curAbs = GetSafeAbsolutePath(curV);
-            foreach (var dir in Directory.EnumerateDirectories(curAbs).OrderBy(Path.GetFileName))
+            var baseLen = srcDir.TrimEnd(Path.DirectorySeparatorChar).Length + 1;
+            foreach (var file in Directory.EnumerateFiles(srcDir, "*", SearchOption.AllDirectories))
             {
-                var name = Path.GetFileName(dir);
-                if (IsProtected(curV, name)) continue;
+                var rel = file.Substring(baseLen).Replace(Path.DirectorySeparatorChar, '/');
+                zip.CreateEntryFromFile(file, folderName.Trim('/') + "/" + rel, CompressionLevel.Optimal);
+            }
+        }
+        return (zipAbs, null, folderName + ".zip");
+    }
 
+    #endregion
+
+
+    /// <summary>
+    /// 目錄樹查詢：由起點虛擬路徑建立目錄樹（不丟例外；無法解析時回傳目前已累積結果）
+    /// </summary>
+    public List<FileTreeNodeDto> BuildTree(string startVirtualPath = "/")
+    {
+        var result = new List<FileTreeNodeDto>();
+
+        var startV = NormalizePath(startVirtualPath);
+        var rootName = startV == "/" ? "根目錄" : Path.GetFileName(startV);
+        result.Add(new FileTreeNodeDto { Name = rootName, VirtualPath = startV, Depth = 0 });
+
+        if (!TryGetSafeAbsolutePath(startV, out var absStart, out _))
+            return result;
+
+        Dfs(startV, absStart, 1);
+        return result;
+
+        void Dfs(string curV, string curAbs, int depth)
+        {
+            foreach (var dirAbs in Directory.EnumerateDirectories(curAbs).OrderBy(Path.GetFileName))
+            {
+                var name = Path.GetFileName(dirAbs);
                 var childV = curV == "/" ? "/" + name : curV + "/" + name;
-                tree.Add((name, childV, depth));
-                Dfs(childV, depth + 1);
+                result.Add(new FileTreeNodeDto { Name = name, VirtualPath = childV, Depth = depth });
+                Dfs(childV, dirAbs, depth + 1);
             }
         }
     }
 
-    public List<(string Name, DateTime? LastWriteUtc)> ListFolders(string virtualPath)
+    /// <summary>列出資料夾</summary>
+    public IEnumerable<(string Name, DateTime? LastWriteUtc)> ListFolders(string virtualPath)
     {
-        var abs = GetSafeAbsolutePath(virtualPath);
-        if (!Directory.Exists(abs)) return new();
+        var v = NormalizePath(virtualPath);
+        if (!TryGetSafeAbsolutePath(v, out var abs, out _)) return Enumerable.Empty<(string, DateTime?)>();
+        if (!Directory.Exists(abs)) return Enumerable.Empty<(string, DateTime?)>();
+
         return Directory.EnumerateDirectories(abs)
-            .OrderBy(Path.GetFileName)
-            .Select(d => (Path.GetFileName(d), (DateTime?)Directory.GetLastWriteTimeUtc(d)))
-            .Where(t => !IsProtected(virtualPath, t.Item1))
-            .ToList();
+                        .OrderBy(Path.GetFileName)
+                        .Select(d => (Path.GetFileName(d), (DateTime?)Directory.GetLastWriteTimeUtc(d)));
     }
 
-    public List<(string Name, long Size, DateTime? LastWriteUtc)> ListFiles(string virtualPath)
+    /// <summary>列出檔案</summary>
+    public IEnumerable<(string Name, long Size, DateTime? LastWriteUtc)> ListFiles(string virtualPath)
     {
-        var abs = GetSafeAbsolutePath(virtualPath);
-        if (!Directory.Exists(abs)) return new();
+        var v = NormalizePath(virtualPath);
+        if (!TryGetSafeAbsolutePath(v, out var abs, out _)) return Enumerable.Empty<(string, long, DateTime?)>();
+        if (!Directory.Exists(abs)) return Enumerable.Empty<(string, long, DateTime?)>();
+
         return Directory.EnumerateFiles(abs)
-            .OrderBy(Path.GetFileName)
-            .Select(f => {
-                var fi = new FileInfo(f);
-                return (fi.Name, fi.Length, (DateTime?)fi.LastWriteTimeUtc);
-            })
-            .Where(t => !IsProtected(virtualPath, t.Item1))
-            .ToList();
-    }
-    #endregion
-
-    #region 上傳目標計算（僅回傳安全目標路徑，實際寫入由上層處理）
-    public (string AbsFilePath, string SafeFileName) PrepareSingleUploadTarget(string virtualPath, string originalFileName)
-    {
-        var absDir = GetSafeAbsolutePath(virtualPath);
-        Directory.CreateDirectory(absDir);
-
-        var safeName = SanitizeName(originalFileName);
-        if (string.IsNullOrWhiteSpace(safeName)) throw new InvalidOperationException("檔名不合法");
-        if (IsProtected(virtualPath, safeName)) throw new InvalidOperationException("保護路徑，禁止上傳");
-
-        var absTarget = EnsureUniqueFile(Path.Combine(absDir, safeName));
-        return (absTarget, Path.GetFileName(absTarget));
+                        .OrderBy(Path.GetFileName)
+                        .Select(f => { var fi = new FileInfo(f); return (fi.Name, fi.Length, (DateTime?)fi.LastWriteTimeUtc); });
     }
 
-    // 支援「相對路徑」上傳（含子資料夾）
-    public (string AbsFilePath, string SafeFileName, string TargetVirtualDir) PrepareBatchUploadTarget(string virtualPath, string relativePath)
+    /// <summary>上傳：一次性儲存 IFormFile（含相對路徑）</summary>
+    public string SaveFormFileAt(string prefixVirtualDir, string relativePath, IFormFile file)
     {
-        var rel = (relativePath ?? "").Replace('\\', '/').Trim('/');
-        if (string.IsNullOrWhiteSpace(rel)) throw new InvalidOperationException("檔名不合法");
-        rel = WebUtility.HtmlDecode(rel);
+        if (!TryGetSafeAbsolutePath(prefixVirtualDir, out var baseAbs, out var m)) return m;
 
-        var safeRel = SanitizePathSegments(rel);
-        if (string.IsNullOrWhiteSpace(safeRel)) throw new InvalidOperationException("檔名不合法");
+        var rel = (relativePath ?? file.FileName).Replace('\\', '/').Trim('/');
+        if (string.IsNullOrWhiteSpace(rel)) return "檔名不合法";
 
-        var segs = safeRel.Split('/', StringSplitOptions.RemoveEmptyEntries);
-        for (int i = 0; i < segs.Length - 1; i++) EnsureFolderAsciiOnlyOrThrow(segs[i]);
-
-        var dirPart = Path.GetDirectoryName("/" + safeRel)?.Replace('\\', '/') ?? "/";
-        var filePart = SanitizeName(Path.GetFileName(safeRel));
-
-        var targetVDir = NormalizePath((virtualPath ?? "/").TrimEnd('/') + "/" + (dirPart?.Trim('/') ?? ""));
-        if (IsProtected(targetVDir, filePart)) throw new InvalidOperationException("保護路徑，禁止上傳");
-
-        var absDir = GetSafeAbsolutePath(targetVDir);
-        Directory.CreateDirectory(absDir);
-
-        var absTarget = EnsureUniqueFile(Path.Combine(absDir, filePart));
-        return (absTarget, Path.GetFileName(absTarget), targetVDir);
-    }
-    #endregion
-
-    #region 檔案/資料夾 操作（建立 / 刪除 / 重新命名）
-    public void CreateFolder(string virtualPath, string folderName)
-    {
-        var absDir = GetSafeAbsolutePath(virtualPath);
-        Directory.CreateDirectory(absDir);
-
-        EnsureFolderAsciiOnlyOrThrow(folderName);
-
-        var safe = SanitizeName(folderName);
-        if (string.IsNullOrWhiteSpace(safe)) throw new InvalidOperationException("資料夾名稱不合法");
-        if (IsProtected(virtualPath, safe)) throw new InvalidOperationException("保護路徑，禁止建立資料夾");
-
-        var newDir = EnsureUniqueDirectory(Path.Combine(absDir, safe));
-        Directory.CreateDirectory(newDir);
-    }
-
-    public void CreateEmptyFile(string virtualPath, string fileName)
-    {
-        var absDir = GetSafeAbsolutePath(virtualPath);
-        Directory.CreateDirectory(absDir);
-
-        var safe = SanitizeName(fileName);
-        if (string.IsNullOrWhiteSpace(safe)) throw new InvalidOperationException("檔名不合法");
-        if (IsProtected(virtualPath, safe)) throw new InvalidOperationException("保護路徑，禁止建立檔案");
-
-        var target = EnsureUniqueFile(Path.Combine(absDir, safe));
-        File.WriteAllBytes(target, Array.Empty<byte>());
-    }
-
-    public void DeleteFile(string virtualPath, string fileName)
-    {
-        if (IsProtected(virtualPath, fileName)) throw new InvalidOperationException("保護路徑，禁止刪除");
-        var absDir = GetSafeAbsolutePath(virtualPath);
-        var safe = SanitizeName(fileName);
-        var full = Path.Combine(absDir, safe);
-        if (File.Exists(full)) File.Delete(full);
-    }
-
-    public void DeleteFolder(string virtualPath, string folderName)
-    {
-        if (IsProtected(virtualPath, folderName)) throw new InvalidOperationException("保護路徑，禁止刪除");
-        var absDir = GetSafeAbsolutePath(virtualPath);
-        var safe = SanitizeName(folderName);
-        var dir = Path.Combine(absDir, safe);
-        if (Directory.Exists(dir)) Directory.Delete(dir, recursive: true);
-    }
-
-    public void RenameFile(string virtualPath, string oldName, string newName)
-    {
-        var absDir = GetSafeAbsolutePath(virtualPath);
-        var src = Path.Combine(absDir, SanitizeName(oldName));
-        var newSafe = SanitizeName(newName);
-        if (string.IsNullOrWhiteSpace(newSafe)) throw new InvalidOperationException("新檔名不合法");
-        var dst = Path.Combine(absDir, newSafe);
-
-        if (!File.Exists(src)) throw new FileNotFoundException();
-        if (IsProtected(virtualPath, oldName) || IsProtected(virtualPath, newSafe)) throw new InvalidOperationException("保護路徑，禁止重命名");
-        if (File.Exists(dst)) throw new InvalidOperationException("目標檔名已存在");
-
-        File.Move(src, dst);
-    }
-
-    public void RenameFolder(string virtualPath, string oldName, string newName)
-    {
-        var absDir = GetSafeAbsolutePath(virtualPath);
-        EnsureFolderAsciiOnlyOrThrow(newName);
-
-        var src = Path.Combine(absDir, SanitizeName(oldName));
-        var newSafe = SanitizeName(newName);
-        if (string.IsNullOrWhiteSpace(newSafe)) throw new InvalidOperationException("新資料夾名稱不合法");
-        var dst = Path.Combine(absDir, newSafe);
-
-        if (!Directory.Exists(src)) throw new DirectoryNotFoundException();
-        if (IsProtected(virtualPath, oldName) || IsProtected(virtualPath, newSafe)) throw new InvalidOperationException("保護路徑，禁止重命名");
-        if (Directory.Exists(dst)) throw new InvalidOperationException("目標資料夾已存在");
-
-        Directory.Move(src, dst);
-    }
-    #endregion
-
-    #region 讀取 / 下載 / Zip
-    public (Stream Stream, string FileName, string ContentType) OpenRead(string virtualPath, string fileName)
-    {
-        var absDir = GetSafeAbsolutePath(virtualPath);
-        var safe = SanitizeName(fileName);
-        var full = Path.Combine(absDir, safe);
-        if (!File.Exists(full)) throw new FileNotFoundException();
-
-        var stream = File.OpenRead(full);
-        var ct = Ct.TryGetContentType(safe, out var contentType) ? contentType : "application/octet-stream";
-        return (stream, safe, ct);
-    }
-
-    public (Stream Stream, string ContentType) OpenRaw(string virtualPath, string fileName)
-    {
-        var (s, _, ct) = OpenRead(virtualPath, fileName);
-        return (s, ct);
-    }
-
-    public (Stream Stream, string FileName, string ContentType) ZipFolder(string virtualPath, string folderName)
-    {
-        if (IsProtected(virtualPath, folderName)) throw new InvalidOperationException("保護路徑，禁止壓縮");
-
-        var absParent = GetSafeAbsolutePath(virtualPath);
-        var safe = SanitizeName(folderName);
-        var absTargetDir = Path.Combine(absParent, safe);
-        if (!Directory.Exists(absTargetDir)) throw new DirectoryNotFoundException("資料夾不存在");
-
-        var temp = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + ".zip");
-        var fs = new FileStream(temp, FileMode.Create, FileAccess.ReadWrite, FileShare.Read, 1 << 16, FileOptions.DeleteOnClose);
-
-        using (var zip = new ZipArchive(fs, ZipArchiveMode.Create, leaveOpen: true))
+        var segs = rel.Split('/', StringSplitOptions.RemoveEmptyEntries);
+        foreach (var seg in segs)
         {
-            var baseV = NormalizePath((virtualPath ?? "/").TrimEnd('/') + "/" + safe);
-            AddDir(absTargetDir, baseV, "");
-            void AddDir(string absDir, string vDir, string rel)
-            {
-                foreach (var dir in Directory.EnumerateDirectories(absDir))
-                {
-                    var name = Path.GetFileName(dir);
-                    if (IsProtected(vDir, name)) continue;
-                    var nextV = vDir == "/" ? "/" + name : vDir + "/" + name;
-                    AddDir(dir, nextV, rel + name + "/");
-                }
-                foreach (var file in Directory.EnumerateFiles(absDir))
-                {
-                    var name = Path.GetFileName(file);
-                    if (IsProtected(vDir, name)) continue;
-                    var entry = zip.CreateEntry(rel + name, CompressionLevel.Fastest);
-                    using var src = File.OpenRead(file);
-                    using var dst = entry.Open();
-                    src.CopyTo(dst);
-                }
-            }
+            if (seg is "." or "..") return "路徑不合法";
+            if (InvalidChars.IsMatch(seg)) return "名稱含非法字元";
         }
-        fs.Position = 0;
-        return (fs, safe + ".zip", "application/zip");
+
+        var dstAbs = Path.Combine(baseAbs, Path.Combine(segs));
+        Directory.CreateDirectory(Path.GetDirectoryName(dstAbs)!);
+
+        using var rs = file.OpenReadStream();
+        using var fs = new FileStream(dstAbs, FileMode.Create, FileAccess.Write, FileShare.None);
+        rs.CopyTo(fs);
+        return "";
     }
-    #endregion
 
-    #region 文字檔 Read / Save（含 BOM 偵測）
-    public static bool IsEditable(string fileName) => EditableExt.Contains(Path.GetExtension(fileName));
-
-    public (string Content, string EncodingName, DateTime? LastWriteUtc) ReadTextFile(string virtualPath, string fileName, long maxBytes = 1_048_576)
+    /// <summary>讀寫純文字 UTF-8（Utilities）</summary>
+    public (string? text, string? error) ReadTextAt(string prefixVirtualDir, string name)
     {
-        if (!IsEditable(fileName))
-            throw new InvalidOperationException("此檔案類型不支援線上查看/編輯");
-
-        var absDir = GetSafeAbsolutePath(virtualPath);
-        var safe = SanitizeName(fileName);
-        var full = Path.Combine(absDir, safe);
-        if (!File.Exists(full)) throw new FileNotFoundException();
-
-        var fi = new FileInfo(full);
-        if (fi.Length > maxBytes)
-            throw new InvalidOperationException($"檔案過大（{fi.Length:N0} bytes），超過上限 {maxBytes:N0}。");
-
-        using var fs = File.OpenRead(full);
-        var preamble = new byte[4];
-        var read = fs.Read(preamble, 0, 4);
-        fs.Position = 0;
-
-        Encoding enc = Encoding.UTF8;
-        if (read >= 3 && preamble[0] == 0xEF && preamble[1] == 0xBB && preamble[2] == 0xBF) enc = new UTF8Encoding(true);
-        else if (read >= 2 && preamble[0] == 0xFF && preamble[1] == 0xFE) enc = Encoding.Unicode;
-        else if (read >= 2 && preamble[0] == 0xFE && preamble[1] == 0xFF) enc = Encoding.BigEndianUnicode;
-
-        using var sr = new StreamReader(fs, enc, detectEncodingFromByteOrderMarks: true);
-        var text = sr.ReadToEnd();
-        return (text, enc.WebName, fi.LastWriteTimeUtc);
+        var (abs, err) = GetSafeFilePath(prefixVirtualDir, name);
+        if (err != null) return (null, err);
+        try { return (System.IO.File.ReadAllText(abs!, System.Text.Encoding.UTF8), null); }
+        catch (Exception ex) { return (null, ex.Message); }
     }
 
-    public void SaveTextFile(string virtualPath, string fileName, string content, string? encodingName = "utf-8")
+    /// <summary>編輯純文字 UTF-8（Utilities）</summary>
+    public string WriteTextAt(string prefixVirtualDir, string name, string content)
     {
-        if (IsProtected(virtualPath, fileName))
-            throw new InvalidOperationException("保護路徑，禁止寫入");
-        if (!IsEditable(fileName))
-            throw new InvalidOperationException("此檔案類型不勻線上編輯");
-
-        var absDir = GetSafeAbsolutePath(virtualPath);
-        var safe = SanitizeName(fileName);
-        var full = Path.Combine(absDir, safe);
-        if (!File.Exists(full)) throw new FileNotFoundException();
-
-        var enc = encodingName?.Equals("utf-8-bom", StringComparison.OrdinalIgnoreCase) == true
-            ? new UTF8Encoding(encoderShouldEmitUTF8Identifier: true)
-            : Encoding.UTF8;
-
-        File.WriteAllText(full, content ?? string.Empty, enc);
+        var (abs, err) = GetSafeFilePath(prefixVirtualDir, name);
+        if (err != null) return err;
+        try { System.IO.File.WriteAllText(abs!, content ?? "", System.Text.Encoding.UTF8); return ""; }
+        catch (Exception ex) { return ex.Message; }
     }
-    #endregion
 
 }

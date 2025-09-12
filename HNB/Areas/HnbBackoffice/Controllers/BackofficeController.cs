@@ -2,6 +2,7 @@
 using HNB.Areas.HnbBackoffice.Services;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.Elfie.Serialization;
 using Models.HnbHnbBackoffice;
 using System.ComponentModel.DataAnnotations;
 
@@ -16,152 +17,147 @@ public class BackofficeController(BackofficeService svc, IConfiguration cfg) : C
         => View();
     #endregion
 
-    #region FileManager (檔案總管)
+    #region File Manager (檔案總管)
+    public IActionResult FileManager() => View();
 
-    #region Helpers
-    private string V(string? path) => svc.NormalizePath(path ?? "/");
-
-    private IActionResult TryDo(string? path, Func<string, IActionResult> action)
+    /// <summary>檔案清單 Partial</summary>
+    public IActionResult ListPartial(string path = "/")
     {
-        var v = V(path);
-        try { return action(v); }
-        catch (Exception ex) { return ErrorOrRedirect(v, ex); }
+        var vm = svc.BuildFileListVm(path);
+        return PartialView("_FileList", vm);
     }
 
-    private async Task<IActionResult> TryDoAsync(string? path, Func<string, Task> action, object? okPayload = null)
+    /// <summary> 目錄樹 Partial </summary>
+    public IActionResult TreePartial(string? selectedPath = null)
     {
-        var v = V(path);
-        try { await action(v); return OkOrRedirect(v, okPayload); }
-        catch (Exception ex) { return ErrorOrRedirect(v, ex); }
-    }
-    #endregion
-
-    public IActionResult FileManager(string? path = "/")
-    {
-        var vPath = V(path);
-        ViewData["CurrentPath"] = vPath;
-        ViewData["CanAddHere"] = svc.CanAddHere(vPath);
-        ViewData["Breadcrumb"] = svc.BuildBreadcrumb(vPath);                 // List<(string Name,string VirtualPath)>
-        ViewData["Tree"] = svc.BuildTree();                                  // List<(string Name,string VirtualPath,int Depth)>
-        ViewData["Folders"] = svc.ListFolders(vPath);                        // List<(string Name,DateTime? LastWriteUtc)>
-        ViewData["Files"] = svc.ListFiles(vPath);                            // List<(string Name,long Size,DateTime? LastWriteUtc)>
-        return View();
+        var nodes = svc.BuildTree("/");
+        ViewBag.SelectedPath = selectedPath ?? "/";
+        return PartialView("_Tree", nodes);
     }
 
-    #region 上傳
+    /// <summary> 手動新增：資料夾 </summary>
+    [HttpPost,ValidateAntiForgeryToken]
+    public IActionResult CreateFolder([Required] string path, [Required, MaxLength(128)] string name)
+    {
+        var msg = svc.CreateFolder(path, name?.Trim() ?? "");
+        var ok = string.IsNullOrEmpty(msg);
+        return Json(new { ok, message = ok ? "資料夾已建立。" : msg });
+    }
 
+    /// <summary> 手動新增：檔案 </summary>
+    [HttpPost,ValidateAntiForgeryToken]
+    public IActionResult CreateFile([Required] string path, [Required, MaxLength(128)] string name)
+    {
+        var msg = svc.CreateEmptyFile(path, name?.Trim() ?? "");
+        var ok = string.IsNullOrEmpty(msg);
+        return Json(new { ok, message = ok ? "檔案已建立。" : msg });
+    }
+
+    /// <summary> 上傳（多檔單請求，前端停留頁面） </summary>
+    [HttpPost, ValidateAntiForgeryToken, DisableRequestSizeLimit]
+    public IActionResult Upload([Required] string path, [FromForm][Required] List<IFormFile> files, [FromForm] List<string>? keys)
+    {
+        var list = files ?? [];
+        if (list.Count == 0) return Json(new { ok = false, message = "未選擇檔案" });
+
+        keys ??= list.Select(f => f.FileName).ToList();
+        if (keys.Count != list.Count) return Json(new { ok = false, message = "keys 與 files 數量不符" });
+
+        var saved = 0;
+        var errs = new List<object>();
+        for (int i = 0; i < list.Count; i++)
+        {
+            var msg = svc.SaveUploadedFile(path, keys[i], list[i]);
+            if (string.IsNullOrEmpty(msg)) saved++;
+            else errs.Add(new { name = list[i].FileName, message = msg });
+        }
+        var ok = errs.Count == 0;
+        return Json(new { ok, saved, failed = errs.Count, errors = errs });
+    }
+
+    /// <summary> 刪除檔案 </summary>
     [HttpPost, ValidateAntiForgeryToken]
-    [RequestSizeLimit(200_000_000)]
-    [Consumes("multipart/form-data")]
-    public Task<IActionResult> Upload([Required] IFormFile file, string? path = "/")
-        => TryDoAsync(path, v => svc.UploadAsync(v, file));
+    public IActionResult DeleteFile([Required] string path, [Required] string name)
+    {
+        var msg = svc.DeleteFile(path, name);
+        var ok = string.IsNullOrEmpty(msg);
+        return Json(new { ok, message = ok ? "檔案已刪除。" : msg });
+    }
 
+    /// <summary> 刪除資料夾 </summary>
     [HttpPost, ValidateAntiForgeryToken]
-    [RequestSizeLimit(2_000_000_000)]
-    [Consumes("multipart/form-data")]
-    public Task<IActionResult> UploadMany([Required] IReadOnlyList<IFormFile> files, string? path = "/")
-        => TryDoAsync(path, v => svc.UploadManyAsync(v, files), new { count = files?.Count ?? 0 });
+    public IActionResult DeleteFolder([Required] string path, [Required] string name)
+    {
+        var msg = svc.DeleteFolder(path, name);
+        var ok = string.IsNullOrEmpty(msg);
+        return Json(new { ok, message = ok ? "資料夾已刪除。" : msg });
+    }
 
-    #endregion
-
-    #region  建立 
+    /// <summary> 重新命名檔案 </summary>
     [HttpPost, ValidateAntiForgeryToken]
-    public IActionResult CreateFolder([Required] string folderName, string? path = "/")
-        => TryDo(path, v => { svc.CreateFolder(v, folderName); return OkOrRedirect(v, new { name = folderName }); });
+    public IActionResult RenameFile([Required] string path, [Required] string oldName, [Required, MaxLength(255)] string newName)
+    {
+        var msg = svc.RenameFile(path, oldName, newName);
+        var ok = string.IsNullOrEmpty(msg);
+        return Json(new { ok, message = ok ? "檔案已重新命名。" : msg, newName });
+    }
 
+    /// <summary> 重新命名資料夾 </summary>
     [HttpPost, ValidateAntiForgeryToken]
-    public IActionResult CreateEmptyFile([Required] string fileName, string? path = "/")
-        => TryDo(path, v => { svc.CreateEmptyFile(v, fileName); return OkOrRedirect(v, new { name = fileName }); });
+    public IActionResult RenameFolder([Required] string path, [Required] string oldName, [Required, MaxLength(255)] string newName)
+    {
+        var msg = svc.RenameFolder(path, oldName, newName);
+        var ok = string.IsNullOrEmpty(msg);
+        return Json(new { ok, message = ok ? "資料夾已重新命名。" : msg, newName });
+    }
 
-    #endregion
-
-    #region  刪除 
+    /// <summary> 下載單檔 </summary>
     [HttpPost, ValidateAntiForgeryToken]
-    public IActionResult DeleteFile([Required] string name, string? path = "/")
-        => TryDo(path, v => { svc.DeleteFile(v, name); return OkOrRedirect(v, new { name }); });
+    public IActionResult Download([Required] string path, [Required] string name)
+    {
+        var (abs, err, ct) = svc.ResolveFileForDownload(path, name);
+        if (err != null) return BadRequest(err);
 
+        return PhysicalFile(abs!, ct, fileDownloadName: name, enableRangeProcessing: true);
+    }
+
+    /// <summary> 下載資料夾 ZIP </summary>
     [HttpPost, ValidateAntiForgeryToken]
-    public IActionResult DeleteFolder([Required] string name, string? path = "/")
-        => TryDo(path, v => { svc.DeleteFolder(v, name); return OkOrRedirect(v, new { name }); });
+    public IActionResult DownloadFolderZip([Required] string path, [Required] string name)
+    {
+        var (zipAbs, err, downloadName) = svc.BuildFolderZip(path, name);
+        if (err != null) return BadRequest(err);
 
-    #endregion
+        var fs = new FileStream(zipAbs!, FileMode.Open, FileAccess.Read, FileShare.Read, 1 << 16, FileOptions.DeleteOnClose);
+        return File(fs, "application/zip", fileDownloadName: downloadName, enableRangeProcessing: true);
+    }
 
-    #region  重新命名 
-    [HttpPost, ValidateAntiForgeryToken]
-    public IActionResult RenameFile([Required] string oldName, [Required] string newName, string? path = "/")
-        => TryDo(path, v => { svc.RenameFile(v, oldName, newName); return OkOrRedirect(v, new { oldName, newName }); });
-
-    [HttpPost, ValidateAntiForgeryToken]
-    public IActionResult RenameFolder([Required] string oldName, [Required] string newName, string? path = "/")
-        => TryDo(path, v => { svc.RenameFolder(v, oldName, newName); return OkOrRedirect(v, new { oldName, newName }); });
-
-    #endregion
-
-    #region  下載 / 預覽 
+    /// <summary> Preview（檔案預覽，用於 <img>/<video>/<iframe>） </summary>
     [HttpGet]
-    public IActionResult Download([Required] string name, string? path = "/")
+    public IActionResult Preview([Required] string path, [Required] string name)
     {
-        var v = V(path);
-        var (stream, fileName, contentType) = svc.OpenRead(v, name);
-        return File(stream, contentType, fileName);
+        var (abs, err, ct) = svc.ResolveFileForDownload(path, name);
+        if (err != null) return BadRequest(err);
+        Response.Headers["Content-Disposition"] = $"inline; filename*=UTF-8''{Uri.EscapeDataString(name)}";
+        return PhysicalFile(abs!, ct, enableRangeProcessing: true);
     }
 
-    #endregion
-
-    #region  資料夾下載 ZIP
-    [HttpGet]
-    public IActionResult DownloadFolderZip([Required] string name, string? path = "/")
-        => TryDo(path, v => {
-            var (stream, fileName, ct) = svc.ZipFolder(v, name);
-            return File(stream, ct, fileName);
-        });
-
-    #endregion
-
-    // 原檔 inline（預覽用：<img src> / <video src> ...）
-    [HttpGet]
-    public IActionResult Raw([Required] string name, string? path = "/")
-    {
-        var v = V(path);
-        var (stream, ct) = svc.OpenRaw(v, name);
-        return File(stream, ct); // 不帶檔名 => inline
-    }
-
-    #region 文字檔 
-    [HttpGet]
-    public IActionResult ReadText([Required] string name, string? path = "/")
-        => TryDo(path, v => {
-            var (content, encoding, last) = svc.ReadTextFile(v, name);
-            return Json(new { ok = true, content, encoding, lastWriteUtc = last });
-        });
-
+    /// <summary> 讀取文字檔內容 </summary>
     [HttpPost, ValidateAntiForgeryToken]
-    public IActionResult SaveText([Required] string name, [Required] string content, string? encoding = "utf-8", string? path = "/")
-        => TryDo(path, v => { svc.SaveTextFile(v, name, content, encoding); return OkOrRedirect(v, new { name }); });
-    #endregion
-
-    #endregion
-
-    #region 私有方法
-    private bool IsAjaxRequest()
+    public IActionResult ReadText([Required] string path, [Required] string name)
     {
-        var xrw = Request?.Headers["X-Requested-With"].ToString();
-        if (!string.IsNullOrEmpty(xrw) && xrw.Equals("XMLHttpRequest", StringComparison.OrdinalIgnoreCase)) return true;
-        var accept = Request?.Headers["Accept"].ToString() ?? "";
-        return accept.Contains("application/json", StringComparison.OrdinalIgnoreCase);
+        var (txt, err) = svc.ReadText(path, name);
+        if (!string.IsNullOrEmpty(err)) return BadRequest(err);
+        return Content(txt ?? "", "text/plain; charset=utf-8");
     }
 
-    private IActionResult OkOrRedirect(string path, object? payload = null)
+    /// <summary> 寫入文字檔內容（覆寫） </summary>
+    [HttpPost, ValidateAntiForgeryToken]
+    public IActionResult SaveText([Required] string path, [Required] string name, [Required] string content)
     {
-        if (IsAjaxRequest()) return Json(new { ok = true, path, data = payload });
-        return RedirectToAction(nameof(FileManager), new { path });
-    }
-
-    private IActionResult ErrorOrRedirect(string path, Exception ex)
-    {
-        if (IsAjaxRequest()) return BadRequest(new { ok = false, path, error = ex.Message });
-        TempData["Error"] = ex.Message;
-        return RedirectToAction(nameof(FileManager), new { path });
+        var err = svc.WriteText(path, name, content);
+        var ok = string.IsNullOrEmpty(err);
+        return Json(new { ok, message = ok ? "已儲存。" : err });
     }
     #endregion
 

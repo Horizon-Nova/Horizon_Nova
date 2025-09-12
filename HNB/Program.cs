@@ -29,16 +29,14 @@ builder.Services.AddHttpClient();
 
 // 依賴注入集中管理
 builder.Services
-    .AddGitHubAccessModule()
-    .AddErrorLogServiceModule()
-    .AddSettingsModule()
-    .AddBackofficeModule()
-    .AddTeamZoneModule()
-    .AddDbKeyJwtModule()
-    .AddAuthorizeModule()
-    .AddUserManagementModule()
-    .AddSystemMonitorHostedModule()
-    .AddIpMiddlewareServicesModule();
+    .HnbBackofficeServiceModule()
+    .HnbBackofficeRepositoriesModule()
+    .HnbBackofficeUtilitiesModule()
+    .HNBServiceModule()
+    .HNBRepositoriesModule()
+    .HNBUtilitiesModule()
+    .HNB_WEBServiceModule()
+    .HNB_WEBRepositoriesModule();
 
 // 反向 Proxy 標頭
 builder.Services.Configure<ForwardedHeadersOptions>(opt =>

@@ -8,44 +8,31 @@ namespace HNB.Areas.HnbBackoffice.Extensions;
 
 public static class HnbBackofficeExtensions
 {
-    /// <summary> DI注入管理 Settings 功能 </summary>
-    public static IServiceCollection AddSettingsModule(this IServiceCollection services)
+    /// <summary> DI注入管理 業務層/服務層 功能 </summary>
+    public static IServiceCollection HnbBackofficeServiceModule(this IServiceCollection services)
     {
+        services.AddScoped<UserManagementService>();
+        services.AddScoped<AuthorizeService>();
+        services.AddScoped<DbKeyJwtService>();
+        services.AddHostedService<SystemMonitorHostedService>();
+        services.AddScoped<BackofficeService>();
         services.AddScoped<SettingsServices>();
+        return services;
+    }
+
+    /// <summary> DI注入管理 倉儲層 功能 </summary>
+    public static IServiceCollection HnbBackofficeRepositoriesModule(this IServiceCollection services)
+    {
+        services.AddScoped<UserManagementRepositories>();
+        services.AddScoped<DbKeyJwtRepositories>();
+        services.AddScoped<SystemMonitorHostedRepositories>();
         services.AddScoped<SettingsRepositories>();
         return services;
     }
-    /// <summary> DI注入管理 Backoffice 功能 </summary>
-    public static IServiceCollection AddBackofficeModule(this IServiceCollection services)
+    /// <summary> DI注入管理 Utilities 功能 </summary>
+    public static IServiceCollection HnbBackofficeUtilitiesModule(this IServiceCollection services)
     {
-        services.AddScoped<BackofficeService>();
-        return services;
-    }    
-    /// <summary> DI注入管理 SystemMonitorHosted 功能 </summary>
-    public static IServiceCollection AddSystemMonitorHostedModule(this IServiceCollection services)
-    {
-        services.AddScoped<SystemMonitorHostedRepositories>();
-        services.AddHostedService<SystemMonitorHostedService>();
-        return services;
-    }
-    /// <summary> DI注入管理 DbKeyJwt 功能 </summary>
-    public static IServiceCollection AddDbKeyJwtModule(this IServiceCollection services)
-    {
-        services.AddScoped<DbKeyJwtRepositories>();
-        services.AddScoped<DbKeyJwtService>();
-        return services;
-    }
-    /// <summary> DI注入管理 Authorize 功能 </summary>
-    public static IServiceCollection AddAuthorizeModule(this IServiceCollection services)
-    {
-        services.AddScoped<AuthorizeService>();
-        return services;
-    }
-    /// <summary> DI注入管理 UserManagement 功能 </summary>
-    public static IServiceCollection AddUserManagementModule(this IServiceCollection services)
-    {
-        services.AddScoped<UserManagementService>();
-        services.AddScoped<UserManagementRepositories>();
+        services.AddSingleton<DirectoryManagerUtilities>();
         return services;
     }
 }

@@ -1,80 +1,85 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
+﻿using HNB.Areas.HnbBackoffice.Dtos;
 using HNB.Areas.HnbBackoffice.Utilities;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using System.Runtime.Intrinsics.Arm;
+using static DirectoryManagerUtilities;
 
 namespace HNB.Areas.HnbBackoffice.Services;
 
-public class BackofficeService
+public class BackofficeService(DirectoryManagerUtilities dm)
 {
-    #region 欄位 & 建構子
-    private readonly DirectoryManagerUtilities _dm;
+    #region File Manager (檔案總管)
+    /// <summary> 查詢目錄樹（由指定虛擬路徑起算）</summary>
+    public List<FileTreeNodeDto> BuildTree(string startVirtualPath = "/")
+        => dm.BuildTree(startVirtualPath);
 
-    public BackofficeService(IConfiguration cfg)
+    /// <summary>建立檔案清單 VM（不丟例外）</summary>
+    public FileListVm BuildFileListVm(string path)
     {
-        _dm = new DirectoryManagerUtilities(cfg);
-    }
-    #endregion
-
-    #region 查詢（直接委派）
-    public string NormalizePath(string? path) => _dm.NormalizePath(path);
-    public bool CanAddHere(string _) => true;
-    public List<(string Name, string VirtualPath, int Depth)> BuildTree() => _dm.BuildTree();
-    public List<(string Name, string VirtualPath)> BuildBreadcrumb(string virtualPath) => _dm.BuildBreadcrumb(virtualPath);
-    public List<(string Name, DateTime? LastWriteUtc)> ListFolders(string virtualPath) => _dm.ListFolders(virtualPath);
-    public List<(string Name, long Size, DateTime? LastWriteUtc)> ListFiles(string virtualPath) => _dm.ListFiles(virtualPath);
-    #endregion
-
-    #region 上傳（僅負責把 Stream 寫入 Utilities 計算出的安全目標）
-    public async Task UploadAsync(string virtualPath, IFormFile file, CancellationToken ct = default)
-    {
-        var (absFile, _) = _dm.PrepareSingleUploadTarget(virtualPath, file.FileName);
-        Directory.CreateDirectory(Path.GetDirectoryName(absFile)!);
-        await using var fs = File.Create(absFile);
-        await file.CopyToAsync(fs, ct);
-    }
-
-    public async Task UploadManyAsync(string virtualPath, IReadOnlyList<IFormFile> files, CancellationToken ct = default)
-    {
-        if (files is null || files.Count == 0) return;
-
-        foreach (var f in files)
+        var v = dm.NormalizePath(path);
+        var folders = dm.ListFolders(v).Select(x => new FileEntryDto
         {
-            var (absFile, _, _) = _dm.PrepareBatchUploadTarget(virtualPath, f.FileName ?? "");
-            Directory.CreateDirectory(Path.GetDirectoryName(absFile)!);
-            await using var fs = File.Create(absFile);
-            await f.CopyToAsync(fs, ct);
-        }
+            Kind = EntryKind.Folder,
+            Name = x.Name,
+            VirtualPath = v,
+            LastWriteUtc = x.LastWriteUtc
+        });
+        var files = dm.ListFiles(v).Select(x => new FileEntryDto
+        {
+            Kind = EntryKind.File,
+            Name = x.Name,
+            VirtualPath = v,
+            Size = x.Size,
+            LastWriteUtc = x.LastWriteUtc
+        });
+
+        var items = folders.Concat(files)
+                           .OrderBy(i => i.Kind == EntryKind.File)
+                           .ThenBy(i => i.Name, StringComparer.OrdinalIgnoreCase)
+                           .ToList();
+
+        return new FileListVm { Path = v, Items = items };
     }
+
+    public string SaveUploadedFile(string destVirtualPath, string relKey, IFormFile file)
+        => dm.SaveFormFileAt(destVirtualPath, relKey, file);
+
+    /// <summary> 建立資料夾 </summary>
+    public string CreateFolder(string virtualPath, string folderName) => dm.CreateDirectoryAt(virtualPath, folderName);
+
+    /// <summary> 建立空白檔 </summary>
+    public string CreateEmptyFile(string virtualPath, string fileName) => dm.CreateFileAt(virtualPath, fileName);
+
+    /// <summary> 刪除檔案 </summary>
+    public string DeleteFile(string virtualPath, string nameOrRel) => dm.DeleteFileAt(virtualPath, nameOrRel);
+
+    /// <summary> 刪除資料夾（含內容） </summary>
+    public string DeleteFolder(string virtualPath, string nameOrRel) => dm.DeleteDirectoryAt(virtualPath, nameOrRel, true);
+
+    /// <summary> 檔案重新命名 </summary>
+    public string RenameFile(string virtualPath, string oldName, string newName) => dm.RenameFileAt(virtualPath, oldName, newName);
+    /// <summary> 資料夾重新命名 </summary>
+    public string RenameFolder(string virtualPath, string oldName, string newName) => dm.RenameDirectoryAt(virtualPath, oldName, newName);
+
+    /// <summary> 下載檔案 </summary>
+    public (string? absPath, string? err, string contentType) ResolveFileForDownload(string path, string name)
+    {
+        var (abs, err) = dm.GetSafeFilePath(path, name);
+        var ct = dm.GetContentType(name);
+        return (abs, err, ct);
+    }
+
+    /// <summary> 下載資料夾 </summary>
+    public (string? zipAbs, string? err, string downloadName) BuildFolderZip(string path, string folderName)
+        => dm.CreateZipOfDirectory(path, folderName);
+
+    /// <summary> 讀取文字檔內容 </summary>
+    public (string? text, string? err) ReadText(string vpath, string file) => dm.ReadTextAt(vpath, file);
+    /// <summary> 寫入文字檔內容（覆寫） </summary>
+    public string WriteText(string vpath, string file, string content) => dm.WriteTextAt(vpath, file, content);
+
+
     #endregion
-
-    #region 建立 / 刪除 / 重新命名（直接委派到 Utilities）
-    public void CreateFolder(string virtualPath, string folderName) => _dm.CreateFolder(virtualPath, folderName);
-    public void CreateEmptyFile(string virtualPath, string fileName) => _dm.CreateEmptyFile(virtualPath, fileName);
-    public void DeleteFile(string virtualPath, string fileName) => _dm.DeleteFile(virtualPath, fileName);
-    public void DeleteFolder(string virtualPath, string folderName) => _dm.DeleteFolder(virtualPath, folderName);
-    public void RenameFile(string virtualPath, string oldName, string newName) => _dm.RenameFile(virtualPath, oldName, newName);
-    public void RenameFolder(string virtualPath, string oldName, string newName) => _dm.RenameFolder(virtualPath, oldName, newName);
-    #endregion
-
-    #region 讀取 / 下載 / Zip / Raw（直接委派到 Utilities）
-    public (Stream Stream, string FileName, string ContentType) OpenRead(string virtualPath, string fileName)
-        => _dm.OpenRead(virtualPath, fileName);
-
-    public (Stream Stream, string ContentType) OpenRaw(string virtualPath, string fileName)
-        => _dm.OpenRaw(virtualPath, fileName);
-
-    public (Stream Stream, string FileName, string ContentType) ZipFolder(string virtualPath, string folderName)
-        => _dm.ZipFolder(virtualPath, folderName);
-    #endregion
-
-    #region 文字檔 Read/Save（直接委派到 Utilities）
-
-    public (string Content, string EncodingName, DateTime? LastWriteUtc) ReadTextFile(string virtualPath, string fileName, long maxBytes = 1_048_576)
-        => _dm.ReadTextFile(virtualPath, fileName, maxBytes);
-
-    public void SaveTextFile(string virtualPath, string fileName, string content, string? encodingName = "utf-8")
-        => _dm.SaveTextFile(virtualPath, fileName, content, encodingName);
-
-    #endregion
-
 }
+
