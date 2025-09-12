@@ -9,7 +9,27 @@ public sealed class DirectoryManagerUtilities
     private readonly string _root;
     private readonly bool _ignoreCase;
     private static readonly Regex InvalidChars = new(@"[\\/:*?""<>|]", RegexOptions.Compiled);
-   
+    private readonly HashSet<string> _ignoreNames;
+    private readonly List<Regex> _ignoreGlobs = new();
+    private static Regex GlobToRegex(string glob, bool ignoreCase)
+    {
+        var pat = Regex.Escape(glob)
+            .Replace(@"\*\*", ".*")
+            .Replace(@"\*", @"[^/]*")
+            .Replace(@"\?", @"[^/]");
+        return new Regex("^" + pat + "$", ignoreCase ? RegexOptions.IgnoreCase : RegexOptions.None);
+    }
+    private bool ShouldIgnore(string virtualPath, string name, bool isDir)
+    {
+        if (_ignoreNames.Contains(name)) return true;
+
+        var vpath = NormalizePath(virtualPath);
+        var full = (vpath == "/") ? (name) : (vpath.TrimStart('/') + "/" + name);
+        foreach (var rx in _ignoreGlobs)
+            if (rx.IsMatch(full) || rx.IsMatch(name)) return true;
+
+        return false;
+    }
     #endregion
 
     #region 建構子
@@ -17,6 +37,13 @@ public sealed class DirectoryManagerUtilities
     {
         _root = Path.GetFullPath(cfg["Storage:Root"]);
         _ignoreCase = cfg.GetValue<bool>("Storage:IgnoreCase", true);
+
+        var names = cfg.GetSection("Storage:Ignore:Names").Get<string[]>() ?? Array.Empty<string>();
+        _ignoreNames = new HashSet<string>(names, _ignoreCase ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
+
+        var globs = cfg.GetSection("Storage:Ignore:Globs").Get<string[]>() ?? Array.Empty<string>();
+        foreach (var g in globs) _ignoreGlobs.Add(GlobToRegex(g ?? "", _ignoreCase));
+
         Directory.CreateDirectory(_root);
     }
     #endregion
@@ -263,6 +290,8 @@ public sealed class DirectoryManagerUtilities
             foreach (var dirAbs in Directory.EnumerateDirectories(curAbs).OrderBy(Path.GetFileName))
             {
                 var name = Path.GetFileName(dirAbs);
+                if (ShouldIgnore(curV, name, isDir: true)) continue;
+
                 var childV = curV == "/" ? "/" + name : curV + "/" + name;
                 result.Add(new FileTreeNodeDto { Name = name, VirtualPath = childV, Depth = depth });
                 Dfs(childV, dirAbs, depth + 1);
@@ -278,8 +307,10 @@ public sealed class DirectoryManagerUtilities
         if (!Directory.Exists(abs)) return Enumerable.Empty<(string, DateTime?)>();
 
         return Directory.EnumerateDirectories(abs)
-                        .OrderBy(Path.GetFileName)
-                        .Select(d => (Path.GetFileName(d), (DateTime?)Directory.GetLastWriteTimeUtc(d)));
+            .Select(d => Path.GetFileName(d))
+            .Where(n => !ShouldIgnore(v, n, isDir: true))
+            .OrderBy(n => n)
+            .Select(n => (n, (DateTime?)Directory.GetLastWriteTimeUtc(Path.Combine(abs, n))));
     }
 
     /// <summary>列出檔案</summary>
@@ -290,8 +321,10 @@ public sealed class DirectoryManagerUtilities
         if (!Directory.Exists(abs)) return Enumerable.Empty<(string, long, DateTime?)>();
 
         return Directory.EnumerateFiles(abs)
-                        .OrderBy(Path.GetFileName)
-                        .Select(f => { var fi = new FileInfo(f); return (fi.Name, fi.Length, (DateTime?)fi.LastWriteTimeUtc); });
+            .Select(f => new FileInfo(f))
+            .Where(fi => !ShouldIgnore(v, fi.Name, isDir: false))
+            .OrderBy(fi => fi.Name)
+            .Select(fi => (fi.Name, fi.Length, (DateTime?)fi.LastWriteTimeUtc));
     }
 
     /// <summary>上傳：一次性儲存 IFormFile（含相對路徑）</summary>
