@@ -39,17 +39,11 @@ public class GitHubAccessServices(IHttpClientFactory httpFactory, IConfiguration
                 return new(false, "您非指定 GitHub 組織成員。", "/HnbBackoffice/Authorize/Login", isPopup);
         }
 
-        var (token, exp) = await jwtSvc.IssueTokenAfterLoginAsync(
-            http, $"github_{user.Value.Login}", "GitHub 登入", ct);
-
-        http.Response.Cookies.Append("HNB_API_TOKEN", token, new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = http.Request.IsHttps,
-            SameSite = SameSiteMode.Lax,
-            Path = "/",
-            Expires = exp.UtcDateTime
-        });
+        var (_token, _exp) = jwtSvc.IssueTokenAfterLogin(
+            ctx: http,
+            keyComponents: $"github_{user.Value.Login}",
+            note: "GitHub 登入"
+        );
 
         var redirectTo = util.PickRedirectPath(http, queryReturnUrl, fallbackPath);
         return new(true, null, redirectTo, isPopup);

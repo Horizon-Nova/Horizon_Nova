@@ -9,7 +9,7 @@ using System.ComponentModel.DataAnnotations;
 namespace HNB.Areas.HnbBackoffice.Controllers;
 
 [Area("HnbBackoffice")]
-[OperationPermission(requireIpMatch: true, verifyDb: true)]
+[CookieProbe]
 public class BackofficeController(BackofficeService svc, IConfiguration cfg) : Controller
 {
     #region Dashboard (儀錶板)

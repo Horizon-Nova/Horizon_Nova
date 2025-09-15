@@ -1,6 +1,7 @@
 ﻿using HNB.Areas.HnbBackoffice.BackgroundServices;
 using HNB.Areas.HnbBackoffice.Repositories;
 using HNB.Areas.HnbBackoffice.Services;
+using HNB.Areas.HnbBackoffice.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using static Microsoft.AspNetCore.Razor.Language.TagHelperMetadata;
 
@@ -33,6 +34,7 @@ public static class HnbBackofficeExtensions
     public static IServiceCollection HnbBackofficeUtilitiesModule(this IServiceCollection services)
     {
         services.AddSingleton<DirectoryManagerUtilities>();
+        services.AddSingleton<DbKeyJwtUtilities>();
         return services;
     }
 }

@@ -21,25 +21,25 @@ public class DbKeyJwtRepositories(HnbHnbBackofficeDbContext dbo)
 
     #region 儲存
     /// <summary>若同 IP 已存在，僅更新非 key 欄位；否則新增一筆</summary>
-    public async Task<security_ip_key> SaveAsync(security_ip_key entity, CancellationToken ct = default)
+    public security_ip_key Save(security_ip_key entity)
     {
-        var existing = await dbo.security_ip_keys
-            .Where(x => x.ip_addr == entity.ip_addr && !x.disabled)
+        var existing = ValidSecurityIpKeys
+            .Where(x => x.ip_addr == entity.ip_addr)
             .OrderByDescending(x => x.id)
-            .FirstOrDefaultAsync(ct);
+            .FirstOrDefault();
 
         if (existing is not null)
         {
             existing.key_components = entity.key_components;
             existing.note = entity.note;
             dbo.security_ip_keys.Update(existing);
-            await dbo.SaveChangesAsync(ct);
+            dbo.SaveChanges();
             return existing;
         }
         else
         {
-            await dbo.security_ip_keys.AddAsync(entity, ct);
-            await dbo.SaveChangesAsync(ct);
+            dbo.security_ip_keys.Add(entity);
+            dbo.SaveChanges();
             return entity;
         }
     }

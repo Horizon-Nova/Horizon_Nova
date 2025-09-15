@@ -61,7 +61,6 @@ var app = builder.Build();
 
 app.UseExceptionHandler("/HNB_WEB/TeamZone/NotFound");
 app.UseStatusCodePagesWithReExecute("/HNB_WEB/TeamZone/NotFound");
-app.UseHsts();
 
 app.UseMiddleware<ExceptionLoggingMiddleware>();
 app.UseMiddleware<IpSecurityMiddleware>();
@@ -69,6 +68,7 @@ app.UseMiddleware<IpSecurityMiddleware>();
 app.UseForwardedHeaders();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.UseRouting();
 app.UseSession();
 
 // 加強安全標頭
@@ -77,8 +77,11 @@ app.Use(async (context, next) =>
     context.Response.Headers["X-Frame-Options"] = "SAMEORIGIN";
     await next();
 });
-
-app.UseRouting();
+app.UseCookiePolicy(new CookiePolicyOptions
+{
+    MinimumSameSitePolicy = SameSiteMode.Unspecified,
+    Secure = CookieSecurePolicy.Always
+});
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -89,6 +92,7 @@ app.MapControllerRoute(
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller= }/{action= }/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
 
 app.Run();
