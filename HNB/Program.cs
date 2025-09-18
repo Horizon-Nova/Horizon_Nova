@@ -6,6 +6,7 @@ using HNB.Middleware;
 using HNB.Utilities;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Models.Hnbdata;
@@ -48,6 +49,18 @@ builder.Services.Configure<ForwardedHeadersOptions>(opt =>
     opt.KnownNetworks.Clear();
     opt.KnownProxies.Clear();
 });
+builder.Services.Configure<FormOptions>(o =>
+{
+    o.MultipartBodyLengthLimit = long.MaxValue;
+    o.ValueLengthLimit = int.MaxValue;
+    o.MultipartHeadersLengthLimit = int.MaxValue;
+});
+
+builder.WebHost.ConfigureKestrel(o =>
+{
+    o.Limits.MaxRequestBodySize = null;
+});
+
 var keyPath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "DataProtectionKeys");
 builder.Services.AddDataProtection()
                 .PersistKeysToFileSystem(new DirectoryInfo(keyPath));

@@ -54,7 +54,7 @@ public class BackofficeController(BackofficeService svc, IConfiguration cfg) : C
     }
 
     /// <summary> 上傳（多檔單請求，前端停留頁面） </summary>
-    [HttpPost, ValidateAntiForgeryToken, DisableRequestSizeLimit]
+    [HttpPost,ValidateAntiForgeryToken,DisableRequestSizeLimit,RequestSizeLimit(long.MaxValue),RequestFormLimits(MultipartBodyLengthLimit = long.MaxValue)]
     public IActionResult Upload([Required] string path, [FromForm][Required] List<IFormFile> files, [FromForm] List<string>? keys)
     {
         var list = files ?? [];
