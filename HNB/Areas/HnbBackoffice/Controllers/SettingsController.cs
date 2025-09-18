@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 namespace HNB.Areas.HnbBackoffice.Controllers;
 
 [Area("HnbBackoffice")]
-[OperationPermission(requireIpMatch: true, verifyDb: true)]
 public class SettingsController(SettingsServices svc) : Controller
 {
     public IActionResult Settings()

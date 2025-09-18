@@ -6,7 +6,6 @@ using Models.HnbHnbBackoffice;
 namespace HNB.Areas.HnbBackoffice.Controllers;
 
 [Area("HnbBackoffice")]
-[OperationPermission(requireIpMatch: true, verifyDb: true)]
 public class UserManagementController(UserManagementService svc) : Controller
 {
     #region 主畫面
