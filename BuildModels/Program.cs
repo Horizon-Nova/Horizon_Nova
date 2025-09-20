@@ -53,23 +53,25 @@ internal class Program
         }
         #endregion
 
-        #region 專案根與輸出根解析（重點修正）
-        static string FindRootWithFolder(string start, string mustHaveFolder)
+        #region 專案根與輸出根解析
+        static string FindProjectRootFromBin(string start, string csproj)
         {
-            for (var dir = new DirectoryInfo(start); dir != null; dir = dir.Parent)
-                if (Directory.Exists(Path.Combine(dir.FullName, mustHaveFolder)))
-                    return dir.FullName;
-            throw new DirectoryNotFoundException($"找不到含有「{mustHaveFolder}」的專案根目錄。");
+            for (var d = new DirectoryInfo(start); d != null; d = d.Parent)
+                if (File.Exists(Path.Combine(d.FullName, csproj))) return d.FullName;
+            throw new DirectoryNotFoundException($"找不到 {csproj}");
         }
 
-        var solutionRoot = FindRootWithFolder(AppContext.BaseDirectory, "HNB");
+        var exeName = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name ?? "BuildModels";
+        var buildModelsRoot = FindProjectRootFromBin(AppContext.BaseDirectory, $"{exeName}.csproj");
+
+        var baseDir = Directory.GetParent(buildModelsRoot)?.FullName ?? buildModelsRoot;
 
         var outputRootSetting = cfg["ScaffoldSettings:ModelOutputRoot"];
         var outputRoot = string.IsNullOrWhiteSpace(outputRootSetting)
-            ? Path.Combine(solutionRoot, "HNB", "Models")
+            ? Path.Combine(baseDir, "Models")
             : (Path.IsPathRooted(outputRootSetting)
                 ? outputRootSetting
-                : Path.GetFullPath(Path.Combine(solutionRoot, outputRootSetting)));
+                : Path.GetFullPath(Path.Combine(baseDir, outputRootSetting)));
         #endregion
 
         #region DI & Scaffolder
