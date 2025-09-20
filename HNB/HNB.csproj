@@ -13,24 +13,28 @@
     <Compile Remove="Areas\HNB_WEB\Models\**" />
     <Compile Remove="Areas\OrganizationManage\**" />
     <Compile Remove="BackSystem\**" />
+    <Compile Remove="Controllers\**" />
     <Content Remove="API\**" />
     <Content Remove="Areas\Company\**" />
     <Content Remove="Areas\HNB_WEB\Data\**" />
     <Content Remove="Areas\HNB_WEB\Models\**" />
     <Content Remove="Areas\OrganizationManage\**" />
     <Content Remove="BackSystem\**" />
+    <Content Remove="Controllers\**" />
     <EmbeddedResource Remove="API\**" />
     <EmbeddedResource Remove="Areas\Company\**" />
     <EmbeddedResource Remove="Areas\HNB_WEB\Data\**" />
     <EmbeddedResource Remove="Areas\HNB_WEB\Models\**" />
     <EmbeddedResource Remove="Areas\OrganizationManage\**" />
     <EmbeddedResource Remove="BackSystem\**" />
+    <EmbeddedResource Remove="Controllers\**" />
     <None Remove="API\**" />
     <None Remove="Areas\Company\**" />
     <None Remove="Areas\HNB_WEB\Data\**" />
     <None Remove="Areas\HNB_WEB\Models\**" />
     <None Remove="Areas\OrganizationManage\**" />
     <None Remove="BackSystem\**" />
+    <None Remove="Controllers\**" />
   </ItemGroup>
 
 
@@ -47,7 +51,6 @@
     <Folder Include="Areas\DialVision\Models\" />
     <Folder Include="Areas\HnbBackoffice\storage\" />
     <Folder Include="Areas\HNB_WEB\Utilities\" />
-    <Folder Include="Controllers\" />
     <Folder Include="Views\Shared\" />
     <Folder Include="wwwroot\HNB_WEB\image\" />
     <Folder Include="Data\" />

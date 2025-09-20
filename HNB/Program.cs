@@ -1,5 +1,3 @@
-using HNB.Areas.HNB_WEB.Extensions;
-using HNB.Areas.HnbBackoffice.Extensions;
 using HNB.Extensions;
 using HNB.Filters;
 using HNB.Middleware;
@@ -30,14 +28,9 @@ builder.Services.AddHttpClient();
 
 // 依賴注入集中管理
 builder.Services
-    .HnbBackofficeServiceModule()
-    .HnbBackofficeRepositoriesModule()
-    .HnbBackofficeUtilitiesModule()
-    .HNBServiceModule()
-    .HNBRepositoriesModule()
-    .HNBUtilitiesModule()
-    .HNB_WEBServiceModule()
-    .HNB_WEBRepositoriesModule();
+    .ServiceModule()
+    .RepositoriesModule()
+    .UtilitiesModule();
 
 // 反向 Proxy 標頭
 builder.Services.Configure<ForwardedHeadersOptions>(opt =>
