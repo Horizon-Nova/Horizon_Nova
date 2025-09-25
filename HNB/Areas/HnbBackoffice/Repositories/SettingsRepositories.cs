@@ -20,7 +20,7 @@ public class SettingsRepositories(HnbHnbBackofficeDbContext dbo)
         => dbo.system_configs;
 
     public List<vw_system_config_database> VwSystemConfigDatabaseMapping()
-    => ValidVwSystemConfigDatabase?.ToList() ?? new List<vw_system_config_database>();
+        => ValidVwSystemConfigDatabase?.ToList() ?? new List<vw_system_config_database>();
     public List<vw_system_config_notification> VwSystemConfigNotificationMapping()
         => ValidVwSystemConfigNotification?.ToList() ?? new List<vw_system_config_notification>();
     public List<vw_system_config_security> VwSystemConfigSecurityMapping()
@@ -33,6 +33,4 @@ public class SettingsRepositories(HnbHnbBackofficeDbContext dbo)
         => ValidSystemConfig?.ToList() ?? new List<system_config>();
 
     #endregion
-
-
 }

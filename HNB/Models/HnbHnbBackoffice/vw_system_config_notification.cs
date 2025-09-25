@@ -27,22 +27,22 @@ public partial class vw_system_config_notification
     public bool? push_notification { get; set; }
 
     /// <summary>
-    /// 郵件範本
-    /// </summary>
-    public List<string>? mail_template { get; set; }
-
-    /// <summary>
-    /// 郵件範本 ID
-    /// </summary>
-    public List<long>? mail_template_id { get; set; }
-
-    /// <summary>
-    /// 通知類型 (text[])
+    /// 通知類型
     /// </summary>
     public List<string>? notify_types { get; set; }
 
     /// <summary>
-    /// 通知類型狀態 (text[])
+    /// 通知類型狀態
     /// </summary>
     public List<string>? notify_status { get; set; }
+
+    /// <summary>
+    /// 郵件模板ID
+    /// </summary>
+    public List<long>? mail_template_id { get; set; }
+
+    /// <summary>
+    /// 郵件模板
+    /// </summary>
+    public List<string>? mail_template { get; set; }
 }

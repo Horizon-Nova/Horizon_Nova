@@ -36,12 +36,12 @@ public partial class vw_system_config_system
     public string? timezone { get; set; }
 
     /// <summary>
-    /// 偵錯模式
-    /// </summary>
-    public bool? debug_mode { get; set; }
-
-    /// <summary>
     /// 維護模式
     /// </summary>
     public bool? maintenance_mode { get; set; }
+
+    /// <summary>
+    /// 偵錯模式
+    /// </summary>
+    public bool? debug_mode { get; set; }
 }

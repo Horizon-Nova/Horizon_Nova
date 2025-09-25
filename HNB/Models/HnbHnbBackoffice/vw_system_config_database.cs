@@ -12,13 +12,13 @@ public partial class vw_system_config_database
     public long? id { get; set; }
 
     /// <summary>
-    /// 主機位址
+    /// 資料庫主機位址
     /// </summary>
     [StringLength(255)]
     public string? db_host { get; set; }
 
     /// <summary>
-    /// 連接埠
+    /// 資料庫連接埠
     /// </summary>
     [StringLength(10)]
     public string? db_port { get; set; }

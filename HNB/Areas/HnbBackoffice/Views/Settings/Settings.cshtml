@@ -1,5 +1,5 @@
 ﻿@{  
-    ViewData["Title"] = "系統設定 - 後台管理系統";  
+    ViewData["Title"] = "系統管理 - 後台管理系統";  
     Layout = "~/Areas/HnbBackoffice/Views/Shared/_Layout.cshtml";  
 }  
 
@@ -7,45 +7,539 @@
     <header class="flex items-center justify-between">  
         <div>  
             <h1 class="text-3xl font-bold flex items-center gap-3">  
-                <i data-lucide="settings" class="h-8 w-8"></i> 系統設定  
+                <i data-lucide="settings" class="h-8 w-8"></i> 系統管理  
             </h1>  
-            <p class="text-slate-500">完整的系統配置和管理功能</p>  
+            <p class="text-slate-500">系統監控、日誌管理、快取清理和維護工具</p>  
         </div>  
     </header>  
 
-    <div>  
-        <div class="grid grid-cols-6 gap-2 border rounded-lg p-1 bg-white">
-            <button type="button" class="hn-tab px-3 py-2 rounded-md" onclick="loadTab('system')">系統設定</button>
-            <button type="button" class="hn-tab px-3 py-2 rounded-md" onclick="loadTab('security')">安全設定</button>
-            <button type="button" class="hn-tab px-3 py-2 rounded-md" onclick="loadTab('notification')">通知設定</button>
-            <button type="button" class="hn-tab px-3 py-2 rounded-md" onclick="loadTab('database')">資料庫</button>
-            <button type="button" class="hn-tab px-3 py-2 rounded-md" onclick="loadTab('schedule')">排程任務</button>
-            <button type="button" class="hn-tab px-3 py-2 rounded-md" onclick="loadTab('server')">伺服器資訊</button>
+    <!-- 系統狀態卡片 -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-white border rounded-lg p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600">系統狀態</p>
+                    <p class="text-2xl font-bold text-green-600">正常</p>
+                </div>
+                <i data-lucide="activity" class="h-8 w-8 text-green-500"></i>
+            </div>
+        </div>
+        <div class="bg-white border rounded-lg p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600">CPU 使用率</p>
+                    <p class="text-2xl font-bold" id="cpuUsage">--</p>
+                </div>
+                <i data-lucide="cpu" class="h-8 w-8 text-blue-500"></i>
+            </div>
+        </div>
+        <div class="bg-white border rounded-lg p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600">記憶體使用率</p>
+                    <p class="text-2xl font-bold" id="memoryUsage">--</p>
+                </div>
+                <i data-lucide="memory-stick" class="h-8 w-8 text-purple-500"></i>
+            </div>
+        </div>
+        <div class="bg-white border rounded-lg p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600">磁碟使用率</p>
+                    <p class="text-2xl font-bold" id="diskUsage">--</p>
+                </div>
+                <i data-lucide="hard-drive" class="h-8 w-8 text-orange-500"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- 管理工具 -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- 日誌管理 -->
+        <div class="bg-white border rounded-xl p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold flex items-center gap-2">
+                    <i data-lucide="file-text" class="h-5 w-5"></i>
+                    日誌管理
+                </h3>
+                <button type="button" class="text-sm text-blue-600 hover:text-blue-800" onclick="refreshLogs()">
+                    <i data-lucide="refresh-cw" class="h-4 w-4 inline mr-1"></i>刷新
+                </button>
+            </div>
+            <div class="space-y-3">
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                        <p class="font-medium">錯誤日誌</p>
+                        <p class="text-sm text-gray-500" id="errorLogCount">載入中...</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="button" class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs hover:bg-red-200" onclick="clearLogs('error', 'all')">
+                            全部清理
+                        </button>
+                        <button type="button" class="px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs hover:bg-orange-200" onclick="clearLogs('error', 'older', 30)">
+                            清理30天前
+                        </button>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                        <p class="font-medium">系統日誌</p>
+                        <p class="text-sm text-gray-500" id="systemLogCount">載入中...</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="button" class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs hover:bg-blue-200" onclick="clearLogs('system', 'all')">
+                            全部清理
+                        </button>
+                        <button type="button" class="px-2 py-1 bg-indigo-100 text-indigo-700 rounded text-xs hover:bg-indigo-200" onclick="clearLogs('system', 'older', 30)">
+                            清理30天前
+                        </button>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                        <p class="font-medium">存取日誌</p>
+                        <p class="text-sm text-gray-500" id="accessLogCount">載入中...</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="button" class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs hover:bg-green-200" onclick="clearLogs('access', 'all')">
+                            全部清理
+                        </button>
+                        <button type="button" class="px-2 py-1 bg-emerald-100 text-emerald-700 rounded text-xs hover:bg-emerald-200" onclick="clearLogs('access', 'older', 30)">
+                            清理30天前
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
 
-    </div>  
+        <!-- 快取管理 -->
+        <div class="bg-white border rounded-xl p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold flex items-center gap-2">
+                    <i data-lucide="database" class="h-5 w-5"></i>
+                    快取管理
+                </h3>
+                <button type="button" class="text-sm text-blue-600 hover:text-blue-800" onclick="refreshCache()">
+                    <i data-lucide="refresh-cw" class="h-4 w-4 inline mr-1"></i>刷新
+                </button>
+            </div>
+            <div class="space-y-3">
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                        <p class="font-medium">記憶體快取</p>
+                        <p class="text-sm text-gray-500" id="memoryCacheSize">載入中...</p>
+                        <p class="text-xs text-gray-400">應用程式記憶體快取</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="button" class="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs hover:bg-purple-200" onclick="clearCache('memory')">
+                            清理
+                        </button>
+                        <button type="button" class="px-2 py-1 bg-indigo-100 text-indigo-700 rounded text-xs hover:bg-indigo-200" onclick="showCacheDetails('memory')">
+                            詳情
+                        </button>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                        <p class="font-medium">資料庫快取</p>
+                        <p class="text-sm text-gray-500" id="databaseCacheSize">載入中...</p>
+                        <p class="text-xs text-gray-400">分散式快取 (Redis/SQL Server)</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="button" class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs hover:bg-blue-200" onclick="clearCache('database')">
+                            清理
+                        </button>
+                        <button type="button" class="px-2 py-1 bg-sky-100 text-sky-700 rounded text-xs hover:bg-sky-200" onclick="showCacheDetails('database')">
+                            詳情
+                        </button>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                        <p class="font-medium">檔案快取</p>
+                        <p class="text-sm text-gray-500" id="fileCacheSize">載入中...</p>
+                        <p class="text-xs text-gray-400">暫存檔案和靜態資源快取</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="button" class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs hover:bg-green-200" onclick="clearCache('file')">
+                            清理
+                        </button>
+                        <button type="button" class="px-2 py-1 bg-emerald-100 text-emerald-700 rounded text-xs hover:bg-emerald-200" onclick="showCacheDetails('file')">
+                            詳情
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <div id="tabContent" class="space-y-4 min-h-[200px]">
+    <!-- 系統維護工具 -->
+    <div class="bg-white border rounded-xl p-6">
+        <h3 class="text-lg font-semibold flex items-center gap-2 mb-4">
+            <i data-lucide="wrench" class="h-5 w-5"></i>
+            系統維護工具
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="flex items-center justify-between p-4 border rounded-lg">
+                <div>
+                    <p class="font-medium">維護模式</p>
+                    <p class="text-sm text-gray-500">暫時關閉網站進行維護</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" class="sr-only peer" id="maintenanceMode" onchange="toggleMaintenanceMode()">
+                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+            </div>
+            <div class="flex items-center justify-between p-4 border rounded-lg">
+                <div>
+                    <p class="font-medium">資料庫優化</p>
+                    <p class="text-sm text-gray-500">清理和優化資料庫</p>
+                </div>
+                <button type="button" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" onclick="optimizeDatabase()">
+                    執行優化
+                </button>
+            </div>
+            <div class="flex items-center justify-between p-4 border rounded-lg">
+                <div>
+                    <p class="font-medium">系統重啟</p>
+                    <p class="text-sm text-gray-500">重新啟動應用程式</p>
+                </div>
+                <button type="button" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700" onclick="restartApplication()">
+                    重啟系統
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 系統資訊 -->
+    <div id="serverContent" class="space-y-4 min-h-[200px]">
         <span class="animate-pulse text-slate-400">載入中…</span>
     </div>
 </section>  
 
 @section Scripts {
     <script>
-        function loadTab(tab) {
-          $.ajax({
-            type: 'GET',
-            url: '@Url.Action("SettingsTab", "Settings", new { area = "HnbBackoffice" })',
-            data: { t: tab },
-            success: function (res) {
-              $('#tabContent').html(res);
-            },
-            error: function () {
-              alert('失敗，請稍後再試。');
-            }
-          });
-        }
-        $(function () { loadTab('system'); });
+        $(document).ready(function() {
+            loadServerInfo();
+            loadSystemStatus();
+            loadLogsInfo();
+            loadCacheInfo();
+            
+            // 每30秒自動刷新系統狀態
+            setInterval(loadSystemStatus, 30000);
+        });
 
+        function loadServerInfo() {
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("SettingsTab", "Settings", new { area = "HnbBackoffice" })',
+                data: { t: 'server' },
+                success: function (res) {
+                    $('#serverContent').html(res);
+                },
+                error: function () {
+                    $('#serverContent').html('<div class="text-red-500">載入失敗，請稍後再試。</div>');
+                }
+            });
+        }
+
+        function loadSystemStatus() {
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("GetSystemStatus", "Settings", new { area = "HnbBackoffice" })',
+                success: function (data) {
+                    $('#cpuUsage').text(data.cpuUsage + '%');
+                    $('#memoryUsage').text(data.memoryUsage + '%');
+                    $('#diskUsage').text(data.diskUsage + '%');
+                    
+                    // 根據使用率設置顏色
+                    setUsageColor('cpuUsage', data.cpuUsage);
+                    setUsageColor('memoryUsage', data.memoryUsage);
+                    setUsageColor('diskUsage', data.diskUsage);
+                },
+                error: function () {
+                    console.log('無法載入系統狀態');
+                }
+            });
+        }
+
+        function setUsageColor(elementId, usage) {
+            const element = $('#' + elementId);
+            element.removeClass('text-green-600 text-yellow-600 text-red-600');
+            
+            if (usage < 50) {
+                element.addClass('text-green-600');
+            } else if (usage < 80) {
+                element.addClass('text-yellow-600');
+            } else {
+                element.addClass('text-red-600');
+            }
+        }
+
+        function loadLogsInfo() {
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("GetLogsInfo", "Settings", new { area = "HnbBackoffice" })',
+                success: function (data) {
+                    $('#errorLogCount').text(data.errorLogs + ' 條記錄');
+                    $('#systemLogCount').text(data.systemLogs + ' 條記錄');
+                    $('#accessLogCount').text(data.accessLogs + ' 條記錄');
+                },
+                error: function () {
+                    $('#errorLogCount').text('載入失敗');
+                    $('#systemLogCount').text('載入失敗');
+                    $('#accessLogCount').text('載入失敗');
+                }
+            });
+        }
+
+        function loadCacheInfo() {
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("GetCacheInfo", "Settings", new { area = "HnbBackoffice" })',
+                success: function (data) {
+                    $('#memoryCacheSize').text(formatBytes(data.memoryCache));
+                    $('#databaseCacheSize').text(formatBytes(data.databaseCache));
+                    $('#fileCacheSize').text(formatBytes(data.fileCache));
+                },
+                error: function () {
+                    $('#memoryCacheSize').text('載入失敗');
+                    $('#databaseCacheSize').text('載入失敗');
+                    $('#fileCacheSize').text('載入失敗');
+                }
+            });
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function refreshLogs() {
+            loadLogsInfo();
+            showNotification('日誌資訊已刷新', 'success');
+        }
+
+        function refreshCache() {
+            loadCacheInfo();
+            showNotification('快取資訊已刷新', 'success');
+        }
+
+        function clearLogs(type, clearType, days) {
+            let confirmMessage = '';
+            switch (clearType) {
+                case 'all':
+                    confirmMessage = `確定要清理所有 ${type} 日誌嗎？此操作無法復原。`;
+                    break;
+                case 'older':
+                    confirmMessage = `確定要清理 ${days} 天前的 ${type} 日誌嗎？此操作無法復原。`;
+                    break;
+                default:
+                    confirmMessage = `確定要清理 ${type} 日誌嗎？此操作無法復原。`;
+            }
+
+            if (!confirm(confirmMessage)) {
+                return;
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("ClearLogs", "Settings", new { area = "HnbBackoffice" })',
+                data: { 
+                    logType: type, 
+                    clearType: clearType,
+                    days: days || null
+                },
+                success: function (response) {
+                    if (response.success) {
+                        showNotification(response.message, 'success');
+                        loadLogsInfo();
+                    } else {
+                        showNotification(response.message, 'error');
+                    }
+                },
+                error: function () {
+                    showNotification('日誌清理失敗', 'error');
+                }
+            });
+        }
+
+        function clearCache(type) {
+            const typeNames = {
+                'memory': '記憶體',
+                'database': '資料庫',
+                'file': '檔案'
+            };
+            
+            if (!confirm(`確定要清理 ${typeNames[type] || type} 快取嗎？此操作無法復原。`)) {
+                return;
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("ClearCache", "Settings", new { area = "HnbBackoffice" })',
+                data: { cacheType: type },
+                success: function (response) {
+                    if (response.success) {
+                        showNotification(response.message, 'success');
+                        loadCacheInfo();
+                    } else {
+                        showNotification(response.message, 'error');
+                    }
+                },
+                error: function () {
+                    showNotification('快取清理失敗', 'error');
+                }
+            });
+        }
+
+        function showCacheDetails(type) {
+            const typeNames = {
+                'memory': '記憶體快取',
+                'database': '資料庫快取', 
+                'file': '檔案快取'
+            };
+            
+            const descriptions = {
+                'memory': '應用程式記憶體快取，包含用戶會話、臨時數據等。清理後會釋放記憶體空間，但可能影響性能。',
+                'database': '分散式快取，通常使用Redis或SQL Server。包含共享數據和會話信息。',
+                'file': '暫存檔案和靜態資源快取，包含上傳檔案、生成的圖片等。清理後會刪除暫存檔案。'
+            };
+            
+            const currentSize = $(`#${type}CacheSize`).text();
+            
+            const detailHtml = `
+                <div class="space-y-3">
+                    <h4 class="font-semibold text-lg">${typeNames[type]}詳情</h4>
+                    <div class="bg-gray-50 p-3 rounded">
+                        <p class="text-sm text-gray-600 mb-2"><strong>當前大小:</strong> ${currentSize}</p>
+                        <p class="text-sm text-gray-600"><strong>說明:</strong> ${descriptions[type]}</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="clearCache('${type}')" class="px-3 py-1 bg-red-100 text-red-700 rounded text-sm hover:bg-red-200">
+                            立即清理
+                        </button>
+                        <button onclick="closeModal()" class="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200">
+                            關閉
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            showModal(detailHtml);
+        }
+
+        function showModal(content) {
+            const modal = $(`
+                <div id="detailModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+                        ${content}
+                    </div>
+                </div>
+            `);
+            
+            $('body').append(modal);
+        }
+
+        function closeModal() {
+            $('#detailModal').remove();
+        }
+
+        function toggleMaintenanceMode() {
+            const isEnabled = $('#maintenanceMode').is(':checked');
+            const action = isEnabled ? '啟用' : '停用';
+            
+            if (!confirm('確定要' + action + '維護模式嗎？')) {
+                $('#maintenanceMode').prop('checked', !isEnabled);
+                return;
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("ToggleMaintenanceMode", "Settings", new { area = "HnbBackoffice" })',
+                data: { enabled: isEnabled },
+                success: function (response) {
+                    showNotification('維護模式已' + action, 'success');
+                },
+                error: function () {
+                    showNotification('維護模式切換失敗', 'error');
+                    $('#maintenanceMode').prop('checked', !isEnabled);
+                }
+            });
+        }
+
+        function optimizeDatabase() {
+            if (!confirm('確定要執行資料庫優化嗎？這可能需要一些時間。')) {
+                return;
+            }
+
+            showNotification('資料庫優化開始執行...', 'info');
+            
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("OptimizeDatabase", "Settings", new { area = "HnbBackoffice" })',
+                success: function (response) {
+                    showNotification('資料庫優化完成', 'success');
+                },
+                error: function () {
+                    showNotification('資料庫優化失敗', 'error');
+                }
+            });
+        }
+
+        function restartApplication() {
+            if (!confirm('確定要重新啟動應用程式嗎？這會暫時中斷服務。')) {
+                return;
+            }
+
+            if (!confirm('再次確認：您真的要重新啟動系統嗎？')) {
+                return;
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("RestartApplication", "Settings", new { area = "HnbBackoffice" })',
+                success: function (response) {
+                    showNotification('系統重啟指令已發送', 'info');
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 3000);
+                },
+                error: function () {
+                    showNotification('系統重啟失敗', 'error');
+                }
+            });
+        }
+
+        function showNotification(message, type) {
+            // 簡單的通知實現
+            const notification = $('<div class="fixed top-4 right-4 p-4 rounded-lg text-white z-50"></div>');
+            
+            switch(type) {
+                case 'success':
+                    notification.addClass('bg-green-500');
+                    break;
+                case 'error':
+                    notification.addClass('bg-red-500');
+                    break;
+                case 'info':
+                    notification.addClass('bg-blue-500');
+                    break;
+                default:
+                    notification.addClass('bg-gray-500');
+            }
+            
+            notification.text(message);
+            $('body').append(notification);
+            
+            setTimeout(function() {
+                notification.fadeOut(function() {
+                    notification.remove();
+                });
+            }, 3000);
+        }
     </script>
 }

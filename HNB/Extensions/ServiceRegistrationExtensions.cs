@@ -19,6 +19,8 @@ public static class ServiceRegistrationExtensions
     public static IServiceCollection ServiceModule(this IServiceCollection services)
     {
         services.AddScoped<ErrorLogService>();
+        services.AddScoped<LogManagementService>();
+        services.AddScoped<CacheManagementService>();
         services.AddScoped<IpMiddlewareServices>();
         services.AddScoped<GitHubAccessServices>();
         services.AddScoped<UserManagementService>();
@@ -36,6 +38,7 @@ public static class ServiceRegistrationExtensions
     public static IServiceCollection RepositoriesModule(this IServiceCollection services)
     {
         services.AddScoped<ErrorLogRepository>();
+        services.AddScoped<AccessRecordRepository>();
         services.AddScoped<UserManagementRepositories>();
         services.AddScoped<DbKeyJwtRepositories>();
         services.AddScoped<SystemMonitorHostedRepositories>();
