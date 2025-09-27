@@ -30,6 +30,7 @@ public static class ServiceRegistrationExtensions
         services.AddScoped<BackofficeService>();
         services.AddScoped<SettingsServices>();
         services.AddScoped<TeamZoneServices>();
+        services.AddScoped<DatabaseService>();
 
         return services;
     }
