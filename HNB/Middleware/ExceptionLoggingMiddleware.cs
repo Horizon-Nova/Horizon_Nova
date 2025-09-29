@@ -1,21 +1,15 @@
 ﻿using HNB.Services;
 
-namespace HNB.Filters;
+namespace HNB.Middleware;
 
-public class ExceptionLoggingMiddleware
+public class ExceptionLoggingMiddleware(RequestDelegate next)
 {
-    private readonly RequestDelegate _next;
-
-    public ExceptionLoggingMiddleware(RequestDelegate next)
-    {
-        _next = next;
-    }
 
     public async Task Invoke(HttpContext context, ErrorLogService loggerService, ILogger<ExceptionLoggingMiddleware> logger)
     {
         try
         {
-            await _next(context);
+            await next(context);
         }
         catch (Exception ex)
         {

@@ -29,7 +29,7 @@ public partial class vw_system_config_security
     public bool? two_factor_auth { get; set; }
 
     /// <summary>
-    /// IP 白名單（JSON 陣列格式）
+    /// IP 白名單
     /// </summary>
     [Column(TypeName = "json")]
     public string? ip_whitelist { get; set; }

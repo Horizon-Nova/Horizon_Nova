@@ -1,17 +1,11 @@
-﻿using HNB.Repositories;
-using HNB.Helpers;
+﻿using HNB.Helpers;
+using HNB.Repositories;
 using Models.Hnbdata;
 
 namespace HNB.Services;
 
-public class ErrorLogService
+public class ErrorLogService(ErrorLogRepository rep)
 {
-    private readonly ErrorLogRepository _repo;
-
-    public ErrorLogService(ErrorLogRepository repo)
-    {
-        _repo = repo;
-    }
 
     public async Task SaveAsync(HttpContext context, Exception ex, string layer, short stage)
     {
@@ -48,7 +42,8 @@ public class ErrorLogService
             extra = null,
         };
 
-        await _repo.InsertAsync(log);
+        await rep.InsertAsync(log);
     }
 
 }
+

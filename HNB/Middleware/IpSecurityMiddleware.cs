@@ -2,9 +2,6 @@
 
 namespace HNB.Middleware;
 
-/// <summary>
-/// 極薄的一層：只做攔截與回應，所有邏輯都丟給 IpMiddlewareServices。
-/// </summary>
 public class IpSecurityMiddleware
 {
     private readonly RequestDelegate _next;

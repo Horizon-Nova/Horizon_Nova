@@ -1,15 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using System;
-using System.IO;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
-using System.Linq;
-using HNB.Helpers;
+﻿using HNB.Helpers;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Models.Hnbdata;
+using System.Text;
 
 namespace HNB.Filters;
 
@@ -22,11 +14,9 @@ public class RequestResponseLoggerFilter : IAsyncResourceFilter
     {
         var http = context.HttpContext;
 
-        /* ---------- Request ---------- */
         http.Request.EnableBuffering();
         string reqBody = await ReadRequestBodyAsync(http.Request);
 
-        /* ---------- 攔截 Response ---------- */
         var originalBody = http.Response.Body;
         await using var memStream = new MemoryStream();
         http.Response.Body = memStream;
@@ -58,8 +48,6 @@ public class RequestResponseLoggerFilter : IAsyncResourceFilter
             await LogToDbAsync(http, reqBody, respText, duration, error);
         }
     }
-
-    /* ----------------- Helper ----------------- */
 
     private static async Task<string> ReadRequestBodyAsync(HttpRequest req)
     {
@@ -97,13 +85,12 @@ public class RequestResponseLoggerFilter : IAsyncResourceFilter
         return http.Connection.RemoteIpAddress?.MapToIPv4().ToString() ?? "Unknown IP";
     }
 
-    /* ----------------- 寫入 DB ----------------- */
-    private static async Task LogToDbAsync(HttpContext http,string reqBody,string respBody,double duration,Exception? ex)
+    private static async Task LogToDbAsync(HttpContext http, string reqBody, string respBody, double duration, Exception? ex)
     {
         const int MaxBodyLen = 4000;
 
         string CleanBody(string body) =>
-            LogSanitizer.Clean(body.Length > MaxBodyLen? body[..MaxBodyLen] + "…(truncated)": body);
+            LogSanitizer.Clean(body.Length > MaxBodyLen ? body[..MaxBodyLen] + "…(truncated)" : body);
         var record = new access_record
         {
             id = Guid.NewGuid(),

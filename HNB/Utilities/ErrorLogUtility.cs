@@ -1,15 +1,9 @@
 ﻿using HNB.Services;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 
 namespace HNB.Utilities;
 
-/// <summary>
-/// 當 Controller 或 Action 發生未處理例外時，自動記錄錯誤資訊到資料庫
-/// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public class LogErrorAttribute : ExceptionFilterAttribute
 {

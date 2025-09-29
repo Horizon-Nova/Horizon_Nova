@@ -5,86 +5,14 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
-
   <ItemGroup>
-    <Compile Remove="API\**" />
-    <Compile Remove="Areas\Company\**" />
-    <Compile Remove="Areas\HNB_WEB\Data\**" />
-    <Compile Remove="Areas\HNB_WEB\Models\**" />
-    <Compile Remove="Areas\OrganizationManage\**" />
-    <Compile Remove="BackSystem\**" />
-    <Compile Remove="Controllers\**" />
-    <Content Remove="API\**" />
-    <Content Remove="Areas\Company\**" />
-    <Content Remove="Areas\HNB_WEB\Data\**" />
-    <Content Remove="Areas\HNB_WEB\Models\**" />
-    <Content Remove="Areas\OrganizationManage\**" />
-    <Content Remove="BackSystem\**" />
-    <Content Remove="Controllers\**" />
-    <EmbeddedResource Remove="API\**" />
-    <EmbeddedResource Remove="Areas\Company\**" />
-    <EmbeddedResource Remove="Areas\HNB_WEB\Data\**" />
-    <EmbeddedResource Remove="Areas\HNB_WEB\Models\**" />
-    <EmbeddedResource Remove="Areas\OrganizationManage\**" />
-    <EmbeddedResource Remove="BackSystem\**" />
-    <EmbeddedResource Remove="Controllers\**" />
-    <None Remove="API\**" />
-    <None Remove="Areas\Company\**" />
-    <None Remove="Areas\HNB_WEB\Data\**" />
-    <None Remove="Areas\HNB_WEB\Models\**" />
-    <None Remove="Areas\OrganizationManage\**" />
-    <None Remove="BackSystem\**" />
-    <None Remove="Controllers\**" />
-  </ItemGroup>
-
-
-  <ItemGroup>
-    <None Remove="Areas\HnbBackoffice\HnbBackoffice_Postgre Specification.XLSX" />
-    <None Remove="Areas\HNB_WEB\HNB_WEB_Postgre Specification.XLSX" />
-    <None Remove="BuildModels.bat" />
-    <None Remove="ProjectPush.bat" />
-    <None Remove="ScaffoldingReadMe.txt" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Areas\DialVision\Data\" />
-    <Folder Include="Areas\DialVision\Models\" />
-    <Folder Include="Areas\HnbBackoffice\storage\" />
-    <Folder Include="Areas\HNB_WEB\Utilities\" />
-    <Folder Include="Views\Shared\" />
-    <Folder Include="wwwroot\HNB_WEB\image\" />
-    <Folder Include="Data\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="wwwroot\HnbBackoffice\css\LayoutBackoffice.css" />
-    <None Include="wwwroot\HnbBackoffice\js\LayoutBackoffice.js" />
-    <None Include="wwwroot\HNB_WEB\css\Layout.css" />
-    <None Include="wwwroot\HNB_WEB\js\Layout.js" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Konscious.Security.Cryptography.Argon2" Version="1.3.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
-    <PackageReference Include="Microsoft.Extensions.FileSystemGlobbing" Version="9.0.8" />
-    <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.17.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite" Version="8.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.11" />
-    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.7" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
-    <PackageReference Include="Tokenizers.DotNet" Version="1.2.1" />
-    <PackageReference Include="Tokenizers.DotNet.runtime.win-x64" Version="1.2.1" />
   </ItemGroup>
-
+  <ItemGroup>
+    <Folder Include="Areas\Backoffice\" />
+  </ItemGroup>
 </Project>

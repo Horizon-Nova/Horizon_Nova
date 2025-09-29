@@ -2,9 +2,6 @@ using HNB.Extensions;
 using HNB.Filters;
 using HNB.Middleware;
 using HNB.Utilities;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Models.Hnbdata;
@@ -15,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews(options =>
 {
     options.Filters.Add<LogErrorAttribute>();
-    options.Filters.Add<RequestResponseLoggerFilter>(); // 記錄請求
+    options.Filters.Add<RequestResponseLoggerFilter>();
 });
 
 builder.Services.AddDbContext<HnbdataDbContext>(options =>
@@ -26,13 +23,11 @@ builder.Services.AddDbContext<HnbHnbBackofficeDbContext>(options =>
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient();
 
-// 依賴注入集中管理
 builder.Services
-    .ServiceModule()
+    .ServicesModule()
     .RepositoriesModule()
     .UtilitiesModule();
 
-// 反向 Proxy 標頭
 builder.Services.Configure<ForwardedHeadersOptions>(opt =>
 {
     opt.ForwardedHeaders =
@@ -42,31 +37,16 @@ builder.Services.Configure<ForwardedHeadersOptions>(opt =>
     opt.KnownNetworks.Clear();
     opt.KnownProxies.Clear();
 });
-builder.Services.Configure<FormOptions>(o =>
-{
-    o.MultipartBodyLengthLimit = long.MaxValue;
-    o.ValueLengthLimit = int.MaxValue;
-    o.MultipartHeadersLengthLimit = int.MaxValue;
-});
 
-builder.WebHost.ConfigureKestrel(o =>
-{
-    o.Limits.MaxRequestBodySize = null;
-});
-
-var keyPath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "DataProtectionKeys");
-builder.Services.AddDataProtection()
-                .PersistKeysToFileSystem(new DirectoryInfo(keyPath));
-
-// Session 啟用
 builder.Services.AddSession();
 
 builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 
-app.UseExceptionHandler("/HNB_WEB/TeamZone/NotFound");
-app.UseStatusCodePagesWithReExecute("/HNB_WEB/TeamZone/NotFound");
+app.UseExceptionHandler("/Error/NotFound");
+app.UseStatusCodePagesWithReExecute("/Error/NotFound");
+app.UseHsts();
 
 app.UseMiddleware<ExceptionLoggingMiddleware>();
 app.UseMiddleware<IpSecurityMiddleware>();
@@ -74,20 +54,15 @@ app.UseMiddleware<IpSecurityMiddleware>();
 app.UseForwardedHeaders();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-app.UseRouting();
 app.UseSession();
 
-// 加強安全標頭
 app.Use(async (context, next) =>
 {
     context.Response.Headers["X-Frame-Options"] = "SAMEORIGIN";
     await next();
 });
-app.UseCookiePolicy(new CookiePolicyOptions
-{
-    MinimumSameSitePolicy = SameSiteMode.Unspecified,
-    Secure = CookieSecurePolicy.Always
-});
+
+app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -98,7 +73,6 @@ app.MapControllerRoute(
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
-
+    pattern: "{controller= }/{action= }/{id?}");
 
 app.Run();

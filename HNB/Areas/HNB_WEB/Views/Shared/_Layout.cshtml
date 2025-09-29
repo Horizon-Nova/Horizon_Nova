@@ -4,33 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewData["Title"]</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="~/HNB_WEB/image/Horizon Nova Icon.png">
+    <link rel="shortcut icon" type="image/png" href="~/HNB_WEB/image/Horizon Nova Icon.png">
 
+
+    <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <script>
-        tailwind.config = {
-          theme: {
-            extend: {
-              animation: {
-                'spin-slow': 'spin 20s linear infinite',
-                'float': 'float 3s ease-in-out infinite',
-              },
-              keyframes: {
-                float: {
-                  '0%, 100%': { transform: 'translateY(0px)' },
-                  '50%': { transform: 'translateY(-10px)' },
-                },
-              },
-            }
-          }
-        }
-    </script>
-
+    <!-- Lucide / 其他庫 -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@shoelace-style/shoelace@2.13.0/cdn/themes/light.css">
     <script type="module" src="https://cdn.jsdelivr.net/npm/@@shoelace-style/shoelace@2.13.0/cdn/shoelace.js"></script>
-    <link rel="stylesheet" href="~/HNB_WEB/css/Layout.css" asp-append-version="true" />
     <script src="~/HNB_WEB/js/Layout.js" asp-append-version="true"></script>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 text-gray-900">

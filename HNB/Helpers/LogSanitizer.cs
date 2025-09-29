@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-
-namespace HNB.Helpers;
+﻿namespace HNB.Helpers;
 
 public static class LogSanitizer
 {
@@ -12,8 +9,6 @@ public static class LogSanitizer
     {
         if (string.IsNullOrEmpty(input))
             return input;
-
-        // 移除 NULL (\0) 與其他控制字元（如 ASCII < 32）
         var cleaned = input.Replace("\0", "");
         cleaned = new string(cleaned.Where(c => !char.IsControl(c)).ToArray());
 
