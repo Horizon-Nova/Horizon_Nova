@@ -33,9 +33,9 @@ html, body {
     }
 }
 .logo-nova {
-    width: 2.5rem; /* h-10 */
-    height: 2.5rem; /* w-10 */
-    border-radius: 0.5rem; /* rounded-lg */
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -53,38 +53,35 @@ html, body {
     color: #6f42c1 !important;
 }
 
-/* #region Portfolio Tabs */
 .nav-pills-soft {
     --pill-active-bg: var(--bs-body-bg);
     --pill-active-color: var(--bs-body-color);
 }
 
     .nav-pills-soft .nav-link {
-        color: var(--bs-secondary-color); /* 灰色 */
+        color: var(--bs-secondary-color);
     }
 
         .nav-pills-soft .nav-link i svg {
-            stroke: var(--bs-secondary-color); /* icon 預設灰色 */
+            stroke: var(--bs-secondary-color);
         }
 
         .nav-pills-soft .nav-link.active {
             background-color: var(--pill-active-bg);
-            color: var(--pill-active-color); /* 黑色 */
+            color: var(--pill-active-color);
             box-shadow: var(--bs-box-shadow-sm);
         }
 
             .nav-pills-soft .nav-link.active i svg {
-                stroke: var(--bs-body-color); /* icon 黑色 */
+                stroke: var(--bs-body-color);
             }
 
-/* 小圖示尺寸工具 */
 .icon-18 svg {
     width: 18px;
     height: 18px;
 }
 
 
-/* #endregion */
 .badge-tonal {
     color: var(--color);
     background-color: color-mix(in srgb, var(--color) 15%, transparent);
