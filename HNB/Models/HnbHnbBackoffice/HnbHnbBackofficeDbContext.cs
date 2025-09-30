@@ -11,9 +11,17 @@ public partial class HnbHnbBackofficeDbContext : DbContext
     {
     }
 
+    public virtual DbSet<permission_management> permission_managements { get; set; }
+
     public virtual DbSet<security_ip_key> security_ip_keys { get; set; }
 
     public virtual DbSet<system_config> system_configs { get; set; }
+
+    public virtual DbSet<vw_permission_role> vw_permission_role { get; set; }
+
+    public virtual DbSet<vw_permission_user> vw_permission_user { get; set; }
+
+    public virtual DbSet<vw_permission_organization> vw_permission_organization { get; set; }
 
     public virtual DbSet<vw_system_config_database> vw_system_config_databases { get; set; }
 
@@ -28,6 +36,35 @@ public partial class HnbHnbBackofficeDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasPostgresExtension("dbo", "pgcrypto");
+
+        modelBuilder.Entity<permission_management>(entity =>
+        {
+            entity.HasKey(e => e.id).HasName("permission_management_pkey");
+
+            entity.HasIndex(e => e.payment_methods, "idx_permission_management_payment_methods").HasMethod("gin");
+
+            entity.HasIndex(e => e.preferences, "idx_permission_management_preferences").HasMethod("gin");
+
+            entity.HasIndex(e => e.subscription_products, "idx_permission_management_subscription_products").HasMethod("gin");
+
+            entity.Property(e => e.auto_renew).HasDefaultValue(true);
+            entity.Property(e => e.created_at).HasDefaultValueSql("now()");
+            entity.Property(e => e.is_active).HasDefaultValue(true);
+            entity.Property(e => e.is_email_verified).HasDefaultValue(false);
+            entity.Property(e => e.is_online).HasDefaultValue(false);
+            entity.Property(e => e.is_phone_verified).HasDefaultValue(false);
+            entity.Property(e => e.language).HasDefaultValueSql("'zh-TW'::character varying");
+            entity.Property(e => e.level).HasDefaultValue(1);
+            entity.Property(e => e.login_count).HasDefaultValue(0);
+            entity.Property(e => e.profile_completion_percentage).HasDefaultValue(0);
+            entity.Property(e => e.sort_order).HasDefaultValue(0);
+            entity.Property(e => e.status).HasDefaultValueSql("'active'::character varying");
+            entity.Property(e => e.theme).HasDefaultValueSql("'auto'::character varying");
+            entity.Property(e => e.timezone).HasDefaultValueSql("'Asia/Taipei'::character varying");
+            entity.Property(e => e.two_factor_enabled).HasDefaultValue(false);
+
+            entity.HasOne(d => d.parent).WithMany(p => p.Inverseparent).HasConstraintName("permission_management_parent_id_fkey");
+        });
 
         modelBuilder.Entity<security_ip_key>(entity =>
         {
@@ -100,6 +137,16 @@ public partial class HnbHnbBackofficeDbContext : DbContext
             entity.Property(e => e.uptime).HasComment("系統運行時間");
             entity.Property(e => e.website_name).HasComment("網站名稱");
             entity.Property(e => e.website_url).HasComment("網站網址");
+        });
+
+        modelBuilder.Entity<vw_permission_role>(entity =>
+        {
+            entity.ToView("vw_permission_roles", "dbo");
+        });
+
+        modelBuilder.Entity<vw_permission_user>(entity =>
+        {
+            entity.ToView("vw_permission_users", "dbo");
         });
 
         modelBuilder.Entity<vw_system_config_database>(entity =>

@@ -13,6 +13,8 @@
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.11" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Areas\Backoffice\" />
+    <Folder Include="Areas\Backoffice\storage\" />
+    <Folder Include="Areas\Backoffice\Repositories\" />
+    <Folder Include="Models\" />
   </ItemGroup>
 </Project>

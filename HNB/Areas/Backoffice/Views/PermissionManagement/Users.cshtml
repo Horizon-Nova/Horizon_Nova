@@ -1,0 +1,270 @@
+@{
+    ViewData["Title"] = "人員管理 - 權限管理系統";
+    Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
+}
+
+@model IEnumerable<Models.HnbHnbBackoffice.vw_permission_user>
+
+<section class="space-y-6">
+    <header>
+        <h1 class="text-2xl font-bold flex items-center gap-2">
+            <i data-lucide="users" class="w-6 h-6"></i> 人員管理
+        </h1>
+        <p class="text-slate-500">管理系統使用者帳號與權限</p>
+    </header>
+
+    <!-- 控制面板 -->
+    <div class="bg-white border rounded-xl p-6">
+        <div class="flex flex-col lg:flex-row gap-4">
+            <div class="flex-1">
+                <div class="relative">
+                    <input type="text" id="searchInput" placeholder="搜尋姓名或電子郵件..." 
+                           class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
+                </div>
+            </div>
+            <div class="flex gap-4">
+                <select id="organizationFilter" class="px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">所有組織</option>
+                    <!-- 組織選項將由 JavaScript 動態載入 -->
+                </select>
+                <select id="roleFilter" class="px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">所有角色</option>
+                    <!-- 角色選項將由 JavaScript 動態載入 -->
+                </select>
+                <select id="statusFilter" class="px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">所有狀態</option>
+                    <option value="true">啟用</option>
+                    <option value="false">停用</option>
+                </select>
+                <button onclick="showUserAdd()" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-2">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    新增人員
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 人員列表 -->
+    <div class="bg-white border rounded-xl overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-200">
+                <thead class="bg-slate-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">人員</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">組織</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">角色</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">狀態</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">最後登入</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">建立時間</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">操作</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-slate-200">
+                    @foreach (var user in Model)
+                    {
+                        <tr class="user-row hover:bg-slate-50 cursor-pointer" onclick="showUserDetails(@user.id)">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10">
+                                        @if (!string.IsNullOrEmpty(user.avatar_url))
+                                        {
+                                            <img class="h-10 w-10 rounded-full" src="@user.avatar_url" alt="@user.full_name">
+                                        }
+                                        else
+                                        {
+                                            <div class="h-10 w-10 rounded-full bg-slate-200 flex items-center justify-center">
+                                                <span class="text-slate-600 font-medium text-sm">@(user.full_name?.Substring(0, 1).ToUpper() ?? "?")</span>
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-slate-900">@user.full_name</div>
+                                        <div class="text-sm text-slate-500">@user.email</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
+                                @(user.organization_name ?? "未分配")
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
+                                @(user.role_name ?? "未分配")
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full @(user.is_active == true ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800")">
+                                    @(user.is_active == true ? "啟用" : "停用")
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                                @(user.last_login_at?.ToString("yyyy/MM/dd HH:mm") ?? "從未登入")
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                                @(user.created_at?.ToString("yyyy/MM/dd HH:mm") ?? "-")
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <button class="text-red-600 hover:text-red-900 delete-user-btn" data-user-id="@user.id" onclick="event.stopPropagation();">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- 使用者模態框容器 -->
+<div id="userModal" class="hidden"></div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // 初始化圖標
+            lucide.createIcons();
+
+            // 搜尋功能
+            $('#searchInput').on('input', filterUsers);
+            $('#organizationFilter, #roleFilter, #statusFilter').on('change', filterUsers);
+
+            // 刪除按鈕事件
+            $('.delete-user-btn').on('click', function() {
+                const userId = $(this).data('user-id');
+                if (confirm('確定要刪除這個使用者嗎？')) {
+                    deleteUser(userId);
+                }
+            });
+        });
+
+        function filterUsers() {
+            const searchTerm = $('#searchInput').val().toLowerCase();
+            const organizationFilter = $('#organizationFilter').val();
+            const roleFilter = $('#roleFilter').val();
+            const statusFilter = $('#statusFilter').val();
+
+            $('.user-row').each(function() {
+                const $row = $(this);
+                const fullName = $row.find('td:first .text-sm.font-medium').text().toLowerCase();
+                const email = $row.find('td:first .text-slate-500').text().toLowerCase();
+                const organization = $row.find('td:nth-child(2)').text();
+                const role = $row.find('td:nth-child(3)').text();
+                const status = $row.find('td:nth-child(4) .rounded-full').text();
+
+                const matchesSearch = fullName.includes(searchTerm) || email.includes(searchTerm);
+                const matchesOrganization = !organizationFilter || organization === organizationFilter;
+                const matchesRole = !roleFilter || role === roleFilter;
+                const matchesStatus = !statusFilter || 
+                    (statusFilter === 'true' && status === '啟用') ||
+                    (statusFilter === 'false' && status === '停用');
+
+                if (matchesSearch && matchesOrganization && matchesRole && matchesStatus) {
+                    $row.show();
+                } else {
+                    $row.hide();
+                }
+            });
+        }
+
+        function showUserDetails(userId) {
+            showUserDetail(userId);
+        }
+
+        function showUserAdd() {
+            $.ajax({
+                url: '@Url.Action("LoadForm", "PermissionManagement")',
+                type: 'GET',
+                data: { type: 'user', formAction: 'add' },
+                success: function(response) {
+                    $('#userModal').html(response);
+                    lucide.createIcons();
+                    $('#userModal').removeClass('hidden');
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX 錯誤:', error);
+                    console.error('狀態:', status);
+                    console.error('回應:', xhr.responseText);
+                    $('#userModal').html(`
+                        <div class="text-center py-4">
+                            <i data-lucide="alert-circle" class="w-12 h-12 text-red-500 mx-auto mb-3"></i>
+                            <p class="text-red-600">載入失敗，請稍後再試</p>
+                            <p class="text-red-500 text-sm">錯誤: ${error}</p>
+                        </div>
+                    `);
+                    lucide.createIcons();
+                    $('#userModal').removeClass('hidden');
+                }
+            });
+        }
+
+        function showUserDetail(userId) {
+            $.ajax({
+                url: '@Url.Action("LoadUserDetails", "PermissionManagement")',
+                type: 'GET',
+                data: { id: userId },
+                success: function(response) {
+                    $('#userModal').html(response);
+                    lucide.createIcons();
+                    $('#userModal').removeClass('hidden');
+                    $('#userModal').data('user-id', userId);
+                },
+                error: function() {
+                    $('#userModal').html(`
+                        <div class="text-center py-4">
+                            <i data-lucide="alert-circle" class="w-12 h-12 text-red-500 mx-auto mb-3"></i>
+                            <p class="text-red-600">載入失敗，請稍後再試</p>
+                        </div>
+                    `);
+                    lucide.createIcons();
+                    $('#userModal').removeClass('hidden');
+                }
+            });
+        }
+
+        function showUserEdit(userId) {
+            $.ajax({
+                url: '@Url.Action("LoadForm", "PermissionManagement")',
+                type: 'GET',
+                data: { type: 'user', formAction: 'edit', id: userId },
+                success: function(response) {
+                    $('#userModal').html(response);
+                    lucide.createIcons();
+                    $('#userModal').removeClass('hidden');
+                },
+                error: function() {
+                    $('#userModal').html(`
+                        <div class="text-center py-4">
+                            <i data-lucide="alert-circle" class="w-12 h-12 text-red-500 mx-auto mb-3"></i>
+                            <p class="text-red-600">載入失敗，請稍後再試</p>
+                        </div>
+                    `);
+                    lucide.createIcons();
+                    $('#userModal').removeClass('hidden');
+                }
+            });
+        }
+
+        function deleteUser(userId) {
+            $.ajax({
+                url: '@Url.Action("DeleteUser", "PermissionManagement")',
+                type: 'POST',
+                data: { id: userId },
+                success: function(response) {
+                    if (response.success) {
+                        alert('使用者刪除成功');
+                        location.reload();
+                    } else {
+                        alert('刪除失敗：' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('刪除失敗，請稍後再試');
+                }
+            });
+        }
+
+        // 模態框關閉事件（動態綁定）
+        $(document).on('click', '[data-modal-close]', function() {
+            $('#userModal').addClass('hidden');
+        });
+    </script>
+}

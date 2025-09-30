@@ -1,0 +1,630 @@
+﻿@{
+    ViewData["Title"] = "檔案總管 - 後台管理系統";
+    Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
+
+    var currentPath = (string)ViewData["CurrentPath"]!;
+    var breadcrumb = (IEnumerable<(string Name, string VirtualPath)>)ViewData["Breadcrumb"]!;
+    var tree = (IEnumerable<(string Name, string VirtualPath, int Depth)>)ViewData["Tree"]!;
+    var folders = (IEnumerable<(string Name, DateTime? LastWriteUtc)>)ViewData["Folders"]!;
+    var files = (IEnumerable<(string Name, long Size, DateTime? LastWriteUtc)>)ViewData["Files"]!;
+}
+
+<section class="space-y-6">
+    <header>
+        <h1 class="text-2xl font-bold flex items-center gap-2">
+            <i data-lucide="folder-tree" class="w-6 h-6"></i> 檔案總管
+        </h1>
+        <p class="text-slate-500">管理後端檔案與資料夾</p>
+    </header>
+
+    <div class="grid grid-cols-12 gap-6">
+        <div class="col-span-12 bg-white border rounded-xl p-6 space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                <!-- 左側資料夾樹 -->
+                <aside class="col-span-12 md:col-span-3 md:sticky md:top-2 bg-white border rounded-lg p-4 space-y-3 order-1">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-semibold flex items-center gap-1">
+                            <i data-lucide="folders" class="w-4 h-4"></i> 資料夾
+                        </h3>
+                        <div class="flex gap-1">
+                            <button id="btnAddFolder" class="p-1.5 rounded hover:bg-slate-100" title="新增資料夾"
+                                    onclick="AddFolderInline()">
+                                <i data-lucide="folder-plus" class="w-4 h-4"></i>
+                            </button>
+                            <button id="btnAddFile" class="p-1.5 rounded hover:bg-slate-100" title="新增檔案"
+                                    onclick="AddFileInline()">
+                                <i data-lucide="file-plus" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <ul id="tree" class="space-y-1 text-sm">
+                        @foreach (var n in tree)
+                        {
+                            var pad = n.Depth * 12;
+                            <li>
+                                <a class="flex items-center gap-2 hover:bg-slate-100 px-2 py-1 rounded"
+                                   style="padding-left:@($"{pad}px")"
+                                   href="@Url.Action("FileManager", new { path = n.VirtualPath })">
+                                    <i data-lucide="folder" class="w-4 h-4 text-amber-500"></i>
+                                    <span>@n.Name</span>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </aside>
+
+                <!-- 右側檔案清單 -->
+                <main class="col-span-12 md:col-span-9 bg-white border rounded-lg p-4 space-y-6 order-2">
+
+                    <!-- 拖曳/點擊/資料夾 上傳 -->
+                    <form asp-action="Upload" method="post" enctype="multipart/form-data" class="space-y-2">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="path" value="@currentPath" />
+                        <div id="dropzone" class="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:bg-slate-50 cursor-pointer transition">
+                            <i data-lucide="upload-cloud" class="w-10 h-10 mx-auto text-slate-400"></i>
+                            <p class="mt-2 text-sm text-slate-600">
+                                拖曳檔案到這裡，或
+                                <label id="clickUpload" for="fileInput" class="text-blue-600 cursor-pointer hover:underline">點擊上傳</label>
+                            </p>
+                            <input id="fileInput" name="file" type="file" class="hidden" multiple />
+                        </div>
+
+                        <!-- 上傳資料夾（webkitdirectory） -->
+                        <div class="flex items-center gap-3">
+                            <label class="inline-flex items-center gap-2 text-sm px-3 py-1.5 rounded-md border hover:bg-slate-50 cursor-pointer">
+                                <i data-lucide="folder-up" class="w-4 h-4"></i>
+                                <span>上傳資料夾</span>
+                                <input id="dirInput" type="file" class="hidden" webkitdirectory directory multiple />
+                            </label>
+                            <button id="btnRefresh"
+                                    class="text-sm text-gray-600 hover:text-gray-800"
+                                    type="button"
+                                    onclick="reloadHere()">
+                                重新整理
+                            </button>
+                        </div>
+                        <button type="submit" class="sr-only" aria-hidden="true">Upload</button>
+                    </form>
+
+                    <!-- 麵包屑 -->
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm text-slate-600 flex items-center gap-1 flex-wrap">
+                            位置：
+                            <nav id="breadcrumb" class="flex items-center gap-1 flex-wrap">
+                                @{
+                                    var i = 0;
+                                    foreach (var seg in breadcrumb)
+                                    {
+                                        if (i == 0)
+                                        {
+                                            <a class="text-blue-600 hover:underline" href="@Url.Action("FileManager", new { path = seg.VirtualPath })">/</a>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-slate-400">/</span>
+                                            <a class="text-blue-600 hover:underline" href="@Url.Action("FileManager", new { path = seg.VirtualPath })">@seg.Name</a>
+                                        }
+                                        i++;
+                                    }
+                                }
+                            </nav>
+                        </div>
+                    </div>
+
+                    <!-- 檔案清單 -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="border-b text-left text-gray-600">
+                                <tr>
+                                    <th class="py-2">名稱</th>
+                                    <th class="py-2">大小</th>
+                                    <th class="py-2">修改時間</th>
+                                    <th class="py-2 text-right">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="fileTableBody">
+                                @foreach (var d in folders)
+                                {
+                                    var next = currentPath == "/" ? "/" + d.Name : currentPath + "/" + d.Name;
+                                    <tr class="border-b hover:bg-slate-50" data-type="folder" data-name="@d.Name">
+                                        <td class="py-2">
+                                            <a class="flex items-center gap-2 hover:underline" href="@Url.Action("FileManager", new { path = next })">
+                                                <i data-lucide="folder" class="w-4 h-4 text-amber-500"></i>
+                                                <span class="item-name">@d.Name</span>
+                                            </a>
+                                        </td>
+                                        <td class="py-2 text-slate-400">—</td>
+                                        <td class="py-2">@d.LastWriteUtc?.ToString("yyyy/MM/dd HH:mm")</td>
+                                        <td class="py-2 text-right space-x-2">
+                                            <a class="inline-flex items-center gap-1 px-2 py-1 bg-emerald-100 text-emerald-700 rounded-md hover:bg-emerald-200 text-xs"
+                                               href="@Url.Action("DownloadFolderZip", "Backoffice", new { area = "HnbBackoffice", path = currentPath, name = d.Name })">
+                                                下載 ZIP
+                                            </a>
+                                            <button type="button" class="inline-flex items-center gap-1 px-2 py-1 bg-slate-100 text-slate-700 rounded-md hover:bg-slate-200 text-xs"
+                                                    onclick="RenameInline('folder', '@d.Name')">
+                                                重新命名
+                                            </button>
+                                            <button type="button" class="inline-flex items-center gap-1 px-2 py-1 bg-red-100 text-red-700 rounded-md hover:bg-red-200 text-xs"
+                                                    onclick="DeleteFolder('@d.Name')">
+                                                刪除
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+
+                                @foreach (var f in files)
+                                {
+                                    string human;
+                                    var s = f.Size;
+                                    if (s < 1024) human = $"{s} B";
+                                    else if (s < 1_048_576) human = $"{s / 1024.0:0.##} KB";
+                                    else if (s < 1_073_741_824) human = $"{s / 1_048_576.0:0.##} MB";
+                                    else human = $"{s / 1_073_741_824.0:0.##} GB";
+
+                                    <tr class="border-b hover:bg-slate-50" data-type="file" data-name="@f.Name">
+                                        <td class="py-2 flex items-center gap-2">
+                                            <i data-lucide="file" class="w-4 h-4 text-slate-500"></i>
+                                            <span class="item-name">@f.Name</span>
+                                        </td>
+                                        <td class="py-2">@human</td>
+                                        <td class="py-2">@f.LastWriteUtc?.ToString("yyyy/MM/dd HH:mm")</td>
+                                        <td class="py-2 text-right space-x-2">
+                                            <!-- 新增：預覽 / 編輯 -->
+                                            <button type="button" class="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-700 rounded-md hover:bg-purple-200 text-xs"
+                                                    onclick="PreviewFile('@f.Name')">
+                                                預覽
+                                            </button>
+                                            <button type="button" class="inline-flex items-center gap-1 px-2 py-1 bg-amber-100 text-amber-700 rounded-md hover:bg-amber-200 text-xs"
+                                                    onclick="EditFile('@f.Name')">
+                                                編輯
+                                            </button>
+
+                                            <a class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 text-xs"
+                                               href="@Url.Action("Download", "Backoffice", new { area = "HnbBackoffice", path = currentPath, name = f.Name })">
+                                                下載
+                                            </a>
+                                            <button type="button" class="inline-flex items-center gap-1 px-2 py-1 bg-slate-100 text-slate-700 rounded-md hover:bg-slate-200 text-xs"
+                                                    onclick="RenameInline('file', '@f.Name')">
+                                                重新命名
+                                            </button>
+                                            <button type="button" class="inline-flex items-center gap-1 px-2 py-1 bg-red-100 text-red-700 rounded-md hover:bg-red-200 text-xs"
+                                                    onclick="DeleteFile('@f.Name')">
+                                                刪除
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 新增：預覽 / 編輯面板（隱藏，點按鈕才顯示） -->
+                    <div id="previewPanel" class="hidden fixed inset-0 bg-black/40 z-50">
+                        <div class="absolute inset-0 flex items-center justify-center p-4">
+                            <div class="bg-white light:bg-slate-900 w-full max-w-5xl rounded-xl shadow-xl overflow-hidden">
+                                <div class="flex items-center justify-between px-4 py-3 border-b">
+                                    <div class="font-semibold" id="pvTitle">預覽</div>
+                                    <div class="flex items-center gap-2">
+                                        <button class="px-2 py-1 text-sm rounded bg-slate-100 hover:bg-slate-200" onclick="ClosePreview()">關閉</button>
+                                    </div>
+                                </div>
+                                <div id="pvBody" class="p-4 max-h-[70vh] overflow-auto text-sm"></div>
+                                <div id="pvEditBar" class="hidden border-t px-4 py-3 flex justify-end gap-2">
+                                    <select id="pvEncoding" class="border rounded px-2 py-1 text-sm">
+                                        <option value="utf-8">UTF-8</option>
+                                        <option value="utf-8-bom">UTF-8 (BOM)</option>
+                                    </select>
+                                    <button class="px-3 py-1.5 text-sm rounded bg-blue-600 text-white hover:bg-blue-700" onclick="SaveEdit()">儲存</button>
+                                    <button class="px-3 py-1.5 text-sm rounded bg-slate-100 hover:bg-slate-200" onclick="ClosePreview()">取消</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </main>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        const CURRENT_PATH = '@(ViewData["CurrentPath"] as string ?? "/")';
+
+        // #region Anti-Forgery
+        function antiforgery(){
+          return $('input[name="__RequestVerificationToken"]').val() ?? '';
+        }
+        // #endregion
+
+        // #region Minimal Name Validation
+        // 僅做最小檢查；實際規則交由後端檢驗
+        function validateName(raw, opts = { allowNonAscii: true }){
+          if (raw == null) return { ok:false, msg:'名稱不可為空' };
+          let name = String(raw).trim();
+          if (!name) return { ok:false, msg:'名稱不可只有空白' };
+          if (name === '.' || name === '..') return { ok:false, msg:'名稱不可為 . 或 ..' };
+          if (/[\\\/:\*\?"<>\|]/.test(name)) return { ok:false, msg:'不可包含 / \\ : * ? " < > |' };
+          if (!opts.allowNonAscii && /[^\x00-\x7F]/.test(name)) return { ok:false, msg:'資料夾名稱僅限英文/數字/空白/.-_' };
+          if (name.length > 128) return { ok:false, msg:'名稱不可超過 128 字元' };
+          return { ok:true, name };
+        }
+        // #endregion
+
+        // #region Tree Inline Create
+        function inlineNew(kind){
+          $("#inlineNewRow").remove();
+          const depth = (CURRENT_PATH === '/' ? 0 : CURRENT_PATH.split('/').filter(Boolean).length) + 1;
+          const pad = depth * 12;
+          const icon = kind === 'folder' ? 'folder' : 'file';
+          const color = kind === 'folder' ? 'text-amber-500' : 'text-slate-500';
+          const placeholder = kind === 'folder' ? '輸入資料夾名稱後 Enter，Esc 取消' : '輸入檔案名稱後 Enter，Esc 取消';
+
+          const $row = $(`
+            <li id="inlineNewRow">
+              <div class="flex items-center gap-2 px-2 py-1 rounded border border-slate-300" style="margin-left:${pad}px">
+                <i data-lucide="${icon}" class="w-4 h-4 ${color}"></i>
+                <input id="inlineNewInput" class="flex-1 outline-none text-sm" placeholder="${placeholder}" />
+                <span id="inlineNewErr" class="text-xs text-red-600 hidden"></span>
+              </div>
+            </li>
+          `);
+          $("#tree").append($row);
+          lucide.createIcons();
+
+          const $ipt = $("#inlineNewInput").focus();
+          const $err = $("#inlineNewErr");
+          const showErr = (m)=>{ $err.text(m).removeClass('hidden'); $ipt.addClass('ring-1 ring-red-500'); };
+          const clearErr = ()=>{ $err.addClass('hidden').text(''); $ipt.removeClass('ring-1 ring-red-500'); };
+          const cancel = ()=> $("#inlineNewRow").remove();
+
+          $ipt.on('keydown', function(e){
+            if (e.isComposing || e.keyCode === 229) return; // IME 組字
+            if (e.key === 'Escape') { cancel(); return; }
+            if (e.key === 'Enter') {
+              const chk = validateName($ipt.val(), { allowNonAscii: kind !== 'folder' });
+              if (!chk.ok) { showErr(chk.msg); return; }
+              clearErr();
+
+              const url = kind === 'folder'
+                ? '@Url.Action("CreateFolder", "Backoffice", new { area = "HnbBackoffice" })'
+                : '@Url.Action("CreateEmptyFile", "Backoffice", new { area = "HnbBackoffice" })';
+
+              $.ajax({
+                type: 'POST',
+                url,
+                data: kind === 'folder'
+                      ? { path: CURRENT_PATH, folderName: chk.name }
+                      : { path: CURRENT_PATH, fileName: chk.name },
+                headers: { 'RequestVerificationToken': antiforgery() },
+                success: function(){ reloadHere(); },
+                error: function(xhr){ showErr(xhr.responseJSON?.error || xhr.responseText || '失敗，請稍後再試。'); }
+              });
+            }
+          });
+          $ipt.on('blur', ()=> setTimeout(cancel, 100));
+        }
+        function AddFolderInline(){ inlineNew('folder'); }
+        function AddFileInline(){ inlineNew('file'); }
+        // #endregion
+
+        // #region Navigate
+        function reloadHere(){
+          location.href = '@Url.Action("FileManager", "Backoffice", new { area = "HnbBackoffice" })'
+                          + '?path=' + encodeURIComponent(CURRENT_PATH);
+        }
+        // #endregion
+
+        // #region Delete
+        function DeleteFile(name){
+          if(!confirm('確認刪除檔案？')) return;
+          $.ajax({
+            type: 'POST',
+            url: '@Url.Action("DeleteFile", "Backoffice", new { area = "HnbBackoffice" })',
+            data: { path: CURRENT_PATH, name },
+            headers: { 'RequestVerificationToken': antiforgery() },
+            success: reloadHere,
+            error: function(xhr){ alert(xhr.responseJSON?.error || xhr.responseText || '刪除失敗，請稍後再試。'); }
+          });
+        }
+        function DeleteFolder(name){
+          if(!confirm('將刪除資料夾與其所有內容，確認？')) return;
+          $.ajax({
+            type: 'POST',
+            url: '@Url.Action("DeleteFolder", "Backoffice", new { area = "HnbBackoffice" })',
+            data: { path: CURRENT_PATH, name },
+            headers: { 'RequestVerificationToken': antiforgery() },
+            success: reloadHere,
+            error: function(xhr){ alert(xhr.responseJSON?.error || xhr.responseText || '刪除失敗，請稍後再試。'); }
+          });
+        }
+        // #endregion
+
+        // #region Upload - Files (drag/click)
+        const $dz = $('#dropzone');
+        const $fi = $('#fileInput');
+        $('#clickUpload').on('click', function(){ $fi.trigger('click'); });
+
+        $fi.on('change', function(){
+          if(this.files && this.files.length) uploadFiles(this.files);
+          this.value = '';
+        });
+
+        ['dragenter','dragover'].forEach(ev => $dz.on(ev, e => {
+          e.preventDefault(); e.stopPropagation();
+          $dz.addClass('ring-2 ring-blue-400 bg-slate-50');
+        }));
+        ['dragleave','drop'].forEach(ev => $dz.on(ev, e => {
+          e.preventDefault(); e.stopPropagation();
+          $dz.removeClass('ring-2 ring-blue-400 bg-slate-50');
+        }));
+
+        $dz.on('drop', function(e){
+          const files = e.originalEvent.dataTransfer.files;
+          if(files && files.length) uploadFiles(files);
+        });
+
+        async function uploadFiles(fileList){
+          const files = Array.from(fileList);
+          if(files.length === 0) return;
+
+          const $hint = $('<p class="mt-2 text-xs text-slate-500"></p>').appendTo($dz);
+          try{
+            for(let i=0;i<files.length;i++){
+              $hint.text(`上傳中 (${i+1}/${files.length})：${files[i].name}`);
+              await uploadOne(files[i]);
+            }
+            reloadHere();
+          }catch(err){
+            alert((err && err.message) || '上傳失敗，請稍後再試。');
+          }finally{
+            $hint.remove();
+          }
+        }
+
+        function uploadOne(file){
+          return new Promise(function(resolve, reject){
+            const fd = new FormData();
+            fd.append('path', CURRENT_PATH);
+            fd.append('file', file);
+            $.ajax({
+              url: '@Url.Action("Upload", "Backoffice", new { area = "HnbBackoffice" })',
+              type: 'POST',
+              data: fd,
+              processData: false,
+              contentType: false,
+              headers: { 'RequestVerificationToken': antiforgery() },
+              success: function(){ resolve(); },
+              error: function(xhr){ reject(new Error(xhr.responseJSON?.error || xhr.responseText || '上傳失敗')); }
+            });
+          });
+        }
+        // #endregion
+
+        // #region Upload - Directory (UploadMany)
+        $('#dirInput').on('change', function(){
+          const files = Array.from(this.files ?? []);
+          if(files.length === 0) return;
+
+          const fd = new FormData();
+          fd.append('path', CURRENT_PATH);
+          // 使用 webkitRelativePath 讓後端從 IFormFile.FileName 取得相對路徑
+          files.forEach(f => fd.append('files', f, f.webkitRelativePath || f.name));
+
+          $.ajax({
+            url: '@Url.Action("UploadMany", "Backoffice", new { area = "HnbBackoffice" })',
+            type: 'POST',
+            data: fd,
+            processData: false,
+            contentType: false,
+            headers: { 'RequestVerificationToken': antiforgery() },
+            success: reloadHere,
+            error: function(xhr){ alert(xhr.responseJSON?.error || xhr.responseText || '資料夾上傳失敗'); }
+          });
+
+          this.value = '';
+        });
+        // #endregion
+
+        // #region Inline Rename (list row)
+        function RenameInline(kind, oldName){
+          const $row = $(`[data-name="${cssEscape(oldName)}"][data-type="${kind}"]`);
+          const $nameCell = $row.find('.item-name');
+          if ($row.data('editing')) return;
+          $row.data('editing', true);
+
+          const orig = oldName;
+          $nameCell.hide();
+          const $wrap = $('<span class="inline-flex items-center gap-2"></span>').insertAfter($nameCell);
+          const $ipt = $(`<input class="border rounded px-2 py-1 text-sm w-60" value="${htmlEscape(orig)}" />`).appendTo($wrap);
+          const $ok = $(`<button class="px-2 py-1 text-xs rounded bg-blue-100 text-blue-700 hover:bg-blue-200">確定</button>`).appendTo($wrap);
+          const $cancel = $(`<button class="px-2 py-1 text-xs rounded bg-slate-100 text-slate-700 hover:bg-slate-200">取消</button>`).appendTo($wrap);
+
+          function finish(){
+            $wrap.remove(); $nameCell.show(); $row.data('editing', false);
+          }
+          function commit(){
+            const chk = validateName($ipt.val(), { allowNonAscii: kind !== 'folder' });
+            if(!chk.ok){ alert(chk.msg); return; }
+            if(chk.name === orig){ finish(); return; }
+
+            const url = kind === 'folder'
+              ? '@Url.Action("RenameFolder", "Backoffice", new { area = "HnbBackoffice" })'
+              : '@Url.Action("RenameFile", "Backoffice", new { area = "HnbBackoffice" })';
+
+            $.ajax({
+              type: 'POST',
+              url,
+              data: { path: CURRENT_PATH, oldName: orig, newName: chk.name },
+              headers: { 'RequestVerificationToken': antiforgery() },
+              success: reloadHere,
+              error: function(xhr){ alert(xhr.responseJSON?.error || xhr.responseText || '重新命名失敗'); finish(); }
+            });
+          }
+
+          $ipt.focus().select();
+          $ipt.on('keydown', function(e){
+            if(e.key === 'Escape') finish();
+            if(e.key === 'Enter') commit();
+          });
+          $ok.on('click', commit);
+          $cancel.on('click', finish);
+        }
+        // #endregion
+
+        // #region Preview / Edit Panel
+        function fileRawUrl(name){
+          return '@Url.Action("Raw", "Backoffice", new { area = "HnbBackoffice" })'
+                 + '?path=' + encodeURIComponent(CURRENT_PATH)
+                 + '&name=' + encodeURIComponent(name);
+        }
+        function showPanel(title, html, isEdit=false){
+          $('#pvTitle').text(title);
+          $('#pvBody').html(html);
+          $('#pvEditBar').toggleClass('hidden', !isEdit);
+          $('#previewPanel').removeClass('hidden');
+        }
+        function ClosePreview(){
+          $('#previewPanel').addClass('hidden');
+          $('#pvBody').empty();
+          $('#pvEditBar').addClass('hidden');
+          CURRENT_EDIT_NAME = null;
+        }
+        function absUrl(u){
+          try { return new URL(u, window.location.origin).toString(); }
+          catch { return window.location.origin + u; }
+        }
+
+        function PreviewFile(name){
+          const ext = (name.split('.').pop() || '').toLowerCase();
+          const url = fileRawUrl(name);
+
+          // 圖像
+          if (['png','jpg','jpeg','gif','webp','bmp','svg'].includes(ext)){
+            showPanel('預覽：' + name, `<img src="${url}" class="max-h-[70vh] mx-auto" />`);
+            return;
+          }
+          // 影音
+          if (['mp4','webm','ogg','mov','mkv'].includes(ext)){
+            showPanel('預覽：' + name, `<video src="${url}" controls class="w-full max-h-[70vh]"></video>`);
+            return;
+          }
+          if (['mp3','wav','ogg','m4a','flac'].includes(ext)){
+            showPanel('預覽：' + name, `<audio src="${url}" controls class="w-full"></audio>`);
+            return;
+          }
+          // PDF
+          if (ext === 'pdf'){
+            showPanel('預覽：' + name, `<iframe src="${url}#toolbar=1&navpanes=0" class="w-full h-[70vh]"></iframe>`);
+            return;
+          }
+          // Word / Excel / PowerPoint（不可編輯）
+          if (ext === 'docx'){
+            $.ajax({ url: url, type: 'GET', xhrFields: { responseType: 'arraybuffer' } })
+              .done(function(buf){
+                window.mammoth.convertToHtml({ arrayBuffer: buf }).then(function(result){
+                  const html = `<div class="text-sm leading-6">${result.value}</div>`;
+                  showPanel('預覽：' + name, html);
+                }).catch(function(){
+                  const eurl = 'https://view.officeapps.live.com/op/embed.aspx?src=' + encodeURIComponent(absUrl(url));
+                  showPanel('預覽：' + name, `
+                    <iframe src="${eurl}" class="w-full h-[70vh]" allowfullscreen></iframe>
+                    <div class="text-xs text-slate-500 mt-2">若無法載入，請改以下載方式開啟。</div>
+                  `);
+                });
+              }).fail(function(){ alert('讀取失敗'); });
+            return;
+          }
+          if (ext === 'xlsx'){
+            $.ajax({ url: url, type: 'GET', xhrFields: { responseType: 'arraybuffer' } })
+              .done(function(buf){
+                try{
+                  const wb = XLSX.read(new Uint8Array(buf), { type: 'array' });
+                  const first = wb.SheetNames[0];
+                  const html = XLSX.utils.sheet_to_html(wb.Sheets[first], { id: 'xlsx-preview' });
+                  showPanel('預覽：' + name, `<div class="overflow-auto max-h-[70vh] text-sm">${html}</div>`);
+                }catch(e){
+                  const eurl = 'https://view.officeapps.live.com/op/embed.aspx?src=' + encodeURIComponent(absUrl(url));
+                  showPanel('預覽：' + name, `
+                    <iframe src="${eurl}" class="w-full h-[70vh]" allowfullscreen></iframe>
+                    <div class="text-xs text-slate-500 mt-2">若無法載入，請改以下載方式開啟。</div>
+                  `);
+                }
+              }).fail(function(){ alert('讀取失敗'); });
+            return;
+          }
+          if (ext === 'pptx' || ext === 'ppt'){
+            const eurl = 'https://view.officeapps.live.com/op/embed.aspx?src=' + encodeURIComponent(absUrl(url));
+            showPanel('預覽：' + name, `
+              <iframe src="${eurl}" class="w-full h-[70vh]" allowfullscreen></iframe>
+              <div class="text-xs text-slate-500 mt-2">若無法載入，可能因檔案無對外存取；請改用下載後開啟。</div>
+            `);
+            return;
+          }
+
+          // 其他：嘗試當文字讀取（後端若不允許會回錯）
+          $.ajax({
+            url: '@Url.Action("ReadText", "Backoffice", new { area = "HnbBackoffice" })',
+            type: 'GET',
+            data: { path: CURRENT_PATH, name },
+            success: function(res){
+              if(!res?.ok){
+                showPanel('預覽：' + name, `<div class="text-slate-600">此檔案類型暫不支援預覽。</div>`);
+                return;
+              }
+              const escaped = htmlEscape(res.content ?? '');
+              const pre = `<pre class="whitespace-pre-wrap font-mono text-xs border rounded p-3 bg-slate-50 light:bg-slate-800">${escaped}</pre>`;
+              showPanel('預覽：' + name, pre);
+            },
+            error: function(){
+              showPanel('預覽：' + name, `<div class="text-slate-600">此檔案類型暫不支援預覽。</div>`);
+            }
+          });
+        }
+
+        let CURRENT_EDIT_NAME = null;
+
+        function EditFile(name){
+          $.ajax({
+            url: '@Url.Action("ReadText", "Backoffice", new { area = "HnbBackoffice" })',
+            type: 'GET',
+            data: { path: CURRENT_PATH, name },
+            success: function(res){
+              if(!res?.ok){ alert(res?.error || '讀取失敗'); return; }
+              CURRENT_EDIT_NAME = name;
+              const escaped = htmlEscape(res.content ?? '');
+              const ta = `<textarea id="pvEditor" class="w-full h-[60vh] font-mono text-xs border rounded p-3" spellcheck="false">${escaped}</textarea>`;
+              $('#pvEncoding').val((res.encoding || 'utf-8').toLowerCase().startsWith('utf-8') ? 'utf-8' : 'utf-8');
+              showPanel('編輯：' + name, ta, true);
+              setTimeout(()=> document.getElementById('pvEditor')?.focus(), 0);
+            },
+            error: function(xhr){ alert(xhr.responseJSON?.error || xhr.responseText || '讀取失敗'); }
+          });
+        }
+
+        function SaveEdit(){
+          const name = CURRENT_EDIT_NAME;
+          if(!name) { ClosePreview(); return; }
+          const content = $('#pvEditor').val() ?? '';
+          const encoding = $('#pvEncoding').val() ?? 'utf-8';
+          $.ajax({
+            url: '@Url.Action("SaveText", "Backoffice", new { area = "HnbBackoffice" })',
+            type: 'POST',
+            data: { path: CURRENT_PATH, name, content, encoding },
+            headers: { 'RequestVerificationToken': antiforgery() },
+            success: function(){ ClosePreview(); reloadHere(); },
+            error: function(xhr){ alert(xhr.responseJSON?.error || xhr.responseText || '儲存失敗'); }
+          });
+        }
+        // #endregion
+
+        // #region Helpers
+        function htmlEscape(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+        function cssEscape(s){
+          if (window.CSS && CSS.escape) return CSS.escape(String(s));
+          return String(s).replace(/(["\\.#:\[\]\(\) ])/g, '\\$1');
+        }
+        $(function(){ lucide.createIcons(); });
+        // #endregion
+    </script>
+}

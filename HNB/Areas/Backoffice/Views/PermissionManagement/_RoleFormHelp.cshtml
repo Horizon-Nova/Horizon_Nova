@@ -1,0 +1,66 @@
+<!-- 角色表單說明視窗 -->
+<div class="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+        <div class="bg-gradient-to-r from-green-600 to-green-700 px-6 py-4 text-white">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <i data-lucide="help-circle" class="w-6 h-6"></i>
+                    <h3 class="text-lg font-bold">角色管理操作說明</h3>
+                </div>
+                <button onclick="closeHelp()" class="text-white hover:text-green-200 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+        <div class="p-6 overflow-y-auto max-h-[calc(80vh-120px)]">
+            <div class="space-y-6">
+                <div>
+                    <h4 class="font-semibold text-slate-800 mb-3 flex items-center">
+                        <i data-lucide="info" class="w-4 h-4 mr-2 text-green-600"></i>基本操作
+                    </h4>
+                    <ul class="space-y-2 text-sm text-slate-600">
+                        <li>• <strong>必填欄位</strong>：標示紅色星號 (*) 的欄位為必填</li>
+                        <li>• <strong>角色名稱</strong>：系統中唯一識別角色的名稱</li>
+                        <li>• <strong>權限類型</strong>：定義角色的權限範圍和等級</li>
+                        <li>• <strong>狀態控制</strong>：啟用/停用角色以控制其可用性</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold text-slate-800 mb-3 flex items-center">
+                        <i data-lucide="shield" class="w-4 h-4 mr-2 text-blue-600"></i>欄位說明
+                    </h4>
+                    <div class="space-y-3 text-sm">
+                        <div>
+                            <p><strong>角色名稱：</strong>在系統中顯示的角色名稱，建議使用簡潔明確的名稱</p>
+                            <p><strong>權限類型：</strong>定義角色的權限範圍，如「管理員」、「使用者」、「訪客」等</p>
+                        </div>
+                        <div>
+                            <p><strong>角色描述：</strong>詳細說明角色的職責和權限範圍</p>
+                            <p><strong>備註：</strong>額外的說明或特殊注意事項</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold text-slate-800 mb-3 flex items-center">
+                        <i data-lucide="settings" class="w-4 h-4 mr-2 text-orange-600"></i>狀態管理
+                    </h4>
+                    <div class="space-y-2 text-sm text-slate-600">
+                        <p>• <strong>啟用</strong>：角色可被分配給使用者，並具有相應權限</p>
+                        <p>• <strong>停用</strong>：角色暫時不可用，但不會影響已分配的使用者</p>
+                    </div>
+                </div>
+                
+                <div class="bg-green-50 rounded-lg p-4">
+                    <h4 class="font-semibold text-green-800 mb-2 flex items-center">
+                        <i data-lucide="lightbulb" class="w-4 h-4 mr-2"></i>小提示
+                    </h4>
+                    <p class="text-sm text-green-700">
+                        建議為不同層級的使用者建立對應的角色，並在描述中清楚說明每個角色的權限範圍，以便後續管理。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

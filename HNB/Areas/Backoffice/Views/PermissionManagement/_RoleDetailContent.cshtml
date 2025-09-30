@@ -1,0 +1,108 @@
+<!-- 角色詳細資訊模態框 -->
+<div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+        <div class="flex items-center justify-between p-6 border-b">
+            <h3 class="text-lg font-semibold">角色詳細資訊</h3>
+            <button data-modal-close class="text-slate-400 hover:text-slate-600">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <div class="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+            @if (ViewBag.Error != null)
+            {
+                <div class="text-center py-4">
+                    <i data-lucide="alert-circle" class="w-12 h-12 text-red-500 mx-auto mb-3"></i>
+                    <p class="text-red-600">@ViewBag.Error</p>
+                </div>
+            }
+            else if (ViewBag.Role != null)
+            {
+                var role = ViewBag.Role as Models.HnbHnbBackoffice.vw_permission_role;
+                <div class="space-y-6">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex-shrink-0 h-20 w-20">
+                            <div class="h-20 w-20 rounded-full bg-purple-100 flex items-center justify-center">
+                                <i data-lucide="shield" class="w-8 h-8 text-purple-600"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-semibold text-slate-900">@role.name</h4>
+                            <p class="text-slate-600">@role.description</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h5 class="font-medium text-slate-900 mb-2">基本資訊</h5>
+                            <dl class="space-y-2">
+                                <div class="flex justify-between">
+                                    <dt class="text-sm text-slate-500">角色名稱</dt>
+                                    <dd class="text-sm text-slate-900">@role.name</dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="text-sm text-slate-500">狀態</dt>
+                                    <dd class="text-sm">
+                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full @(role.is_active == true ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800")">
+                                            @(role.is_active == true ? "啟用" : "停用")
+                                        </span>
+                                    </dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="text-sm text-slate-500">權限類型</dt>
+                                    <dd class="text-sm text-slate-900">@role.status</dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="text-sm text-slate-500">建立時間</dt>
+                                    <dd class="text-sm text-slate-900">@(role.created_at?.ToString("yyyy/MM/dd HH:mm") ?? "-")</dd>
+                                </div>
+                            </dl>
+                        </div>
+                        
+                        <div>
+                            <h5 class="font-medium text-slate-900 mb-2">統計資訊</h5>
+                            <dl class="space-y-2">
+                                <div class="flex justify-between">
+                                    <dt class="text-sm text-slate-500">組織</dt>
+                                    <dd class="text-sm text-slate-900">@role.organization_name</dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="text-sm text-slate-500">使用者數量</dt>
+                                    <dd class="text-sm text-slate-900">@role.user_count</dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="text-sm text-slate-500">權限數量</dt>
+                                    <dd class="text-sm text-slate-900">@role.permission_count</dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="text-sm text-slate-500">更新時間</dt>
+                                    <dd class="text-sm text-slate-900">@(role.updated_at?.ToString("yyyy/MM/dd HH:mm") ?? "-")</dd>
+                                </div>
+                            </dl>
+                        </div>
+                    </div>
+                    
+                    @if (!string.IsNullOrEmpty(role.notes))
+                    {
+                        <div>
+                            <h5 class="font-medium text-slate-900 mb-2">備註</h5>
+                            <p class="text-sm text-slate-600">@role.notes</p>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+        <div class="flex justify-end gap-3 p-6 border-t bg-slate-50">
+            <button data-modal-close class="px-4 py-2 bg-slate-300 text-slate-700 rounded-md hover:bg-slate-400">
+                關閉
+            </button>
+            @if (ViewBag.Role != null)
+            {
+                var role = ViewBag.Role as Models.HnbHnbBackoffice.vw_permission_role;
+                <button onclick="showRoleEdit(@role.id)" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center gap-2">
+                    <i data-lucide="edit" class="w-4 h-4"></i>
+                    編輯
+                </button>
+            }
+        </div>
+    </div>
+</div>

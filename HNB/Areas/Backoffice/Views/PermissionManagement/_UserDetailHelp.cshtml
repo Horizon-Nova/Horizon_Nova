@@ -1,0 +1,39 @@
+<!-- 使用者詳情說明視窗 -->
+<div class="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[70vh] overflow-hidden">
+        <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4 text-white">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <i data-lucide="help-circle" class="w-5 h-5"></i>
+                    <h3 class="text-lg font-bold">人員詳情說明</h3>
+                </div>
+                <button onclick="closeHelp()" class="text-white hover:text-blue-200 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+        <div class="p-6 overflow-y-auto max-h-[calc(70vh-120px)]">
+            <div class="space-y-4">
+                <div>
+                    <h4 class="font-semibold text-slate-800 mb-2 flex items-center">
+                        <i data-lucide="info" class="w-4 h-4 mr-2 text-blue-600"></i>操作說明
+                    </h4>
+                    <ul class="space-y-1 text-sm text-slate-600">
+                        <li>• <strong>編輯</strong>：點擊「編輯」按鈕修改人員資訊</li>
+                        <li>• <strong>關閉</strong>：點擊「關閉」按鈕或右上角 X 關閉視窗</li>
+                        <li>• <strong>頭像</strong>：如無頭像則顯示姓名首字母</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold text-slate-800 mb-2 flex items-center">
+                        <i data-lucide="eye" class="w-4 h-4 mr-2 text-green-600"></i>資訊顯示
+                    </h4>
+                    <p class="text-sm text-slate-600">
+                        此頁面顯示人員的完整資訊，包括基本資料、組織歸屬、角色權限等。所有資訊均為唯讀，如需修改請點擊「編輯」按鈕。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
