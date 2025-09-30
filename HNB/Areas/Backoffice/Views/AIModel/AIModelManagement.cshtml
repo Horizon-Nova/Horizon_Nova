@@ -1,0 +1,296 @@
+@{
+    ViewData["Title"] = "系統管理 - AI模型管理";
+    Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
+}
+
+<section class="space-y-6">
+    <!-- 頁面標題 -->
+    <header class="flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-bold flex items-center gap-3">
+                <i data-lucide="brain" class="h-8 w-8"></i> AI模型管理
+            </h1>
+            <p class="text-slate-500">管理和監控所有AI模型服務</p>
+        </div>
+    </header>
+    <!-- 統計卡片 -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="bg-white border rounded-xl p-6 shadow-sm">
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="text-sm font-medium text-gray-600">總使用次數 (今日)</h3>
+                <i data-lucide="activity" class="h-4 w-4 text-gray-400"></i>
+            </div>
+            <div class="text-2xl font-bold text-gray-900">1,475</div>
+            <p class="text-xs text-gray-500">+12.5% 比昨天</p>
+        </div>
+
+        <div class="bg-white border rounded-xl p-6 shadow-sm">
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="text-sm font-medium text-gray-600">啟用模型</h3>
+                <i data-lucide="zap" class="h-4 w-4 text-gray-400"></i>
+            </div>
+            <div class="text-2xl font-bold text-gray-900">3</div>
+            <p class="text-xs text-gray-500">共 3 個模型</p>
+        </div>
+
+        <div class="bg-white border rounded-xl p-6 shadow-sm">
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="text-sm font-medium text-gray-600">平均成功率</h3>
+                <i data-lucide="trending-up" class="h-4 w-4 text-gray-400"></i>
+            </div>
+            <div class="text-2xl font-bold text-gray-900">96.5%</div>
+            <p class="text-xs text-gray-500">+0.2% 比上週</p>
+        </div>
+
+        <div class="bg-white border rounded-xl p-6 shadow-sm">
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="text-sm font-medium text-gray-600">系統狀態</h3>
+                <i data-lucide="server" class="h-4 w-4 text-gray-400"></i>
+            </div>
+            <div class="text-2xl font-bold text-green-600">正常</div>
+            <p class="text-xs text-gray-500">所有服務運行中</p>
+        </div>
+    </div>
+
+    <!-- 篩選和搜尋 -->
+    <div class="bg-white border rounded-xl p-6 shadow-sm">
+        <div class="flex flex-col sm:flex-row gap-4 items-center justify-between">
+            <div class="flex gap-4 items-center w-full sm:w-auto">
+                <div class="relative flex-1 sm:flex-none">
+                    <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4"></i>
+                    <input type="text" id="searchInput" placeholder="搜尋模型名稱或描述..."
+                           class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full sm:w-64 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <select id="typeFilter" class="px-3 py-2 border border-gray-300 rounded-lg w-32 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <option value="all">所有類型</option>
+                    <option value="text">文字生成</option>
+                    <option value="image">圖像生成</option>
+                    <option value="voice">語音處理</option>
+                    <option value="video">視頻處理</option>
+                    <option value="multimodal">多模態</option>
+                </select>
+                <select id="statusFilter" class="px-3 py-2 border border-gray-300 rounded-lg w-32 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <option value="all">所有狀態</option>
+                    <option value="active">啟用</option>
+                    <option value="inactive">停用</option>
+                    <option value="maintenance">維護中</option>
+                </select>
+            </div>
+            <a href="@Url.Action("Create")" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                <i data-lucide="plus" class="h-4 w-4 mr-2"></i>
+                新增模型
+            </a>
+        </div>
+    </div>
+
+    <!-- 模型網格 -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        <!-- GPT-4 Turbo -->
+        <div class="bg-white border rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="message-square" class="h-5 w-5 text-gray-600"></i>
+                    <h3 class="text-lg font-semibold text-gray-900">GPT-4 Turbo</h3>
+                </div>
+                <div class="flex gap-2">
+                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">文字</span>
+                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">啟用</span>
+                </div>
+            </div>
+
+            <p class="text-gray-600 text-sm mb-4">先進的語言模型，支援複雜的文本生成和理解</p>
+
+            <div class="space-y-3 mb-4">
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-500">提供商:</span>
+                    <span class="font-medium text-gray-900">OpenAI</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-500">版本:</span>
+                    <span class="font-medium text-gray-900">4.0</span>
+                </div>
+
+                <div class="border-t border-gray-100 pt-3">
+                    <div class="flex justify-between text-sm mb-2">
+                        <span class="text-gray-500">今日使用:</span>
+                        <span class="font-medium text-gray-900">1,250</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-blue-600 h-2 rounded-full" style="width: 12.5%"></div>
+                    </div>
+                    <div class="text-xs text-gray-500 mt-1">
+                        限額: 10,000
+                    </div>
+                </div>
+
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-500">成功率:</span>
+                    <span class="font-medium text-green-600">98.5%</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-500">平均響應:</span>
+                    <span class="font-medium text-gray-900">1,200 ms</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-500">最後使用:</span>
+                    <span class="font-medium text-gray-900">08/25 14:30</span>
+                </div>
+            </div>
+
+            <div class="flex gap-2">
+                <a href="#" class="flex-1 inline-flex items-center justify-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                    <i data-lucide="settings" class="h-4 w-4 mr-1"></i>
+                    配置
+                </a>
+                <button type="button" class="flex-1 inline-flex items-center justify-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                    <i data-lucide="power-off" class="h-4 w-4 mr-1"></i>
+                    停用
+                </button>
+                <button type="button" class="flex-1 inline-flex items-center justify-center px-3 py-2 border border-red-300 rounded-lg text-sm font-medium text-red-700 bg-white hover:bg-red-50 transition-colors">
+                    <i data-lucide="trash-2" class="h-4 w-4 mr-1"></i>
+                    刪除
+                </button>
+            </div>
+        </div>
+
+        <!-- DALL-E 3 -->
+        <div class="bg-white border rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="image" class="h-5 w-5 text-gray-600"></i>
+                    <h3 class="text-lg font-semibold text-gray-900">DALL-E 3</h3>
+                </div>
+                <div class="flex gap-2">
+                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800">圖像</span>
+                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">啟用</span>
+                </div>
+            </div>
+
+            <p class="text-gray-600 text-sm mb-4">高品質AI圖像生成模型</p>
+
+            <div class="space-y-3 mb-4">
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-500">提供商:</span>
+                    <span class="font-medium text-gray-900">OpenAI</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-500">版本:</span>
+                    <span class="font-medium text-gray-900">3.0</span>
+                </div>
+
+                <div class="border-t border-gray-100 pt-3">
+                    <div class="flex justify-between text-sm mb-2">
+                        <span class="text-gray-500">今日使用:</span>
+                        <span class="font-medium text-gray-900">45</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-purple-600 h-2 rounded-full" style="width: 4.5%"></div>
+                    </div>
+                    <div class="text-xs text-gray-500 mt-1">
+                        限額: 1,000
+                    </div>
+                </div>
+
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-500">成功率:</span>
+                    <span class="font-medium text-green-600">96.2%</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-500">平均響應:</span>
+                    <span class="font-medium text-gray-900">8,500 ms</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-500">最後使用:</span>
+                    <span class="font-medium text-gray-900">08/25 13:15</span>
+                </div>
+            </div>
+
+            <div class="flex gap-2">
+                <a href="#" class="flex-1 inline-flex items-center justify-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                    <i data-lucide="settings" class="h-4 w-4 mr-1"></i>
+                    配置
+                </a>
+                <button type="button" class="flex-1 inline-flex items-center justify-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                    <i data-lucide="power-off" class="h-4 w-4 mr-1"></i>
+                    停用
+                </button>
+                <button type="button" class="flex-1 inline-flex items-center justify-center px-3 py-2 border border-red-300 rounded-lg text-sm font-medium text-red-700 bg-white hover:bg-red-50 transition-colors">
+                    <i data-lucide="trash-2" class="h-4 w-4 mr-1"></i>
+                    刪除
+                </button>
+            </div>
+        </div>
+
+        <!-- Whisper Large -->
+        <div class="bg-white border rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="mic" class="h-5 w-5 text-gray-600"></i>
+                    <h3 class="text-lg font-semibold text-gray-900">Whisper Large</h3>
+                </div>
+                <div class="flex gap-2">
+                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">語音</span>
+                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">啟用</span>
+                </div>
+            </div>
+
+            <p class="text-gray-600 text-sm mb-4">語音轉文字和語音識別模型</p>
+
+            <div class="space-y-3 mb-4">
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-500">提供商:</span>
+                    <span class="font-medium text-gray-900">OpenAI</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-500">版本:</span>
+                    <span class="font-medium text-gray-900">2.0</span>
+                </div>
+
+                <div class="border-t border-gray-100 pt-3">
+                    <div class="flex justify-between text-sm mb-2">
+                        <span class="text-gray-500">今日使用:</span>
+                        <span class="font-medium text-gray-900">180</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-green-600 h-2 rounded-full" style="width: 3.6%"></div>
+                    </div>
+                    <div class="text-xs text-gray-500 mt-1">
+                        限額: 5,000
+                    </div>
+                </div>
+
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-500">成功率:</span>
+                    <span class="font-medium text-green-600">94.8%</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-500">平均響應:</span>
+                    <span class="font-medium text-gray-900">2,800 ms</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-500">最後使用:</span>
+                    <span class="font-medium text-gray-900">08/25 12:45</span>
+                </div>
+            </div>
+
+            <div class="flex gap-2">
+                <a href="#" class="flex-1 inline-flex items-center justify-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                    <i data-lucide="settings" class="h-4 w-4 mr-1"></i>
+                    配置
+                </a>
+                <button type="button" class="flex-1 inline-flex items-center justify-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                    <i data-lucide="power-off" class="h-4 w-4 mr-1"></i>
+                    停用
+                </button>
+                <button type="button" class="flex-1 inline-flex items-center justify-center px-3 py-2 border border-red-300 rounded-lg text-sm font-medium text-red-700 bg-white hover:bg-red-50 transition-colors">
+                    <i data-lucide="trash-2" class="h-4 w-4 mr-1"></i>
+                    刪除
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+
+}

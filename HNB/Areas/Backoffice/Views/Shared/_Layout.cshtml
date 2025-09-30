@@ -52,16 +52,6 @@
             </div>
 
             <nav class="px-3 py-4 overflow-y-auto h-[calc(100vh-4rem)] space-y-2">
-                <a href="@Url.Action("Dashboard", "Backoffice", new { area = "HnbBackoffice" })"
-                   class="w-full flex items-center gap-2 rounded-md px-3 py-2 hover:bg-slate-100">
-                    <i data-lucide="layout-dashboard" class="h-4 w-4 shrink-0"></i>
-                    <span class="truncate" data-collapsed-target>Dashboard</span>
-                </a>
-                <a href="@Url.Action("", "", new { area="HnbBackoffice" })"
-                   class="w-full flex items-center gap-2 rounded-md px-3 py-2 hover:bg-slate-100">
-                    <i data-lucide="shield" class="h-4 w-4 shrink-0"></i>
-                    <span class="truncate" data-collapsed-target>API 安全控管</span>
-                </a>
                 <div class="space-y-1">
                     <div class="flex items-center gap-2 rounded-md px-3 py-2 text-slate-600">
                         <i data-lucide="users" class="h-4 w-4 shrink-0"></i>
@@ -90,22 +80,17 @@
                         </a>
                     </div>
                 </div>
-                <a href="@Url.Action("", "", new { area = "HnbBackoffice" })"
-                   class="w-full flex items-center gap-2 rounded-md px-3 py-2 hover:bg-slate-100">
-                    <i data-lucide="key" class="h-4 w-4 shrink-0"></i>
-                    <span class="truncate" data-collapsed-target>KEY 保管</span>
-                </a>
-                <a href="@Url.Action("", "", new { area = "HnbBackoffice" })"
+                <a href="@Url.Action("AIModelManagement", "AIModel", new { area = "Backoffice" })"
                    class="w-full flex items-center gap-2 rounded-md px-3 py-2 hover:bg-slate-100">
                     <i data-lucide="brain" class="h-4 w-4 shrink-0"></i>
                     <span class="truncate" data-collapsed-target>AI模型管理</span>
                 </a>
-                <a href="@Url.Action("Settings", "Settings", new { area = "HnbBackoffice" })"
+                <a href="@Url.Action("Settings", "Settings", new { area = "Backoffice" })"
                    class="w-full flex items-center gap-2 rounded-md px-3 py-2 hover:bg-slate-100">
                     <i data-lucide="settings" class="h-4 w-4 shrink-0"></i>
                     <span class="truncate" data-collapsed-target>系統設定</span>
                 </a>
-                <a href="@Url.Action("FileManager", "Backoffice", new { area = "HnbBackoffice" })"
+                <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice" })"
                    class="w-full flex items-center gap-2 rounded-md px-3 py-2 hover:bg-slate-100">
                     <i data-lucide="folder-tree" class="h-4 w-4 shrink-0"></i>
                     <span class="truncate" data-collapsed-target>檔案總管</span>
@@ -143,7 +128,7 @@
                                 <i data-lucide="user" class="h-4 w-4"></i> 個人資料
                             </a>
                             <div class="my-2 h-px bg-slate-200"></div>
-                            <form method="post" action="@Url.Action("Logout", "Authorize", new { area = "HnbBackoffice" })">
+                            <form method="post" action="@Url.Action("Logout", "Authorize", new { area = "Backoffice" })">
                                 @Html.AntiForgeryToken()
                                 <button type="submit"
                                         class="w-full text-left flex items-center gap-2 px-3 py-2 rounded-md hover:bg-slate-100">
