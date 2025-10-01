@@ -1,0 +1,173 @@
+@{
+    ViewData["Title"] = "後台管理系統";
+    ViewData["PageTitle"] = "後台管理系統";
+    ViewData["PageDescription"] = "歡迎使用 Horizon Nova 後台管理系統";
+    ViewData["PageIcon"] = "home";
+    Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
+}
+
+<div class="space-y-6">
+    <!-- 歡迎區域 -->
+    <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl p-6 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-2xl font-bold mb-2">歡迎回來，@(ViewBag.FullName ?? ViewBag.UserName)!</h2>
+                <p class="text-indigo-100">@(ViewBag.UserEmail)</p>
+                <p class="text-sm text-indigo-200 mt-1">最後登入：@(ViewBag.LastLogin)</p>
+            </div>
+            <div class="text-right">
+                <div class="text-4xl font-bold">@DateTime.Now.ToString("HH:mm")</div>
+                <div class="text-sm text-indigo-200">@DateTime.Now.ToString("yyyy年MM月dd日 dddd")</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 快速操作 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <a href="@Url.Action("Settings", "Settings", new { area = "Backoffice" })" 
+           class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow border border-slate-200">
+            <div class="flex items-center gap-4">
+                <div class="p-3 bg-blue-100 rounded-lg">
+                    <i data-lucide="settings" class="w-6 h-6 text-blue-600"></i>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-slate-800">系統設定</h3>
+                    <p class="text-sm text-slate-500">管理系統配置</p>
+                </div>
+            </div>
+        </a>
+
+        <a href="@Url.Action("Users", "PermissionManagement", new { area = "Backoffice" })" 
+           class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow border border-slate-200">
+            <div class="flex items-center gap-4">
+                <div class="p-3 bg-green-100 rounded-lg">
+                    <i data-lucide="users" class="w-6 h-6 text-green-600"></i>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-slate-800">人員管理</h3>
+                    <p class="text-sm text-slate-500">管理用戶帳號</p>
+                </div>
+            </div>
+        </a>
+
+        <a href="@Url.Action("Roles", "PermissionManagement", new { area = "Backoffice" })" 
+           class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow border border-slate-200">
+            <div class="flex items-center gap-4">
+                <div class="p-3 bg-purple-100 rounded-lg">
+                    <i data-lucide="shield" class="w-6 h-6 text-purple-600"></i>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-slate-800">角色管理</h3>
+                    <p class="text-sm text-slate-500">管理權限角色</p>
+                </div>
+            </div>
+        </a>
+
+        <a href="@Url.Action("Organizations", "PermissionManagement", new { area = "Backoffice" })" 
+           class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow border border-slate-200">
+            <div class="flex items-center gap-4">
+                <div class="p-3 bg-orange-100 rounded-lg">
+                    <i data-lucide="building" class="w-6 h-6 text-orange-600"></i>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-slate-800">組織管理</h3>
+                    <p class="text-sm text-slate-500">管理組織架構</p>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <!-- 系統狀態 -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+            <h3 class="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                <i data-lucide="activity" class="w-5 h-5 text-green-600"></i>
+                系統狀態
+            </h3>
+            <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-slate-600">系統運行時間</span>
+                    <span class="font-medium text-green-600">正常運行</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-slate-600">記憶體使用率</span>
+                    <span class="font-medium text-blue-600">45%</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-slate-600">CPU 使用率</span>
+                    <span class="font-medium text-purple-600">23%</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+            <h3 class="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                <i data-lucide="bar-chart" class="w-5 h-5 text-blue-600"></i>
+                統計資訊
+            </h3>
+            <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-slate-600">總用戶數</span>
+                    <span class="font-medium text-slate-800">1,234</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-slate-600">活躍用戶</span>
+                    <span class="font-medium text-green-600">856</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-slate-600">今日登入</span>
+                    <span class="font-medium text-blue-600">42</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 最近活動 -->
+    <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+        <h3 class="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+            <i data-lucide="clock" class="w-5 h-5 text-indigo-600"></i>
+            最近活動
+        </h3>
+        <div class="space-y-3">
+            <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+                <div class="p-2 bg-green-100 rounded-lg">
+                    <i data-lucide="user-plus" class="w-4 h-4 text-green-600"></i>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-medium">新用戶註冊</p>
+                    <p class="text-xs text-slate-500">張三 註冊了新帳號</p>
+                </div>
+                <span class="text-xs text-slate-400">2 分鐘前</span>
+            </div>
+            <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+                <div class="p-2 bg-blue-100 rounded-lg">
+                    <i data-lucide="settings" class="w-4 h-4 text-blue-600"></i>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-medium">系統設定更新</p>
+                    <p class="text-xs text-slate-500">管理員更新了系統配置</p>
+                </div>
+                <span class="text-xs text-slate-400">15 分鐘前</span>
+            </div>
+            <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+                <div class="p-2 bg-purple-100 rounded-lg">
+                    <i data-lucide="shield" class="w-4 h-4 text-purple-600"></i>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-medium">權限變更</p>
+                    <p class="text-xs text-slate-500">李四 的角色權限已更新</p>
+                </div>
+                <span class="text-xs text-slate-400">1 小時前</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // 初始化圖示
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+        });
+    </script>
+}

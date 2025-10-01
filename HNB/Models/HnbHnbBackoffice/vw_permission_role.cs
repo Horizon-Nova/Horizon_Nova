@@ -11,6 +11,9 @@ public partial class vw_permission_role
 {
     public int? id { get; set; }
 
+    [StringLength(50)]
+    public string? type { get; set; }
+
     [StringLength(100)]
     public string? name { get; set; }
 
@@ -34,6 +37,18 @@ public partial class vw_permission_role
 
     public string? notes { get; set; }
 
+    public int? parent_id { get; set; }
+
+    public int? sort_order { get; set; }
+
+    public int? level { get; set; }
+
+    public int? created_by { get; set; }
+
+    public int? updated_by { get; set; }
+
+    public string? internal_notes { get; set; }
+
     [StringLength(100)]
     public string? organization_name { get; set; }
 
@@ -41,6 +56,5 @@ public partial class vw_permission_role
 
     public long? permission_count { get; set; }
 
-    [Column(TypeName = "character varying[]")]
     public List<string>? user_names { get; set; }
 }

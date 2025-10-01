@@ -6,74 +6,48 @@ namespace HNB.Areas.Backoffice.Services;
 public class PermissionManagementService(PermissionManagementRepository repo)
 {
     #region 人員管理
-    public async Task<List<vw_permission_user>> LoadUsersAsync()
-    {
-        return await repo.LoadUsersAsync();
-    }
+    public List<vw_permission_user> LoadUsers()
+        => repo.LoadUsers();
 
-    public async Task<vw_permission_user?> LoadUserByIdAsync(int id)
-    {
-        return await repo.LoadUserByIdAsync(id);
-    }
+    public vw_permission_user? LoadUserById(int id)
+        => repo.LoadUserById(id);
 
-    public async Task<List<vw_permission_user>> SearchUsersAsync(string? searchTerm, string? organization, string? role, bool? isActive)
-    {
-        return await repo.SearchUsersAsync(searchTerm, organization, role, isActive);
-    }
+    public List<vw_permission_user> SearchUsers(string? searchTerm, string? organization, string? role, bool? isActive)
+        => repo.SearchUsers(searchTerm, organization, role, isActive);
 
-    public async Task<vw_permission_user?> LoadUserDetailsAsync(int id)
-    {
-        return await repo.LoadUserDetailsAsync(id);
-    }
+    public vw_permission_user? LoadUserDetails(int id)
+        => repo.LoadUserDetails(id);
 
-    public async Task<int?> GetUserOrganizationIdAsync(int userId)
-    {
-        return await repo.GetUserOrganizationIdAsync(userId);
-    }
+    public int? GetUserOrganizationId(int userId)
+        => repo.GetUserOrganizationId(userId);
     #endregion
 
     #region 角色管理
-    public async Task<List<vw_permission_role>> LoadRolesAsync()
-    {
-        return await repo.LoadRolesAsync();
-    }
+    public List<vw_permission_role> LoadRoles()
+        => repo.LoadRoles();
 
-    public async Task<vw_permission_role?> LoadRoleByIdAsync(int id)
-    {
-        return await repo.LoadRoleByIdAsync(id);
-    }
+    public vw_permission_role? LoadRoleById(int id)
+        => repo.LoadRoleById(id);
 
-    public async Task<List<vw_permission_role>> SearchRolesAsync(string? searchTerm, string? organization, bool? isActive)
-    {
-        return await repo.SearchRolesAsync(searchTerm, organization, isActive);
-    }
+    public List<vw_permission_role> SearchRoles(string? searchTerm, string? organization, bool? isActive)
+        => repo.SearchRoles(searchTerm, organization, isActive);
 
-    public async Task<vw_permission_role?> LoadRoleDetailsAsync(int id)
-    {
-        return await repo.LoadRoleDetailsAsync(id);
-    }
+    public vw_permission_role? LoadRoleDetails(int id)
+        => repo.LoadRoleDetails(id);
     #endregion
 
     #region 組織管理
-    public async Task<List<vw_permission_organization>> LoadOrganizationsAsync()
-    {
-        return await repo.LoadOrganizationsAsync();
-    }
+    public List<vw_permission_organization> LoadOrganizations()
+        => repo.LoadOrganizations();
 
-    public async Task<vw_permission_organization?> LoadOrganizationByIdAsync(int id)
-    {
-        return await repo.LoadOrganizationByIdAsync(id);
-    }
+    public vw_permission_organization? LoadOrganizationById(int id)
+        => repo.LoadOrganizationById(id);
 
-    public async Task<List<vw_permission_organization>> SearchOrganizationsAsync(string? searchTerm, int? level, bool? isActive)
-    {
-        return await repo.SearchOrganizationsAsync(searchTerm, level, isActive);
-    }
+    public List<vw_permission_organization> SearchOrganizations(string? searchTerm, int? level, bool? isActive)
+        => repo.SearchOrganizations(searchTerm, level, isActive);
 
-    public async Task<vw_permission_organization?> LoadOrganizationDetailsAsync(int id)
-    {
-        return await repo.LoadOrganizationDetailsAsync(id);
-    }
+    public vw_permission_organization? LoadOrganizationDetails(int id)
+        => repo.LoadOrganizationDetails(id);
     #endregion
 
     #region 刪除操作

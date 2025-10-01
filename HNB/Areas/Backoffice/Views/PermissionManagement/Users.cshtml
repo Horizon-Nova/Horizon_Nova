@@ -1,17 +1,16 @@
 @{
     ViewData["Title"] = "人員管理 - 權限管理系統";
+    ViewData["PageTitle"] = "人員管理";
+    ViewData["PageDescription"] = "管理系統使用者帳號與權限";
+    ViewData["PageIcon"] = "users";
     Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
 }
 
 @model IEnumerable<Models.HnbHnbBackoffice.vw_permission_user>
 
+@await Html.PartialAsync("../Settings/_HelpDetail")
+
 <section class="space-y-6">
-    <header>
-        <h1 class="text-2xl font-bold flex items-center gap-2">
-            <i data-lucide="users" class="w-6 h-6"></i> 人員管理
-        </h1>
-        <p class="text-slate-500">管理系統使用者帳號與權限</p>
-    </header>
 
     <!-- 控制面板 -->
     <div class="bg-white border rounded-xl p-6">

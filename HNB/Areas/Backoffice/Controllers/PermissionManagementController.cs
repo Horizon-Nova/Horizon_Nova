@@ -1,3 +1,4 @@
+using HNB.Areas.Backoffice.Filters;
 using HNB.Areas.Backoffice.Services;
 using Microsoft.AspNetCore.Mvc;
 using Models.HnbHnbBackoffice;
@@ -5,43 +6,43 @@ using Models.HnbHnbBackoffice;
 namespace HNB.Areas.Backoffice.Controllers;
 
 [Area("Backoffice")]
-public class PermissionManagementController(PermissionManagementService service) : Controller
+public class PermissionManagementController(PermissionManagementService sev) : Controller
 {
 
     // 人員管理
-    public async Task<IActionResult> Users()
+    public IActionResult Users()
     {
-        var users = await service.LoadUsersAsync();
+        var users = sev.LoadUsers();
         return View(users);
     }
 
     // 角色管理
-    public async Task<IActionResult> Roles()
+    public IActionResult Roles()
     {
-        var roles = await service.LoadRolesAsync();
+        var roles = sev.LoadRoles();
         return View(roles);
     }
 
     // 組織管理
-    public async Task<IActionResult> Organizations()
+    public IActionResult Organizations()
     {
-        var organizations = await service.LoadOrganizationsAsync();
+        var organizations = sev.LoadOrganizations();
         return View(organizations);
     }
 
     // 組織圖
-    public async Task<IActionResult> OrganizationChart()
+    public IActionResult OrganizationChart()
     {
-        var organizations = await service.LoadOrganizationsAsync();
+        var organizations = sev.LoadOrganizations();
         return View(organizations);
     }
 
     // 獲取用戶詳細資訊 (AJAX)
-    public async Task<IActionResult> LoadUserDetails(int id)
+    public IActionResult LoadUserDetails(int id)
     {
         try
         {
-            var user = await service.LoadUserDetailsAsync(id);
+            var user = sev.LoadUserDetails(id);
             if (user == null)
             {
                 ViewBag.Error = "找不到指定的使用者";
@@ -59,11 +60,11 @@ public class PermissionManagementController(PermissionManagementService service)
     }
 
     // 獲取角色詳細資訊 (AJAX)
-    public async Task<IActionResult> LoadRoleDetails(int id)
+    public IActionResult LoadRoleDetails(int id)
     {
         try
         {
-            var role = await service.LoadRoleDetailsAsync(id);
+            var role = sev.LoadRoleDetails(id);
             if (role == null)
             {
                 ViewBag.Error = "找不到指定的角色";
@@ -81,11 +82,11 @@ public class PermissionManagementController(PermissionManagementService service)
     }
 
     // 獲取組織詳細資訊 (AJAX)
-    public async Task<IActionResult> LoadOrganizationDetails(int id)
+    public IActionResult LoadOrganizationDetails(int id)
     {
         try
         {
-            var organization = await service.LoadOrganizationDetailsAsync(id);
+            var organization = sev.LoadOrganizationDetails(id);
             if (organization == null)
             {
                 ViewBag.Error = "找不到指定的組織";
@@ -108,7 +109,7 @@ public class PermissionManagementController(PermissionManagementService service)
     {
         try
         {
-            var result = await service.DeleteUserAsync(id);
+            var result = await sev.DeleteUserAsync(id);
             return Json(new { success = result, message = result ? "使用者刪除成功" : "刪除失敗" });
         }
         catch (Exception ex)
@@ -123,7 +124,7 @@ public class PermissionManagementController(PermissionManagementService service)
     {
         try
         {
-            var result = await service.DeleteRoleAsync(id);
+            var result = await sev.DeleteRoleAsync(id);
             return Json(new { success = result, message = result ? "角色刪除成功" : "刪除失敗" });
         }
         catch (Exception ex)
@@ -138,7 +139,7 @@ public class PermissionManagementController(PermissionManagementService service)
     {
         try
         {
-            var result = await service.DeleteOrganizationAsync(id);
+            var result = await sev.DeleteOrganizationAsync(id);
             return Json(new { success = result, message = result ? "組織刪除成功" : "刪除失敗" });
         }
         catch (Exception ex)
@@ -148,7 +149,7 @@ public class PermissionManagementController(PermissionManagementService service)
     }
 
     // 統一載入表單 (AJAX)
-    public async Task<IActionResult> LoadForm(string type, string formAction, int? id = null)
+    public IActionResult LoadForm(string type, string formAction, int? id = null)
     {
         try
         {
@@ -161,20 +162,20 @@ public class PermissionManagementController(PermissionManagementService service)
                 switch (type)
                 {
                     case "user":
-                        var user = await service.LoadUserDetailsAsync(id.Value);
+                        var user = sev.LoadUserDetails(id.Value);
                         if (user != null)
                         {
                             // 設定角色的預設值
                             ViewBag.SelectedRoleId = user.roles?.FirstOrDefault();
                             // 獲取使用者的組織ID
-                            ViewBag.SelectedOrganizationId = await service.GetUserOrganizationIdAsync(id.Value);
+                            ViewBag.SelectedOrganizationId = sev.GetUserOrganizationId(id.Value);
                         }
                         return PartialView("_UserForm", user);
                     case "role":
-                        var role = await service.LoadRoleDetailsAsync(id.Value);
+                        var role = sev.LoadRoleDetails(id.Value);
                         return PartialView("_RoleForm", role);
                     case "organization":
-                        var organization = await service.LoadOrganizationDetailsAsync(id.Value);
+                        var organization = sev.LoadOrganizationDetails(id.Value);
                         return PartialView("_OrganizationForm", organization);
                     default:
                         return Json(new { success = false, message = "不支援的類型" });
@@ -239,7 +240,7 @@ public class PermissionManagementController(PermissionManagementService service)
         try
         {
             // Controller 只負責接收資料並傳給服務層
-            var result = await service.SaveUserAsync(form, action);
+            var result = await sev.SaveUserAsync(form, action);
             return Json(new { success = result.success, message = result.message });
         }
         catch (Exception ex)
@@ -252,7 +253,7 @@ public class PermissionManagementController(PermissionManagementService service)
     {
         try
         {
-            var result = await service.SaveRoleAsync(form, action);
+            var result = await sev.SaveRoleAsync(form, action);
             return Json(new { success = result.success, message = result.message });
         }
         catch (Exception ex)
@@ -265,7 +266,7 @@ public class PermissionManagementController(PermissionManagementService service)
     {
         try
         {
-            var result = await service.SaveOrganizationAsync(form, action);
+            var result = await sev.SaveOrganizationAsync(form, action);
             return Json(new { success = result.success, message = result.message });
         }
         catch (Exception ex)
@@ -279,12 +280,12 @@ public class PermissionManagementController(PermissionManagementService service)
     /// </summary>
     /// <returns>角色和組織選項的JSON</returns>
     [HttpGet]
-    public async Task<IActionResult> LoadUserOptions()
+    public IActionResult LoadUserOptions()
     {
         try
         {
-            var roles = await service.LoadRolesAsync();
-            var organizations = await service.LoadOrganizationsAsync();
+            var roles = sev.LoadRoles();
+            var organizations = sev.LoadOrganizations();
             
             return Json(new { 
                 success = true, 

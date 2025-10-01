@@ -1,0 +1,265 @@
+@{
+    ViewData["Title"] = "系統登入 - 後台管理系統";
+    Layout = "~/Areas/Backoffice/Views/Shared/_LayoutLogin.cshtml";
+    var returnUrl = Context?.Request?.Query["returnUrl"].ToString() ?? "/Backoffice/";
+}
+
+<main class="min-h-screen flex items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
+    <div class="w-full max-w-sm sm:max-w-md lg:max-w-lg">
+        <div class="relative rounded-2xl bg-white shadow-xl ring-1 ring-slate-200 p-5 sm:p-7 lg:p-10">
+            <header class="mb-6 sm:mb-8 text-center space-y-2">
+                <i data-lucide="log-in" class="w-9 h-9 sm:w-10 sm:h-10 text-indigo-600 mx-auto animate-bounce"></i>
+                <h1 class="text-xl sm:text-2xl font-bold text-slate-800">歡迎登入</h1>
+                <p class="text-xs sm:text-sm text-slate-500">請輸入帳號與密碼，或使用下方圖示快速登入</p>
+            </header>
+
+            @if (ViewBag.ErrorMessage is string err && !string.IsNullOrWhiteSpace(err))
+            {
+                <div class="mb-4 rounded-lg bg-red-50 text-red-700 px-3 py-2 text-sm flex items-center gap-2">
+                    <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0"></i>
+                    <span>@err</span>
+                </div>
+            }
+
+            @if (ViewBag.SuccessMessage is string success && !string.IsNullOrWhiteSpace(success))
+            {
+                <div class="mb-4 rounded-lg bg-green-50 text-green-700 px-3 py-2 text-sm flex items-center gap-2">
+                    <i data-lucide="check-circle" class="w-4 h-4 flex-shrink-0"></i>
+                    <span>@success</span>
+                </div>
+            }
+
+            <form id="FormData"
+                  action="@Url.Action("LoginFuntion", "Authorize", new { area = "Backoffice" })"
+                  method="post"
+                  class="space-y-4 sm:space-y-5">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="returnUrl" name="returnUrl" value="@returnUrl" />
+
+                <div>
+                    <label for="Username" class="block text-sm font-medium text-slate-700">帳號</label>
+                    <div class="relative mt-1">
+                        <i data-lucide="user" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input id="Username" name="username" type="text" autocomplete="username" required
+                               class="w-full rounded-xl border border-slate-300 pl-10 pr-3 py-2 sm:py-2.5 text-slate-900 placeholder-slate-400 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 transition"
+                               placeholder="your.name@example.com" />
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between">
+                        <label for="Password" class="block text-sm font-medium text-slate-700">密碼</label>
+                        <a href="@Url.Action("ForgotPassword", "Authorize", new { area = "Backoffice" })" 
+                           class="text-xs sm:text-sm text-indigo-600 hover:underline">忘記密碼？</a>
+                    </div>
+                    <div class="relative mt-1">
+                        <i data-lucide="lock" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input id="Password" name="password" type="password" autocomplete="current-password" required
+                               class="w-full rounded-xl border border-slate-300 pl-10 pr-10 py-2 sm:py-2.5 text-slate-900 placeholder-slate-400 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 transition"
+                               placeholder="••••••••" />
+                        <button type="button" id="togglePwdBtn"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
+                                aria-label="顯示/隱藏密碼" title="顯示/隱藏密碼">
+                            <i id="eyeIcon" data-lucide="eye" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <label for="rememberMe" class="inline-flex items-center gap-2 text-sm text-slate-600 select-none">
+                        <input id="rememberMe" name="rememberMe" type="checkbox"
+                               class="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
+                        記住我
+                    </label>
+                </div>
+
+                <button id="btnSubmit" type="button" onclick="SubmitForm()"
+                        class="w-full flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-white font-medium shadow-md hover:scale-[1.02] hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-white transition-transform duration-200">
+                    <i data-lucide="log-in" class="w-5 h-5"></i>
+                    <span class="text-sm sm:text-base">登入</span>
+                    <svg id="btnSpinner" class="animate-spin h-5 w-5 ml-1 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                    </svg>
+                </button>
+
+                <!-- 低調的登出：文字連結樣式，置中放在登入下方 -->
+                <div class="text-center">
+                    <button type="button"
+                            onclick="LogoutFormSubmit()"
+                            class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 hover:underline transition"
+                            aria-label="登出">
+                        <i data-lucide="log-out" class="w-4 h-4"></i>
+                        <span>登出</span>
+                    </button>
+                </div>
+            </form>
+
+            <div class="my-5 sm:my-6 flex items-center">
+                <div class="h-px flex-1 bg-slate-200"></div>
+                <span class="px-3 text-[11px] sm:text-xs text-slate-400">或以社群快速登入</span>
+                <div class="h-px flex-1 bg-slate-200"></div>
+            </div>
+
+            <!-- GitHub -->
+            <div class="flex items-center justify-center">
+                <button type="button" onclick="GithubLogin()"
+                        class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-300 bg-white shadow-sm hover:bg-slate-50 hover:scale-105 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-white transition"
+                        aria-label="以 GitHub 登入" title="以 GitHub 登入">
+                    <i data-lucide="github" class="w-5 h-5 text-slate-800"></i>
+                </button>
+            </div>
+            
+            <!-- 隱藏的彈出視窗 -->
+            <div id="ghModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+                <div class="bg-white rounded-lg shadow-lg w-80 p-6 text-center">
+                    <div class="text-lg font-semibold mb-2">前往 GitHub 驗證</div>
+                    <div class="text-slate-600">請稍候…</div>
+                </div>
+            </div>
+            
+            <!-- 隱藏的登出表單（供 JS 提交，含防偽） -->
+            <form id="LogoutForm"
+                  action="@Url.Action("Logout", "Authorize", new { area = "Backoffice" })"
+                  method="post" class="hidden">
+                @Html.AntiForgeryToken()
+            </form>
+        </div>
+
+        <p class="mt-6 text-center text-xs text-white/80">&copy; @DateTime.Now.Year Horizon-Nova</p>
+    </div>
+</main>
+
+@section Scripts {
+    <script>
+        // 密碼顯示/隱藏切換
+        document.getElementById('togglePwdBtn').addEventListener('click', function() {
+            const passwordInput = document.getElementById('Password');
+            const eyeIcon = document.getElementById('eyeIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.setAttribute('data-lucide', 'eye-off');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.setAttribute('data-lucide', 'eye');
+            }
+            
+            // 重新初始化圖示
+            lucide.createIcons();
+        });
+
+        // 表單提交
+        function SubmitForm() {
+            const form = document.getElementById('FormData');
+            const submitBtn = document.getElementById('btnSubmit');
+            const spinner = document.getElementById('btnSpinner');
+            const submitText = submitBtn.querySelector('span');
+            const submitIcon = submitBtn.querySelector('i[data-lucide="log-in"]');
+            
+            // 驗證表單
+            const username = document.getElementById('Username').value.trim();
+            const password = document.getElementById('Password').value.trim();
+            
+            if (!username || !password) {
+                showNotification('請輸入帳號和密碼', 'error');
+                return;
+            }
+            
+            // 顯示載入狀態
+            submitBtn.disabled = true;
+            submitText.textContent = '登入中...';
+            if (submitIcon) {
+                submitIcon.style.display = 'none';
+            }
+            spinner.classList.remove('hidden');
+            
+            // 提交表單
+            form.submit();
+        }
+
+        // GitHub 登入
+        function GithubLogin() {
+            const modal = document.getElementById('ghModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            // 模擬 GitHub OAuth 流程
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                showNotification('GitHub 登入功能開發中', 'info');
+            }, 2000);
+        }
+
+        // 登出表單提交
+        function LogoutFormSubmit() {
+            const form = document.getElementById('LogoutForm');
+            form.submit();
+        }
+
+        // 顯示通知
+        function showNotification(message, type = 'info') {
+            // 移除現有通知
+            const existingNotification = document.querySelector('.notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+            
+            // 創建新通知
+            const notification = document.createElement('div');
+            notification.className = `notification fixed top-4 right-4 z-50 px-4 py-2 rounded-lg shadow-lg text-white text-sm font-medium transition-all duration-300 transform translate-x-full`;
+            
+            // 根據類型設定樣式
+            switch (type) {
+                case 'error':
+                    notification.classList.add('bg-red-500');
+                    break;
+                case 'success':
+                    notification.classList.add('bg-green-500');
+                    break;
+                case 'warning':
+                    notification.classList.add('bg-yellow-500');
+                    break;
+                default:
+                    notification.classList.add('bg-blue-500');
+            }
+            
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            // 顯示動畫
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+            }, 100);
+            
+            // 自動隱藏
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        // 頁面載入完成後的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 自動聚焦到用戶名輸入框
+            const usernameInput = document.getElementById('Username');
+            if (usernameInput) {
+                usernameInput.focus();
+            }
+            
+            // 處理 Enter 鍵提交
+            document.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const activeElement = document.activeElement;
+                    if (activeElement && (activeElement.id === 'Username' || activeElement.id === 'Password')) {
+                        e.preventDefault();
+                        SubmitForm();
+                    }
+                }
+            });
+        });
+    </script>
+}

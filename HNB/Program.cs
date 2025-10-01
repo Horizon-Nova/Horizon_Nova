@@ -4,6 +4,7 @@ using HNB.Middleware;
 using HNB.Utilities;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Models.Hnbdata;
 using Models.HnbHnbBackoffice;
 
@@ -41,6 +42,20 @@ builder.Services.Configure<ForwardedHeadersOptions>(opt =>
 builder.Services.AddSession();
 
 builder.Services.AddMemoryCache();
+
+// 添加認證服務
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Backoffice/Authorize/Login";
+        options.LogoutPath = "/Backoffice/Authorize/Logout";
+        options.AccessDeniedPath = "/Backoffice/Authorize/Login";
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        options.SlidingExpiration = true;
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+    });
 
 var app = builder.Build();
 

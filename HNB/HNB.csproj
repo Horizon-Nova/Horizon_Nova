@@ -11,10 +11,14 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.11" />
+    <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="8.0.0" />
+    <PackageReference Include="System.Management" Version="8.0.0" />
+    <PackageReference Include="System.ServiceProcess.ServiceController" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Areas\Backoffice\storage\" />
     <Folder Include="Areas\Backoffice\Repositories\" />
     <Folder Include="Models\" />
+    <Folder Include="Models\HnbHnbBackoffice\" />
   </ItemGroup>
 </Project>

@@ -12,6 +12,9 @@ public partial class vw_permission_user
 {
     public int? id { get; set; }
 
+    [StringLength(50)]
+    public string? type { get; set; }
+
     [StringLength(100)]
     public string? username { get; set; }
 
@@ -153,6 +156,24 @@ public partial class vw_permission_user
     public List<string>? tags { get; set; }
 
     public string? notes { get; set; }
+
+    public int? parent_id { get; set; }
+
+    public int? sort_order { get; set; }
+
+    public int? level { get; set; }
+
+    public int? created_by { get; set; }
+
+    public int? updated_by { get; set; }
+
+    public string? internal_notes { get; set; }
+
+    [StringLength(255)]
+    public string? password_hash { get; set; }
+
+    [StringLength(255)]
+    public string? salt { get; set; }
 
     [StringLength(100)]
     public string? organization_name { get; set; }

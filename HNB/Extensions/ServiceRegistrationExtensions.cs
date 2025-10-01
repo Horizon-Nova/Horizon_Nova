@@ -1,4 +1,6 @@
-﻿using HNB.Areas.Backoffice.Repositories;
+﻿using HNB.Areas.Backoffice.BackgroundServices;
+using HNB.Areas.Backoffice.BackgroundServices.Services;
+using HNB.Areas.Backoffice.Repositories;
 using HNB.Areas.Backoffice.Services;
 using HNB.Areas.Backoffice.Utilities;
 using HNB.Areas.HNB_WEB.Repositories;
@@ -20,6 +22,8 @@ public static class ServiceRegistrationExtensions
         services.AddScoped<TeamZoneServices>();
         services.AddScoped<FileManagerService>();
         services.AddScoped<PermissionManagementService>();
+        services.AddHostedService<HardwareMonitoringService>();
+        services.AddHostedService<SystemStatusService>();
         return services;
     }
     /// <summary> DI注入管理 Repositories 功能 </summary>
@@ -28,6 +32,7 @@ public static class ServiceRegistrationExtensions
         services.AddScoped<TeamZoneRepositories>();
         services.AddScoped<PermissionManagementRepository>();
         services.AddScoped<SettingsRepositories>();
+        services.AddScoped<AuthRepository>();
         return services;
     }
     /// <summary> DI注入管理 Utilities 功能 </summary>
