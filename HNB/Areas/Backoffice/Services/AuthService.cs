@@ -8,7 +8,7 @@ namespace HNB.Areas.Backoffice.Services;
 /// <summary>
 /// 認證服務，負責處理用戶登入、密碼驗證等認證相關功能
 /// </summary>
-public class AuthService(AuthRepository authRepository, ILogger<AuthService> logger)
+public class AuthService(AuthRepository authRepository)
 {
 
     /// <summary>
@@ -19,30 +19,35 @@ public class AuthService(AuthRepository authRepository, ILogger<AuthService> log
     /// <returns>用戶資訊，如果驗證失敗則返回 null</returns>
     public async Task<vw_permission_user?> ValidateUserAsync(string username, string password)
     {
-        try
-        {
-            // 根據用戶名或信箱查找用戶
-            var user = await authRepository.GetUserByUsernameOrEmailAsync(username);
-            if (user == null)
-            {
-                logger.LogWarning("找不到用戶: {Username}", username);
-                return null;
-            }
+        var user = await authRepository.GetUserByUsernameOrEmailAsync(username) ?? null;
+        if (user == null) return null;
 
-            // 驗證密碼
-            if (!await VerifyPasswordAsync(password, user.password_hash, user.salt))
-            {
-                logger.LogWarning("密碼驗證失敗: {Username}", username);
-                return null;
-            }
+        var isValidPassword = await VerifyPasswordAsync(password, user.password_hash, user.salt);
+        return isValidPassword ? user : null;
+    }
 
-            return user;
-        }
-        catch (Exception ex)
+    /// <summary>
+    /// 處理登入邏輯
+    /// </summary>
+    /// <param name="username">用戶名或信箱</param>
+    /// <param name="password">密碼</param>
+    /// <returns>登入結果</returns>
+    public async Task<(bool success, string? errorMessage, vw_permission_user? user)> ProcessLoginAsync(string username, string password)
+    {
+        // 檢查輸入
+        if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
         {
-            logger.LogError(ex, "驗證用戶憑證時發生錯誤: {Username}", username);
-            return null;
+            return (false, "請輸入帳號和密碼", null);
         }
+
+        // 驗證用戶
+        var user = await ValidateUserAsync(username, password);
+        if (user == null)
+        {
+            return (false, "帳號或密碼錯誤", null);
+        }
+
+        return (true, null, user);
     }
 
     /// <summary>
@@ -52,15 +57,7 @@ public class AuthService(AuthRepository authRepository, ILogger<AuthService> log
     /// <param name="ipAddress">IP 位址</param>
     public async Task UpdateLastLoginAsync(int userId, string? ipAddress = null)
     {
-        try
-        {
-            await authRepository.UpdateLastLoginAsync(userId, ipAddress);
-            logger.LogInformation("已更新用戶 {UserId} 的最後登入時間", userId);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "更新用戶最後登入時間時發生錯誤: {UserId}", userId);
-        }
+        await authRepository.UpdateLastLoginAsync(userId, ipAddress);
     }
 
     /// <summary>
@@ -72,22 +69,10 @@ public class AuthService(AuthRepository authRepository, ILogger<AuthService> log
     /// <returns>是否驗證成功</returns>
     private async Task<bool> VerifyPasswordAsync(string password, string? hash, string? salt)
     {
-        if (string.IsNullOrEmpty(hash) || string.IsNullOrEmpty(salt))
-        {
-            return false;
-        }
+        if (string.IsNullOrEmpty(hash) || string.IsNullOrEmpty(salt)) return false;
 
-        try
-        {
-            // 使用相同的鹽值重新計算雜湊
-            var computedHash = await HashPasswordAsync(password, salt);
-            return computedHash == hash;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "密碼驗證時發生錯誤");
-            return false;
-        }
+        var computedHash = await HashPasswordAsync(password, salt);
+        return computedHash == hash;
     }
 
     /// <summary>
@@ -138,16 +123,8 @@ public class AuthService(AuthRepository authRepository, ILogger<AuthService> log
     /// <returns>是否存在</returns>
     public async Task<bool> UserExistsAsync(string username)
     {
-        try
-        {
-            var user = await authRepository.GetUserByUsernameOrEmailAsync(username);
-            return user != null;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "檢查用戶是否存在時發生錯誤: {Username}", username);
-            return false;
-        }
+        var user = await authRepository.GetUserByUsernameOrEmailAsync(username);
+        return user != null;
     }
 
     /// <summary>
@@ -157,14 +134,6 @@ public class AuthService(AuthRepository authRepository, ILogger<AuthService> log
     /// <returns>用戶資訊</returns>
     public async Task<vw_permission_user?> GetUserByIdAsync(int userId)
     {
-        try
-        {
-            return await authRepository.GetUserByIdAsync(userId);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "根據用戶 ID 獲取用戶資訊時發生錯誤: {UserId}", userId);
-            return null;
-        }
+        return await authRepository.GetUserByIdAsync(userId);
     }
 }

@@ -3,8 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HNB.Areas.Backoffice.Controllers;
 
-[Area("Backoffice")]
-[Permission] // 僅檢查登入狀態
+[Area("Backoffice"), Permission]
 public class DashboardController : Controller
 {
     /// <summary>

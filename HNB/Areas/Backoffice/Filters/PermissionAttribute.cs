@@ -16,9 +16,7 @@ public class PermissionAttribute : Attribute, IAuthorizationFilter
     /// <summary>
     /// 基本權限驗證（僅檢查是否已登入）
     /// </summary>
-    public PermissionAttribute()
-    {
-    }
+    public PermissionAttribute(){}
 
     /// <summary>
     /// 權限驗證屬性
@@ -41,7 +39,7 @@ public class PermissionAttribute : Attribute, IAuthorizationFilter
 
     public void OnAuthorization(AuthorizationFilterContext context)
     {
-        // 1. 檢查是否有 UserName（帳號）
+        // 檢查是否有 UserName（帳號）
         var userName = context.HttpContext.User.Identity?.Name;
         if (string.IsNullOrEmpty(userName))
         {
@@ -50,15 +48,15 @@ public class PermissionAttribute : Attribute, IAuthorizationFilter
             return;
         }
 
-        // 2. 檢查帳號是否正確（已登入）
-        if (!context.HttpContext.User.Identity?.IsAuthenticated == true)
+        // 檢查帳號是否正確（已登入）
+        if (context.HttpContext.User.Identity?.IsAuthenticated != true)
         {
             context.Result = new RedirectToActionResult("Login", "Authorize", 
                 new { area = "Backoffice", returnUrl = context.HttpContext.Request.Path });
             return;
         }
 
-        // 3. 檢查角色（如果指定了角色）
+        // 檢查角色（如果指定了角色）
         if (!string.IsNullOrEmpty(_role))
         {
             if (!context.HttpContext.User.IsInRole(_role))
@@ -68,27 +66,5 @@ public class PermissionAttribute : Attribute, IAuthorizationFilter
                 return;
             }
         }
-
-        // 如果沒有指定角色，僅檢查登入狀態即可
-    }
-}
-
-/// <summary>
-/// 管理員權限驗證屬性
-/// </summary>
-public class AdminPermissionAttribute : PermissionAttribute
-{
-    public AdminPermissionAttribute() : base("admin", true)
-    {
-    }
-}
-
-/// <summary>
-/// 用戶權限驗證屬性
-/// </summary>
-public class UserPermissionAttribute : PermissionAttribute
-{
-    public UserPermissionAttribute() : base("user", true)
-    {
     }
 }

@@ -1,11 +1,12 @@
-﻿using HNB.Areas.Backoffice.Services;
+﻿using HNB.Areas.Backoffice.Filters;
+using HNB.Areas.Backoffice.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 
 namespace HNB.Areas.Backoffice.Controllers;
 
-[Area("Backoffice")]
+[Area("Backoffice"), Permission]
 public class FileManagerController(FileManagerService svc) : Controller
 {
     private string V(string? path) => svc.NormalizePath(path ?? "/");

@@ -22,6 +22,8 @@ public static class ServiceRegistrationExtensions
         services.AddScoped<TeamZoneServices>();
         services.AddScoped<FileManagerService>();
         services.AddScoped<PermissionManagementService>();
+        services.AddScoped<AuthService>();
+        services.AddScoped<DatabaseService>();
         services.AddHostedService<HardwareMonitoringService>();
         services.AddHostedService<SystemStatusService>();
         return services;

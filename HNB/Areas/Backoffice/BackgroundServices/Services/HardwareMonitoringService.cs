@@ -78,12 +78,8 @@ public class HardwareMonitoringService(IServiceProvider serviceProvider, ILogger
                 power_supply_info = "AC 電源",
                 battery_level = null,
                 power_efficiency = "高效",
-                last_updated = DateTime.UtcNow,
-                created_at = DateTime.UtcNow,
-                updated_at = DateTime.UtcNow,
                 last_activity_type = "系統啟動",
-                last_activity_description = "硬體監控服務已啟動",
-                last_activity_timestamp = DateTime.UtcNow
+                last_activity_description = "硬體監控服務已啟動"
             };
 
             dbContext.system_configs.Add(config);
@@ -96,12 +92,9 @@ public class HardwareMonitoringService(IServiceProvider serviceProvider, ILogger
     private async Task UpdateSystemConfig(HnbHnbBackofficeDbContext dbContext, system_config config)
     {
         config.system_status = "運行中";
-        config.last_updated = DateTime.UtcNow;
         config.uptime = GetSystemUptime();
         config.last_activity_type = "硬體監控更新";
         config.last_activity_description = "系統硬體資訊已更新";
-        config.last_activity_timestamp = DateTime.UtcNow;
-        config.updated_at = DateTime.UtcNow;
     }
 
     private string GetLocalIPAddress()

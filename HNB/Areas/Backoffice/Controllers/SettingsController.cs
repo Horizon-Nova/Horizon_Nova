@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HNB.Areas.Backoffice.Controllers;
 
-[Area("Backoffice"), AdminPermission]
+[Area("Backoffice"), Permission]
 public class SettingsController(SettingsServices svc) : Controller
 {
 

@@ -126,6 +126,7 @@ public partial class vw_permission_user
 
     public List<string>? permissions { get; set; }
 
+    [Column(TypeName = "character varying(50)[]")]
     public List<string>? roles { get; set; }
 
     public bool? is_active { get; set; }
@@ -175,13 +176,11 @@ public partial class vw_permission_user
     [StringLength(255)]
     public string? salt { get; set; }
 
-    [StringLength(100)]
     public string? organization_name { get; set; }
 
-    [StringLength(100)]
     public string? role_name { get; set; }
 
-    public long? managed_users_count { get; set; }
+    public string? managed_users_count { get; set; }
 
-    public long? managed_roles_count { get; set; }
+    public string? managed_roles_count { get; set; }
 }

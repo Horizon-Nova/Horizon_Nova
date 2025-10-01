@@ -76,10 +76,8 @@ public class AuthRepository(HnbHnbBackofficeDbContext db)
 
             if (user != null)
             {
-                user.last_login_at = DateTime.UtcNow;
                 user.last_login_ip = ipAddress != null ? System.Net.IPAddress.Parse(ipAddress) : null;
                 user.login_count = (user.login_count ?? 0) + 1;
-                user.updated_at = DateTime.UtcNow;
 
                 await db.SaveChangesAsync();
             }
@@ -109,8 +107,6 @@ public class AuthRepository(HnbHnbBackofficeDbContext db)
             {
                 user.password_hash = passwordHash;
                 user.salt = salt;
-                user.last_password_change_at = DateTime.UtcNow;
-                user.updated_at = DateTime.UtcNow;
 
                 await db.SaveChangesAsync();
             }
@@ -186,8 +182,6 @@ public class AuthRepository(HnbHnbBackofficeDbContext db)
         try
         {
             user.type = "user";
-            user.created_at = DateTime.UtcNow;
-            user.updated_at = DateTime.UtcNow;
 
             db.permission_managements.Add(user);
             await db.SaveChangesAsync();
@@ -209,7 +203,6 @@ public class AuthRepository(HnbHnbBackofficeDbContext db)
     {
         try
         {
-            user.updated_at = DateTime.UtcNow;
             db.permission_managements.Update(user);
             await db.SaveChangesAsync();
         }

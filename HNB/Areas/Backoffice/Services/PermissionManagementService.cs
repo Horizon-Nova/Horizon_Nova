@@ -1,5 +1,7 @@
 using HNB.Areas.Backoffice.Repositories;
 using Models.HnbHnbBackoffice;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace HNB.Areas.Backoffice.Services;
 
@@ -92,7 +94,6 @@ public class PermissionManagementService(PermissionManagementRepository repo)
                 phone = form["phone"],
                 gender = form["gender"],
                 full_name = form["username"],
-                password_hash = !string.IsNullOrEmpty(form["password"].ToString()) ? form["password"].ToString() : null,
                 is_active = form["is_active"] == "true",
                 nickname = form["nickname"],
                 zodiac_sign = form["zodiac_sign"],
@@ -100,6 +101,26 @@ public class PermissionManagementService(PermissionManagementRepository repo)
                 location = form["location"],
                 bio = form["bio"],
             };
+
+            // 處理密碼雜湊
+            var password = form["password"].ToString();
+            if (!string.IsNullOrEmpty(password) && password != "********")
+            {
+                // 只有當密碼不是預設的遮罩值時才進行雜湊處理
+                var (hash, salt) = await HashPasswordAsync(password);
+                user.password_hash = hash;
+                user.salt = salt;
+            }
+            else if (action == "edit" && string.IsNullOrEmpty(password))
+            {
+                // 編輯時如果密碼為空，保持原有的密碼雜湊不變
+                var existingUser = await repo.GetPermissionManagementByIdAsync(user.id);
+                if (existingUser != null)
+                {
+                    user.password_hash = existingUser.password_hash;
+                    user.salt = existingUser.salt;
+                }
+            }
 
             // 處理角色ID
             var roleId = form["role_id"].ToString();
@@ -191,6 +212,38 @@ public class PermissionManagementService(PermissionManagementRepository repo)
         {
             return (false, ex.Message);
         }
+    }
+    #endregion
+
+    #region 密碼處理
+    /// <summary>
+    /// 生成隨機鹽值
+    /// </summary>
+    /// <returns>鹽值</returns>
+    private static string GenerateSalt()
+    {
+        var saltBytes = new byte[32];
+        using var rng = RandomNumberGenerator.Create();
+        rng.GetBytes(saltBytes);
+        return Convert.ToBase64String(saltBytes);
+    }
+
+    /// <summary>
+    /// 雜湊密碼
+    /// </summary>
+    /// <param name="password">明文密碼</param>
+    /// <returns>雜湊值和鹽值</returns>
+    private async Task<(string hash, string salt)> HashPasswordAsync(string password)
+    {
+        return await Task.Run(() =>
+        {
+            var salt = GenerateSalt();
+            using var sha256 = SHA256.Create();
+            var saltedPassword = password + salt;
+            var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(saltedPassword));
+            var hash = Convert.ToBase64String(hashedBytes);
+            return (hash, salt);
+        });
     }
     #endregion
 }

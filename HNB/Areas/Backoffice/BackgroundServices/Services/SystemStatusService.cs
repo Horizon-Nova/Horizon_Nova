@@ -312,12 +312,10 @@ public class SystemStatusService : BackgroundService
         config.system_status = status.SystemStatus;
         config.last_updated = status.Timestamp;
         config.uptime = status.Uptime;
-        config.updated_at = DateTime.UtcNow;
 
         // 更新最近活動
         config.last_activity_type = "系統狀態更新";
         config.last_activity_description = $"系統健康分數: {status.HealthScore}/100, CPU: {status.CpuUsage:F1}%, 記憶體: {status.MemoryUsage:F1}%";
-        config.last_activity_timestamp = DateTime.UtcNow;
 
         // 更新最近活動 JSON
         var recentActivities = new List<object>
@@ -326,7 +324,7 @@ public class SystemStatusService : BackgroundService
             {
                 type = "系統狀態更新",
                 description = $"健康分數: {status.HealthScore}/100",
-                timestamp = DateTime.UtcNow,
+                timestamp = status.Timestamp,
                 details = new
                 {
                     cpu_usage = status.CpuUsage,

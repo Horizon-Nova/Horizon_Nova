@@ -5,7 +5,7 @@ using Models.HnbHnbBackoffice;
 
 namespace HNB.Areas.Backoffice.Controllers;
 
-[Area("Backoffice")]
+[Area("Backoffice"), Permission]
 public class PermissionManagementController(PermissionManagementService sev) : Controller
 {
 

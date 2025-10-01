@@ -184,6 +184,12 @@ public class PermissionManagementRepository(HnbHnbBackofficeDbContext db)
         => ValidPermissionManagements.FirstOrDefault(pm => pm.id == id);
 
     /// <summary>
+    /// 根據ID載入權限管理資料 (Async)
+    /// </summary>
+    public async Task<permission_management?> GetPermissionManagementByIdAsync(int id)
+        => await ValidPermissionManagements.FirstOrDefaultAsync(pm => pm.id == id);
+
+    /// <summary>
     /// 建立權限管理資料
     /// </summary>
     public async Task<permission_management> CreatePermissionManagementAsync(permission_management entity)

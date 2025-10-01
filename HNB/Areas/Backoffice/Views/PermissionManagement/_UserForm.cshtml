@@ -107,6 +107,7 @@
                                 </label>
                                 <div class="relative">
                                     <input type="password" id="password" name="password" 
+                                           value="@(Model?.id > 0 && !string.IsNullOrEmpty(Model.password_hash) ? "********" : "")"
                                            class="w-full px-4 py-3 pr-12 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
                                            placeholder="@(Model?.id > 0 ? "留空則不變更密碼" : "請輸入密碼")" 
                                            @(Model?.id == 0 ? "required" : "")>
