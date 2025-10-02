@@ -4,12 +4,15 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HNB.Areas.Backoffice.Controllers;
 
-[Area("Backoffice"), Permission]
-public class SettingsController(SettingsServices svc) : Controller
+[Area("Backoffice")]
+public class SettingsController(SettingsServices svc, SidebarNavigationService sidebarService) : BaseController(sidebarService)
 {
 
     public IActionResult Settings()
     {
+        // 設置當前頁面導航狀態
+        SetActiveNavigation("/Backoffice/Settings/Settings");
+        
         var hardwareInfo = svc.FetchHardwareMonitoring();
         var logStats = svc.FetchLogStatistics();
         var cacheStats = svc.FetchCacheStatistics();
@@ -44,6 +47,10 @@ public class SettingsController(SettingsServices svc) : Controller
                 case "access":
                     success = svc.ClearAccessLogs(is30Days);
                     message = success ? $"存取記錄清理成功{(is30Days ? "（30天前）" : "（全部）")}" : "存取記錄清理失敗";
+                    break;
+                case "system":
+                    success = svc.ClearAccessLogs(is30Days);
+                    message = success ? $"系統日誌清理成功{(is30Days ? "（30天前）" : "（全部）")}" : "系統日誌清理失敗";
                     break;
                 default:
                     return Json(new { success = false, message = "不支援的日誌類型" });

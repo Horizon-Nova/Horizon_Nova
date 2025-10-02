@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using HNB.Areas.Backoffice.Services;
 using System.Security.Claims;
 
 namespace HNB.Areas.Backoffice.Filters;
@@ -8,7 +9,7 @@ namespace HNB.Areas.Backoffice.Filters;
 /// 權限驗證屬性
 /// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
-public class PermissionAttribute : Attribute, IAuthorizationFilter
+public class PermissionAttribute : Attribute, IAsyncAuthorizationFilter
 {
     private readonly string? _permission;
     private readonly string? _role;
@@ -37,7 +38,7 @@ public class PermissionAttribute : Attribute, IAuthorizationFilter
         _role = role;
     }
 
-    public void OnAuthorization(AuthorizationFilterContext context)
+    public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
     {
         // 檢查是否有 UserName（帳號）
         var userName = context.HttpContext.User.Identity?.Name;
@@ -66,5 +67,8 @@ public class PermissionAttribute : Attribute, IAuthorizationFilter
                 return;
             }
         }
+
+        // TODO: 實現基於資料庫的 URL 權限檢查
+        // 目前暫時跳過 URL 權限檢查，只進行基本的身份驗證
     }
 }

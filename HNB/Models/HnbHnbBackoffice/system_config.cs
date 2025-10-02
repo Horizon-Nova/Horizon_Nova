@@ -97,4 +97,13 @@ public partial class system_config
     /// </summary>
     [Column(TypeName = "jsonb")]
     public string? recent_activities { get; set; }
+
+    [InverseProperty("system_config")]
+    public virtual ICollection<cpu_info> cpu_infos { get; set; } = new List<cpu_info>();
+
+    [InverseProperty("system_config")]
+    public virtual ICollection<gpu_info> gpu_infos { get; set; } = new List<gpu_info>();
+
+    [InverseProperty("system_config")]
+    public virtual ICollection<memory_info> memory_infos { get; set; } = new List<memory_info>();
 }

@@ -7,7 +7,7 @@ using HNB.Areas.Backoffice.Filters;
 
 namespace HNB.Areas.Backoffice.Controllers;
 
-[Area("Backoffice"), Permission]
+[Area("Backoffice")]
 public class AuthorizeController(AuthService authService) : Controller
 {
 

@@ -1,9 +1,16 @@
 ﻿@{
     Layout = null;
     var title = ViewData["Title"] as string ?? "後台管理系統";
-    var userName = ViewBag.UserName as string ?? "Admin";
-    var userEmail = ViewBag.UserEmail as string ?? "admin@example.com";
-    var userRole = ViewBag.UserRole as string ?? "Admin";
+    
+    // 直接從 User Identity 取得使用者資訊
+    var userName = User.Identity?.Name ?? "未知用戶";
+    var userEmail = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? "未設定";
+    var fullName = User.FindFirst("FullName")?.Value ?? userName;
+    var userType = User.FindFirst("UserType")?.Value ?? "一般用戶";
+    var userRole = User.FindFirst("Role")?.Value ?? userType;
+    
+    // 顯示用的名稱優先使用 FullName，其次是 UserName
+    var displayName = !string.IsNullOrEmpty(fullName) ? fullName : userName;
 }
 
 <!DOCTYPE html>
@@ -54,54 +61,34 @@
             </div>
 
             <nav class="px-3 py-4 overflow-y-auto h-[calc(100vh-4rem)] space-y-2">
-                <div class="space-y-1">
-                    <div class="flex items-center gap-2 rounded-md px-3 py-2 text-slate-600">
-                        <i data-lucide="users" class="h-4 w-4 shrink-0"></i>
-                        <span class="truncate" data-collapsed-target>權限管理</span>
-                    </div>
-                    <div class="ml-6 space-y-1">
-                        <a href="@Url.Action("Users", "PermissionManagement", new { area = "Backoffice" })"
-                           class="block w-full flex items-center gap-2 rounded-md px-3 py-1.5 text-sm hover:bg-slate-100">
-                            <i data-lucide="user" class="h-3 w-3 shrink-0"></i>
-                            <span class="truncate" data-collapsed-target>人員管理</span>
-                        </a>
-                        <a href="@Url.Action("Roles", "PermissionManagement", new { area = "Backoffice" })"
-                           class="block w-full flex items-center gap-2 rounded-md px-3 py-1.5 text-sm hover:bg-slate-100">
-                            <i data-lucide="shield" class="h-3 w-3 shrink-0"></i>
-                            <span class="truncate" data-collapsed-target>角色管理</span>
-                        </a>
-                        <a href="@Url.Action("Organizations", "PermissionManagement", new { area = "Backoffice" })"
-                           class="block w-full flex items-center gap-2 rounded-md px-3 py-1.5 text-sm hover:bg-slate-100">
-                            <i data-lucide="building" class="h-3 w-3 shrink-0"></i>
-                            <span class="truncate" data-collapsed-target>組織管理</span>
-                        </a>
-                        <a href="@Url.Action("OrganizationChart", "PermissionManagement", new { area = "Backoffice" })"
-                           class="block w-full flex items-center gap-2 rounded-md px-3 py-1.5 text-sm hover:bg-slate-100">
-                            <i data-lucide="sitemap" class="h-3 w-3 shrink-0"></i>
-                            <span class="truncate" data-collapsed-target>組織圖</span>
-                        </a>
-                    </div>
-                </div>
-                <a href="@Url.Action("AIModelManagement", "AIModel", new { area = "Backoffice" })"
-                   class="w-full flex items-center gap-2 rounded-md px-3 py-2 hover:bg-slate-100">
-                    <i data-lucide="brain" class="h-4 w-4 shrink-0"></i>
-                    <span class="truncate" data-collapsed-target>AI模型管理</span>
-                </a>
-                <a href="@Url.Action("Settings", "Settings", new { area = "Backoffice" })"
-                   class="w-full flex items-center gap-2 rounded-md px-3 py-2 hover:bg-slate-100">
-                    <i data-lucide="settings" class="h-4 w-4 shrink-0"></i>
-                    <span class="truncate" data-collapsed-target>系統設定</span>
-                </a>
-                <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice" })"
-                   class="w-full flex items-center gap-2 rounded-md px-3 py-2 hover:bg-slate-100">
-                    <i data-lucide="folder-tree" class="h-4 w-4 shrink-0"></i>
-                    <span class="truncate" data-collapsed-target>檔案總管</span>
-                </a>
-                <a href="@Url.Action("DatabaseManagement", "Database", new { area = "Backoffice" })"
-                   class="w-full flex items-center gap-2 rounded-md px-3 py-2 hover:bg-slate-100">
-                    <i data-lucide="database" class="h-4 w-4 shrink-0"></i>
-                    <span class="truncate" data-collapsed-target>資料庫管理</span>
-                </a>
+                @{
+                    var sidebarNavigation = ViewBag.SidebarNavigation as List<HNB.Areas.Backoffice.Services.NavigationItem> ?? new List<HNB.Areas.Backoffice.Services.NavigationItem>();
+                    var activeUrl = ViewBag.ActiveNavigationUrl as string ?? "";
+                }
+                
+                @if (sidebarNavigation.Any())
+                {
+                    @foreach (var item in sidebarNavigation)
+                    {
+                        @await Html.PartialAsync("_NavigationItem", item, new ViewDataDictionary(ViewData) { { "ActiveUrl", activeUrl } })
+                    }
+                }
+                else
+                {
+                    <!-- 預設導航項目（當載入失敗時） -->
+                    <a href="@Url.Action("Index", "Dashboard", new { area = "Backoffice" })"
+                       class="w-full flex items-center gap-2 rounded-md px-3 py-2 hover:bg-slate-100">
+                        <i data-lucide="home" class="h-4 w-4 shrink-0"></i>
+                        <span class="truncate" data-collapsed-target>儀表板</span>
+                    </a>
+                    
+                    @if (ViewBag.SidebarError != null)
+                    {
+                        <div class="px-3 py-2 text-xs text-red-600">
+                            @ViewBag.SidebarError
+                        </div>
+                    }
+                }
             </nav>
         </aside>
 
@@ -118,7 +105,7 @@
                                 aria-haspopup="menu"
                                 aria-expanded="false">
                             <span class="text-sm font-medium">
-                                @userName.Substring(0, 1).ToUpper()
+                                @displayName.Substring(0, 1).ToUpper()
                             </span>
                         </button>
                         <!-- Dropdown -->
@@ -126,12 +113,12 @@
                              class="hidden absolute right-0 mt-2 w-56 rounded-md border border-slate-200 bg-white shadow-md p-2 z-50"
                              role="menu" aria-labelledby="btnUserMenu">
                             <div class="px-3 py-2">
-                                <p class="text-sm font-medium leading-none">@userName</p>
+                                <p class="text-sm font-medium leading-none">@displayName</p>
                                 <p class="text-xs leading-none text-slate-500">@userEmail</p>
                                 <p class="text-xs leading-none text-slate-500 mt-1">角色: @userRole</p>
                             </div>
                             <div class="my-2 h-px bg-slate-200"></div>
-                            <a class="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-slate-100" href="#">
+                            <a class="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-slate-100" href="@Url.Action("Profile", "Backoffice", new { area = "Backoffice" })">
                                 <i data-lucide="user" class="h-4 w-4"></i> 個人資料
                             </a>
                             <div class="my-2 h-px bg-slate-200"></div>

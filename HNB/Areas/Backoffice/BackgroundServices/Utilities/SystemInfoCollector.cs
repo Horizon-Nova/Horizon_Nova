@@ -169,8 +169,6 @@ public static class SystemInfoCollector
 
         try
         {
-            // 這裡可以整合 OpenHardwareMonitor 或其他溫度監控軟體的 API
-            // 目前返回模擬資料
             tempInfo.CpuTemperature = await GetCpuTemperatureFromWmiAsync();
             tempInfo.GpuTemperature = await GetGpuTemperatureFromWmiAsync();
             tempInfo.MotherboardTemperature = await GetMotherboardTemperatureFromWmiAsync();
@@ -265,6 +263,11 @@ public static class SystemInfoCollector
     // 私有輔助方法
     private static async Task<int> GetCpuTemperatureFromWmiAsync()
     {
+        // TODO: CPU 溫度檢測 - WMI MSAcpi_ThermalZoneTemperature 在大多數系統上不可用
+        // 未來可考慮整合：
+        // 1. OpenHardwareMonitor/LibreHardwareMonitor
+        // 2. 特定 CPU 廠商的監控工具
+        // 3. 第三方硬體監控庫
         try
         {
             using var searcher = new ManagementObjectSearcher("SELECT * FROM MSAcpi_ThermalZoneTemperature");
@@ -273,22 +276,34 @@ public static class SystemInfoCollector
             foreach (ManagementObject obj in collection)
             {
                 var temp = Convert.ToInt32(obj["CurrentTemperature"] ?? 0);
-                return (temp - 2732) / 10; // 轉換為攝氏度
+                if (temp > 0)
+                {
+                    return (temp - 2732) / 10; // 轉換為攝氏度
+                }
             }
         }
         catch { }
-        return 0;
+        return 0; // 返回 0 表示無法檢測，後續會轉為 "null"
     }
 
     private static async Task<int> GetGpuTemperatureFromWmiAsync()
     {
-        // GPU 溫度通常需要特定的驅動程式支援
-        // 這裡返回模擬資料
+        // TODO: GPU 溫度檢測 - .NET WMI 無法直接取得 GPU 溫度
+        // 未來可考慮整合：
+        // 1. OpenHardwareMonitor/LibreHardwareMonitor WMI 介面
+        // 2. NVIDIA-SMI 命令列工具
+        // 3. AMD GPU 專用 API
+        // 4. 第三方硬體監控庫
         return await Task.FromResult(0);
     }
 
     private static async Task<int> GetMotherboardTemperatureFromWmiAsync()
     {
+        // TODO: 主機板溫度檢測 - Win32_TemperatureProbe 在大多數系統上不提供資料
+        // 未來可考慮整合：
+        // 1. OpenHardwareMonitor/LibreHardwareMonitor
+        // 2. 主機板廠商專用監控工具
+        // 3. BIOS/UEFI 溫度感測器介面
         try
         {
             using var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_TemperatureProbe");
@@ -297,11 +312,14 @@ public static class SystemInfoCollector
             foreach (ManagementObject obj in collection)
             {
                 var temp = Convert.ToInt32(obj["CurrentReading"] ?? 0);
-                return temp;
+                if (temp > 0)
+                {
+                    return temp;
+                }
             }
         }
         catch { }
-        return await Task.FromResult(0);
+        return 0; // 返回 0 表示無法檢測，後續會轉為 "null"
     }
 
     private static string GetActiveNetworkInterface()
@@ -364,5 +382,77 @@ public static class SystemInfoCollector
         public decimal MemoryUsage { get; set; }
         public decimal DiskUsage { get; set; }
         public decimal NetworkUsage { get; set; }
+    }
+
+    public class GpuInfo
+    {
+        public string Model { get; set; } = "未知";
+        public string Manufacturer { get; set; } = "未知";
+        public string MemorySize { get; set; } = "未知";
+        public string DriverVersion { get; set; } = "未知";
+        public int Temperature { get; set; } = 0;
+        public decimal UsagePercent { get; set; } = 0;
+    }
+
+    /// <summary>
+    /// 取得 GPU 資訊
+    /// </summary>
+    public static async Task<GpuInfo> GetGpuInfoAsync()
+    {
+        var gpuInfo = new GpuInfo();
+
+        try
+        {
+            using var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_VideoController");
+            using var collection = searcher.Get();
+
+            foreach (ManagementObject queryObj in collection)
+            {
+                var name = queryObj["Name"]?.ToString();
+                var manufacturer = queryObj["AdapterCompatibility"]?.ToString();
+                var driverVersion = queryObj["DriverVersion"]?.ToString();
+                var adapterRAM = queryObj["AdapterRAM"];
+
+                // 只處理獨立顯卡，跳過內建顯卡和基本顯示適配器
+                if (!string.IsNullOrEmpty(name) && 
+                    !name.Contains("Microsoft") && 
+                    !name.Contains("Basic") &&
+                    !name.Contains("Generic") &&
+                    adapterRAM != null)
+                {
+                    gpuInfo.Model = name;
+                    gpuInfo.Manufacturer = manufacturer ?? "未知";
+                    gpuInfo.DriverVersion = driverVersion ?? "未知";
+                    
+                    // 轉換記憶體大小
+                    if (long.TryParse(adapterRAM.ToString(), out long ramBytes) && ramBytes > 0)
+                    {
+                        var ramGB = ramBytes / (1024.0 * 1024.0 * 1024.0);
+                        gpuInfo.MemorySize = $"{ramGB:F1}GB";
+                    }
+                    
+                    break; // 只取第一個獨立顯卡
+                }
+            }
+
+            // 如果沒有找到獨立顯卡，設為 null 表示沒有檢測到
+            if (gpuInfo.Model == "未知")
+            {
+                gpuInfo.Model = "null";
+                gpuInfo.Manufacturer = "null";
+                gpuInfo.MemorySize = "null";
+                gpuInfo.DriverVersion = "null";
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"取得 GPU 資訊時發生錯誤: {ex.Message}");
+            gpuInfo.Model = "null";
+            gpuInfo.Manufacturer = "null";
+            gpuInfo.MemorySize = "null";
+            gpuInfo.DriverVersion = "null";
+        }
+
+        return gpuInfo;
     }
 }

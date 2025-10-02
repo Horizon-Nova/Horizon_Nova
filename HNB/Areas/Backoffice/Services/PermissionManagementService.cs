@@ -36,6 +36,9 @@ public class PermissionManagementService(PermissionManagementRepository repo)
 
     public vw_permission_role? LoadRoleDetails(int id)
         => repo.LoadRoleDetails(id);
+
+    public int? GetRoleOrganizationId(int roleId)
+        => repo.GetRoleOrganizationId(roleId);
     #endregion
 
     #region 組織管理
@@ -80,138 +83,203 @@ public class PermissionManagementService(PermissionManagementRepository repo)
         return await repo.UpdatePermissionManagementAsync(entity);
     }
 
-    public async Task<(bool success, string message)> SaveUserAsync(IFormCollection form, string action)
+    // 同步版本
+    public permission_management CreatePermissionManagement(permission_management entity)
     {
-        try
+        return repo.CreatePermissionManagement(entity);
+    }
+
+    public permission_management UpdatePermissionManagement(permission_management entity)
+    {
+        return repo.UpdatePermissionManagement(entity);
+    }
+
+    public (bool success, string message) SaveUser(IFormCollection form, string action)
+    {
+        // 服務層負責欄位對應和資料轉換
+        var user = new permission_management
         {
-            // 服務層負責欄位對應和資料轉換
-            var user = new permission_management
-            {
-                id = int.TryParse(form["id"], out var id) ? id : 0,
-                type = "user",
-                name = form["name"],
-                email = form["email"],
-                phone = form["phone"],
-                gender = form["gender"],
-                full_name = form["username"],
-                is_active = form["is_active"] == "true",
-                nickname = form["nickname"],
-                zodiac_sign = form["zodiac_sign"],
-                favorite_color = form["favorite_color"],
-                location = form["location"],
-                bio = form["bio"],
-            };
+            id = int.TryParse(form["id"], out var id) ? id : 0,
+            type = "user",
+            name = form["name"],
+            email = form["email"],
+            phone = form["phone"],
+            gender = form["gender"],
+            full_name = form["username"],
+            is_active = form["is_active"] == "true",
+            nickname = form["nickname"],
+            zodiac_sign = form["zodiac_sign"],
+            favorite_color = form["favorite_color"],
+            location = form["location"],
+            bio = form["bio"],
+        };
 
-            // 處理密碼雜湊
-            var password = form["password"].ToString();
-            if (!string.IsNullOrEmpty(password) && password != "********")
+        // 處理密碼雜湊
+        var password = form["password"].ToString();
+        if (!string.IsNullOrEmpty(password) && password != "********")
+        {
+            // 只有當密碼不是預設的遮罩值時才進行雜湊處理
+            var (hash, salt) = HashPassword(password);
+            user.password_hash = hash;
+            user.salt = salt;
+        }
+        else if (action == "edit" && string.IsNullOrEmpty(password))
+        {
+            // 編輯時如果密碼為空，保持原有的密碼雜湊不變
+            var existingUser = repo.GetPermissionManagementById(user.id);
+            if (existingUser != null)
             {
-                // 只有當密碼不是預設的遮罩值時才進行雜湊處理
-                var (hash, salt) = await HashPasswordAsync(password);
-                user.password_hash = hash;
-                user.salt = salt;
-            }
-            else if (action == "edit" && string.IsNullOrEmpty(password))
-            {
-                // 編輯時如果密碼為空，保持原有的密碼雜湊不變
-                var existingUser = await repo.GetPermissionManagementByIdAsync(user.id);
-                if (existingUser != null)
-                {
-                    user.password_hash = existingUser.password_hash;
-                    user.salt = existingUser.salt;
-                }
-            }
-
-            // 處理角色ID
-            var roleId = form["role_id"].ToString();
-            if (!string.IsNullOrEmpty(roleId))
-            {
-                user.roles = new List<string> { roleId };
-            }
-
-            // 處理組織ID
-            var organizationId = form["organization_id"].ToString();
-            if (!string.IsNullOrEmpty(organizationId) && int.TryParse(organizationId, out var orgId))
-            {
-                user.parent_id = orgId;
-            }
-
-            if (action == "add")
-            {
-                await repo.CreatePermissionManagementAsync(user);
-                return (true, "使用者新增成功");
-            }
-            else
-            {
-                await repo.UpdatePermissionManagementAsync(user);
-                return (true, "使用者更新成功");
+                user.password_hash = existingUser.password_hash;
+                user.salt = existingUser.salt;
             }
         }
-        catch (Exception ex)
+
+        // 處理角色ID
+        var roleId = form["role_id"].ToString();
+        if (!string.IsNullOrEmpty(roleId))
         {
-            return (false, ex.Message);
+            user.roles = new List<string> { roleId };
+        }
+
+        // 處理組織ID
+        var organizationId = form["organization_id"].ToString();
+        if (!string.IsNullOrEmpty(organizationId) && int.TryParse(organizationId, out var orgId))
+        {
+            user.parent_id = orgId;
+        }
+
+        if (action == "add")
+        {
+            repo.CreatePermissionManagement(user);
+            return (true, "使用者新增成功");
+        }
+        else
+        {
+            repo.UpdatePermissionManagement(user);
+            return (true, "使用者更新成功");
         }
     }
 
-    public async Task<(bool success, string message)> SaveRoleAsync(IFormCollection form, string action)
+    public (bool success, string message) SaveRole(IFormCollection form, string action)
     {
-        try
+        var role = new permission_management
         {
-            var role = new permission_management
-            {
-                id = int.TryParse(form["id"], out var id) ? id : 0,
-                type = "role",
-                name = form["name"],
-                description = form["description"],
-                is_active = form["is_active"] == "true",
-            };
+            id = int.TryParse(form["id"], out var id) ? id : 0,
+            type = "role",
+            name = form["name"],
+            description = form["description"],
+            is_active = form["is_active"] == "true",
+        };
 
-            if (action == "add")
+        // 處理導航權限
+        var navigationPermissionsJson = form["navigation_permissions"].ToString();
+        if (!string.IsNullOrEmpty(navigationPermissionsJson))
+        {
+            try
             {
-                await repo.CreatePermissionManagementAsync(role);
-                return (true, "角色新增成功");
+                var permissions = System.Text.Json.JsonSerializer.Deserialize<List<string>>(navigationPermissionsJson);
+                role.navigation_permissions = permissions;
             }
-            else
+            catch (System.Text.Json.JsonException)
             {
-                await repo.UpdatePermissionManagementAsync(role);
-                return (true, "角色更新成功");
+                // JSON 解析失敗時設為空陣列，這是預期的處理
+                role.navigation_permissions = new List<string>();
             }
         }
-        catch (Exception ex)
+        else
         {
-            return (false, ex.Message);
+            role.navigation_permissions = new List<string>();
+        }
+
+        if (action == "add")
+        {
+            repo.CreatePermissionManagement(role);
+            return (true, "角色新增成功");
+        }
+        else
+        {
+            repo.UpdatePermissionManagement(role);
+            return (true, "角色更新成功");
         }
     }
 
-    public async Task<(bool success, string message)> SaveOrganizationAsync(IFormCollection form, string action)
+    public (bool success, string message) SaveOrganization(IFormCollection form, string action)
     {
-        try
+        var organization = new permission_management
         {
-            var organization = new permission_management
-            {
-                id = int.TryParse(form["id"], out var id) ? id : 0,
-                type = "organization",
-                name = form["name"],
-                description = form["description"],
-                level = int.TryParse(form["level"], out var level) ? level : 1,
-                is_active = form["is_active"] == "true",
-            };
+            id = int.TryParse(form["id"], out var id) ? id : 0,
+            type = "organization",
+            name = form["name"],
+            description = form["description"],
+            level = int.TryParse(form["level"], out var level) ? level : 1,
+            is_active = form["is_active"] == "true",
+        };
 
-            if (action == "add")
-            {
-                await repo.CreatePermissionManagementAsync(organization);
-                return (true, "組織新增成功");
-            }
-            else
-            {
-                await repo.UpdatePermissionManagementAsync(organization);
-                return (true, "組織更新成功");
-            }
-        }
-        catch (Exception ex)
+        // 處理分配角色
+        var assignedRolesJson = form["assigned_roles"].ToString();
+        if (!string.IsNullOrEmpty(assignedRolesJson))
         {
-            return (false, ex.Message);
+            try
+            {
+                var roleIds = System.Text.Json.JsonSerializer.Deserialize<List<string>>(assignedRolesJson);
+                organization.roles = roleIds;
+            }
+            catch (System.Text.Json.JsonException)
+            {
+                // JSON 解析失敗時設為空陣列，這是預期的處理
+                organization.roles = new List<string>();
+            }
         }
+        else
+        {
+            organization.roles = new List<string>();
+        }
+
+        if (action == "add")
+        {
+            var result = repo.CreatePermissionManagement(organization);
+            
+            // 更新角色的parent_id
+            UpdateRoleParentIds(organization.roles, result.id);
+            
+            return (true, "組織新增成功");
+        }
+        else
+        {
+            // 先清除舊的角色關聯
+            ClearRoleParentIds(organization.id);
+            
+            repo.UpdatePermissionManagement(organization);
+            
+            // 更新新的角色關聯
+            UpdateRoleParentIds(organization.roles, organization.id);
+            
+            return (true, "組織更新成功");
+        }
+    }
+
+    /// <summary>
+    /// 更新角色的parent_id
+    /// </summary>
+    private void UpdateRoleParentIds(List<string>? roleIds, int organizationId)
+    {
+        if (roleIds == null || !roleIds.Any()) return;
+
+        foreach (var roleIdStr in roleIds)
+        {
+            if (int.TryParse(roleIdStr, out var roleId))
+            {
+                repo.UpdateRoleParentId(roleId, organizationId);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 清除角色的parent_id
+    /// </summary>
+    private void ClearRoleParentIds(int organizationId)
+    {
+        repo.ClearRoleParentIdsByOrganization(organizationId);
     }
     #endregion
 
@@ -233,17 +301,30 @@ public class PermissionManagementService(PermissionManagementRepository repo)
     /// </summary>
     /// <param name="password">明文密碼</param>
     /// <returns>雜湊值和鹽值</returns>
-    private async Task<(string hash, string salt)> HashPasswordAsync(string password)
+    private (string hash, string salt) HashPassword(string password)
     {
-        return await Task.Run(() =>
-        {
-            var salt = GenerateSalt();
-            using var sha256 = SHA256.Create();
-            var saltedPassword = password + salt;
-            var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(saltedPassword));
-            var hash = Convert.ToBase64String(hashedBytes);
-            return (hash, salt);
-        });
+        var salt = GenerateSalt();
+        using var sha256 = SHA256.Create();
+        var saltedPassword = password + salt;
+        var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(saltedPassword));
+        var hash = Convert.ToBase64String(hashedBytes);
+        return (hash, salt);
     }
     #endregion
+
+    /// <summary>
+    /// 取得可用角色（未分配給其他組織的角色）
+    /// </summary>
+    /// <param name="organizationId">組織ID（編輯時使用，0表示新增）</param>
+    /// <returns>可用角色列表</returns>
+    public List<vw_permission_role> GetAvailableRoles(int organizationId = 0)
+        => repo.GetAvailableRoles(organizationId);
+
+    /// <summary>
+    /// 取得角色的導航權限
+    /// </summary>
+    /// <param name="roleId">角色ID</param>
+    /// <returns>導航權限列表</returns>
+    public List<string> GetRoleNavigationPermissions(int roleId)
+        => repo.GetRoleNavigationPermissions(roleId);
 }

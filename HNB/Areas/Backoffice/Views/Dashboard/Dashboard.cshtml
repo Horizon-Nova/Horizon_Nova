@@ -11,9 +11,16 @@
     <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl p-6 text-white">
         <div class="flex items-center justify-between">
             <div>
-                <h2 class="text-2xl font-bold mb-2">歡迎回來，@(ViewBag.FullName ?? ViewBag.UserName)!</h2>
-                <p class="text-indigo-100">@(ViewBag.UserEmail)</p>
-                <p class="text-sm text-indigo-200 mt-1">最後登入：@(ViewBag.LastLogin)</p>
+                @{
+                    var fullName = User.FindFirst("FullName")?.Value;
+                    var userName = User.Identity?.Name ?? "未知用戶";
+                    var userEmail = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? "未設定";
+                    var lastLogin = User.FindFirst("LastLogin")?.Value ?? "未記錄";
+                    var displayName = !string.IsNullOrEmpty(fullName) ? fullName : userName;
+                }
+                <h2 class="text-2xl font-bold mb-2">歡迎回來，@displayName!</h2>
+                <p class="text-indigo-100">@userEmail</p>
+                <p class="text-sm text-indigo-200 mt-1">最後登入：@lastLogin</p>
             </div>
             <div class="text-right">
                 <div class="text-4xl font-bold">@DateTime.Now.ToString("HH:mm")</div>

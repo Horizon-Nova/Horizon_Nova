@@ -5,10 +5,13 @@ using HNB.Areas.Backoffice.Filters;
 
 namespace HNB.Areas.Backoffice.Controllers
 {
-    [Area("Backoffice"), Permission]
-    public class AIModelController : Controller
+    [Area("Backoffice")]
+    public class AIModelController(SidebarNavigationService sidebarService) : BaseController(sidebarService)
     {
         public IActionResult AIModelManagement()
-            => View();
+        {
+            SetActiveNavigation("/Backoffice/AIModel/AIModelManagement");
+            return View();
+        }
     }
 }

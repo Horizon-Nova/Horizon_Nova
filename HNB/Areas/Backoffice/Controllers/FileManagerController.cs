@@ -6,8 +6,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace HNB.Areas.Backoffice.Controllers;
 
-[Area("Backoffice"), Permission]
-public class FileManagerController(FileManagerService svc) : Controller
+[Area("Backoffice")]
+public class FileManagerController(FileManagerService svc, SidebarNavigationService sidebarService) : BaseController(sidebarService)
 {
     private string V(string? path) => svc.NormalizePath(path ?? "/");
 
@@ -27,6 +27,8 @@ public class FileManagerController(FileManagerService svc) : Controller
 
     public IActionResult FileManager(string? path = "/")
     {
+        SetActiveNavigation("/Backoffice/FileManager/FileManager");
+        
         var vPath = V(path);
         ViewData["CurrentPath"] = vPath;
         ViewData["CanAddHere"] = svc.CanAddHere(vPath);

@@ -48,6 +48,15 @@
                                        placeholder="請輸入角色名稱" required>
                             </div>
                             <div>
+                                <label for="navigation_permissions" class="block text-sm font-semibold text-slate-700 mb-2">
+                                    <i data-lucide="navigation" class="w-4 h-4 inline mr-1"></i>導航權限設定
+                                </label>
+                                <div id="navigation_permissions_container" class="space-y-2 max-h-48 overflow-y-auto border border-slate-300 rounded-lg p-3 bg-white">
+                                    <!-- 導航權限選項將由 JavaScript 動態載入 -->
+                                </div>
+                                <input type="hidden" id="navigation_permissions" name="navigation_permissions" value="">
+                            </div>
+                            <div>
                                 <label for="status" class="block text-sm font-semibold text-slate-700 mb-2">
                                     <i data-lucide="key" class="w-4 h-4 inline mr-1"></i>權限類型
                                 </label>
@@ -147,17 +156,86 @@ function closeHelp() {
     }
 }
 
+// 載入導航權限選項
+function loadNavigationPermissions() {
+    // 先取得當前角色的導航權限
+    const roleId = document.querySelector('input[name="id"]').value;
+    
+    $.ajax({
+        url: '@Url.Action("GetRoleNavigationPermissions", "PermissionManagement")',
+        type: 'GET',
+        data: { roleId: roleId },
+        success: function(permissionResponse) {
+            const currentPermissions = permissionResponse.success ? permissionResponse.permissions : [];
+            
+            // 然後載入所有導航選項
+            $.ajax({
+                url: '@Url.Action("GetNavigationOptions", "PermissionManagement")',
+                type: 'GET',
+                success: function(response) {
+                    if (response.success) {
+                        const container = document.getElementById('navigation_permissions_container');
+                        if (container) {
+                            container.innerHTML = '';
+                            
+                            response.navigations.forEach(function(nav) {
+                                const isChecked = currentPermissions.includes(nav.code);
+                        
+                                const checkboxDiv = document.createElement('div');
+                                checkboxDiv.className = 'flex items-center space-x-2';
+                                
+                                checkboxDiv.innerHTML = `
+                                    <input type="checkbox" 
+                                           id="nav_${nav.code}" 
+                                           value="${nav.code}" 
+                                           class="navigation-checkbox rounded border-slate-300 text-green-600 focus:ring-green-500"
+                                           ${isChecked ? 'checked' : ''}>
+                                    <label for="nav_${nav.code}" class="text-sm text-slate-700 flex items-center">
+                                        <i data-lucide="${nav.icon || 'circle'}" class="w-4 h-4 mr-2"></i>
+                                        ${nav.title}
+                                    </label>
+                                `;
+                                
+                                container.appendChild(checkboxDiv);
+                            });
+                            
+                            // 初始化圖標
+                            lucide.createIcons();
+                            
+                            // 更新隱藏欄位
+                            updateNavigationPermissions();
+                        }
+                    }
+                },
+                error: function() {
+                    console.error('載入導航權限選項失敗');
+                }
+            });
+        },
+        error: function() {
+            console.error('載入角色權限失敗');
+        }
+    });
+}
+
+// 更新導航權限隱藏欄位
+function updateNavigationPermissions() {
+    const checkboxes = document.querySelectorAll('.navigation-checkbox:checked');
+    const permissions = Array.from(checkboxes).map(cb => cb.value);
+    document.getElementById('navigation_permissions').value = JSON.stringify(permissions);
+}
+
 // 提交角色表單
 function submitRoleForm() {
-    const formData = new FormData(document.getElementById('FormData'));
-    formData.append('type', 'role');
+    // 更新導航權限
+    updateNavigationPermissions();
+    
+    const formData = $("#FormData").serialize() + "&type=role";
     
     $.ajax({
         url: '@Url.Action("SaveData", "PermissionManagement")',
         type: 'POST',
         data: formData,
-        processData: false,
-        contentType: false,
         success: function(response) {
             if (response.success) {
                 alert(response.message);
@@ -172,4 +250,14 @@ function submitRoleForm() {
         }
     });
 }
+
+// 頁面載入時執行
+$(document).ready(function() {
+    loadNavigationPermissions();
+    
+    // 監聽導航權限變更
+    $(document).on('change', '.navigation-checkbox', function() {
+        updateNavigationPermissions();
+    });
+});
 </script>

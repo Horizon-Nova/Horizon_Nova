@@ -5,13 +5,14 @@ using Models.HnbHnbBackoffice;
 
 namespace HNB.Areas.Backoffice.Controllers;
 
-[Area("Backoffice"), Permission]
-public class PermissionManagementController(PermissionManagementService sev) : Controller
+[Area("Backoffice")]
+public class PermissionManagementController(PermissionManagementService sev, SidebarNavigationService sidebarService) : BaseController(sidebarService)
 {
 
     // 人員管理
     public IActionResult Users()
     {
+        SetActiveNavigation("/Backoffice/PermissionManagement/Users");
         var users = sev.LoadUsers();
         return View(users);
     }
@@ -19,6 +20,7 @@ public class PermissionManagementController(PermissionManagementService sev) : C
     // 角色管理
     public IActionResult Roles()
     {
+        SetActiveNavigation("/Backoffice/PermissionManagement/Roles");
         var roles = sev.LoadRoles();
         return View(roles);
     }
@@ -26,6 +28,7 @@ public class PermissionManagementController(PermissionManagementService sev) : C
     // 組織管理
     public IActionResult Organizations()
     {
+        SetActiveNavigation("/Backoffice/PermissionManagement/Organizations");
         var organizations = sev.LoadOrganizations();
         return View(organizations);
     }
@@ -33,6 +36,7 @@ public class PermissionManagementController(PermissionManagementService sev) : C
     // 組織圖
     public IActionResult OrganizationChart()
     {
+        SetActiveNavigation("/Backoffice/PermissionManagement/OrganizationChart");
         var organizations = sev.LoadOrganizations();
         return View(organizations);
     }
@@ -165,8 +169,13 @@ public class PermissionManagementController(PermissionManagementService sev) : C
                         var user = sev.LoadUserDetails(id.Value);
                         if (user != null)
                         {
-                            // 設定角色的預設值
-                            ViewBag.SelectedRoleId = user.roles?.FirstOrDefault();
+                            // 設定角色的預設值 - 從 roles 陣列中取得第一個角色ID
+                            var roleId = user.roles?.FirstOrDefault();
+                            if (!string.IsNullOrEmpty(roleId) && int.TryParse(roleId, out var parsedRoleId))
+                            {
+                                ViewBag.SelectedRoleId = parsedRoleId;
+                            }
+                            
                             // 獲取使用者的組織ID
                             ViewBag.SelectedOrganizationId = sev.GetUserOrganizationId(id.Value);
                         }
@@ -187,11 +196,11 @@ public class PermissionManagementController(PermissionManagementService sev) : C
                 switch (type)
                 {
                     case "user":
-                        return PartialView("_UserForm", new Models.HnbHnbBackoffice.vw_permission_user());
+                        return PartialView("_UserForm", new vw_permission_user());
                     case "role":
-                        return PartialView("_RoleForm", new Models.HnbHnbBackoffice.vw_permission_role());
+                        return PartialView("_RoleForm", new vw_permission_role());
                     case "organization":
-                        return PartialView("_OrganizationForm", new Models.HnbHnbBackoffice.vw_permission_organization());
+                        return PartialView("_OrganizationForm", new vw_permission_organization());
                     default:
                         return Json(new { success = false, message = "不支援的類型" });
                 }
@@ -209,70 +218,42 @@ public class PermissionManagementController(PermissionManagementService sev) : C
 
     // 統一儲存資料 (AJAX)
     [HttpPost]
-    public async Task<IActionResult> SaveData(string type)
+    public IActionResult SaveData(string type)
     {
-        try
+        var form = Request.Form;
+        var id = int.TryParse(form["id"], out var parsedId) ? parsedId : 0;
+        var action = id > 0 ? "edit" : "add";
+        
+        switch (type)
         {
-            var form = await Request.ReadFormAsync();
-            var id = int.TryParse(form["id"], out var parsedId) ? parsedId : 0;
-            var action = id > 0 ? "edit" : "add";
-            
-            switch (type)
-            {
-                case "user":
-                    return await SaveUserAsync(form, action);
-                case "role":
-                    return await SaveRoleAsync(form, action);
-                case "organization":
-                    return await SaveOrganizationAsync(form, action);
-                default:
-                    return Json(new { success = false, message = "不支援的類型" });
-            }
-        }
-        catch (Exception ex)
-        {
-            return Json(new { success = false, message = ex.Message });
+            case "user":
+                return SaveUser(form, action);
+            case "role":
+                return SaveRole(form, action);
+            case "organization":
+                return SaveOrganization(form, action);
+            default:
+                return Json(new { success = false, message = "不支援的類型" });
         }
     }
 
-    private async Task<IActionResult> SaveUserAsync(IFormCollection form, string action)
+    private IActionResult SaveUser(IFormCollection form, string action)
     {
-        try
-        {
-            // Controller 只負責接收資料並傳給服務層
-            var result = await sev.SaveUserAsync(form, action);
-            return Json(new { success = result.success, message = result.message });
-        }
-        catch (Exception ex)
-        {
-            return Json(new { success = false, message = ex.Message });
-        }
+        // Controller 只負責接收資料並傳給服務層
+        var result = sev.SaveUser(form, action);
+        return Json(new { success = result.success, message = result.message });
     }
 
-    private async Task<IActionResult> SaveRoleAsync(IFormCollection form, string action)
+    private IActionResult SaveRole(IFormCollection form, string action)
     {
-        try
-        {
-            var result = await sev.SaveRoleAsync(form, action);
-            return Json(new { success = result.success, message = result.message });
-        }
-        catch (Exception ex)
-        {
-            return Json(new { success = false, message = ex.Message });
-        }
+        var result = sev.SaveRole(form, action);
+        return Json(new { success = result.success, message = result.message });
     }
 
-    private async Task<IActionResult> SaveOrganizationAsync(IFormCollection form, string action)
+    private IActionResult SaveOrganization(IFormCollection form, string action)
     {
-        try
-        {
-            var result = await sev.SaveOrganizationAsync(form, action);
-            return Json(new { success = result.success, message = result.message });
-        }
-        catch (Exception ex)
-        {
-            return Json(new { success = false, message = ex.Message });
-        }
+        var result = sev.SaveOrganization(form, action);
+        return Json(new { success = result.success, message = result.message });
     }
 
     /// <summary>
@@ -316,5 +297,57 @@ public class PermissionManagementController(PermissionManagementService sev) : C
             "organizationdetail" => PartialView("_OrganizationDetailHelp"),
             _ => PartialView("_UserFormHelp") // 預設返回使用者表單說明
         };
+    }
+
+    /// <summary>
+    /// 取得導航選項
+    /// </summary>
+    /// <returns>導航選項JSON</returns>
+    [HttpGet]
+    public IActionResult GetNavigationOptions()
+    {
+        var navigations = sidebarService.GetAllNavigations();
+        
+        var navigationOptions = navigations.Select(nav => new
+        {
+            code = nav.Code,
+            title = nav.Title,
+            icon = nav.Icon,
+            url = nav.Url
+        }).ToList();
+
+        return Json(new { success = true, navigations = navigationOptions });
+    }
+
+    /// <summary>
+    /// 取得可用角色（未分配給其他組織的角色）
+    /// </summary>
+    /// <param name="organizationId">組織ID（編輯時使用）</param>
+    /// <returns>可用角色JSON</returns>
+    [HttpGet]
+    public IActionResult GetAvailableRoles(int organizationId = 0)
+    {
+        var availableRoles = sev.GetAvailableRoles(organizationId);
+        
+        var roleOptions = availableRoles.Select(role => new
+        {
+            id = role.id,
+            name = role.name,
+            description = role.description
+        }).ToList();
+
+        return Json(new { success = true, roles = roleOptions });
+    }
+
+    /// <summary>
+    /// 取得角色的導航權限
+    /// </summary>
+    /// <param name="roleId">角色ID</param>
+    /// <returns>導航權限JSON</returns>
+    [HttpGet]
+    public IActionResult GetRoleNavigationPermissions(int roleId)
+    {
+        var permissions = sev.GetRoleNavigationPermissions(roleId);
+        return Json(new { success = true, permissions });
     }
 }

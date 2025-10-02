@@ -49,7 +49,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     {
         options.LoginPath = "/Backoffice/Authorize/Login";
         options.LogoutPath = "/Backoffice/Authorize/Logout";
-        options.AccessDeniedPath = "/Backoffice/Authorize/Login";
+        options.AccessDeniedPath = "/Backoffice/Authorize/AccessDenied";
         options.ExpireTimeSpan = TimeSpan.FromHours(8);
         options.SlidingExpiration = true;
         options.Cookie.HttpOnly = true;

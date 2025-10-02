@@ -6,11 +6,14 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HNB.Areas.Backoffice.Controllers;
 
-[Area("Backoffice"), Permission]
-public class DatabaseController(DatabaseService databaseService) : Controller
+[Area("Backoffice")]
+public class DatabaseController(DatabaseService databaseService, SidebarNavigationService sidebarService) : BaseController(sidebarService)
 {
     public IActionResult DatabaseManagement()
-        => View();
+    {
+        SetActiveNavigation("/Backoffice/Database/DatabaseManagement");
+        return View();
+    }
 
     [HttpPost]
     public async Task<IActionResult> TestConnection(TestConnectionRequestDto request)

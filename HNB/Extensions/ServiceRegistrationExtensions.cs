@@ -23,6 +23,7 @@ public static class ServiceRegistrationExtensions
         services.AddScoped<FileManagerService>();
         services.AddScoped<PermissionManagementService>();
         services.AddScoped<AuthService>();
+        services.AddScoped<SidebarNavigationService>();
         services.AddScoped<DatabaseService>();
         services.AddHostedService<HardwareMonitoringService>();
         services.AddHostedService<SystemStatusService>();
@@ -35,6 +36,7 @@ public static class ServiceRegistrationExtensions
         services.AddScoped<PermissionManagementRepository>();
         services.AddScoped<SettingsRepositories>();
         services.AddScoped<AuthRepository>();
+        services.AddScoped<SidebarNavigationRepository>();
         return services;
     }
     /// <summary> DI注入管理 Utilities 功能 </summary>

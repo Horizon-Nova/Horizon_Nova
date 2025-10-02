@@ -84,6 +84,24 @@
                         </div>
                     </div>
 
+                    <!-- 角色管理區塊 -->
+                    <div class="bg-slate-50 rounded-xl p-6">
+                        <div class="flex items-center space-x-2 mb-4">
+                            <i data-lucide="users" class="w-5 h-5 text-green-600"></i>
+                            <h4 class="text-lg font-semibold text-slate-800">角色管理</h4>
+                        </div>
+                        <div>
+                            <label for="assigned_roles" class="block text-sm font-semibold text-slate-700 mb-2">
+                                <i data-lucide="shield" class="w-4 h-4 inline mr-1"></i>分配角色
+                            </label>
+                            <div id="available_roles_container" class="space-y-2 max-h-48 overflow-y-auto border border-slate-300 rounded-lg p-3 bg-white">
+                                <!-- 可用角色選項將由 JavaScript 動態載入 -->
+                            </div>
+                            <input type="hidden" id="assigned_roles" name="assigned_roles" value="">
+                            <p class="text-xs text-slate-500 mt-1">選擇要分配給此組織的角色（只能選擇未分配的角色）</p>
+                        </div>
+                    </div>
+
                     <!-- 狀態設定區塊 -->
                     <div class="bg-slate-50 rounded-xl p-6">
                         <div class="flex items-center space-x-2 mb-4">
@@ -146,17 +164,75 @@ function closeHelp() {
     }
 }
 
+// 載入可用角色
+function loadAvailableRoles() {
+    $.ajax({
+        url: '@Url.Action("GetAvailableRoles", "PermissionManagement")',
+        type: 'GET',
+        data: { organizationId: @(Model?.id ?? 0) },
+        success: function(response) {
+            if (response.success) {
+                const container = document.getElementById('available_roles_container');
+                if (container) {
+                    container.innerHTML = '';
+                    
+                    // 取得當前組織已分配的角色
+                    const currentRoles = [];
+                    
+                    response.roles.forEach(function(role) {
+                        const isChecked = currentRoles.includes(role.name);
+                        
+                        const checkboxDiv = document.createElement('div');
+                        checkboxDiv.className = 'flex items-center space-x-2';
+                        
+                        checkboxDiv.innerHTML = `
+                            <input type="checkbox" 
+                                   id="role_${role.id}" 
+                                   value="${role.id}" 
+                                   class="role-checkbox rounded border-slate-300 text-green-600 focus:ring-green-500"
+                                   ${isChecked ? 'checked' : ''}>
+                            <label for="role_${role.id}" class="text-sm text-slate-700 flex items-center">
+                                <i data-lucide="shield" class="w-4 h-4 mr-2"></i>
+                                ${role.name}
+                                ${role.description ? `<span class="text-slate-500 ml-2">(${role.description})</span>` : ''}
+                            </label>
+                        `;
+                        
+                        container.appendChild(checkboxDiv);
+                    });
+                    
+                    // 初始化圖標
+                    lucide.createIcons();
+                    
+                    // 更新隱藏欄位
+                    updateAssignedRoles();
+                }
+            }
+        },
+        error: function() {
+            console.error('載入可用角色失敗');
+        }
+    });
+}
+
+// 更新分配角色隱藏欄位
+function updateAssignedRoles() {
+    const checkboxes = document.querySelectorAll('.role-checkbox:checked');
+    const roleIds = Array.from(checkboxes).map(cb => cb.value);
+    document.getElementById('assigned_roles').value = JSON.stringify(roleIds);
+}
+
 // 提交組織表單
 function submitOrganizationForm() {
-    const formData = new FormData(document.getElementById('FormData'));
-    formData.append('type', 'organization');
+    // 更新分配角色
+    updateAssignedRoles();
+    
+    const formData = $("#FormData").serialize() + "&type=organization";
     
     $.ajax({
         url: '@Url.Action("SaveData", "PermissionManagement")',
         type: 'POST',
         data: formData,
-        processData: false,
-        contentType: false,
         success: function(response) {
             if (response.success) {
                 alert(response.message);
@@ -171,4 +247,14 @@ function submitOrganizationForm() {
         }
     });
 }
+
+// 頁面載入時執行
+$(document).ready(function() {
+    loadAvailableRoles();
+    
+    // 監聽角色選擇變更
+    $(document).on('change', '.role-checkbox', function() {
+        updateAssignedRoles();
+    });
+});
 </script>

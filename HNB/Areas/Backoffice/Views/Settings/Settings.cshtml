@@ -594,6 +594,8 @@
                 if (data.success) {
                     document.getElementById('errorLogCount').textContent = data.errorLogs + ' 條記錄';
                     document.getElementById('accessLogCount').textContent = data.accessLogs + ' 條記錄';
+                    // 系統日誌和存取日誌是一起的，所以同步更新
+                    document.getElementById('systemLogCount').textContent = data.accessLogs + ' 條記錄';
                 }
             })
             .catch(error => {

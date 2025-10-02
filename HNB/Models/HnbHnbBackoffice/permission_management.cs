@@ -200,6 +200,18 @@ public partial class permission_management
 
     public string? internal_notes { get; set; }
 
+    /// <summary>
+    /// 用戶可訪問的導航頁面權限陣列，儲存 sidebar_navigation 表的 code 編號
+    /// </summary>
+    public List<string>? navigation_permissions { get; set; }
+
+    public List<string>? role_names { get; set; }
+
+    /// <summary>
+    /// 用戶所屬的組織名稱陣列，關聯到 permission_management 表中 type=organization 的記錄
+    /// </summary>
+    public List<string>? organization_names { get; set; }
+
     [InverseProperty("parent")]
     public virtual ICollection<permission_management> Inverseparent { get; set; } = new List<permission_management>();
 
