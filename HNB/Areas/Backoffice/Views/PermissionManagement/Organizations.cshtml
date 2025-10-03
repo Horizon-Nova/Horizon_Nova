@@ -77,7 +77,18 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
-                                @(org.parent_name ?? "根組織")
+                                @{
+                                    var parentName = "根組織";
+                                    if (org.parent_id.HasValue)
+                                    {
+                                        var parentOrg = Model.Where(o => o.id == org.parent_id.Value).FirstOrDefault();
+                                        if (parentOrg != null)
+                                        {
+                                            parentName = parentOrg.name ?? "根組織";
+                                        }
+                                    }
+                                }
+                                @parentName
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
                                 @(org.level ?? 1)
@@ -97,7 +108,7 @@
                                 @(org.created_at?.ToString("yyyy/MM/dd HH:mm") ?? "-")
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <button class="text-red-600 hover:text-red-900 delete-organization-btn" data-organization-id="@org.id" onclick="event.stopPropagation();">
+                                <button class="text-red-600 hover:text-red-900" onclick="event.stopPropagation(); if(confirm('確定要刪除這個組織嗎？')) deleteItem(@org.id);">
                                     <i data-lucide="trash-2" class="w-4 h-4"></i>
                                 </button>
                             </td>
@@ -137,14 +148,6 @@
                 showOrganizationAdd();
             });
 
-            // 綁定刪除按鈕事件
-            $(document).on('click', '.delete-organization-btn', function(e) {
-                e.stopPropagation();
-                const organizationId = $(this).data('organization-id');
-                if (confirm('確定要刪除這個組織嗎？')) {
-                    deleteOrganization(organizationId);
-                }
-            });
         });
 
         function initializeDataTable() {
@@ -197,8 +200,6 @@
         }
 
         function showOrganizationDetails(organizationId) {
-            console.log('=== showOrganizationDetails 被調用 ===');
-            console.log('organizationId:', organizationId);
             loadAndShowModal('organization', organizationId, 'organizationDetailModal');
         }
 
@@ -211,42 +212,17 @@
         }
 
         function loadAndShowModal(type, id, modalId) {
-            console.log('=== loadAndShowModal 開始 ===');
-            console.log('type:', type);
-            console.log('id:', id);
-            console.log('modalId:', modalId);
-            console.log('AJAX URL:', '@Url.Action("LoadDetail", "PermissionManagement")');
-            
             $.ajax({
                 url: '@Url.Action("LoadDetail", "PermissionManagement")',
                 type: 'GET',
                 data: { type: type, id: id },
                 success: function(response) {
-                    console.log('=== AJAX Success ===');
-                    console.log('response length:', response.length);
-                    console.log('response preview:', response.substring(0, 200) + '...');
-                    
-                    console.log('設定 #organizationModal 內容');
                     $('#organizationModal').html(response);
-                    
-                    console.log('重新初始化 Lucide 圖標');
                     lucide.createIcons();
-                    
-                    console.log('嘗試顯示 Modal:', '#' + modalId);
-                    console.log('Modal 元素存在嗎?', $('#' + modalId).length > 0);
-                    console.log('Modal 當前 class:', $('#' + modalId).attr('class'));
-                    
+   
                     $('#' + modalId).removeClass('hidden');
-                    
-                    console.log('移除 hidden 後的 class:', $('#' + modalId).attr('class'));
-                    console.log('=== loadAndShowModal 完成 ===');
                 },
                 error: function(xhr, status, error) {
-                    console.error('=== AJAX Error ===');
-                    console.error('xhr:', xhr);
-                    console.error('status:', status);
-                    console.error('error:', error);
-                    
                     $('#organizationModal').html(`
                         <div class="text-center py-4">
                             <i data-lucide="alert-circle" class="w-12 h-12 text-red-500 mx-auto mb-3"></i>
@@ -260,14 +236,14 @@
             });
         }
 
-        function deleteOrganization(organizationId) {
+        function deleteItem(id) {
             $.ajax({
-                url: '@Url.Action("DeleteOrganization", "PermissionManagement")',
+                url: '@Url.Action("Delete", "PermissionManagement")',
                 type: 'POST',
-                data: { id: organizationId },
+                data: { id: id },
                 success: function(response) {
                     if (response.success) {
-                        alert('組織刪除成功');
+                        alert('刪除成功');
                         location.reload();
                     } else {
                         alert('刪除失敗：' + response.message);

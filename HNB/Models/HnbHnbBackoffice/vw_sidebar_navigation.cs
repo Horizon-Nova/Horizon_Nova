@@ -9,28 +9,95 @@ namespace Models.HnbHnbBackoffice;
 [Keyless]
 public partial class vw_sidebar_navigation
 {
+    /// <summary>
+    /// 主鍵ID
+    /// </summary>
     public int? id { get; set; }
 
+    /// <summary>
+    /// 導航項目編號
+    /// </summary>
     [StringLength(50)]
     public string? code { get; set; }
 
+    /// <summary>
+    /// 導航項目標題
+    /// </summary>
     [StringLength(100)]
     public string? title { get; set; }
 
+    /// <summary>
+    /// 導航項目連結
+    /// </summary>
     [StringLength(500)]
     public string? url { get; set; }
 
+    /// <summary>
+    /// 導航項目圖示
+    /// </summary>
     [StringLength(50)]
     public string? icon { get; set; }
 
+    /// <summary>
+    /// 父級導航項目編號
+    /// </summary>
     [StringLength(50)]
     public string? parent_code { get; set; }
 
+    /// <summary>
+    /// 排序順序
+    /// </summary>
     public int? sort_order { get; set; }
 
+    /// <summary>
+    /// 是否啟用
+    /// </summary>
     public bool? is_active { get; set; }
 
+    /// <summary>
+    /// 建立時間
+    /// </summary>
     public DateTime? created_at { get; set; }
 
+    /// <summary>
+    /// 更新時間
+    /// </summary>
     public DateTime? updated_at { get; set; }
+
+    /// <summary>
+    /// 父級導航標題：從parent_code關聯取得
+    /// </summary>
+    [StringLength(100)]
+    public string? parent_title { get; set; }
+
+    /// <summary>
+    /// 子項目數量：自動計算子導航項目數量
+    /// </summary>
+    public long? children_count { get; set; }
+
+    /// <summary>
+    /// 子項目陣列：子導航項目的code陣列
+    /// </summary>
+    [Column(TypeName = "character varying[]")]
+    public List<string>? children { get; set; }
+
+    /// <summary>
+    /// 完整路徑：階層路徑字串
+    /// </summary>
+    public string? full_path { get; set; }
+
+    /// <summary>
+    /// 階層等級：1為根項目，2為子項目
+    /// </summary>
+    public int? hierarchy_level { get; set; }
+
+    /// <summary>
+    /// 是否有子項目：children_count &gt; 0時為true
+    /// </summary>
+    public bool? is_parent { get; set; }
+
+    /// <summary>
+    /// 是否為葉子節點：children_count = 0時為true
+    /// </summary>
+    public bool? is_leaf { get; set; }
 }

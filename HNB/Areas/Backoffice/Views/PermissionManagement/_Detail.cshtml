@@ -831,7 +831,6 @@ function showRoleEdit(roleId) {
                                 {
                                     @foreach (var org in ViewBag.Organizations)
                                     {
-                                        // 排除自己，避免循環引用
                                         if (ViewBag.Organization?.id != org.id)
                                         {
                                             <option value="@org.id" @(ViewBag.Organization?.parent_id == org.id ? "selected" : "")>@org.name</option>
@@ -881,8 +880,14 @@ function showRoleEdit(roleId) {
                                 {
                                     @foreach (var role in ViewBag.Roles)
                                     {
+                                        var isChecked = false;
+                                        if (ViewBag.OrganizationRoles != null)
+                                        {
+                                            isChecked = ViewBag.OrganizationRoles.Contains(role.id.ToString());
+                                        }
                                         <label class="flex items-center space-x-2 p-3 border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer">
                                             <input type="checkbox" name="assigned_roles" value="@role.id" 
+                                                   @(isChecked ? "checked" : "")
                                                    class="w-4 h-4 text-purple-600 border-slate-300 rounded focus:ring-purple-500" />
                                             <span class="text-sm text-slate-700">@role.name</span>
                                         </label>
@@ -977,7 +982,25 @@ function showRoleEdit(roleId) {
                                 </div>
                                 <div class="flex justify-between">
                                     <dt class="text-sm text-slate-500">上級組織</dt>
-                                    <dd class="text-sm text-slate-900">@(ViewBag.Organization?.parent_name ?? "根組織")</dd>
+                                    <dd class="text-sm text-slate-900">
+                                        @{
+                                            var parentName = "根組織";
+                                            var organization = ViewBag.Organization as Models.HnbHnbBackoffice.vw_permission_organization;
+                                            if (organization != null && organization.parent_id.HasValue && ViewBag.Organizations != null)
+                                            {
+                                                var parentId = organization.parent_id.Value;
+                                                foreach (var org in ViewBag.Organizations)
+                                                {
+                                                    if (org?.id == parentId)
+                                                    {
+                                                        parentName = org?.name ?? "根組織";
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        @parentName
+                                    </dd>
                                 </div>
                                 <div class="flex justify-between">
                                     <dt class="text-sm text-slate-500">建立時間</dt>
@@ -1075,6 +1098,13 @@ function showOrganizationDetailHelp() {
 function submitOrganizationForm() {
     const formData = new FormData(document.getElementById('FormDataOrganization'));
     formData.append('type', 'organization');
+    
+    // 收集選中的角色
+    const selectedRoles = [];
+    document.querySelectorAll('input[name="assigned_roles"]:checked').forEach(function(checkbox) {
+        selectedRoles.push(checkbox.value);
+    });
+    formData.append('assigned_roles', JSON.stringify(selectedRoles));
     
     $.ajax({
         url: '@Url.Action("SaveData", "PermissionManagement")',

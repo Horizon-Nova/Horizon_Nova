@@ -10,177 +10,397 @@ namespace Models.HnbHnbBackoffice;
 [Keyless]
 public partial class vw_permission_user
 {
+    /// <summary>
+    /// 主鍵ID
+    /// </summary>
     public int? id { get; set; }
 
+    /// <summary>
+    /// 資料類型：user
+    /// </summary>
     [StringLength(50)]
     public string? type { get; set; }
 
+    /// <summary>
+    /// 用戶名稱：從name欄位取得
+    /// </summary>
     [StringLength(100)]
     public string? username { get; set; }
 
+    /// <summary>
+    /// 暱稱
+    /// </summary>
     [StringLength(100)]
     public string? nickname { get; set; }
 
+    /// <summary>
+    /// 完整名稱
+    /// </summary>
     [StringLength(200)]
     public string? full_name { get; set; }
 
+    /// <summary>
+    /// 電子郵件
+    /// </summary>
     [StringLength(255)]
     public string? email { get; set; }
 
+    /// <summary>
+    /// 電話號碼
+    /// </summary>
     [StringLength(20)]
     public string? phone { get; set; }
 
+    /// <summary>
+    /// 個人簡介
+    /// </summary>
     public string? bio { get; set; }
 
+    /// <summary>
+    /// 頭像網址
+    /// </summary>
     [StringLength(500)]
     public string? avatar_url { get; set; }
 
+    /// <summary>
+    /// 第三方頭像
+    /// </summary>
     [StringLength(500)]
     public string? third_party_avatar { get; set; }
 
+    /// <summary>
+    /// 性別
+    /// </summary>
     [StringLength(10)]
     public string? gender { get; set; }
 
+    /// <summary>
+    /// 生日
+    /// </summary>
     public DateOnly? birthday { get; set; }
 
+    /// <summary>
+    /// 星座
+    /// </summary>
     [StringLength(20)]
     public string? zodiac_sign { get; set; }
 
+    /// <summary>
+    /// 喜愛的顏色
+    /// </summary>
     [StringLength(50)]
     public string? favorite_color { get; set; }
 
+    /// <summary>
+    /// 色彩主題
+    /// </summary>
     [StringLength(50)]
     public string? color_scheme { get; set; }
 
+    /// <summary>
+    /// 所在地
+    /// </summary>
     [StringLength(200)]
     public string? location { get; set; }
 
+    /// <summary>
+    /// 時區
+    /// </summary>
     [StringLength(50)]
     public string? timezone { get; set; }
 
+    /// <summary>
+    /// 登入方式
+    /// </summary>
     [StringLength(50)]
     public string? login_method { get; set; }
 
+    /// <summary>
+    /// 第三方ID
+    /// </summary>
     [StringLength(255)]
     public string? third_party_id { get; set; }
 
+    /// <summary>
+    /// 郵箱是否驗證
+    /// </summary>
     public bool? is_email_verified { get; set; }
 
+    /// <summary>
+    /// 電話是否驗證
+    /// </summary>
     public bool? is_phone_verified { get; set; }
 
+    /// <summary>
+    /// 是否啟用雙因子認證
+    /// </summary>
     public bool? two_factor_enabled { get; set; }
 
+    /// <summary>
+    /// 信任設備陣列
+    /// </summary>
     public List<string>? trusted_devices { get; set; }
 
+    /// <summary>
+    /// 信任IP陣列
+    /// </summary>
     public List<string>? trusted_ips { get; set; }
 
+    /// <summary>
+    /// 最後設備資訊
+    /// </summary>
     [Column(TypeName = "jsonb")]
     public string? last_device_info { get; set; }
 
+    /// <summary>
+    /// 訂閱產品
+    /// </summary>
     [Column(TypeName = "jsonb")]
     public string? subscription_products { get; set; }
 
+    /// <summary>
+    /// 付款方式
+    /// </summary>
     [Column(TypeName = "jsonb")]
     public string? payment_methods { get; set; }
 
+    /// <summary>
+    /// 訂閱狀態
+    /// </summary>
     [StringLength(50)]
     public string? subscription_status { get; set; }
 
+    /// <summary>
+    /// 訂閱到期時間
+    /// </summary>
     [Column(TypeName = "timestamp without time zone")]
     public DateTime? subscription_expires_at { get; set; }
 
+    /// <summary>
+    /// 試用期結束時間
+    /// </summary>
     [Column(TypeName = "timestamp without time zone")]
     public DateTime? trial_ends_at { get; set; }
 
+    /// <summary>
+    /// 計費週期
+    /// </summary>
     [StringLength(20)]
     public string? billing_cycle { get; set; }
 
+    /// <summary>
+    /// 自動續費
+    /// </summary>
     public bool? auto_renew { get; set; }
 
+    /// <summary>
+    /// 用戶偏好
+    /// </summary>
     [Column(TypeName = "jsonb")]
     public string? preferences { get; set; }
 
+    /// <summary>
+    /// 通知設定
+    /// </summary>
     [Column(TypeName = "jsonb")]
     public string? notification_settings { get; set; }
 
+    /// <summary>
+    /// 隱私設定
+    /// </summary>
     [Column(TypeName = "jsonb")]
     public string? privacy_settings { get; set; }
 
+    /// <summary>
+    /// 語言設定
+    /// </summary>
     [StringLength(10)]
     public string? language { get; set; }
 
+    /// <summary>
+    /// 主題設定
+    /// </summary>
     [StringLength(20)]
     public string? theme { get; set; }
 
+    /// <summary>
+    /// 登入次數
+    /// </summary>
     public int? login_count { get; set; }
 
+    /// <summary>
+    /// 最後登入時間
+    /// </summary>
     [Column(TypeName = "timestamp without time zone")]
     public DateTime? last_login_at { get; set; }
 
+    /// <summary>
+    /// 最後活動時間
+    /// </summary>
     [Column(TypeName = "timestamp without time zone")]
     public DateTime? last_activity_at { get; set; }
 
+    /// <summary>
+    /// 總會話時間
+    /// </summary>
     public TimeSpan? total_session_time { get; set; }
 
+    /// <summary>
+    /// 資料完成度
+    /// </summary>
     public int? profile_completion_percentage { get; set; }
 
+    /// <summary>
+    /// 權限陣列
+    /// </summary>
     public List<string>? permissions { get; set; }
 
-    [Column(TypeName = "character varying(50)[]")]
+    /// <summary>
+    /// 角色ID陣列
+    /// </summary>
     public List<string>? roles { get; set; }
 
+    /// <summary>
+    /// 是否啟用
+    /// </summary>
     public bool? is_active { get; set; }
 
+    /// <summary>
+    /// 是否在線
+    /// </summary>
     public bool? is_online { get; set; }
 
+    /// <summary>
+    /// 狀態
+    /// </summary>
     [StringLength(50)]
     public string? status { get; set; }
 
+    /// <summary>
+    /// 狀態原因
+    /// </summary>
     public string? status_reason { get; set; }
 
+    /// <summary>
+    /// 建立時間
+    /// </summary>
     [Column(TypeName = "timestamp without time zone")]
     public DateTime? created_at { get; set; }
 
+    /// <summary>
+    /// 更新時間
+    /// </summary>
     [Column(TypeName = "timestamp without time zone")]
     public DateTime? updated_at { get; set; }
 
+    /// <summary>
+    /// 最後密碼變更時間
+    /// </summary>
     [Column(TypeName = "timestamp without time zone")]
     public DateTime? last_password_change_at { get; set; }
 
+    /// <summary>
+    /// 密碼到期時間
+    /// </summary>
     [Column(TypeName = "timestamp without time zone")]
     public DateTime? password_expires_at { get; set; }
 
+    /// <summary>
+    /// 最後登入IP
+    /// </summary>
     public IPAddress? last_login_ip { get; set; }
 
+    /// <summary>
+    /// 最後登入用戶代理
+    /// </summary>
     public string? last_login_user_agent { get; set; }
 
+    /// <summary>
+    /// 標籤陣列
+    /// </summary>
     public List<string>? tags { get; set; }
 
+    /// <summary>
+    /// 備註
+    /// </summary>
     public string? notes { get; set; }
 
+    /// <summary>
+    /// 所屬組織ID
+    /// </summary>
     public int? parent_id { get; set; }
 
+    /// <summary>
+    /// 排序順序
+    /// </summary>
     public int? sort_order { get; set; }
 
+    /// <summary>
+    /// 用戶層級
+    /// </summary>
     public int? level { get; set; }
 
+    /// <summary>
+    /// 建立者ID
+    /// </summary>
     public int? created_by { get; set; }
 
+    /// <summary>
+    /// 更新者ID
+    /// </summary>
     public int? updated_by { get; set; }
 
+    /// <summary>
+    /// 內部備註
+    /// </summary>
     public string? internal_notes { get; set; }
 
+    /// <summary>
+    /// 密碼雜湊值
+    /// </summary>
     [StringLength(255)]
     public string? password_hash { get; set; }
 
+    /// <summary>
+    /// 密碼鹽值
+    /// </summary>
     [StringLength(255)]
     public string? salt { get; set; }
 
+    /// <summary>
+    /// 所屬組織名稱：從parent_id關聯取得
+    /// </summary>
+    [StringLength(100)]
     public string? organization_name { get; set; }
 
+    /// <summary>
+    /// 所屬組織ID：從parent_id取得
+    /// </summary>
+    public int? organization_id { get; set; }
+
+    /// <summary>
+    /// 主要角色名稱：從roles陣列取得第一個角色名稱
+    /// </summary>
+    [StringLength(100)]
     public string? role_name { get; set; }
 
-    public string? managed_users_count { get; set; }
+    /// <summary>
+    /// 角色ID陣列：從roles欄位解析
+    /// </summary>
+    public List<string>? role_ids { get; set; }
 
-    public string? managed_roles_count { get; set; }
+    /// <summary>
+    /// 管理的子組織數量：該用戶管理的子組織數量
+    /// </summary>
+    public long? child_organizations_count { get; set; }
+
+    /// <summary>
+    /// 分配的角色數量：從roles陣列長度計算
+    /// </summary>
+    public int? assigned_roles_count { get; set; }
+
+    /// <summary>
+    /// 距離上次登入天數：計算欄位
+    /// </summary>
+    public decimal? last_login_days_ago { get; set; }
 }

@@ -52,44 +52,14 @@ public class PermissionManagementController(PermissionManagementService sev, Sid
     }
 
 
-    // 刪除使用者 (AJAX)
+    // 統一刪除方法
     [HttpPost]
-    public IActionResult DeleteUser(int id)
+    public IActionResult Delete(int id)
     {
         try
         {
-            var result = sev.DeleteUser(id);
-            return Json(new { success = result, message = result ? "使用者刪除成功" : "刪除失敗" });
-        }
-        catch (Exception ex)
-        {
-            return Json(new { success = false, message = ex.Message });
-        }
-    }
-
-    // 刪除角色 (AJAX)
-    [HttpPost]
-    public IActionResult DeleteRole(int id)
-    {
-        try
-        {
-            var result = sev.DeleteRole(id);
-            return Json(new { success = result, message = result ? "角色刪除成功" : "刪除失敗" });
-        }
-        catch (Exception ex)
-        {
-            return Json(new { success = false, message = ex.Message });
-        }
-    }
-
-    // 刪除組織 (AJAX)
-    [HttpPost]
-    public IActionResult DeleteOrganization(int id)
-    {
-        try
-        {
-            var result = sev.DeleteOrganization(id);
-            return Json(new { success = result, message = result ? "組織刪除成功" : "刪除失敗" });
+            var result = sev.Delete(id);
+            return Json(new { success = result, message = result ? "刪除成功" : "刪除失敗" });
         }
         catch (Exception ex)
         {
@@ -98,7 +68,7 @@ public class PermissionManagementController(PermissionManagementService sev, Sid
     }
 
 
-    // 統一儲存資料 (AJAX)
+    // 統一儲存資料
     [HttpPost]
     public IActionResult SaveData(string type)
     {
