@@ -5,7 +5,7 @@ using System.Text;
 
 namespace HNB.Areas.Backoffice.Services;
 
-public class PermissionManagementService(PermissionManagementRepository repo)
+public class PermissionManagementService(PermissionManagementRepository repo, SidebarNavigationService sidebarService)
 {
     #region 人員管理
     public List<vw_permission_user> LoadUsers()
@@ -56,34 +56,23 @@ public class PermissionManagementService(PermissionManagementRepository repo)
     #endregion
 
     #region 刪除操作
-    public async Task<bool> DeleteUserAsync(int id)
+    public bool DeleteUser(int id)
     {
-        return await repo.DeletePermissionManagementAsync(id);
+        return repo.DeletePermissionManagement(id);
     }
 
-    public async Task<bool> DeleteRoleAsync(int id)
+    public bool DeleteRole(int id)
     {
-        return await repo.DeletePermissionManagementAsync(id);
+        return repo.DeletePermissionManagement(id);
     }
 
-    public async Task<bool> DeleteOrganizationAsync(int id)
+    public bool DeleteOrganization(int id)
     {
-        return await repo.DeletePermissionManagementAsync(id);
+        return repo.DeletePermissionManagement(id);
     }
     #endregion
 
     #region CRUD 操作
-    public async Task<permission_management> CreatePermissionManagementAsync(permission_management entity)
-    {
-        return await repo.CreatePermissionManagementAsync(entity);
-    }
-
-    public async Task<permission_management> UpdatePermissionManagementAsync(permission_management entity)
-    {
-        return await repo.UpdatePermissionManagementAsync(entity);
-    }
-
-    // 同步版本
     public permission_management CreatePermissionManagement(permission_management entity)
     {
         return repo.CreatePermissionManagement(entity);
@@ -94,18 +83,18 @@ public class PermissionManagementService(PermissionManagementRepository repo)
         return repo.UpdatePermissionManagement(entity);
     }
 
-    public (bool success, string message) SaveUser(IFormCollection form, string action)
+    public (bool success, string message) SaveUser(IFormCollection form)
     {
         // 服務層負責欄位對應和資料轉換
         var user = new permission_management
         {
             id = int.TryParse(form["id"], out var id) ? id : 0,
             type = "user",
-            name = form["name"],
+            name = form["username"],
             email = form["email"],
             phone = form["phone"],
             gender = form["gender"],
-            full_name = form["username"],
+            full_name = form["full_name"],
             is_active = form["is_active"] == "true",
             nickname = form["nickname"],
             zodiac_sign = form["zodiac_sign"],
@@ -123,7 +112,7 @@ public class PermissionManagementService(PermissionManagementRepository repo)
             user.password_hash = hash;
             user.salt = salt;
         }
-        else if (action == "edit" && string.IsNullOrEmpty(password))
+        else if (user.id > 0 && string.IsNullOrEmpty(password))
         {
             // 編輯時如果密碼為空，保持原有的密碼雜湊不變
             var existingUser = repo.GetPermissionManagementById(user.id);
@@ -148,19 +137,22 @@ public class PermissionManagementService(PermissionManagementRepository repo)
             user.parent_id = orgId;
         }
 
-        if (action == "add")
+        // 判斷是新增還是修改：id > 0 就是修改，否則就是新增
+        if (user.id > 0)
         {
-            repo.CreatePermissionManagement(user);
-            return (true, "使用者新增成功");
-        }
-        else
-        {
+            // 修改
             repo.UpdatePermissionManagement(user);
             return (true, "使用者更新成功");
         }
+        else
+        {
+            // 新增
+            repo.CreatePermissionManagement(user);
+            return (true, "使用者新增成功");
+        }
     }
 
-    public (bool success, string message) SaveRole(IFormCollection form, string action)
+    public (bool success, string message) SaveRole(IFormCollection form)
     {
         var role = new permission_management
         {
@@ -191,19 +183,22 @@ public class PermissionManagementService(PermissionManagementRepository repo)
             role.navigation_permissions = new List<string>();
         }
 
-        if (action == "add")
+        // 判斷是新增還是修改：id > 0 就是修改，否則就是新增
+        if (role.id > 0)
         {
-            repo.CreatePermissionManagement(role);
-            return (true, "角色新增成功");
-        }
-        else
-        {
+            // 修改
             repo.UpdatePermissionManagement(role);
             return (true, "角色更新成功");
         }
+        else
+        {
+            // 新增
+            repo.CreatePermissionManagement(role);
+            return (true, "角色新增成功");
+        }
     }
 
-    public (bool success, string message) SaveOrganization(IFormCollection form, string action)
+    public (bool success, string message) SaveOrganization(IFormCollection form)
     {
         var organization = new permission_management
         {
@@ -212,6 +207,7 @@ public class PermissionManagementService(PermissionManagementRepository repo)
             name = form["name"],
             description = form["description"],
             level = int.TryParse(form["level"], out var level) ? level : 1,
+            parent_id = int.TryParse(form["parent_id"], out var parentId) ? parentId : null,
             is_active = form["is_active"] == "true",
         };
 
@@ -235,18 +231,10 @@ public class PermissionManagementService(PermissionManagementRepository repo)
             organization.roles = new List<string>();
         }
 
-        if (action == "add")
+        // 判斷是新增還是修改：id > 0 就是修改，否則就是新增
+        if (organization.id > 0)
         {
-            var result = repo.CreatePermissionManagement(organization);
-            
-            // 更新角色的parent_id
-            UpdateRoleParentIds(organization.roles, result.id);
-            
-            return (true, "組織新增成功");
-        }
-        else
-        {
-            // 先清除舊的角色關聯
+            // 修改：先清除舊的角色關聯
             ClearRoleParentIds(organization.id);
             
             repo.UpdatePermissionManagement(organization);
@@ -255,6 +243,16 @@ public class PermissionManagementService(PermissionManagementRepository repo)
             UpdateRoleParentIds(organization.roles, organization.id);
             
             return (true, "組織更新成功");
+        }
+        else
+        {
+            // 新增
+            var result = repo.CreatePermissionManagement(organization);
+            
+            // 更新角色的parent_id
+            UpdateRoleParentIds(organization.roles, result.id);
+            
+            return (true, "組織新增成功");
         }
     }
 
@@ -327,4 +325,95 @@ public class PermissionManagementService(PermissionManagementRepository repo)
     /// <returns>導航權限列表</returns>
     public List<string> GetRoleNavigationPermissions(int roleId)
         => repo.GetRoleNavigationPermissions(roleId);
+
+    #region ViewBag 資料準備
+    /// <summary>
+    /// 準備權限管理的 ViewBag 資料
+    /// </summary>
+    /// <param name="viewBag">ViewBag 物件</param>
+    /// <param name="type">類型 (user, role, organization)</param>
+    /// <param name="id">ID (可選)</param>
+    public void ViewBagModelPM(dynamic viewBag, string type = "", int? id = null)
+    {
+        // 設定表單標題和副標題
+        switch (type.ToLower())
+        {
+            case "user":
+                viewBag.UserFormTitle = id.HasValue ? "編輯帳號" : "新增帳號";
+                viewBag.UserFormSubtitle = id.HasValue ? "修改帳號基本資訊" : "建立新的系統使用者";
+                if (id.HasValue)
+                {
+                    viewBag.User = LoadUserDetails(id.Value);
+                }
+                break;
+                
+            case "role":
+                viewBag.RoleFormTitle = id.HasValue ? "編輯角色" : "新增角色";
+                viewBag.RoleFormSubtitle = id.HasValue ? "修改角色基本資訊" : "建立新的系統角色";
+                if (id.HasValue)
+                {
+                    var role = LoadRoleDetails(id.Value);
+                    System.Diagnostics.Debug.WriteLine($"LoadRoleDetails({id.Value}) 返回: {role?.name ?? "null"}");
+                    viewBag.Role = role;
+                }
+                else
+                {
+                    // 為了讓 roleDetailModal 能正常顯示，設置一個空的 Role 物件
+                    viewBag.Role = null;
+                }
+                break;
+                
+            case "organization":
+                viewBag.OrganizationFormTitle = id.HasValue ? "編輯組織" : "新增組織";
+                viewBag.OrganizationFormSubtitle = id.HasValue ? "修改組織基本資訊" : "建立新的組織單位";
+                if (id.HasValue)
+                {
+                    viewBag.Organization = LoadOrganizationDetails(id.Value);
+                }
+                break;
+        }
+        
+        // 載入選項數據
+        viewBag.Roles = LoadRoles();
+        viewBag.Organizations = LoadOrganizations();
+        viewBag.Navigations = GetAllNavigations();
+    }
+
+    /// <summary>
+    /// 準備帳號管理頁面的 ViewBag 資料
+    /// </summary>
+    /// <param name="viewBag">ViewBag 物件</param>
+    public void ViewBagModelUsers(dynamic viewBag)
+    {
+        viewBag.Organizations = LoadOrganizations();
+        viewBag.Roles = LoadRoles();
+    }
+
+    /// <summary>
+    /// 準備角色管理頁面的 ViewBag 資料
+    /// </summary>
+    /// <param name="viewBag">ViewBag 物件</param>
+    public void ViewBagModelRoles(dynamic viewBag)
+    {
+        viewBag.Organizations = LoadOrganizations();
+    }
+
+    /// <summary>
+    /// 準備組織管理頁面的 ViewBag 資料
+    /// </summary>
+    /// <param name="viewBag">ViewBag 物件</param>
+    public void ViewBagModelOrganizations(dynamic viewBag)
+    {
+        viewBag.Roles = LoadRoles();
+    }
+    #endregion
+
+    /// <summary>
+    /// 取得所有導航項目
+    /// </summary>
+    /// <returns>導航項目列表</returns>
+    private List<NavigationItem> GetAllNavigations()
+    {
+        return sidebarService.GetAllNavigations();
+    }
 }

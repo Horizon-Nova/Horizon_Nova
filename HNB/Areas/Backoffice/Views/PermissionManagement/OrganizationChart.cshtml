@@ -8,7 +8,7 @@
 <section class="space-y-6">
     <header>
         <h1 class="text-2xl font-bold flex items-center gap-2">
-            <i data-lucide="sitemap" class="w-6 h-6"></i> 組織圖
+            <i data-lucide="building-2" class="w-6 h-6"></i> 組織圖
         </h1>
         <p class="text-slate-500">視覺化查看組織架構與層級關係</p>
     </header>
@@ -159,7 +159,6 @@
 
             g = svg.append('g');
 
-            // 縮放行為
             zoom = d3.zoom()
                 .scaleExtent([0.1, 3])
                 .on('zoom', (event) => {
@@ -168,10 +167,8 @@
 
             svg.call(zoom);
 
-            // 建立樹狀結構
             const root = buildTreeStructure(chartData);
             
-            // 繪製圖表
             updateChart();
         }
 
@@ -179,12 +176,10 @@
             const map = new Map();
             const roots = [];
 
-            // 建立節點映射
             data.forEach(d => {
                 map.set(d.id, { ...d, children: [] });
             });
 
-            // 建立父子關係
             data.forEach(d => {
                 const node = map.get(d.id);
                 if (d.parent_id && map.has(d.parent_id)) {
@@ -208,8 +203,6 @@
             const nodeWidth = 200;
             const nodeHeight = 80;
             const levelHeight = 120;
-
-            // 計算節點位置
             const nodes = [];
             const links = [];
 
@@ -227,7 +220,6 @@
                         const childX = startX + index * nodeWidth;
                         const childY = y + levelHeight;
 
-                        // 添加連接線
                         links.push({
                             source: { x: x, y: y + nodeHeight / 2 },
                             target: { x: childX, y: childY }
@@ -378,12 +370,6 @@
                     </div>
                     ` : ''}
                     
-                    <div class="flex justify-end space-x-3 pt-4 border-t">
-                        <button onclick="showOrganizationDetailHelp()" class="px-4 py-2 bg-slate-500 text-white rounded-md hover:bg-slate-600 flex items-center gap-2" title="操作說明">
-                            <i data-lucide="help-circle" class="w-4 h-4"></i>
-                            說明
-                        </button>
-                    </div>
                 </div>
             `);
             

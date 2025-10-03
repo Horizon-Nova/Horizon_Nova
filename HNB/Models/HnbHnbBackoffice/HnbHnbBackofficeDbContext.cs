@@ -119,6 +119,8 @@ public partial class HnbHnbBackofficeDbContext : DbContext
         modelBuilder.Entity<permission_management>(entity =>
         {
             entity.HasKey(e => e.id).HasName("permission_management_pkey");
+            
+            entity.ToTable("permission_management", "dbo");
 
             entity.HasIndex(e => e.navigation_permissions, "idx_permission_management_navigation_permissions").HasMethod("gin");
 

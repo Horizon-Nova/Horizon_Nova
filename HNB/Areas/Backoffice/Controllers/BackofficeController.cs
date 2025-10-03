@@ -62,7 +62,7 @@ public class BackofficeController(SidebarNavigationService sidebarService, Permi
                 return Json(new { success = false, message = "找不到使用者資料" });
             }
 
-            var result = permissionService.SaveUser(form, "edit");
+            var result = permissionService.SaveUser(form);
             
             return Json(new { success = result.success, message = result.message });
         }
@@ -111,7 +111,7 @@ public class BackofficeController(SidebarNavigationService sidebarService, Permi
                 ["password"] = newPassword
             });
 
-            var result = permissionService.SaveUser(formData, "edit");
+            var result = permissionService.SaveUser(formData);
             
             return Json(new { success = result.success, message = result.success ? "密碼更新成功" : result.message });
         }

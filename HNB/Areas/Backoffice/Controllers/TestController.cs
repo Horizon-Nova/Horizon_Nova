@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HNB.Areas.Backoffice.Controllers;
 
 [Area("Backoffice")]
-public class TestController(SidebarNavigationService sidebarService) : BaseController(sidebarService)
+public class TestController(SidebarNavigationService sidebarService, PermissionManagementService permissionService) : BaseController(sidebarService)
 {
     /// <summary>
     /// 測試頁面（不需要登入）
@@ -78,5 +78,35 @@ public class TestController(SidebarNavigationService sidebarService) : BaseContr
         };
         
         return Json(result);
+    }
+    
+    /// <summary>
+    /// 測試角色資料
+    /// </summary>
+    public IActionResult TestRoles()
+    {
+        try
+        {
+            var roles = permissionService.LoadRoles();
+            var result = new
+            {
+                Success = true,
+                Count = roles.Count,
+                Roles = roles.Select(r => new
+                {
+                    r.id,
+                    r.name,
+                    r.description,
+                    r.is_active,
+                    r.organization_name,
+                }).ToList()
+            };
+            
+            return Json(result);
+        }
+        catch (Exception ex)
+        {
+            return Json(new { Success = false, Error = ex.Message });
+        }
     }
 }

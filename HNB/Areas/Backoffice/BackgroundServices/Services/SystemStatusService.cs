@@ -15,7 +15,7 @@ public class SystemStatusService : BackgroundService
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<SystemStatusService> _logger;
-    private readonly TimeSpan _period = TimeSpan.FromMinutes(2); // 每2分鐘執行一次
+    private readonly TimeSpan _period = TimeSpan.FromMinutes(2);
 
     public SystemStatusService(
         IServiceProvider serviceProvider,

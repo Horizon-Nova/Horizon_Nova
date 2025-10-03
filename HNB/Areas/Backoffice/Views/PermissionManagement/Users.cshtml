@@ -1,6 +1,6 @@
 @{
-    ViewData["Title"] = "人員管理 - 權限管理系統";
-    ViewData["PageTitle"] = "人員管理";
+    ViewData["Title"] = "帳號管理 - 權限管理系統";
+    ViewData["PageTitle"] = "帳號管理";
     ViewData["PageDescription"] = "管理系統使用者帳號與權限";
     ViewData["PageIcon"] = "users";
     Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
@@ -8,7 +8,6 @@
 
 @model IEnumerable<Models.HnbHnbBackoffice.vw_permission_user>
 
-@await Html.PartialAsync("../Settings/_HelpDetail")
 
 <section class="space-y-6">
 
@@ -25,11 +24,23 @@
             <div class="flex gap-4">
                 <select id="organizationFilter" class="px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <option value="">所有組織</option>
-                    <!-- 組織選項將由 JavaScript 動態載入 -->
+                    @if (ViewBag.Organizations != null)
+                    {
+                        @foreach (var org in ViewBag.Organizations)
+                        {
+                            <option value="@org.name">@org.name</option>
+                        }
+                    }
                 </select>
                 <select id="roleFilter" class="px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <option value="">所有角色</option>
-                    <!-- 角色選項將由 JavaScript 動態載入 -->
+                    @if (ViewBag.Roles != null)
+                    {
+                        @foreach (var role in ViewBag.Roles)
+                        {
+                            <option value="@role.name">@role.name</option>
+                        }
+                    }
                 </select>
                 <select id="statusFilter" class="px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <option value="">所有狀態</option>
@@ -47,10 +58,10 @@
     <!-- 人員列表 -->
     <div class="bg-white border rounded-xl overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-slate-200">
+            <table id="usersTable" class="min-w-full divide-y divide-slate-200">
                 <thead class="bg-slate-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">人員</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">帳號</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">組織</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">角色</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">狀態</th>
@@ -114,20 +125,27 @@
 </section>
 
 <!-- 使用者模態框容器 -->
-<div id="userModal" class="hidden"></div>
+<div id="userModal" class=""></div>
 
 @section Scripts {
     <script>
+        let usersTable;
+
         $(document).ready(function() {
-            // 初始化圖標
             lucide.createIcons();
 
-            // 搜尋功能
-            $('#searchInput').on('input', filterUsers);
-            $('#organizationFilter, #roleFilter, #statusFilter').on('change', filterUsers);
+            initializeDataTable();
 
-            // 刪除按鈕事件
-            $('.delete-user-btn').on('click', function() {
+            $('#searchInput').on('input', function() {
+                usersTable.search(this.value).draw();
+            });
+
+            $('#organizationFilter, #roleFilter, #statusFilter').on('change', function() {
+                applyFilters();
+            });
+
+            $(document).on('click', '.delete-user-btn', function(e) {
+                e.stopPropagation();
                 const userId = $(this).data('user-id');
                 if (confirm('確定要刪除這個使用者嗎？')) {
                     deleteUser(userId);
@@ -135,105 +153,88 @@
             });
         });
 
-        function filterUsers() {
-            const searchTerm = $('#searchInput').val().toLowerCase();
-            const organizationFilter = $('#organizationFilter').val();
-            const roleFilter = $('#roleFilter').val();
-            const statusFilter = $('#statusFilter').val();
-
-            $('.user-row').each(function() {
-                const $row = $(this);
-                const fullName = $row.find('td:first .text-sm.font-medium').text().toLowerCase();
-                const email = $row.find('td:first .text-slate-500').text().toLowerCase();
-                const organization = $row.find('td:nth-child(2)').text();
-                const role = $row.find('td:nth-child(3)').text();
-                const status = $row.find('td:nth-child(4) .rounded-full').text();
-
-                const matchesSearch = fullName.includes(searchTerm) || email.includes(searchTerm);
-                const matchesOrganization = !organizationFilter || organization === organizationFilter;
-                const matchesRole = !roleFilter || role === roleFilter;
-                const matchesStatus = !statusFilter || 
-                    (statusFilter === 'true' && status === '啟用') ||
-                    (statusFilter === 'false' && status === '停用');
-
-                if (matchesSearch && matchesOrganization && matchesRole && matchesStatus) {
-                    $row.show();
-                } else {
-                    $row.hide();
+        function initializeDataTable() {
+            usersTable = $('#usersTable').DataTable({
+                language: {
+                    url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/zh-HANT.json'
+                },
+                pageLength: 25,
+                lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
+                order: [[5, 'desc']],
+                columnDefs: [
+                    { orderable: false, targets: [6] }
+                ],
+                dom: 'rt<"flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-4"<"text-sm text-slate-600"i><"flex items-center gap-2"p>>',
+                initComplete: function() {
+                    $('.dataTables_filter').hide();
+                    $('.dataTables_length').hide();
+                    
+                    // 美化資訊顯示樣式
+                    $('.dataTables_info').addClass('px-3 py-1 text-sm text-slate-600');
+                    
+                    // 美化分頁樣式
+                    $('.dataTables_paginate').addClass('flex items-center space-x-1');
+                    $('.dataTables_paginate .paginate_button').addClass('px-3 py-1 text-sm border border-slate-300 rounded-md hover:bg-slate-50 transition-colors');
+                    $('.dataTables_paginate .paginate_button.current').addClass('bg-blue-600 text-white border-blue-600 hover:bg-blue-700');
+                    $('.dataTables_paginate .paginate_button.disabled').addClass('opacity-50 cursor-not-allowed hover:bg-transparent');
                 }
             });
         }
 
+        function applyFilters() {
+            const organizationFilter = $('#organizationFilter').val();
+            const roleFilter = $('#roleFilter').val();
+            const statusFilter = $('#statusFilter').val();
+
+            $.fn.dataTable.ext.search.pop();
+
+            if (organizationFilter || roleFilter || statusFilter) {
+                $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+                    const organization = data[1];
+                    const role = data[2];
+                    const status = data[3];
+
+                    const matchesOrganization = !organizationFilter || organization.includes(organizationFilter);
+                    const matchesRole = !roleFilter || role.includes(roleFilter);
+                    const matchesStatus = !statusFilter || 
+                        (statusFilter === 'true' && status.includes('啟用')) ||
+                        (statusFilter === 'false' && status.includes('停用'));
+
+                    return matchesOrganization && matchesRole && matchesStatus;
+                });
+            }
+
+            usersTable.draw();
+        }
+
         function showUserDetails(userId) {
-            showUserDetail(userId);
+            loadAndShowModal('user', userId, 'userDetailModal');
         }
 
         function showUserAdd() {
+            loadAndShowModal('user', null, 'userFormModal');
+        }
+
+        function showUserEdit(userId) {
+            loadAndShowModal('user', userId, 'userFormModal');
+        }
+
+        function loadAndShowModal(type, id, modalId) {
             $.ajax({
-                url: '@Url.Action("LoadForm", "PermissionManagement")',
+                url: '@Url.Action("LoadDetail", "PermissionManagement")',
                 type: 'GET',
-                data: { type: 'user', formAction: 'add' },
+                data: { type: type, id: id },
                 success: function(response) {
                     $('#userModal').html(response);
                     lucide.createIcons();
-                    $('#userModal').removeClass('hidden');
+                    $('#' + modalId).removeClass('hidden');
                 },
                 error: function(xhr, status, error) {
-                    console.error('AJAX 錯誤:', error);
-                    console.error('狀態:', status);
-                    console.error('回應:', xhr.responseText);
                     $('#userModal').html(`
                         <div class="text-center py-4">
                             <i data-lucide="alert-circle" class="w-12 h-12 text-red-500 mx-auto mb-3"></i>
                             <p class="text-red-600">載入失敗，請稍後再試</p>
                             <p class="text-red-500 text-sm">錯誤: ${error}</p>
-                        </div>
-                    `);
-                    lucide.createIcons();
-                    $('#userModal').removeClass('hidden');
-                }
-            });
-        }
-
-        function showUserDetail(userId) {
-            $.ajax({
-                url: '@Url.Action("LoadUserDetails", "PermissionManagement")',
-                type: 'GET',
-                data: { id: userId },
-                success: function(response) {
-                    $('#userModal').html(response);
-                    lucide.createIcons();
-                    $('#userModal').removeClass('hidden');
-                    $('#userModal').data('user-id', userId);
-                },
-                error: function() {
-                    $('#userModal').html(`
-                        <div class="text-center py-4">
-                            <i data-lucide="alert-circle" class="w-12 h-12 text-red-500 mx-auto mb-3"></i>
-                            <p class="text-red-600">載入失敗，請稍後再試</p>
-                        </div>
-                    `);
-                    lucide.createIcons();
-                    $('#userModal').removeClass('hidden');
-                }
-            });
-        }
-
-        function showUserEdit(userId) {
-            $.ajax({
-                url: '@Url.Action("LoadForm", "PermissionManagement")',
-                type: 'GET',
-                data: { type: 'user', formAction: 'edit', id: userId },
-                success: function(response) {
-                    $('#userModal').html(response);
-                    lucide.createIcons();
-                    $('#userModal').removeClass('hidden');
-                },
-                error: function() {
-                    $('#userModal').html(`
-                        <div class="text-center py-4">
-                            <i data-lucide="alert-circle" class="w-12 h-12 text-red-500 mx-auto mb-3"></i>
-                            <p class="text-red-600">載入失敗，請稍後再試</p>
                         </div>
                     `);
                     lucide.createIcons();
@@ -261,7 +262,6 @@
             });
         }
 
-        // 模態框關閉事件（動態綁定）
         $(document).on('click', '[data-modal-close]', function() {
             $('#userModal').addClass('hidden');
         });

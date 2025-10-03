@@ -207,7 +207,6 @@ public class HardwareMonitoringService(IServiceProvider serviceProvider, ILogger
     {
         try
         {
-            // 取得或建立記憶體資訊記錄
             var memoryInfo = dbContext.memory_infos.FirstOrDefault(m => m.system_config_id == systemConfigId);
             if (memoryInfo == null)
             {
