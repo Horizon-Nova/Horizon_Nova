@@ -3,7 +3,6 @@
     Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
 }
 
-@model IEnumerable<Models.HnbHnbBackoffice.vw_permission_organization>
 
 <section class="space-y-6">
     <header>
@@ -112,7 +111,7 @@
 @section Scripts {
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script>
-        let chartData = @Html.Raw(Json.Serialize(Model));
+        let chartData = @Html.Raw(Json.Serialize(ViewBag.Organizations));
         let svg, g, zoom;
         let expandedNodes = new Set();
 

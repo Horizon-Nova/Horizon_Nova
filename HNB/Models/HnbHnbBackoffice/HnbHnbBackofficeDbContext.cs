@@ -11,19 +11,13 @@ public partial class HnbHnbBackofficeDbContext : DbContext
     {
     }
 
-    public virtual DbSet<cpu_info> cpu_infos { get; set; }
-
-    public virtual DbSet<gpu_info> gpu_infos { get; set; }
-
-    public virtual DbSet<memory_info> memory_infos { get; set; }
+    public virtual DbSet<hardware_monitoring> hardware_monitorings { get; set; }
 
     public virtual DbSet<permission_management> permission_managements { get; set; }
 
     public virtual DbSet<security_ip_key> security_ip_keys { get; set; }
 
     public virtual DbSet<sidebar_navigation> sidebar_navigations { get; set; }
-
-    public virtual DbSet<system_config> system_configs { get; set; }
 
     public virtual DbSet<vw_hardware_monitoring> vw_hardware_monitorings { get; set; }
 
@@ -39,81 +33,85 @@ public partial class HnbHnbBackofficeDbContext : DbContext
     {
         modelBuilder.HasPostgresExtension("dbo", "pgcrypto");
 
-        modelBuilder.Entity<cpu_info>(entity =>
+        modelBuilder.Entity<hardware_monitoring>(entity =>
         {
-            entity.HasKey(e => e.id).HasName("cpu_info_pkey");
+            entity.HasKey(e => e.id).HasName("hardware_monitoring_pkey");
 
-            entity.ToTable("cpu_info", "dbo", tb => tb.HasComment("CPU硬體資訊表 - 儲存CPU詳細規格、溫度、使用率、健康度等資訊"));
+            entity.ToTable("hardware_monitoring", "dbo", tb => tb.HasComment("硬體監控資料表 - 統一儲存伺服器硬體監控資訊"));
 
-            entity.Property(e => e.architecture).HasComment("CPU架構");
-            entity.Property(e => e.base_clock).HasComment("CPU基礎時脈(GHz)");
-            entity.Property(e => e.boost_clock).HasComment("CPU加速時脈(GHz)");
-            entity.Property(e => e.cache).HasComment("CPU快取大小");
-            entity.Property(e => e.cores).HasComment("CPU核心數");
-            entity.Property(e => e.created_at).HasDefaultValueSql("CURRENT_TIMESTAMP");
-            entity.Property(e => e.current_power_consumption).HasComment("CPU目前功耗(W)");
-            entity.Property(e => e.current_temperature).HasComment("CPU目前溫度(°C)");
-            entity.Property(e => e.current_usage).HasComment("CPU目前使用率(%)");
-            entity.Property(e => e.health_percentage).HasComment("CPU健康度百分比");
-            entity.Property(e => e.health_status).HasComment("CPU健康狀態");
-            entity.Property(e => e.manufacturer).HasComment("CPU製造商");
-            entity.Property(e => e.max_temperature).HasComment("CPU最高溫度(°C)");
-            entity.Property(e => e.model).HasComment("CPU型號");
-            entity.Property(e => e.socket).HasComment("CPU插槽類型");
-            entity.Property(e => e.tdp).HasComment("CPU熱設計功耗(W)");
-            entity.Property(e => e.threads).HasComment("CPU執行緒數");
-            entity.Property(e => e.updated_at).HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-            entity.HasOne(d => d.system_config).WithMany(p => p.cpu_infos).HasConstraintName("cpu_info_system_config_id_fkey");
-        });
-
-        modelBuilder.Entity<gpu_info>(entity =>
-        {
-            entity.HasKey(e => e.id).HasName("gpu_info_pkey");
-
-            entity.ToTable("gpu_info", "dbo", tb => tb.HasComment("GPU硬體資訊表 - 儲存GPU詳細規格、溫度、使用率、健康度等資訊"));
-
-            entity.Property(e => e.base_clock).HasComment("GPU基礎時脈(MHz)");
-            entity.Property(e => e.boost_clock).HasComment("GPU加速時脈(MHz)");
-            entity.Property(e => e.created_at).HasDefaultValueSql("CURRENT_TIMESTAMP");
-            entity.Property(e => e.cuda_cores).HasComment("GPU CUDA核心數");
-            entity.Property(e => e.current_power_consumption).HasComment("GPU目前功耗(W)");
-            entity.Property(e => e.current_temperature).HasComment("GPU目前溫度(°C)");
-            entity.Property(e => e.current_usage).HasComment("GPU目前使用率(%)");
-            entity.Property(e => e.driver_version).HasComment("GPU驅動程式版本");
-            entity.Property(e => e.health_percentage).HasComment("GPU健康度百分比");
-            entity.Property(e => e.health_status).HasComment("GPU健康狀態");
-            entity.Property(e => e.manufacturer).HasComment("GPU製造商");
-            entity.Property(e => e.max_temperature).HasComment("GPU最高溫度(°C)");
-            entity.Property(e => e.memory_clock).HasComment("GPU記憶體時脈(MHz)");
-            entity.Property(e => e.memory_size).HasComment("GPU記憶體大小");
-            entity.Property(e => e.memory_type).HasComment("GPU記憶體類型");
-            entity.Property(e => e.model).HasComment("GPU型號");
-            entity.Property(e => e.updated_at).HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-            entity.HasOne(d => d.system_config).WithMany(p => p.gpu_infos).HasConstraintName("gpu_info_system_config_id_fkey");
-        });
-
-        modelBuilder.Entity<memory_info>(entity =>
-        {
-            entity.HasKey(e => e.id).HasName("memory_info_pkey");
-
-            entity.ToTable("memory_info", "dbo", tb => tb.HasComment("記憶體硬體資訊表 - 儲存記憶體容量、速度、使用率、健康度等資訊"));
-
-            entity.Property(e => e.available_memory_gb).HasComment("可用記憶體(GB)");
-            entity.Property(e => e.channels).HasComment("記憶體通道數");
-            entity.Property(e => e.created_at).HasDefaultValueSql("CURRENT_TIMESTAMP");
-            entity.Property(e => e.current_usage).HasComment("記憶體目前使用率(%)");
-            entity.Property(e => e.health_percentage).HasComment("記憶體健康度百分比");
-            entity.Property(e => e.health_status).HasComment("記憶體健康狀態");
-            entity.Property(e => e.memory_type).HasComment("記憶體類型");
-            entity.Property(e => e.speed).HasComment("記憶體速度");
-            entity.Property(e => e.total_capacity).HasComment("記憶體總容量");
-            entity.Property(e => e.total_capacity_gb).HasComment("記憶體總容量(GB)");
-            entity.Property(e => e.updated_at).HasDefaultValueSql("CURRENT_TIMESTAMP");
-            entity.Property(e => e.used_memory_gb).HasComment("已使用記憶體(GB)");
-
-            entity.HasOne(d => d.system_config).WithMany(p => p.memory_infos).HasConstraintName("memory_info_system_config_id_fkey");
+            entity.Property(e => e.id).HasComment("主鍵ID");
+            entity.Property(e => e.battery_level).HasComment("電池電量 (%)");
+            entity.Property(e => e.check_interval).HasComment("檢查間隔 (秒)");
+            entity.Property(e => e.check_method).HasComment("檢查方式 (agent/api/snmp)");
+            entity.Property(e => e.cpu_base_clocks).HasComment("CPU基礎時脈陣列 (GHz)");
+            entity.Property(e => e.cpu_boost_clocks).HasComment("CPU加速時脈陣列 (GHz)");
+            entity.Property(e => e.cpu_cores).HasComment("CPU核心數陣列");
+            entity.Property(e => e.cpu_health_percentages).HasComment("CPU健康百分比陣列");
+            entity.Property(e => e.cpu_health_statuses).HasComment("CPU健康狀態陣列");
+            entity.Property(e => e.cpu_manufacturers).HasComment("CPU製造商陣列");
+            entity.Property(e => e.cpu_models).HasComment("CPU型號陣列");
+            entity.Property(e => e.cpu_names).HasComment("CPU名稱陣列");
+            entity.Property(e => e.cpu_temperatures).HasComment("CPU溫度陣列 (°C)");
+            entity.Property(e => e.cpu_threads).HasComment("CPU執行緒數陣列");
+            entity.Property(e => e.cpu_usages).HasComment("CPU使用率陣列 (%)");
+            entity.Property(e => e.created_at)
+                .HasDefaultValueSql("now()")
+                .HasComment("建立時間");
+            entity.Property(e => e.environment_type).HasComment("環境類型 (Production/Development/Test)");
+            entity.Property(e => e.gpu_health_percentages).HasComment("GPU健康百分比陣列");
+            entity.Property(e => e.gpu_health_statuses).HasComment("GPU健康狀態陣列");
+            entity.Property(e => e.gpu_manufacturers).HasComment("GPU製造商陣列");
+            entity.Property(e => e.gpu_memory_sizes).HasComment("GPU記憶體大小陣列");
+            entity.Property(e => e.gpu_models).HasComment("GPU型號陣列");
+            entity.Property(e => e.gpu_names).HasComment("GPU名稱陣列");
+            entity.Property(e => e.gpu_temperatures).HasComment("GPU溫度陣列 (°C)");
+            entity.Property(e => e.gpu_usages).HasComment("GPU使用率陣列 (%)");
+            entity.Property(e => e.host_name).HasComment("主機名稱");
+            entity.Property(e => e.is_active)
+                .HasDefaultValue(true)
+                .HasComment("是否啟用");
+            entity.Property(e => e.kernel_version).HasComment("核心版本");
+            entity.Property(e => e.last_check_time).HasComment("最後檢查時間");
+            entity.Property(e => e.memory_capacities).HasComment("記憶體容量陣列");
+            entity.Property(e => e.memory_health_percentages).HasComment("記憶體健康百分比陣列");
+            entity.Property(e => e.memory_health_statuses).HasComment("記憶體健康狀態陣列");
+            entity.Property(e => e.memory_names).HasComment("記憶體名稱陣列");
+            entity.Property(e => e.memory_speeds).HasComment("記憶體速度陣列");
+            entity.Property(e => e.memory_types).HasComment("記憶體類型陣列");
+            entity.Property(e => e.memory_usages).HasComment("記憶體使用率陣列 (%)");
+            entity.Property(e => e.network_interfaces).HasComment("網路介面名稱陣列");
+            entity.Property(e => e.network_rx_bytes).HasComment("接收位元組數陣列");
+            entity.Property(e => e.network_speeds).HasComment("網路速度陣列");
+            entity.Property(e => e.network_statuses).HasComment("網路狀態陣列");
+            entity.Property(e => e.network_tx_bytes).HasComment("傳輸位元組數陣列");
+            entity.Property(e => e.network_types).HasComment("網路類型陣列");
+            entity.Property(e => e.operating_system).HasComment("作業系統");
+            entity.Property(e => e.power_efficiency).HasComment("電源效率");
+            entity.Property(e => e.power_supply_info).HasComment("電源供應器資訊");
+            entity.Property(e => e.server_ip).HasComment("伺服器IP位址");
+            entity.Property(e => e.server_location).HasComment("伺服器位置");
+            entity.Property(e => e.server_provider).HasComment("伺服器提供商");
+            entity.Property(e => e.storage_capacities).HasComment("儲存容量陣列");
+            entity.Property(e => e.storage_interfaces).HasComment("儲存介面陣列");
+            entity.Property(e => e.storage_names).HasComment("儲存裝置名稱陣列");
+            entity.Property(e => e.storage_read_speeds).HasComment("讀取速度陣列 (MB/s)");
+            entity.Property(e => e.storage_types).HasComment("儲存類型陣列");
+            entity.Property(e => e.storage_write_speeds).HasComment("寫入速度陣列 (MB/s)");
+            entity.Property(e => e.system_disk_free).HasComment("系統可用磁碟空間 (bytes)");
+            entity.Property(e => e.system_disk_total).HasComment("系統總磁碟空間 (bytes)");
+            entity.Property(e => e.system_disk_used).HasComment("系統已用磁碟空間 (bytes)");
+            entity.Property(e => e.system_load_avg).HasComment("系統負載平均值陣列");
+            entity.Property(e => e.system_memory_free).HasComment("系統可用記憶體 (bytes)");
+            entity.Property(e => e.system_memory_total).HasComment("系統總記憶體 (bytes)");
+            entity.Property(e => e.system_memory_used).HasComment("系統已用記憶體 (bytes)");
+            entity.Property(e => e.system_processes).HasComment("系統程序數");
+            entity.Property(e => e.system_swap_total).HasComment("系統總交換空間 (bytes)");
+            entity.Property(e => e.system_swap_used).HasComment("系統已用交換空間 (bytes)");
+            entity.Property(e => e.system_users).HasComment("系統使用者數");
+            entity.Property(e => e.updated_at)
+                .HasDefaultValueSql("now()")
+                .HasComment("更新時間");
+            entity.Property(e => e.uptime).HasComment("系統運行時間");
         });
 
         modelBuilder.Entity<permission_management>(entity =>
@@ -286,28 +284,63 @@ public partial class HnbHnbBackofficeDbContext : DbContext
                 .HasConstraintName("fk_sidebar_navigation_parent");
         });
 
-        modelBuilder.Entity<system_config>(entity =>
-        {
-            entity.HasKey(e => e.id).HasName("system_config_pkey");
-
-            entity.Property(e => e.created_at).HasDefaultValueSql("CURRENT_TIMESTAMP");
-            entity.Property(e => e.debug_mode).HasDefaultValue(false);
-            entity.Property(e => e.last_activity_description).HasComment("最近活動的詳細描述");
-            entity.Property(e => e.last_activity_timestamp).HasComment("最近活動發生的時間戳記");
-            entity.Property(e => e.last_activity_type).HasComment("最近活動類型（如：系統啟動、快取更新、維護等）");
-            entity.Property(e => e.maintenance_mode).HasDefaultValue(false);
-            entity.Property(e => e.recent_activities).HasComment("最近活動列表（JSON格式，包含多個活動記錄）");
-            entity.Property(e => e.updated_at).HasDefaultValueSql("CURRENT_TIMESTAMP");
-        });
-
         modelBuilder.Entity<vw_hardware_monitoring>(entity =>
         {
             entity.ToView("vw_hardware_monitoring", "dbo");
 
-            entity.Property(e => e.last_activity_description).HasComment("最近活動描述");
-            entity.Property(e => e.last_activity_timestamp).HasComment("最近活動時間");
-            entity.Property(e => e.last_activity_type).HasComment("最近活動類型");
-            entity.Property(e => e.recent_activities).HasComment("最近活動列表（JSON格式）");
+            entity.Property(e => e.battery_level).HasComment("電池電量 (%)");
+            entity.Property(e => e.check_interval).HasComment("檢查間隔 (秒)");
+            entity.Property(e => e.check_method).HasComment("檢查方式");
+            entity.Property(e => e.cpu_base_clock).HasComment("CPU基礎時脈 (GHz)");
+            entity.Property(e => e.cpu_boost_clock).HasComment("CPU加速時脈 (GHz)");
+            entity.Property(e => e.cpu_cores).HasComment("CPU核心數");
+            entity.Property(e => e.cpu_health_percentage).HasComment("CPU健康百分比");
+            entity.Property(e => e.cpu_health_status).HasComment("CPU健康狀態");
+            entity.Property(e => e.cpu_manufacturer).HasComment("CPU製造商");
+            entity.Property(e => e.cpu_model).HasComment("CPU型號");
+            entity.Property(e => e.cpu_name).HasComment("CPU名稱");
+            entity.Property(e => e.cpu_temperature).HasComment("CPU溫度 (°C)");
+            entity.Property(e => e.cpu_threads).HasComment("CPU執行緒數");
+            entity.Property(e => e.cpu_usage_percent).HasComment("CPU使用率 (%)");
+            entity.Property(e => e.created_at).HasComment("建立時間");
+            entity.Property(e => e.environment_type).HasComment("環境類型");
+            entity.Property(e => e.gpu_health_percentage).HasComment("GPU健康百分比");
+            entity.Property(e => e.gpu_health_status).HasComment("GPU健康狀態");
+            entity.Property(e => e.gpu_manufacturer).HasComment("GPU製造商");
+            entity.Property(e => e.gpu_memory_size).HasComment("GPU記憶體大小");
+            entity.Property(e => e.gpu_model).HasComment("GPU型號");
+            entity.Property(e => e.gpu_name).HasComment("GPU名稱");
+            entity.Property(e => e.gpu_temperature).HasComment("GPU溫度 (°C)");
+            entity.Property(e => e.gpu_usage_percent).HasComment("GPU使用率 (%)");
+            entity.Property(e => e.host_name).HasComment("主機名稱");
+            entity.Property(e => e.id).HasComment("主鍵ID");
+            entity.Property(e => e.is_active).HasComment("是否啟用");
+            entity.Property(e => e.kernel_version).HasComment("核心版本");
+            entity.Property(e => e.last_check_time).HasComment("最後檢查時間");
+            entity.Property(e => e.memory_available_gb).HasComment("記憶體可用 (GB)");
+            entity.Property(e => e.memory_health_percentage).HasComment("記憶體健康百分比");
+            entity.Property(e => e.memory_health_status).HasComment("記憶體健康狀態");
+            entity.Property(e => e.memory_name).HasComment("記憶體名稱");
+            entity.Property(e => e.memory_speed).HasComment("記憶體速度");
+            entity.Property(e => e.memory_total_capacity).HasComment("記憶體總容量");
+            entity.Property(e => e.memory_total_capacity_gb).HasComment("記憶體總容量 (GB)");
+            entity.Property(e => e.memory_type).HasComment("記憶體類型");
+            entity.Property(e => e.memory_usage_percent).HasComment("記憶體使用率 (%)");
+            entity.Property(e => e.memory_used_gb).HasComment("記憶體已使用 (GB)");
+            entity.Property(e => e.operating_system).HasComment("作業系統");
+            entity.Property(e => e.power_efficiency).HasComment("電源效率");
+            entity.Property(e => e.power_supply_info).HasComment("電源供應器資訊");
+            entity.Property(e => e.server_ip).HasComment("伺服器IP位址");
+            entity.Property(e => e.server_location).HasComment("伺服器位置");
+            entity.Property(e => e.server_provider).HasComment("伺服器提供商");
+            entity.Property(e => e.system_load_avg).HasComment("系統負載平均值");
+            entity.Property(e => e.system_memory_free).HasComment("系統可用記憶體 (bytes)");
+            entity.Property(e => e.system_memory_total).HasComment("系統總記憶體 (bytes)");
+            entity.Property(e => e.system_memory_used).HasComment("系統已用記憶體 (bytes)");
+            entity.Property(e => e.system_processes).HasComment("系統程序數");
+            entity.Property(e => e.system_users).HasComment("系統使用者數");
+            entity.Property(e => e.updated_at).HasComment("更新時間");
+            entity.Property(e => e.uptime).HasComment("系統運行時間");
         });
 
         modelBuilder.Entity<vw_permission_organization>(entity =>

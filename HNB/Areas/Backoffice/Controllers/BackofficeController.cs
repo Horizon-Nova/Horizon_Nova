@@ -14,20 +14,15 @@ public class BackofficeController(SidebarNavigationService sidebarService, Permi
     {
         SetActiveNavigation("/Backoffice/Backoffice/Profile");
         
-        // 取得當前使用者資訊
         var userName = User.Identity?.Name;
         if (string.IsNullOrEmpty(userName))
-        {
             return RedirectToAction("Login", "Authorize");
-        }
 
-        // 從資料庫取得使用者詳細資料
         var users = permissionService.LoadUsers();
         var currentUser = users.FirstOrDefault(u => u.username == userName);
         
         if (currentUser == null)
         {
-            // 如果找不到使用者，建立一個基本的使用者物件
             currentUser = new vw_permission_user
             {
                 username = userName,
@@ -44,25 +39,22 @@ public class BackofficeController(SidebarNavigationService sidebarService, Permi
     /// </summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult UpdateProfile(IFormCollection form)
+    public IActionResult UpdateProfile(permission_management form)
     {
         try
         {
             var userName = User.Identity?.Name;
             if (string.IsNullOrEmpty(userName))
-            {
                 return Json(new { success = false, message = "使用者未登入" });
-            }
 
             var users = permissionService.LoadUsers();
             var currentUser = users.FirstOrDefault(u => u.username == userName);
             
             if (currentUser?.id == null)
-            {
                 return Json(new { success = false, message = "找不到使用者資料" });
-            }
 
-            var result = permissionService.SaveUser(form);
+            form.id = currentUser.id.Value;
+            var result = permissionService.CreateUser(form);
             
             return Json(new { success = result.success, message = result.message });
         }
@@ -82,36 +74,27 @@ public class BackofficeController(SidebarNavigationService sidebarService, Permi
         try
         {
             if (string.IsNullOrEmpty(newPassword) || newPassword != confirmPassword)
-            {
                 return Json(new { success = false, message = "新密碼與確認密碼不符" });
-            }
 
             var userName = User.Identity?.Name;
             if (string.IsNullOrEmpty(userName))
-            {
                 return Json(new { success = false, message = "使用者未登入" });
-            }
 
-            // 這裡可以添加密碼驗證邏輯
             // TODO: 驗證當前密碼是否正確
 
-            // 取得使用者ID並更新密碼
             var users = permissionService.LoadUsers();
             var currentUser = users.FirstOrDefault(u => u.username == userName);
             
             if (currentUser?.id == null)
-            {
                 return Json(new { success = false, message = "找不到使用者資料" });
-            }
 
-            // 建立表單資料來更新密碼
-            var formData = new FormCollection(new Dictionary<string, Microsoft.Extensions.Primitives.StringValues>
+            var form = new permission_management
             {
-                ["id"] = currentUser.id.ToString(),
-                ["password"] = newPassword
-            });
+                id = currentUser.id.Value,
+                password_hash = newPassword
+            };
 
-            var result = permissionService.SaveUser(formData);
+            var result = permissionService.CreateUser(form);
             
             return Json(new { success = result.success, message = result.success ? "密碼更新成功" : result.message });
         }

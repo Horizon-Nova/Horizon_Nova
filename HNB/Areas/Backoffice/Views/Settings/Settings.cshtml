@@ -1,4 +1,3 @@
-@model Models.HnbHnbBackoffice.vw_hardware_monitoring
 @{
     ViewData["Title"] = "系統管理 - 後台管理系統";
     ViewData["PageTitle"] = "系統管理";
@@ -17,16 +16,16 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600">系統狀態</p>
-                    <p class="text-2xl font-bold @(Model?.system_status == "運行中" ? "text-green-600" : "text-red-600")">@(Model?.system_status ?? "未知")</p>
+                    <p class="text-2xl font-bold @(ViewBag.HardwareInfo?.is_active == true ? "text-green-600" : "text-red-600")">@(ViewBag.HardwareInfo?.is_active == true ? "運行中" : "停止")</p>
                 </div>
-                <i data-lucide="activity" class="h-8 w-8 @(Model?.system_status == "運行中" ? "text-green-500" : "text-red-500")"></i>
+                <i data-lucide="activity" class="h-8 w-8 @(ViewBag.HardwareInfo?.is_active == true ? "text-green-500" : "text-red-500")"></i>
             </div>
         </div>
         <div class="bg-white border rounded-lg p-4">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600">CPU 使用率</p>
-                    <p class="text-2xl font-bold">@(Model?.cpu_usage_percent?.ToString("F1") ?? "--")%</p>
+                    <p class="text-2xl font-bold">@(ViewBag.HardwareInfo?.cpu_usage_percent?.ToString("F1") ?? "--")%</p>
                 </div>
                 <i data-lucide="cpu" class="h-8 w-8 text-blue-500"></i>
             </div>
@@ -35,7 +34,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600">記憶體使用率</p>
-                    <p class="text-2xl font-bold">@(Model?.memory_usage_percent?.ToString("F1") ?? "--")%</p>
+                    <p class="text-2xl font-bold">@(ViewBag.HardwareInfo?.memory_usage_percent?.ToString("F1") ?? "--")%</p>
                 </div>
                 <i data-lucide="memory-stick" class="h-8 w-8 text-purple-500"></i>
             </div>
@@ -44,7 +43,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600">GPU 使用率</p>
-                    <p class="text-2xl font-bold">@(Model?.gpu_usage_percent?.ToString("F1") ?? "--")%</p>
+                    <p class="text-2xl font-bold">@(ViewBag.HardwareInfo?.gpu_usage_percent?.ToString("F1") ?? "--")%</p>
                 </div>
                 <i data-lucide="monitor" class="h-8 w-8 text-orange-500"></i>
             </div>
@@ -243,20 +242,20 @@
              最近活動
          </h3>
          <div class="space-y-3">
-             @if (!string.IsNullOrEmpty(Model?.last_activity_type))
+             @if (!string.IsNullOrEmpty("硬體監控檢查"))
              {
                  <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                     <div class="p-2 @(Model.last_activity_type == "系統啟動" ? "bg-green-100" : Model.last_activity_type == "快取更新" ? "bg-blue-100" : "bg-yellow-100") rounded-lg">
-                         <i data-lucide="@(Model.last_activity_type == "系統啟動" ? "check-circle" : Model.last_activity_type == "快取更新" ? "refresh-cw" : "alert-triangle")" class="h-4 w-4 @(Model.last_activity_type == "系統啟動" ? "text-green-600" : Model.last_activity_type == "快取更新" ? "text-blue-600" : "text-yellow-600")"></i>
+                     <div class="p-2 @("硬體監控檢查" == "系統啟動" ? "bg-green-100" : "硬體監控檢查" == "快取更新" ? "bg-blue-100" : "bg-yellow-100") rounded-lg">
+                         <i data-lucide="@("硬體監控檢查" == "系統啟動" ? "check-circle" : "硬體監控檢查" == "快取更新" ? "refresh-cw" : "alert-triangle")" class="h-4 w-4 @("硬體監控檢查" == "系統啟動" ? "text-green-600" : "硬體監控檢查" == "快取更新" ? "text-blue-600" : "text-yellow-600")"></i>
                      </div>
                      <div class="flex-1">
-                         <p class="text-sm font-medium">@Model.last_activity_type</p>
-                         <p class="text-xs text-gray-500">@(Model.last_activity_description ?? "無詳細描述")</p>
+                         <p class="text-sm font-medium">硬體監控檢查</p>
+                         <p class="text-xs text-gray-500">系統硬體狀態檢查</p>
                      </div>
                      <span class="text-xs text-gray-400">
-                         @if (Model.last_activity_timestamp.HasValue)
+                         @if (ViewBag.HardwareInfo?.last_check_time != null)
                          {
-                             var timeDiff = DateTime.Now - Model.last_activity_timestamp.Value;
+                             var timeDiff = DateTime.Now - ViewBag.HardwareInfo.last_check_time;
                              if (timeDiff.TotalMinutes < 1)
                              {
                                  <text>剛剛</text>
@@ -296,7 +295,7 @@
              }
              
              @* 如果有 recent_activities JSON 資料，可以在這裡解析並顯示 *@
-             @if (!string.IsNullOrEmpty(Model?.recent_activities))
+             @if (!string.IsNullOrEmpty(""))
              {
                  <div class="text-xs text-gray-500 mt-2">
                      <i data-lucide="info" class="h-3 w-3 inline mr-1"></i>
@@ -347,23 +346,23 @@
                  <div class="space-y-2">
                      <div class="flex justify-between items-center py-1">
                          <span class="text-sm text-gray-600">型號</span>
-                         <span class="text-sm font-medium">@(Model?.cpu_model ?? "未知")</span>
+                         <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.cpu_model ?? "未知")</span>
                      </div>
                      <div class="flex justify-between items-center py-1">
                          <span class="text-sm text-gray-600">核心數</span>
-                         <span class="text-sm font-medium">@(Model?.cpu_cores ?? 0) 核心 @(Model?.cpu_threads ?? 0) 執行緒</span>
+                         <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.cpu_cores ?? 0) 核心 @(ViewBag.HardwareInfo?.cpu_threads ?? 0) 執行緒</span>
                      </div>
                      <div class="flex justify-between items-center py-1">
                          <span class="text-sm text-gray-600">時脈</span>
-                         <span class="text-sm font-medium">@(Model?.cpu_base_clock?.ToString("F1") ?? "--") - @(Model?.cpu_boost_clock?.ToString("F1") ?? "--") GHz</span>
+                         <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.cpu_base_clock?.ToString("F1") ?? "--") - @(ViewBag.HardwareInfo?.cpu_boost_clock?.ToString("F1") ?? "--") GHz</span>
                      </div>
                      <div class="flex justify-between items-center py-1">
                          <span class="text-sm text-gray-600">溫度</span>
-                         <span class="text-sm font-medium @(Model?.cpu_temperature > 80 ? "text-red-600" : Model?.cpu_temperature > 60 ? "text-yellow-600" : "text-green-600")">@(Model?.cpu_temperature ?? 0)°C</span>
+                         <span class="text-sm font-medium @(ViewBag.HardwareInfo?.cpu_temperature > 80 ? "text-red-600" : ViewBag.HardwareInfo?.cpu_temperature > 60 ? "text-yellow-600" : "text-green-600")">@(ViewBag.HardwareInfo?.cpu_temperature ?? 0)°C</span>
                      </div>
                      <div class="flex justify-between items-center py-1">
                          <span class="text-sm text-gray-600">健康度</span>
-                         <span class="text-sm font-medium @(Model?.cpu_health_percentage < 80 ? "text-red-600" : Model?.cpu_health_percentage < 90 ? "text-yellow-600" : "text-green-600")">@(Model?.cpu_health_percentage ?? 0)%</span>
+                         <span class="text-sm font-medium @(ViewBag.HardwareInfo?.cpu_health_percentage < 80 ? "text-red-600" : ViewBag.HardwareInfo?.cpu_health_percentage < 90 ? "text-yellow-600" : "text-green-600")">@(ViewBag.HardwareInfo?.cpu_health_percentage ?? 0)%</span>
                      </div>
                  </div>
              </div>
@@ -377,23 +376,23 @@
                  <div class="space-y-2">
                      <div class="flex justify-between items-center py-1">
                          <span class="text-sm text-gray-600">型號</span>
-                         <span class="text-sm font-medium">@(Model?.gpu_model ?? "未知")</span>
+                         <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.gpu_model ?? "未知")</span>
                      </div>
                      <div class="flex justify-between items-center py-1">
                          <span class="text-sm text-gray-600">記憶體</span>
-                         <span class="text-sm font-medium">@(Model?.gpu_memory_size ?? "未知")</span>
+                         <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.gpu_memory_size ?? "未知")</span>
                      </div>
                      <div class="flex justify-between items-center py-1">
                          <span class="text-sm text-gray-600">時脈</span>
-                         <span class="text-sm font-medium">@(Model?.gpu_base_clock ?? 0) - @(Model?.gpu_boost_clock ?? 0) MHz</span>
+                         <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.cpu_base_clock ?? 0) - @(ViewBag.HardwareInfo?.cpu_boost_clock ?? 0) MHz</span>
                      </div>
                      <div class="flex justify-between items-center py-1">
                          <span class="text-sm text-gray-600">溫度</span>
-                         <span class="text-sm font-medium @(Model?.gpu_temperature > 80 ? "text-red-600" : Model?.gpu_temperature > 60 ? "text-yellow-600" : "text-green-600")">@(Model?.gpu_temperature ?? 0)°C</span>
+                         <span class="text-sm font-medium @(ViewBag.HardwareInfo?.gpu_temperature > 80 ? "text-red-600" : ViewBag.HardwareInfo?.gpu_temperature > 60 ? "text-yellow-600" : "text-green-600")">@(ViewBag.HardwareInfo?.gpu_temperature ?? 0)°C</span>
                      </div>
                      <div class="flex justify-between items-center py-1">
                          <span class="text-sm text-gray-600">健康度</span>
-                         <span class="text-sm font-medium @(Model?.gpu_health_percentage < 80 ? "text-red-600" : Model?.gpu_health_percentage < 90 ? "text-yellow-600" : "text-green-600")">@(Model?.gpu_health_percentage ?? 0)%</span>
+                         <span class="text-sm font-medium @(ViewBag.HardwareInfo?.gpu_health_percentage < 80 ? "text-red-600" : ViewBag.HardwareInfo?.gpu_health_percentage < 90 ? "text-yellow-600" : "text-green-600")">@(ViewBag.HardwareInfo?.gpu_health_percentage ?? 0)%</span>
                      </div>
                  </div>
              </div>
@@ -407,23 +406,23 @@
                  <div class="space-y-2">
                      <div class="flex justify-between items-center py-1">
                          <span class="text-sm text-gray-600">總容量</span>
-                         <span class="text-sm font-medium">@(Model?.memory_total_capacity ?? "未知")</span>
+                         <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.memory_total_capacity ?? "未知")</span>
                      </div>
                      <div class="flex justify-between items-center py-1">
                          <span class="text-sm text-gray-600">速度</span>
-                         <span class="text-sm font-medium">@(Model?.memory_speed ?? "未知")</span>
+                         <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.memory_speed ?? "未知")</span>
                      </div>
                      <div class="flex justify-between items-center py-1">
                          <span class="text-sm text-gray-600">通道數</span>
-                         <span class="text-sm font-medium">@(Model?.memory_channels ?? 0) 通道</span>
+                         <span class="text-sm font-medium">4 通道</span>
                      </div>
                      <div class="flex justify-between items-center py-1">
                          <span class="text-sm text-gray-600">已使用</span>
-                         <span class="text-sm font-medium">@(Model?.memory_used_gb?.ToString("F1") ?? "0") / @(Model?.memory_total_capacity_gb ?? 0) GB</span>
+                         <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.memory_used_gb?.ToString("F1") ?? "0") / @(ViewBag.HardwareInfo?.memory_total_capacity_gb ?? 0) GB</span>
                      </div>
                      <div class="flex justify-between items-center py-1">
                          <span class="text-sm text-gray-600">健康度</span>
-                         <span class="text-sm font-medium @(Model?.memory_health_percentage < 80 ? "text-red-600" : Model?.memory_health_percentage < 90 ? "text-yellow-600" : "text-green-600")">@(Model?.memory_health_percentage ?? 0)%</span>
+                         <span class="text-sm font-medium @(ViewBag.HardwareInfo?.memory_health_percentage < 80 ? "text-red-600" : ViewBag.HardwareInfo?.memory_health_percentage < 90 ? "text-yellow-600" : "text-green-600")">@(ViewBag.HardwareInfo?.memory_health_percentage ?? 0)%</span>
                      </div>
                  </div>
              </div>
@@ -437,23 +436,23 @@
                  <div class="space-y-2">
                      <div class="flex justify-between items-center py-1">
                          <span class="text-sm text-gray-600">主機名稱</span>
-                         <span class="text-sm font-medium">@(Model?.host_name ?? "未知")</span>
+                         <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.host_name ?? "未知")</span>
                      </div>
                      <div class="flex justify-between items-center py-1">
                          <span class="text-sm text-gray-600">作業系統</span>
-                         <span class="text-sm font-medium">@(Model?.operating_system ?? "未知")</span>
+                         <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.operating_system ?? "未知")</span>
                      </div>
                      <div class="flex justify-between items-center py-1">
                          <span class="text-sm text-gray-600">系統版本</span>
-                         <span class="text-sm font-medium">@(Model?.system_version ?? "未知")</span>
+                         <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.operating_system ?? "未知")</span>
                      </div>
                      <div class="flex justify-between items-center py-1">
                          <span class="text-sm text-gray-600">運行時間</span>
-                         <span class="text-sm font-medium">@(Model?.uptime ?? "未知")</span>
+                         <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.uptime ?? "未知")</span>
                      </div>
                      <div class="flex justify-between items-center py-1">
                          <span class="text-sm text-gray-600">電源狀態</span>
-                         <span class="text-sm font-medium @(Model?.power_status == "正常" ? "text-green-600" : "text-red-600")">@(Model?.power_status ?? "未知")</span>
+                         <span class="text-sm font-medium @(ViewBag.HardwareInfo?.power_efficiency == "正常" ? "text-green-600" : "text-red-600")">@(ViewBag.HardwareInfo?.power_efficiency ?? "未知")</span>
                      </div>
                  </div>
              </div>

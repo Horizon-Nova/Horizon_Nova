@@ -118,9 +118,9 @@ public class PermissionManagementRepository(HnbHnbBackofficeDbContext db)
 
     #region 基本 CRUD 操作
     /// <summary>
-    /// 儲存用戶資料（新增或更新）
+    /// 插入用戶資料（新增或更新）
     /// </summary>
-    public permission_management SaveUser(permission_management user)
+    public permission_management InsertUser(permission_management user)
     {
         var existingEntity = db.permission_managements.Find(user.id);
         if (existingEntity == null)
@@ -155,9 +155,9 @@ public class PermissionManagementRepository(HnbHnbBackofficeDbContext db)
     }
 
     /// <summary>
-    /// 儲存角色資料（新增或更新）
+    /// 插入角色資料（新增或更新）
     /// </summary>
-    public permission_management SaveRole(permission_management role)
+    public permission_management InsertRole(permission_management role)
     {
         var existingEntity = db.permission_managements.Find(role.id);
         if (existingEntity == null)
@@ -178,9 +178,9 @@ public class PermissionManagementRepository(HnbHnbBackofficeDbContext db)
     }
 
     /// <summary>
-    /// 儲存組織資料（新增或更新）
+    /// 插入組織資料（新增或更新）
     /// </summary>
-    public permission_management SaveOrganization(permission_management organization)
+    public permission_management InsertOrganization(permission_management organization)
     {
         var existingEntity = db.permission_managements.Find(organization.id);
         if (existingEntity == null)

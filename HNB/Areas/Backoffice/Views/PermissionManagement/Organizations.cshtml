@@ -6,7 +6,6 @@
     Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
 }
 
-@model IEnumerable<Models.HnbHnbBackoffice.vw_permission_organization>
 
 
 <section class="space-y-6">
@@ -60,7 +59,7 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-slate-200">
-                    @foreach (var org in Model)
+                    @foreach (var org in ViewBag.Organizations)
                     {
                         <tr class="organization-row hover:bg-slate-50 cursor-pointer" onclick="showOrganizationDetails(@org.id)">
                             <td class="px-6 py-4 whitespace-nowrap">
@@ -79,9 +78,10 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
                                 @{
                                     var parentName = "根組織";
-                                    if (org.parent_id.HasValue)
+                                    if (org.parent_id != null && org.parent_id > 0)
                                     {
-                                        var parentOrg = Model.Where(o => o.id == org.parent_id.Value).FirstOrDefault();
+                                        var organizations = ViewBag.Organizations as IEnumerable<Models.HnbHnbBackoffice.vw_permission_organization>;
+                                        var parentOrg = organizations?.Where(o => o.id == org.parent_id).FirstOrDefault();
                                         if (parentOrg != null)
                                         {
                                             parentName = parentOrg.name ?? "根組織";
@@ -215,7 +215,7 @@
             $.ajax({
                 url: '@Url.Action("LoadDetail", "PermissionManagement")',
                 type: 'GET',
-                data: { type: type, id: id },
+                data: { id: id },
                 success: function(response) {
                     $('#organizationModal').html(response);
                     lucide.createIcons();

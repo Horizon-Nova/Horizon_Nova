@@ -13,17 +13,10 @@ public class SettingsController(SettingsServices svc, SidebarNavigationService s
         // 設置當前頁面導航狀態
         SetActiveNavigation("/Backoffice/Settings/Settings");
         
-        var hardwareInfo = svc.FetchHardwareMonitoring();
-        var logStats = svc.FetchLogStatistics();
-        var cacheStats = svc.FetchCacheStatistics();
+        // 使用統一的 ViewBag 模型設置
+        svc.ViewBagModel(ViewBag);
         
-        ViewBag.ErrorLogsCount = logStats.errorLogs;
-        ViewBag.AccessLogsCount = logStats.accessLogs;
-        ViewBag.MemoryCacheSize = cacheStats.memoryCacheSize;
-        ViewBag.CacheEntries = cacheStats.cacheEntries;
-        ViewBag.LastCacheCleared = cacheStats.lastCleared;
-        
-        return View(hardwareInfo);
+        return View();
     }
 
     #region AJAX 端點
@@ -33,35 +26,15 @@ public class SettingsController(SettingsServices svc, SidebarNavigationService s
     [HttpPost]
     public IActionResult ClearLogs(string logType, bool is30Days = false)
     {
-        try
+        var (success, message) = logType.ToLower() switch
         {
-            bool success = false;
-            string message = "";
+            "error" => (svc.ClearErrorLogs(is30Days), svc.ClearErrorLogs(is30Days) ? $"錯誤日誌清理成功{(is30Days ? "（30天前）" : "（全部）")}" : "錯誤日誌清理失敗"),
+            "access" => (svc.ClearAccessLogs(is30Days), svc.ClearAccessLogs(is30Days) ? $"存取記錄清理成功{(is30Days ? "（30天前）" : "（全部）")}" : "存取記錄清理失敗"),
+            "system" => (svc.ClearAccessLogs(is30Days), svc.ClearAccessLogs(is30Days) ? $"系統日誌清理成功{(is30Days ? "（30天前）" : "（全部）")}" : "系統日誌清理失敗"),
+            _ => (false, "不支援的日誌類型")
+        };
 
-            switch (logType.ToLower())
-            {
-                case "error":
-                    success = svc.ClearErrorLogs(is30Days);
-                    message = success ? $"錯誤日誌清理成功{(is30Days ? "（30天前）" : "（全部）")}" : "錯誤日誌清理失敗";
-                    break;
-                case "access":
-                    success = svc.ClearAccessLogs(is30Days);
-                    message = success ? $"存取記錄清理成功{(is30Days ? "（30天前）" : "（全部）")}" : "存取記錄清理失敗";
-                    break;
-                case "system":
-                    success = svc.ClearAccessLogs(is30Days);
-                    message = success ? $"系統日誌清理成功{(is30Days ? "（30天前）" : "（全部）")}" : "系統日誌清理失敗";
-                    break;
-                default:
-                    return Json(new { success = false, message = "不支援的日誌類型" });
-            }
-
-            return Json(new { success, message });
-        }
-        catch (Exception ex)
-        {
-            return Json(new { success = false, message = $"清理失敗：{ex.Message}" });
-        }
+        return Json(new { success, message });
     }
 
     /// <summary>
@@ -70,30 +43,13 @@ public class SettingsController(SettingsServices svc, SidebarNavigationService s
     [HttpPost]
     public async Task<IActionResult> ClearCache(string cacheType, bool is30Days = false)
     {
-        try
+        var (success, message) = cacheType.ToLower() switch
         {
-            bool success = false;
-            string message = "";
+            "memory" or "database" or "file" or "all" => (await svc.ClearAllCacheAsync(), await svc.ClearAllCacheAsync() ? "快取清理成功" : "快取清理失敗"),
+            _ => (false, "不支援的快取類型")
+        };
 
-            switch (cacheType.ToLower())
-            {
-                case "memory":
-                case "database":
-                case "file":
-                case "all":
-                    success = await svc.ClearAllCacheAsync();
-                    message = success ? "快取清理成功" : "快取清理失敗";
-                    break;
-                default:
-                    return Json(new { success = false, message = "不支援的快取類型" });
-            }
-
-            return Json(new { success, message });
-        }
-        catch (Exception ex)
-        {
-            return Json(new { success = false, message = $"清理失敗：{ex.Message}" });
-        }
+        return Json(new { success, message });
     }
 
     /// <summary>
@@ -101,19 +57,12 @@ public class SettingsController(SettingsServices svc, SidebarNavigationService s
     /// </summary>
     public IActionResult RefreshLogStats()
     {
-        try
-        {
-            var logStats = svc.FetchLogStatistics();
-            return Json(new { 
-                success = true, 
-                errorLogs = logStats.errorLogs,
-                accessLogs = logStats.accessLogs
-            });
-        }
-        catch (Exception ex)
-        {
-            return Json(new { success = false, message = $"刷新失敗：{ex.Message}" });
-        }
+        var logStats = svc.FetchLogStatistics();
+        return Json(new { 
+            success = true, 
+            errorLogs = logStats.errorLogs,
+            accessLogs = logStats.accessLogs
+        });
     }
 
     /// <summary>
@@ -121,20 +70,13 @@ public class SettingsController(SettingsServices svc, SidebarNavigationService s
     /// </summary>
     public IActionResult RefreshCacheStats()
     {
-        try
-        {
-            var cacheStats = svc.FetchCacheStatistics();
-            return Json(new { 
-                success = true, 
-                memoryCacheSize = cacheStats.memoryCacheSize,
-                cacheEntries = cacheStats.cacheEntries,
-                lastCleared = cacheStats.lastCleared.ToString("yyyy-MM-dd HH:mm")
-            });
-        }
-        catch (Exception ex)
-        {
-            return Json(new { success = false, message = $"刷新失敗：{ex.Message}" });
-        }
+        var cacheStats = svc.FetchCacheStatistics();
+        return Json(new { 
+            success = true, 
+            memoryCacheSize = cacheStats.memoryCacheSize,
+            cacheEntries = cacheStats.cacheEntries,
+            lastCleared = cacheStats.lastCleared.ToString("yyyy-MM-dd HH:mm")
+        });
     }
 
     /// <summary>
@@ -143,36 +85,22 @@ public class SettingsController(SettingsServices svc, SidebarNavigationService s
     [HttpPost]
     public IActionResult ToggleMaintenanceMode(bool enabled)
     {
-        try
-        {
-            var success = svc.ToggleMaintenanceMode(enabled);
-            var message = success 
-                ? (enabled ? "維護模式已啟用" : "維護模式已停用")
-                : "切換維護模式失敗";
-            
-            return Json(new { success, message });
-        }
-        catch (Exception ex)
-        {
-            return Json(new { success = false, message = $"操作失敗：{ex.Message}" });
-        }
+        var success = svc.ToggleMaintenanceMode(enabled);
+        var message = success 
+            ? (enabled ? "維護模式已啟用" : "維護模式已停用")
+            : "切換維護模式失敗";
+        
+        return Json(new { success, message });
     }
 
     /// <summary>
-    /// 系統健康檢查
+    /// 系統健康檢查（直接調用資料庫資料）
     /// </summary>
     [HttpGet]
     public IActionResult SystemHealth()
     {
-        try
-        {
-            var healthInfo = svc.GetSystemHealth();
-            return Json(new { success = true, data = healthInfo });
-        }
-        catch (Exception ex)
-        {
-            return Json(new { success = false, message = $"健康檢查失敗：{ex.Message}" });
-        }
+        var healthInfo = svc.GetSystemHealth();
+        return Json(new { success = true, data = healthInfo });
     }
 
     /// <summary>
@@ -181,22 +109,15 @@ public class SettingsController(SettingsServices svc, SidebarNavigationService s
     [HttpGet]
     public IActionResult ExportLogs(string logType = "all")
     {
-        try
-        {
-            var logData = svc.ExportLogs(logType);
-            var fileName = $"logs_{logType}_{DateTime.Now:yyyyMMdd_HHmmss}.json";
-            
-            return Json(new { 
-                success = true, 
-                data = logData,
-                fileName = fileName,
-                message = "日誌匯出成功"
-            });
-        }
-        catch (Exception ex)
-        {
-            return Json(new { success = false, message = $"匯出失敗：{ex.Message}" });
-        }
+        var logData = svc.ExportLogs(logType);
+        var fileName = $"logs_{logType}_{DateTime.Now:yyyyMMdd_HHmmss}.json";
+        
+        return Json(new { 
+            success = true, 
+            data = logData,
+            fileName = fileName,
+            message = "日誌匯出成功"
+        });
     }
 
     /// <summary>
@@ -205,19 +126,12 @@ public class SettingsController(SettingsServices svc, SidebarNavigationService s
     [HttpPost]
     public IActionResult OptimizeDatabase()
     {
-        try
-        {
-            var result = svc.OptimizeDatabase();
-            return Json(new { 
-                success = result.success, 
-                message = result.message,
-                details = result.details
-            });
-        }
-        catch (Exception ex)
-        {
-            return Json(new { success = false, message = $"優化失敗：{ex.Message}" });
-        }
+        var result = svc.OptimizeDatabase();
+        return Json(new { 
+            success = result.success, 
+            message = result.message,
+            details = result.details
+        });
     }
 
     /// <summary>
@@ -226,18 +140,11 @@ public class SettingsController(SettingsServices svc, SidebarNavigationService s
     [HttpPost]
     public IActionResult RestartSystem()
     {
-        try
-        {
-            var result = svc.RestartSystem();
-            return Json(new { 
-                success = result.success, 
-                message = result.message
-            });
-        }
-        catch (Exception ex)
-        {
-            return Json(new { success = false, message = $"重啟失敗：{ex.Message}" });
-        }
+        var result = svc.RestartSystem();
+        return Json(new { 
+            success = result.success, 
+            message = result.message
+        });
     }
     #endregion
 }

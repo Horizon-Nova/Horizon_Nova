@@ -6,7 +6,6 @@
     Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
 }
 
-@model IEnumerable<Models.HnbHnbBackoffice.vw_permission_role>
 
 
 <section class="space-y-6">
@@ -61,7 +60,7 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-slate-200">
-                    @foreach (var role in Model)
+                    @foreach (var role in ViewBag.Roles)
                     {
                         <tr class="role-row hover:bg-slate-50 cursor-pointer" onclick="showRoleDetails(@role.id)">
                             <td class="px-6 py-4 whitespace-nowrap">
@@ -203,7 +202,7 @@
             $.ajax({
                 url: '@Url.Action("LoadDetail", "PermissionManagement")',
                 type: 'GET',
-                data: { type: type, id: id },
+                data: { id: id },
                 success: function(response) {
                     $('#roleModal').html(response);
                     lucide.createIcons();

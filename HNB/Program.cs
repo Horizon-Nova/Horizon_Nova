@@ -2,6 +2,7 @@ using HNB.Extensions;
 using HNB.Filters;
 using HNB.Middleware;
 using HNB.Utilities;
+using HNB.Areas.Backoffice.BackgroundServices.Middleware;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -65,6 +66,7 @@ app.UseHsts();
 
 app.UseMiddleware<ExceptionLoggingMiddleware>();
 app.UseMiddleware<IpSecurityMiddleware>();
+app.UseMiddleware<HardwareMonitoringMiddleware>();
 
 app.UseForwardedHeaders();
 app.UseHttpsRedirection();

@@ -71,20 +71,13 @@ public class SettingsRepositories(HnbHnbBackofficeDbContext db, HnbdataDbContext
     /// <param name="is30Days">是否只清理30天前的日誌</param>
     public bool ClearErrorLogs(bool is30Days = false)
     {
-        try
-        {
-            var logs = is30Days 
-                ? ValidErrorLogs.Where(x => x.created_at < DateTime.Now.AddDays(-30)).ToList()
-                : ValidErrorLogs.ToList();
-            
-            hnbdataDb.error_logs.RemoveRange(logs);
-            hnbdataDb.SaveChanges();
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
+        var logs = is30Days 
+            ? ValidErrorLogs.Where(x => x.created_at < DateTime.Now.AddDays(-30)).ToList()
+            : ValidErrorLogs.ToList();
+        
+        hnbdataDb.error_logs.RemoveRange(logs);
+        hnbdataDb.SaveChanges();
+        return true;
     }
 
     /// <summary>
@@ -93,20 +86,13 @@ public class SettingsRepositories(HnbHnbBackofficeDbContext db, HnbdataDbContext
     /// <param name="is30Days">是否只清理30天前的記錄</param>
     public bool ClearAccessLogs(bool is30Days = false)
     {
-        try
-        {
-            var records = is30Days 
-                ? ValidAccessRecords.Where(x => x.created_at < DateTime.Now.AddDays(-30)).ToList()
-                : ValidAccessRecords.ToList();
-            
-            hnbdataDb.access_records.RemoveRange(records);
-            hnbdataDb.SaveChanges();
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
+        var records = is30Days 
+            ? ValidAccessRecords.Where(x => x.created_at < DateTime.Now.AddDays(-30)).ToList()
+            : ValidAccessRecords.ToList();
+        
+        hnbdataDb.access_records.RemoveRange(records);
+        hnbdataDb.SaveChanges();
+        return true;
     }
     #endregion
 
@@ -116,22 +102,15 @@ public class SettingsRepositories(HnbHnbBackofficeDbContext db, HnbdataDbContext
     /// </summary>
     public bool ToggleMaintenanceMode(bool enabled)
     {
-        try
+        var config = db.hardware_monitorings.FirstOrDefault();
+        if (config != null)
         {
-            var config = db.system_configs.FirstOrDefault();
-            if (config != null)
-            {
-                config.maintenance_mode = enabled;
-                config.updated_at = DateTime.Now;
-                db.SaveChanges();
-                return true;
-            }
-            return false;
+            config.is_active = enabled;
+            config.updated_at = DateTime.Now;
+            db.SaveChanges();
+            return true;
         }
-        catch
-        {
-            return false;
-        }
+        return false;
     }
 
     /// <summary>
@@ -139,55 +118,48 @@ public class SettingsRepositories(HnbHnbBackofficeDbContext db, HnbdataDbContext
     /// </summary>
     public List<object> ExportLogs(string logType)
     {
-        try
+        var logs = new List<object>();
+        
+        switch (logType.ToLower())
         {
-            var logs = new List<object>();
-            
-            switch (logType.ToLower())
-            {
-                case "error":
-                    logs = ValidErrorLogs.Select(x => new
-                    {
-                        id = x.id,
-                        stage = x.stage,
-                        layer = x.layer,
-                        message = x.message,
-                        stack_trace = x.stack_trace,
-                        created_at = x.created_at,
-                        user_id = x.user_id,
-                        path = x.path,
-                        extra = x.extra
-                    }).Cast<object>().ToList();
-                    break;
-                case "access":
-                    logs = ValidAccessRecords.Select(x => new
-                    {
-                        id = x.id,
-                        user_name = x.user_name,
-                        roles = x.roles,
-                        request_path = x.request_path,
-                        ip = x.ip,
-                        result = x.result,
-                        user_agent = x.user_agent,
-                        created_at = x.created_at,
-                        log_type = x.log_type
-                    }).Cast<object>().ToList();
-                    break;
-                case "all":
-                default:
-                    var errorLogs = ValidErrorLogs.Select(x => new { type = "error", data = x }).Cast<object>().ToList();
-                    var accessLogs = ValidAccessRecords.Select(x => new { type = "access", data = x }).Cast<object>().ToList();
-                    logs.AddRange(errorLogs);
-                    logs.AddRange(accessLogs);
-                    break;
-            }
-            
-            return logs;
+            case "error":
+                logs = ValidErrorLogs.Select(x => new
+                {
+                    id = x.id,
+                    stage = x.stage,
+                    layer = x.layer,
+                    message = x.message,
+                    stack_trace = x.stack_trace,
+                    created_at = x.created_at,
+                    user_id = x.user_id,
+                    path = x.path,
+                    extra = x.extra
+                }).Cast<object>().ToList();
+                break;
+            case "access":
+                logs = ValidAccessRecords.Select(x => new
+                {
+                    id = x.id,
+                    user_name = x.user_name,
+                    roles = x.roles,
+                    request_path = x.request_path,
+                    ip = x.ip,
+                    result = x.result,
+                    user_agent = x.user_agent,
+                    created_at = x.created_at,
+                    log_type = x.log_type
+                }).Cast<object>().ToList();
+                break;
+            case "all":
+            default:
+                var errorLogs = ValidErrorLogs.Select(x => new { type = "error", data = x }).Cast<object>().ToList();
+                var accessLogs = ValidAccessRecords.Select(x => new { type = "access", data = x }).Cast<object>().ToList();
+                logs.AddRange(errorLogs);
+                logs.AddRange(accessLogs);
+                break;
         }
-        catch
-        {
-            return new List<object>();
-        }
+        
+        return logs;
     }
 
     /// <summary>
@@ -195,30 +167,23 @@ public class SettingsRepositories(HnbHnbBackofficeDbContext db, HnbdataDbContext
     /// </summary>
     public (bool success, string message, object details) OptimizeDatabase()
     {
-        try
+        // 這裡可以添加實際的資料庫優化邏輯
+        // 例如：VACUUM、ANALYZE、REINDEX 等 PostgreSQL 命令
+        
+        var details = new
         {
-            // 這裡可以添加實際的資料庫優化邏輯
-            // 例如：VACUUM、ANALYZE、REINDEX 等 PostgreSQL 命令
-            
-            var details = new
+            optimizedAt = DateTime.Now,
+            operations = new[]
             {
-                optimizedAt = DateTime.Now,
-                operations = new[]
-                {
-                    "清理未使用的空間",
-                    "更新統計資訊",
-                    "重建索引",
-                    "檢查資料完整性"
-                },
-                estimatedTime = "2-5 分鐘"
-            };
-            
-            return (true, "資料庫優化完成", details);
-        }
-        catch (Exception ex)
-        {
-            return (false, $"優化失敗：{ex.Message}", new { error = ex.Message });
-        }
+                "清理未使用的空間",
+                "更新統計資訊",
+                "重建索引",
+                "檢查資料完整性"
+            },
+            estimatedTime = "2-5 分鐘"
+        };
+        
+        return (true, "資料庫優化完成", details);
     }
     #endregion
 }

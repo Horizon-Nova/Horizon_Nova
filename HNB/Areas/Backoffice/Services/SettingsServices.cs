@@ -8,6 +8,26 @@ namespace HNB.Areas.Backoffice.Services;
 /// </summary>
 public class SettingsServices(SettingsRepositories rep)
 {
+    #region 統一的 ViewBag 模型設置
+    /// <summary>
+    /// 設置 ViewBag 模型資料
+    /// </summary>
+    /// <param name="viewBag">ViewBag 物件</param>
+    public void ViewBagModel(dynamic viewBag)
+    {
+        var hardwareInfo = rep.FetchHardwareMonitoring();
+        var logStats = rep.FetchLogStatistics();
+        var cacheStats = rep.FetchCacheStatistics();
+        
+        viewBag.HardwareInfo = hardwareInfo;
+        viewBag.ErrorLogsCount = logStats.errorLogs;
+        viewBag.AccessLogsCount = logStats.accessLogs;
+        viewBag.MemoryCacheSize = cacheStats.memoryCacheSize;
+        viewBag.CacheEntries = cacheStats.cacheEntries;
+        viewBag.LastCacheCleared = cacheStats.lastCleared;
+    }
+    #endregion
+
     #region 硬體監控
     /// <summary>
     /// 取得硬體監控資料
@@ -52,16 +72,9 @@ public class SettingsServices(SettingsRepositories rep)
     /// </summary>
     public async Task<bool> ClearAllCacheAsync()
     {
-        try
-        {
-            // 這裡可以添加實際的快取清理邏輯
-            await Task.Delay(100); // 模擬清理過程
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
+        // 這裡可以添加實際的快取清理邏輯
+        await Task.Delay(100); // 模擬清理過程
+        return true;
     }
     #endregion
 
@@ -69,62 +82,31 @@ public class SettingsServices(SettingsRepositories rep)
     /// <summary>
     /// 切換維護模式
     /// </summary>
-    public bool ToggleMaintenanceMode(bool enabled)
-    {
-        try
-        {
-            return rep.ToggleMaintenanceMode(enabled);
-        }
-        catch
-        {
-            return false;
-        }
-    }
+    public bool ToggleMaintenanceMode(bool enabled) => rep.ToggleMaintenanceMode(enabled);
 
     /// <summary>
-    /// 取得系統健康狀態
+    /// 取得系統健康狀態（直接調用資料庫資料，不需要重新檢查）
     /// </summary>
     public object GetSystemHealth()
     {
-        try
-        {
-            var hardwareInfo = rep.FetchHardwareMonitoring();
-            var logStats = rep.FetchLogStatistics();
-            var cacheStats = rep.FetchCacheStatistics();
+        var hardwareInfo = rep.FetchHardwareMonitoring();
+        var logStats = rep.FetchLogStatistics();
+        var cacheStats = rep.FetchCacheStatistics();
 
-            return new
-            {
-                timestamp = DateTime.Now,
-                systemStatus = hardwareInfo?.system_status ?? "未知",
-                cpuUsage = hardwareInfo?.cpu_usage_percent ?? 0,
-                memoryUsage = hardwareInfo?.memory_usage_percent ?? 0,
-                diskUsage = hardwareInfo?.storage_devices != null ? 
-                    System.Text.Json.JsonSerializer.Deserialize<List<object>>(hardwareInfo.storage_devices)?.Count ?? 0 : 0,
-                errorLogs = logStats.errorLogs,
-                accessLogs = logStats.accessLogs,
-                cacheSize = cacheStats.memoryCacheSize,
-                uptime = hardwareInfo?.uptime ?? "未知",
-                lastUpdated = hardwareInfo?.last_updated ?? DateTime.Now,
-                healthScore = CalculateHealthScore(hardwareInfo, logStats, cacheStats)
-            };
-        }
-        catch
+        return new
         {
-            return new
-            {
-                timestamp = DateTime.Now,
-                systemStatus = "錯誤",
-                cpuUsage = 0,
-                memoryUsage = 0,
-                diskUsage = 0,
-                errorLogs = 0,
-                accessLogs = 0,
-                cacheSize = 0,
-                uptime = "未知",
-                lastUpdated = DateTime.Now,
-                healthScore = 0
-            };
-        }
+            timestamp = DateTime.Now,
+            systemStatus = hardwareInfo?.is_active == true ? "運行中" : "停止",
+            cpuUsage = hardwareInfo?.cpu_usage_percent ?? 0,
+            memoryUsage = hardwareInfo?.memory_usage_percent ?? 0,
+            diskUsage = 0, // 儲存裝置數量暫時設為 0
+            errorLogs = logStats.errorLogs,
+            accessLogs = logStats.accessLogs,
+            cacheSize = cacheStats.memoryCacheSize,
+            uptime = hardwareInfo?.uptime ?? "未知",
+            lastUpdated = hardwareInfo?.last_check_time ?? DateTime.Now,
+            healthScore = CalculateHealthScore(hardwareInfo, logStats, cacheStats)
+        };
     }
 
     /// <summary>
@@ -132,60 +114,29 @@ public class SettingsServices(SettingsRepositories rep)
     /// </summary>
     public object ExportLogs(string logType)
     {
-        try
+        var logs = rep.ExportLogs(logType);
+        return new
         {
-            var logs = rep.ExportLogs(logType);
-            return new
-            {
-                exportTime = DateTime.Now,
-                logType = logType,
-                totalCount = logs.Count,
-                logs = logs
-            };
-        }
-        catch
-        {
-            return new
-            {
-                exportTime = DateTime.Now,
-                logType = logType,
-                totalCount = 0,
-                logs = new List<object>()
-            };
-        }
+            exportTime = DateTime.Now,
+            logType = logType,
+            totalCount = logs.Count,
+            logs = logs
+        };
     }
 
     /// <summary>
     /// 優化資料庫
     /// </summary>
-    public (bool success, string message, object details) OptimizeDatabase()
-    {
-        try
-        {
-            var result = rep.OptimizeDatabase();
-            return result;
-        }
-        catch (Exception ex)
-        {
-            return (false, $"優化失敗：{ex.Message}", new { error = ex.Message });
-        }
-    }
+    public (bool success, string message, object details) OptimizeDatabase() => rep.OptimizeDatabase();
 
     /// <summary>
     /// 重啟系統
     /// </summary>
     public (bool success, string message) RestartSystem()
     {
-        try
-        {
-            // 這裡可以添加實際的重啟邏輯
-            // 目前返回模擬結果
-            return (true, "系統重啟指令已發送，將在30秒後重啟");
-        }
-        catch (Exception ex)
-        {
-            return (false, $"重啟失敗：{ex.Message}");
-        }
+        // 這裡可以添加實際的重啟邏輯
+        // 目前返回模擬結果
+        return (true, "系統重啟指令已發送，將在30秒後重啟");
     }
 
     /// <summary>
@@ -201,7 +152,7 @@ public class SettingsServices(SettingsRepositories rep)
             var hw = hardwareInfo as dynamic;
             if (hw?.cpu_usage_percent > 90) score -= 20;
             if (hw?.memory_usage_percent > 90) score -= 20;
-            if (hw?.system_status != "運行中") score -= 30;
+            if (hw?.is_active != true) score -= 30;
         }
         
         if (logStats.errorLogs > 100) score -= 10;
