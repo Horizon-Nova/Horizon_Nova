@@ -6,7 +6,7 @@ using Models.HnbHnbBackoffice;
 namespace HNB.Areas.Backoffice.Controllers;
 
 [Area("Backoffice")]
-public class PermissionManagementController(PermissionManagementService sev, SidebarNavigationService sidebarService) : BaseController(sidebarService)
+public class PermissionManagementController(PermissionManagementService sev) : BaseController
 {
 
     // 人員管理
@@ -52,17 +52,42 @@ public class PermissionManagementController(PermissionManagementService sev, Sid
     // 提交用戶資料
     [HttpPost]
     public IActionResult SubmitUser(permission_management form) 
-        => Json(new { success = sev.CreateUser(form).success, message = sev.CreateUser(form).message });
+    {
+        // 設定用戶類型
+        form.type = "user";
+        
+        return Json(new { success = sev.CreateUser(form).success, message = sev.CreateUser(form).message });
+    }
 
     // 提交角色資料
     [HttpPost]
-    public IActionResult SubmitRole(permission_management form) 
-        => Json(new { success = sev.CreateRole(form).success, message = sev.CreateRole(form).message });
+    public IActionResult SubmitRole(permission_management form, string[] navigation_permissions) 
+    {
+        // 設定角色類型
+        form.type = "role";
+        
+        // 確保 navigation_permissions 被正確設定
+        if (navigation_permissions != null)
+        {
+            form.navigation_permissions = navigation_permissions.ToList();
+        }
+        else
+        {
+            form.navigation_permissions = new List<string>();
+        }
+        
+        return Json(new { success = sev.CreateRole(form).success, message = sev.CreateRole(form).message });
+    }
 
     // 提交組織資料
     [HttpPost]
     public IActionResult SubmitOrganization(permission_management form) 
-        => Json(new { success = sev.CreateOrganization(form).success, message = sev.CreateOrganization(form).message });
+    {
+        // 設定組織類型
+        form.type = "organization";
+        
+        return Json(new { success = sev.CreateOrganization(form).success, message = sev.CreateOrganization(form).message });
+    }
 
 
 }

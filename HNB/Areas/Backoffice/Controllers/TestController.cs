@@ -4,14 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 namespace HNB.Areas.Backoffice.Controllers;
 
 [Area("Backoffice")]
-public class TestController(SidebarNavigationService sidebarService, PermissionManagementService permissionService) : BaseController(sidebarService)
+public class TestController(PermissionManagementService permissionService) : BaseController
 {
     /// <summary>
     /// 測試頁面（不需要登入）
     /// </summary>
     public IActionResult Test()
     {
-        SetActiveNavigation("/Backoffice/Test/Test");
         
         ViewBag.Message = "測試頁面 - 不需要登入";
         
@@ -46,10 +45,14 @@ public class TestController(SidebarNavigationService sidebarService, PermissionM
         var userName = User.Identity.Name ?? "";
         
         // 取得用戶導航
-        var userNavigation = await _sidebarService.GetUserNavigationAsync(userName);
+        var sidebarService = HttpContext.RequestServices.GetService<SidebarNavigationService>();
+        if (sidebarService == null)
+        {
+            return Json(new { error = "無法取得導航服務" });
+        }
         
-        // 取得所有導航
-        var allNavigation = _sidebarService.GetAllNavigations();
+        var userNavigation = await sidebarService.GetUserNavigationAsync(userName);
+        var allNavigation = sidebarService.GetAllNavigations();
         
         var result = new
         {

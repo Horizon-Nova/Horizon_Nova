@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Calendar 使用示例</title>
+    <link rel="stylesheet" href="GitHubCalendar.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f6f8fa;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .example-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .example-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #24292f;
+        }
+        .controls {
+            margin-bottom: 20px;
+        }
+        .btn {
+            background: #0969da;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        .btn:hover {
+            background: #0860ca;
+        }
+        .btn.secondary {
+            background: #6c757d;
+        }
+        .btn.secondary:hover {
+            background: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>GitHub Calendar 組件示例</h1>
+        
+        <!-- 基本使用 -->
+        <div class="example-section">
+            <div class="example-title">基本使用</div>
+            <div class="controls">
+                <button class="btn" onclick="loadSampleData()">載入示例數據</button>
+                <button class="btn secondary" onclick="clearData()">清空數據</button>
+                <button class="btn secondary" onclick="addRandomActivity()">添加隨機活動</button>
+            </div>
+            <div id="calendar1" class="github-calendar"></div>
+        </div>
+        
+        <!-- 自定義年份 -->
+        <div class="example-section">
+            <div class="example-title">自定義年份 (2023)</div>
+            <div class="controls">
+                <button class="btn" onclick="load2023Data()">載入 2023 數據</button>
+            </div>
+            <div id="calendar2" class="github-calendar"></div>
+        </div>
+        
+        <!-- 緊湊模式 -->
+        <div class="example-section">
+            <div class="example-title">緊湊模式</div>
+            <div class="controls">
+                <button class="btn" onclick="loadCompactData()">載入數據</button>
+            </div>
+            <div id="calendar3" class="github-calendar compact"></div>
+        </div>
+        
+        <!-- 無圖例模式 -->
+        <div class="example-section">
+            <div class="example-title">無圖例模式</div>
+            <div class="controls">
+                <button class="btn" onclick="loadNoLegendData()">載入數據</button>
+            </div>
+            <div id="calendar4" class="github-calendar"></div>
+        </div>
+    </div>
+
+    <script src="GitHubCalendar.js"></script>
+    <script>
+        // 基本日曆
+        const calendar1 = new GitHubCalendar('#calendar1');
+        
+        // 自定義年份日曆
+        const calendar2 = new GitHubCalendar('#calendar2', {
+            year: 2023,
+            showTooltip: true,
+            showLegend: true,
+            showMonthLabels: true,
+            showWeekLabels: true
+        });
+        
+        // 緊湊模式日曆
+        const calendar3 = new GitHubCalendar('#calendar3', {
+            showTooltip: true,
+            showLegend: true,
+            showMonthLabels: true,
+            showWeekLabels: true
+        });
+        
+        // 無圖例日曆
+        const calendar4 = new GitHubCalendar('#calendar4', {
+            showTooltip: true,
+            showLegend: false,
+            showMonthLabels: true,
+            showWeekLabels: true
+        });
+        
+        // 示例數據
+        function loadSampleData() {
+            const sampleData = {
+                '2024-12-01': 2,
+                '2024-12-02': 1,
+                '2024-12-04': 3,
+                '2024-12-05': 1,
+                '2024-12-10': 2,
+                '2024-12-15': 4,
+                '2024-12-20': 1,
+                '2024-12-25': 2,
+                '2024-12-30': 1,
+                '2025-01-01': 1,
+                '2025-01-05': 3,
+                '2025-01-10': 2,
+                '2025-01-15': 1,
+                '2025-01-20': 4,
+                '2025-01-25': 2,
+                '2025-01-30': 1
+            };
+            calendar1.setActivityData(sampleData);
+        }
+        
+        function load2023Data() {
+            const data2023 = {
+                '2023-01-15': 2,
+                '2023-02-10': 1,
+                '2023-03-05': 3,
+                '2023-04-20': 2,
+                '2023-05-12': 4,
+                '2023-06-08': 1,
+                '2023-07-15': 3,
+                '2023-08-22': 2,
+                '2023-09-10': 1,
+                '2023-10-05': 4,
+                '2023-11-18': 2,
+                '2023-12-25': 1
+            };
+            calendar2.setActivityData(data2023);
+        }
+        
+        function loadCompactData() {
+            const compactData = {
+                '2024-12-01': 1,
+                '2024-12-15': 2,
+                '2025-01-01': 3,
+                '2025-01-15': 1
+            };
+            calendar3.setActivityData(compactData);
+        }
+        
+        function loadNoLegendData() {
+            const noLegendData = {
+                '2024-12-01': 2,
+                '2024-12-10': 1,
+                '2025-01-05': 3,
+                '2025-01-20': 2
+            };
+            calendar4.setActivityData(noLegendData);
+        }
+        
+        function clearData() {
+            calendar1.clearAllActivities();
+        }
+        
+        function addRandomActivity() {
+            const today = new Date();
+            const randomDaysAgo = Math.floor(Math.random() * 30);
+            const randomDate = new Date(today);
+            randomDate.setDate(today.getDate() - randomDaysAgo);
+            
+            const dateStr = randomDate.toISOString().split('T')[0];
+            const randomCount = Math.floor(Math.random() * 5) + 1;
+            
+            calendar1.addActivity(dateStr, randomCount);
+        }
+        
+        // 頁面載入時自動載入示例數據
+        window.addEventListener('load', function() {
+            loadSampleData();
+        });
+    </script>
+</body>
+</html>

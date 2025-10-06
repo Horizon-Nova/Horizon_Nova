@@ -7,11 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 namespace HNB.Areas.Backoffice.Controllers;
 
 [Area("Backoffice")]
-public class DatabaseController(DatabaseService databaseService, SidebarNavigationService sidebarService) : BaseController(sidebarService)
+public class DatabaseController(DatabaseService databaseService) : BaseController
 {
     public IActionResult DatabaseManagement()
     {
-        SetActiveNavigation("/Backoffice/Database/DatabaseManagement");
         return View();
     }
 

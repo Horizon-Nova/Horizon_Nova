@@ -5,6 +5,7 @@
     wireSidebar();
     wireUserMenu();
     wireNavigationToggle();
+    setActiveNavigation();
 });
 
 function initTheme() {
@@ -189,4 +190,24 @@ function wireNavigationToggle() {
         
         observer.observe(sidebar, { attributes: true });
     }
+}
+
+/* 自動設定活躍導航項目 */
+function setActiveNavigation() {
+    const currentPath = window.location.pathname.toLowerCase();
+    
+    // 移除所有現有的 active 類別
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    // 找到匹配的導航項目並添加 active 類別
+    document.querySelectorAll('.nav-item').forEach(item => {
+        const href = item.getAttribute('href')?.toLowerCase() || '';
+        
+        // 精確匹配或路徑包含匹配
+        if (href === currentPath || (href !== '' && currentPath.startsWith(href))) {
+            item.classList.add('active');
+        }
+    });
 }

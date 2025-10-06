@@ -124,6 +124,16 @@ public class PermissionManagementService(PermissionManagementRepository repo, Si
 
         viewBag.Navigations = sidebarService.GetAllNavigations();
         
+        // 載入角色的導航權限資料
+        if (id.HasValue)
+        {
+            var roleData = repo.ValidPermissionManagements.FirstOrDefault(p => p.id == id.Value && p.type == "role");
+            viewBag.RoleNavigationPermissions = roleData?.navigation_permissions ?? new List<string>();
+        }
+        else
+        {
+            viewBag.RoleNavigationPermissions = new List<string>();
+        }
     }
 
     #endregion

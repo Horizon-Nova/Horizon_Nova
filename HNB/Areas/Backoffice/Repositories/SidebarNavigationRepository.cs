@@ -3,8 +3,51 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HNB.Areas.Backoffice.Repositories;
 
+/// <summary>
+/// 側欄導航資料存取層，負責處理導航項目的資料存取功能
+/// </summary>
 public class SidebarNavigationRepository(HnbHnbBackofficeDbContext db)
 {
+    #region 統一的查詢來源
+    /// <summary>
+    /// 有效的導航項目查詢來源
+    /// </summary>
+    private IQueryable<vw_sidebar_navigation> ValidNavigations => db.vw_sidebar_navigations.OrderBy(n => n.sort_order);
+    
+    /// <summary>
+    /// 有效的側欄導航查詢來源
+    /// </summary>
+    public IQueryable<sidebar_navigation> ValidSidebarNavigations => db.sidebar_navigations;
+    
+    #endregion
+
+    #region 專用查詢方法
+    /// <summary>
+    /// 查詢導航項目列表
+    /// </summary>
+    /// <param name="searchTerm">搜尋關鍵字</param>
+    /// <param name="parentCode">父項目篩選</param>
+    /// <param name="isActive">啟用狀態篩選</param>
+    /// <returns>導航項目列表</returns>
+    public List<vw_sidebar_navigation> QueryNavigationList(string? searchTerm = null, string? parentCode = null, bool? isActive = null)
+        => ValidNavigations
+            .Where(n =>
+                (string.IsNullOrEmpty(searchTerm) || 
+                    (n.title != null && n.title.Contains(searchTerm)) ||
+                    (n.code != null && n.code.Contains(searchTerm))) &&
+                (string.IsNullOrEmpty(parentCode) || n.parent_code == parentCode) &&
+                (!isActive.HasValue || n.is_active == isActive.Value)
+            )
+            .ToList();
+
+    /// <summary>
+    /// 查詢單一導航項目
+    /// </summary>
+    /// <param name="id">導航項目ID</param>
+    /// <returns>導航項目或null</returns>
+    public vw_sidebar_navigation? QueryNavigation(int id)
+        => ValidNavigations.FirstOrDefault(n => n.id == id);
+
     /// <summary>
     /// 根據用戶名獲取側欄導航項目（包含角色權限）
     /// </summary>
@@ -155,90 +198,35 @@ public class SidebarNavigationRepository(HnbHnbBackofficeDbContext db)
     /// 獲取所有側欄導航項目（管理用）
     /// </summary>
     public async Task<List<vw_sidebar_navigation>> GetAllNavigationsAsync()
-    {
-        return await db.vw_sidebar_navigations
-            .OrderBy(n => n.parent_code)
-            .ThenBy(n => n.sort_order)
-            .ToListAsync();
-    }
+        => await ValidNavigations.ToListAsync();
 
     /// <summary>
     /// 獲取所有側欄導航項目（同步版本）
     /// </summary>
     public List<vw_sidebar_navigation> GetAllNavigations()
-    {
-        return db.vw_sidebar_navigations
-            .OrderBy(n => n.parent_code)
-            .ThenBy(n => n.sort_order)
-            .ToList();
-    }
+        => ValidNavigations.ToList();
 
     /// <summary>
     /// 根據ID獲取導航項目
     /// </summary>
     public async Task<sidebar_navigation?> GetNavigationByIdAsync(int id)
-    {
-        return await db.sidebar_navigations.FindAsync(id);
-    }
+        => await db.sidebar_navigations.FindAsync(id);
 
     /// <summary>
     /// 根據Code獲取導航項目
     /// </summary>
     public async Task<sidebar_navigation?> GetNavigationByCodeAsync(string code)
-    {
-        return await db.sidebar_navigations
-            .FirstOrDefaultAsync(n => n.code == code);
-    }
-
-    /// <summary>
-    /// 新增導航項目
-    /// </summary>
-    public async Task<sidebar_navigation> CreateNavigationAsync(sidebar_navigation navigation)
-    {
-        db.sidebar_navigations.Add(navigation);
-        await db.SaveChangesAsync();
-        return navigation;
-    }
-
-    /// <summary>
-    /// 更新導航項目
-    /// </summary>
-    public async Task<sidebar_navigation> UpdateNavigationAsync(sidebar_navigation navigation)
-    {
-        db.sidebar_navigations.Update(navigation);
-        await db.SaveChangesAsync();
-        return navigation;
-    }
-
-    /// <summary>
-    /// 刪除導航項目
-    /// </summary>
-    public async Task<bool> DeleteNavigationAsync(int id)
-    {
-        var navigation = await db.sidebar_navigations.FindAsync(id);
-        if (navigation == null) return false;
-
-        db.sidebar_navigations.Remove(navigation);
-        await db.SaveChangesAsync();
-        return true;
-    }
-
-    /// <summary>
-    /// 檢查導航項目是否存在
-    /// </summary>
-    public async Task<bool> NavigationExistsAsync(string code)
-    {
-        return await db.sidebar_navigations.AnyAsync(n => n.code == code);
-    }
+        => await db.sidebar_navigations.FirstOrDefaultAsync(n => n.code == code);
 
     /// <summary>
     /// 獲取所有父級導航項目
     /// </summary>
     public async Task<List<sidebar_navigation>> GetParentNavigationsAsync()
-    {
-        return await db.sidebar_navigations
+        => await db.sidebar_navigations
             .Where(n => n.parent_code == null)
             .OrderBy(n => n.sort_order)
             .ToListAsync();
-    }
+
+    #endregion
+
 }

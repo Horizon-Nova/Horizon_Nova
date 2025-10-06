@@ -1,0 +1,426 @@
+@{
+    ViewData["Title"] = "AI 穿搭助理 - 服裝 AI";
+    ViewData["PageTitle"] = "AI 穿搭助理";
+    ViewData["PageDescription"] = "告訴我您的需求，AI 將為您推薦最適合的穿搭";
+    ViewData["PageIcon"] = "bot";
+    Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
+}
+
+<section class="space-y-6">
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- 對話區域 -->
+        <div class="lg:col-span-2">
+            <div class="bg-white border rounded-lg">
+                <div class="border-b p-4 flex justify-between items-center">
+                    <div class="flex items-center space-x-3">
+                        <div class="p-2 bg-blue-100 rounded-lg">
+                            <i data-lucide="bot" class="h-6 w-6 text-blue-600"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-800">AI 穿搭助理</h3>
+                            <p class="text-sm text-gray-500">Moondream2 AI</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">線上</span>
+                    </div>
+                </div>
+                
+                <div class="p-4">
+                    <!-- 對話記錄 -->
+                    <div id="chatContainer" class="h-96 overflow-y-auto border rounded-lg p-4 bg-gray-50 mb-4">
+                        <div class="flex items-start space-x-3 mb-4">
+                            <div class="p-2 bg-blue-500 rounded-full">
+                                <i data-lucide="bot" class="h-4 w-4 text-white"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="bg-white rounded-lg p-3 shadow-sm">
+                                    <p class="text-gray-800">您好！我是您的 AI 穿搭助理。請告訴我您今天需要什麼樣的穿搭建議？例如：</p>
+                                    <ul class="mt-2 text-sm text-gray-600 space-y-1">
+                                        <li>• 「我今天要參加一場重要的資訊會議」</li>
+                                        <li>• 「週末和朋友聚餐，想要休閒一點的風格」</li>
+                                        <li>• 「運動健身，需要舒適的運動裝」</li>
+                                    </ul>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">剛剛</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 輸入區域 -->
+                    <div class="flex space-x-2">
+                        <input type="text" id="userInput" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="請描述您的穿搭需求..." maxlength="500">
+                        <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors" id="sendBtn">
+                            <i data-lucide="send" class="h-4 w-4"></i>
+                        </button>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2">按 Enter 發送訊息</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 設定區域 -->
+        <div class="space-y-6">
+            <!-- 環境設定 -->
+            <div class="bg-white border rounded-lg p-6">
+                <h4 class="font-semibold text-gray-800 mb-4">環境設定</h4>
+                <div class="space-y-4">
+                    <div>
+                        <label for="location" class="block text-sm font-medium text-gray-700 mb-2">地點</label>
+                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" id="location">
+                            <option value="台北市">台北市</option>
+                            <option value="新北市">新北市</option>
+                            <option value="桃園市">桃園市</option>
+                            <option value="台中市">台中市</option>
+                            <option value="台南市">台南市</option>
+                            <option value="高雄市">高雄市</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="weather" class="block text-sm font-medium text-gray-700 mb-2">天氣</label>
+                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" id="weather">
+                            <option value="晴天">晴天</option>
+                            <option value="多雲">多雲</option>
+                            <option value="陰天">陰天</option>
+                            <option value="雨天">雨天</option>
+                            <option value="雪天">雪天</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="temperature" class="block text-sm font-medium text-gray-700 mb-2">溫度 (°C)</label>
+                        <input type="number" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" id="temperature" value="25" min="-10" max="40">
+                    </div>
+
+                    <div>
+                        <label for="timeOfDay" class="block text-sm font-medium text-gray-700 mb-2">時段</label>
+                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" id="timeOfDay">
+                            <option value="早上">早上 (6:00-12:00)</option>
+                            <option value="下午">下午 (12:00-18:00)</option>
+                            <option value="晚上">晚上 (18:00-24:00)</option>
+                            <option value="深夜">深夜 (0:00-6:00)</option>
+                        </select>
+                    </div>
+
+                    <button class="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors" id="updateWeatherBtn">
+                        <i data-lucide="refresh-cw" class="h-4 w-4 inline mr-2"></i> 更新天氣資訊
+                    </button>
+                </div>
+            </div>
+
+            <!-- 快速建議 -->
+            <div class="bg-white border rounded-lg p-6">
+                <h4 class="font-semibold text-gray-800 mb-4">快速建議</h4>
+                <div class="space-y-2">
+                    <button class="w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors quick-suggestion" data-query="我今天要參加一場重要的資訊會議">
+                        <div class="flex items-center space-x-3">
+                            <i data-lucide="briefcase" class="h-4 w-4 text-blue-500"></i>
+                            <span class="text-sm">重要會議</span>
+                        </div>
+                    </button>
+                    <button class="w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors quick-suggestion" data-query="週末和朋友聚餐，想要休閒一點的風格">
+                        <div class="flex items-center space-x-3">
+                            <i data-lucide="utensils" class="h-4 w-4 text-green-500"></i>
+                            <span class="text-sm">朋友聚餐</span>
+                        </div>
+                    </button>
+                    <button class="w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors quick-suggestion" data-query="運動健身，需要舒適的運動裝">
+                        <div class="flex items-center space-x-3">
+                            <i data-lucide="dumbbell" class="h-4 w-4 text-orange-500"></i>
+                            <span class="text-sm">運動健身</span>
+                        </div>
+                    </button>
+                    <button class="w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors quick-suggestion" data-query="約會晚餐，想要優雅一點的打扮">
+                        <div class="flex items-center space-x-3">
+                            <i data-lucide="heart" class="h-4 w-4 text-red-500"></i>
+                            <span class="text-sm">約會晚餐</span>
+                        </div>
+                    </button>
+                    <button class="w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors quick-suggestion" data-query="購物逛街，想要舒適又時尚的穿搭">
+                        <div class="flex items-center space-x-3">
+                            <i data-lucide="shopping-bag" class="h-4 w-4 text-purple-500"></i>
+                            <span class="text-sm">購物逛街</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 推薦記錄 -->
+    <div class="bg-white border rounded-lg p-6">
+        <h4 class="font-semibold text-gray-800 mb-4">推薦記錄</h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- 會議推薦 -->
+            <div class="border border-green-200 rounded-lg p-4">
+                <div class="flex justify-between items-start mb-3">
+                    <h5 class="font-medium text-gray-800">我今天要參加一場重要的資訊會議</h5>
+                    <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">95%</span>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-2 mb-3 text-sm text-gray-600">
+                    <div class="flex items-center">
+                        <i data-lucide="map-pin" class="h-4 w-4 mr-1"></i>
+                        <span>台北市</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i data-lucide="thermometer" class="h-4 w-4 mr-1"></i>
+                        <span>25°C</span>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="flex items-center text-sm text-gray-600">
+                        <i data-lucide="cloud" class="h-4 w-4 mr-1"></i>
+                        <span>晴天</span>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="font-medium text-blue-600 mb-2">推薦穿搭</h6>
+                    <div class="grid grid-cols-2 gap-2 text-sm">
+                        <div class="flex items-center">
+                            <i data-lucide="tshirt" class="h-4 w-4 mr-2 text-blue-500"></i>
+                            <span>白色襯衫</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i data-lucide="pants" class="h-4 w-4 mr-2 text-purple-500"></i>
+                            <span>深藍色西裝褲</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i data-lucide="shoe-prints" class="h-4 w-4 mr-2 text-orange-500"></i>
+                            <span>黑色皮鞋</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i data-lucide="watch" class="h-4 w-4 mr-2 text-green-500"></i>
+                            <span>簡約手錶</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-xs text-gray-500">
+                    <i data-lucide="clock" class="h-3 w-3 inline mr-1"></i>
+                    2 小時前
+                </div>
+            </div>
+
+            <!-- 聚餐推薦 -->
+            <div class="border border-green-200 rounded-lg p-4">
+                <div class="flex justify-between items-start mb-3">
+                    <h5 class="font-medium text-gray-800">週末和朋友聚餐</h5>
+                    <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium">88%</span>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-2 mb-3 text-sm text-gray-600">
+                    <div class="flex items-center">
+                        <i data-lucide="map-pin" class="h-4 w-4 mr-1"></i>
+                        <span>信義區</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i data-lucide="thermometer" class="h-4 w-4 mr-1"></i>
+                        <span>22°C</span>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="flex items-center text-sm text-gray-600">
+                        <i data-lucide="cloud" class="h-4 w-4 mr-1"></i>
+                        <span>多雲</span>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="font-medium text-blue-600 mb-2">推薦穿搭</h6>
+                    <div class="grid grid-cols-2 gap-2 text-sm">
+                        <div class="flex items-center">
+                            <i data-lucide="tshirt" class="h-4 w-4 mr-2 text-blue-500"></i>
+                            <span>條紋針織衫</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i data-lucide="pants" class="h-4 w-4 mr-2 text-purple-500"></i>
+                            <span>牛仔褲</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i data-lucide="shoe-prints" class="h-4 w-4 mr-2 text-orange-500"></i>
+                            <span>白色運動鞋</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i data-lucide="shopping-bag" class="h-4 w-4 mr-2 text-green-500"></i>
+                            <span>帆布包</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-xs text-gray-500">
+                    <i data-lucide="clock" class="h-3 w-3 inline mr-1"></i>
+                    1 天前
+                </div>
+            </div>
+        </div>
+    </div>
+
+</section>
+
+<script>
+let isTyping = false;
+
+// 發送訊息
+document.getElementById('sendBtn').addEventListener('click', sendMessage);
+document.getElementById('userInput').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+    }
+});
+
+// 快速建議
+document.querySelectorAll('.quick-suggestion').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const query = btn.getAttribute('data-query');
+        document.getElementById('userInput').value = query;
+        sendMessage();
+    });
+});
+
+function sendMessage() {
+    const userInput = document.getElementById('userInput');
+    const message = userInput.value.trim();
+    
+    if (!message || isTyping) return;
+    
+    // 添加用戶訊息到聊天記錄
+    addMessage(message, 'user');
+    userInput.value = '';
+    
+    // 顯示 AI 正在輸入
+    showTypingIndicator();
+    
+    // 獲取環境設定
+    const location = document.getElementById('location').value;
+    const weather = document.getElementById('weather').value;
+    const temperature = parseInt(document.getElementById('temperature').value);
+    
+    // 模擬 AI 回應（資料寫死在前端）
+    setTimeout(() => {
+        hideTypingIndicator();
+        
+        // 根據關鍵字模擬不同的回應
+        let responseText = '';
+        if (message.includes('會議') || message.includes('工作') || message.includes('商務')) {
+            responseText = `根據您的需求「${message}」，我為您推薦以下穿搭：\n\n`;
+            responseText += `📍 地點：${location}\n`;
+            responseText += `🌤️ 天氣：${weather} (${temperature}°C)\n\n`;
+            responseText += `👔 推薦穿搭：\n`;
+            responseText += `• 上衣：白色商務襯衫\n`;
+            responseText += `• 下裝：深藍色西裝褲\n`;
+            responseText += `• 鞋子：黑色皮鞋\n`;
+            responseText += `• 配件：簡約手錶、深色皮帶\n\n`;
+            responseText += `💡 推薦理由：\n根據您的工作場合需求，推薦商務正裝風格。白色襯衫搭配深藍色西裝褲展現專業形象，黑色皮鞋增加正式感。\n\n`;
+            responseText += `🎯 信心度：92%`;
+        } else if (message.includes('聚餐') || message.includes('朋友') || message.includes('休閒')) {
+            responseText = `根據您的需求「${message}」，我為您推薦以下穿搭：\n\n`;
+            responseText += `📍 地點：${location}\n`;
+            responseText += `🌤️ 天氣：${weather} (${temperature}°C)\n\n`;
+            responseText += `👔 推薦穿搭：\n`;
+            responseText += `• 上衣：條紋針織衫\n`;
+            responseText += `• 下裝：牛仔褲\n`;
+            responseText += `• 鞋子：白色運動鞋\n`;
+            responseText += `• 配件：帆布包\n\n`;
+            responseText += `💡 推薦理由：\n休閒聚餐場合適合輕鬆舒適的風格，條紋針織衫搭配牛仔褲既時尚又舒適，白色運動鞋增加活力感。\n\n`;
+            responseText += `🎯 信心度：88%`;
+        } else if (message.includes('運動') || message.includes('健身')) {
+            responseText = `根據您的需求「${message}」，我為您推薦以下穿搭：\n\n`;
+            responseText += `📍 地點：${location}\n`;
+            responseText += `🌤️ 天氣：${weather} (${temperature}°C)\n\n`;
+            responseText += `👔 推薦穿搭：\n`;
+            responseText += `• 上衣：運動排汗衣\n`;
+            responseText += `• 下裝：運動短褲\n`;
+            responseText += `• 鞋子：專業運動鞋\n`;
+            responseText += `• 配件：運動毛巾、水壺\n\n`;
+            responseText += `💡 推薦理由：\n運動時需要透氣舒適的服裝，排汗衣能保持乾爽，運動短褲提供活動自由度，專業運動鞋保護腳部。\n\n`;
+            responseText += `🎯 信心度：95%`;
+        } else {
+            responseText = `根據您的需求「${message}」，我為您推薦以下穿搭：\n\n`;
+            responseText += `📍 地點：${location}\n`;
+            responseText += `🌤️ 天氣：${weather} (${temperature}°C)\n\n`;
+            responseText += `👔 推薦穿搭：\n`;
+            responseText += `• 上衣：基本款T恤\n`;
+            responseText += `• 下裝：休閒褲\n`;
+            responseText += `• 鞋子：休閒鞋\n`;
+            responseText += `• 配件：簡約包包\n\n`;
+            responseText += `💡 推薦理由：\n這是一套百搭的休閒穿搭，適合日常各種場合，既舒適又得體。\n\n`;
+            responseText += `🎯 信心度：85%`;
+        }
+        
+        addMessage(responseText, 'bot');
+    }, 2000); // 模擬 2 秒的處理時間
+}
+
+function addMessage(text, sender) {
+    const chatContainer = document.getElementById('chatContainer');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `flex items-start space-x-3 mb-4 ${sender === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`;
+    
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('zh-TW', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+    });
+    
+    messageDiv.innerHTML = `
+        <div class="p-2 ${sender === 'user' ? 'bg-green-500' : 'bg-blue-500'} rounded-full">
+            <i data-lucide="${sender === 'user' ? 'user' : 'bot'}" class="h-4 w-4 text-white"></i>
+        </div>
+        <div class="flex-1">
+            <div class="bg-white rounded-lg p-3 shadow-sm">
+                <p class="text-gray-800 whitespace-pre-line">${text}</p>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">${timeString}</p>
+        </div>
+    `;
+    
+    chatContainer.appendChild(messageDiv);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+function showTypingIndicator() {
+    isTyping = true;
+    const chatContainer = document.getElementById('chatContainer');
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'flex items-start space-x-3 mb-4';
+    typingDiv.id = 'typingIndicator';
+    
+    typingDiv.innerHTML = `
+        <div class="p-2 bg-blue-500 rounded-full">
+            <i data-lucide="bot" class="h-4 w-4 text-white"></i>
+        </div>
+        <div class="flex-1">
+            <div class="bg-white rounded-lg p-3 shadow-sm">
+                <div class="flex space-x-1">
+                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    chatContainer.appendChild(typingDiv);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+function hideTypingIndicator() {
+    isTyping = false;
+    const typingIndicator = document.getElementById('typingIndicator');
+    if (typingIndicator) {
+        typingIndicator.remove();
+    }
+}
+
+// 更新天氣資訊按鈕
+document.getElementById('updateWeatherBtn').addEventListener('click', () => {
+    alert('天氣資訊已更新！');
+});
+</script>

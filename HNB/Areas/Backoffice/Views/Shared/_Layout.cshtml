@@ -42,8 +42,12 @@
     <!-- 自訂樣式 -->
     <link rel="stylesheet" href="~/Backoffice/css/Layout.css" />
     <link rel="stylesheet" href="~/Backoffice/css/DatabaseManagement.css" />
+    <link rel="stylesheet" href="~/lib/github-calendar/GitHubCalendar.css" />
+    <link rel="stylesheet" href="~/Backoffice/css/Wardrobe.css" />
     <script src="~/Backoffice/js/Layout.js"></script>
     <script src="~/Backoffice/js/DatabaseManagement.js"></script>
+    <script src="~/lib/github-calendar/GitHubCalendar.js"></script>
+    <script src="~/Backoffice/js/Wardrobe.js"></script>
 
 </head>
 <body class="h-screen w-screen bg-gradient-to-br from-slate-50 to-blue-50 text-slate-900">
@@ -68,14 +72,13 @@
             <nav class="px-3 py-4 overflow-y-auto h-[calc(100vh-4rem)] space-y-2">
                 @{
                     var sidebarNavigation = ViewBag.SidebarNavigation as List<HNB.Areas.Backoffice.Services.NavigationItem> ?? new List<HNB.Areas.Backoffice.Services.NavigationItem>();
-                    var activeUrl = ViewBag.ActiveNavigationUrl as string ?? "";
                 }
                 
                 @if (sidebarNavigation.Any())
                 {
                     @foreach (var item in sidebarNavigation)
                     {
-                        @await Html.PartialAsync("_NavigationItem", item, new ViewDataDictionary(ViewData) { { "ActiveUrl", activeUrl } })
+                        @await Html.PartialAsync("_NavigationItem", item)
                     }
                 }
                 else

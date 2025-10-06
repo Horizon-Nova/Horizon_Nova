@@ -142,7 +142,9 @@ public partial class HnbHnbBackofficeDbContext : DbContext
                 .HasComment("建立時間：記錄建立時間");
             entity.Property(e => e.created_by).HasComment("建立者ID：建立此記錄的用戶ID");
             entity.Property(e => e.description).HasComment("描述：角色或組織的詳細說明");
-            entity.Property(e => e.device_fingerprints).HasComment("設備指紋陣列：設備唯一識別碼列表");
+            entity.Property(e => e.device_fingerprints)
+                .HasColumnType("text[]")
+                .HasComment("設備指紋陣列：設備唯一識別碼列表");
             entity.Property(e => e.email).HasComment("電子郵件：主要用於用戶登入和聯絡");
             entity.Property(e => e.favorite_color).HasComment("喜愛的顏色：用戶偏好顏色");
             entity.Property(e => e.full_name).HasComment("完整名稱：用戶=真實姓名, 角色=角色完整名稱, 組織=組織完整名稱");
@@ -178,24 +180,34 @@ public partial class HnbHnbBackofficeDbContext : DbContext
                 .HasComment("登入次數：用戶總登入次數");
             entity.Property(e => e.login_method).HasComment("登入方式：local/oauth/google/facebook等");
             entity.Property(e => e.name).HasComment("名稱：用戶=username, 角色=角色名稱, 組織=組織名稱");
-            entity.Property(e => e.navigation_permissions).HasComment("導航權限陣列：儲存sidebar_navigation表的code編號，用於控制用戶可訪問的頁面");
+            entity.Property(e => e.navigation_permissions)
+                .HasColumnType("text[]")
+                .HasComment("導航權限陣列：儲存sidebar_navigation表的code編號，用於控制用戶可訪問的頁面");
             entity.Property(e => e.nickname).HasComment("暱稱：用戶的顯示暱稱");
             entity.Property(e => e.notes).HasComment("備註：公開備註資訊");
             entity.Property(e => e.notification_settings).HasComment("通知設定：JSON格式的通知偏好設定");
-            entity.Property(e => e.organization_names).HasComment("組織名稱陣列：組織名稱列表（用於顯示）");
+            entity.Property(e => e.organization_names)
+                .HasColumnType("text[]")
+                .HasComment("組織名稱陣列：組織名稱列表（用於顯示）");
             entity.Property(e => e.parent_id).HasComment("上級ID：用戶=所屬組織ID, 角色=所屬組織ID, 組織=上級組織ID");
             entity.Property(e => e.password_expires_at).HasComment("密碼到期時間：密碼過期日期");
             entity.Property(e => e.password_hash).HasComment("密碼雜湊值：用於用戶密碼驗證");
             entity.Property(e => e.payment_methods).HasComment("付款方式：JSON格式的付款方式資訊");
-            entity.Property(e => e.permissions).HasComment("權限陣列：具體功能權限列表");
+            entity.Property(e => e.permissions)
+                .HasColumnType("text[]")
+                .HasComment("權限陣列：具體功能權限列表");
             entity.Property(e => e.phone).HasComment("電話號碼：用戶聯絡電話");
             entity.Property(e => e.preferences).HasComment("用戶偏好：JSON格式的個人偏好設定");
             entity.Property(e => e.privacy_settings).HasComment("隱私設定：JSON格式的隱私控制設定");
             entity.Property(e => e.profile_completion_percentage)
                 .HasDefaultValue(0)
                 .HasComment("資料完成度：個人資料完成百分比");
-            entity.Property(e => e.role_names).HasComment("角色名稱陣列：角色名稱列表（用於顯示）");
-            entity.Property(e => e.roles).HasComment("角色ID陣列：用戶=擁有的角色ID列表, 組織=分配的角色ID列表");
+            entity.Property(e => e.role_names)
+                .HasColumnType("text[]")
+                .HasComment("角色名稱陣列：角色名稱列表（用於顯示）");
+            entity.Property(e => e.roles)
+                .HasColumnType("text[]")
+                .HasComment("角色ID陣列：用戶=擁有的角色ID列表, 組織=分配的角色ID列表");
             entity.Property(e => e.salt).HasComment("密碼鹽值：用於密碼雜湊的隨機字串");
             entity.Property(e => e.security_questions).HasComment("安全問題：JSON格式的安全問題和答案");
             entity.Property(e => e.sort_order)
@@ -208,7 +220,9 @@ public partial class HnbHnbBackofficeDbContext : DbContext
             entity.Property(e => e.subscription_expires_at).HasComment("訂閱到期時間：訂閱服務到期日期");
             entity.Property(e => e.subscription_products).HasComment("訂閱產品：JSON格式的訂閱產品資訊");
             entity.Property(e => e.subscription_status).HasComment("訂閱狀態：active/inactive/cancelled等");
-            entity.Property(e => e.tags).HasComment("標籤陣列：用於分類和搜尋的標籤列表");
+            entity.Property(e => e.tags)
+                .HasColumnType("text[]")
+                .HasComment("標籤陣列：用於分類和搜尋的標籤列表");
             entity.Property(e => e.theme)
                 .HasDefaultValueSql("'auto'::character varying")
                 .HasComment("主題設定：用戶介面主題");
@@ -220,16 +234,24 @@ public partial class HnbHnbBackofficeDbContext : DbContext
                 .HasComment("時區：用戶所在時區");
             entity.Property(e => e.total_session_time).HasComment("總會話時間：用戶累計使用時間");
             entity.Property(e => e.trial_ends_at).HasComment("試用期結束時間：免費試用結束日期");
-            entity.Property(e => e.trusted_devices).HasComment("信任設備陣列：已信任的設備ID列表");
-            entity.Property(e => e.trusted_ips).HasComment("信任IP陣列：已信任的IP地址列表");
+            entity.Property(e => e.trusted_devices)
+                .HasColumnType("text[]")
+                .HasComment("信任設備陣列：已信任的設備ID列表");
+            entity.Property(e => e.trusted_ips)
+                .HasColumnType("text[]")
+                .HasComment("信任IP陣列：已信任的IP地址列表");
             entity.Property(e => e.two_factor_enabled)
                 .HasDefaultValue(false)
                 .HasComment("是否啟用雙因子認證：true=啟用, false=未啟用");
             entity.Property(e => e.two_factor_secret).HasComment("雙因子認證密鑰：TOTP密鑰");
             entity.Property(e => e.type).HasComment("資料類型：user=用戶, role=角色, organization=組織");
-            entity.Property(e => e.updated_at).HasComment("更新時間：記錄最後更新時間");
+            entity.Property(e => e.updated_at)
+                .HasDefaultValueSql("now()")
+                .HasComment("更新時間：記錄最後更新時間");
             entity.Property(e => e.updated_by).HasComment("更新者ID：最後更新此記錄的用戶ID");
-            entity.Property(e => e.user_names).HasComment("用戶名稱陣列：組織=所屬用戶名稱列表, 角色=擁有此角色的用戶名稱列表");
+            entity.Property(e => e.user_names)
+                .HasColumnType("text[]")
+                .HasComment("用戶名稱陣列：組織=所屬用戶名稱列表, 角色=擁有此角色的用戶名稱列表");
             entity.Property(e => e.zodiac_sign).HasComment("星座：用戶星座");
 
             entity.HasOne(d => d.parent).WithMany(p => p.Inverseparent).HasConstraintName("permission_management_parent_id_fkey");

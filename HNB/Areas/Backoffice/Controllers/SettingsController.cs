@@ -5,15 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace HNB.Areas.Backoffice.Controllers;
 
 [Area("Backoffice")]
-public class SettingsController(SettingsServices svc, SidebarNavigationService sidebarService) : BaseController(sidebarService)
+public class SettingsController(SettingsServices svc) : BaseController
 {
 
     public IActionResult Settings()
     {
-        // 設置當前頁面導航狀態
-        SetActiveNavigation("/Backoffice/Settings/Settings");
-        
-        // 使用統一的 ViewBag 模型設置
         svc.ViewBagModel(ViewBag);
         
         return View();

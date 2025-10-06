@@ -1,7 +1,5 @@
 @model HNB.Areas.Backoffice.Services.NavigationItem
 @{
-    var activeUrl = ViewData["ActiveUrl"] as string ?? "";
-    var isActive = !string.IsNullOrEmpty(Model.Url) && activeUrl.StartsWith(Model.Url, StringComparison.OrdinalIgnoreCase);
     var hasChildren = Model.HasChildren;
     var itemId = $"nav-item-{Model.Id}";
     var childrenId = $"nav-children-{Model.Id}";
@@ -36,9 +34,9 @@ else if (!string.IsNullOrEmpty(Model.Url))
 {
     <!-- 有連結的導航項目 -->
     <a href="@Model.Url"
-       class="w-full flex items-center gap-2 rounded-md px-3 py-2 hover:bg-slate-100 @(isActive ? "bg-blue-50 text-blue-700 border-r-2 border-blue-700" : "")"
+       class="nav-item w-full flex items-center gap-2 rounded-md px-3 py-2 hover:bg-slate-100"
        data-nav-url="@Model.Url">
-        <i data-lucide="@(Model.Icon ?? "circle")" class="h-4 w-4 shrink-0 @(isActive ? "text-blue-700" : "")"></i>
+        <i data-lucide="@(Model.Icon ?? "circle")" class="h-4 w-4 shrink-0"></i>
         <span class="truncate" data-collapsed-target>@Model.Title</span>
     </a>
 }

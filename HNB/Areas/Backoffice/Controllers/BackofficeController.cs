@@ -5,14 +5,13 @@ using Models.HnbHnbBackoffice;
 namespace HNB.Areas.Backoffice.Controllers;
 
 [Area("Backoffice")]
-public class BackofficeController(SidebarNavigationService sidebarService, PermissionManagementService permissionService) : BaseController(sidebarService)
+public class BackofficeController(PermissionManagementService permissionService) : BaseController
 {
     /// <summary>
     /// 個人資料頁面
     /// </summary>
     public IActionResult Profile()
     {
-        SetActiveNavigation("/Backoffice/Backoffice/Profile");
         
         var userName = User.Identity?.Name;
         if (string.IsNullOrEmpty(userName))

@@ -125,8 +125,14 @@ public class PermissionManagementRepository(HnbHnbBackofficeDbContext db)
         var existingEntity = db.permission_managements.Find(user.id);
         if (existingEntity == null)
         {
+            // 新增時讓資料庫自動設定時間戳記
             db.Add(user);
             existingEntity = user;
+        }
+        else
+        {
+            // 更新時觸發 updated_at 更新
+            existingEntity.updated_at = null; // 讓資料庫自動設定
         }
 
         existingEntity.type = user.type;
@@ -162,8 +168,14 @@ public class PermissionManagementRepository(HnbHnbBackofficeDbContext db)
         var existingEntity = db.permission_managements.Find(role.id);
         if (existingEntity == null)
         {
+            // 新增時讓資料庫自動設定時間戳記
             db.Add(role);
             existingEntity = role;
+        }
+        else
+        {
+            // 更新時觸發 updated_at 更新
+            existingEntity.updated_at = null; // 讓資料庫自動設定
         }
 
         existingEntity.type = role.type;
@@ -185,8 +197,14 @@ public class PermissionManagementRepository(HnbHnbBackofficeDbContext db)
         var existingEntity = db.permission_managements.Find(organization.id);
         if (existingEntity == null)
         {
+            // 新增時讓資料庫自動設定時間戳記
             db.Add(organization);
             existingEntity = organization;
+        }
+        else
+        {
+            // 更新時觸發 updated_at 更新
+            existingEntity.updated_at = null; // 讓資料庫自動設定
         }
 
         existingEntity.type = organization.type;
