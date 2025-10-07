@@ -119,67 +119,232 @@
         </div>
     </div>
 
-    <!-- 功能區塊 -->
+    <!-- 主要功能區塊 -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- 快速導航 -->
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4 border-l-4 border-blue-600 pl-3">快速導航</h2>
+            <div class="space-y-3">
+                <a href="@Url.Action("NovaHome", "TeamZone", new { area = "HNB_WEB" })" 
+                   class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                    <i data-lucide="users" class="h-6 w-6 text-blue-600"></i>
+                    <div>
+                        <div class="font-medium text-gray-800">團隊介紹</div>
+                        <div class="text-sm text-gray-500">了解 Horizon-Nova 團隊成員</div>
+                    </div>
+                </a>
+                <a href="https://horizon-nova.up.railway.app/MISSA/Dashboard/Dashboard" target="_blank"
+                   class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                    <i data-lucide="globe" class="h-6 w-6 text-green-600"></i>
+                    <div>
+                        <div class="font-medium text-gray-800">MISSA 官方網站</div>
+                        <div class="text-sm text-gray-500">資管系學會官方網站</div>
+                    </div>
+                </a>
+                <a href="https://www.cute.edu.tw/" target="_blank"
+                   class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                    <i data-lucide="university" class="h-6 w-6 text-purple-600"></i>
+                    <div>
+                        <div class="font-medium text-gray-800">學校首頁</div>
+                        <div class="text-sm text-gray-500">國立台中教育大學</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- 系學會亮點 -->
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4 border-l-4 border-blue-600 pl-3">系學會亮點</h2>
+            <div class="space-y-4">
+                <div class="flex gap-3">
+                    <div class="flex-shrink-0">
+                        <div class="w-2 h-2 bg-blue-600 rounded-full mt-2"></div>
+                    </div>
+                    <div>
+                        <div class="font-medium text-gray-800">數位化服務平台</div>
+                        <div class="text-sm text-gray-500">打造現代化的學生服務體驗</div>
+                        <div class="text-xs text-gray-400 mt-1">持續優化中</div>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <div class="flex-shrink-0">
+                        <div class="w-2 h-2 bg-green-600 rounded-full mt-2"></div>
+                    </div>
+                    <div>
+                        <div class="font-medium text-gray-800">專業技能培訓</div>
+                        <div class="text-sm text-gray-500">提供程式設計與資訊管理相關課程</div>
+                        <div class="text-xs text-gray-400 mt-1">定期舉辦</div>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <div class="flex-shrink-0">
+                        <div class="w-2 h-2 bg-orange-600 rounded-full mt-2"></div>
+                    </div>
+                    <div>
+                        <div class="font-medium text-gray-800">產學合作機會</div>
+                        <div class="text-sm text-gray-500">與業界建立緊密合作關係</div>
+                        <div class="text-xs text-gray-400 mt-1">積極拓展中</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 重要連結 -->
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4 border-l-4 border-blue-600 pl-3">重要連結</h2>
+            <div class="grid grid-cols-2 gap-3">
+                <a href="https://sites.google.com/view/cutedmis" target="_blank"
+                   class="flex flex-col items-center p-4 rounded-lg hover:bg-gray-50 transition-colors">
+                    <i data-lucide="book-open" class="h-8 w-8 text-indigo-600 mb-2"></i>
+                    <div class="text-sm font-medium text-gray-800 text-center">資管系簡介</div>
+                </a>
+                <a href="https://gene.gm.cute.edu.tw/總務系統" target="_blank"
+                   class="flex flex-col items-center p-4 rounded-lg hover:bg-gray-50 transition-colors">
+                    <i data-lucide="settings" class="h-8 w-8 text-gray-600 mb-2"></i>
+                    <div class="text-sm font-medium text-gray-800 text-center">總務系統</div>
+                </a>
+                <a href="https://sites.google.com/gm.cute.edu.tw/ecas/課外組獎助學金專區" target="_blank"
+                   class="flex flex-col items-center p-4 rounded-lg hover:bg-gray-50 transition-colors">
+                    <i data-lucide="award" class="h-8 w-8 text-yellow-600 mb-2"></i>
+                    <div class="text-sm font-medium text-gray-800 text-center">校內獎助學金</div>
+                </a>
+                <a href="https://even.cute.edu.tw/jkcboard/scview.aspx" target="_blank"
+                   class="flex flex-col items-center p-4 rounded-lg hover:bg-gray-50 transition-colors">
+                    <i data-lucide="trophy" class="h-8 w-8 text-orange-600 mb-2"></i>
+                    <div class="text-sm font-medium text-gray-800 text-center">校外獎助學金</div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 系學會優勢 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-6 border border-blue-200">
+            <div class="flex items-start gap-4 mb-4">
+                <div class="p-3 bg-blue-600 rounded-lg flex-shrink-0">
+                    <i data-lucide="heart" class="h-6 w-6 text-white"></i>
+                </div>
+                <div class="flex-1">
+                    <div class="text-xl font-bold text-blue-800 mb-2">用心</div>
+                    <div class="text-sm text-blue-600">服務同學</div>
+                </div>
+            </div>
+            <div class="bg-blue-50/50 rounded-lg p-3 border border-blue-200">
+                <div class="text-xs text-blue-500 leading-relaxed">
+                    提供完整的學生服務，包括活動籌辦、表單申請協助、學習資源整合，讓每位同學都能感受到溫暖的關懷與支持。
+                </div>
+            </div>
+        </div>
+        <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-6 border border-green-200">
+            <div class="flex items-start gap-4 mb-4">
+                <div class="p-3 bg-green-600 rounded-lg flex-shrink-0">
+                    <i data-lucide="lightbulb" class="h-6 w-6 text-white"></i>
+                </div>
+                <div class="flex-1">
+                    <div class="text-xl font-bold text-green-800 mb-2">創新</div>
+                    <div class="text-sm text-green-600">數位化服務</div>
+                </div>
+            </div>
+            <div class="bg-green-50/50 rounded-lg p-3 border border-green-200">
+                <div class="text-xs text-green-500 leading-relaxed">
+                    運用最新技術打造線上服務平台，提供數位化表單、線上報名系統、即時資訊更新，提升服務效率與便利性。
+                </div>
+            </div>
+        </div>
+        <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-6 border border-purple-200">
+            <div class="flex items-start gap-4 mb-4">
+                <div class="p-3 bg-purple-600 rounded-lg flex-shrink-0">
+                    <i data-lucide="users" class="h-6 w-6 text-white"></i>
+                </div>
+                <div class="flex-1">
+                    <div class="text-xl font-bold text-purple-800 mb-2">團結</div>
+                    <div class="text-sm text-purple-600">凝聚向心力</div>
+                </div>
+            </div>
+            <div class="bg-purple-50/50 rounded-lg p-3 border border-purple-200">
+                <div class="text-xs text-purple-500 leading-relaxed">
+                    定期舉辦迎新活動、系友聚會、團隊建設活動，建立緊密的同儕關係，讓每位同學都能找到歸屬感與支持。
+                </div>
+            </div>
+        </div>
+        <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-6 border border-orange-200">
+            <div class="flex items-start gap-4 mb-4">
+                <div class="p-3 bg-orange-600 rounded-lg flex-shrink-0">
+                    <i data-lucide="trending-up" class="h-6 w-6 text-white"></i>
+                </div>
+                <div class="flex-1">
+                    <div class="text-xl font-bold text-orange-800 mb-2">成長</div>
+                    <div class="text-sm text-orange-600">持續進步</div>
+                </div>
+            </div>
+            <div class="bg-orange-50/50 rounded-lg p-3 border border-orange-200">
+                <div class="text-xs text-orange-500 leading-relaxed">
+                    不斷學習新技術、引進新服務、優化既有流程，與時俱進地提升系學會的服務品質與影響力。
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 功能服務區 -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <!-- 系學會行政作業 -->
+        <!-- 學生服務 -->
         <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
-            <h2 class="text-xl font-semibold text-gray-800 mb-4 border-l-4 border-blue-600 pl-3">系學會行政作業</h2>
+            <h2 class="text-xl font-semibold text-gray-800 mb-4 border-l-4 border-blue-600 pl-3">學生服務</h2>
             <div class="grid grid-cols-2 gap-4">
-                <div class="bg-gray-50 rounded-lg p-4 text-center hover:bg-gray-100 transition-all cursor-pointer shadow-sm hover:shadow-md"
-                     onclick="location.href='@Url.Action("NovaHome", "TeamZone", new { area = "HNB_WEB" })'">
-                     <i data-lucide="users" class="h-8 w-8 mx-auto mb-2 text-gray-600"></i>
-                    <div class="text-sm font-medium text-gray-800">幹部介紹</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 表單與資源下載 -->
-        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
-            <h2 class="text-xl font-semibold text-gray-800 mb-4 border-l-4 border-blue-600 pl-3">表單與資源下載</h2>
-            <div class="grid grid-cols-1 gap-4">
                 <div class="bg-gray-50 rounded-lg p-4 text-center hover:bg-gray-100 transition-all cursor-pointer shadow-sm hover:shadow-md">
-                    <i data-lucide="folder-open" class="h-8 w-8 mx-auto mb-2 text-gray-600"></i>
-                    <div class="text-sm font-medium text-gray-800">資源下載</div>
+                    <i data-lucide="file-text" class="h-8 w-8 mx-auto mb-2 text-blue-600"></i>
+                    <div class="text-sm font-medium text-gray-800">表單下載</div>
+                    <div class="text-xs text-gray-500 mt-1">各類申請表單</div>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-4 text-center hover:bg-gray-100 transition-all cursor-pointer shadow-sm hover:shadow-md">
+                    <i data-lucide="calendar-check" class="h-8 w-8 mx-auto mb-2 text-green-600"></i>
+                    <div class="text-sm font-medium text-gray-800">活動報名</div>
+                    <div class="text-xs text-gray-500 mt-1">線上報名系統</div>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-4 text-center hover:bg-gray-100 transition-all cursor-pointer shadow-sm hover:shadow-md">
+                    <i data-lucide="book-open" class="h-8 w-8 mx-auto mb-2 text-purple-600"></i>
+                    <div class="text-sm font-medium text-gray-800">學習資源</div>
+                    <div class="text-xs text-gray-500 mt-1">課程資料庫</div>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-4 text-center hover:bg-gray-100 transition-all cursor-pointer shadow-sm hover:shadow-md">
+                    <i data-lucide="help-circle" class="h-8 w-8 mx-auto mb-2 text-orange-600"></i>
+                    <div class="text-sm font-medium text-gray-800">常見問題</div>
+                    <div class="text-xs text-gray-500 mt-1">FAQ 專區</div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- 競賽資訊 -->
-    <div class="bg-white rounded-lg shadow-lg p-6">
-        <h2 class="text-xl font-semibold text-slate-800 mb-4">最新競賽資訊</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="bg-slate-50 rounded-lg p-4 text-center hover:bg-slate-100 transition-colors cursor-pointer">
-                <i data-lucide="list" class="h-8 w-8 mx-auto mb-2 text-purple-600"></i>
-                <div class="text-sm font-medium text-slate-700">競賽總覽</div>
-            </div>
-            <div class="bg-slate-50 rounded-lg p-4 text-center hover:bg-slate-100 transition-colors cursor-pointer">
-                <i data-lucide="edit" class="h-8 w-8 mx-auto mb-2 text-orange-600"></i>
-                <div class="text-sm font-medium text-slate-700">我要報名</div>
-            </div>
-            <div class="bg-slate-50 rounded-lg p-4 text-center hover:bg-slate-100 transition-colors cursor-pointer">
-                <i data-lucide="award" class="h-8 w-8 mx-auto mb-2 text-yellow-600"></i>
-                <div class="text-sm font-medium text-slate-700">成績查詢</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 歷年活動回顧 -->
-    <div class="bg-white rounded-lg shadow-lg p-6">
-        <h2 class="text-xl font-semibold text-slate-800 mb-2">歷年活動回顧</h2>
-        <p class="text-slate-500 text-sm mb-4">瀏覽過去的活動記錄與成果。</p>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="bg-slate-50 rounded-lg p-4 text-center hover:bg-slate-100 transition-colors cursor-pointer">
-                <i data-lucide="image" class="h-8 w-8 mx-auto mb-2 text-indigo-600"></i>
-                <div class="text-sm font-medium text-slate-700">活動照片</div>
-            </div>
-            <div class="bg-slate-50 rounded-lg p-4 text-center hover:bg-slate-100 transition-colors cursor-pointer">
-                <i data-lucide="video" class="h-8 w-8 mx-auto mb-2 text-red-600"></i>
-                <div class="text-sm font-medium text-slate-700">活動影片</div>
-            </div>
-            <div class="bg-slate-50 rounded-lg p-4 text-center hover:bg-slate-100 transition-colors cursor-pointer">
-                <i data-lucide="file-text" class="h-8 w-8 mx-auto mb-2 text-teal-600"></i>
-                <div class="text-sm font-medium text-slate-700">活動報告</div>
+        <!-- 未來功能預告 -->
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4 border-l-4 border-blue-600 pl-3">即將推出</h2>
+            <div class="space-y-4">
+                <div class="flex items-center gap-3 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+                    <div class="p-2 bg-blue-600 rounded-lg">
+                        <i data-lucide="clock" class="h-4 w-4 text-white"></i>
+                    </div>
+                    <div>
+                        <div class="font-medium text-gray-800">歷年活動回顧</div>
+                        <div class="text-sm text-gray-500">完整的活動歷史記錄</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+                    <div class="p-2 bg-green-600 rounded-lg">
+                        <i data-lucide="clock" class="h-4 w-4 text-white"></i>
+                    </div>
+                    <div>
+                        <div class="font-medium text-gray-800">競賽管理系統</div>
+                        <div class="text-sm text-gray-500">線上報名與成績查詢</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 p-3 bg-gradient-to-r from-purple-50 to-violet-50 rounded-lg border border-purple-200">
+                    <div class="p-2 bg-purple-600 rounded-lg">
+                        <i data-lucide="clock" class="h-4 w-4 text-white"></i>
+                    </div>
+                    <div>
+                        <div class="font-medium text-gray-800">線上投票系統</div>
+                        <div class="text-sm text-gray-500">幹部選舉與民意調查</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
