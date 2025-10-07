@@ -6,9 +6,13 @@ using System.Text.RegularExpressions;
 
 namespace HNB.Areas.Backoffice.Utilities;
 
+/// <summary>
+/// 目錄管理器工具類，負責處理檔案和資料夾的底層操作
+/// 遵循現有的架構模式：統一的工具方法 + 功能分組
+/// </summary>
 public sealed class DirectoryManagerUtilities
 {
-    #region 設定 & 欄位
+    #region 統一的設定和欄位
     private readonly string _root;
     private readonly bool _ignoreCase;
     private readonly string[] _ignorePatternsFromConfig;
@@ -27,7 +31,11 @@ public sealed class DirectoryManagerUtilities
     };
     #endregion
 
-    #region 建構子
+    #region 建構子和初始化
+    /// <summary>
+    /// 建構子，初始化目錄管理器工具
+    /// </summary>
+    /// <param name="cfg">配置物件</param>
     public DirectoryManagerUtilities(IConfiguration cfg)
     {
         _root = Path.GetFullPath(cfg["Storage:Root"] ?? "/app/storage");
@@ -39,7 +47,12 @@ public sealed class DirectoryManagerUtilities
     }
     #endregion
 
-    #region Path / Name Utilities
+    #region 路徑和名稱處理工具
+    /// <summary>
+    /// 標準化路徑
+    /// </summary>
+    /// <param name="path">原始路徑</param>
+    /// <returns>標準化後的路徑</returns>
     public string NormalizePath(string? path)
     {
         var p = (path ?? "/").Replace('\\', '/').Trim();
@@ -51,6 +64,11 @@ public sealed class DirectoryManagerUtilities
         return "/" + string.Join('/', segs);
     }
 
+    /// <summary>
+    /// 取得安全的絕對路徑
+    /// </summary>
+    /// <param name="virtualPath">虛擬路徑</param>
+    /// <returns>安全的絕對路徑</returns>
     public string GetSafeAbsolutePath(string virtualPath)
     {
         Directory.CreateDirectory(_root);
@@ -62,6 +80,11 @@ public sealed class DirectoryManagerUtilities
         return combined;
     }
 
+    /// <summary>
+    /// 清理檔案/資料夾名稱
+    /// </summary>
+    /// <param name="raw">原始名稱</param>
+    /// <returns>清理後的名稱</returns>
     public string SanitizeName(string raw)
     {
         var name = WebUtility.HtmlDecode(raw ?? string.Empty).Trim();
@@ -71,6 +94,11 @@ public sealed class DirectoryManagerUtilities
         return name;
     }
 
+    /// <summary>
+    /// 清理路徑片段
+    /// </summary>
+    /// <param name="relPath">相對路徑</param>
+    /// <returns>清理後的路徑</returns>
     public string SanitizePathSegments(string relPath)
     {
         var parts = relPath.Split('/', StringSplitOptions.RemoveEmptyEntries)
@@ -79,6 +107,11 @@ public sealed class DirectoryManagerUtilities
         return string.Join('/', parts);
     }
 
+    /// <summary>
+    /// 確保檔案名稱唯一
+    /// </summary>
+    /// <param name="absPath">絕對路徑</param>
+    /// <returns>唯一的檔案路徑</returns>
     public string EnsureUniqueFile(string absPath)
     {
         if (!File.Exists(absPath)) return absPath;
@@ -91,6 +124,11 @@ public sealed class DirectoryManagerUtilities
         return candidate;
     }
 
+    /// <summary>
+    /// 確保資料夾名稱唯一
+    /// </summary>
+    /// <param name="absDir">絕對路徑</param>
+    /// <returns>唯一的資料夾路徑</returns>
     public string EnsureUniqueDirectory(string absDir)
     {
         if (!Directory.Exists(absDir)) return absDir;
@@ -102,7 +140,11 @@ public sealed class DirectoryManagerUtilities
         return candidate;
     }
 
-    // 資料夾命名：僅允許 英數/空白/.-_（不允許中文或非 ASCII）
+    /// <summary>
+    /// 確保資料夾名稱符合ASCII規範
+    /// </summary>
+    /// <param name="rawName">原始名稱</param>
+    /// <exception cref="InvalidOperationException">當名稱不符合規範時拋出</exception>
     public void EnsureFolderAsciiOnlyOrThrow(string? rawName)
     {
         var name = WebUtility.HtmlDecode(rawName ?? string.Empty).Trim();
@@ -113,7 +155,13 @@ public sealed class DirectoryManagerUtilities
     }
     #endregion
 
-    #region Ignore / Protect 名單（.gitignore 風格）
+    #region 保護和忽略名單管理
+    /// <summary>
+    /// 檢查路徑是否受保護
+    /// </summary>
+    /// <param name="virtualPath">虛擬路徑</param>
+    /// <param name="name">檔案或資料夾名稱</param>
+    /// <returns>是否受保護</returns>
     public bool IsProtected(string virtualPath, string? name = null)
     {
         if (_protectedRegexes.Count == 0) return false;
@@ -132,6 +180,9 @@ public sealed class DirectoryManagerUtilities
         return false;
     }
 
+    /// <summary>
+    /// 建立忽略規則快取
+    /// </summary>
     private void BuildIgnoreRegexCache()
     {
         _protectedRegexes.Clear();
@@ -161,6 +212,12 @@ public sealed class DirectoryManagerUtilities
         }
     }
 
+    /// <summary>
+    /// 建立Glob規則的Regex
+    /// </summary>
+    /// <param name="pattern">Glob模式</param>
+    /// <param name="options">Regex選項</param>
+    /// <returns>編譯後的Regex</returns>
     private static Regex? BuildGlobRegex(string? pattern, RegexOptions options)
     {
         if (string.IsNullOrWhiteSpace(pattern)) return null;
@@ -193,7 +250,12 @@ public sealed class DirectoryManagerUtilities
     }
     #endregion
 
-    #region 麵包屑 / 樹 / 清單
+    #region 導航和清單功能
+    /// <summary>
+    /// 建立麵包屑導航
+    /// </summary>
+    /// <param name="virtualPath">虛擬路徑</param>
+    /// <returns>麵包屑清單</returns>
     public List<(string Name, string VirtualPath)> BuildBreadcrumb(string virtualPath)
     {
         var v = NormalizePath(virtualPath);
@@ -210,6 +272,10 @@ public sealed class DirectoryManagerUtilities
         return list;
     }
 
+    /// <summary>
+    /// 建立目錄樹結構
+    /// </summary>
+    /// <returns>目錄樹清單</returns>
     public List<(string Name, string VirtualPath, int Depth)> BuildTree()
     {
         var tree = new List<(string, string, int)> { ("根目錄", "/", 0) };
@@ -231,6 +297,11 @@ public sealed class DirectoryManagerUtilities
         }
     }
 
+    /// <summary>
+    /// 列出資料夾
+    /// </summary>
+    /// <param name="virtualPath">虛擬路徑</param>
+    /// <returns>資料夾清單</returns>
     public List<(string Name, DateTime? LastWriteUtc)> ListFolders(string virtualPath)
     {
         var abs = GetSafeAbsolutePath(virtualPath);
@@ -242,6 +313,11 @@ public sealed class DirectoryManagerUtilities
             .ToList();
     }
 
+    /// <summary>
+    /// 列出檔案
+    /// </summary>
+    /// <param name="virtualPath">虛擬路徑</param>
+    /// <returns>檔案清單</returns>
     public List<(string Name, long Size, DateTime? LastWriteUtc)> ListFiles(string virtualPath)
     {
         var abs = GetSafeAbsolutePath(virtualPath);
@@ -257,7 +333,13 @@ public sealed class DirectoryManagerUtilities
     }
     #endregion
 
-    #region 上傳目標計算（僅回傳安全目標路徑，實際寫入由上層處理）
+    #region 上傳目標計算
+    /// <summary>
+    /// 準備單一檔案上傳目標
+    /// </summary>
+    /// <param name="virtualPath">虛擬路徑</param>
+    /// <param name="originalFileName">原始檔名</param>
+    /// <returns>絕對路徑和安全檔名</returns>
     public (string AbsFilePath, string SafeFileName) PrepareSingleUploadTarget(string virtualPath, string originalFileName)
     {
         var absDir = GetSafeAbsolutePath(virtualPath);
@@ -271,7 +353,12 @@ public sealed class DirectoryManagerUtilities
         return (absTarget, Path.GetFileName(absTarget));
     }
 
-    // 支援「相對路徑」上傳（含子資料夾）
+    /// <summary>
+    /// 準備批量上傳目標（支援相對路徑）
+    /// </summary>
+    /// <param name="virtualPath">虛擬路徑</param>
+    /// <param name="relativePath">相對路徑</param>
+    /// <returns>絕對路徑、安全檔名和目標虛擬目錄</returns>
     public (string AbsFilePath, string SafeFileName, string TargetVirtualDir) PrepareBatchUploadTarget(string virtualPath, string relativePath)
     {
         var rel = (relativePath ?? "").Replace('\\', '/').Trim('/');
@@ -298,7 +385,12 @@ public sealed class DirectoryManagerUtilities
     }
     #endregion
 
-    #region 檔案/資料夾 操作（建立 / 刪除 / 重新命名）
+    #region 檔案和資料夾操作
+    /// <summary>
+    /// 建立資料夾
+    /// </summary>
+    /// <param name="virtualPath">虛擬路徑</param>
+    /// <param name="folderName">資料夾名稱</param>
     public void CreateFolder(string virtualPath, string folderName)
     {
         var absDir = GetSafeAbsolutePath(virtualPath);
@@ -314,6 +406,11 @@ public sealed class DirectoryManagerUtilities
         Directory.CreateDirectory(newDir);
     }
 
+    /// <summary>
+    /// 建立空檔案
+    /// </summary>
+    /// <param name="virtualPath">虛擬路徑</param>
+    /// <param name="fileName">檔案名稱</param>
     public void CreateEmptyFile(string virtualPath, string fileName)
     {
         var absDir = GetSafeAbsolutePath(virtualPath);
@@ -327,6 +424,11 @@ public sealed class DirectoryManagerUtilities
         File.WriteAllBytes(target, Array.Empty<byte>());
     }
 
+    /// <summary>
+    /// 刪除檔案
+    /// </summary>
+    /// <param name="virtualPath">虛擬路徑</param>
+    /// <param name="fileName">檔案名稱</param>
     public void DeleteFile(string virtualPath, string fileName)
     {
         if (IsProtected(virtualPath, fileName)) throw new InvalidOperationException("保護路徑，禁止刪除");
@@ -336,6 +438,11 @@ public sealed class DirectoryManagerUtilities
         if (File.Exists(full)) File.Delete(full);
     }
 
+    /// <summary>
+    /// 刪除資料夾
+    /// </summary>
+    /// <param name="virtualPath">虛擬路徑</param>
+    /// <param name="folderName">資料夾名稱</param>
     public void DeleteFolder(string virtualPath, string folderName)
     {
         if (IsProtected(virtualPath, folderName)) throw new InvalidOperationException("保護路徑，禁止刪除");
@@ -345,6 +452,12 @@ public sealed class DirectoryManagerUtilities
         if (Directory.Exists(dir)) Directory.Delete(dir, recursive: true);
     }
 
+    /// <summary>
+    /// 重新命名檔案
+    /// </summary>
+    /// <param name="virtualPath">虛擬路徑</param>
+    /// <param name="oldName">舊檔名</param>
+    /// <param name="newName">新檔名</param>
     public void RenameFile(string virtualPath, string oldName, string newName)
     {
         var absDir = GetSafeAbsolutePath(virtualPath);
@@ -360,6 +473,12 @@ public sealed class DirectoryManagerUtilities
         File.Move(src, dst);
     }
 
+    /// <summary>
+    /// 重新命名資料夾
+    /// </summary>
+    /// <param name="virtualPath">虛擬路徑</param>
+    /// <param name="oldName">舊資料夾名</param>
+    /// <param name="newName">新資料夾名</param>
     public void RenameFolder(string virtualPath, string oldName, string newName)
     {
         var absDir = GetSafeAbsolutePath(virtualPath);
@@ -378,7 +497,13 @@ public sealed class DirectoryManagerUtilities
     }
     #endregion
 
-    #region 讀取 / 下載 / Zip
+    #region 檔案讀取和下載
+    /// <summary>
+    /// 開啟檔案讀取
+    /// </summary>
+    /// <param name="virtualPath">虛擬路徑</param>
+    /// <param name="fileName">檔案名稱</param>
+    /// <returns>檔案串流、檔名和內容類型</returns>
     public (Stream Stream, string FileName, string ContentType) OpenRead(string virtualPath, string fileName)
     {
         var absDir = GetSafeAbsolutePath(virtualPath);
@@ -391,12 +516,24 @@ public sealed class DirectoryManagerUtilities
         return (stream, safe, ct);
     }
 
+    /// <summary>
+    /// 開啟原始檔案
+    /// </summary>
+    /// <param name="virtualPath">虛擬路徑</param>
+    /// <param name="fileName">檔案名稱</param>
+    /// <returns>檔案串流和內容類型</returns>
     public (Stream Stream, string ContentType) OpenRaw(string virtualPath, string fileName)
     {
         var (s, _, ct) = OpenRead(virtualPath, fileName);
         return (s, ct);
     }
 
+    /// <summary>
+    /// 壓縮資料夾為ZIP
+    /// </summary>
+    /// <param name="virtualPath">虛擬路徑</param>
+    /// <param name="folderName">資料夾名稱</param>
+    /// <returns>ZIP串流、檔名和內容類型</returns>
     public (Stream Stream, string FileName, string ContentType) ZipFolder(string virtualPath, string folderName)
     {
         if (IsProtected(virtualPath, folderName)) throw new InvalidOperationException("保護路徑，禁止壓縮");
@@ -438,9 +575,21 @@ public sealed class DirectoryManagerUtilities
     }
     #endregion
 
-    #region 文字檔 Read / Save（含 BOM 偵測）
+    #region 文字檔案編輯
+    /// <summary>
+    /// 檢查檔案是否可編輯
+    /// </summary>
+    /// <param name="fileName">檔案名稱</param>
+    /// <returns>是否可編輯</returns>
     public static bool IsEditable(string fileName) => EditableExt.Contains(Path.GetExtension(fileName));
 
+    /// <summary>
+    /// 讀取文字檔案
+    /// </summary>
+    /// <param name="virtualPath">虛擬路徑</param>
+    /// <param name="fileName">檔案名稱</param>
+    /// <param name="maxBytes">最大位元組數</param>
+    /// <returns>檔案內容、編碼名稱和最後修改時間</returns>
     public (string Content, string EncodingName, DateTime? LastWriteUtc) ReadTextFile(string virtualPath, string fileName, long maxBytes = 1_048_576)
     {
         if (!IsEditable(fileName))
@@ -470,6 +619,13 @@ public sealed class DirectoryManagerUtilities
         return (text, enc.WebName, fi.LastWriteTimeUtc);
     }
 
+    /// <summary>
+    /// 儲存文字檔案
+    /// </summary>
+    /// <param name="virtualPath">虛擬路徑</param>
+    /// <param name="fileName">檔案名稱</param>
+    /// <param name="content">檔案內容</param>
+    /// <param name="encodingName">編碼名稱</param>
     public void SaveTextFile(string virtualPath, string fileName, string content, string? encodingName = "utf-8")
     {
         if (IsProtected(virtualPath, fileName))

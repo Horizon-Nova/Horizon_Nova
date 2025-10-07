@@ -1,0 +1,266 @@
+@{
+    ViewData["Title"] = "檔案總管";
+    Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3 class="card-title mb-0">
+                            <i data-lucide="folder-tree" class="me-2"></i>
+                            檔案總管
+                        </h3>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="refreshFiles()">
+                                <i data-lucide="refresh-cw" class="me-1"></i>
+                                重新整理
+                            </button>
+                            <button type="button" class="btn btn-primary btn-sm" onclick="showCreateFolderModal()">
+                                <i data-lucide="folder-plus" class="me-1"></i>
+                                新增資料夾
+                            </button>
+                            <button type="button" class="btn btn-success btn-sm" onclick="showUploadModal()">
+                                <i data-lucide="upload" class="me-1"></i>
+                                上傳檔案
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- 左側：目錄樹 -->
+                        <div class="col-md-3">
+                            <div class="border rounded p-3">
+                                <h6 class="mb-3">
+                                    <i data-lucide="folder-tree" class="me-1"></i>
+                                    目錄結構
+                                </h6>
+                                <div id="treeContainer">
+                                    <!-- 目錄樹將在這裡載入 -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 右側：檔案清單 -->
+                        <div class="col-md-9">
+                            <div class="border rounded p-3">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="mb-0">
+                                        <i data-lucide="files" class="me-1"></i>
+                                        檔案清單
+                                    </h6>
+                                    <div class="text-muted small">
+                                        <span id="currentPath">/</span>
+                                    </div>
+                                </div>
+                                <div id="fileListContainer">
+                                    <!-- 檔案清單將在這裡載入 -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 新增資料夾 Modal -->
+<div class="modal fade" id="createFolderModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">新增資料夾</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createFolderForm">
+                    <div class="mb-3">
+                        <label for="folderName" class="form-label">資料夾名稱</label>
+                        <input type="text" class="form-control" id="folderName" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="createFolder()">建立</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 上傳檔案 Modal -->
+<div class="modal fade" id="uploadModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">上傳檔案</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="uploadFiles" class="form-label">選擇檔案</label>
+                        <input type="file" class="form-control" id="uploadFiles" multiple>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="uploadFiles()">上傳</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let currentPath = '/';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+            loadTree();
+            loadFileList();
+        });
+
+        function loadTree() {
+            fetch('@Url.Action("TreePartial", "FileManager", new { area = "Backoffice" })')
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('treeContainer').innerHTML = html;
+                    lucide.createIcons();
+                })
+                .catch(error => {
+                    console.error('載入目錄樹失敗:', error);
+                    showToast('載入目錄樹失敗', 'error');
+                });
+        }
+
+        function loadFileList(path = '/') {
+            currentPath = path;
+            document.getElementById('currentPath').textContent = path;
+            
+            fetch(`@Url.Action("ListPartial", "FileManager", new { area = "Backoffice" })?path=${encodeURIComponent(path)}`)
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('fileListContainer').innerHTML = html;
+                    lucide.createIcons();
+                })
+                .catch(error => {
+                    console.error('載入檔案清單失敗:', error);
+                    showToast('載入檔案清單失敗', 'error');
+                });
+        }
+
+        function refreshFiles() {
+            loadTree();
+            loadFileList(currentPath);
+            showToast('已重新整理', 'success');
+        }
+
+        function showCreateFolderModal() {
+            const modal = new bootstrap.Modal(document.getElementById('createFolderModal'));
+            modal.show();
+        }
+
+        function showUploadModal() {
+            const modal = new bootstrap.Modal(document.getElementById('uploadModal'));
+            modal.show();
+        }
+
+        function createFolder() {
+            const folderName = document.getElementById('folderName').value.trim();
+            if (!folderName) {
+                showToast('請輸入資料夾名稱', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('path', currentPath);
+            formData.append('name', folderName);
+
+            fetch('@Url.Action("CreateFolder", "FileManager", new { area = "Backoffice" })', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    showToast(data.message, 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('createFolderModal')).hide();
+                    document.getElementById('folderName').value = '';
+                    refreshFiles();
+                } else {
+                    showToast(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('建立資料夾失敗:', error);
+                showToast('建立資料夾失敗', 'error');
+            });
+        }
+
+        function uploadFiles() {
+            const files = document.getElementById('uploadFiles').files;
+            if (files.length === 0) {
+                showToast('請選擇要上傳的檔案', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('path', currentPath);
+            
+            for (let i = 0; i < files.length; i++) {
+                formData.append('files', files[i]);
+                formData.append('keys', files[i].name);
+            }
+
+            fetch('@Url.Action("Upload", "FileManager", new { area = "Backoffice" })', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    showToast(`成功上傳 ${data.saved} 個檔案`, 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('uploadModal')).hide();
+                    document.getElementById('uploadFiles').value = '';
+                    refreshFiles();
+                } else {
+                    showToast(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('上傳檔案失敗:', error);
+                showToast('上傳檔案失敗', 'error');
+            });
+        }
+
+        function showToast(message, type = 'info') {
+            // 簡單的toast實現
+            const toast = document.createElement('div');
+            toast.className = `alert alert-${type === 'error' ? 'danger' : type === 'success' ? 'success' : 'info'} alert-dismissible fade show position-fixed`;
+            toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            toast.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 5000);
+        }
+    </script>
+}

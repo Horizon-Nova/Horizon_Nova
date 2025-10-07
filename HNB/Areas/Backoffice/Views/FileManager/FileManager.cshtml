@@ -6,6 +6,7 @@
     Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
 }
 
+
 <section class="space-y-6">
     <form id="fmTokens">@Html.AntiForgeryToken()</form>
 
@@ -19,22 +20,51 @@
                             <i data-lucide="folders" class="w-4 h-4"></i> 資料夾
                         </h3>
                         <div class="flex gap-1">
-                            <button id="btnAddFolder" class="p-1.5 rounded hover:bg-slate-100"
-                                    title="新增資料夾" onclick="return fmAddFolder();">
-                                <i data-lucide="folder-plus" class="w-4 h-4"></i>
+                            <button onclick="showFileManagerHelp()" class="p-1.5 rounded hover:bg-slate-100"
+                                    title="說明">
+                                <i data-lucide="help-circle" class="w-4 h-4"></i>
                             </button>
-                            <button id="btnAddFile" class="p-1.5 rounded hover:bg-slate-100"
-                                    title="新增檔案" onclick="return fmAddFile();">
-                                <i data-lucide="file-plus" class="w-4 h-4"></i>
+                            <button onclick="showFolderAdd()" class="p-1.5 rounded hover:bg-slate-100"
+                                    title="新增資料夾">
+                                <i data-lucide="folder-plus" class="w-4 h-4"></i>
                             </button>
                         </div>
                     </div>
-                    <ul id="tree" class="space-y-1 text-sm"></ul>
-
+                    <ul id="tree" class="space-y-1 text-sm">
+                        @foreach (var (name, path, depth) in (List<(string Name, string VirtualPath, int Depth)>)ViewData["Tree"])
+                        {
+                            <li style="padding-left: @(depth * 16)px">
+                                <a href="@Url.Action("FileManager")?path=@Uri.EscapeDataString(path)" 
+                                   class="flex items-center space-x-2 hover:bg-slate-100 p-1 rounded @(path == ViewData["CurrentPath"] ? "bg-blue-50 text-blue-600" : "")">
+                                    <i data-lucide="@(depth == 0 ? "home" : "folder")" class="w-4 h-4"></i>
+                                    <span>@name</span>
+                                </a>
+                            </li>
+                        }
+                    </ul>
                 </aside>
 
                 <!-- 右側檔案清單 -->
                 <main class="col-span-12 md:col-span-9 bg-white border rounded-lg p-4 space-y-6 order-2">
+                    
+                    <!-- 麵包屑導航 -->
+                    <nav class="flex items-center space-x-2 text-sm text-gray-600">
+                        <a href="@Url.Action("FileManager")" class="hover:text-blue-600">
+                            <i data-lucide="home" class="w-4 h-4"></i>
+                        </a>
+                        @foreach (var (name, path) in (List<(string Name, string VirtualPath)>)ViewData["Breadcrumb"])
+                        {
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+                            if (path == ViewData["CurrentPath"])
+                            {
+                                <span class="text-gray-900 font-medium">@name</span>
+                            }
+                            else
+                            {
+                                <a href="@Url.Action("FileManager")?path=@Uri.EscapeDataString(path)" class="hover:text-blue-600">@name</a>
+                            }
+                        }
+                    </nav>
 
                     <!-- 拖曳上傳 -->
                     <form id="uploadForm" class="space-y-2" onsubmit="return false;">
@@ -51,60 +81,225 @@
                             <input id="fileInput" name="files" type="file" class="hidden" multiple />
                         </div>
 
-                        <!-- 進度列-->
-                        <div id="uploadPanel" class="hidden mt-3 rounded border p-3 text-sm">
-                            <div class="flex items-center justify-between mb-2">
-                                <div>上傳進度：<span id="upPct">0%</span>（<span id="upBytes">0 / 0</span>）</div>
-                                <div>預估剩餘：<span id="upEta">—</span></div>
-                            </div>
-                            <div class="w-full h-2 bg-slate-200 rounded overflow-hidden">
-                                <div id="upBar" class="h-2 bg-blue-500" style="width:0%"></div>
-                            </div>
-                            <div class="mt-2">
-                                <button id="btnCancelUpload" type="button" class="px-3 py-1 rounded border">中斷上傳</button>
-                            </div>
-                        </div>
-
                         <!-- 重新整理 -->
                         <div class="flex items-center gap-3">
                             <button id="btnRefresh" class="text-sm text-gray-600 hover:text-gray-800" type="button" onclick="location.reload()">
                                 重新整理
                             </button>
                         </div>
-
                     </form>
 
-
-                    <div id="fileListPanel"></div>
-
-                    <!-- 預覽 / 編輯面板（保留結構；未啟用） -->
-                    <div id="previewPanel" class="hidden fixed inset-0 bg-black/40 z-50">
-                        <div class="absolute inset-0 flex items-center justify-center p-4">
-                            <div class="bg-white light:bg-slate-900 w-full max-w-5xl rounded-xl shadow-xl overflow-hidden">
-                                <div class="flex items-center justify-between px-4 py-3 border-b">
-                                    <div class="font-semibold" id="pvTitle">預覽</div>
-                                    <div class="flex items-center gap-2">
-                                        <button class="px-2 py-1 text-sm rounded bg-slate-100 hover:bg-slate-200" onclick="document.getElementById('previewPanel').classList.add('hidden')">關閉</button>
+                    <!-- 資料夾清單 -->
+                    @if (((List<(string Name, DateTime? LastWriteUtc)>)ViewData["Folders"]).Any())
+                    {
+                        <div class="space-y-2">
+                            <h4 class="text-sm font-semibold text-slate-700 flex items-center">
+                                <i data-lucide="folder" class="w-4 h-4 mr-2"></i>資料夾
+                            </h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                                @foreach (var (name, lastWrite) in (List<(string Name, DateTime? LastWriteUtc)>)ViewData["Folders"])
+                                {
+                                    <div class="flex items-center space-x-3 p-3 border rounded-lg hover:bg-slate-50">
+                                        <i data-lucide="folder" class="w-5 h-5 text-blue-500"></i>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm font-medium text-slate-900 truncate">@name</p>
+                                            @if (lastWrite.HasValue)
+                                            {
+                                                <p class="text-xs text-slate-500">@lastWrite.Value.ToString("yyyy-MM-dd HH:mm")</p>
+                                            }
+                                        </div>
+                                            <div class="flex space-x-1">
+                                                <button onclick="showRename('@name', 'folder', currentPath)" class="p-1 text-slate-400 hover:text-slate-600" title="重新命名">
+                                                    <i data-lucide="edit" class="w-4 h-4"></i>
+                                                </button>
+                                                <button onclick="showDeleteConfirm('@name', 'folder', currentPath)" class="p-1 text-slate-400 hover:text-red-600" title="刪除">
+                                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                                </button>
+                                            </div>
                                     </div>
-                                </div>
-                                <div id="pvBody" class="p-4 max-h-[70vh] overflow-auto text-sm"></div>
-                                <div id="pvEditBar" class="hidden border-t px-4 py-3 flex justify-end gap-2">
-                                    <select id="pvEncoding" class="border rounded px-2 py-1 text-sm">
-                                        <option value="utf-8">UTF-8</option>
-                                        <option value="utf-8-bom">UTF-8 (BOM)</option>
-                                    </select>
-                                    <button class="px-3 py-1.5 text-sm rounded bg-blue-600 text-white hover:bg-blue-700">儲存</button>
-                                    <button class="px-3 py-1.5 text-sm rounded bg-slate-100 hover:bg-slate-200" onclick="document.getElementById('previewPanel').classList.add('hidden')">取消</button>
-                                </div>
+                                }
                             </div>
                         </div>
-                    </div>
+                    }
 
+                        <!-- 檔案清單 -->
+                        @if (((List<HNB.Areas.Backoffice.Services.FileItemViewModel>)ViewData["Files"]).Any())
+                        {
+                            <div class="space-y-2">
+                                <h4 class="text-sm font-semibold text-slate-700 flex items-center">
+                                    <i data-lucide="file" class="w-4 h-4 mr-2"></i>檔案
+                                </h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                                    @foreach (var file in (List<HNB.Areas.Backoffice.Services.FileItemViewModel>)ViewData["Files"])
+                                    {
+                                        <div class="flex items-center space-x-3 p-3 border rounded-lg hover:bg-slate-50">
+                                            <i data-lucide="file" class="w-5 h-5 text-slate-500"></i>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="text-sm font-medium text-slate-900 truncate">@file.Name</p>
+                                                <p class="text-xs text-slate-500">
+                                                    @if (file.LastWriteUtc.HasValue)
+                                                    {
+                                                        @file.LastWriteUtc.Value.ToString("yyyy-MM-dd HH:mm")
+                                                    }
+                                                    • @file.FormattedSize
+                                                </p>
+                                            </div>
+                                            <div class="flex space-x-1">
+                                                <button onclick="showFilePreview('@file.Name')" class="p-1 text-slate-400 hover:text-blue-600" title="預覽">
+                                                    <i data-lucide="eye" class="w-4 h-4"></i>
+                                                </button>
+                                                <button onclick="showRename('@file.Name', 'file', currentPath)" class="p-1 text-slate-400 hover:text-slate-600" title="重新命名">
+                                                    <i data-lucide="edit" class="w-4 h-4"></i>
+                                                </button>
+                                                <button onclick="showDeleteConfirm('@file.Name', 'file', currentPath)" class="p-1 text-slate-400 hover:text-red-600" title="刪除">
+                                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
                 </main>
             </div>
         </div>
     </div>
 </section>
-@section Scripts {
 
+@section Scripts {
+<script>
+// 全域變數
+let currentPath = '@ViewData["CurrentPath"]';
+
+// 簡化的檔案管理器功能
+function initFileManager() {
+    // 拖拽上傳功能
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    
+    if (dropzone && fileInput) {
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzone.classList.add('border-blue-400', 'bg-blue-50');
+        });
+
+        dropzone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('border-blue-400', 'bg-blue-50');
+        });
+
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('border-blue-400', 'bg-blue-50');
+            const files = Array.from(e.dataTransfer.files);
+            handleFileUpload(files);
+        });
+
+        dropzone.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            handleFileUpload(files);
+        });
+    }
+}
+
+async function handleFileUpload(files) {
+    if (files.length === 0) return;
+
+    const formData = new FormData();
+    formData.append('path', currentPath);
+    files.forEach(file => formData.append('files', file));
+
+    try {
+        const response = await fetch('@Url.Action("UploadMany", "FileManager")', {
+            method: 'POST',
+            headers: {
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+            },
+            body: formData
+        });
+
+        const result = await response.json();
+        if (result.ok) {
+            showToast(`成功上傳 ${result.data.uploadedCount} 個檔案`, 'success');
+            location.reload();
+        } else {
+            showToast('上傳失敗：' + result.error, 'error');
+        }
+    } catch (error) {
+        showToast('上傳失敗：' + error.message, 'error');
+    }
+}
+
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 ${
+        type === 'success' ? 'bg-green-500 text-white' : 
+        type === 'error' ? 'bg-red-500 text-white' : 
+        'bg-blue-500 text-white'
+    }`;
+    toast.textContent = message;
+    
+    document.body.appendChild(toast);
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+
+// 檔案操作函數
+function showFilePreview(fileName) {
+    window.open('@Url.Action("Raw", "FileManager")?name=' + encodeURIComponent(fileName) + '&path=' + encodeURIComponent(currentPath), '_blank');
+}
+
+
+// Modal 相關函數
+function showFileManagerHelp() {
+    $('#fileManagerHelpModal').removeClass('hidden');
+}
+
+function showFolderAdd() {
+    $('#folderFormModal').removeClass('hidden');
+}
+
+
+function closeModal(modalId) {
+    $('#' + modalId).addClass('hidden');
+}
+
+// 表單提交處理
+$(document).on('submit', '#folderForm', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    formData.append('path', currentPath);
+    
+    $.ajax({
+        url: '@Url.Action("CreateFolder", "FileManager")',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+            if (response.ok) {
+                showToast('資料夾建立成功', 'success');
+                closeModal('folderFormModal');
+                location.reload();
+            } else {
+                showToast('建立失敗：' + response.error, 'error');
+            }
+        },
+        error: function(xhr, status, error) {
+            showToast('建立失敗：' + error, 'error');
+        }
+    });
+});
+
+// 初始化
+document.addEventListener('DOMContentLoaded', function() {
+    lucide.createIcons();
+    initFileManager();
+});
+</script>
+
+<!-- 載入所有Modal -->
+@await Html.PartialAsync("_HelpDetail")
 }
