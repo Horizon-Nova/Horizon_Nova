@@ -1,0 +1,194 @@
+@{
+    Layout = null;
+    var title = ViewData["Title"] as string ?? "資管系學會網站 MISSA";
+}
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@title</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="~/missa/image/MISSA_Icon.png">
+    <link rel="shortcut icon" type="image/png" href="~/missa/image/MISSA_Icon.png">
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <!-- DataTable -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.tailwindcss.min.css">
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.tailwindcss.min.js"></script>
+
+    <!-- 自訂樣式 -->
+    <link rel="stylesheet" href="~/MISSA/css/Layout.css" />
+    <script src="~/MISSA/js/Layout.js"></script>
+
+</head>
+            <body class="h-screen w-screen bg-gray-50 text-gray-700">
+
+    <div class="h-screen flex">
+        <!-- Sidebar -->
+        <aside id="sidebar"
+               class="relative bg-gray-600 border-r border-white transition-all duration-300 w-64 data-[collapsed=true]:w-16">
+            <div class="flex h-16 items-center justify-between px-4 border-b border-white">
+                <h2 class="text-lg font-semibold text-white truncate hidden data-[collapsed=false]:block"
+                    data-collapsed-target>
+                    MISSA
+                </h2>
+                <button id="btnToggleSidebar"
+                        type="button"
+                        class="h-8 w-8 inline-flex items-center justify-center rounded-md hover:bg-gray-600 text-white"
+                        title="收合/展開">
+                    <i id="iconChevron" data-lucide="chevron-left" class="h-4 w-4"></i>
+                </button>
+            </div>
+
+            <nav class="px-3 py-4 overflow-y-auto h-[calc(100vh-4rem)] space-y-2 text-white">
+                <!-- MISSA 首頁 -->
+                <a href="@Url.Action("Dashboard", "Dashboard", new { area = "MISSA" })"
+                   class="w-full flex items-center gap-2 rounded-md px-3 py-2 hover:bg-gray-700 transition-colors">
+                    <i data-lucide="home" class="h-4 w-4 shrink-0"></i>
+                    <span class="truncate" data-collapsed-target>MISSA 首頁</span>
+                </a>
+
+                <!-- 系所服務 -->
+                <div class="space-y-1">
+                <button type="button" 
+                        class="w-full flex items-center justify-between gap-2 rounded-md px-3 py-2 hover:bg-gray-700 transition-colors"
+                        onclick="toggleCollapse('departmentCollapse')">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="school" class="h-4 w-4 shrink-0"></i>
+                            <span class="truncate" data-collapsed-target>系所服務</span>
+                        </div>
+                        <i data-lucide="chevron-down" class="h-4 w-4 transition-transform" id="departmentChevron"></i>
+                    </button>
+                    <div id="departmentCollapse" class="hidden ml-6 space-y-1">
+                                    <a href="https://www.cute.edu.tw/" target="_blank"
+                                       class="w-full flex items-center gap-2 rounded-md px-3 py-2 hover:bg-gray-700 transition-colors text-sm">
+                            <i data-lucide="university" class="h-3 w-3 shrink-0"></i>
+                            <span class="truncate" data-collapsed-target>學校首頁</span>
+                        </a>
+                        <a href="https://sites.google.com/view/cutedmis" target="_blank"
+                           class="w-full flex items-center gap-2 rounded-md px-3 py-2 hover:bg-gray-700 transition-colors text-sm">
+                            <i data-lucide="book-open" class="h-3 w-3 shrink-0"></i>
+                            <span class="truncate" data-collapsed-target>資管系簡介</span>
+                        </a>
+                        <a href="https://gene.gm.cute.edu.tw/總務系統" target="_blank"
+                           class="w-full flex items-center gap-2 rounded-md px-3 py-2 hover:bg-gray-700 transition-colors text-sm">
+                            <i data-lucide="settings" class="h-3 w-3 shrink-0"></i>
+                            <span class="truncate" data-collapsed-target>總務系統</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 獎助學金專區 -->
+                <div class="space-y-1">
+                <button type="button" 
+                        class="w-full flex items-center justify-between gap-2 rounded-md px-3 py-2 hover:bg-gray-700 transition-colors"
+                        onclick="toggleCollapse('scholarshipCollapse')">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="graduation-cap" class="h-4 w-4 shrink-0"></i>
+                            <span class="truncate" data-collapsed-target>獎助學金專區</span>
+                        </div>
+                        <i data-lucide="chevron-down" class="h-4 w-4 transition-transform" id="scholarshipChevron"></i>
+                    </button>
+                    <div id="scholarshipCollapse" class="hidden ml-6 space-y-1">
+                                    <a href="https://sites.google.com/gm.cute.edu.tw/ecas/課外組獎助學金專區" target="_blank"
+                                       class="w-full flex items-center gap-2 rounded-md px-3 py-2 hover:bg-gray-700 transition-colors text-sm">
+                            <i data-lucide="award" class="h-3 w-3 shrink-0"></i>
+                            <span class="truncate" data-collapsed-target>校內獎助學金</span>
+                        </a>
+                        <a href="https://even.cute.edu.tw/jkcboard/scview.aspx" target="_blank"
+                           class="w-full flex items-center gap-2 rounded-md px-3 py-2 hover:bg-gray-700 transition-colors text-sm">
+                            <i data-lucide="trophy" class="h-3 w-3 shrink-0"></i>
+                            <span class="truncate" data-collapsed-target>校外獎助學金</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 團隊介紹 -->
+                <a href="@Url.Action("NovaHome", "TeamZone", new { area = "HNB_WEB" })"
+                   class="w-full flex items-center gap-2 rounded-md px-3 py-2 hover:bg-gray-700 transition-colors">
+                    <i data-lucide="users" class="h-4 w-4 shrink-0"></i>
+                    <span class="truncate" data-collapsed-target>團隊介紹</span>
+                </a>
+
+            </nav>
+        </aside>
+
+        <!-- Main -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Header -->
+            <header class="h-16 border-b bg-white shadow-sm">
+                <div class="flex h-16 items-center justify-center px-6">
+                    <div class="flex items-center gap-3">
+                        <img src="~/missa/image/MISSA_Icon.png" alt="MISSA Logo" class="h-10 w-10 object-contain bg-white rounded-lg p-1">
+                        <h1 class="text-xl font-semibold truncate text-gray-800">資管系學會網站 MISSA</h1>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <main class="flex-1 overflow-auto p-6">
+                <!-- Page Header -->
+                @if (ViewData["PageTitle"] != null || ViewData["PageDescription"] != null || ViewData["PageIcon"] != null)
+                {
+                    <header class="flex items-center justify-between mb-6">
+                        <div>
+                            <h1 class="text-3xl font-bold flex items-center gap-3">
+                                @if (ViewData["PageIcon"] != null)
+                                {
+                                    <i data-lucide="@ViewData["PageIcon"]" class="h-8 w-8"></i>
+                                }
+                                @(ViewData["PageTitle"] ?? ViewData["Title"])
+                            </h1>
+                            @if (ViewData["PageDescription"] != null)
+                            {
+                                <p class="text-slate-500">@ViewData["PageDescription"]</p>
+                            }
+                        </div>
+                    </header>
+                }
+                
+                @RenderBody()
+            </main>
+
+            <!-- Footer -->
+                        <footer class="border-t bg-white shadow-sm">
+                <div class="flex items-center justify-center py-4 px-6">
+                    <div class="text-sm text-gray-600">
+                        © 2024 Horizon-Nova. All rights reserved.
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        function toggleCollapse(collapseId) {
+            const collapse = document.getElementById(collapseId);
+            const chevron = document.getElementById(collapseId.replace('Collapse', 'Chevron'));
+            
+            if (collapse.classList.contains('hidden')) {
+                collapse.classList.remove('hidden');
+                chevron.style.transform = 'rotate(180deg)';
+            } else {
+                collapse.classList.add('hidden');
+                chevron.style.transform = 'rotate(0deg)';
+            }
+        }
+    </script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

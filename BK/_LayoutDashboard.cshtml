@@ -1,0 +1,143 @@
+﻿@{
+    bool isLoggedIn = User?.Identity?.IsAuthenticated == true;
+}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - MISSA</title>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <!-- Bootstrap 5 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+    <!-- DataTables Buttons -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css" />
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+
+    <!-- Flatpickr -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <!-- Dropzone -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/dropzone.min.js"></script>
+
+    <!-- Quill Editor -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" />
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="~/css/animations.css" />
+    <link rel="stylesheet" href="~/css/LayoutDashboard.css" />
+    <script src="~/js/LayoutDashboard.js"></script>
+
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+    @if (User?.Identity?.IsAuthenticated == true)
+    {
+        <div class="position-absolute top-0 end-0 p-2 text-muted small">
+            歡迎 @User.Identity.Name
+        </div>
+    }
+
+    <div class="d-flex flex-grow-1">
+        <!-- SIDE BAR -->
+        <nav id="sidebar" class="bg-dark text-white p-3 collapsed">
+            <div class="text-center border-bottom py-3">
+                <img src="~/image/MISSA_Logo3.png" alt="MISSA Logo" class="img-fluid">
+            </div>
+
+            <ul class="nav flex-column mt-4">
+                <!-- MISSA 首頁 -->
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="https://missa-production.up.railway.app/" target="_blank">
+                        <i class="fas fa-house-user me-2"></i>
+                        <span>MISSA 首頁</span>
+                    </a>
+                </li>
+
+                <!-- 系所服務 -->
+                <li class="nav-item">
+                    <a class="nav-link text-white d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#departmentCollapse">
+                        <span><i class="fas fa-school me-2"></i> 系所服務</span>
+                        <i class="fas fa-chevron-down small"></i>
+                    </a>
+                    <div class="collapse" id="departmentCollapse">
+                        <ul class="nav flex-column ms-3">
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="https://www.cute.edu.tw/" target="_blank">學校首頁</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="https://sites.google.com/view/cutedmis" target="_blank">資管系簡介</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="https://gene.gm.cute.edu.tw/總務系統" target="_blank">總務系統</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
+                <!-- 獎助學金專區 -->
+                <li class="nav-item">
+                    <a class="nav-link text-white d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#scholarshipCollapse">
+                        <span><i class="fas fa-graduation-cap me-2"></i> 獎助學金專區</span>
+                        <i class="fas fa-chevron-down small"></i>
+                    </a>
+                    <div class="collapse" id="scholarshipCollapse">
+                        <ul class="nav flex-column ms-3">
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="https://sites.google.com/gm.cute.edu.tw/ecas/課外組獎助學金專區" target="_blank">校內獎助學金</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="https://even.cute.edu.tw/jkcboard/scview.aspx" target="_blank">校外獎助學金</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
+                <!-- 登入/登出 -->
+                <li class="nav-item mt-2">
+                    <a class="nav-link text-white"
+                       asp-controller="Auth"
+                       asp-action="@(User?.Identity?.IsAuthenticated == true ? "Logout" : "LoginView")">
+                        <i class="fas @(User?.Identity?.IsAuthenticated == true ? "fa-sign-out-alt" : "fa-sign-in-alt") me-2"></i>
+                        <span>@(User?.Identity?.IsAuthenticated == true ? "登出" : "登入")</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- MAIN -->
+        <div id="mainContentWrapper" class="d-flex flex-column flex-grow-1">
+            <main id="content" class="p-4 flex-grow-1">
+                @RenderSection("breadcrumb_section", required: false)
+                @RenderBody()
+            </main>
+
+            <footer class="text-end py-3 px-3 small text-muted">
+                © 2024 資管系系學會所權所有｜僅供教育與學術用途
+            </footer>
+        </div>
+    </div>
+
+    @RenderSection("js_section", required: false)
+</body>
+
+</html>

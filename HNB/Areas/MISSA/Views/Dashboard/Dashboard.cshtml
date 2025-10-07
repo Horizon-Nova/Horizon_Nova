@@ -1,0 +1,260 @@
+@{
+    ViewBag.Title = "資管系學會首頁";
+    Layout = "~/Areas/MISSA/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="space-y-8">
+    <!-- 標題 -->
+
+
+    <!-- 圖片輪播 -->
+    <div class="relative bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+        <div id="imageCarousel" class="relative">
+            <!-- Indicators -->
+            <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
+                <button type="button" data-bs-target="#imageCarousel" data-bs-slide-to="0"
+                    class="w-3 h-3 rounded-full bg-blue-600 transition-all duration-300 shadow-sm hover:scale-110" 
+                    aria-current="true" aria-label="Slide 1"></button>
+                <button type="button" data-bs-target="#imageCarousel" data-bs-slide-to="1"
+                    class="w-3 h-3 rounded-full bg-gray-300 transition-all duration-300 hover:bg-blue-500 hover:scale-110" 
+                    aria-label="Slide 2"></button>
+                <button type="button" data-bs-target="#imageCarousel" data-bs-slide-to="2"
+                    class="w-3 h-3 rounded-full bg-gray-300 transition-all duration-300 hover:bg-blue-500 hover:scale-110" 
+                    aria-label="Slide 3"></button>
+                <button type="button" data-bs-target="#imageCarousel" data-bs-slide-to="3"
+                    class="w-3 h-3 rounded-full bg-gray-300 transition-all duration-300 hover:bg-blue-500 hover:scale-110" 
+                    aria-label="Slide 4"></button>
+            </div>
+
+            <!-- Carousel Items -->
+            <div class="carousel-inner relative overflow-hidden">
+                <div class="carousel-wrapper flex transition-transform duration-500 ease-in-out">
+                    <div class="carousel-item w-full flex-shrink-0">
+                        <img src="~/missa/image/Carousel/carousel-1.jpg" class="w-full h-96 object-cover" alt="Carousel Image 1">
+                    </div>
+                    <div class="carousel-item w-full flex-shrink-0">
+                        <img src="~/missa/image/Carousel/carousel-2.jpg" class="w-full h-96 object-cover" alt="Carousel Image 2">
+                    </div>
+                    <div class="carousel-item w-full flex-shrink-0">
+                        <img src="~/missa/image/Carousel/carousel-3.jpg" class="w-full h-96 object-cover" alt="Carousel Image 3">
+                    </div>
+                    <div class="carousel-item w-full flex-shrink-0">
+                        <img src="~/missa/image/Carousel/carousel-4.jpg" class="w-full h-96 object-cover" alt="Carousel Image 4">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <button class="carousel-control-prev absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white rounded-full w-10 h-10 flex items-center justify-center transition-all" 
+                    type="button" data-bs-target="#imageCarousel" data-bs-slide="prev">
+                <i data-lucide="chevron-left" class="h-5 w-5"></i>
+            </button>
+
+            <button class="carousel-control-next absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white rounded-full w-10 h-10 flex items-center justify-center transition-all" 
+                    type="button" data-bs-target="#imageCarousel" data-bs-slide="next">
+                <i data-lucide="chevron-right" class="h-5 w-5"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 分割線 -->
+    <div class="border-t border-slate-200"></div>
+
+    <!-- 系學會公告欄 -->
+    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+        <h2 class="text-2xl font-semibold text-gray-800 mb-4 flex items-center border-l-4 border-blue-600 pl-3">
+            <i data-lucide="megaphone" class="h-6 w-6 mr-2 text-blue-600"></i>
+            系學會公告欄
+        </h2>
+        <div class="max-h-48 overflow-y-auto">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-slate-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <i data-lucide="clipboard-list" class="h-4 w-4 inline mr-1"></i>
+                                活動項目
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <i data-lucide="users" class="h-4 w-4 inline mr-1"></i>
+                                參加人員
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <i data-lucide="calendar" class="h-4 w-4 inline mr-1"></i>
+                                活動時間
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-slate-200">
+                        @if (ViewBag.ActivityList != null)
+                        {
+                            @foreach (var activity in (IEnumerable<dynamic>)ViewBag.ActivityList)
+                            {
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
+                                        @(activity?.FormTitle ?? "未提供名稱")
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
+                                        @(activity?.FormLocation ?? "未提供地點")
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
+                                        @{
+                                            if (DateTime.TryParse(activity.FormDate, out DateTime date))
+                                            {
+                                                @($"{date.Year - 1911}-{date:MM-dd}")
+                                            }
+                                            else
+                                            {
+                                                @("無日期")
+                                            }
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 功能區塊 -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- 系學會行政作業 -->
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4 border-l-4 border-blue-600 pl-3">系學會行政作業</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-gray-50 rounded-lg p-4 text-center hover:bg-gray-100 transition-all cursor-pointer shadow-sm hover:shadow-md"
+                     onclick="location.href='@Url.Action("NovaHome", "TeamZone", new { area = "HNB_WEB" })'">
+                     <i data-lucide="users" class="h-8 w-8 mx-auto mb-2 text-gray-600"></i>
+                    <div class="text-sm font-medium text-gray-800">幹部介紹</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 表單與資源下載 -->
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4 border-l-4 border-blue-600 pl-3">表單與資源下載</h2>
+            <div class="grid grid-cols-1 gap-4">
+                <div class="bg-gray-50 rounded-lg p-4 text-center hover:bg-gray-100 transition-all cursor-pointer shadow-sm hover:shadow-md">
+                    <i data-lucide="folder-open" class="h-8 w-8 mx-auto mb-2 text-gray-600"></i>
+                    <div class="text-sm font-medium text-gray-800">資源下載</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 競賽資訊 -->
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <h2 class="text-xl font-semibold text-slate-800 mb-4">最新競賽資訊</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-slate-50 rounded-lg p-4 text-center hover:bg-slate-100 transition-colors cursor-pointer">
+                <i data-lucide="list" class="h-8 w-8 mx-auto mb-2 text-purple-600"></i>
+                <div class="text-sm font-medium text-slate-700">競賽總覽</div>
+            </div>
+            <div class="bg-slate-50 rounded-lg p-4 text-center hover:bg-slate-100 transition-colors cursor-pointer">
+                <i data-lucide="edit" class="h-8 w-8 mx-auto mb-2 text-orange-600"></i>
+                <div class="text-sm font-medium text-slate-700">我要報名</div>
+            </div>
+            <div class="bg-slate-50 rounded-lg p-4 text-center hover:bg-slate-100 transition-colors cursor-pointer">
+                <i data-lucide="award" class="h-8 w-8 mx-auto mb-2 text-yellow-600"></i>
+                <div class="text-sm font-medium text-slate-700">成績查詢</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 歷年活動回顧 -->
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <h2 class="text-xl font-semibold text-slate-800 mb-2">歷年活動回顧</h2>
+        <p class="text-slate-500 text-sm mb-4">瀏覽過去的活動記錄與成果。</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-slate-50 rounded-lg p-4 text-center hover:bg-slate-100 transition-colors cursor-pointer">
+                <i data-lucide="image" class="h-8 w-8 mx-auto mb-2 text-indigo-600"></i>
+                <div class="text-sm font-medium text-slate-700">活動照片</div>
+            </div>
+            <div class="bg-slate-50 rounded-lg p-4 text-center hover:bg-slate-100 transition-colors cursor-pointer">
+                <i data-lucide="video" class="h-8 w-8 mx-auto mb-2 text-red-600"></i>
+                <div class="text-sm font-medium text-slate-700">活動影片</div>
+            </div>
+            <div class="bg-slate-50 rounded-lg p-4 text-center hover:bg-slate-100 transition-colors cursor-pointer">
+                <i data-lucide="file-text" class="h-8 w-8 mx-auto mb-2 text-teal-600"></i>
+                <div class="text-sm font-medium text-slate-700">活動報告</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        //#region 變數初始化
+        const carouselContainer = document.querySelector('#imageCarousel');
+        // 僅選取指示器，不含控制鍵
+        const indicators = carouselContainer.querySelectorAll('[data-bs-slide-to]');
+        const carouselItems = document.querySelectorAll('.carousel-wrapper .carousel-item');
+        let currentSlide = 0;
+        const totalSlides = carouselItems.length;
+        let autoPlayInterval;
+
+        console.log(`檢測到 ${indicators.length} 個指示器`);
+        console.log(`檢測到 ${carouselItems.length} 個輪播項目`);
+        //#endregion
+
+        //#region UI 更新
+        function updateIndicators(activeIndex) {
+            indicators.forEach((indicator, index) => {
+                const isActive = index === activeIndex;
+                indicator.classList.toggle('bg-blue-600', isActive);
+                indicator.classList.toggle('bg-gray-300', !isActive);
+                indicator.setAttribute('aria-current', isActive ? 'true' : 'false'); // 三元
+            });
+        }
+
+        function updateCarouselItems(activeIndex) {
+            const carouselWrapper = document.querySelector('.carousel-wrapper');
+            const translateX = -activeIndex * 100;
+            carouselWrapper.style.transform = `translateX(${translateX}%)`;
+            console.log(`移動到 translateX(${translateX}%) - 第 ${activeIndex + 1} 張圖片`);
+        }
+        //#endregion
+
+        //#region 導航控制
+        function goToSlide(slideIndex) {
+            slideIndex = slideIndex % totalSlides;
+            slideIndex = slideIndex < 0 ? slideIndex + totalSlides : slideIndex; // 三元
+            currentSlide = slideIndex;
+            updateIndicators(currentSlide);
+            updateCarouselItems(currentSlide);
+            console.log(`切換到第 ${currentSlide + 1} 張圖片 (索引: ${currentSlide})`);
+        }
+
+        const nextSlide = () => goToSlide(currentSlide + 1);
+        const prevSlide = () => goToSlide(currentSlide - 1);
+        //#endregion
+
+        //#region 事件綁定
+        indicators.forEach((indicator, index) => {
+            indicator.addEventListener('click', () => goToSlide(index));
+        });
+
+        // 僅控制鍵綁定上一張/下一張（避免誤算入指示器）
+        const prevBtn = carouselContainer.querySelector('.carousel-control-prev');
+        const nextBtn = carouselContainer.querySelector('.carousel-control-next');
+        prevBtn?.addEventListener('click', prevSlide);
+        nextBtn?.addEventListener('click', nextSlide);
+
+        function startAutoPlay() { autoPlayInterval = setInterval(nextSlide, 5000); }
+        function stopAutoPlay() { autoPlayInterval ? clearInterval(autoPlayInterval) : null; } // 三元
+        carouselContainer.addEventListener('mouseenter', stopAutoPlay);
+        carouselContainer.addEventListener('mouseleave', startAutoPlay);
+        //#endregion
+
+        //#region 初始化
+        console.log(`總共 ${totalSlides} 張圖片`);
+        updateIndicators(0);
+        updateCarouselItems(0);
+        startAutoPlay();
+        //#endregion
+    });
+</script>
+
