@@ -21,7 +21,7 @@ public static class ServiceRegistrationExtensions
         services.AddScoped<SettingsServices>();
         services.AddScoped<IpMiddlewareServices>();
         services.AddScoped<TeamZoneServices>();
-        services.AddScoped<FileManagerService>();
+        services.AddScoped<FileManagerServices>();
         services.AddScoped<PermissionManagementService>();
         services.AddScoped<AuthService>();
         services.AddScoped<SidebarNavigationService>();
