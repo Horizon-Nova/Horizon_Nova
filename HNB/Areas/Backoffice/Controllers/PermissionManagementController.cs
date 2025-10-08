@@ -51,10 +51,20 @@ public class PermissionManagementController(PermissionManagementService sev) : B
 
     // 提交用戶資料
     [HttpPost]
-    public IActionResult SubmitUser(permission_management form) 
+    public IActionResult SubmitUser(permission_management form, int[] role_ids) 
     {
         // 設定用戶類型
         form.type = "user";
+        
+        // 確保 role_ids 被正確設定
+        if (role_ids != null && role_ids.Length > 0)
+        {
+            form.roles = role_ids.Select(id => id.ToString()).ToList();
+        }
+        else
+        {
+            form.roles = new List<string>();
+        }
         
         return Json(new { success = sev.CreateUser(form).success, message = sev.CreateUser(form).message });
     }
@@ -81,10 +91,20 @@ public class PermissionManagementController(PermissionManagementService sev) : B
 
     // 提交組織資料
     [HttpPost]
-    public IActionResult SubmitOrganization(permission_management form) 
+    public IActionResult SubmitOrganization(permission_management form, int[] assigned_roles) 
     {
         // 設定組織類型
         form.type = "organization";
+        
+        // 確保 assigned_roles 被正確設定
+        if (assigned_roles != null && assigned_roles.Length > 0)
+        {
+            form.roles = assigned_roles.Select(id => id.ToString()).ToList();
+        }
+        else
+        {
+            form.roles = new List<string>();
+        }
         
         return Json(new { success = sev.CreateOrganization(form).success, message = sev.CreateOrganization(form).message });
     }

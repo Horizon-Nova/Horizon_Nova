@@ -129,10 +129,15 @@ public class PermissionManagementService(PermissionManagementRepository repo, Si
         {
             var roleData = repo.ValidPermissionManagements.FirstOrDefault(p => p.id == id.Value && p.type == "role");
             viewBag.RoleNavigationPermissions = roleData?.navigation_permissions ?? new List<string>();
+            
+            // 載入組織的角色分配資料
+            var organizationData = repo.ValidPermissionManagements.FirstOrDefault(p => p.id == id.Value && p.type == "organization");
+            viewBag.OrganizationRoles = organizationData?.roles ?? new List<string>();
         }
         else
         {
             viewBag.RoleNavigationPermissions = new List<string>();
+            viewBag.OrganizationRoles = new List<string>();
         }
     }
 

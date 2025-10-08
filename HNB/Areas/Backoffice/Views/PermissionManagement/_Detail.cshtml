@@ -176,22 +176,27 @@
                             <i data-lucide="shield" class="w-5 h-5 text-purple-600"></i>
                             <h4 class="text-lg font-semibold text-slate-800">權限設定</h4>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-6">
                             <div>
-                                <label for="role_id" class="block text-sm font-semibold text-slate-700 mb-2">
+                                <label class="block text-sm font-semibold text-slate-700 mb-3">
                                     <i data-lucide="user-check" class="w-4 h-4 inline mr-1"></i>角色 <span class="text-red-500">*</span>
+                                    <span class="text-slate-500 text-xs ml-2">(可多選)</span>
                                 </label>
-                                <select id="role_id" name="role_id" required
-                                        class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                                    <option value="">請選擇角色</option>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-48 overflow-y-auto border border-slate-200 rounded-lg p-4 bg-white">
                                     @if (ViewBag.Roles != null)
                                     {
                                         @foreach (var role in ViewBag.Roles)
                                         {
-                                            <option value="@role.id" @(ViewBag.User?.roles != null && ViewBag.User.roles.Contains(role.id.ToString()) ? "selected" : "")>@role.name</option>
+                                            var isChecked = ViewBag.User?.roles != null && ViewBag.User.roles.Contains(role.id.ToString());
+                                            <label class="flex items-center space-x-2 p-2 border border-slate-200 rounded-lg hover:bg-blue-50 cursor-pointer transition-colors">
+                                                <input type="checkbox" name="role_ids" value="@role.id" 
+                                                       @(isChecked ? "checked" : "")
+                                                       class="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500" />
+                                                <span class="text-sm text-slate-700">@role.name</span>
+                                            </label>
                                         }
                                     }
-                                </select>
+                                </div>
                             </div>
                             <div>
                                 <label for="organization_id" class="block text-sm font-semibold text-slate-700 mb-2">
@@ -314,9 +319,30 @@
                                     <dt class="text-sm text-slate-500">組織</dt>
                                     <dd class="text-sm text-slate-900">@ViewBag.User?.organization_name</dd>
                                 </div>
-                                <div class="flex justify-between">
-                                    <dt class="text-sm text-slate-500">角色</dt>
-                                    <dd class="text-sm text-slate-900">@ViewBag.User?.role_name</dd>
+                                <div>
+                                    <dt class="text-sm text-slate-500 mb-1">角色</dt>
+                                    <dd class="text-sm text-slate-900">
+                                        @if (ViewBag.User?.role_name != null)
+                                        {
+                                            @if (ViewBag.User.role_name.Contains(","))
+                                            {
+                                                <div class="flex flex-wrap gap-1">
+                                                    @foreach (var role in ViewBag.User.role_name.Split(','))
+                                                    {
+                                                        <span class="inline-flex px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded">@role.Trim()</span>
+                                                    }
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <span class="inline-flex px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded">@ViewBag.User.role_name</span>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span class="text-slate-400">未分配</span>
+                                        }
+                                    </dd>
                                 </div>
                                 <div class="flex justify-between">
                                     <dt class="text-sm text-slate-500">建立時間</dt>
@@ -951,10 +977,11 @@
                         <i data-lucide="shield" class="w-4 h-4 mr-2 text-purple-600"></i>權限設定說明
                     </h4>
                     <div class="space-y-2 text-sm text-slate-600">
-                        <p>• <strong>角色：</strong>選擇使用者的角色，決定其系統權限範圍</p>
+                        <p>• <strong>角色：</strong>選擇使用者的角色（可多選），決定其系統權限範圍</p>
                         <p>• <strong>組織：</strong>選擇使用者所屬的組織單位，用於群組管理</p>
                         <p>• <strong>必填項目：</strong>角色和組織都是必填欄位，請務必選擇</p>
-                        <p>• <strong>權限繼承：</strong>使用者將繼承所選角色的所有權限</p>
+                        <p>• <strong>權限繼承：</strong>使用者將繼承所選角色的所有權限（多個角色權限合併）</p>
+                        <p>• <strong>多角色：</strong>使用者可同時擁有多個角色，系統會合併所有角色的權限</p>
                     </div>
                 </div>
                 
