@@ -15,7 +15,7 @@ public class SettingsController(SettingsServices svc) : BaseController
         return View();
     }
 
-    #region AJAX 端點
+
     /// <summary>
     /// 清理日誌
     /// </summary>
@@ -142,5 +142,4 @@ public class SettingsController(SettingsServices svc) : BaseController
             message = result.message
         });
     }
-    #endregion
 }

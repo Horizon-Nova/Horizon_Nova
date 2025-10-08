@@ -36,8 +36,7 @@ public class BackofficeController(PermissionManagementService permissionService)
     /// <summary>
     /// 更新個人資料
     /// </summary>
-    [HttpPost]
-    [ValidateAntiForgeryToken]
+    [HttpPost,ValidateAntiForgeryToken]
     public IActionResult UpdateProfile(permission_management form)
     {
         try
