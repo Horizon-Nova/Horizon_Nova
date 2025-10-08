@@ -4,6 +4,45 @@
     line-height: 1.25rem;
 }
 
+/* 自定義滾動條樣式 */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #374151; /* gray-700 */
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #9ca3af; /* gray-400 */
+    border-radius: 4px;
+    border: 1px solid #374151;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #d1d5db; /* gray-300 */
+}
+
+::-webkit-scrollbar-corner {
+    background: #374151;
+}
+
+/* 主要內容區域滾動條 */
+main::-webkit-scrollbar-track {
+    background: #f3f4f6; /* gray-100 */
+}
+
+main::-webkit-scrollbar-thumb {
+    background: #d1d5db; /* gray-300 */
+    border: 1px solid #f3f4f6;
+}
+
+main::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af; /* gray-400 */
+}
+
 /* 導航項目樣式 */
 .nav-item {
     transition: all 0.2s ease-in-out;
