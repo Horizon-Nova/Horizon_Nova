@@ -95,6 +95,21 @@ public class PermissionManagementService(PermissionManagementRepository repo, Si
     /// <returns>操作結果</returns>
     public (bool success, string message) CreateOrganization(permission_management organization)
     {
+        // 檢查角色是否已被其他組織占用
+        if (organization.roles != null && organization.roles.Any())
+        {
+            var occupiedRoles = repo.CheckRolesOccupied(organization.roles, organization.id);
+            if (occupiedRoles.Any())
+            {
+                var errorMessages = occupiedRoles.Select(kvp => 
+                {
+                    var roleName = repo.QueryRole(int.Parse(kvp.Key))?.name ?? kvp.Key;
+                    return $"「{roleName}」已被「{kvp.Value}」組織使用";
+                });
+                return (false, $"角色分配失敗：{string.Join("、", errorMessages)}");
+            }
+        }
+        
         repo.InsertOrganization(organization);
         return (true, "組織儲存成功");
     }
@@ -133,11 +148,17 @@ public class PermissionManagementService(PermissionManagementRepository repo, Si
             // 載入組織的角色分配資料
             var organizationData = repo.ValidPermissionManagements.FirstOrDefault(p => p.id == id.Value && p.type == "organization");
             viewBag.OrganizationRoles = organizationData?.roles ?? new List<string>();
+            
+            // 載入已被其他組織占用的角色ID列表（編輯時排除當前組織）
+            viewBag.OccupiedRoleIds = repo.GetOccupiedRoleIds(id.Value);
         }
         else
         {
             viewBag.RoleNavigationPermissions = new List<string>();
             viewBag.OrganizationRoles = new List<string>();
+            
+            // 載入已被其他組織占用的角色ID列表（新增時）
+            viewBag.OccupiedRoleIds = repo.GetOccupiedRoleIds(0);
         }
     }
 

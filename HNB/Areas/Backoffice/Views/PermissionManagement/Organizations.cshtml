@@ -70,28 +70,16 @@
                                         </div>
                                     </div>
                                     <div class="ml-4">
-                                        <div class="text-sm font-medium text-slate-900">@org.name</div>
-                                        <div class="text-sm text-slate-500">@org.name</div>
+                                        <div class="text-sm font-medium text-slate-900">@org.organization_name</div>
+                                        <div class="text-sm text-slate-500">@org.organization_description</div>
                                     </div>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
-                                @{
-                                    var parentName = "根組織";
-                                    if (org.parent_id != null && org.parent_id > 0)
-                                    {
-                                        var organizations = ViewBag.Organizations as IEnumerable<Models.HnbHnbBackoffice.vw_permission_organization>;
-                                        var parentOrg = organizations?.Where(o => o.id == org.parent_id).FirstOrDefault();
-                                        if (parentOrg != null)
-                                        {
-                                            parentName = parentOrg.name ?? "根組織";
-                                        }
-                                    }
-                                }
-                                @parentName
+                                @(org.parent_organization_name ?? "根組織")
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
-                                @(org.level ?? 1)
+                                @(org.organization_level ?? 1)
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full @(org.is_active == true ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800")">
@@ -99,10 +87,10 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
-                                @(org.user_count ?? 0)
+                                @(org.total_users_count ?? 0)
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
-                                @(org.role_count ?? 0)
+                                @(org.total_roles_count ?? 0)
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                                 @(org.created_at?.ToString("yyyy/MM/dd HH:mm") ?? "-")

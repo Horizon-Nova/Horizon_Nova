@@ -22,7 +22,7 @@ public class PermissionManagementRepository(HnbHnbBackofficeDbContext db)
     /// <summary>
     /// 有效的組織查詢來源
     /// </summary>
-    private IQueryable<vw_permission_organization> ValidOrganizations => db.vw_permission_organizations.OrderBy(o => o.name);
+    private IQueryable<vw_permission_organization> ValidOrganizations => db.vw_permission_organizations.OrderBy(o => o.organization_name);
     
     /// <summary>
     /// 有效的權限管理查詢來源
@@ -99,9 +99,9 @@ public class PermissionManagementRepository(HnbHnbBackofficeDbContext db)
         => ValidOrganizations
             .Where(o =>
                 (string.IsNullOrEmpty(searchTerm) || 
-                    (o.name != null && o.name.Contains(searchTerm)) ||
-                    (o.description != null && o.description.Contains(searchTerm))) &&
-                (!level.HasValue || o.level == level.Value) &&
+                    (o.organization_name != null && o.organization_name.Contains(searchTerm)) ||
+                    (o.organization_description != null && o.organization_description.Contains(searchTerm))) &&
+                (!level.HasValue || o.organization_level == level.Value) &&
                 (!isActive.HasValue || o.is_active == isActive.Value)
             )
             .ToList();
@@ -113,6 +113,49 @@ public class PermissionManagementRepository(HnbHnbBackofficeDbContext db)
     /// <returns>組織或null</returns>
     public vw_permission_organization? QueryOrganization(int id)
         => ValidOrganizations.FirstOrDefault(o => o.id == id);
+
+    /// <summary>
+    /// 檢查角色是否已被其他組織使用
+    /// </summary>
+    /// <param name="roleIds">要檢查的角色ID列表</param>
+    /// <param name="currentOrganizationId">當前組織ID（編輯時排除自己）</param>
+    /// <returns>已被占用的角色ID和組織名稱的字典</returns>
+    public Dictionary<string, string> CheckRolesOccupied(List<string> roleIds, int currentOrganizationId = 0)
+    {
+        var occupiedRoles = new Dictionary<string, string>();
+        
+        // 查詢所有組織（排除當前組織）
+        var otherOrganizations = db.permission_managements
+            .Where(pm => pm.type == "organization" && pm.id != currentOrganizationId && pm.roles != null)
+            .ToList();
+        
+        // 檢查每個角色是否被占用
+        foreach (var roleId in roleIds)
+        {
+            var occupyingOrg = otherOrganizations.FirstOrDefault(org => org.roles != null && org.roles.Contains(roleId));
+            if (occupyingOrg != null)
+            {
+                occupiedRoles[roleId] = occupyingOrg.name ?? "未知組織";
+            }
+        }
+        
+        return occupiedRoles;
+    }
+    
+    /// <summary>
+    /// 獲取已被其他組織占用的角色ID列表
+    /// </summary>
+    /// <param name="currentOrganizationId">當前組織ID（編輯時排除自己）</param>
+    /// <returns>已被占用的角色ID列表</returns>
+    public List<string> GetOccupiedRoleIds(int currentOrganizationId = 0)
+    {
+        return db.permission_managements
+            .AsEnumerable()
+            .Where(pm => pm.type == "organization" && pm.id != currentOrganizationId && pm.roles != null)
+            .SelectMany(pm => pm.roles!)
+            .Distinct()
+            .ToList();
+    }
 
     #endregion
 

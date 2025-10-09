@@ -205,7 +205,7 @@
                                     {
                                         @foreach (var org in ViewBag.Organizations)
                                         {
-                                            <option value="@org.id" @(ViewBag.User?.parent_id == org.id ? "selected" : "")>@org.name</option>
+                                            <option value="@org.id" @(ViewBag.User?.parent_id == org.id ? "selected" : "")>@org.organization_name</option>
                                         }
                                     }
                                 </select>
@@ -668,7 +668,7 @@
                                 <label for="name" class="block text-sm font-semibold text-slate-700 mb-2">
                                     <i data-lucide="building" class="w-4 h-4 inline mr-1"></i>組織名稱 <span class="text-red-500">*</span>
                                 </label>
-                                <input type="text" id="name" name="name" value="@(ViewBag.Organization?.name ?? "")" 
+                                <input type="text" id="name" name="name" value="@(ViewBag.Organization?.organization_name ?? "")" 
                                        class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" 
                                        placeholder="請輸入組織名稱" required>
                             </div>
@@ -676,7 +676,7 @@
                                 <label for="level" class="block text-sm font-semibold text-slate-700 mb-2">
                                     <i data-lucide="layers" class="w-4 h-4 inline mr-1"></i>組織層級 <span class="text-red-500">*</span>
                                 </label>
-                                <input type="number" id="level" name="level" value="@(ViewBag.Organization?.level ?? 1)" min="1" max="10"
+                                <input type="number" id="level" name="level" value="@(ViewBag.Organization?.organization_level ?? 1)" min="1" max="10"
                                        class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" 
                                        placeholder="請輸入組織層級" required>
                             </div>
@@ -695,7 +695,7 @@
                                     {
                                         if (ViewBag.Organization?.id != org.id)
                                         {
-                                            <option value="@org.id" @(ViewBag.Organization?.parent_id == org.id ? "selected" : "")>@org.name</option>
+                                            <option value="@org.id" @(ViewBag.Organization?.parent_id == org.id ? "selected" : "")>@org.organization_name</option>
                                         }
                                     }
                                 }
@@ -716,7 +716,7 @@
                                 </label>
                                 <textarea id="description" name="description" rows="4" 
                                           class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none" 
-                                          placeholder="請輸入組織描述和職責說明">@(ViewBag.Organization?.description ?? "")</textarea>
+                                          placeholder="請輸入組織描述和職責說明">@(ViewBag.Organization?.organization_description ?? "")</textarea>
                             </div>
                             <div>
                                 <label for="notes" class="block text-sm font-semibold text-slate-700 mb-2">
@@ -724,7 +724,7 @@
                                 </label>
                                 <textarea id="notes" name="notes" rows="3" 
                                           class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none" 
-                                          placeholder="請輸入相關備註或特殊說明">@(ViewBag.Organization?.notes ?? "")</textarea>
+                                          placeholder="請輸入相關備註或特殊說明">@(ViewBag.Organization?.public_notes ?? "")</textarea>
                             </div>
                         </div>
                     </div>
@@ -736,22 +736,38 @@
                             <h4 class="text-lg font-semibold text-slate-800">角色分配</h4>
                         </div>
                         <div class="space-y-4">
-                            <p class="text-sm text-slate-600">選擇要分配給此組織的角色：</p>
+                            <p class="text-sm text-slate-600">選擇要分配給此組織的角色（每個角色僅能分配給一個組織）：</p>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-60 overflow-y-auto">
                                 @if (ViewBag.Roles != null)
                                 {
                                     @foreach (var role in ViewBag.Roles)
                                     {
                                         var isChecked = false;
+                                        var isOccupied = false;
+                                        
                                         if (ViewBag.OrganizationRoles != null)
                                         {
                                             isChecked = ViewBag.OrganizationRoles.Contains(role.id.ToString());
                                         }
-                                        <label class="flex items-center space-x-2 p-3 border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer">
+                                        
+                                        // 檢查角色是否已被其他組織占用
+                                        if (ViewBag.OccupiedRoleIds != null && ViewBag.OccupiedRoleIds.Contains(role.id.ToString()))
+                                        {
+                                            isOccupied = !isChecked; // 如果當前組織已擁有，則不算被占用
+                                        }
+                                        
+                                        <label class="flex items-center space-x-2 p-3 border rounded-lg @(isOccupied ? "border-red-300 bg-red-50 cursor-not-allowed" : "border-slate-200 hover:bg-slate-50 cursor-pointer")">
                                             <input type="checkbox" name="assigned_roles" value="@role.id" 
                                                    @(isChecked ? "checked" : "")
-                                                   class="w-4 h-4 text-purple-600 border-slate-300 rounded focus:ring-purple-500" />
-                                            <span class="text-sm text-slate-700">@role.name</span>
+                                                   @(isOccupied ? "disabled" : "")
+                                                   class="w-4 h-4 text-purple-600 border-slate-300 rounded focus:ring-purple-500 @(isOccupied ? "opacity-50 cursor-not-allowed" : "")" />
+                                            <span class="text-sm @(isOccupied ? "text-red-600" : "text-slate-700")">
+                                                @role.name
+                                                @if (isOccupied)
+                                                {
+                                                    <span class="text-xs text-red-500 ml-1">(已被占用)</span>
+                                                }
+                                            </span>
                                         </label>
                                     }
                                 }
@@ -817,8 +833,8 @@
                             </div>
                         </div>
                         <div>
-                            <h4 class="text-xl font-semibold text-slate-900">@ViewBag.Organization?.name</h4>
-                            <p class="text-slate-600">@ViewBag.Organization?.description</p>
+                            <h4 class="text-xl font-semibold text-slate-900">@ViewBag.Organization?.organization_name</h4>
+                            <p class="text-slate-600">@ViewBag.Organization?.organization_description</p>
                         </div>
                     </div>
                     
@@ -828,11 +844,11 @@
                             <dl class="space-y-2">
                                 <div class="flex justify-between">
                                     <dt class="text-sm text-slate-500">組織名稱</dt>
-                                    <dd class="text-sm text-slate-900">@ViewBag.Organization?.name</dd>
+                                    <dd class="text-sm text-slate-900">@ViewBag.Organization?.organization_name</dd>
                                 </div>
                                 <div class="flex justify-between">
                                     <dt class="text-sm text-slate-500">層級</dt>
-                                    <dd class="text-sm text-slate-900">@ViewBag.Organization?.level</dd>
+                                    <dd class="text-sm text-slate-900">@ViewBag.Organization?.organization_level</dd>
                                 </div>
                                 <div class="flex justify-between">
                                     <dt class="text-sm text-slate-500">狀態</dt>
@@ -844,25 +860,7 @@
                                 </div>
                                 <div class="flex justify-between">
                                     <dt class="text-sm text-slate-500">上級組織</dt>
-                                    <dd class="text-sm text-slate-900">
-                                        @{
-                                            var parentName = "根組織";
-                                            var organization = ViewBag.Organization as Models.HnbHnbBackoffice.vw_permission_organization;
-                                            if (organization != null && organization.parent_id.HasValue && ViewBag.Organizations != null)
-                                            {
-                                                var parentId = organization.parent_id.Value;
-                                                foreach (var org in ViewBag.Organizations)
-                                                {
-                                                    if (org?.id == parentId)
-                                                    {
-                                                        parentName = org?.name ?? "根組織";
-                                                        break;
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        @parentName
-                                    </dd>
+                                    <dd class="text-sm text-slate-900">@(ViewBag.Organization?.parent_organization_name ?? "根組織")</dd>
                                 </div>
                                 <div class="flex justify-between">
                                     <dt class="text-sm text-slate-500">建立時間</dt>
@@ -876,15 +874,15 @@
                             <dl class="space-y-2">
                                 <div class="flex justify-between">
                                     <dt class="text-sm text-slate-500">使用者數量</dt>
-                                    <dd class="text-sm text-slate-900">@ViewBag.Organization?.user_count</dd>
+                                    <dd class="text-sm text-slate-900">@ViewBag.Organization?.total_users_count</dd>
                                 </div>
                                 <div class="flex justify-between">
                                     <dt class="text-sm text-slate-500">角色數量</dt>
-                                    <dd class="text-sm text-slate-900">@ViewBag.Organization?.role_count</dd>
+                                    <dd class="text-sm text-slate-900">@ViewBag.Organization?.total_roles_count</dd>
                                 </div>
                                 <div class="flex justify-between">
                                     <dt class="text-sm text-slate-500">子組織數量</dt>
-                                    <dd class="text-sm text-slate-900">@ViewBag.Organization?.child_count</dd>
+                                    <dd class="text-sm text-slate-900">@ViewBag.Organization?.total_sub_organizations_count</dd>
                                 </div>
                                 <div class="flex justify-between">
                                     <dt class="text-sm text-slate-500">更新時間</dt>
@@ -895,11 +893,11 @@
                     </div>
                     
                     
-                    @if (!string.IsNullOrEmpty(ViewBag.Organization?.notes))
+                    @if (!string.IsNullOrEmpty(ViewBag.Organization?.public_notes))
                     {
                         <div>
                             <h5 class="font-medium text-slate-900 mb-2">備註</h5>
-                            <p class="text-sm text-slate-600">@ViewBag.Organization?.notes</p>
+                            <p class="text-sm text-slate-600">@ViewBag.Organization?.public_notes</p>
                         </div>
                     }
                 </div>
@@ -1192,6 +1190,7 @@
                     </h4>
                     <div class="space-y-2 text-sm text-slate-600">
                         <p>• <strong>選擇角色</strong>：勾選要分配給此組織的角色</p>
+                        <p>• <strong>唯一性規則</strong>：每個角色僅能分配給一個組織，已被占用的角色將顯示為紅色且無法選擇</p>
                         <p>• <strong>權限管理</strong>：組織內的使用者將可以使用分配的角色</p>
                         <p>• <strong>動態更新</strong>：角色分配變更會即時影響組織權限</p>
                     </div>

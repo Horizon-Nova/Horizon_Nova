@@ -282,7 +282,7 @@
                 .attr('font-size', '14px')
                 .attr('font-weight', '600')
                 .attr('fill', '#1e293b')
-                .text(d => d.name.length > 15 ? d.name.substring(0, 15) + '...' : d.name);
+                .text(d => d.organization_name.length > 15 ? d.organization_name.substring(0, 15) + '...' : d.organization_name);
 
             // 人員數量
             if ($('#showUserCount').is(':checked')) {
@@ -290,9 +290,9 @@
                     .attr('x', 40)
                     .attr('y', 45)
                     .attr('font-family', 'system-ui, -apple-system, sans-serif')
-                    .attr('font-size', '12px')
-                    .attr('fill', '#059669')
-                    .text(d => `👥 ${d.user_count || 0} 人`);
+                .attr('font-size', '12px')
+                .attr('fill', '#059669')
+                .text(d => `👥 ${d.total_users_count || 0} 人`);
             }
 
             // 角色數量
@@ -301,9 +301,9 @@
                     .attr('x', 40)
                     .attr('y', 60)
                     .attr('font-family', 'system-ui, -apple-system, sans-serif')
-                    .attr('font-size', '12px')
-                    .attr('fill', '#7c3aed')
-                    .text(d => `🛡️ ${d.role_count || 0} 角色`);
+                .attr('font-size', '12px')
+                .attr('fill', '#7c3aed')
+                .text(d => `🛡️ ${d.total_roles_count || 0} 角色`);
             }
 
             // 點擊事件
@@ -340,7 +340,7 @@
                             <i data-lucide="building" class="w-6 h-6 text-blue-600"></i>
                         </div>
                         <div>
-                            <h4 class="text-xl font-semibold text-slate-900">${organization.name}</h4>
+                            <h4 class="text-xl font-semibold text-slate-900">${organization.organization_name}</h4>
                             <p class="text-slate-500">組織單位</p>
                         </div>
                     </div>
@@ -351,21 +351,21 @@
                                 <i data-lucide="users" class="w-4 h-4 text-green-600"></i>
                                 <span class="text-sm font-medium text-slate-700">人員數量</span>
                             </div>
-                            <p class="text-2xl font-bold text-slate-900 mt-1">${organization.user_count || 0}</p>
+                            <p class="text-2xl font-bold text-slate-900 mt-1">${organization.total_users_count || 0}</p>
                         </div>
                         <div class="bg-slate-50 rounded-lg p-4">
                             <div class="flex items-center space-x-2">
                                 <i data-lucide="shield" class="w-4 h-4 text-purple-600"></i>
                                 <span class="text-sm font-medium text-slate-700">角色數量</span>
                             </div>
-                            <p class="text-2xl font-bold text-slate-900 mt-1">${organization.role_count || 0}</p>
+                            <p class="text-2xl font-bold text-slate-900 mt-1">${organization.total_roles_count || 0}</p>
                         </div>
                     </div>
                     
-                    ${organization.description ? `
+                    ${organization.organization_description ? `
                     <div>
                         <h5 class="text-sm font-medium text-slate-700 mb-2">描述</h5>
-                        <p class="text-slate-600">${organization.description}</p>
+                        <p class="text-slate-600">${organization.organization_description}</p>
                     </div>
                     ` : ''}
                     
