@@ -7,14 +7,11 @@ namespace HNB.Areas.Backoffice.Controllers;
 [Area("Backoffice")]
 public class SettingsController(SettingsServices svc) : BaseController
 {
-
     public IActionResult Settings()
     {
         svc.ViewBagModel(ViewBag);
-        
         return View();
     }
-
 
     /// <summary>
     /// 清理日誌
@@ -24,9 +21,9 @@ public class SettingsController(SettingsServices svc) : BaseController
     {
         var (success, message) = logType.ToLower() switch
         {
-            "error" => (svc.ClearErrorLogs(is30Days), svc.ClearErrorLogs(is30Days) ? $"錯誤日誌清理成功{(is30Days ? "（30天前）" : "（全部）")}" : "錯誤日誌清理失敗"),
-            "access" => (svc.ClearAccessLogs(is30Days), svc.ClearAccessLogs(is30Days) ? $"存取記錄清理成功{(is30Days ? "（30天前）" : "（全部）")}" : "存取記錄清理失敗"),
-            "system" => (svc.ClearAccessLogs(is30Days), svc.ClearAccessLogs(is30Days) ? $"系統日誌清理成功{(is30Days ? "（30天前）" : "（全部）")}" : "系統日誌清理失敗"),
+            "error" => (svc.DeleteErrorLogs(is30Days), svc.DeleteErrorLogs(is30Days) ? $"錯誤日誌清理成功{(is30Days ? "（30天前）" : "（全部）")}" : "錯誤日誌清理失敗"),
+            "access" => (svc.DeleteAccessRecords(is30Days), svc.DeleteAccessRecords(is30Days) ? $"存取記錄清理成功{(is30Days ? "（30天前）" : "（全部）")}" : "存取記錄清理失敗"),
+            "system" => (svc.DeleteAccessRecords(is30Days), svc.DeleteAccessRecords(is30Days) ? $"系統日誌清理成功{(is30Days ? "（30天前）" : "（全部）")}" : "系統日誌清理失敗"),
             _ => (false, "不支援的日誌類型")
         };
 
@@ -37,11 +34,11 @@ public class SettingsController(SettingsServices svc) : BaseController
     /// 清理快取
     /// </summary>
     [HttpPost]
-    public async Task<IActionResult> ClearCache(string cacheType, bool is30Days = false)
+    public IActionResult ClearCache(string cacheType, bool is30Days = false)
     {
         var (success, message) = cacheType.ToLower() switch
         {
-            "memory" or "database" or "file" or "all" => (await svc.ClearAllCacheAsync(), await svc.ClearAllCacheAsync() ? "快取清理成功" : "快取清理失敗"),
+            "memory" or "database" or "file" or "all" => (svc.ClearAllCache(), svc.ClearAllCache() ? "快取清理成功" : "快取清理失敗"),
             _ => (false, "不支援的快取類型")
         };
 
@@ -53,11 +50,12 @@ public class SettingsController(SettingsServices svc) : BaseController
     /// </summary>
     public IActionResult RefreshLogStats()
     {
-        var logStats = svc.FetchLogStatistics();
+        var errorLogs = svc.LoadErrorLogsCount();
+        var accessLogs = svc.LoadAccessLogsCount();
         return Json(new { 
             success = true, 
-            errorLogs = logStats.errorLogs,
-            accessLogs = logStats.accessLogs
+            errorLogs = errorLogs,
+            accessLogs = accessLogs
         });
     }
 
@@ -66,7 +64,7 @@ public class SettingsController(SettingsServices svc) : BaseController
     /// </summary>
     public IActionResult RefreshCacheStats()
     {
-        var cacheStats = svc.FetchCacheStatistics();
+        var cacheStats = svc.LoadCacheStatistics();
         return Json(new { 
             success = true, 
             memoryCacheSize = cacheStats.memoryCacheSize,
@@ -81,7 +79,8 @@ public class SettingsController(SettingsServices svc) : BaseController
     [HttpPost]
     public IActionResult ToggleMaintenanceMode(bool enabled)
     {
-        var success = svc.ToggleMaintenanceMode(enabled);
+        var result = svc.CreateMaintenanceMode(enabled);
+        var success = result != null;
         var message = success 
             ? (enabled ? "維護模式已啟用" : "維護模式已停用")
             : "切換維護模式失敗";
@@ -95,7 +94,7 @@ public class SettingsController(SettingsServices svc) : BaseController
     [HttpGet]
     public IActionResult SystemHealth()
     {
-        var healthInfo = svc.GetSystemHealth();
+        var healthInfo = svc.LoadSystemHealth();
         return Json(new { success = true, data = healthInfo });
     }
 
@@ -105,7 +104,7 @@ public class SettingsController(SettingsServices svc) : BaseController
     [HttpGet]
     public IActionResult ExportLogs(string logType = "all")
     {
-        var logData = svc.ExportLogs(logType);
+        var logData = svc.LoadExportLogs(logType);
         var fileName = $"logs_{logType}_{DateTime.Now:yyyyMMdd_HHmmss}.json";
         
         return Json(new { 
@@ -122,7 +121,7 @@ public class SettingsController(SettingsServices svc) : BaseController
     [HttpPost]
     public IActionResult OptimizeDatabase()
     {
-        var result = svc.OptimizeDatabase();
+        var result = svc.LoadDatabaseOptimization();
         return Json(new { 
             success = result.success, 
             message = result.message,
@@ -136,7 +135,7 @@ public class SettingsController(SettingsServices svc) : BaseController
     [HttpPost]
     public IActionResult RestartSystem()
     {
-        var result = svc.RestartSystem();
+        var result = svc.LoadSystemRestart();
         return Json(new { 
             success = result.success, 
             message = result.message

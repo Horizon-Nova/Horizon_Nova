@@ -15,9 +15,9 @@ public class DatabaseController(DatabaseService databaseService) : BaseControlle
     }
 
     [HttpPost]
-    public async Task<IActionResult> TestConnection(TestConnectionRequestDto request)
+    public IActionResult TestConnection(TestConnectionRequestDto request)
     {
-        var result = await databaseService.TestConnectionAsync(request.Provider, request.ConnectionString);
+        var result = databaseService.TestConnection(request.Provider, request.ConnectionString);
         var response = new TestConnectionResponseDto
         {
             Success = result.Success,
@@ -28,17 +28,17 @@ public class DatabaseController(DatabaseService databaseService) : BaseControlle
     }
 
     [HttpPost]
-    public async Task<IActionResult> LoadDatabaseTables(TestConnectionRequestDto request)
+    public IActionResult LoadDatabaseTables(TestConnectionRequestDto request)
     {
-        var result = await databaseService.LoadDatabaseTablesAsync(request.Provider, request.ConnectionString);
+        var result = databaseService.LoadDatabaseTables(request.Provider, request.ConnectionString);
         return Json(new { success = result.Success, tables = result.Tables, message = result.Message });
     }
 
 
     [HttpPost]
-    public async Task<IActionResult> BackupTables(GenerateModelsRequestDto request)
+    public IActionResult BackupTables(GenerateModelsRequestDto request)
     {
-        var result = await databaseService.BackupDatabaseTables(request);
+        var result = databaseService.BackupDatabaseTables(request);
 
         return Json(new GenerateModelsResponseDto
         {
@@ -54,7 +54,7 @@ public class DatabaseController(DatabaseService databaseService) : BaseControlle
     /// 獲取資料表詳情部分視圖
     /// </summary>
     [HttpPost]
-    public async Task<IActionResult> LoadTableDetailsPartial([FromBody] TableDetailsRequestDto request)
+    public IActionResult LoadTableDetailsPartial([FromBody] TableDetailsRequestDto request)
     {
         if (request == null || string.IsNullOrEmpty(request.Provider) ||
             string.IsNullOrEmpty(request.ConnectionString) || string.IsNullOrEmpty(request.TableName))
@@ -62,7 +62,7 @@ public class DatabaseController(DatabaseService databaseService) : BaseControlle
             return PartialView("_TableDetailsModal", new List<TableColumnDto>());
         }
 
-        var result = await databaseService.LoadTableDetailsAsync(request.Provider, request.ConnectionString, request.TableName);
+        var result = databaseService.LoadTableDetails(request.Provider, request.ConnectionString, request.TableName);
 
         if (result.Success && result.Columns != null && result.Columns.Any())
         {

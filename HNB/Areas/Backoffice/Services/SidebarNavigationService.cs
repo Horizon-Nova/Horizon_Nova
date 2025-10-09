@@ -41,7 +41,6 @@ public class SidebarNavigationService(
         viewBag.Id = id;
         viewBag.Navigations = LoadNavigations(); // 扁平列表
         viewBag.Navigation = id.HasValue ? LoadNavigationById(id.Value) : null;
-        viewBag.NavigationTree = GetAllNavigations(); // 樹狀結構（給目錄管理頁面用）
     }
 
     #endregion
@@ -65,33 +64,27 @@ public class SidebarNavigationService(
     #region 輔助方法
 
     /// <summary>
-    /// 獲取用戶的側欄導航結構（包含角色權限）
+    /// 載入用戶的側欄導航列表（根據用戶角色權限）
     /// </summary>
-    public Task<List<NavigationItem>> GetUserNavigationAsync(string userName)
+    public List<vw_sidebar_navigation> LoadUserNavigationList(string userName)
     {
         var permissions = new List<string>();
         
         // 基本權限：所有使用者都能看到儀表板和個人資料
         permissions.AddRange(new[] { "dashboard", "profile" });
         
-        // 從 PermissionManagementRepository 獲取用戶資料
-        var user = permRep.QueryUserByName(userName);
+        // 1. 先查詢用戶
+        var user = permRep.QueryPermissionManagement(name: userName, type: "user");
         
-        // 獲取用戶直接權限
-        if (user?.navigation_permissions != null && user.navigation_permissions.Any())
-        {
-            permissions.AddRange(user.navigation_permissions);
-        }
-        
-        // 獲取用戶角色權限
-        if (user?.roles != null)
+        // 2. 遍歷用戶的所有角色，獲取角色權限
+        if (user?.roles != null && user.roles.Any())
         {
             foreach (var roleIdStr in user.roles)
             {
                 if (int.TryParse(roleIdStr, out var roleId))
                 {
-                    var role = permRep.QueryRoleById(roleId);
-                    if (role?.navigation_permissions != null)
+                    var role = permRep.QueryPermissionManagement(id: roleId, type: "role");
+                    if (role?.navigation_permissions != null && role.navigation_permissions.Any())
                     {
                         permissions.AddRange(role.navigation_permissions);
                     }
@@ -99,39 +92,43 @@ public class SidebarNavigationService(
             }
         }
         
+        // 3. 獲取用戶的直接權限（如果有特殊權限）
+        if (user?.navigation_permissions != null && user.navigation_permissions.Any())
+        {
+            permissions.AddRange(user.navigation_permissions);
+        }
+        
         // 去除重複
         var userPermissionCodes = permissions.Distinct().ToList();
         
-        // 從 SidebarNavigationRepository 獲取所有啟用的導航項目
-        var allNavigations = rep.QueryNavigationList(isActive: true);
+        // 從 SidebarNavigationRepository 獲取所有啟用的導航項目（包含所有層級）
+        var allNavigations = rep.QueryNavigationList(searchTerm: null, parentCode: null, isActive: true);
         
         // 過濾出用戶有權限的導航項目
         var allowedNavigations = allNavigations
             .Where(n => !string.IsNullOrEmpty(n.code) && userPermissionCodes.Contains(n.code))
             .ToList();
         
-        // 添加父項目（確保有權限的子項目可以顯示）
+        // 添加父項目和所有子項目
         var allowedCodes = new HashSet<string>(userPermissionCodes);
+        
+        // 1. 添加父項目（確保有權限的子項目可以顯示）
         foreach (var nav in allowedNavigations.ToList())
         {
             AddParentNavigationCodes(allNavigations, nav.parent_code, allowedCodes);
         }
         
-        // 重新過濾包含父項目的導航列表
-        var finalNavigations = allNavigations
-            .Where(n => !string.IsNullOrEmpty(n.code) && allowedCodes.Contains(n.code))
-            .ToList();
+        // 2. 添加所有子項目（遞歸）
+        foreach (var nav in allowedNavigations.ToList())
+        {
+            AddChildNavigationCodes(allNavigations, nav.code, allowedCodes);
+        }
         
-        return Task.FromResult(BuildNavigationTree(finalNavigations.Select(ConvertToNavigationItem).ToList()));
-    }
-
-    /// <summary>
-    /// 獲取所有導航項目（管理用）
-    /// </summary>
-    public List<NavigationItem> GetAllNavigations()
-    {
-        var navigationData = rep.QueryNavigationList();
-        return BuildNavigationTree(navigationData.Select(ConvertToNavigationItem).ToList());
+        // 返回扁平列表（包含父項目和子項目）
+        return allNavigations
+            .Where(n => !string.IsNullOrEmpty(n.code) && allowedCodes.Contains(n.code))
+            .OrderBy(n => n.sort_order)
+            .ToList();
     }
 
     /// <summary>
@@ -153,86 +150,27 @@ public class SidebarNavigationService(
     }
 
     /// <summary>
-    /// 建立導航樹狀結構
+    /// 遞歸添加子項目導航代碼
     /// </summary>
-    private static List<NavigationItem> BuildNavigationTree(List<NavigationItem> items)
+    private void AddChildNavigationCodes(List<vw_sidebar_navigation> allNavigations, string? parentCode, HashSet<string> allowedCodes)
     {
-        var itemDict = items.ToDictionary(i => i.Code, i => i);
-        var rootItems = new List<NavigationItem>();
-        var orphanItems = new List<NavigationItem>(); // 暫時無法找到父項目的項目
-
-        foreach (var item in items)
+        if (string.IsNullOrEmpty(parentCode))
+            return;
+        
+        // 找到所有子項目
+        var children = allNavigations.Where(n => n.parent_code == parentCode).ToList();
+        
+        foreach (var child in children)
         {
-            if (string.IsNullOrEmpty(item.ParentCode))
+            if (!string.IsNullOrEmpty(child.code) && !allowedCodes.Contains(child.code))
             {
-                // 根項目
-                rootItems.Add(item);
-            }
-            else if (itemDict.ContainsKey(item.ParentCode))
-            {
-                // 有父項目，添加到父項目的子項目中
-                itemDict[item.ParentCode].Children.Add(item);
-            }
-            else
-            {
-                // 暫時找不到父項目，先記錄下來
-                orphanItems.Add(item);
+                allowedCodes.Add(child.code);
+                
+                // 繼續遞歸添加子項目的子項目
+                AddChildNavigationCodes(allNavigations, child.code, allowedCodes);
             }
         }
-
-        // 處理孤兒項目（可能是因為父項目在後面才出現）
-        foreach (var orphan in orphanItems)
-        {
-            if (itemDict.ContainsKey(orphan.ParentCode!))
-            {
-                itemDict[orphan.ParentCode!].Children.Add(orphan);
-            }
-            else
-            {
-                // 如果還是找不到父項目，就當作根項目處理
-                rootItems.Add(orphan);
-            }
-        }
-
-        return rootItems.OrderBy(i => i.SortOrder).ToList();
     }
-
-    /// <summary>
-    /// 轉換資料庫模型為視圖模型
-    /// </summary>
-    private static NavigationItem ConvertToNavigationItem(vw_sidebar_navigation nav)
-    {
-        return new NavigationItem
-        {
-            Id = nav.id ?? 0,
-            Code = nav.code ?? "",
-            ParentCode = nav.parent_code,
-            Title = nav.title ?? "",
-            Url = nav.url,
-            Icon = nav.icon,
-            SortOrder = nav.sort_order ?? 0,
-            IsActive = nav.is_active ?? false
-        };
-    }
-
 
     #endregion
 }
-
-/// <summary>
-/// 導航項目視圖模型
-/// </summary>
-public class NavigationItem
-{
-    public int Id { get; set; }
-    public string Code { get; set; } = string.Empty;
-    public string? ParentCode { get; set; }
-    public string Title { get; set; } = string.Empty;
-    public string? Url { get; set; }
-    public string? Icon { get; set; }
-    public int SortOrder { get; set; }
-    public bool IsActive { get; set; }
-    public List<NavigationItem> Children { get; set; } = new();
-    public bool HasChildren => Children.Any();
-}
-

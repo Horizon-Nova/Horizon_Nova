@@ -25,20 +25,20 @@ public class DatabaseService()
     /// <summary>
     /// 測試資料庫連線
     /// </summary>
-    public async Task<(bool Success, string Message)> TestConnectionAsync(string provider, string connectionString)
-        => await DatabaseUtilities.TestConnectionAsync(provider, connectionString);
+    public (bool Success, string Message) TestConnection(string provider, string connectionString)
+        => DatabaseUtilities.TestConnectionAsync(provider, connectionString).GetAwaiter().GetResult();
 
     /// <summary>
     /// 載入資料庫中的資料表列表
     /// </summary>
-    public async Task<(bool Success, List<string> Tables, string Message)> LoadDatabaseTablesAsync(string provider, string connectionString)
-        => await DatabaseUtilities.LoadDatabaseTablesAsync(provider, connectionString);
+    public (bool Success, List<string> Tables, string Message) LoadDatabaseTables(string provider, string connectionString)
+        => DatabaseUtilities.LoadDatabaseTablesAsync(provider, connectionString).GetAwaiter().GetResult();
 
     /// <summary>
     /// 載入資料表欄位詳情
     /// </summary>
-    public async Task<(bool Success, List<TableColumnDto> Columns, string Message)> LoadTableDetailsAsync(string provider, string connectionString, string tableName)
-        => await DatabaseUtilities.LoadTableDetailsAsync(provider, connectionString, tableName);
+    public (bool Success, List<TableColumnDto> Columns, string Message) LoadTableDetails(string provider, string connectionString, string tableName)
+        => DatabaseUtilities.LoadTableDetailsAsync(provider, connectionString, tableName).GetAwaiter().GetResult();
 
 
     #endregion
@@ -48,8 +48,8 @@ public class DatabaseService()
     /// <summary>
     /// 備份資料庫資料表
     /// </summary>
-    public async Task<(bool Success, string Message)> BackupDatabaseTables(GenerateModelsRequestDto request)
-    => await DatabaseUtilities.BackupDatabaseTables(request);
+    public (bool Success, string Message) BackupDatabaseTables(GenerateModelsRequestDto request)
+        => DatabaseUtilities.BackupDatabaseTables(request).GetAwaiter().GetResult();
 
     #endregion
 

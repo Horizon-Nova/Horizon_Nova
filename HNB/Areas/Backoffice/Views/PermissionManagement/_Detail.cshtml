@@ -473,13 +473,13 @@
                                         var isChecked = false;
                                         if (ViewBag.RoleNavigationPermissions != null)
                                         {
-                                            isChecked = ViewBag.RoleNavigationPermissions.Contains(nav.Code);
+                                            isChecked = ViewBag.RoleNavigationPermissions.Contains(nav.code);
                                         }
                                         <label class="flex items-center space-x-2 p-3 border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer">
-                                            <input type="checkbox" name="navigation_permissions" value="@nav.Code" 
+                                            <input type="checkbox" name="navigation_permissions" value="@nav.code" 
                                                    @(isChecked ? "checked" : "")
                                                    class="w-4 h-4 text-green-600 border-slate-300 rounded focus:ring-green-500" />
-                                            <span class="text-sm text-slate-700">@nav.Title</span>
+                                            <span class="text-sm text-slate-700">@nav.title</span>
                                         </label>
                                     }
                                 }

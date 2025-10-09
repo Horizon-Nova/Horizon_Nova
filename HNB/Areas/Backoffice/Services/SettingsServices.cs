@@ -111,9 +111,9 @@ public class SettingsServices(SettingsRepositories rep)
     /// <summary>
     /// 清理所有快取
     /// </summary>
-    public async Task<bool> ClearAllCacheAsync()
+    public bool ClearAllCache()
     {
-        await Task.Delay(100); // 模擬清理過程
+        // 模擬清理過程
         return true;
     }
 

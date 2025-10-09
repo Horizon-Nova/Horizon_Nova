@@ -1,72 +1,75 @@
-@model HNB.Areas.Backoffice.Services.NavigationItem
+@model Models.HnbHnbBackoffice.vw_sidebar_navigation
 @{
-    var hasChildren = Model.HasChildren;
-    var itemId = $"nav-item-{Model.Id}";
-    var childrenId = $"nav-children-{Model.Id}";
+    var allNavigations = ViewData["AllNavigations"] as List<Models.HnbHnbBackoffice.vw_sidebar_navigation> ?? new List<Models.HnbHnbBackoffice.vw_sidebar_navigation>();
     
-    // 判斷是否為外部連結（完整 URL）
-    var isExternalLink = !string.IsNullOrEmpty(Model.Url) && 
-                         (Model.Url.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || 
-                          Model.Url.StartsWith("https://", StringComparison.OrdinalIgnoreCase));
+    // 查找子項目：
+    // 1. parent_code == Model.code 的項目（層級由 parent_code 決定）
+    // 2. 按 sort_order 從小到大排序（數字小的排在前面）
+    var children = allNavigations
+        .Where(n => n.parent_code == Model.code)
+        .OrderBy(n => n.sort_order)
+        .ToList();
+    
+    var hasChildren = children.Any();
+    
+    var isExternalLink = !string.IsNullOrEmpty(Model.url) && 
+                         (Model.url.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || 
+                          Model.url.StartsWith("https://", StringComparison.OrdinalIgnoreCase));
 }
 
 @if (hasChildren)
 {
-    <!-- 有子項目的導航項目 -->
+    <!-- 父項目 - 有子項目 -->
     <div class="space-y-1">
         <button type="button" 
                 class="w-full flex items-center gap-2 rounded-md px-3 py-2 text-slate-600 hover:bg-slate-100 nav-toggle"
-                data-target="@childrenId"
-                data-item-id="@Model.Id">
-            <i data-lucide="@(Model.Icon ?? "folder")" class="h-4 w-4 shrink-0"></i>
-            <span class="truncate flex-1 text-left" data-collapsed-target>@Model.Title</span>
+                data-target="nav-children-@Model.id"
+                data-item-id="@Model.id">
+            <i data-lucide="@(Model.icon ?? "folder")" class="h-4 w-4 shrink-0"></i>
+            <span class="truncate flex-1 text-left" data-collapsed-target>@Model.title</span>
             <i data-lucide="chevron-right" class="h-4 w-4 shrink-0 transition-transform nav-chevron"></i>
         </button>
         
-        <!-- 子項目容器 -->
-        <div id="@childrenId" class="ml-6 space-y-1 hidden nav-children">
-            @foreach (var child in Model.Children.OrderBy(c => c.SortOrder))
+        <div id="nav-children-@Model.id" class="ml-6 space-y-1 hidden nav-children">
+            @foreach (var child in children)
             {
-                @if (child.IsActive)
-                {
-                    @await Html.PartialAsync("_NavigationItem", child, ViewData)
-                }
+                @await Html.PartialAsync("_NavigationItem", child, ViewData)
             }
         </div>
     </div>
 }
-else if (!string.IsNullOrEmpty(Model.Url))
+else if (!string.IsNullOrEmpty(Model.url))
 {
     @if (isExternalLink)
     {
-        <!-- 外部連結（完整 URL）- 在新標籤頁開啟 -->
-        <a href="@Model.Url"
+        <!-- 外部連結 -->
+        <a href="@Model.url"
            target="_blank"
            rel="noopener noreferrer"
            class="nav-item w-full flex items-center gap-2 rounded-md px-3 py-2 hover:bg-slate-100"
-           data-nav-url="@Model.Url"
+           data-nav-url="@Model.url"
            title="在新標籤頁開啟">
-            <i data-lucide="@(Model.Icon ?? "circle")" class="h-4 w-4 shrink-0"></i>
-            <span class="truncate flex-1" data-collapsed-target>@Model.Title</span>
+            <i data-lucide="@(Model.icon ?? "circle")" class="h-4 w-4 shrink-0"></i>
+            <span class="truncate flex-1" data-collapsed-target>@Model.title</span>
             <i data-lucide="external-link" class="h-3 w-3 shrink-0 text-slate-400" data-collapsed-target></i>
         </a>
     }
     else
     {
-        <!-- 內部連結 - 正常跳轉 -->
-        <a href="@Model.Url"
+        <!-- 內部連結 -->
+        <a href="@Model.url"
            class="nav-item w-full flex items-center gap-2 rounded-md px-3 py-2 hover:bg-slate-100"
-           data-nav-url="@Model.Url">
-            <i data-lucide="@(Model.Icon ?? "circle")" class="h-4 w-4 shrink-0"></i>
-            <span class="truncate" data-collapsed-target>@Model.Title</span>
+           data-nav-url="@Model.url">
+            <i data-lucide="@(Model.icon ?? "circle")" class="h-4 w-4 shrink-0"></i>
+            <span class="truncate" data-collapsed-target>@Model.title</span>
         </a>
     }
 }
 else
 {
-    <!-- 純顯示的導航項目 -->
+    <!-- 無連結的標題 -->
     <div class="flex items-center gap-2 rounded-md px-3 py-2 text-slate-600">
-        <i data-lucide="@(Model.Icon ?? "circle")" class="h-4 w-4 shrink-0"></i>
-        <span class="truncate" data-collapsed-target>@Model.Title</span>
+        <i data-lucide="@(Model.icon ?? "circle")" class="h-4 w-4 shrink-0"></i>
+        <span class="truncate" data-collapsed-target>@Model.title</span>
     </div>
 }

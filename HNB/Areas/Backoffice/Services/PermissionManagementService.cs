@@ -14,6 +14,12 @@ public class PermissionManagementService(PermissionManagementRepository repo, Si
         => repo.QueryUserList(null, searchTerm, organization, role, isActive);
 
     /// <summary>
+    /// 載入用戶列表
+    /// </summary>
+    public List<vw_permission_user> LoadUsers(string? searchTerm = null, string? organization = null, string? role = null, bool? isActive = null)
+        => repo.QueryUserList(null, searchTerm, organization, role, isActive);
+
+    /// <summary>
     /// 載入用戶
     /// </summary>
     public vw_permission_user? LoadUser(int id)
@@ -62,7 +68,7 @@ public class PermissionManagementService(PermissionManagementRepository repo, Si
     /// <summary>
     /// 創建權限管理資料（新增或更新）
     /// </summary>
-    public permission_management CreatePermissionManagement(permission_management data)
+    public (bool success, string? errorMessage, permission_management? result) CreatePermissionManagement(permission_management data)
     {
         // 檢查角色是否已被其他組織占用（僅組織類型）
         if (data.type == "organization" && data.roles != null && data.roles.Any())
@@ -75,12 +81,49 @@ public class PermissionManagementService(PermissionManagementRepository repo, Si
                     var roleName = repo.QueryRole(int.Parse(kvp.Key))?.name ?? kvp.Key;
                     return $"「{roleName}」已被「{kvp.Value}」組織使用";
                 });
-                throw new InvalidOperationException($"角色分配失敗：{string.Join("、", errorMessages)}");
+                return (false, $"角色分配失敗：{string.Join("、", errorMessages)}", null);
             }
         }
         
-        return repo.InsertPermissionManagement(data);
+        var result = repo.InsertPermissionManagement(data);
+        return (result != null, result != null ? null : "創建失敗", result);
     }
+
+    /// <summary>
+    /// 創建用戶
+    /// </summary>
+    public (bool success, string message) CreateUser(permission_management data)
+    {
+        data.type = "user";
+        var (success, errorMessage, result) = CreatePermissionManagement(data);
+        return (success, errorMessage ?? (success ? "創建成功" : "創建失敗"));
+    }
+
+    /// <summary>
+    /// 創建角色
+    /// </summary>
+    public (bool success, string message) CreateRole(permission_management data)
+    {
+        data.type = "role";
+        var (success, errorMessage, result) = CreatePermissionManagement(data);
+        return (success, errorMessage ?? (success ? "創建成功" : "創建失敗"));
+    }
+
+    /// <summary>
+    /// 創建組織
+    /// </summary>
+    public (bool success, string message) CreateOrganization(permission_management data)
+    {
+        data.type = "organization";
+        var (success, errorMessage, result) = CreatePermissionManagement(data);
+        return (success, errorMessage ?? (success ? "創建成功" : "創建失敗"));
+    }
+
+    /// <summary>
+    /// 刪除權限管理資料
+    /// </summary>
+    public bool Delete(int id)
+        => repo.DeletePermissionManagement(id);
 
     /// <summary>
     /// 刪除權限管理資料
@@ -108,7 +151,7 @@ public class PermissionManagementService(PermissionManagementRepository repo, Si
         viewBag.Users = LoadUserList();
         viewBag.User = id.HasValue ? LoadUser(id.Value) : null;
 
-        viewBag.Navigations = sidebarService.GetAllNavigations();
+        viewBag.Navigations = sidebarService.LoadNavigations();
         
         // 載入角色的導航權限資料
         if (id.HasValue)

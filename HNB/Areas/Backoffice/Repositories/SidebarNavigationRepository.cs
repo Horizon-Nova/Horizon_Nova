@@ -27,18 +27,44 @@ public class SidebarNavigationRepository(HnbHnbBackofficeDbContext db)
     /// 查詢導航項目列表
     /// </summary>
     /// <param name="searchTerm">搜尋關鍵字</param>
-    /// <param name="parentCode">父項目篩選</param>
+    /// <param name="parentCode">父項目篩選（null = 不過濾，空字串 = 只要根項目）</param>
     /// <param name="isActive">啟用狀態篩選</param>
     public List<vw_sidebar_navigation> QueryNavigationList(string? searchTerm = null, string? parentCode = null, bool? isActive = null)
-        => ValidNavigations
-            .Where(n =>
-                (string.IsNullOrEmpty(searchTerm) || 
-                    (n.title != null && n.title.Contains(searchTerm)) ||
-                    (n.code != null && n.code.Contains(searchTerm))) &&
-                (string.IsNullOrEmpty(parentCode) || n.parent_code == parentCode) &&
-                (!isActive.HasValue || n.is_active == isActive.Value)
-            )
-            .ToList();
+    {
+        var query = ValidNavigations.AsQueryable();
+        
+        // 搜尋條件
+        if (!string.IsNullOrEmpty(searchTerm))
+        {
+            query = query.Where(n => 
+                (n.title != null && n.title.Contains(searchTerm)) ||
+                (n.code != null && n.code.Contains(searchTerm)));
+        }
+        
+        // 父項目篩選（修正 EF Core 的 NULL 比較問題）
+        if (parentCode != null)
+        {
+            if (parentCode == "")
+            {
+                // 空字串 = 只要根項目（parent_code IS NULL）
+                query = query.Where(n => n.parent_code == null || n.parent_code == "");
+            }
+            else
+            {
+                // 有值 = 過濾特定父項目
+                query = query.Where(n => n.parent_code == parentCode);
+            }
+        }
+        // parentCode == null = 不過濾，返回所有項目
+        
+        // 啟用狀態篩選
+        if (isActive.HasValue)
+        {
+            query = query.Where(n => n.is_active == isActive.Value);
+        }
+        
+        return query.ToList();
+    }
 
     /// <summary>
     /// 查詢單一導航項目
@@ -53,27 +79,34 @@ public class SidebarNavigationRepository(HnbHnbBackofficeDbContext db)
     /// <param name="searchTerm">搜尋關鍵字</param>
     /// <param name="parentCode">父項目篩選</param>
     /// <param name="isActive">啟用狀態篩選</param>
-    public sidebar_navigation? QuerySidebarNavigationList( 
+    public List<sidebar_navigation> QuerySidebarNavigationList( 
         string? searchTerm = null, string? parentCode = null, 
-        bool? isActive = null, int? id = null, string? code = null)
+        bool? isActive = null)
         => ValidSidebarNavigations
             .Where(n =>
                 (string.IsNullOrEmpty(searchTerm) || 
                     (n.title != null && n.title.Contains(searchTerm)) ||
                     (n.code != null && n.code.Contains(searchTerm))) &&
                 (string.IsNullOrEmpty(parentCode) || n.parent_code == parentCode) &&
-                (!isActive.HasValue || n.is_active == isActive.Value) &&
-                (id == null || n.id == id) &&
-                (code == null || n.code == code)
+                (!isActive.HasValue || n.is_active == isActive.Value)
             )
-            .FirstOrDefault();
+            .ToList();
 
     /// <summary>
     /// 查詢單一側欄導航項目
     /// </summary>
     /// <param name="id">側欄導航項目ID</param>
-    public sidebar_navigation? QuerySidebarNavigation(int id)
-        => ValidSidebarNavigations.FirstOrDefault(n => n.id == id);
+    /// <param name="code">側欄導航代碼</param>
+    public sidebar_navigation? QuerySidebarNavigation(int? id = null, string? code = null)
+    {
+        if (id.HasValue)
+            return ValidSidebarNavigations.FirstOrDefault(n => n.id == id.Value);
+        
+        if (!string.IsNullOrEmpty(code))
+            return ValidSidebarNavigations.FirstOrDefault(n => n.code == code);
+        
+        return null;
+    }
 
     #endregion
 
@@ -84,7 +117,7 @@ public class SidebarNavigationRepository(HnbHnbBackofficeDbContext db)
     /// </summary>
     public sidebar_navigation InsertNavigation(sidebar_navigation form)
     {
-        var existingEntity = QuerySidebarNavigation(form.id);
+        var existingEntity = QuerySidebarNavigation(id: form.id);
         
         if (existingEntity == null)
         {
@@ -115,7 +148,7 @@ public class SidebarNavigationRepository(HnbHnbBackofficeDbContext db)
     /// </summary>
     public bool DeleteNavigation(int id)
     {
-        var entity = QuerySidebarNavigation(id);
+        var entity = QuerySidebarNavigation(id: id);
         if (entity != null)
         {
             db.sidebar_navigations.Remove(entity);

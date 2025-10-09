@@ -387,20 +387,6 @@ function closeNavModal(modalId) {
     }
 }
 
-function SubmitFuntion{
-    var formData = $("FormData").serialize()
-    $.ajax({
-    type: 'POST',
-    url: '@ActionUrl',
-    data: formData,
-    success: function (response) {
-            },
-            error: function () {
-                alert('失敗，請稍後再試。');
-            }
-        });
-}
-
 // ESC 鍵關閉彈出視窗
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {

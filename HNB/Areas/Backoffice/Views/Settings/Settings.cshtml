@@ -6,7 +6,7 @@
     Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
 }
 
-@await Html.PartialAsync("_HelpDetail")
+@await Html.PartialAsync("_SettingsModal")
 
 <section class="space-y-6">
 
@@ -16,16 +16,16 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600">系統狀態</p>
-                    <p class="text-2xl font-bold @(ViewBag.HardwareInfo?.is_active == true ? "text-green-600" : "text-red-600")">@(ViewBag.HardwareInfo?.is_active == true ? "運行中" : "停止")</p>
+                    <p id="systemStatus" class="text-2xl font-bold @(ViewBag.HardwareInfo?.is_active == true ? "text-green-600" : "text-red-600")">@(ViewBag.HardwareInfo?.is_active == true ? "運行中" : "停止")</p>
                 </div>
-                <i data-lucide="activity" class="h-8 w-8 @(ViewBag.HardwareInfo?.is_active == true ? "text-green-500" : "text-red-500")"></i>
+                <i id="systemStatusIcon" data-lucide="activity" class="h-8 w-8 @(ViewBag.HardwareInfo?.is_active == true ? "text-green-500" : "text-red-500")"></i>
             </div>
         </div>
         <div class="bg-white border rounded-lg p-4">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600">CPU 使用率</p>
-                    <p class="text-2xl font-bold">@(ViewBag.HardwareInfo?.cpu_usage_percent?.ToString("F1") ?? "--")%</p>
+                    <p id="cpuUsage" class="text-2xl font-bold">@(ViewBag.HardwareInfo?.cpu_usage_percent?.ToString("F1") ?? "--")%</p>
                 </div>
                 <i data-lucide="cpu" class="h-8 w-8 text-blue-500"></i>
             </div>
@@ -34,7 +34,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600">記憶體使用率</p>
-                    <p class="text-2xl font-bold">@(ViewBag.HardwareInfo?.memory_usage_percent?.ToString("F1") ?? "--")%</p>
+                    <p id="memoryUsage" class="text-2xl font-bold">@(ViewBag.HardwareInfo?.memory_usage_percent?.ToString("F1") ?? "--")%</p>
                 </div>
                 <i data-lucide="memory-stick" class="h-8 w-8 text-purple-500"></i>
             </div>
@@ -43,7 +43,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600">GPU 使用率</p>
-                    <p class="text-2xl font-bold">@(ViewBag.HardwareInfo?.gpu_usage_percent?.ToString("F1") ?? "--")%</p>
+                    <p id="gpuUsage" class="text-2xl font-bold">@(ViewBag.HardwareInfo?.gpu_usage_percent?.ToString("F1") ?? "--")%</p>
                 </div>
                 <i data-lucide="monitor" class="h-8 w-8 text-orange-500"></i>
             </div>
@@ -144,7 +144,7 @@
                                  <i data-lucide="help-circle" class="h-4 w-4"></i>
                              </button>
                          </div>
-                         <p class="text-sm text-gray-500" id="memoryCacheSize">@(ViewBag.MemoryCacheSize != null ? $"{ViewBag.MemoryCacheSize / (1024 * 1024):F1} MB" : "載入中...")</p>
+                         <p class="text-sm text-gray-500" id="memoryCacheSize">@(ViewBag.MemoryCacheSize != null ? $"{ViewBag.MemoryCacheSize / (1024 * 1024):F1} MB" : "--")</p>
                      </div>
                      <div class="flex gap-2">
                          <button type="button" class="px-3 py-1 bg-purple-100 text-purple-700 rounded text-sm hover:bg-purple-200" onclick="clearCache('memory', false)">
@@ -253,31 +253,31 @@
                          <p class="text-xs text-gray-500">系統硬體狀態檢查</p>
                      </div>
                      <span class="text-xs text-gray-400">
-                         @if (ViewBag.HardwareInfo?.last_check_time != null)
-                         {
-                             var timeDiff = DateTime.Now - ViewBag.HardwareInfo.last_check_time;
-                             if (timeDiff.TotalMinutes < 1)
-                             {
-                                 <text>剛剛</text>
-                             }
-                             else if (timeDiff.TotalMinutes < 60)
-                             {
-                                 <text>@((int)timeDiff.TotalMinutes) 分鐘前</text>
-                             }
-                             else if (timeDiff.TotalHours < 24)
-                             {
-                                 <text>@((int)timeDiff.TotalHours) 小時前</text>
-                             }
-                             else
-                             {
-                                 <text>@((int)timeDiff.TotalDays) 天前</text>
-                             }
-                         }
-                         else
-                         {
-                             <text>未知時間</text>
-                         }
-                     </span>
+                        @if (ViewBag.HardwareInfo?.last_check_time != null)
+                        {
+                            var timeDiff = DateTime.Now - ViewBag.HardwareInfo.last_check_time;
+                            if (timeDiff.TotalMinutes < 1)
+                            {
+                                <text>剛剛</text>
+                            }
+                            else if (timeDiff.TotalMinutes < 60)
+                            {
+                                <text>@((int)timeDiff.TotalMinutes) 分鐘前</text>
+                            }
+                            else if (timeDiff.TotalHours < 24)
+                            {
+                                <text>@((int)timeDiff.TotalHours) 小時前</text>
+                            }
+                            else
+                            {
+                                <text>@((int)timeDiff.TotalDays) 天前</text>
+                            }
+                        }
+                        else
+                        {
+                            <text>未知時間</text>
+                        }
+                    </span>
                  </div>
              }
              else
@@ -384,7 +384,7 @@
                      </div>
                      <div class="flex justify-between items-center py-1">
                          <span class="text-sm text-gray-600">時脈</span>
-                         <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.cpu_base_clock ?? 0) - @(ViewBag.HardwareInfo?.cpu_boost_clock ?? 0) MHz</span>
+                         <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.gpu_base_clock ?? 0) - @(ViewBag.HardwareInfo?.gpu_boost_clock ?? 0) MHz</span>
                      </div>
                      <div class="flex justify-between items-center py-1">
                          <span class="text-sm text-gray-600">溫度</span>
@@ -438,14 +438,14 @@
                          <span class="text-sm text-gray-600">主機名稱</span>
                          <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.host_name ?? "未知")</span>
                      </div>
-                     <div class="flex justify-between items-center py-1">
-                         <span class="text-sm text-gray-600">作業系統</span>
-                         <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.operating_system ?? "未知")</span>
-                     </div>
-                     <div class="flex justify-between items-center py-1">
-                         <span class="text-sm text-gray-600">系統版本</span>
-                         <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.operating_system ?? "未知")</span>
-                     </div>
+                    <div class="flex justify-between items-center py-1">
+                        <span class="text-sm text-gray-600">作業系統</span>
+                        <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.operating_system ?? "未知")</span>
+                    </div>
+                    <div class="flex justify-between items-center py-1">
+                        <span class="text-sm text-gray-600">系統版本</span>
+                        <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.operating_system ?? "未知")</span>
+                    </div>
                      <div class="flex justify-between items-center py-1">
                          <span class="text-sm text-gray-600">運行時間</span>
                          <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.uptime ?? "未知")</span>

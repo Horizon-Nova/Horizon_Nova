@@ -57,4 +57,4 @@ merges.txt
 special_tokens_map.json
 
 # 排除資料夾
-HNB/Areas/HnbBackoffice/storage/
+HNB/Areas/Backoffice/storage/

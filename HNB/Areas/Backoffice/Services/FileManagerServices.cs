@@ -93,15 +93,8 @@ public class FileManagerServices(DirectoryManagerUtilities DM)
     /// <returns>操作結果</returns>
     public (bool success, string message) CreateFolder(string virtualPath, string folderName)
     {
-        try
-        {
-            DM.CreateFolder(virtualPath, folderName);
-            return (true, "資料夾已建立");
-        }
-        catch (Exception ex)
-        {
-            return (false, ex.Message);
-        }
+        DM.CreateFolder(virtualPath, folderName);
+        return (true, "資料夾已建立");
     }
 
     /// <summary>
@@ -112,21 +105,8 @@ public class FileManagerServices(DirectoryManagerUtilities DM)
     /// <returns>操作結果</returns>
     public (bool success, string message) DeleteFolder(string virtualPath, string folderName)
     {
-        try
-        {
-            // 記錄刪除操作（用於除錯）
-            Console.WriteLine($"[刪除資料夾] 路徑: {virtualPath}, 名稱: {folderName}");
-            
-            DM.DeleteFolder(virtualPath, folderName);
-            
-            Console.WriteLine($"[刪除成功] 已刪除資料夾: {folderName}");
-            return (true, "資料夾已刪除");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[刪除失敗] 錯誤: {ex.Message}");
-            return (false, ex.Message);
-        }
+        DM.DeleteFolder(virtualPath, folderName);
+        return (true, "資料夾已刪除");
     }
 
     /// <summary>
@@ -138,15 +118,8 @@ public class FileManagerServices(DirectoryManagerUtilities DM)
     /// <returns>操作結果</returns>
     public (bool success, string message) RenameFolder(string virtualPath, string oldName, string newName)
     {
-        try
-        {
-            DM.RenameFolder(virtualPath, oldName, newName);
-            return (true, "資料夾已重新命名");
-        }
-        catch (Exception ex)
-        {
-            return (false, ex.Message);
-        }
+        DM.RenameFolder(virtualPath, oldName, newName);
+        return (true, "資料夾已重新命名");
     }
     #endregion
 
@@ -159,15 +132,8 @@ public class FileManagerServices(DirectoryManagerUtilities DM)
     /// <returns>操作結果</returns>
     public (bool success, string message) CreateFile(string virtualPath, string fileName)
     {
-        try
-        {
-            DM.CreateEmptyFile(virtualPath, fileName);
-            return (true, "檔案已建立");
-        }
-        catch (Exception ex)
-        {
-            return (false, ex.Message);
-        }
+        DM.CreateEmptyFile(virtualPath, fileName);
+        return (true, "檔案已建立");
     }
 
     /// <summary>
@@ -178,21 +144,8 @@ public class FileManagerServices(DirectoryManagerUtilities DM)
     /// <returns>操作結果</returns>
     public (bool success, string message) DeleteFile(string virtualPath, string fileName)
     {
-        try
-        {
-            // 記錄刪除操作（用於除錯）
-            Console.WriteLine($"[刪除檔案] 路徑: {virtualPath}, 名稱: {fileName}");
-            
-            DM.DeleteFile(virtualPath, fileName);
-            
-            Console.WriteLine($"[刪除成功] 已刪除檔案: {fileName}");
-            return (true, "檔案已刪除");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[刪除失敗] 錯誤: {ex.Message}");
-            return (false, ex.Message);
-        }
+        DM.DeleteFile(virtualPath, fileName);
+        return (true, "檔案已刪除");
     }
 
     /// <summary>
@@ -204,15 +157,8 @@ public class FileManagerServices(DirectoryManagerUtilities DM)
     /// <returns>操作結果</returns>
     public (bool success, string message) RenameFile(string virtualPath, string oldName, string newName)
     {
-        try
-        {
-            DM.RenameFile(virtualPath, oldName, newName);
-            return (true, "檔案已重新命名");
-        }
-        catch (Exception ex)
-        {
-            return (false, ex.Message);
-        }
+        DM.RenameFile(virtualPath, oldName, newName);
+        return (true, "檔案已重新命名");
     }
 
     /// <summary>
@@ -225,15 +171,8 @@ public class FileManagerServices(DirectoryManagerUtilities DM)
     /// <returns>操作結果</returns>
     public (bool success, string message) SaveTextFile(string virtualPath, string fileName, string content, string? encodingName = "utf-8")
     {
-        try
-        {
-            DM.SaveTextFile(virtualPath, fileName, content, encodingName);
-            return (true, "檔案已儲存");
-        }
-        catch (Exception ex)
-        {
-            return (false, ex.Message);
-        }
+        DM.SaveTextFile(virtualPath, fileName, content, encodingName);
+        return (true, "檔案已儲存");
     }
     #endregion
 
@@ -246,19 +185,12 @@ public class FileManagerServices(DirectoryManagerUtilities DM)
     /// <returns>操作結果</returns>
     public (bool success, string message, string? safeFileName) UploadSingleFile(string virtualPath, IFormFile file)
     {
-        try
-        {
-            var (absPath, safeName) = DM.PrepareSingleUploadTarget(virtualPath, file.FileName);
-            
-            using var stream = new FileStream(absPath, FileMode.Create);
-            file.CopyTo(stream);
-            
-            return (true, "檔案已上傳", safeName);
-        }
-        catch (Exception ex)
-        {
-            return (false, ex.Message, null);
-        }
+        var (absPath, safeName) = DM.PrepareSingleUploadTarget(virtualPath, file.FileName);
+        
+        using var stream = new FileStream(absPath, FileMode.Create);
+        file.CopyTo(stream);
+        
+        return (true, "檔案已上傳", safeName);
     }
 
     /// <summary>
@@ -276,25 +208,16 @@ public class FileManagerServices(DirectoryManagerUtilities DM)
         relativePaths ??= files.Select(f => f.FileName).ToList();
         
         if (relativePaths.Count != files.Count)
-        {
             return (false, 0, 0, new List<string> { "檔案數量與路徑數量不符" });
-        }
         
         for (int i = 0; i < files.Count; i++)
         {
-            try
-            {
-                var (absPath, _, _) = DM.PrepareBatchUploadTarget(virtualPath, relativePaths[i]);
-                
-                using var stream = new FileStream(absPath, FileMode.Create);
-                files[i].CopyTo(stream);
-                
-                saved++;
-            }
-            catch (Exception ex)
-            {
-                errors.Add($"{files[i].FileName}: {ex.Message}");
-            }
+            var (absPath, _, _) = DM.PrepareBatchUploadTarget(virtualPath, relativePaths[i]);
+            
+            using var stream = new FileStream(absPath, FileMode.Create);
+            files[i].CopyTo(stream);
+            
+            saved++;
         }
         
         var failed = errors.Count;

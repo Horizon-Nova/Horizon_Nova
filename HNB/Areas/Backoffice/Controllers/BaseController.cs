@@ -18,9 +18,9 @@ public abstract class BaseController : Controller
     }
 
     /// <summary>
-    /// 載入側欄導航數據到 ViewBag
+    /// 載入側欄導航數據到 ViewBag（根據用戶角色權限）
     /// </summary>
-    protected async Task LoadSidebarNavigationAsync()
+    protected Task LoadSidebarNavigationAsync()
     {
         if (User.Identity?.IsAuthenticated == true)
         {
@@ -28,18 +28,20 @@ public abstract class BaseController : Controller
             if (sidebarService != null)
             {
                 var currentUserName = User.Identity.Name ?? "";
-                var navigationItems = await sidebarService.GetUserNavigationAsync(currentUserName);
-                ViewBag.SidebarNavigation = navigationItems;
+                var navigationList = sidebarService.LoadUserNavigationList(currentUserName);
+                ViewBag.SidebarNavigation = navigationList;
             }
             else
             {
-                ViewBag.SidebarNavigation = new List<NavigationItem>();
+                ViewBag.SidebarNavigation = new List<Models.HnbHnbBackoffice.vw_sidebar_navigation>();
             }
         }
         else
         {
-            ViewBag.SidebarNavigation = new List<NavigationItem>();
+            ViewBag.SidebarNavigation = new List<Models.HnbHnbBackoffice.vw_sidebar_navigation>();
         }
+        
+        return Task.CompletedTask;
     }
 
 }

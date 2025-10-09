@@ -34,7 +34,7 @@ public class AuthorizeController(AuthService authService) : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> LoginFuntion(string username, string password, bool rememberMe, string? returnUrl = null)
     {
-        var loginResult = await authService.ProcessLoginAsync(username, password);
+        var loginResult = authService.ProcessLogin(username, password);
         
         if (!loginResult.success)
         {
@@ -56,7 +56,11 @@ public class AuthorizeController(AuthService authService) : Controller
             new Claim("LastLogin", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"))
         };
 
-        // 添加角色 Claims
+        // 添加角色 Claims（取第一個角色作為主要角色）
+        var primaryRole = user.roles?.FirstOrDefault() ?? "user";
+        claims.Add(new Claim("Role", primaryRole));
+        
+        // 同時添加標準的 ClaimTypes.Role
         user.roles?.ToList().ForEach(role => claims.Add(new Claim(ClaimTypes.Role, role)));
 
         var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -70,9 +74,8 @@ public class AuthorizeController(AuthService authService) : Controller
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, 
             new ClaimsPrincipal(claimsIdentity), authProperties);
 
-        // 更新最後登入時間
-        if (user.id.HasValue)
-            await authService.UpdateLastLoginAsync(user.id.Value, HttpContext.Connection.RemoteIpAddress?.ToString());
+        // 更新最後登入時間（可選）
+        // TODO: 實作更新登入時間功能
 
         // 重定向到指定頁面
         return !string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl) 
