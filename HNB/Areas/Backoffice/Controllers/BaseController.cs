@@ -27,8 +27,8 @@ public abstract class BaseController : Controller
             var sidebarService = HttpContext.RequestServices.GetService<SidebarNavigationService>();
             if (sidebarService != null)
             {
-                var userName = User.Identity.Name ?? "";
-                var navigationItems = await sidebarService.GetUserNavigationAsync(userName);
+                var currentUserName = User.Identity.Name ?? "";
+                var navigationItems = await sidebarService.GetUserNavigationAsync(currentUserName);
                 ViewBag.SidebarNavigation = navigationItems;
             }
             else

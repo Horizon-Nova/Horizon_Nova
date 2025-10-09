@@ -13,20 +13,20 @@ public class BackofficeController(PermissionManagementService permissionService)
     public IActionResult Profile()
     {
         
-        var userName = User.Identity?.Name;
-        if (string.IsNullOrEmpty(userName))
+        var currentUserName = User.Identity?.Name;
+        if (string.IsNullOrEmpty(currentUserName))
             return RedirectToAction("Login", "Authorize");
 
         var users = permissionService.LoadUsers();
-        var currentUser = users.FirstOrDefault(u => u.username == userName);
+        var currentUser = users.FirstOrDefault(u => u.name == currentUserName);
         
         if (currentUser == null)
         {
             currentUser = new vw_permission_user
             {
-                username = userName,
+                name = currentUserName,
                 email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value,
-                full_name = User.FindFirst("FullName")?.Value ?? userName
+                full_name = User.FindFirst("FullName")?.Value ?? currentUserName
             };
         }
 
@@ -41,12 +41,12 @@ public class BackofficeController(PermissionManagementService permissionService)
     {
         try
         {
-            var userName = User.Identity?.Name;
-            if (string.IsNullOrEmpty(userName))
+            var currentUserName = User.Identity?.Name;
+            if (string.IsNullOrEmpty(currentUserName))
                 return Json(new { success = false, message = "使用者未登入" });
 
             var users = permissionService.LoadUsers();
-            var currentUser = users.FirstOrDefault(u => u.username == userName);
+            var currentUser = users.FirstOrDefault(u => u.name == currentUserName);
             
             if (currentUser?.id == null)
                 return Json(new { success = false, message = "找不到使用者資料" });
@@ -74,14 +74,14 @@ public class BackofficeController(PermissionManagementService permissionService)
             if (string.IsNullOrEmpty(newPassword) || newPassword != confirmPassword)
                 return Json(new { success = false, message = "新密碼與確認密碼不符" });
 
-            var userName = User.Identity?.Name;
-            if (string.IsNullOrEmpty(userName))
+            var currentUserName = User.Identity?.Name;
+            if (string.IsNullOrEmpty(currentUserName))
                 return Json(new { success = false, message = "使用者未登入" });
 
             // TODO: 驗證當前密碼是否正確
 
             var users = permissionService.LoadUsers();
-            var currentUser = users.FirstOrDefault(u => u.username == userName);
+            var currentUser = users.FirstOrDefault(u => u.name == currentUserName);
             
             if (currentUser?.id == null)
                 return Json(new { success = false, message = "找不到使用者資料" });

@@ -19,9 +19,9 @@ public class PermissionAttribute : Attribute, IAsyncAuthorizationFilter
 
     public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
     {
-        // 檢查是否有 UserName（帳號）
-        var userName = context.HttpContext.User.Identity?.Name;
-        if (string.IsNullOrEmpty(userName))
+        // 檢查是否有當前登入用戶
+        var currentUserName = context.HttpContext.User.Identity?.Name;
+        if (string.IsNullOrEmpty(currentUserName))
         {
             context.Result = new RedirectToActionResult("Login", "Authorize", 
                 new { area = "Backoffice", returnUrl = context.HttpContext.Request.Path });

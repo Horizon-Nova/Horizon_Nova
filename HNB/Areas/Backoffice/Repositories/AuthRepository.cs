@@ -30,7 +30,7 @@ public class AuthRepository(HnbHnbBackofficeDbContext db)
         try
         {
             return await ValidUsers
-                .Where(u => u.username == usernameOrEmail || u.email == usernameOrEmail)
+                .Where(u => u.name == usernameOrEmail || u.email == usernameOrEmail)
                 .FirstOrDefaultAsync();
         }
         catch (Exception ex)

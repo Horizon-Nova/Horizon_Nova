@@ -3,8 +3,8 @@
 }
 
 <!-- 使用者表單彈出視窗 -->
-<div id="userFormModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden" onclick="closeModal('userFormModal')">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[95vh] overflow-hidden" onclick="event.stopPropagation()">
+<div id="userFormModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[95vh] overflow-hidden">
         <!-- 標題區域 -->
         <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6 text-white">
             <div class="flex items-center justify-between">
@@ -88,33 +88,29 @@
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label for="username" class="block text-sm font-semibold text-slate-700 mb-2">
+                                <label for="name" class="block text-sm font-semibold text-slate-700 mb-2">
                                     <i data-lucide="at-sign" class="w-4 h-4 inline mr-1"></i>使用者名稱 <span class="text-red-500">*</span>
                                 </label>
-                                <input type="text" id="username" name="username" value="@(ViewBag.User?.username ?? "")" 
-                                       class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
-                                       placeholder="請輸入使用者名稱" required>
+                                <input type="text" id="name" name="name" value="@(ViewBag.User?.name ?? "")" 
+                                       class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all @(ViewBag.User?.id > 0 ? "bg-slate-100 cursor-not-allowed" : "")" 
+                                       placeholder="請輸入使用者名稱" 
+                                       @(ViewBag.User?.id > 0 ? "readonly" : "") required>
                             </div>
                             <div>
                                 <label for="password" class="block text-sm font-semibold text-slate-700 mb-2">
                                     <i data-lucide="lock" class="w-4 h-4 inline mr-1"></i>密碼 
-                                    @if (ViewBag.User?.id > 0)
-                                    {
-                                        <span class="text-slate-500 text-xs">(留空則不變更)</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-red-500">*</span>
-                                    }
+                                    @(ViewBag.User?.id > 0 
+                                        ? Html.Raw("<span class=\"text-slate-500 text-xs\">(密碼變更請至個人資料頁面)</span>")
+                                        : Html.Raw("<span class=\"text-red-500\">*</span>"))
                                 </label>
                                 <div class="relative">
                                     <input type="password" id="password" name="password" 
-                                           class="w-full px-4 py-3 pr-12 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
-                                           placeholder="@(ViewBag.User?.id > 0 ? "留空則不變更密碼" : "請輸入密碼")" 
-                                           @(ViewBag.User?.id == 0 ? "required" : "")>
-                                    <button type="button" onclick="togglePassword()" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
-                                        <i data-lucide="eye" id="password-eye" class="w-5 h-5"></i>
-                                    </button>
+                                           class="w-full px-4 py-3 @(ViewBag.User?.id == 0 ? "pr-12" : "") border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all @(ViewBag.User?.id > 0 ? "bg-slate-100 cursor-not-allowed" : "")" 
+                                           placeholder="@(ViewBag.User?.id > 0 ? (!string.IsNullOrEmpty(ViewBag.User?.password_hash) ? "**********" : "請輸入密碼") : "請輸入密碼")" 
+                                           @(ViewBag.User?.id > 0 ? "readonly" : "required")>
+                                    @(ViewBag.User?.id == 0 
+                                        ? Html.Raw("<button type=\"button\" onclick=\"togglePassword()\" class=\"absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors\"><i data-lucide=\"eye\" id=\"password-eye\" class=\"w-5 h-5\"></i></button>")
+                                        : Html.Raw(""))
                                 </div>
                             </div>
                         </div>
@@ -199,10 +195,10 @@
                                 </div>
                             </div>
                             <div>
-                                <label for="organization_id" class="block text-sm font-semibold text-slate-700 mb-2">
+                                <label for="parent_id" class="block text-sm font-semibold text-slate-700 mb-2">
                                     <i data-lucide="building" class="w-4 h-4 inline mr-1"></i>組織 <span class="text-red-500">*</span>
                                 </label>
-                                <select id="organization_id" name="organization_id" required
+                                <select id="parent_id" name="parent_id" required
                                         class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
                                     <option value="">請選擇組織</option>
                                     @if (ViewBag.Organizations != null)
@@ -251,8 +247,8 @@
 </div>
 
 <!-- 使用者詳情查看視窗 -->
-<div id="userDetailModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden" onclick="closeModal('userDetailModal')">
-    <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden" onclick="event.stopPropagation()">
+<div id="userDetailModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
         <div class="flex items-center justify-between p-6 border-b">
             <h3 class="text-lg font-semibold">帳號詳細資訊</h3>
             <div class="flex items-center space-x-2">
@@ -287,7 +283,7 @@
                             <dl class="space-y-2">
                                 <div class="flex justify-between">
                                     <dt class="text-sm text-slate-500">使用者名稱</dt>
-                                    <dd class="text-sm text-slate-900">@ViewBag.User?.username</dd>
+                                    <dd class="text-sm text-slate-900">@ViewBag.User?.name</dd>
                                 </div>
                                 <div class="flex justify-between">
                                     <dt class="text-sm text-slate-500">暱稱</dt>
@@ -378,8 +374,8 @@
 </div>
 
 <!-- 角色表單彈出視窗 -->
-<div id="roleFormModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden" onclick="closeModal('roleFormModal')">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[95vh] overflow-hidden" onclick="event.stopPropagation()">
+<div id="roleFormModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[95vh] overflow-hidden">
         <!-- 標題區域 -->
         <div class="bg-gradient-to-r from-green-600 to-green-700 px-8 py-6 text-white">
             <div class="flex items-center justify-between">
@@ -525,8 +521,8 @@
 </div>
 
 <!-- 角色詳情查看視窗 -->
-<div id="roleDetailModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden" onclick="closeModal('roleDetailModal')">
-    <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden" onclick="event.stopPropagation()">
+<div id="roleDetailModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
         <div class="flex items-center justify-between p-6 border-b">
             <h3 class="text-lg font-semibold">角色詳細資訊</h3>
             <div class="flex items-center space-x-2">
@@ -630,8 +626,8 @@
 </div>
 
 <!-- 組織表單彈出視窗 -->
-<div id="organizationFormModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden" onclick="closeModal('organizationFormModal')">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[95vh] overflow-hidden" onclick="event.stopPropagation()">
+<div id="organizationFormModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[95vh] overflow-hidden">
         <!-- 標題區域 -->
         <div class="bg-gradient-to-r from-purple-600 to-purple-700 px-8 py-6 text-white">
             <div class="flex items-center justify-between">
@@ -797,8 +793,8 @@
 </div>
 
 <!-- 組織詳情查看視窗 -->
-<div id="organizationDetailModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden" onclick="closeModal('organizationDetailModal')">
-    <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden" onclick="event.stopPropagation()">
+<div id="organizationDetailModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
         <div class="flex items-center justify-between p-6 border-b">
             <h3 class="text-lg font-semibold">組織詳細資訊</h3>
             <div class="flex items-center space-x-2">

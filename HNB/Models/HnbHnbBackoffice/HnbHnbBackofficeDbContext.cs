@@ -447,6 +447,7 @@ public partial class HnbHnbBackofficeDbContext : DbContext
             entity.Property(e => e.location).HasComment("所在地");
             entity.Property(e => e.login_count).HasComment("登入次數");
             entity.Property(e => e.login_method).HasComment("登入方式");
+            entity.Property(e => e.name).HasComment("用戶名稱：從name欄位取得");
             entity.Property(e => e.nickname).HasComment("暱稱");
             entity.Property(e => e.notes).HasComment("備註");
             entity.Property(e => e.notification_settings).HasComment("通知設定");
@@ -484,7 +485,6 @@ public partial class HnbHnbBackofficeDbContext : DbContext
             entity.Property(e => e.type).HasComment("資料類型：user");
             entity.Property(e => e.updated_at).HasComment("更新時間");
             entity.Property(e => e.updated_by).HasComment("更新者ID");
-            entity.Property(e => e.username).HasComment("用戶名稱：從name欄位取得");
             entity.Property(e => e.zodiac_sign).HasComment("星座");
         });
 

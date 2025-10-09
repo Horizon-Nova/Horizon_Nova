@@ -3,14 +3,14 @@
     var title = ViewData["Title"] as string ?? "後台管理系統";
     
     // 直接從 User Identity 取得使用者資訊
-    var userName = User.Identity?.Name ?? "未知用戶";
+    var currentUserName = User.Identity?.Name ?? "未知用戶";
     var userEmail = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? "未設定";
-    var fullName = User.FindFirst("FullName")?.Value ?? userName;
+    var fullName = User.FindFirst("FullName")?.Value ?? currentUserName;
     var userType = User.FindFirst("UserType")?.Value ?? "一般用戶";
     var userRole = User.FindFirst("Role")?.Value ?? userType;
     
-    // 顯示用的名稱優先使用 FullName，其次是 UserName
-    var displayName = !string.IsNullOrEmpty(fullName) ? fullName : userName;
+    // 顯示用的名稱優先使用 FullName，其次是 currentUserName
+    var displayName = !string.IsNullOrEmpty(fullName) ? fullName : currentUserName;
 }
 
 <!DOCTYPE html>

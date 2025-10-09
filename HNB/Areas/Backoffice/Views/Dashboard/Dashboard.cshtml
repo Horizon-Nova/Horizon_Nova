@@ -13,10 +13,10 @@
             <div>
                 @{
                     var fullName = User.FindFirst("FullName")?.Value;
-                    var userName = User.Identity?.Name ?? "未知用戶";
+                    var currentUserName = User.Identity?.Name ?? "未知用戶";
                     var userEmail = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? "未設定";
                     var lastLogin = User.FindFirst("LastLogin")?.Value ?? "未記錄";
-                    var displayName = !string.IsNullOrEmpty(fullName) ? fullName : userName;
+                    var displayName = !string.IsNullOrEmpty(fullName) ? fullName : currentUserName;
                 }
                 <h2 class="text-2xl font-bold mb-2">歡迎回來，@displayName!</h2>
                 <p class="text-indigo-100">@userEmail</p>

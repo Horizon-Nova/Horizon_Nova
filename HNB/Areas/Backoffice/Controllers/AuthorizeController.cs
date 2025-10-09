@@ -48,9 +48,9 @@ public class AuthorizeController(AuthService authService) : Controller
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, user.id.ToString()),
-            new Claim(ClaimTypes.Name, user.username ?? username),
+            new Claim(ClaimTypes.Name, user.name ?? username),
             new Claim(ClaimTypes.Email, user.email ?? ""),
-            new Claim("FullName", user.full_name ?? user.username ?? ""),
+            new Claim("FullName", user.full_name ?? user.name ?? ""),
             new Claim("UserType", user.type ?? "user"),
             new Claim("Avatar", user.avatar_url ?? ""),
             new Claim("LastLogin", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"))

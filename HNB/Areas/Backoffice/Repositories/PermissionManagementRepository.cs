@@ -46,7 +46,7 @@ public class PermissionManagementRepository(HnbHnbBackofficeDbContext db)
                 (string.IsNullOrEmpty(searchTerm) || 
                     (u.id == id) ||
                     (u.full_name != null && u.full_name.Contains(searchTerm)) ||
-                    (u.username != null && u.username.Contains(searchTerm)) ||
+                    (u.name != null && u.name.Contains(searchTerm)) ||
                     (u.email != null && u.email.Contains(searchTerm))) &&
                 (string.IsNullOrEmpty(organization) || u.organization_name == organization) &&
                 (string.IsNullOrEmpty(role) || u.role_name == role) &&
@@ -131,8 +131,7 @@ public class PermissionManagementRepository(HnbHnbBackofficeDbContext db)
         }
         else
         {
-            // 更新時觸發 updated_at 更新
-            existingEntity.updated_at = null; // 讓資料庫自動設定
+            existingEntity.updated_at = null;
         }
 
         existingEntity.type = user.type;

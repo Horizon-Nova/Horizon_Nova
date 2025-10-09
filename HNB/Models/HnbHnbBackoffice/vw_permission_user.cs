@@ -25,7 +25,7 @@ public partial class vw_permission_user
     /// 用戶名稱：從name欄位取得
     /// </summary>
     [StringLength(100)]
-    public string? username { get; set; }
+    public string? name { get; set; }
 
     /// <summary>
     /// 暱稱
