@@ -198,16 +198,72 @@ function setActiveNavigation() {
     
     // 移除所有現有的 active 類別
     document.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.remove('active');
+        item.classList.remove('active', 'bg-blue-50', 'text-blue-600');
     });
     
-    // 找到匹配的導航項目並添加 active 類別
+    let activeItem = null;
+    let bestMatchLength = 0;
+    
+    // 找到最佳匹配的導航項目
     document.querySelectorAll('.nav-item').forEach(item => {
         const href = item.getAttribute('href')?.toLowerCase() || '';
+        const dataUrl = item.getAttribute('data-nav-url')?.toLowerCase() || '';
+        const itemUrl = href || dataUrl;
         
-        // 精確匹配或路徑包含匹配
-        if (href === currentPath || (href !== '' && currentPath.startsWith(href))) {
-            item.classList.add('active');
+        if (!itemUrl) return;
+        
+        // 精確匹配優先
+        if (itemUrl === currentPath) {
+            if (itemUrl.length > bestMatchLength) {
+                activeItem = item;
+                bestMatchLength = itemUrl.length;
+            }
+        }
+        // 路徑前綴匹配（選擇最長匹配）
+        else if (currentPath.startsWith(itemUrl) && itemUrl.length > 1) {
+            if (itemUrl.length > bestMatchLength) {
+                activeItem = item;
+                bestMatchLength = itemUrl.length;
+            }
         }
     });
+    
+    // 設置激活狀態並展開父級菜單
+    if (activeItem) {
+        activeItem.classList.add('active', 'bg-blue-50', 'text-blue-600');
+        
+        // 找到並展開所有父級菜單
+        let parent = activeItem.closest('.nav-children');
+        while (parent) {
+            // 展開該父級
+            parent.classList.remove('hidden');
+            
+            // 旋轉對應的箭頭
+            const parentId = parent.id;
+            const toggle = document.querySelector(`[data-target="${parentId}"]`);
+            if (toggle) {
+                const chevron = toggle.querySelector('.nav-chevron');
+                if (chevron) {
+                    chevron.style.transform = 'rotate(90deg)';
+                }
+                
+                // 更新 localStorage 狀態
+                const itemId = toggle.getAttribute('data-item-id');
+                if (itemId) {
+                    const STORAGE_KEY = 'sidebar_navigation_state';
+                    try {
+                        const saved = localStorage.getItem(STORAGE_KEY);
+                        const state = saved ? JSON.parse(saved) : {};
+                        state[itemId] = true;
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                    } catch {
+                        // 忽略錯誤
+                    }
+                }
+            }
+            
+            // 繼續向上查找父級
+            parent = parent.parentElement?.closest('.nav-children');
+        }
+    }
 }
