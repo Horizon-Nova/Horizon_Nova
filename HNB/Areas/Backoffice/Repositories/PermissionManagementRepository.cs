@@ -115,12 +115,42 @@ public class PermissionManagementRepository(HnbHnbBackofficeDbContext db)
         => ValidOrganizations.FirstOrDefault(o => o.id == id);
 
     /// <summary>
-    /// 檢查角色是否已被其他組織使用
+    /// 查詢權限管理列表
+    /// </summary>
+    /// <param name="type">類型篩選 (user/role/organization)</param>
+    /// <param name="isActive">啟用狀態篩選</param>
+    public List<permission_management> QueryPermissionManagementList(string? type = null, bool? isActive = null)
+        => ValidPermissionManagements
+            .Where(pm =>
+                (string.IsNullOrEmpty(type) || pm.type == type) &&
+                (!isActive.HasValue || pm.is_active == isActive.Value)
+            )
+            .ToList();
+
+    /// <summary>
+    /// 查詢權限管理
+    /// </summary>
+    /// <param name="id">ID</param>
+    /// <param name="name">名稱</param>
+    /// <param name="type">類型</param>
+    public permission_management? QueryPermissionManagement(int? id = null, string? name = null, string? type = null)
+    {
+        if (id.HasValue)
+            return ValidPermissionManagements.FirstOrDefault(pm => pm.id == id.Value);
+        
+        if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(type))
+            return ValidPermissionManagements.FirstOrDefault(pm => pm.name == name && pm.type == type);
+        
+        return null;
+    }
+
+    /// <summary>
+    /// 查詢被占用的角色（檢查角色是否已被其他組織使用）
     /// </summary>
     /// <param name="roleIds">要檢查的角色ID列表</param>
     /// <param name="currentOrganizationId">當前組織ID（編輯時排除自己）</param>
     /// <returns>已被占用的角色ID和組織名稱的字典</returns>
-    public Dictionary<string, string> CheckRolesOccupied(List<string> roleIds, int currentOrganizationId = 0)
+    public Dictionary<string, string> QueryOccupiedRoles(List<string> roleIds, int currentOrganizationId = 0)
     {
         var occupiedRoles = new Dictionary<string, string>();
         
@@ -143,120 +173,67 @@ public class PermissionManagementRepository(HnbHnbBackofficeDbContext db)
     }
     
     /// <summary>
-    /// 獲取已被其他組織占用的角色ID列表
+    /// 查詢被占用的角色ID列表
     /// </summary>
     /// <param name="currentOrganizationId">當前組織ID（編輯時排除自己）</param>
     /// <returns>已被占用的角色ID列表</returns>
-    public List<string> GetOccupiedRoleIds(int currentOrganizationId = 0)
-    {
-        return db.permission_managements
+    public List<string> QueryOccupiedRoleIdList(int currentOrganizationId = 0)
+        => db.permission_managements
             .AsEnumerable()
             .Where(pm => pm.type == "organization" && pm.id != currentOrganizationId && pm.roles != null)
             .SelectMany(pm => pm.roles!)
             .Distinct()
             .ToList();
-    }
 
     #endregion
 
     #region 基本 CRUD 操作
+    
     /// <summary>
-    /// 插入用戶資料（新增或更新）
+    /// 插入權限管理資料（新增或更新）
     /// </summary>
-    public permission_management InsertUser(permission_management user)
+    public permission_management InsertPermissionManagement(permission_management data)
     {
-        var existingEntity = db.permission_managements.Find(user.id);
-        if (existingEntity == null)
-        {
-            // 新增時讓資料庫自動設定時間戳記
-            db.Add(user);
-            existingEntity = user;
-        }
-        else
-        {
-            existingEntity.updated_at = null;
-        }
-
-        existingEntity.type = user.type;
-        existingEntity.name = user.name;
-        existingEntity.email = user.email;
-        existingEntity.phone = user.phone;
-        existingEntity.gender = user.gender;
-        existingEntity.full_name = user.full_name;
-        existingEntity.is_active = user.is_active;
-        existingEntity.nickname = user.nickname;
-        existingEntity.zodiac_sign = user.zodiac_sign;
-        existingEntity.favorite_color = user.favorite_color;
-        existingEntity.location = user.location;
-        existingEntity.bio = user.bio;
-        existingEntity.parent_id = user.parent_id;
-        existingEntity.roles = user.roles;
+        var existingEntity = db.permission_managements.Find(data.id);
         
-        if (!string.IsNullOrEmpty(user.password_hash))
-        {
-            existingEntity.password_hash = user.password_hash;
-            existingEntity.salt = user.salt;
-        }
-
-        db.SaveChanges();
-        return existingEntity;
-    }
-
-    /// <summary>
-    /// 插入角色資料（新增或更新）
-    /// </summary>
-    public permission_management InsertRole(permission_management role)
-    {
-        var existingEntity = db.permission_managements.Find(role.id);
         if (existingEntity == null)
         {
-            // 新增時讓資料庫自動設定時間戳記
-            db.Add(role);
-            existingEntity = role;
+            // 新增
+            data.created_at = DateTime.Now;
+            data.updated_at = null;
+            db.permission_managements.Add(data);
+            db.SaveChanges();
+            return data;
         }
-        else
+        
+        // 更新
+        existingEntity.type = data.type;
+        existingEntity.name = data.name;
+        existingEntity.description = data.description;
+        existingEntity.email = data.email;
+        existingEntity.phone = data.phone;
+        existingEntity.gender = data.gender;
+        existingEntity.full_name = data.full_name;
+        existingEntity.is_active = data.is_active;
+        existingEntity.nickname = data.nickname;
+        existingEntity.zodiac_sign = data.zodiac_sign;
+        existingEntity.favorite_color = data.favorite_color;
+        existingEntity.location = data.location;
+        existingEntity.bio = data.bio;
+        existingEntity.level = data.level;
+        existingEntity.parent_id = data.parent_id;
+        existingEntity.roles = data.roles;
+        existingEntity.navigation_permissions = data.navigation_permissions;
+        
+        // 判斷密碼是否為空，有就指定
+        if (!string.IsNullOrEmpty(data.password_hash) && !string.IsNullOrEmpty(data.salt))
         {
-            // 更新時觸發 updated_at 更新
-            existingEntity.updated_at = null; // 讓資料庫自動設定
+            existingEntity.password_hash = data.password_hash;
+            existingEntity.salt = data.salt;
+            existingEntity.last_password_change_at = DateTime.Now;
         }
-
-        existingEntity.type = role.type;
-        existingEntity.name = role.name;
-        existingEntity.description = role.description;
-        existingEntity.is_active = role.is_active;
-        existingEntity.parent_id = role.parent_id;
-        existingEntity.navigation_permissions = role.navigation_permissions;
-
-        db.SaveChanges();
-        return existingEntity;
-    }
-
-    /// <summary>
-    /// 插入組織資料（新增或更新）
-    /// </summary>
-    public permission_management InsertOrganization(permission_management organization)
-    {
-        var existingEntity = db.permission_managements.Find(organization.id);
-        if (existingEntity == null)
-        {
-            // 新增時讓資料庫自動設定時間戳記
-            db.Add(organization);
-            existingEntity = organization;
-        }
-        else
-        {
-            // 更新時觸發 updated_at 更新
-            existingEntity.updated_at = null; // 讓資料庫自動設定
-        }
-
-        existingEntity.type = organization.type;
-        existingEntity.name = organization.name;
-        existingEntity.description = organization.description;
-        existingEntity.level = organization.level;
-        existingEntity.parent_id = organization.parent_id;
-        existingEntity.is_active = organization.is_active;
-        existingEntity.roles = organization.roles;
-
+        
+        existingEntity.updated_at = DateTime.Now;
         db.SaveChanges();
         return existingEntity;
     }
@@ -264,7 +241,7 @@ public class PermissionManagementRepository(HnbHnbBackofficeDbContext db)
     /// <summary>
     /// 刪除權限管理資料
     /// </summary>
-    public bool Delete(int id)
+    public bool DeletePermissionManagement(int id)
     {
         var entity = db.permission_managements.Find(id);
         if (entity != null)
@@ -275,5 +252,6 @@ public class PermissionManagementRepository(HnbHnbBackofficeDbContext db)
         }
         return false;
     }
+    
     #endregion
 }

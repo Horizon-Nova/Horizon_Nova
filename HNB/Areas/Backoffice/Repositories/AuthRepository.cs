@@ -20,196 +20,142 @@ public class AuthRepository(HnbHnbBackofficeDbContext db)
     private IQueryable<permission_management> ValidPermissionManagements => db.permission_managements.Where(u => u.type == "user");
     #endregion
 
+    #region 專用查詢方法
+
     /// <summary>
-    /// 根據用戶名或信箱獲取用戶資訊
+    /// 查詢用戶列表
     /// </summary>
+    /// <param name="isActive">啟用狀態篩選</param>
+    public List<vw_permission_user> QueryUserList(bool? isActive = null)
+        => ValidUsers
+            .Where(u => !isActive.HasValue || u.is_active == isActive.Value)
+            .ToList();
+
+    /// <summary>
+    /// 查詢用戶
+    /// </summary>
+    /// <param name="userId">用戶 ID</param>
     /// <param name="usernameOrEmail">用戶名或信箱</param>
-    /// <returns>用戶資訊</returns>
-    public async Task<vw_permission_user?> GetUserByUsernameOrEmailAsync(string usernameOrEmail)
+    public vw_permission_user? QueryUser(int? userId = null, string? usernameOrEmail = null)
     {
-        try
-        {
-            return await ValidUsers
-                .Where(u => u.name == usernameOrEmail || u.email == usernameOrEmail)
-                .FirstOrDefaultAsync();
-        }
-        catch (Exception ex)
-        {
-            // 記錄錯誤但不拋出異常
-            Console.WriteLine($"獲取用戶資訊時發生錯誤: {ex.Message}");
-            return null;
-        }
+        if (userId.HasValue)
+            return ValidUsers.FirstOrDefault(u => u.id == userId.Value);
+        
+        if (!string.IsNullOrEmpty(usernameOrEmail))
+            return ValidUsers.FirstOrDefault(u => u.name == usernameOrEmail || u.email == usernameOrEmail);
+        
+        return null;
     }
 
     /// <summary>
-    /// 根據用戶 ID 獲取用戶資訊
+    /// 查詢權限用戶列表
+    /// </summary>
+    /// <param name="isActive">啟用狀態篩選</param>
+    public List<permission_management> QueryPermissionUserList(bool? isActive = null)
+        => ValidPermissionManagements
+            .Where(u => !isActive.HasValue || u.is_active == isActive.Value)
+            .ToList();
+
+    /// <summary>
+    /// 查詢權限用戶
     /// </summary>
     /// <param name="userId">用戶 ID</param>
-    /// <returns>用戶資訊</returns>
-    public async Task<vw_permission_user?> GetUserByIdAsync(int userId)
+    /// <param name="username">用戶名</param>
+    public permission_management? QueryPermissionUser(int? userId = null, string? username = null)
     {
-        try
-        {
-            return await ValidUsers
-                .Where(u => u.id == userId)
-                .FirstOrDefaultAsync();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"根據用戶 ID 獲取用戶資訊時發生錯誤: {ex.Message}");
-            return null;
-        }
+        if (userId.HasValue)
+            return ValidPermissionManagements.FirstOrDefault(u => u.id == userId.Value);
+        
+        if (!string.IsNullOrEmpty(username))
+            return ValidPermissionManagements.FirstOrDefault(u => u.name == username);
+        
+        return null;
     }
 
     /// <summary>
-    /// 更新用戶最後登入時間
-    /// </summary>
-    /// <param name="userId">用戶 ID</param>
-    /// <param name="ipAddress">IP 位址</param>
-    public async Task UpdateLastLoginAsync(int userId, string? ipAddress = null)
-    {
-        try
-        {
-            var user = await ValidPermissionManagements
-                .Where(u => u.id == userId)
-                .FirstOrDefaultAsync();
-
-            if (user != null)
-            {
-                user.last_login_ip = ipAddress != null ? System.Net.IPAddress.Parse(ipAddress) : null;
-                user.login_count = (user.login_count ?? 0) + 1;
-
-                await db.SaveChangesAsync();
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"更新用戶最後登入時間時發生錯誤: {ex.Message}");
-            throw;
-        }
-    }
-
-    /// <summary>
-    /// 更新用戶密碼
-    /// </summary>
-    /// <param name="userId">用戶 ID</param>
-    /// <param name="passwordHash">密碼雜湊值</param>
-    /// <param name="salt">鹽值</param>
-    public async Task UpdatePasswordAsync(int userId, string passwordHash, string salt)
-    {
-        try
-        {
-            var user = await ValidPermissionManagements
-                .Where(u => u.id == userId)
-                .FirstOrDefaultAsync();
-
-            if (user != null)
-            {
-                user.password_hash = passwordHash;
-                user.salt = salt;
-
-                await db.SaveChangesAsync();
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"更新用戶密碼時發生錯誤: {ex.Message}");
-            throw;
-        }
-    }
-
-    /// <summary>
-    /// 檢查用戶名是否已存在
+    /// 查詢用戶名是否存在
     /// </summary>
     /// <param name="username">用戶名</param>
     /// <param name="excludeUserId">排除的用戶 ID（用於更新時檢查）</param>
-    /// <returns>是否存在</returns>
-    public async Task<bool> UsernameExistsAsync(string username, int? excludeUserId = null)
+    public bool QueryUsernameExists(string username, int? excludeUserId = null)
     {
-        try
-        {
-            var query = ValidPermissionManagements
-                .Where(u => u.name == username);
-
-            if (excludeUserId.HasValue)
-            {
-                query = query.Where(u => u.id != excludeUserId.Value);
-            }
-
-            return await query.AnyAsync();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"檢查用戶名是否存在時發生錯誤: {ex.Message}");
-            return false;
-        }
+        var query = ValidPermissionManagements.Where(u => u.name == username);
+        if (excludeUserId.HasValue)
+            query = query.Where(u => u.id != excludeUserId.Value);
+        return query.Any();
     }
 
     /// <summary>
-    /// 檢查信箱是否已存在
+    /// 查詢信箱是否存在
     /// </summary>
     /// <param name="email">信箱</param>
     /// <param name="excludeUserId">排除的用戶 ID（用於更新時檢查）</param>
-    /// <returns>是否存在</returns>
-    public async Task<bool> EmailExistsAsync(string email, int? excludeUserId = null)
+    public bool QueryEmailExists(string email, int? excludeUserId = null)
     {
-        try
-        {
-            var query = ValidPermissionManagements
-                .Where(u => u.email == email);
-
-            if (excludeUserId.HasValue)
-            {
-                query = query.Where(u => u.id != excludeUserId.Value);
-            }
-
-            return await query.AnyAsync();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"檢查信箱是否存在時發生錯誤: {ex.Message}");
-            return false;
-        }
+        var query = ValidPermissionManagements.Where(u => u.email == email);
+        if (excludeUserId.HasValue)
+            query = query.Where(u => u.id != excludeUserId.Value);
+        return query.Any();
     }
 
+    #endregion
+
+    #region 基本 CRUD 操作
+
     /// <summary>
-    /// 創建新用戶
+    /// 插入權限用戶（新增或更新）
     /// </summary>
-    /// <param name="user">用戶資訊</param>
-    /// <returns>創建的用戶 ID</returns>
-    public async Task<int> CreateUserAsync(permission_management user)
+    public permission_management InsertPermissionUser(permission_management user)
     {
-        try
+        var existingEntity = db.permission_managements.Find(user.id);
+        
+        if (existingEntity == null)
         {
+            // 新增
             user.type = "user";
-
+            user.created_at = DateTime.Now;
+            user.updated_at = null;
             db.permission_managements.Add(user);
-            await db.SaveChangesAsync();
-
-            return user.id;
+            db.SaveChanges();
+            return user;
         }
-        catch (Exception ex)
+        
+        // 更新
+        existingEntity.name = user.name;
+        existingEntity.email = user.email;
+        existingEntity.phone = user.phone;
+        existingEntity.gender = user.gender;
+        existingEntity.full_name = user.full_name;
+        existingEntity.is_active = user.is_active;
+        existingEntity.nickname = user.nickname;
+        existingEntity.zodiac_sign = user.zodiac_sign;
+        existingEntity.favorite_color = user.favorite_color;
+        existingEntity.location = user.location;
+        existingEntity.bio = user.bio;
+        existingEntity.parent_id = user.parent_id;
+        existingEntity.roles = user.roles;
+        existingEntity.navigation_permissions = user.navigation_permissions;
+        
+        // 判斷密碼是否為空，有就指定
+        if (!string.IsNullOrEmpty(user.password_hash) && !string.IsNullOrEmpty(user.salt))
         {
-            Console.WriteLine($"創建用戶時發生錯誤: {ex.Message}");
-            throw;
+            existingEntity.password_hash = user.password_hash;
+            existingEntity.salt = user.salt;
+            existingEntity.last_password_change_at = DateTime.Now;
         }
+        
+        // 判斷是否更新登入資訊
+        if (user.last_login_at.HasValue)
+        {
+            existingEntity.last_login_at = user.last_login_at;
+            existingEntity.last_login_ip = user.last_login_ip;
+            existingEntity.login_count = user.login_count;
+        }
+        
+        existingEntity.updated_at = DateTime.Now;
+        db.SaveChanges();
+        return existingEntity;
     }
 
-    /// <summary>
-    /// 更新用戶資訊
-    /// </summary>
-    /// <param name="user">用戶資訊</param>
-    public async Task UpdateUserAsync(permission_management user)
-    {
-        try
-        {
-            db.permission_managements.Update(user);
-            await db.SaveChangesAsync();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"更新用戶資訊時發生錯誤: {ex.Message}");
-            throw;
-        }
-    }
+    #endregion
 }

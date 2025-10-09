@@ -3,6 +3,11 @@
     var hasChildren = Model.HasChildren;
     var itemId = $"nav-item-{Model.Id}";
     var childrenId = $"nav-children-{Model.Id}";
+    
+    // 判斷是否為外部連結（完整 URL）
+    var isExternalLink = !string.IsNullOrEmpty(Model.Url) && 
+                         (Model.Url.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || 
+                          Model.Url.StartsWith("https://", StringComparison.OrdinalIgnoreCase));
 }
 
 @if (hasChildren)
@@ -32,13 +37,30 @@
 }
 else if (!string.IsNullOrEmpty(Model.Url))
 {
-    <!-- 有連結的導航項目 -->
-    <a href="@Model.Url"
-       class="nav-item w-full flex items-center gap-2 rounded-md px-3 py-2 hover:bg-slate-100"
-       data-nav-url="@Model.Url">
-        <i data-lucide="@(Model.Icon ?? "circle")" class="h-4 w-4 shrink-0"></i>
-        <span class="truncate" data-collapsed-target>@Model.Title</span>
-    </a>
+    @if (isExternalLink)
+    {
+        <!-- 外部連結（完整 URL）- 在新標籤頁開啟 -->
+        <a href="@Model.Url"
+           target="_blank"
+           rel="noopener noreferrer"
+           class="nav-item w-full flex items-center gap-2 rounded-md px-3 py-2 hover:bg-slate-100"
+           data-nav-url="@Model.Url"
+           title="在新標籤頁開啟">
+            <i data-lucide="@(Model.Icon ?? "circle")" class="h-4 w-4 shrink-0"></i>
+            <span class="truncate flex-1" data-collapsed-target>@Model.Title</span>
+            <i data-lucide="external-link" class="h-3 w-3 shrink-0 text-slate-400" data-collapsed-target></i>
+        </a>
+    }
+    else
+    {
+        <!-- 內部連結 - 正常跳轉 -->
+        <a href="@Model.Url"
+           class="nav-item w-full flex items-center gap-2 rounded-md px-3 py-2 hover:bg-slate-100"
+           data-nav-url="@Model.Url">
+            <i data-lucide="@(Model.Icon ?? "circle")" class="h-4 w-4 shrink-0"></i>
+            <span class="truncate" data-collapsed-target>@Model.Title</span>
+        </a>
+    }
 }
 else
 {

@@ -204,7 +204,8 @@
                                 <label for="newPassword" class="block text-sm font-semibold text-slate-700 mb-2">新密碼</label>
                                 <input type="password" id="newPassword" name="newPassword" 
                                        class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
-                                       placeholder="請輸入新密碼" required>
+                                       placeholder="請輸入新密碼（至少6個字元）" required minlength="6">
+                                <p class="text-xs text-slate-500 mt-1">密碼長度至少需要6個字元</p>
                             </div>
                             <div>
                                 <label for="confirmPassword" class="block text-sm font-semibold text-slate-700 mb-2">確認新密碼</label>
@@ -244,46 +245,67 @@
             <!-- 偏好設定標籤 -->
             <div id="preferences-tab" class="tab-content hidden">
                 <div class="space-y-6">
+                    <!-- 數據顯示偏好 -->
                     <div class="bg-slate-50 rounded-lg p-6">
                         <h3 class="text-lg font-semibold text-slate-800 mb-4 flex items-center">
-                            <i data-lucide="palette" class="w-5 h-5 mr-2 text-purple-600"></i>外觀設定
+                            <i data-lucide="layout" class="w-5 h-5 mr-2 text-purple-600"></i>數據顯示偏好
                         </h3>
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-sm font-semibold text-slate-700 mb-2">主題</label>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">每頁顯示筆數</label>
                                 <select class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                                    <option value="light">淺色主題</option>
-                                    <option value="dark">深色主題</option>
-                                    <option value="auto">跟隨系統</option>
+                                    <option value="10">10 筆</option>
+                                    <option value="25" selected>25 筆</option>
+                                    <option value="50">50 筆</option>
+                                    <option value="100">100 筆</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-sm font-semibold text-slate-700 mb-2">語言</label>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">日期格式</label>
                                 <select class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                                    <option value="zh-TW">繁體中文</option>
-                                    <option value="zh-CN">簡體中文</option>
-                                    <option value="en">English</option>
+                                    <option value="yyyy/MM/dd" selected>2024/01/15</option>
+                                    <option value="yyyy-MM-dd">2024-01-15</option>
+                                    <option value="dd/MM/yyyy">15/01/2024</option>
+                                    <option value="MM/dd/yyyy">01/15/2024</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">時間格式</label>
+                                <select class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                                    <option value="24" selected>24 小時制 (14:30)</option>
+                                    <option value="12">12 小時制 (02:30 PM)</option>
                                 </select>
                             </div>
                         </div>
                     </div>
 
+                    <!-- 通知偏好 -->
                     <div class="bg-slate-50 rounded-lg p-6">
                         <h3 class="text-lg font-semibold text-slate-800 mb-4 flex items-center">
-                            <i data-lucide="bell" class="w-5 h-5 mr-2 text-orange-600"></i>通知設定
+                            <i data-lucide="bell" class="w-5 h-5 mr-2 text-orange-600"></i>通知偏好
                         </h3>
                         <div class="space-y-4">
-                            <div class="flex items-center justify-between">
+                            <div class="flex items-center justify-between py-2 border-b border-slate-200">
                                 <div>
                                     <p class="font-medium text-slate-800">電子郵件通知</p>
-                                    <p class="text-sm text-slate-500">接收重要系統通知</p>
+                                    <p class="text-sm text-slate-500">接收重要系統通知郵件</p>
                                 </div>
                                 <label class="relative inline-flex items-center cursor-pointer">
                                     <input type="checkbox" class="sr-only peer" checked>
                                     <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                                 </label>
                             </div>
-                            <div class="flex items-center justify-between">
+                            <div class="flex items-center justify-between py-2 border-b border-slate-200">
+                                <div>
+                                    <p class="font-medium text-slate-800">桌面通知</p>
+                                    <p class="text-sm text-slate-500">在瀏覽器中顯示即時通知</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" class="sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </label>
+                            </div>
+                            <div class="flex items-center justify-between py-2 border-b border-slate-200">
                                 <div>
                                     <p class="font-medium text-slate-800">系統更新通知</p>
                                     <p class="text-sm text-slate-500">系統維護和更新提醒</p>
@@ -293,7 +315,91 @@
                                     <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                                 </label>
                             </div>
+                            <div class="flex items-center justify-between py-2">
+                                <div>
+                                    <p class="font-medium text-slate-800">任務提醒</p>
+                                    <p class="text-sm text-slate-500">即將到期的任務提醒</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" class="sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </label>
+                            </div>
                         </div>
+                    </div>
+
+                    <!-- 郵件摘要訂閱 -->
+                    <div class="bg-slate-50 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-slate-800 mb-4 flex items-center">
+                            <i data-lucide="mail" class="w-5 h-5 mr-2 text-blue-600"></i>郵件摘要訂閱
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between py-2 border-b border-slate-200">
+                                <div>
+                                    <p class="font-medium text-slate-800">每日摘要</p>
+                                    <p class="text-sm text-slate-500">每天早上 9:00 接收昨日活動摘要</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" class="sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </label>
+                            </div>
+                            <div class="flex items-center justify-between py-2 border-b border-slate-200">
+                                <div>
+                                    <p class="font-medium text-slate-800">每週報告</p>
+                                    <p class="text-sm text-slate-500">每週一接收上週工作總結</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" class="sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </label>
+                            </div>
+                            <div class="flex items-center justify-between py-2">
+                                <div>
+                                    <p class="font-medium text-slate-800">每月報告</p>
+                                    <p class="text-sm text-slate-500">每月1日接收上月績效報告</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 工作偏好 -->
+                    <div class="bg-slate-50 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-slate-800 mb-4 flex items-center">
+                            <i data-lucide="clock" class="w-5 h-5 mr-2 text-green-600"></i>工作偏好
+                        </h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">工作時段</label>
+                                <select class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                                    <option value="morning">早上 (08:00 - 12:00)</option>
+                                    <option value="afternoon" selected>下午 (13:00 - 18:00)</option>
+                                    <option value="evening">晚上 (18:00 - 22:00)</option>
+                                    <option value="flexible">彈性時間</option>
+                                </select>
+                            </div>
+                            <div class="flex items-center justify-between py-2">
+                                <div>
+                                    <p class="font-medium text-slate-800">自動儲存草稿</p>
+                                    <p class="text-sm text-slate-500">編輯時自動儲存內容</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" class="sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 儲存按鈕 -->
+                    <div class="flex justify-end">
+                        <button type="button" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                            <i data-lucide="save" class="w-4 h-4 inline mr-2"></i>儲存偏好設定
+                        </button>
                     </div>
                 </div>
             </div>

@@ -1,0 +1,418 @@
+@model Models.HnbHnbBackoffice.vw_sidebar_navigation
+@{
+    Layout = null;
+    var model = Model ?? new Models.HnbHnbBackoffice.vw_sidebar_navigation();
+    var isExternalLink = !string.IsNullOrEmpty(model.url) &&
+                    (model.url.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                     model.url.StartsWith("https://", StringComparison.OrdinalIgnoreCase));
+}
+
+
+<!-- 新增/編輯目錄模態框 -->
+<div id="nav-edit-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+        <!-- 標題區域 -->
+        <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4 text-white">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="p-2 bg-white bg-opacity-20 rounded-lg">
+                        <i data-lucide="folder-plus" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold" id="modalTitle">新增目錄</h3>
+                        <p class="text-blue-100 text-sm">設定目錄基本資訊與權限</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeNavModal('nav-edit-modal')" class="text-white hover:text-blue-200 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 表單內容 -->
+        <div class="p-6 overflow-y-auto max-h-[calc(90vh-180px)]">
+            <form id="navForm" class="space-y-6">
+                <input type="hidden" id="navId" value="@(model.id)">
+                <!-- 基本資訊 -->
+                <div class="bg-slate-50 rounded-xl p-6">
+                    <h4 class="text-md font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                        <i data-lucide="info" class="w-4 h-4 text-blue-600"></i>
+                        基本資訊
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="col-span-2">
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                目錄名稱 <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="navTitle" placeholder="請輸入目錄名稱" value="@(model.title)"
+                                   class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                目錄代碼 <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="navCode" placeholder="例如: dashboard" value="@(model.code)"
+                                   class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                            <p class="text-xs text-slate-500 mt-1">唯一識別碼，僅英文小寫與底線</p>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                圖標
+                            </label>
+                            <div class="relative">
+                                <div id="selectedIconPreview" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">
+                                    @if (!string.IsNullOrEmpty(model.icon))
+                                    {
+                                        <i data-lucide="@(model.icon)" class="w-5 h-5 text-slate-600"></i>
+                                    }
+                                    else
+                                    {
+                                        <i data-lucide="image" class="w-5 h-5"></i>
+                                    }
+                                </div>
+                                <input type="text" id="navIcon" placeholder="例如: home" value="@(model.icon)" readonly
+                                       class="w-full pl-12 pr-12 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 cursor-pointer"
+                                       onclick="showNavModal('icon-picker')">
+                                <button type="button" onclick="showNavModal('icon-picker')" 
+                                        class="absolute right-2 top-1/2 transform -translate-y-1/2 text-blue-600 hover:text-blue-700">
+                                    <i data-lucide="search" class="w-5 h-5"></i>
+                                </button>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-1">點擊選擇 Lucide 圖標</p>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                上層目錄
+                            </label>
+                            <select id="navParent" 
+                                    class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">無（第一層目錄）</option>
+                                @* 這裡可以從 ViewBag 動態載入所有導航選項 *@
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                排序順序
+                            </label>
+                            <input type="number" id="navSort" value="@(model.sort_order ?? 0)" 
+                                   class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <p class="text-xs text-slate-500 mt-1">數字越小越前面</p>
+                        </div>
+                        
+                        <div class="col-span-2">
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                路徑 URL
+                            </label>
+                            <input type="text" id="navUrl" placeholder="/Backoffice/Dashboard/Index 或 https://example.com" value="@(model.url)"
+                                   class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <p class="text-xs text-slate-500 mt-1">
+                                內部路徑：<code class="bg-slate-100 px-1 rounded">/Backoffice/...</code> 
+                                或完整 URL：<code class="bg-slate-100 px-1 rounded">https://...</code> 將自動在新標籤頁開啟。留空表示僅為分類項目。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 狀態設定 -->
+                <div class="bg-slate-50 rounded-xl p-6">
+                    <h4 class="text-md font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                        <i data-lucide="toggle-right" class="w-4 h-4 text-purple-600"></i>
+                        狀態設定
+                    </h4>
+                    <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-slate-200">
+                        <div>
+                            <p class="font-medium text-slate-800">啟用此目錄</p>
+                            <p class="text-sm text-slate-500">停用後將不會顯示在側邊欄</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="navIsActive" class="sr-only peer" @(model.is_active == true || model.id == null ? "checked" : "")>
+                            <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 備註說明 -->
+                <div class="bg-slate-50 rounded-xl p-6">
+                    <h4 class="text-md font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                        <i data-lucide="file-text" class="w-4 h-4 text-orange-600"></i>
+                        備註說明
+                    </h4>
+                    <textarea id="navDescription" rows="3" 
+                              class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                              placeholder="輸入目錄的用途說明或備註..."></textarea>
+                </div>
+            </form>
+        </div>
+        
+        <!-- 底部按鈕 -->
+        <div class="flex justify-end gap-3 px-6 py-4 border-t bg-slate-50">
+            <button type="button" onclick="closeNavModal('nav-edit-modal')" class="px-6 py-3 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition-colors font-medium">
+                取消
+            </button>
+            <button type="button" onclick="saveNavigation()" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                <i data-lucide="save" class="w-4 h-4 inline mr-2"></i>儲存
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 詳情查看模態框 -->
+<div id="nav-detail-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+        <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 px-6 py-4 text-white">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="p-2 bg-white bg-opacity-20 rounded-lg">
+                        <i data-lucide="folder" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold">目錄詳情</h3>
+                        <p class="text-indigo-100 text-sm">查看目錄完整資訊</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeNavModal('nav-detail-modal')" class="text-white hover:text-indigo-200 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div id="navDetailContent" class="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+            <div class="space-y-6">
+                <!-- 基本資訊 -->
+                <div class="bg-slate-50 rounded-xl p-6">
+                    <h4 class="text-md font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                        <i data-lucide="info" class="w-4 h-4 text-blue-600"></i>基本資訊
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600 mb-1">目錄名稱</label>
+                            <p class="text-slate-900 font-semibold">@(model.title)</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600 mb-1">目錄代碼</label>
+                            <p class="text-slate-900 font-mono">@(model.code)</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600 mb-1">圖標</label>
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="@(model.icon ?? "image")" class="w-5 h-5 @(string.IsNullOrEmpty(model.icon) ? "text-slate-400" : "text-blue-600")"></i>
+                                <span class="text-slate-900">@(model.icon ?? "未設定")</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600 mb-1">狀態</label>
+                            <div>
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full @(model.is_active == true ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800")">
+                                    @(model.is_active == true ? "啟用" : "停用")
+                                </span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600 mb-1">上層目錄</label>
+                            <p class="text-slate-900">@(model.parent_code ?? "無（第一層目錄）")</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600 mb-1">排序順序</label>
+                            <p class="text-slate-900">@(model.sort_order)</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 路徑資訊 -->
+                <div class="bg-slate-50 rounded-xl p-6">
+                    <h4 class="text-md font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                        <i data-lucide="link" class="w-4 h-4 text-purple-600"></i>路徑資訊
+                    </h4>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-1">路徑 URL</label>
+                        @if (!string.IsNullOrEmpty(model.url))
+                        {
+                            <div class="flex items-center gap-2">
+                                <p class="text-slate-900 break-all">@(model.url)</p>
+                                @if (isExternalLink)
+                                {
+                                    <span class="px-2 py-1 text-xs font-medium bg-orange-100 text-orange-700 rounded flex items-center gap-1">
+                                        <i data-lucide="external-link" class="w-3 h-3"></i>外部連結
+                                    </span>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-slate-400">無連結（分類項目）</p>
+                        }
+                    </div>
+                </div>
+                
+                <!-- 系統資訊 -->
+                <div class="bg-slate-50 rounded-xl p-6">
+                    <h4 class="text-md font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                        <i data-lucide="database" class="w-4 h-4 text-slate-600"></i>系統資訊
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600 mb-1">建立時間</label>
+                            <p class="text-slate-900">@(model.created_at?.ToString("yyyy/MM/dd HH:mm") ?? "-")</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600 mb-1">更新時間</label>
+                            <p class="text-slate-900">@(model.updated_at?.ToString("yyyy/MM/dd HH:mm") ?? "-")</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flex justify-end gap-3 px-6 py-4 border-t bg-slate-50">
+            <button type="button" onclick="closeNavModal('nav-detail-modal')" class="px-4 py-2 bg-slate-300 text-slate-700 rounded-md hover:bg-slate-400">
+                關閉
+            </button>
+            <button type="button" onclick="showNavModal('edit', @(model.id))" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-2">
+                <i data-lucide="edit" class="w-4 h-4"></i>
+                編輯
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 圖標選擇器模態框 -->
+<div id="icon-picker-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden">
+        <!-- 標題 -->
+        <div class="bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-4 text-white">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="p-2 bg-white bg-opacity-20 rounded-lg">
+                        <i data-lucide="sparkles" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold">圖標選擇器</h3>
+                        <p class="text-purple-100 text-sm">從 Lucide Icons 庫中選擇圖標</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeNavModal('icon-picker-modal')" class="text-white hover:text-purple-200 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 搜尋與統計 -->
+        <div class="p-4 border-b border-slate-200 bg-slate-50">
+            <div class="flex items-center gap-4">
+                <div class="flex-1 relative">
+                    <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="iconSearch" placeholder="搜尋圖標名稱或標籤... (例如: home, user, folder)" 
+                           class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                </div>
+                <div class="flex items-center gap-2 text-sm text-slate-600">
+                    <span class="px-3 py-2 bg-white rounded-lg border border-slate-200">
+                        總共: <strong id="totalIcons">0</strong> 個
+                    </span>
+                    <span class="px-3 py-2 bg-white rounded-lg border border-slate-200">
+                        顯示: <strong id="filteredIcons">0</strong> 個
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 圖標網格 -->
+        <div class="p-6 overflow-y-auto" style="max-height: calc(90vh - 240px);">
+            <!-- 載入中 -->
+            <div id="iconLoading" class="text-center py-12">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+                <p class="text-slate-600">載入圖標中...</p>
+            </div>
+            
+            <!-- 錯誤訊息 -->
+            <div id="iconError" class="text-center py-12 hidden">
+                <div class="text-red-500 text-6xl mb-4">⚠️</div>
+                <p class="text-red-600 text-lg font-semibold mb-2">載入失敗</p>
+                <p class="text-slate-600 mb-4" id="iconErrorMessage"></p>
+                <button type="button" onclick="loadIconsFromAPI()" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+                    重新載入
+                </button>
+            </div>
+            
+            <!-- 圖標網格 -->
+            <div id="iconGrid" class="grid grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-2 hidden">
+                <!-- 圖標會動態插入這裡 -->
+            </div>
+            
+            <!-- 無結果 -->
+            <div id="noResults" class="text-center py-12 hidden">
+                <i data-lucide="search-x" class="w-12 h-12 mx-auto mb-3 text-slate-400"></i>
+                <p class="text-slate-500">找不到符合的圖標</p>
+            </div>
+        </div>
+        
+        <!-- 底部 -->
+        <div class="px-6 py-4 border-t bg-slate-50 text-center text-xs text-slate-500">
+            <p>圖標來自 <a href="https://lucide.dev" target="_blank" class="text-purple-600 hover:underline">Lucide Icons</a> 開源圖標庫</p>
+        </div>
+    </div>
+</div>
+
+<script>
+
+// 通用顯示模態框函數
+function showNavModal(modalId, navId = null) {
+    $.ajax({
+        url: '/Backoffice/SidebarNavigation/LoadDetail',
+        type: 'POST',
+        data: { id: navId },
+        success: function(html) {
+            $(`#${modalId}`).remove();
+            const container = $('#modal-container').length ? $('#modal-container') : $('body');
+            container.append(html);
+            $(`#${modalId}`).removeClass('hidden');
+            $('body').css('overflow', 'hidden');
+            if (window.lucide) window.lucide.createIcons();
+        },
+        error: function() {
+            alert('載入資料失敗');
+        }
+    });
+}
+
+// 通用關閉模態框函數
+function closeNavModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+}
+
+function SubmitFuntion{
+    var formData = $("FormData").serialize()
+    $.ajax({
+    type: 'POST',
+    url: '@ActionUrl',
+    data: formData,
+    success: function (response) {
+            },
+            error: function () {
+                alert('失敗，請稍後再試。');
+            }
+        });
+}
+
+// ESC 鍵關閉彈出視窗
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const visibleModals = document.querySelectorAll('.fixed:not(.hidden)');
+        visibleModals.forEach(modal => {
+            if (modal.id) {
+                closeNavModal(modal.id);
+            }
+        });
+    }
+});
+
+
+</script>
+

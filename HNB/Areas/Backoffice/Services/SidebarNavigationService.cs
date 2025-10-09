@@ -3,7 +3,9 @@ using Models.HnbHnbBackoffice;
 
 namespace HNB.Areas.Backoffice.Services;
 
-public class SidebarNavigationService(SidebarNavigationRepository repository)
+public class SidebarNavigationService(
+    SidebarNavigationRepository rep,
+    PermissionManagementRepository permRep)
 {
     #region 統一的查詢方法
 
@@ -15,7 +17,7 @@ public class SidebarNavigationService(SidebarNavigationRepository repository)
     /// <param name="isActive">啟用狀態篩選</param>
     /// <returns>導航項目列表</returns>
     public List<vw_sidebar_navigation> LoadNavigations(string? searchTerm = null, string? parentCode = null, bool? isActive = null)
-        => repository.QueryNavigationList(searchTerm, parentCode, isActive);
+        => rep.QueryNavigationList(searchTerm, parentCode, isActive);
 
     /// <summary>
     /// 載入單一導航項目
@@ -23,10 +25,9 @@ public class SidebarNavigationService(SidebarNavigationRepository repository)
     /// <param name="id">導航項目ID</param>
     /// <returns>導航項目或null</returns>
     public vw_sidebar_navigation? LoadNavigationById(int id)
-        => repository.QueryNavigation(id);
+        => rep.QueryNavigation(id);
 
     #endregion
-
 
     #region ViewBag 設定方法
 
@@ -38,10 +39,26 @@ public class SidebarNavigationService(SidebarNavigationRepository repository)
     public void ViewBagModel(dynamic viewBag, int? id = null)
     {
         viewBag.Id = id;
-        viewBag.Navigations = LoadNavigations();
+        viewBag.Navigations = LoadNavigations(); // 扁平列表
         viewBag.Navigation = id.HasValue ? LoadNavigationById(id.Value) : null;
-        viewBag.ParentNavigations = LoadNavigations();
+        viewBag.NavigationTree = GetAllNavigations(); // 樹狀結構（給目錄管理頁面用）
     }
+
+    #endregion
+
+    #region 基本 CRUD 操作
+
+    /// <summary>
+    /// 創建導航項目（新增或變更）
+    /// </summary>
+    public sidebar_navigation CreateNavigation(sidebar_navigation form)
+        => rep.InsertNavigation(form);
+
+    /// <summary>
+    /// 刪除導航項目
+    /// </summary>
+    public bool DeleteNavigation(int id)
+        => rep.DeleteNavigation(id);
 
     #endregion
 
@@ -50,49 +67,90 @@ public class SidebarNavigationService(SidebarNavigationRepository repository)
     /// <summary>
     /// 獲取用戶的側欄導航結構（包含角色權限）
     /// </summary>
-    public async Task<List<NavigationItem>> GetUserNavigationAsync(string userName)
+    public Task<List<NavigationItem>> GetUserNavigationAsync(string userName)
     {
-        var navigationData = await repository.GetNavigationByUserAsync(userName);
-        return BuildNavigationTree(navigationData.Select(ConvertToNavigationItem).ToList());
+        var permissions = new List<string>();
+        
+        // 基本權限：所有使用者都能看到儀表板和個人資料
+        permissions.AddRange(new[] { "dashboard", "profile" });
+        
+        // 從 PermissionManagementRepository 獲取用戶資料
+        var user = permRep.QueryUserByName(userName);
+        
+        // 獲取用戶直接權限
+        if (user?.navigation_permissions != null && user.navigation_permissions.Any())
+        {
+            permissions.AddRange(user.navigation_permissions);
+        }
+        
+        // 獲取用戶角色權限
+        if (user?.roles != null)
+        {
+            foreach (var roleIdStr in user.roles)
+            {
+                if (int.TryParse(roleIdStr, out var roleId))
+                {
+                    var role = permRep.QueryRoleById(roleId);
+                    if (role?.navigation_permissions != null)
+                    {
+                        permissions.AddRange(role.navigation_permissions);
+                    }
+                }
+            }
+        }
+        
+        // 去除重複
+        var userPermissionCodes = permissions.Distinct().ToList();
+        
+        // 從 SidebarNavigationRepository 獲取所有啟用的導航項目
+        var allNavigations = rep.QueryNavigationList(isActive: true);
+        
+        // 過濾出用戶有權限的導航項目
+        var allowedNavigations = allNavigations
+            .Where(n => !string.IsNullOrEmpty(n.code) && userPermissionCodes.Contains(n.code))
+            .ToList();
+        
+        // 添加父項目（確保有權限的子項目可以顯示）
+        var allowedCodes = new HashSet<string>(userPermissionCodes);
+        foreach (var nav in allowedNavigations.ToList())
+        {
+            AddParentNavigationCodes(allNavigations, nav.parent_code, allowedCodes);
+        }
+        
+        // 重新過濾包含父項目的導航列表
+        var finalNavigations = allNavigations
+            .Where(n => !string.IsNullOrEmpty(n.code) && allowedCodes.Contains(n.code))
+            .ToList();
+        
+        return Task.FromResult(BuildNavigationTree(finalNavigations.Select(ConvertToNavigationItem).ToList()));
     }
 
     /// <summary>
     /// 獲取所有導航項目（管理用）
     /// </summary>
-    public async Task<List<NavigationItem>> GetAllNavigationsAsync()
-    {
-        var navigationData = await repository.GetAllNavigationsAsync();
-        return BuildNavigationTree(navigationData.Select(ConvertToNavigationItem).ToList());
-    }
-
-    /// <summary>
-    /// 獲取所有導航項目（同步版本）
-    /// </summary>
     public List<NavigationItem> GetAllNavigations()
     {
-        var navigationData = repository.GetAllNavigations();
+        var navigationData = rep.QueryNavigationList();
         return BuildNavigationTree(navigationData.Select(ConvertToNavigationItem).ToList());
     }
 
     /// <summary>
-    /// 根據ID獲取導航項目
+    /// 遞歸添加父項目導航代碼
     /// </summary>
-    public async Task<sidebar_navigation?> GetNavigationByIdAsync(int id)
-        => await repository.GetNavigationByIdAsync(id);
-
-    /// <summary>
-    /// 根據Code獲取導航項目
-    /// </summary>
-    public async Task<sidebar_navigation?> GetNavigationByCodeAsync(string code)
-        => await repository.GetNavigationByCodeAsync(code);
-
-
-    /// <summary>
-    /// 獲取父級導航項目
-    /// </summary>
-    public async Task<List<sidebar_navigation>> GetParentNavigationsAsync()
-        => await repository.GetParentNavigationsAsync();
-
+    private void AddParentNavigationCodes(List<vw_sidebar_navigation> allNavigations, string? parentCode, HashSet<string> allowedCodes)
+    {
+        if (string.IsNullOrEmpty(parentCode) || allowedCodes.Contains(parentCode))
+            return;
+            
+        allowedCodes.Add(parentCode);
+        
+        // 找到父項目，繼續遞歸
+        var parent = allNavigations.FirstOrDefault(n => n.code == parentCode);
+        if (parent != null && !string.IsNullOrEmpty(parent.parent_code))
+        {
+            AddParentNavigationCodes(allNavigations, parent.parent_code, allowedCodes);
+        }
+    }
 
     /// <summary>
     /// 建立導航樹狀結構

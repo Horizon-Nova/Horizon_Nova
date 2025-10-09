@@ -1,11 +1,12 @@
 ﻿using HNB.Areas.Backoffice.Services;
+using HNB.Areas.Backoffice.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Models.HnbHnbBackoffice;
 
 namespace HNB.Areas.Backoffice.Controllers;
 
 [Area("Backoffice")]
-public class BackofficeController(PermissionManagementService permissionService) : BaseController
+public class BackofficeController(PermissionManagementService permissionService, AuthService authService, AuthRepository authRepository) : BaseController
 {
     /// <summary>
     /// 個人資料頁面
@@ -67,18 +68,23 @@ public class BackofficeController(PermissionManagementService permissionService)
     /// </summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult ChangePassword(string currentPassword, string newPassword, string confirmPassword)
+    public async Task<IActionResult> ChangePassword(string currentPassword, string newPassword, string confirmPassword)
     {
         try
         {
+            // 驗證輸入
+            if (string.IsNullOrEmpty(currentPassword))
+                return Json(new { success = false, message = "請輸入目前密碼" });
+
             if (string.IsNullOrEmpty(newPassword) || newPassword != confirmPassword)
                 return Json(new { success = false, message = "新密碼與確認密碼不符" });
+
+            if (newPassword.Length < 6)
+                return Json(new { success = false, message = "新密碼長度至少需要6個字元" });
 
             var currentUserName = User.Identity?.Name;
             if (string.IsNullOrEmpty(currentUserName))
                 return Json(new { success = false, message = "使用者未登入" });
-
-            // TODO: 驗證當前密碼是否正確
 
             var users = permissionService.LoadUsers();
             var currentUser = users.FirstOrDefault(u => u.name == currentUserName);
@@ -86,15 +92,18 @@ public class BackofficeController(PermissionManagementService permissionService)
             if (currentUser?.id == null)
                 return Json(new { success = false, message = "找不到使用者資料" });
 
-            var form = new permission_management
-            {
-                id = currentUser.id.Value,
-                password_hash = newPassword
-            };
+            // 驗證當前密碼是否正確
+            var validUser = await authService.ValidateUserAsync(currentUserName, currentPassword);
+            if (validUser == null)
+                return Json(new { success = false, message = "目前密碼不正確" });
 
-            var result = permissionService.CreateUser(form);
+            // 生成新密碼的雜湊值和鹽值
+            var (newHash, newSalt) = await authService.HashPasswordAsync(newPassword);
+
+            // 更新密碼
+            await authRepository.UpdatePasswordAsync(currentUser.id.Value, newHash, newSalt);
             
-            return Json(new { success = result.success, message = result.success ? "密碼更新成功" : result.message });
+            return Json(new { success = true, message = "密碼更新成功" });
         }
         catch (Exception ex)
         {
