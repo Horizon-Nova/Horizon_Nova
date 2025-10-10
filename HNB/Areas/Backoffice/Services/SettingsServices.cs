@@ -106,14 +106,13 @@ public class SettingsServices(SettingsRepositories rep)
     /// 載入快取統計資料
     /// </summary>
     public (long memoryCacheSize, int cacheEntries, DateTime lastCleared) LoadCacheStatistics()
-        => (1024 * 1024 * 50, 150, DateTime.Now.AddHours(-2)); // 模擬資料
+        => (1024 * 1024 * 50, 150, DateTime.Now.AddHours(-2));
 
     /// <summary>
     /// 清理所有快取
     /// </summary>
     public bool ClearAllCache()
     {
-        // 模擬清理過程
         return true;
     }
 

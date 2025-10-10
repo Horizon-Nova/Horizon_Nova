@@ -23,6 +23,10 @@ public partial class HnbHnbBackofficeDbContext : DbContext
     {
     }
 
+    public virtual DbSet<ai_config> ai_configs { get; set; }
+
+    public virtual DbSet<ai_log> ai_logs { get; set; }
+
     public virtual DbSet<hardware_monitoring> hardware_monitorings { get; set; }
 
     public virtual DbSet<permission_management> permission_managements { get; set; }
@@ -30,6 +34,10 @@ public partial class HnbHnbBackofficeDbContext : DbContext
     public virtual DbSet<security_ip_key> security_ip_keys { get; set; }
 
     public virtual DbSet<sidebar_navigation> sidebar_navigations { get; set; }
+
+    public virtual DbSet<vw_ai_config> vw_ai_configs { get; set; }
+
+    public virtual DbSet<vw_ai_log> vw_ai_logs { get; set; }
 
     public virtual DbSet<vw_hardware_monitoring> vw_hardware_monitorings { get; set; }
 
@@ -44,6 +52,31 @@ public partial class HnbHnbBackofficeDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasPostgresExtension("dbo", "pgcrypto");
+
+        modelBuilder.Entity<ai_config>(entity =>
+        {
+            entity.HasKey(e => e.id).HasName("ai_config_pkey");
+
+            entity.HasIndex(e => new { e.provider, e.scope, e.model_key }, "idx_ai_config_unique")
+                .IsUnique()
+                .HasFilter("(deleted_at IS NULL)");
+
+            entity.Property(e => e.budget_alert_threshold).HasDefaultValue(80);
+            entity.Property(e => e.created_at).HasDefaultValueSql("now()");
+            entity.Property(e => e.is_enabled).HasDefaultValue(true);
+            entity.Property(e => e.priority).HasDefaultValue(0);
+            entity.Property(e => e.version).HasDefaultValueSql("'v1.0.0'::character varying");
+        });
+
+        modelBuilder.Entity<ai_log>(entity =>
+        {
+            entity.HasKey(e => e.id).HasName("ai_log_pkey");
+
+            entity.Property(e => e.created_at).HasDefaultValueSql("now()");
+            entity.Property(e => e.status).HasDefaultValueSql("'pending'::character varying");
+
+            entity.HasOne(d => d.ai_config).WithMany(p => p.ai_logs).HasConstraintName("fk_ai_log_config");
+        });
 
         modelBuilder.Entity<hardware_monitoring>(entity =>
         {
@@ -294,6 +327,16 @@ public partial class HnbHnbBackofficeDbContext : DbContext
                 .HasForeignKey(d => d.parent_code)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("fk_sidebar_navigation_parent");
+        });
+
+        modelBuilder.Entity<vw_ai_config>(entity =>
+        {
+            entity.ToView("vw_ai_config", "dbo");
+        });
+
+        modelBuilder.Entity<vw_ai_log>(entity =>
+        {
+            entity.ToView("vw_ai_log", "dbo");
         });
 
         modelBuilder.Entity<vw_hardware_monitoring>(entity =>

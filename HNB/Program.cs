@@ -44,7 +44,6 @@ builder.Services.AddSession();
 
 builder.Services.AddMemoryCache();
 
-// 添加認證服務
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
@@ -58,17 +57,15 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.Cookie.SameSite = SameSiteMode.Lax;
     });
 
-// 配置 Kestrel 伺服器支援大檔案上傳（4GB）
 builder.Services.Configure<Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerOptions>(options =>
 {
-    options.Limits.MaxRequestBodySize = 4294967296; // 4GB = 4 * 1024 * 1024 * 1024
+    options.Limits.MaxRequestBodySize = 4294967296;
 });
 
-// 配置表單選項支援大檔案上傳（4GB）
 builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
 {
     options.ValueLengthLimit = int.MaxValue;
-    options.MultipartBodyLengthLimit = 4294967296; // 4GB
+    options.MultipartBodyLengthLimit = 4294967296;
     options.MultipartHeadersLengthLimit = int.MaxValue;
 });
 

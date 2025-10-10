@@ -17,7 +17,6 @@ public class AuthorizeController(AuthService authService) : Controller
     [HttpGet]
     public IActionResult Login(string? returnUrl = null)
     {
-        // 如果已經登入，重定向到後台首頁
         if (User.Identity?.IsAuthenticated == true)
         {
             return RedirectToAction("Dashboard", "Dashboard", new { area = "Backoffice" });
@@ -44,7 +43,6 @@ public class AuthorizeController(AuthService authService) : Controller
 
         var user = loginResult.user!;
         
-        // 建立 Claims
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, user.id.ToString()),
@@ -56,11 +54,9 @@ public class AuthorizeController(AuthService authService) : Controller
             new Claim("LastLogin", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"))
         };
 
-        // 添加角色 Claims（取第一個角色作為主要角色）
         var primaryRole = user.roles?.FirstOrDefault() ?? "user";
         claims.Add(new Claim("Role", primaryRole));
         
-        // 同時添加標準的 ClaimTypes.Role
         user.roles?.ToList().ForEach(role => claims.Add(new Claim(ClaimTypes.Role, role)));
 
         var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -70,14 +66,9 @@ public class AuthorizeController(AuthService authService) : Controller
             ExpiresUtc = rememberMe ? DateTimeOffset.UtcNow.AddDays(30) : DateTimeOffset.UtcNow.AddHours(8)
         };
 
-        // 登入用戶
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, 
             new ClaimsPrincipal(claimsIdentity), authProperties);
 
-        // 更新最後登入時間（可選）
-        // TODO: 實作更新登入時間功能
-
-        // 重定向到指定頁面
         return !string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl) 
             ? Redirect(returnUrl) 
             : RedirectToAction("Dashboard", "Dashboard", new { area = "Backoffice" });

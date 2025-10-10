@@ -22,7 +22,6 @@ public sealed class DirectoryManagerUtilities
     private static readonly Regex InvalidChars = new(@"[\\/:*?""<>|]", RegexOptions.Compiled);
     private static readonly FileExtensionContentTypeProvider Ct = new();
 
-    // 可線上檢視/編輯的純文字副檔名
     private static readonly HashSet<string> EditableExt = new(StringComparer.OrdinalIgnoreCase)
     {
         ".txt",".md",".json",".jsonl",".js",".ts",".css",".scss",".sass",
@@ -177,9 +176,6 @@ public sealed class DirectoryManagerUtilities
         var absDir = GetSafeAbsolutePath(virtualPath);
         Directory.CreateDirectory(absDir);
 
-        // 移除 ASCII 限制，允許中文資料夾名稱
-        // EnsureFolderAsciiOnlyOrThrow(folderName);
-
         var safe = SanitizeName(folderName);
         if (string.IsNullOrWhiteSpace(safe)) throw new InvalidOperationException("資料夾名稱不合法");
         if (IsProtected(virtualPath, safe)) throw new InvalidOperationException("保護路徑，禁止建立資料夾");
@@ -223,7 +219,6 @@ public sealed class DirectoryManagerUtilities
         
         var full = Path.Combine(absDir, safe);
         
-        // 安全檢查：確保刪除的是檔案，且路徑包含檔案名稱
         if (!full.EndsWith(safe)) throw new InvalidOperationException("路徑驗證失敗");
         if (!File.Exists(full)) throw new FileNotFoundException($"檔案不存在: {fileName}");
         
@@ -247,11 +242,9 @@ public sealed class DirectoryManagerUtilities
         
         var dir = Path.Combine(absDir, safe);
         
-        // 安全檢查：確保刪除的是資料夾，且路徑包含資料夾名稱
         if (!dir.EndsWith(safe)) throw new InvalidOperationException("路徑驗證失敗");
         if (!Directory.Exists(dir)) throw new DirectoryNotFoundException($"資料夾不存在: {folderName}");
         
-        // 額外安全檢查：確保不是刪除根目錄或父目錄
         if (dir == _root || dir.Length <= _root.Length) throw new InvalidOperationException("禁止刪除根目錄");
         
         Directory.Delete(dir, recursive: true);
@@ -287,8 +280,6 @@ public sealed class DirectoryManagerUtilities
     public void RenameFolder(string virtualPath, string oldName, string newName)
     {
         var absDir = GetSafeAbsolutePath(virtualPath);
-        // 移除 ASCII 限制，允許中文資料夾名稱
-        // EnsureFolderAsciiOnlyOrThrow(newName);
 
         var src = Path.Combine(absDir, SanitizeName(oldName));
         var newSafe = SanitizeName(newName);
@@ -386,8 +377,6 @@ public sealed class DirectoryManagerUtilities
         if (string.IsNullOrWhiteSpace(safeRel)) throw new InvalidOperationException("檔名不合法");
 
         var segs = safeRel.Split('/', StringSplitOptions.RemoveEmptyEntries);
-        // 移除 ASCII 限制，允許中文資料夾名稱
-        // for (int i = 0; i < segs.Length - 1; i++) EnsureFolderAsciiOnlyOrThrow(segs[i]);
 
         var dirPart = Path.GetDirectoryName("/" + safeRel)?.Replace('\\', '/') ?? "/";
         var filePart = SanitizeName(Path.GetFileName(safeRel));
@@ -607,7 +596,6 @@ public sealed class DirectoryManagerUtilities
         var rel = (v == "/" ? "" : v.TrimStart('/') + "/") + (name ?? "");
         rel = rel.Trim('/');
 
-        // 當作資料夾語意再試一次（尾斜線）
         var folderRel = rel.Length == 0 ? "" : rel + "/";
 
         foreach (var rx in _protectedRegexes)
@@ -626,7 +614,6 @@ public sealed class DirectoryManagerUtilities
 
         var patterns = new List<string>(_ignorePatternsFromConfig);
 
-        // 從根目錄讀 ignore 檔
         var ignoreFile = Path.Combine(_root, _ignoreFileName);
         if (File.Exists(ignoreFile))
         {
@@ -638,7 +625,6 @@ public sealed class DirectoryManagerUtilities
             }
         }
 
-        // 預設也保護 ignore 檔本身
         if (!patterns.Contains(_ignoreFileName)) patterns.Add(_ignoreFileName);
 
         var rxOpt = (_ignoreCase ? RegexOptions.IgnoreCase : 0) | RegexOptions.Compiled;

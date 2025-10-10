@@ -15,20 +15,16 @@ public static class SystemMonitoringUtility
     /// <returns>更新後的硬體監控模型</returns>
     public static hardware_monitoring CollectSystemInfo(hardware_monitoring hardware)
     {
-        // 基本系統資訊
         hardware.host_name = Environment.MachineName ?? "N/A";
         hardware.operating_system = Environment.OSVersion.VersionString ?? "N/A";
         hardware.kernel_version = Environment.OSVersion.Version.ToString();
         hardware.uptime = CalculateSystemUptime();
 
-        // 系統負載
         hardware.system_load_avg = new List<decimal> { 0.5m };
 
-        // 系統程序和使用者數
         hardware.system_processes = System.Diagnostics.Process.GetProcesses().Length;
         hardware.system_users = 1;
 
-        // 磁碟空間資訊
         var drives = DriveInfo.GetDrives();
         long totalDiskSpace = 0;
         long usedDiskSpace = 0;
@@ -45,7 +41,6 @@ public static class SystemMonitoringUtility
         hardware.system_disk_used = usedDiskSpace;
         hardware.system_disk_free = freeDiskSpace;
 
-        // 交換空間資訊（Windows 沒有直接的交換空間概念，使用虛擬記憶體）
         hardware.system_swap_total = 0;
         hardware.system_swap_used = 0;
 

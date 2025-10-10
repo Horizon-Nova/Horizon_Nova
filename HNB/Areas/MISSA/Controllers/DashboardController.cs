@@ -8,7 +8,6 @@ public class DashboardController : Controller
 {
     public IActionResult Dashboard()
     {
-        // 從資料庫讀取真實活動資料
         ViewBag.ActivityList = new List<dynamic>
         {
             new { FormTitle = "迎新活動", FormLocation = "資管系館", FormDate = "2024-09-15" },

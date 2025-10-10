@@ -17,7 +17,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Areas\Backoffice\storage\" />
-    <Folder Include="Areas\Backoffice\Repositories\" />
     <Folder Include="Models\" />
   </ItemGroup>
 </Project>

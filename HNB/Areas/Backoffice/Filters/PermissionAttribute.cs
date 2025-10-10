@@ -19,7 +19,6 @@ public class PermissionAttribute : Attribute, IAsyncAuthorizationFilter
 
     public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
     {
-        // 檢查是否有當前登入用戶
         var currentUserName = context.HttpContext.User.Identity?.Name;
         if (string.IsNullOrEmpty(currentUserName))
         {
@@ -28,16 +27,12 @@ public class PermissionAttribute : Attribute, IAsyncAuthorizationFilter
             return;
         }
 
-        // 檢查帳號是否正確（已登入）
         if (context.HttpContext.User.Identity?.IsAuthenticated != true)
         {
             context.Result = new RedirectToActionResult("Login", "Authorize", 
                 new { area = "Backoffice", returnUrl = context.HttpContext.Request.Path });
             return;
         }
-
-        // 暫時禁用權限檢查，僅檢查登入狀態
-        // TODO: 調試完成後重新啟用權限檢查
         /*
         var currentPath = context.HttpContext.Request.Path.Value?.ToLowerInvariant() ?? "";
         if (!await CheckUserNavigationPermissionAsync(context, userName, currentPath))
@@ -55,18 +50,13 @@ public class PermissionAttribute : Attribute, IAsyncAuthorizationFilter
     /// </summary>
     private Task<bool> CheckUserNavigationPermissionAsync(AuthorizationFilterContext context, string userName, string currentPath)
     {
-        // 從 DI 容器獲取 SidebarNavigationService
         var sidebarService = context.HttpContext.RequestServices.GetService<SidebarNavigationService>();
         if (sidebarService == null) return Task.FromResult(false);
 
-        // 獲取用戶的導航權限（會自動查詢用戶的所有角色權限）
         var userNavigations = sidebarService.LoadUserNavigationList(userName);
         
-        // 如果用戶沒有任何導航權限，拒絕訪問
         if (!userNavigations.Any()) return Task.FromResult(false);
         
-        // 檢查當前路徑是否在用戶的導航權限中
-        // 使用更寬鬆的匹配邏輯：檢查路徑是否包含導航項目的 URL
         return Task.FromResult(userNavigations.Any(nav => 
             !string.IsNullOrEmpty(nav.url) && 
             (currentPath.StartsWith(nav.url.ToLowerInvariant(), StringComparison.OrdinalIgnoreCase) ||

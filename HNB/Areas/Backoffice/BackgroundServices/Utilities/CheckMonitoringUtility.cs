@@ -17,13 +17,11 @@ public static class CheckMonitoringUtility
     /// <returns>更新後的硬體監控模型</returns>
     public static hardware_monitoring SetCheckInfo(hardware_monitoring hardware, string checkMethod = "agent", int checkInterval = 300)
     {
-        // 設定檢查資訊
         hardware.last_check_time = DateTime.UtcNow;
         hardware.check_method = checkMethod ?? "agent";
         hardware.check_interval = checkInterval;
         hardware.is_active = true;
 
-        // 設定時間戳記
         hardware.created_at ??= DateTime.UtcNow;
         hardware.updated_at = DateTime.UtcNow;
 

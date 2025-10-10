@@ -17,18 +17,16 @@ public static class HardwareMonitoringUtility
     /// <returns>完整的硬體監控模型</returns>
     public static hardware_monitoring CollectCompleteHardwareInfo(string serverIp, string checkMethod = "agent", int checkInterval = 300)
     {
-        // 建立新的硬體監控模型，使用 server_ip 作為定位鍵
         var hardware = new hardware_monitoring
         {
             server_ip = serverIp,
-            server_location = "台灣", // 預設值
-            server_provider = "自建", // 預設值
-            environment_type = "Production" // 預設值
+            server_location = "台灣",
+            server_provider = "自建",
+            environment_type = "Production"
         };
 
         try
         {
-            // 依序收集各項硬體資訊
             hardware = CpuMonitoringUtility.CollectCpuInfo(hardware);
             hardware = GpuMonitoringUtility.CollectGpuInfo(hardware);
             hardware = MemoryMonitoringUtility.CollectMemoryInfo(hardware);
@@ -44,7 +42,6 @@ public static class HardwareMonitoringUtility
         catch (Exception ex)
         {
             Console.WriteLine($"收集硬體監控資訊時發生錯誤: {ex.Message}");
-            // 即使發生錯誤，也要設定基本的檢查資訊
             hardware = CheckMonitoringUtility.SetCheckInfo(hardware, checkMethod, checkInterval);
             return hardware;
         }
@@ -59,7 +56,6 @@ public static class HardwareMonitoringUtility
     {
         var errors = new List<string>();
 
-        // 驗證各項硬體資訊
         if (!CpuMonitoringUtility.ValidateCpuInfo(hardware))
             errors.Add("CPU 資訊驗證失敗");
 
@@ -96,32 +92,27 @@ public static class HardwareMonitoringUtility
     {
         var summary = new List<string>();
 
-        // CPU 摘要
         if (hardware.cpu_names?.Count > 0)
         {
             summary.Add($"CPU: {hardware.cpu_names[0]} ({hardware.cpu_cores?[0]} 核心)");
         }
 
-        // GPU 摘要
         if (hardware.gpu_names?.Count > 0 && hardware.gpu_names[0] != "未檢測到獨立顯卡")
         {
             summary.Add($"GPU: {hardware.gpu_names[0]}");
         }
 
-        // 記憶體摘要
         if (hardware.system_memory_total.HasValue)
         {
             var memoryGB = hardware.system_memory_total.Value / (1024 * 1024 * 1024);
             summary.Add($"記憶體: {memoryGB}GB");
         }
 
-        // 儲存摘要
         if (hardware.storage_names?.Count > 0)
         {
             summary.Add($"儲存: {hardware.storage_names.Count} 個裝置");
         }
 
-        // 網路摘要
         if (hardware.network_interfaces?.Count > 0)
         {
             summary.Add($"網路: {hardware.network_interfaces.Count} 個介面");
@@ -139,7 +130,6 @@ public static class HardwareMonitoringUtility
     {
         var issues = new List<string>();
 
-        // 檢查 CPU 溫度
         if (hardware.cpu_temperatures?.Count > 0)
         {
             var maxCpuTemp = hardware.cpu_temperatures.Max();
@@ -147,7 +137,6 @@ public static class HardwareMonitoringUtility
                 issues.Add($"CPU 溫度過高: {maxCpuTemp}°C");
         }
 
-        // 檢查 GPU 溫度
         if (hardware.gpu_temperatures?.Count > 0)
         {
             var maxGpuTemp = hardware.gpu_temperatures.Max();
@@ -155,7 +144,6 @@ public static class HardwareMonitoringUtility
                 issues.Add($"GPU 溫度過高: {maxGpuTemp}°C");
         }
 
-        // 檢查記憶體使用率
         if (hardware.memory_usages?.Count > 0)
         {
             var maxMemoryUsage = hardware.memory_usages.Max();
@@ -163,7 +151,6 @@ public static class HardwareMonitoringUtility
                 issues.Add($"記憶體使用率過高: {maxMemoryUsage:F1}%");
         }
 
-        // 檢查磁碟空間
         if (hardware.system_disk_total.HasValue && hardware.system_disk_free.HasValue)
         {
             var diskUsagePercent = (decimal)(hardware.system_disk_total.Value - hardware.system_disk_free.Value) * 100 / hardware.system_disk_total.Value;

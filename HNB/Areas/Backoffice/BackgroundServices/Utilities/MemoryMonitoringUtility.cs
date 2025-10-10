@@ -16,7 +16,6 @@ public static class MemoryMonitoringUtility
     /// <returns>更新後的硬體監控模型</returns>
     public static hardware_monitoring CollectMemoryInfo(hardware_monitoring hardware)
     {
-        // 使用 WMI 取得記憶體資訊
         using var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_OperatingSystem");
         var collection = searcher.Get();
 
@@ -28,12 +27,10 @@ public static class MemoryMonitoringUtility
             var totalGb = totalMemory / (1024 * 1024 * 1024);
             var usagePercent = totalMemory > 0 ? (decimal)(usedMemory * 100) / totalMemory : 0;
 
-            // 更新系統記憶體資訊
             hardware.system_memory_total = (long)totalMemory;
             hardware.system_memory_used = (long)usedMemory;
             hardware.system_memory_free = (long)freeMemory;
 
-            // 記憶體模組資訊
             hardware.memory_names = new List<string> { "系統記憶體" };
             hardware.memory_types = new List<string> { "DDR4" };
             hardware.memory_capacities = new List<string> { $"{totalGb}GB" };

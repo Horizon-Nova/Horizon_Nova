@@ -1,6 +1,16 @@
+@using Models.HnbHnbBackoffice
 @{
     ViewData["Title"] = "系統管理 - AI模型管理";
     Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
+    
+    // 從 ViewBag 取得資料
+    var aiConfigs = (List<vw_ai_config>)ViewBag.AIConfigs ?? new List<vw_ai_config>();
+    var currentAIConfig = (vw_ai_config?)ViewBag.AIConfig;
+    var configId = (long?)ViewBag.Id;
+    
+    // 計算統計資料
+    var totalCount = aiConfigs.Count;
+    var enabledCount = aiConfigs.Count(c => c.is_enabled == true);
 }
 
 <section class="space-y-6">
@@ -20,8 +30,8 @@
                 <h3 class="text-sm font-medium text-gray-600">總使用次數 (今日)</h3>
                 <i data-lucide="activity" class="h-4 w-4 text-gray-400"></i>
             </div>
-            <div class="text-2xl font-bold text-gray-900">1,475</div>
-            <p class="text-xs text-gray-500">+12.5% 比昨天</p>
+            <div class="text-2xl font-bold text-gray-900" id="todayUsageCount">-</div>
+            <p class="text-xs text-gray-500">統計中...</p>
         </div>
 
         <div class="bg-white border rounded-xl p-6 shadow-sm">
@@ -29,17 +39,22 @@
                 <h3 class="text-sm font-medium text-gray-600">啟用模型</h3>
                 <i data-lucide="zap" class="h-4 w-4 text-gray-400"></i>
             </div>
-            <div class="text-2xl font-bold text-gray-900">3</div>
-            <p class="text-xs text-gray-500">共 3 個模型</p>
+            <div class="text-2xl font-bold text-gray-900">@enabledCount</div>
+            <p class="text-xs text-gray-500">共 @totalCount 個模型</p>
         </div>
 
         <div class="bg-white border rounded-xl p-6 shadow-sm">
             <div class="flex items-center justify-between mb-2">
-                <h3 class="text-sm font-medium text-gray-600">平均成功率</h3>
+                <h3 class="text-sm font-medium text-gray-600">平均品質分數</h3>
                 <i data-lucide="trending-up" class="h-4 w-4 text-gray-400"></i>
             </div>
-            <div class="text-2xl font-bold text-gray-900">96.5%</div>
-            <p class="text-xs text-gray-500">+0.2% 比上週</p>
+            <div class="text-2xl font-bold text-gray-900">
+                @{
+                    var avgQuality = aiConfigs.Any() ? aiConfigs.Average(c => c.quality_score ?? 0) : 0;
+                }
+                @avgQuality.ToString("F1")%
+            </div>
+            <p class="text-xs text-gray-500">平均模型品質</p>
         </div>
 
         <div class="bg-white border rounded-xl p-6 shadow-sm">
@@ -47,8 +62,10 @@
                 <h3 class="text-sm font-medium text-gray-600">系統狀態</h3>
                 <i data-lucide="server" class="h-4 w-4 text-gray-400"></i>
             </div>
-            <div class="text-2xl font-bold text-green-600">正常</div>
-            <p class="text-xs text-gray-500">所有服務運行中</p>
+            <div class="text-2xl font-bold @(enabledCount > 0 ? "text-green-600" : "text-gray-400")">
+                @(enabledCount > 0 ? "正常" : "無啟用")
+            </div>
+            <p class="text-xs text-gray-500">@enabledCount 個服務運行中</p>
         </div>
     </div>
 
@@ -98,22 +115,78 @@
                 
                 <!-- AI服務卡片列表 -->
                 <div id="aiServicesList" class="space-y-4">
-                    <!-- 載入中 -->
-                    <div class="animate-pulse">
-                        <div class="border rounded-lg p-4">
-                            <div class="flex items-center justify-between mb-3">
-                                <div class="flex items-center gap-3">
-                                    <div class="h-8 w-8 bg-gray-300 rounded-full"></div>
-                                    <div class="h-6 w-32 bg-gray-300 rounded"></div>
-                                </div>
-                                <div class="h-8 w-20 bg-gray-300 rounded"></div>
-                            </div>
-                            <div class="space-y-2">
-                                <div class="h-4 w-full bg-gray-300 rounded"></div>
-                                <div class="h-4 w-3/4 bg-gray-300 rounded"></div>
-                            </div>
+                    @if (!aiConfigs.Any())
+                    {
+                        <!-- 空狀態 -->
+                        <div class="text-center py-12 bg-gray-50 rounded-lg">
+                            <i data-lucide="inbox" class="h-12 w-12 mx-auto text-gray-300 mb-4"></i>
+                            <h3 class="text-sm font-medium text-gray-900 mb-2">尚未配置任何 AI 服務</h3>
+                            <p class="text-sm text-gray-500 mb-4">點擊「新增AI服務」開始配置您的第一個 AI 模型</p>
                         </div>
-                    </div>
+                    }
+                    else
+                    {
+                        @foreach (var config in aiConfigs)
+                        {
+                            var iconName = config.scope?.Contains("image") == true ? "image" : 
+                                          config.scope?.Contains("vision") == true ? "eye" :
+                                          config.scope?.Contains("text") == true ? "file-text" : "brain";
+                            var bgColor = config.is_enabled == true ? "bg-purple-100" : "bg-gray-100";
+                            var iconColor = config.is_enabled == true ? "text-purple-600" : "text-gray-400";
+                            var statusClass = config.is_enabled == true ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600";
+                            var statusText = config.is_enabled == true ? "啟用" : "停用";
+                            
+                            <div class="border rounded-lg p-4 hover:shadow-md transition-shadow" data-service-id="@config.id">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 @bgColor rounded-full flex items-center justify-center">
+                                            <i data-lucide="@iconName" class="h-5 w-5 @iconColor"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-medium text-gray-900">@config.service_name</h4>
+                                            <p class="text-sm text-gray-500">@config.provider • @config.scope</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="px-2 py-1 text-xs font-medium rounded-full @statusClass">@statusText</span>
+                                        <div class="flex gap-1">
+                                            <button class="p-1 text-gray-400 hover:text-blue-600" onclick="editService(@config.id)">
+                                                <i data-lucide="edit" class="h-4 w-4"></i>
+                                            </button>
+                                            <button class="p-1 text-gray-400 hover:text-red-600" onclick="deleteService(@config.id)">
+                                                <i data-lucide="trash-2" class="h-4 w-4"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="space-y-1">
+                                    @if (!string.IsNullOrEmpty(config.description))
+                                    {
+                                        <p class="text-sm text-gray-600">@config.description</p>
+                                    }
+                                    <div class="text-sm text-gray-600 flex flex-wrap gap-x-4 gap-y-1">
+                                        <span>Model: <span class="font-mono text-xs">@config.model_key</span></span>
+                                        @if (config.version != null)
+                                        {
+                                            <span>版本: @config.version</span>
+                                        }
+                                        @if (config.priority != null)
+                                        {
+                                            <span>優先級: @config.priority</span>
+                                        }
+                                        @if (config.quality_score != null)
+                                        {
+                                            <span>品質: @config.quality_score.Value.ToString("F1")%</span>
+                                        }
+                                        @if (config.daily_limit != null)
+                                        {
+                                            <span>每日限額: @config.daily_limit</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
                 </div>
             </div>
         </div>
@@ -145,19 +218,19 @@
                 <div class="space-y-3">
                     <div class="flex items-center justify-between">
                         <span class="text-sm text-gray-600">總服務數</span>
-                        <span class="font-medium text-gray-900" id="totalServices">0</span>
+                        <span class="font-medium text-gray-900" id="totalServices">@totalCount</span>
                     </div>
                     <div class="flex items-center justify-between">
                         <span class="text-sm text-gray-600">啟用服務</span>
-                        <span class="font-medium text-green-600" id="activeServices">0</span>
+                        <span class="font-medium text-green-600" id="activeServices">@enabledCount</span>
                     </div>
                     <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-600">離線服務</span>
-                        <span class="font-medium text-red-600" id="offlineServices">0</span>
+                        <span class="text-sm text-gray-600">停用服務</span>
+                        <span class="font-medium text-red-600" id="offlineServices">@(totalCount - enabledCount)</span>
                     </div>
                     <div class="flex items-center justify-between">
                         <span class="text-sm text-gray-600">今日調用</span>
-                        <span class="font-medium text-blue-600" id="todayCalls">0</span>
+                        <span class="font-medium text-blue-600" id="todayCalls">-</span>
                     </div>
                 </div>
             </div>
@@ -369,565 +442,3 @@
         </div>
     </div>
 </div>
-
-@section Scripts {
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // AI提供商模板配置
-    const providerTemplates = {
-        'OpenAI': {
-            name: 'OpenAI',
-            icon: 'brain',
-            defaultConfigs: [
-                { key: 'base_url', label: 'API端點', type: 'url', required: true, default: 'https://api.openai.com/v1' },
-                { key: 'api_key', label: 'API密鑰', type: 'password', required: true },
-                { key: 'organization', label: '組織ID', type: 'text', required: false },
-                { key: 'model', label: '模型名稱', type: 'text', required: true },
-                { key: 'temperature', label: '溫度', type: 'number', required: false, default: 0.7, min: 0, max: 2, step: 0.1 },
-                { key: 'max_tokens', label: '最大Token數', type: 'number', required: false, default: 1000, min: 1, max: 4096 }
-            ]
-        },
-        'Moondream': {
-            name: 'Moondream',
-            icon: 'moon',
-            defaultConfigs: [
-                { key: 'BaseUrl', label: 'API端點', type: 'url', required: true, default: 'https://api.moondream.ai/v1/' },
-                { key: 'ApiKey', label: 'API密鑰', type: 'password', required: true },
-                { key: 'Model', label: '模型名稱', type: 'text', required: true, default: 'moondream-2B' }
-            ]
-        },
-        'Custom': {
-            name: '自訂',
-            icon: 'settings',
-            defaultConfigs: []
-        }
-    };
-
-    // 全域變數
-    let configCounter = 0;
-    let promptCounter = 0;
-    let currentConfig = {};
-
-    // 初始化
-    loadAIServices();
-    initializeModals();
-    initializeEventListeners();
-    
-    // 載入AI服務列表
-    function loadAIServices() {
-        // 模擬載入現有的AI服務
-        setTimeout(() => {
-            const servicesList = document.getElementById('aiServicesList');
-            servicesList.innerHTML = `
-                <div class="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer" data-service-id="1">
-                    <div class="flex items-center justify-between mb-3">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                                <i data-lucide="image" class="h-5 w-5 text-purple-600"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-medium text-gray-900">DALL-E 3 圖像生成</h4>
-                                <p class="text-sm text-gray-500">OpenAI • image.general</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">啟用</span>
-                            <div class="flex gap-1">
-                                <button class="p-1 text-gray-400 hover:text-blue-600" onclick="editService(1)">
-                                    <i data-lucide="edit" class="h-4 w-4"></i>
-                                </button>
-                                <button class="p-1 text-gray-400 hover:text-red-600" onclick="deleteService(1)">
-                                    <i data-lucide="trash-2" class="h-4 w-4"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="text-sm text-gray-600">
-                        <span>今日調用: 45次</span>
-                        <span class="mx-2">•</span>
-                        <span>成功率: 96.2%</span>
-                    </div>
-                </div>
-                <div class="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer" data-service-id="2">
-                    <div class="flex items-center justify-between mb-3">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                <i data-lucide="moon" class="h-5 w-5 text-blue-600"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-medium text-gray-900">Moondream 視覺問答</h4>
-                                <p class="text-sm text-gray-500">Moondream • vision.qa</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">啟用</span>
-                            <div class="flex gap-1">
-                                <button class="p-1 text-gray-400 hover:text-blue-600" onclick="editService(2)">
-                                    <i data-lucide="edit" class="h-4 w-4"></i>
-                                </button>
-                                <button class="p-1 text-gray-400 hover:text-red-600" onclick="deleteService(2)">
-                                    <i data-lucide="trash-2" class="h-4 w-4"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="text-sm text-gray-600">
-                        <span>今日調用: 12次</span>
-                        <span class="mx-2">•</span>
-                        <span>成功率: 98.5%</span>
-                    </div>
-                </div>
-            `;
-            
-            // 更新統計
-            updateStats();
-            
-            if (window.lucide) window.lucide.createIcons();
-        }, 1000);
-    }
-
-    // 更新統計數據
-    function updateStats() {
-        document.getElementById('totalServices').textContent = '2';
-        document.getElementById('activeServices').textContent = '2';
-        document.getElementById('offlineServices').textContent = '0';
-        document.getElementById('todayCalls').textContent = '57';
-    }
-    
-    // 初始化模態視窗
-    function initializeModals() {
-        const modal = document.getElementById('aiConfigModal');
-        const previewModal = document.getElementById('configPreviewModal');
-        const openBtn = document.getElementById('addAIServiceBtn');
-        const closeBtn = document.getElementById('closeModal');
-        const cancelBtn = document.getElementById('cancelBtn');
-        const closePreviewBtn = document.getElementById('closePreviewModal');
-        
-        // 開啟配置模態視窗
-        openBtn.addEventListener('click', () => {
-            modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-            resetConfigForm();
-        });
-        
-        // 關閉配置模態視窗
-        [closeBtn, cancelBtn].forEach(btn => {
-            btn.addEventListener('click', () => {
-                modal.classList.add('hidden');
-                document.body.style.overflow = 'auto';
-            });
-        });
-        
-        // 關閉預覽模態視窗
-        closePreviewBtn.addEventListener('click', () => {
-            previewModal.classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        });
-        
-        // 點擊背景關閉
-        [modal, previewModal].forEach(m => {
-            m.addEventListener('click', (e) => {
-                if (e.target === m) {
-                    m.classList.add('hidden');
-                    document.body.style.overflow = 'auto';
-                }
-            });
-        });
-    }
-
-    // 初始化事件監聽器
-    function initializeEventListeners() {
-        // 提供商選擇變更
-        document.getElementById('provider').addEventListener('change', function() {
-            loadProviderTemplate(this.value);
-        });
-
-        // 新增配置參數
-        document.getElementById('addConfigBtn').addEventListener('click', addConfigParameter);
-        document.getElementById('addFirstConfigBtn').addEventListener('click', addConfigParameter);
-
-        // 新增提示詞模板
-        document.getElementById('addPromptBtn').addEventListener('click', addPromptTemplate);
-
-        // 排序功能
-        document.getElementById('sortConfigBtn').addEventListener('click', toggleSortMode);
-
-        // 測試連線
-        document.getElementById('testConnectionBtn').addEventListener('click', testConnection);
-
-        // 預覽配置
-        document.getElementById('previewConfigBtn').addEventListener('click', previewConfig);
-
-        // 儲存配置
-        document.getElementById('saveConfigBtn').addEventListener('click', saveConfig);
-    }
-
-    // 切換排序模式
-    function toggleSortMode() {
-        const tbody = document.getElementById('configParameters');
-        const rows = tbody.querySelectorAll('tr');
-        
-        if (rows.length === 0) {
-            alert('沒有配置項目可以排序');
-            return;
-        }
-        
-        // 簡單的字母排序
-        const sortedRows = Array.from(rows).sort((a, b) => {
-            const keyA = a.querySelector('.config-key').value.toLowerCase();
-            const keyB = b.querySelector('.config-key').value.toLowerCase();
-            return keyA.localeCompare(keyB);
-        });
-        
-        // 重新排列行
-        sortedRows.forEach(row => tbody.appendChild(row));
-        
-        // 顯示排序完成提示
-        const btn = document.getElementById('sortConfigBtn');
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<i data-lucide="check" class="h-4 w-4 mr-2"></i>已排序';
-        btn.classList.add('bg-green-100', 'text-green-700');
-        
-        setTimeout(() => {
-            btn.innerHTML = originalText;
-            btn.classList.remove('bg-green-100', 'text-green-700');
-            if (window.lucide) window.lucide.createIcons();
-        }, 2000);
-    }
-
-    // 載入提供商模板
-    function loadProviderTemplate(provider) {
-        const template = providerTemplates[provider];
-        if (!template) return;
-
-        // 清空現有配置
-        document.getElementById('configParameters').innerHTML = '';
-        configCounter = 0;
-
-        // 載入預設配置
-        template.defaultConfigs.forEach(config => {
-            addConfigParameter(config);
-        });
-    }
-
-    // 新增配置參數
-    function addConfigParameter(template = null) {
-        const tbody = document.getElementById('configParameters');
-        const emptyState = document.getElementById('emptyConfigState');
-        
-        // 隱藏空狀態
-        if (emptyState) emptyState.style.display = 'none';
-        
-        const id = `config_${++configCounter}`;
-        const row = document.createElement('tr');
-        row.className = 'hover:bg-gray-50 transition-colors';
-        row.setAttribute('data-config-id', id);
-        row.setAttribute('draggable', 'true');
-        
-        // 類型選項
-        const typeOptions = [
-            { value: 'text', label: '文字' },
-            { value: 'password', label: '密碼' },
-            { value: 'number', label: '數字' },
-            { value: 'url', label: 'URL' },
-            { value: 'email', label: 'Email' },
-            { value: 'textarea', label: '多行文字' }
-        ];
-        
-        row.innerHTML = `
-            <td class="px-3 py-4 cursor-move">
-                <i data-lucide="grip-vertical" class="h-4 w-4 text-gray-400"></i>
-            </td>
-            <td class="px-4 py-4">
-                <input type="text" class="config-key w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                       placeholder="例如: api_key" value="${template ? template.key : ''}">
-            </td>
-            <td class="px-4 py-4">
-                <input type="text" class="config-label w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                       placeholder="例如: API密鑰" value="${template ? template.label : ''}">
-            </td>
-            <td class="px-4 py-4">
-                ${template && template.type === 'textarea' 
-                    ? `<textarea class="config-value w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" rows="2" placeholder="輸入參數值">${template.default || ''}</textarea>`
-                    : `<input type="${template ? template.type : 'text'}" class="config-value w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                       placeholder="輸入參數值" value="${template ? template.default || '' : ''}" 
-                       ${template && template.min ? `min="${template.min}"` : ''} 
-                       ${template && template.max ? `max="${template.max}"` : ''}
-                       ${template && template.step ? `step="${template.step}"` : ''}>`
-                }
-            </td>
-            <td class="px-4 py-4">
-                <select class="config-type w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    ${typeOptions.map(option => 
-                        `<option value="${option.value}" ${template && template.type === option.value ? 'selected' : ''}>${option.label}</option>`
-                    ).join('')}
-                </select>
-            </td>
-            <td class="px-4 py-4 text-center">
-                <input type="checkbox" class="config-required h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" ${template && template.required ? 'checked' : ''}>
-            </td>
-            <td class="px-4 py-4 text-center">
-                <div class="flex justify-center gap-1">
-                    <button type="button" class="p-1 text-gray-400 hover:text-blue-600 transition-colors" onclick="duplicateConfigItem(this)">
-                        <i data-lucide="copy" class="h-4 w-4"></i>
-                    </button>
-                    <button type="button" class="p-1 text-gray-400 hover:text-red-600 transition-colors" onclick="removeConfigItem(this)">
-                        <i data-lucide="trash-2" class="h-4 w-4"></i>
-                    </button>
-                </div>
-            </td>
-        `;
-        
-        tbody.appendChild(row);
-        
-        // 添加拖拽事件
-        setupRowDragEvents(row);
-        
-        // 添加類型變更事件
-        const typeSelect = row.querySelector('.config-type');
-        typeSelect.addEventListener('change', function() {
-            updateInputType(row, this.value);
-        });
-        
-        if (window.lucide) window.lucide.createIcons();
-    }
-
-    // 設置拖拽事件
-    function setupRowDragEvents(row) {
-        row.addEventListener('dragstart', function(e) {
-            this.classList.add('opacity-50');
-            e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('text/html', this.outerHTML);
-        });
-
-        row.addEventListener('dragend', function(e) {
-            this.classList.remove('opacity-50');
-        });
-
-        row.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-        });
-
-        row.addEventListener('drop', function(e) {
-            e.preventDefault();
-            const draggedRow = document.querySelector('[draggable].opacity-50');
-            if (draggedRow && draggedRow !== this) {
-                const tbody = this.parentNode;
-                if (draggedRow.compareDocumentPosition(this) & Node.DOCUMENT_POSITION_FOLLOWING) {
-                    tbody.insertBefore(draggedRow, this);
-                } else {
-                    tbody.insertBefore(draggedRow, this.nextSibling);
-                }
-            }
-        });
-    }
-
-    // 更新輸入類型
-    function updateInputType(row, newType) {
-        const valueCell = row.querySelector('.config-value');
-        const currentValue = valueCell.value || valueCell.textContent;
-        
-        if (newType === 'textarea') {
-            valueCell.outerHTML = `<textarea class="config-value w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" rows="2" placeholder="輸入參數值">${currentValue}</textarea>`;
-        } else {
-            valueCell.outerHTML = `<input type="${newType}" class="config-value w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="輸入參數值" value="${currentValue}">`;
-        }
-    }
-
-    // 複製配置項目
-    window.duplicateConfigItem = function(button) {
-        const row = button.closest('tr');
-        const keyInput = row.querySelector('.config-key');
-        const labelInput = row.querySelector('.config-label');
-        const valueInput = row.querySelector('.config-value');
-        const typeSelect = row.querySelector('.config-type');
-        const requiredCheckbox = row.querySelector('.config-required');
-        
-        const template = {
-            key: keyInput.value,
-            label: labelInput.value,
-            type: typeSelect.value,
-            default: valueInput.value || valueInput.textContent,
-            required: requiredCheckbox.checked
-        };
-        
-        addConfigParameter(template);
-    };
-
-    // 新增提示詞模板
-    function addPromptTemplate() {
-        const container = document.getElementById('promptTemplates');
-        const id = `prompt_${++promptCounter}`;
-        
-        const promptItem = document.createElement('div');
-        promptItem.className = 'p-4 border rounded-lg bg-gray-50';
-        promptItem.innerHTML = `
-            <div class="flex items-center justify-between mb-3">
-                <input type="text" class="prompt-name px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                       placeholder="模板名稱 (例如: ProductImageDefault)">
-                <button type="button" class="remove-prompt p-2 text-red-600 hover:bg-red-50 rounded" onclick="removePromptItem(this)">
-                    <i data-lucide="trash-2" class="h-4 w-4"></i>
-                </button>
-            </div>
-            <textarea class="prompt-content w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                      rows="4" placeholder="輸入提示詞模板內容..."></textarea>
-        `;
-        
-        container.appendChild(promptItem);
-        if (window.lucide) window.lucide.createIcons();
-    }
-
-    // 移除配置項目
-    window.removeConfigItem = function(button) {
-        const row = button.closest('tr');
-        const tbody = row.parentNode;
-        row.remove();
-        
-        // 如果沒有配置項目了，顯示空狀態
-        if (tbody.children.length === 0) {
-            const emptyState = document.getElementById('emptyConfigState');
-            if (emptyState) emptyState.style.display = 'block';
-        }
-    };
-
-    // 移除提示詞項目
-    window.removePromptItem = function(button) {
-        button.closest('.p-4.border.rounded-lg').remove();
-    };
-
-    // 編輯服務
-    window.editService = function(serviceId) {
-        // 這裡會載入現有服務的配置
-        document.getElementById('aiConfigModal').classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-        document.getElementById('modalTitle').textContent = '編輯AI服務';
-        
-        // 模擬載入現有配置
-        loadProviderTemplate('OpenAI');
-    };
-
-    // 刪除服務
-    window.deleteService = function(serviceId) {
-        if (confirm('確定要刪除此AI服務嗎？')) {
-            // 這裡會呼叫後端API刪除服務
-            console.log('刪除服務:', serviceId);
-            loadAIServices(); // 重新載入列表
-        }
-    };
-
-    // 測試連線
-    function testConnection() {
-        const btn = document.getElementById('testConnectionBtn');
-        btn.innerHTML = '<i data-lucide="loader-2" class="h-4 w-4 mr-2 inline animate-spin"></i>測試中...';
-        btn.disabled = true;
-        
-        // 模擬測試連線
-        setTimeout(() => {
-            btn.innerHTML = '<i data-lucide="wifi" class="h-4 w-4 mr-2 inline"></i>測試連線';
-            btn.disabled = false;
-            alert('連線測試成功！');
-        }, 2000);
-    }
-
-    // 預覽配置
-    function previewConfig() {
-        const config = collectConfig();
-        const preview = document.getElementById('configPreview');
-        preview.textContent = JSON.stringify(config, null, 2);
-        
-        document.getElementById('configPreviewModal').classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-    }
-
-    // 收集配置資料
-    function collectConfig() {
-        const config = {
-            serviceName: document.getElementById('serviceName').value,
-            provider: document.getElementById('provider').value,
-            scope: document.getElementById('scope').value,
-            modelKey: document.getElementById('modelKey').value,
-            description: document.getElementById('description').value,
-            dailyLimit: document.getElementById('dailyLimit').value,
-            priority: document.getElementById('priority').value,
-            isEnabled: document.getElementById('isEnabled').checked,
-            config: {},
-            promptTemplates: {}
-        };
-
-        // 收集配置參數
-        document.querySelectorAll('#configParameters tr').forEach(row => {
-            const keyInput = row.querySelector('.config-key');
-            const valueInput = row.querySelector('.config-value');
-            
-            if (keyInput && valueInput) {
-                const key = keyInput.value.trim();
-                const value = valueInput.value || valueInput.textContent;
-                
-                if (key) {
-                    config.config[key] = value;
-                }
-            }
-        });
-
-        // 收集提示詞模板
-        document.querySelectorAll('#promptTemplates .p-4.border.rounded-lg').forEach(item => {
-            const name = item.querySelector('.prompt-name').value;
-            const content = item.querySelector('.prompt-content').value;
-            if (name && content) {
-                config.promptTemplates[name] = content;
-            }
-        });
-
-        return config;
-    }
-
-    // 儲存配置
-    function saveConfig() {
-        const config = collectConfig();
-        
-        // 驗證必填欄位
-        if (!config.serviceName || !config.provider || !config.scope || !config.modelKey) {
-            alert('請填寫所有必填欄位');
-            return;
-        }
-
-        console.log('儲存AI服務配置:', config);
-        
-        // 這裡會將配置送到後端API儲存
-        alert('AI服務配置已儲存！');
-        
-        // 關閉模態視窗並重新載入
-        document.getElementById('aiConfigModal').classList.add('hidden');
-        document.body.style.overflow = 'auto';
-        loadAIServices();
-    }
-
-    // 重置配置表單
-    function resetConfigForm() {
-        document.getElementById('serviceName').value = '';
-        document.getElementById('provider').value = '';
-        document.getElementById('scope').value = '';
-        document.getElementById('modelKey').value = '';
-        document.getElementById('description').value = '';
-        document.getElementById('dailyLimit').value = '';
-        document.getElementById('priority').value = '2';
-        document.getElementById('isEnabled').checked = true;
-        
-        // 清空表格
-        document.getElementById('configParameters').innerHTML = '';
-        document.getElementById('promptTemplates').innerHTML = '';
-        
-        // 顯示空狀態
-        const emptyState = document.getElementById('emptyConfigState');
-        if (emptyState) emptyState.style.display = 'block';
-        
-        configCounter = 0;
-        promptCounter = 0;
-    }
-
-    // 初始化圖示
-    if (window.lucide) window.lucide.createIcons();
-});
-</script>
-}

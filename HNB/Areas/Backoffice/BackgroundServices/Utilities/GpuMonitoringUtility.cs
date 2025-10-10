@@ -25,7 +25,6 @@ public static class GpuMonitoringUtility
         var gpuHealthStatuses = new List<string>();
         var gpuHealthPercentages = new List<int>();
 
-        // 使用 WMI 取得 GPU 資訊
         using var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_VideoController");
         using var collection = searcher.Get();
 
@@ -35,14 +34,12 @@ public static class GpuMonitoringUtility
             var manufacturer = queryObj["AdapterCompatibility"]?.ToString() ?? "N/A";
             var adapterRAM = queryObj["AdapterRAM"];
 
-            // 只處理獨立顯卡，跳過內建顯卡和基本顯示適配器
             if (!name.Contains("Microsoft") && !name.Contains("Basic") && !name.Contains("Generic") && adapterRAM != null)
             {
                 gpuNames.Add(name);
                 gpuManufacturers.Add(manufacturer);
                 gpuModels.Add(name);
                 
-                // 轉換記憶體大小
                 var ramGB = long.TryParse(adapterRAM.ToString(), out long ramBytes) && ramBytes > 0 
                     ? $"{ramBytes / (1024.0 * 1024.0 * 1024.0):F1}GB" : "N/A";
                 gpuMemorySizes.Add(ramGB);
@@ -54,7 +51,6 @@ public static class GpuMonitoringUtility
             }
         }
 
-        // 如果沒有找到獨立顯卡，設為預設值
         if (gpuNames.Count == 0)
         {
             gpuNames.Add("未檢測到獨立顯卡");
@@ -67,7 +63,6 @@ public static class GpuMonitoringUtility
             gpuHealthPercentages.Add(0);
         }
 
-        // 更新到模型
         hardware.gpu_names = gpuNames;
         hardware.gpu_manufacturers = gpuManufacturers;
         hardware.gpu_models = gpuModels;

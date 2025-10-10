@@ -46,7 +46,6 @@ public class HardwareMonitoringRepository(HnbHnbBackofficeDbContext db)
     /// </summary>
     public hardware_monitoring InsertHardwareMonitoring(hardware_monitoring hardware)
     {
-        // 使用 server_ip 查找現有記錄
         var existingEntity = db.hardware_monitorings.FirstOrDefault(h => h.server_ip == hardware.server_ip);
         if (existingEntity == null)
         {
@@ -55,14 +54,11 @@ public class HardwareMonitoringRepository(HnbHnbBackofficeDbContext db)
         }
         else
         {
-            // 更新現有記錄，保留 ID
             hardware.id = existingEntity.id;
         }
 
-        // 使用 EF Core 的 CurrentValues.SetValues 來更新所有欄位
         db.Entry(existingEntity).CurrentValues.SetValues(hardware);
         
-        // 確保 updated_at 時間戳記正確設定
         existingEntity.updated_at = DateTime.UtcNow;
 
         db.SaveChanges();

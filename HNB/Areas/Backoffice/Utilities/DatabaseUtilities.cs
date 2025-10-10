@@ -112,7 +112,6 @@ public static class DatabaseUtilities
                 }
             }
 
-            // 生成備份摘要
             var summaryFile = Path.Combine(fullOutputPath, "backup_summary.txt");
             var summary = $@"資料庫備份摘要
 備份時間: {DateTime.Now:yyyy-MM-dd HH:mm:ss}
@@ -245,7 +244,6 @@ CREATE TABLE [{tableName}] (
     {
         try
         {
-            // 查詢資料表的實際資料
             var data = await QueryTableData(context, tableName, provider);
 
             if (!data.Any())
@@ -304,14 +302,12 @@ CREATE TABLE [{tableName}] (
         if (string.IsNullOrEmpty(connectionString))
             return "Unknown";
 
-        // 嘗試提取 Database 參數
         var databaseMatch = System.Text.RegularExpressions.Regex.Match(connectionString, @"Database=([^;]+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
         if (databaseMatch.Success)
         {
             return databaseMatch.Groups[1].Value.Trim();
         }
 
-        // 嘗試提取 Initial Catalog 參數 (SQL Server)
         var catalogMatch = System.Text.RegularExpressions.Regex.Match(connectionString, @"Initial Catalog=([^;]+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
         if (catalogMatch.Success)
         {
@@ -340,7 +336,6 @@ CREATE TABLE [{tableName}] (
             using var command = context.Database.GetDbConnection().CreateCommand();
             command.CommandText = sql;
 
-            // 使用現有的連線，不要重新打開
             if (context.Database.GetDbConnection().State != System.Data.ConnectionState.Open)
             {
                 await context.Database.GetDbConnection().OpenAsync();

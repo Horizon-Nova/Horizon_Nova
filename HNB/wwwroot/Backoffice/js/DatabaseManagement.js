@@ -8,7 +8,6 @@ function showHelpModal() {
     const modal = document.getElementById('helpModal');
     if (modal) {
         modal.style.display = 'flex';
-        // 初始化 Lucide 圖示
         if (typeof lucide !== 'undefined') {
             lucide.createIcons();
         }
@@ -133,7 +132,6 @@ function enableGenerateButton() {
     generateBtn.removeClass('opacity-50 cursor-not-allowed');
     generateBtn.addClass('hover:bg-blue-600');
 
-    // 更新步驟4的狀態
     updateStepStatus(4, true);
 }
 
@@ -144,7 +142,6 @@ function disableGenerateButton() {
     generateBtn.addClass('opacity-50 cursor-not-allowed');
     generateBtn.removeClass('hover:bg-blue-600');
 
-    // 更新步驟4的狀態
     updateStepStatus(4, false);
 }
 
@@ -329,7 +326,6 @@ function displayDatabaseTables(tables) {
     html += '</div>';
     container.innerHTML = html;
 
-    // 重新初始化圖標
     if (window.lucide) {
         window.lucide.createIcons();
     }
@@ -361,14 +357,12 @@ function showTableDetails(tableName) {
         return;
     }
 
-    // 顯示載入狀態
     showResult(`正在載入資料表 "${tableName}" 的詳情...`, 'info');
     displayTableDetailsModal(tableName, null);
 }
 
 // 顯示資料表詳情彈出視窗
 function displayTableDetailsModal(tableName, columns) {
-    // 使用 AJAX 載入部分視圖
     $.ajax({
         url: '/Backoffice/Database/LoadTableDetailsPartial',
         type: 'POST',
@@ -380,14 +374,11 @@ function displayTableDetailsModal(tableName, columns) {
         }),
         success: (response) => {
             if (response) {
-                // 清空容器並載入新的內容
                 $('#tableDetailsModalContainer').html(response);
 
-                // 顯示模態視窗
                 const modal = document.getElementById('tableDetailsModal');
                 if (modal) {
                     modal.style.display = 'flex';
-                    // 初始化 Lucide 圖示
                     if (typeof lucide !== 'undefined') {
                         lucide.createIcons();
                     }
@@ -414,12 +405,9 @@ $(document).ready(function () {
         window.lucide.createIcons();
     }
 
-    // 初始化時禁用生成模型按鈕
     disableGenerateButton();
 
-    // 監聽表單欄位變更
     $('#databaseType, #connectionString').on('change input', function () {
-        // 當表單欄位變更時，禁用生成按鈕（需要重新測試連線）
         disableGenerateButton();
     });
 });

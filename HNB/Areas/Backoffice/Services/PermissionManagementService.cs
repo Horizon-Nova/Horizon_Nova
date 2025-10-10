@@ -70,7 +70,6 @@ public class PermissionManagementService(PermissionManagementRepository repo, Si
     /// </summary>
     public (bool success, string? errorMessage, permission_management? result) CreatePermissionManagement(permission_management data)
     {
-        // 檢查角色是否已被其他組織占用（僅組織類型）
         if (data.type == "organization" && data.roles != null && data.roles.Any())
         {
             var occupiedRoles = repo.QueryOccupiedRoles(data.roles, data.id);
@@ -153,17 +152,14 @@ public class PermissionManagementService(PermissionManagementRepository repo, Si
 
         viewBag.Navigations = sidebarService.LoadNavigations();
         
-        // 載入角色的導航權限資料
         if (id.HasValue)
         {
             var roleData = LoadPermissionManagement(id: id.Value, type: "role");
             viewBag.RoleNavigationPermissions = roleData?.navigation_permissions ?? new List<string>();
             
-            // 載入組織的角色分配資料
             var organizationData = LoadPermissionManagement(id: id.Value, type: "organization");
             viewBag.OrganizationRoles = organizationData?.roles ?? new List<string>();
             
-            // 載入已被其他組織占用的角色ID列表（編輯時排除當前組織）
             viewBag.OccupiedRoleIds = repo.QueryOccupiedRoleIdList(id.Value);
         }
         else
@@ -171,7 +167,6 @@ public class PermissionManagementService(PermissionManagementRepository repo, Si
             viewBag.RoleNavigationPermissions = new List<string>();
             viewBag.OrganizationRoles = new List<string>();
             
-            // 載入已被其他組織占用的角色ID列表（新增時）
             viewBag.OccupiedRoleIds = repo.QueryOccupiedRoleIdList(0);
         }
     }

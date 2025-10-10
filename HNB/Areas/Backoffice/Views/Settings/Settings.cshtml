@@ -650,7 +650,7 @@
             }`;
             notification.textContent = message;
 
-            // 添加到頁面
+            // 新增到頁面
             document.body.appendChild(notification);
 
             // 3秒後自動移除
@@ -781,7 +781,7 @@
             .then(data => {
                 if (data.success) {
                     showNotification(data.message, 'success');
-                    // 可以添加倒數計時或其他重啟提示
+                    // 可以新增倒數計時或其他重啟提示
                 } else {
                     showNotification(data.message, 'error');
                 }

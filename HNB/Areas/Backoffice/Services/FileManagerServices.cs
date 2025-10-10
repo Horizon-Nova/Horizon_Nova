@@ -15,16 +15,13 @@ public class FileManagerServices(DirectoryManagerUtilities DM)
     /// <param name="virtualPath">當前虛擬路徑</param>
     public void ViewBagModel(dynamic viewBag, string virtualPath = "/")
     {
-        // 設置基本資訊
         viewBag.CurrentPath = virtualPath;
         viewBag.Breadcrumb = DM.LoadBreadcrumb(virtualPath);
         viewBag.Tree = DM.LoadTree();
         
-        // 設置檔案和資料夾清單
         viewBag.Folders = DM.LoadFolders(virtualPath);
         viewBag.Files = DM.LoadFiles(virtualPath);
         
-        // 設置統計資訊
         var stats = DM.QueryStatistics(virtualPath);
         viewBag.FolderCount = stats.FolderCount;
         viewBag.FileCount = stats.FileCount;

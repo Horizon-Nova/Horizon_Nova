@@ -23,7 +23,6 @@ public static class NetworkMonitoringUtility
         var networkRxBytes = new List<long>();
         var networkTxBytes = new List<long>();
 
-        // 使用 WMI 取得網路介面資訊
         using var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_NetworkAdapter WHERE NetConnectionStatus = 2");
         var collection = searcher.Get();
 
@@ -31,7 +30,6 @@ public static class NetworkMonitoringUtility
         {
             var name = obj["Name"]?.ToString() ?? "N/A";
 
-            // 跳過迴環介面
             if (!name.Contains("Loopback") && !name.Contains("Microsoft"))
             {
                 networkInterfaces.Add(name);
@@ -43,7 +41,6 @@ public static class NetworkMonitoringUtility
             }
         }
 
-        // 如果沒有找到網路介面，添加預設值
         if (networkInterfaces.Count == 0)
         {
             networkInterfaces.Add("未檢測到網路介面");
@@ -54,7 +51,6 @@ public static class NetworkMonitoringUtility
             networkTxBytes.Add(0);
         }
 
-        // 更新到模型
         hardware.network_interfaces = networkInterfaces;
         hardware.network_types = networkTypes;
         hardware.network_speeds = networkSpeeds;

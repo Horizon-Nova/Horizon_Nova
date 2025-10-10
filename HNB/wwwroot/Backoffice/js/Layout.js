@@ -73,10 +73,8 @@ function wireUserMenu() {
 
 /* 導航項目摺疊功能 */
 function wireNavigationToggle() {
-    // 儲存展開狀態的 key
     const STORAGE_KEY = 'sidebar_navigation_state';
     
-    // 從 localStorage 載入狀態
     const loadNavigationState = () => {
         try {
             const saved = localStorage.getItem(STORAGE_KEY);
@@ -86,19 +84,15 @@ function wireNavigationToggle() {
         }
     };
     
-    // 儲存狀態到 localStorage
     const saveNavigationState = (state) => {
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
         } catch {
-            // 忽略儲存錯誤
         }
     };
     
-    // 初始化導航狀態
     const navigationState = loadNavigationState();
     
-    // 設置初始狀態
     document.querySelectorAll('.nav-children').forEach(children => {
         const itemId = children.id.replace('nav-children-', '');
         const isExpanded = navigationState[itemId] === true;
@@ -115,7 +109,6 @@ function wireNavigationToggle() {
         }
     });
     
-    // 綁定點擊事件
     document.querySelectorAll('.nav-toggle').forEach(toggle => {
         toggle.addEventListener('click', (e) => {
             e.preventDefault();
@@ -130,14 +123,12 @@ function wireNavigationToggle() {
             const isExpanded = !children.classList.contains('hidden');
             
             if (isExpanded) {
-                // 摺疊
                 children.classList.add('hidden');
                 if (chevron) {
                     chevron.style.transform = 'rotate(0deg)';
                 }
                 navigationState[itemId] = false;
             } else {
-                // 展開
                 children.classList.remove('hidden');
                 if (chevron) {
                     chevron.style.transform = 'rotate(90deg)';
@@ -145,12 +136,10 @@ function wireNavigationToggle() {
                 navigationState[itemId] = true;
             }
             
-            // 儲存狀態
             saveNavigationState(navigationState);
         });
     });
     
-    // 當側欄摺疊時，隱藏所有展開的子選單
     const sidebar = document.getElementById('sidebar');
     if (sidebar) {
         const observer = new MutationObserver((mutations) => {
@@ -158,16 +147,13 @@ function wireNavigationToggle() {
                 if (mutation.type === 'attributes' && mutation.attributeName === 'data-collapsed') {
                     const isCollapsed = sidebar.getAttribute('data-collapsed') === 'true';
                     if (isCollapsed) {
-                        // 側欄摺疊時隱藏所有子選單
                         document.querySelectorAll('.nav-children').forEach(children => {
                             children.classList.add('hidden');
                         });
-                        // 重置所有箭頭
                         document.querySelectorAll('.nav-chevron').forEach(chevron => {
                             chevron.style.transform = 'rotate(0deg)';
                         });
                     } else {
-                        // 側欄展開時恢復之前的狀態
                         document.querySelectorAll('.nav-children').forEach(children => {
                             const itemId = children.id.replace('nav-children-', '');
                             const isExpanded = navigationState[itemId] === true;
@@ -196,7 +182,6 @@ function wireNavigationToggle() {
 function setActiveNavigation() {
     const currentPath = window.location.pathname.toLowerCase();
     
-    // 移除所有現有的 active 類別
     document.querySelectorAll('.nav-item').forEach(item => {
         item.classList.remove('active', 'bg-blue-50', 'text-blue-600');
     });
@@ -204,7 +189,6 @@ function setActiveNavigation() {
     let activeItem = null;
     let bestMatchLength = 0;
     
-    // 找到最佳匹配的導航項目
     document.querySelectorAll('.nav-item').forEach(item => {
         const href = item.getAttribute('href')?.toLowerCase() || '';
         const dataUrl = item.getAttribute('data-nav-url')?.toLowerCase() || '';
@@ -212,14 +196,12 @@ function setActiveNavigation() {
         
         if (!itemUrl) return;
         
-        // 精確匹配優先
         if (itemUrl === currentPath) {
             if (itemUrl.length > bestMatchLength) {
                 activeItem = item;
                 bestMatchLength = itemUrl.length;
             }
         }
-        // 路徑前綴匹配（選擇最長匹配）
         else if (currentPath.startsWith(itemUrl) && itemUrl.length > 1) {
             if (itemUrl.length > bestMatchLength) {
                 activeItem = item;
@@ -228,17 +210,13 @@ function setActiveNavigation() {
         }
     });
     
-    // 設置激活狀態並展開父級菜單
     if (activeItem) {
         activeItem.classList.add('active', 'bg-blue-50', 'text-blue-600');
         
-        // 找到並展開所有父級菜單
         let parent = activeItem.closest('.nav-children');
         while (parent) {
-            // 展開該父級
             parent.classList.remove('hidden');
             
-            // 旋轉對應的箭頭
             const parentId = parent.id;
             const toggle = document.querySelector(`[data-target="${parentId}"]`);
             if (toggle) {
@@ -247,7 +225,6 @@ function setActiveNavigation() {
                     chevron.style.transform = 'rotate(90deg)';
                 }
                 
-                // 更新 localStorage 狀態
                 const itemId = toggle.getAttribute('data-item-id');
                 if (itemId) {
                     const STORAGE_KEY = 'sidebar_navigation_state';

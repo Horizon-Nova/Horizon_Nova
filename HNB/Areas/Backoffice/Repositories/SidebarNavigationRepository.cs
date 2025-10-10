@@ -33,7 +33,6 @@ public class SidebarNavigationRepository(HnbHnbBackofficeDbContext db)
     {
         var query = ValidNavigations.AsQueryable();
         
-        // 搜尋條件
         if (!string.IsNullOrEmpty(searchTerm))
         {
             query = query.Where(n => 
@@ -41,23 +40,18 @@ public class SidebarNavigationRepository(HnbHnbBackofficeDbContext db)
                 (n.code != null && n.code.Contains(searchTerm)));
         }
         
-        // 父項目篩選（修正 EF Core 的 NULL 比較問題）
         if (parentCode != null)
         {
             if (parentCode == "")
             {
-                // 空字串 = 只要根項目（parent_code IS NULL）
                 query = query.Where(n => n.parent_code == null || n.parent_code == "");
             }
             else
             {
-                // 有值 = 過濾特定父項目
                 query = query.Where(n => n.parent_code == parentCode);
             }
         }
-        // parentCode == null = 不過濾，返回所有項目
         
-        // 啟用狀態篩選
         if (isActive.HasValue)
         {
             query = query.Where(n => n.is_active == isActive.Value);
@@ -126,7 +120,6 @@ public class SidebarNavigationRepository(HnbHnbBackofficeDbContext db)
             return form;
         }
         
-        // 變更
         existingEntity.title = form.title;
         existingEntity.code = form.code;
         existingEntity.url = form.url;

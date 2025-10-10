@@ -154,12 +154,10 @@ public class PermissionManagementRepository(HnbHnbBackofficeDbContext db)
     {
         var occupiedRoles = new Dictionary<string, string>();
         
-        // 查詢所有組織（排除當前組織）
         var otherOrganizations = db.permission_managements
             .Where(pm => pm.type == "organization" && pm.id != currentOrganizationId && pm.roles != null)
             .ToList();
         
-        // 檢查每個角色是否被占用
         foreach (var roleId in roleIds)
         {
             var occupyingOrg = otherOrganizations.FirstOrDefault(org => org.roles != null && org.roles.Contains(roleId));
@@ -198,7 +196,6 @@ public class PermissionManagementRepository(HnbHnbBackofficeDbContext db)
         
         if (existingEntity == null)
         {
-            // 新增
             data.created_at = DateTime.Now;
             data.updated_at = null;
             db.permission_managements.Add(data);
@@ -206,7 +203,6 @@ public class PermissionManagementRepository(HnbHnbBackofficeDbContext db)
             return data;
         }
         
-        // 更新
         existingEntity.type = data.type;
         existingEntity.name = data.name;
         existingEntity.description = data.description;
@@ -225,7 +221,6 @@ public class PermissionManagementRepository(HnbHnbBackofficeDbContext db)
         existingEntity.roles = data.roles;
         existingEntity.navigation_permissions = data.navigation_permissions;
         
-        // 判斷密碼是否為空，有就指定
         if (!string.IsNullOrEmpty(data.password_hash) && !string.IsNullOrEmpty(data.salt))
         {
             existingEntity.password_hash = data.password_hash;

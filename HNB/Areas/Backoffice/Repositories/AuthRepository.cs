@@ -111,7 +111,6 @@ public class AuthRepository(HnbHnbBackofficeDbContext db)
         
         if (existingEntity == null)
         {
-            // 新增
             user.type = "user";
             user.created_at = DateTime.Now;
             user.updated_at = null;
@@ -120,7 +119,6 @@ public class AuthRepository(HnbHnbBackofficeDbContext db)
             return user;
         }
         
-        // 更新
         existingEntity.name = user.name;
         existingEntity.email = user.email;
         existingEntity.phone = user.phone;
@@ -136,7 +134,6 @@ public class AuthRepository(HnbHnbBackofficeDbContext db)
         existingEntity.roles = user.roles;
         existingEntity.navigation_permissions = user.navigation_permissions;
         
-        // 判斷密碼是否為空，有就指定
         if (!string.IsNullOrEmpty(user.password_hash) && !string.IsNullOrEmpty(user.salt))
         {
             existingEntity.password_hash = user.password_hash;
@@ -144,7 +141,6 @@ public class AuthRepository(HnbHnbBackofficeDbContext db)
             existingEntity.last_password_change_at = DateTime.Now;
         }
         
-        // 判斷是否更新登入資訊
         if (user.last_login_at.HasValue)
         {
             existingEntity.last_login_at = user.last_login_at;

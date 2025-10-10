@@ -18,7 +18,6 @@ class GitHubCalendar {
         this.init();
     }
 
-    // 初始化
     init() {
         if (!this.container) {
             console.error('GitHubCalendar: Container element not found');
@@ -28,21 +27,17 @@ class GitHubCalendar {
         this.addEventListeners();
     }
 
-    // 生成完整日曆
     generateCalendar() {
         const currentYear = this.options.year;
         
-        // 從年初開始
-        const startDate = new Date(currentYear, 0, 1); // 1月1日
+        const startDate = new Date(currentYear, 0, 1);
         
-        // 找到開始日期所在週的週一
         const startOfWeek = new Date(startDate);
         const dayOfWeek = startDate.getDay();
         const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
         startOfWeek.setDate(startDate.getDate() + mondayOffset);
         
-        // 計算總週數
-        const endDate = new Date(currentYear, 11, 31); // 12月31日
+        const endDate = new Date(currentYear, 11, 31);
         const endOfWeek = new Date(endDate);
         const endDayOfWeek = endDate.getDay();
         const sundayOffset = endDayOfWeek === 0 ? 0 : 7 - endDayOfWeek;
@@ -50,28 +45,23 @@ class GitHubCalendar {
         
         const totalWeeks = Math.ceil((endOfWeek - startOfWeek) / (7 * 24 * 60 * 60 * 1000)) + 1;
         
-        // 生成月份標籤
         let monthLabels = '';
         if (this.options.showMonthLabels) {
             monthLabels = this.generateMonthLabels(totalWeeks);
         }
         
-        // 生成星期標籤
         let weekLabels = '';
         if (this.options.showWeekLabels) {
             weekLabels = this.generateWeekLabels();
         }
         
-        // 生成日曆格子
         const calendarGrid = this.generateCalendarGrid(startOfWeek, totalWeeks, currentYear);
         
-        // 生成圖例
         let legend = '';
         if (this.options.showLegend) {
             legend = this.generateLegend();
         }
         
-        // 生成完整日曆 HTML
         const calendarHTML = `
             <div class="github-calendar-container">
                 ${monthLabels}
@@ -87,11 +77,9 @@ class GitHubCalendar {
             </div>
         `;
         
-        // 更新容器
         this.container.innerHTML = calendarHTML;
     }
 
-    // 生成月份標籤
     generateMonthLabels(totalWeeks) {
         const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         let monthLabels = '';
@@ -120,7 +108,6 @@ class GitHubCalendar {
         return `<div class="github-calendar-month-labels" style="width: ${totalWeeks * 0.875}rem;">${monthLabels}</div>`;
     }
 
-    // 生成星期標籤
     generateWeekLabels() {
         const weekNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
         let weekLabels = '';
@@ -130,7 +117,6 @@ class GitHubCalendar {
         return `<div class="github-calendar-week-labels">${weekLabels}</div>`;
     }
 
-    // 生成日曆格子
     generateCalendarGrid(startOfWeek, totalWeeks, currentYear) {
         let calendarGrid = '';
         for (let week = 0; week < totalWeeks; week++) {
@@ -163,7 +149,6 @@ class GitHubCalendar {
         return calendarGrid;
     }
 
-    // 生成圖例
     generateLegend() {
         return `
             <div class="github-calendar-legend">
@@ -178,7 +163,6 @@ class GitHubCalendar {
         `;
     }
 
-    // 添加事件監聽器
     addEventListeners() {
         if (!this.options.showTooltip) return;
         
@@ -195,7 +179,6 @@ class GitHubCalendar {
         });
     }
 
-    // 顯示工具提示
     showTooltip(event) {
         const day = event.target;
         const date = day.getAttribute('data-date');
@@ -226,7 +209,6 @@ class GitHubCalendar {
         document.body.appendChild(tooltip);
     }
 
-    // 隱藏工具提示
     hideTooltip() {
         const tooltip = document.querySelector('.github-calendar-tooltip');
         if (tooltip) {
@@ -234,13 +216,11 @@ class GitHubCalendar {
         }
     }
 
-    // 設置活動數據
     setActivityData(data) {
         this.activityData = data || {};
         this.generateCalendar();
     }
 
-    // 添加單個活動
     addActivity(date, count = 1) {
         if (!this.activityData[date]) {
             this.activityData[date] = 0;
@@ -249,19 +229,16 @@ class GitHubCalendar {
         this.generateCalendar();
     }
 
-    // 移除活動
     removeActivity(date) {
         delete this.activityData[date];
         this.generateCalendar();
     }
 
-    // 清空所有活動
     clearAllActivities() {
         this.activityData = {};
         this.generateCalendar();
     }
 
-    // 獲取活動統計
     getActivityStats() {
         const totalDays = Object.keys(this.activityData).length;
         const totalCount = Object.values(this.activityData).reduce((sum, count) => sum + count, 0);
@@ -273,13 +250,11 @@ class GitHubCalendar {
         };
     }
 
-    // 更新選項
     updateOptions(newOptions) {
         this.options = { ...this.options, ...newOptions };
         this.generateCalendar();
     }
 
-    // 銷毀實例
     destroy() {
         if (this.container) {
             this.container.innerHTML = '';

@@ -46,7 +46,7 @@ public class SidebarNavigationService(
     public void ViewBagModel(dynamic viewBag, int? id = null)
     {
         viewBag.Id = id;
-        viewBag.Navigations = LoadNavigations(); // 扁平列表
+        viewBag.Navigations = LoadNavigations();
         viewBag.Navigation = id.HasValue ? LoadNavigationById(id.Value) : null;
     }
 
@@ -77,13 +77,10 @@ public class SidebarNavigationService(
     {
         var permissions = new List<string>();
         
-        // 基本權限：所有使用者都能看到儀表板和個人資料
         permissions.AddRange(new[] { "dashboard", "profile" });
         
-        // 1. 先查詢用戶
         var user = permRep.QueryPermissionManagement(name: userName, type: "user");
         
-        // 2. 遍歷用戶的所有角色，獲取角色權限
         if (user?.roles != null && user.roles.Any())
         {
             foreach (var roleIdStr in user.roles)
@@ -99,39 +96,31 @@ public class SidebarNavigationService(
             }
         }
         
-        // 3. 獲取用戶的直接權限（如果有特殊權限）
         if (user?.navigation_permissions != null && user.navigation_permissions.Any())
         {
             permissions.AddRange(user.navigation_permissions);
         }
         
-        // 去除重複
         var userPermissionCodes = permissions.Distinct().ToList();
         
-        // 從 SidebarNavigationRepository 獲取所有啟用的導航項目（包含所有層級）
         var allNavigations = rep.QueryNavigationList(searchTerm: null, parentCode: null, isActive: true);
         
-        // 過濾出用戶有權限的導航項目
         var allowedNavigations = allNavigations
             .Where(n => !string.IsNullOrEmpty(n.code) && userPermissionCodes.Contains(n.code))
             .ToList();
         
-        // 添加父項目和所有子項目
         var allowedCodes = new HashSet<string>(userPermissionCodes);
         
-        // 1. 添加父項目（確保有權限的子項目可以顯示）
         foreach (var nav in allowedNavigations.ToList())
         {
             AddParentNavigationCodes(allNavigations, nav.parent_code, allowedCodes);
         }
         
-        // 2. 添加所有子項目（遞歸）
         foreach (var nav in allowedNavigations.ToList())
         {
             AddChildNavigationCodes(allNavigations, nav.code, allowedCodes);
         }
         
-        // 返回扁平列表（包含父項目和子項目）
         return allNavigations
             .Where(n => !string.IsNullOrEmpty(n.code) && allowedCodes.Contains(n.code))
             .OrderBy(n => n.sort_order)
@@ -139,7 +128,7 @@ public class SidebarNavigationService(
     }
 
     /// <summary>
-    /// 遞歸添加父項目導航代碼
+    /// 遞迴新增父項目導航代碼
     /// </summary>
     private void AddParentNavigationCodes(List<vw_sidebar_navigation> allNavigations, string? parentCode, HashSet<string> allowedCodes)
     {
@@ -148,7 +137,6 @@ public class SidebarNavigationService(
             
         allowedCodes.Add(parentCode);
         
-        // 找到父項目，繼續遞歸
         var parent = allNavigations.FirstOrDefault(n => n.code == parentCode);
         if (parent != null && !string.IsNullOrEmpty(parent.parent_code))
         {
@@ -157,14 +145,13 @@ public class SidebarNavigationService(
     }
 
     /// <summary>
-    /// 遞歸添加子項目導航代碼
+    /// 遞迴新增子項目導航代碼
     /// </summary>
     private void AddChildNavigationCodes(List<vw_sidebar_navigation> allNavigations, string? parentCode, HashSet<string> allowedCodes)
     {
         if (string.IsNullOrEmpty(parentCode))
             return;
         
-        // 找到所有子項目
         var children = allNavigations.Where(n => n.parent_code == parentCode).ToList();
         
         foreach (var child in children)
@@ -173,7 +160,6 @@ public class SidebarNavigationService(
             {
                 allowedCodes.Add(child.code);
                 
-                // 繼續遞歸添加子項目的子項目
                 AddChildNavigationCodes(allNavigations, child.code, allowedCodes);
             }
         }

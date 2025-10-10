@@ -63,7 +63,6 @@ public class BackofficeController(PermissionManagementService permissionService,
     [ValidateAntiForgeryToken]
     public IActionResult ChangePassword(string currentPassword, string newPassword, string confirmPassword)
     {
-        // 驗證輸入
         if (string.IsNullOrEmpty(currentPassword))
             return Json(new { success = false, message = "請輸入目前密碼" });
 
@@ -83,15 +82,12 @@ public class BackofficeController(PermissionManagementService permissionService,
         if (currentUser?.id == null)
             return Json(new { success = false, message = "找不到使用者資料" });
 
-        // 驗證當前密碼是否正確
         var validUser = authService.ValidateUserCredentials(currentUserName, currentPassword);
         if (validUser == null)
             return Json(new { success = false, message = "目前密碼不正確" });
 
-        // 生成新密碼的雜湊值和鹽值
         var (newHash, newSalt) = authService.HashNewPassword(newPassword);
 
-        // 更新密碼
         var userToUpdate = authRepository.QueryPermissionUser(userId: currentUser.id.Value);
         if (userToUpdate != null)
         {

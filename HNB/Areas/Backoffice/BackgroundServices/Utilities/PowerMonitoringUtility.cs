@@ -16,12 +16,10 @@ public static class PowerMonitoringUtility
     /// <returns>更新後的硬體監控模型</returns>
     public static hardware_monitoring CollectPowerInfo(hardware_monitoring hardware)
     {
-        // 預設值
-        hardware.battery_level = 100; // 桌面電腦預設值
+        hardware.battery_level = 100;
         hardware.power_efficiency = "高效";
         hardware.power_supply_info = "AC 電源 - 750W 80+ Gold";
 
-        // 使用 WMI 取得電池資訊
         using var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_Battery");
         var collection = searcher.Get();
 
@@ -36,10 +34,9 @@ public static class PowerMonitoringUtility
                 hardware.power_efficiency = batteryStatus;
             }
 
-            break; // 只需要第一個結果
+            break;
         }
 
-        // 取得電源供應器資訊
         using var psuSearcher = new ManagementObjectSearcher("SELECT * FROM Win32_SystemEnclosure");
         var psuCollection = psuSearcher.Get();
 
