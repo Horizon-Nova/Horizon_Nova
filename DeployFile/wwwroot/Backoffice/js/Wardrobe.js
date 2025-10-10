@@ -3,7 +3,6 @@ let wardrobeCalendar;
 
 // 初始化
 document.addEventListener('DOMContentLoaded', function() {
-    // 初始化日曆
     wardrobeCalendar = new GitHubCalendar('.github-calendar', {
         year: new Date().getFullYear(),
         showTooltip: true,
@@ -12,7 +11,6 @@ document.addEventListener('DOMContentLoaded', function() {
         showWeekLabels: true
     });
 
-    // 載入測試數據
     loadTestData();
 });
 
@@ -20,7 +18,6 @@ document.addEventListener('DOMContentLoaded', function() {
 function loadTestData() {
     if (!wardrobeCalendar) return;
 
-    // 模擬一些上傳活動數據
     const testData = {
         '2024-12-01': 2,
         '2024-12-02': 1,

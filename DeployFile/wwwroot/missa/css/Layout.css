@@ -11,18 +11,18 @@
 }
 
 ::-webkit-scrollbar-track {
-    background: #374151; /* gray-700 */
+    background: #374151;
     border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #9ca3af; /* gray-400 */
+    background: #9ca3af;
     border-radius: 4px;
     border: 1px solid #374151;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #d1d5db; /* gray-300 */
+    background: #d1d5db;
 }
 
 ::-webkit-scrollbar-corner {
@@ -31,16 +31,16 @@
 
 /* 主要內容區域滾動條 */
 main::-webkit-scrollbar-track {
-    background: #f3f4f6; /* gray-100 */
+    background: #f3f4f6;
 }
 
 main::-webkit-scrollbar-thumb {
-    background: #d1d5db; /* gray-300 */
+    background: #d1d5db;
     border: 1px solid #f3f4f6;
 }
 
 main::-webkit-scrollbar-thumb:hover {
-    background: #9ca3af; /* gray-400 */
+    background: #9ca3af;
 }
 
 /* 導航項目樣式 */
@@ -52,7 +52,6 @@ main::-webkit-scrollbar-thumb:hover {
         background-color: #f1f5f9;
     }
 
-    /* 活躍導航項目樣式 */
     .nav-item.active {
         background-color: #dbeafe;
         color: #1d4ed8;

@@ -3,21 +3,16 @@
 let currentPath = '/';
 let renameTarget = { name: '', type: '', path: '' };
 
-// 初始化
 document.addEventListener('DOMContentLoaded', function() {
-    // 初始化 Lucide Icons
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
     }
     
-    // 取得當前路徑
     const urlParams = new URLSearchParams(window.location.search);
     currentPath = urlParams.get('path') || '/';
     
-    // 初始化拖曳上傳
     initializeDragAndDrop();
     
-    // 初始化檔案輸入
     initializeFileInput();
     
     console.log('檔案總管已載入，當前路徑：', currentPath);
@@ -49,13 +44,11 @@ function initializeDragAndDrop() {
     dropZone.addEventListener('drop', async function(e) {
         dropZone.classList.remove('border-blue-500', 'bg-blue-50');
         
-        // 使用 DataTransferItems API 來支援資料夾拖曳
         const items = e.dataTransfer.items;
         if (items && items.length > 0) {
             const filesWithPaths = await getAllFilesFromItems(items);
             handleFileUploadWithPaths(filesWithPaths);
         } else {
-            // 降級處理：只支援檔案拖曳
             const files = Array.from(e.dataTransfer.files).map(f => ({ file: f, path: f.name }));
             handleFileUploadWithPaths(files);
         }
@@ -66,7 +59,6 @@ function initializeDragAndDrop() {
 async function getAllFilesFromItems(items) {
     const filesWithPaths = [];
     
-    // 遍歷所有拖曳項目
     for (let i = 0; i < items.length; i++) {
         const item = items[i].webkitGetAsEntry();
         if (item) {
@@ -80,7 +72,6 @@ async function getAllFilesFromItems(items) {
 // 遞迴遍歷檔案樹
 async function traverseFileTree(item, path, filesWithPaths) {
     if (item.isFile) {
-        // 如果是檔案，獲取 File 物件
         const file = await new Promise((resolve, reject) => {
             item.file(resolve, reject);
         });
@@ -89,7 +80,6 @@ async function traverseFileTree(item, path, filesWithPaths) {
             path: path + file.name
         });
     } else if (item.isDirectory) {
-        // 如果是資料夾，遞迴處理
         const dirReader = item.createReader();
         const entries = await new Promise((resolve, reject) => {
             dirReader.readEntries(resolve, reject);
@@ -107,7 +97,6 @@ function initializeFileInput() {
     
     fileInput.addEventListener('change', function(e) {
         handleFileUpload(Array.from(e.target.files));
-        // 清空 input，允許重複上傳同一檔案
         e.target.value = '';
     });
 }
@@ -123,23 +112,18 @@ function toggleTreeNode(event, element) {
     const treeNode = element.closest('a, div');
     const currentIndent = parseFloat(treeNode.style.paddingLeft || '0.75rem');
     
-    // 切換 chevron 圖標
     chevron.setAttribute('data-lucide', isExpanded ? 'chevron-right' : 'chevron-down');
     lucide.createIcons();
     
-    // 找到所有子節點並顯示/隱藏
     let nextNode = treeNode.nextElementSibling;
     while (nextNode) {
         const nextIndent = parseFloat(nextNode.style.paddingLeft || '0.75rem');
         
-        // 如果縮排較小或相等，表示不是子節點
         if (nextIndent <= currentIndent) break;
         
-        // 顯示/隱藏節點
         if (isExpanded) {
             nextNode.classList.add('hidden');
         } else {
-            // 只顯示直接子節點，不顯示更深層的節點
             const isDirectChild = Math.abs(nextIndent - currentIndent - 1.0) < 0.1;
             if (isDirectChild) {
                 nextNode.classList.remove('hidden');
@@ -158,7 +142,6 @@ function showModal(modalId) {
         modal.classList.remove('hidden');
         modal.classList.add('flex');
         
-        // 聚焦到輸入框
         const input = modal.querySelector('input[type="text"]');
         if (input) {
             setTimeout(() => input.focus(), 100);
@@ -324,7 +307,6 @@ function deleteItem(name, type) {
     
     showModal('deleteModal');
     
-    // 重新初始化 Lucide Icons（因為有新的 icon）
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
     }
@@ -336,7 +318,6 @@ function validateDeleteInput() {
     
     if (!input || !btn) return;
     
-    // 檢查輸入是否與目標名稱完全匹配
     const isMatch = input.value === deleteTarget.name;
     btn.disabled = !isMatch;
 }
@@ -344,7 +325,6 @@ function validateDeleteInput() {
 async function confirmDelete() {
     if (!deleteTarget.name) return;
     
-    // 記錄刪除操作（用於除錯）
     console.log('[刪除操作]', {
         type: deleteTarget.type,
         path: deleteTarget.path,
@@ -392,7 +372,6 @@ async function handleFileUploadWithPaths(filesWithPaths) {
     const speedEl = document.getElementById('uploadSpeed');
     const etaEl = document.getElementById('uploadEta');
     
-    // 顯示上傳進度視窗
     progress.classList.remove('hidden');
     items.innerHTML = '';
     
