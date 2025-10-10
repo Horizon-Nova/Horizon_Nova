@@ -121,9 +121,6 @@ public class SidebarNavigationRepository(HnbHnbBackofficeDbContext db)
         
         if (existingEntity == null)
         {
-            // 新增
-            form.created_at = DateTime.Now;
-            form.updated_at = null;
             db.sidebar_navigations.Add(form);
             db.SaveChanges();
             return form;
@@ -137,10 +134,29 @@ public class SidebarNavigationRepository(HnbHnbBackofficeDbContext db)
         existingEntity.sort_order = form.sort_order;
         existingEntity.parent_code = form.parent_code;
         existingEntity.is_active = form.is_active;
-        existingEntity.updated_at = DateTime.Now;
       
         db.SaveChanges();
         return existingEntity;
+    }
+
+    /// <summary>
+    /// 更新導航項目
+    /// </summary>
+    public bool UpdateNavigation(sidebar_navigation form)
+    {
+        var existing = db.sidebar_navigations.Find(form.id);
+        if (existing == null) return false;
+
+        existing.title = form.title;
+        existing.code = form.code;
+        existing.url = form.url;
+        existing.icon = form.icon;
+        existing.parent_code = form.parent_code;
+        existing.sort_order = form.sort_order;
+        existing.is_active = form.is_active;
+        existing.updated_at = DateTime.Now;
+
+        return db.SaveChanges() > 0;
     }
 
     /// <summary>

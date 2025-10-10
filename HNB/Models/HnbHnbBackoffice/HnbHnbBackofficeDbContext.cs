@@ -363,33 +363,6 @@ public partial class HnbHnbBackofficeDbContext : DbContext
         modelBuilder.Entity<vw_permission_role>(entity =>
         {
             entity.ToView("vw_permission_role", "dbo");
-
-            entity.Property(e => e.created_at).HasComment("建立時間");
-            entity.Property(e => e.created_by).HasComment("建立者ID");
-            entity.Property(e => e.description).HasComment("角色描述");
-            entity.Property(e => e.id).HasComment("主鍵ID");
-            entity.Property(e => e.internal_notes).HasComment("內部備註");
-            entity.Property(e => e.is_active).HasComment("是否啟用");
-            entity.Property(e => e.is_system_role).HasComment("是否為系統角色：type為system時為true");
-            entity.Property(e => e.level).HasComment("角色層級");
-            entity.Property(e => e.name).HasComment("角色名稱");
-            entity.Property(e => e.navigation_permissions).HasComment("導航權限陣列：可訪問的導航項目");
-            entity.Property(e => e.notes).HasComment("備註");
-            entity.Property(e => e.organization_id).HasComment("所屬組織ID：從parent_id取得");
-            entity.Property(e => e.organization_name).HasComment("所屬組織名稱：從parent_id關聯取得");
-            entity.Property(e => e.parent_id).HasComment("所屬組織ID");
-            entity.Property(e => e.permission_count).HasComment("權限數量：自動計算權限陣列長度");
-            entity.Property(e => e.permission_names).HasComment("權限名稱陣列：從permissions欄位解析");
-            entity.Property(e => e.permissions).HasComment("權限陣列");
-            entity.Property(e => e.role_type).HasComment("角色類型：從type欄位取得");
-            entity.Property(e => e.sort_order).HasComment("排序順序");
-            entity.Property(e => e.status).HasComment("狀態");
-            entity.Property(e => e.tags).HasComment("標籤陣列");
-            entity.Property(e => e.type).HasComment("資料類型：role");
-            entity.Property(e => e.updated_at).HasComment("更新時間");
-            entity.Property(e => e.updated_by).HasComment("更新者ID");
-            entity.Property(e => e.user_count).HasComment("用戶數量：自動計算擁有此角色的用戶數量");
-            entity.Property(e => e.user_names).HasComment("用戶名稱陣列：擁有此角色的用戶名稱列表");
         });
 
         modelBuilder.Entity<vw_permission_user>(entity =>

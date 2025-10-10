@@ -4,7 +4,6 @@ namespace HNB.Middleware;
 
 public class ExceptionLoggingMiddleware(RequestDelegate next)
 {
-
     public async Task Invoke(HttpContext context, ErrorLogService loggerService, ILogger<ExceptionLoggingMiddleware> logger)
     {
         try
@@ -15,7 +14,7 @@ public class ExceptionLoggingMiddleware(RequestDelegate next)
         {
             try
             {
-                await loggerService.SaveAsync(context, ex, "Middleware", 0);
+                loggerService.Save(context, ex, "Middleware", 0);
             }
             catch (Exception logEx)
             {
@@ -25,5 +24,4 @@ public class ExceptionLoggingMiddleware(RequestDelegate next)
             throw;
         }
     }
-
 }

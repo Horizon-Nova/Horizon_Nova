@@ -4,10 +4,20 @@ using Models.Hnbdata;
 
 namespace HNB.Services;
 
+/// <summary>
+/// 錯誤日誌服務層，負責處理錯誤日誌的業務邏輯
+/// </summary>
 public class ErrorLogService(ErrorLogRepository rep)
 {
-
-    public async Task SaveAsync(HttpContext context, Exception ex, string layer, short stage)
+    /// <summary>
+    /// 儲存錯誤日誌到資料庫
+    /// </summary>
+    /// <param name="context">HTTP 上下文</param>
+    /// <param name="ex">例外物件</param>
+    /// <param name="layer">發生錯誤的層級</param>
+    /// <param name="stage">錯誤階段</param>
+    /// <returns>成功返回 true，失敗返回 false</returns>
+    public bool Save(HttpContext context, Exception ex, string layer, short stage)
     {
         var endpoint = context.GetEndpoint();
         string function = context.Request.Path;
@@ -42,8 +52,7 @@ public class ErrorLogService(ErrorLogRepository rep)
             extra = null,
         };
 
-        await rep.InsertAsync(log);
+        return rep.Insert(log);
     }
-
 }
 

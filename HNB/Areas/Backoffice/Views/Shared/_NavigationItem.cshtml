@@ -1,10 +1,6 @@
 @model Models.HnbHnbBackoffice.vw_sidebar_navigation
 @{
     var allNavigations = ViewData["AllNavigations"] as List<Models.HnbHnbBackoffice.vw_sidebar_navigation> ?? new List<Models.HnbHnbBackoffice.vw_sidebar_navigation>();
-    
-    // 查找子項目：
-    // 1. parent_code == Model.code 的項目（層級由 parent_code 決定）
-    // 2. 按 sort_order 從小到大排序（數字小的排在前面）
     var children = allNavigations
         .Where(n => n.parent_code == Model.code)
         .OrderBy(n => n.sort_order)

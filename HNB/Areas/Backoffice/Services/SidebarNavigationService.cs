@@ -27,6 +27,13 @@ public class SidebarNavigationService(
     public vw_sidebar_navigation? LoadNavigationById(int id)
         => rep.QueryNavigation(id);
 
+    /// <summary>
+    /// 載入所有導航項目（用於下拉選單等）
+    /// </summary>
+    /// <returns>所有導航項目列表</returns>
+    public List<vw_sidebar_navigation> LoadAllNavigations()
+        => rep.QueryNavigationList(searchTerm: null, parentCode: null, isActive: true);
+
     #endregion
 
     #region ViewBag 設定方法
@@ -48,9 +55,9 @@ public class SidebarNavigationService(
     #region 基本 CRUD 操作
 
     /// <summary>
-    /// 創建導航項目（新增或變更）
+    /// 創建導航項目
     /// </summary>
-    public sidebar_navigation CreateNavigation(sidebar_navigation form)
+    public sidebar_navigation? CreateNavigation(sidebar_navigation form)
         => rep.InsertNavigation(form);
 
     /// <summary>

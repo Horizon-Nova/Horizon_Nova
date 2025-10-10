@@ -37,6 +37,7 @@ public static class ServiceRegistrationExtensions
         services.AddScoped<AuthRepository>();
         services.AddScoped<SidebarNavigationRepository>();
         services.AddScoped<HardwareMonitoringRepository>();
+        services.AddScoped<BlockedIpRepository>();
         return services;
     }
     /// <summary> DI注入管理 Utilities 功能 </summary>

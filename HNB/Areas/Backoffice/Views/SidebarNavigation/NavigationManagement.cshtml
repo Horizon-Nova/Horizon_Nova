@@ -44,7 +44,7 @@
                     <option value="2">第三層</option>
                 </select>
 
-                <button onclick="showNavModal('nav-edit-modal')" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 transition-colors whitespace-nowrap">
+                <button onclick="showNavModal('new')" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 transition-colors whitespace-nowrap">
                     <i data-lucide="plus" class="w-4 h-4"></i>
                     新增目錄
                 </button>
@@ -94,9 +94,9 @@
                                 </div>
 
                                 <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button type="button" onclick="showNavModal('nav-detail-modal', @item.id)" class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="查看詳情"><i data-lucide="eye" class="w-4 h-4"></i></button>
-                                    <button type="button" onclick="showNavModal('nav-edit-modal', @item.id)" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="編輯"><i data-lucide="edit" class="w-4 h-4"></i></button>
-                                    <button type="button" onclick="if(confirm('確定要刪除「@item.title」嗎？')) console.log('刪除ID:@item.id')" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="刪除"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                                    <button type="button" onclick="showNavModal('detail', @item.id)" class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="查看詳情"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                                    <button type="button" onclick="showNavModal('edit', @item.id)" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="編輯"><i data-lucide="edit" class="w-4 h-4"></i></button>
+                                    <button type="button" onclick="showNavModal('delete', @item.id)" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="刪除"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                                 </div>
                             </div>
 
@@ -131,11 +131,11 @@
                                                     </div>
                                                 </div>
 
-                                               <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                   <button type="button" onclick="showNavModal('nav-detail-modal', @child.id)" class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="查看詳情"><i data-lucide="eye" class="w-4 h-4"></i></button>
-                                                   <button type="button" onclick="showNavModal('nav-edit-modal', @child.id)" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="編輯"><i data-lucide="edit" class="w-4 h-4"></i></button>
-                                                   <button type="button" onclick="if(confirm('確定要刪除「@child.title」嗎？')) console.log('刪除ID:@child.id')" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="刪除"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                                               </div>
+                               <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                   <button type="button" onclick="showNavModal('detail', @child.id)" class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="查看詳情"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                                   <button type="button" onclick="showNavModal('edit', @child.id)" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="編輯"><i data-lucide="edit" class="w-4 h-4"></i></button>
+                                   <button type="button" onclick="showNavModal('delete', @child.id)" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="刪除"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                               </div>
                                             </div>
 
                                             @if (childHasChildren)
@@ -166,11 +166,11 @@
                                                                     </div>
                                                                 </div>
 
-                                                               <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                                   <button type="button" onclick="showNavModal('nav-detail-modal', @grandChild.id)" class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="查看詳情"><i data-lucide="eye" class="w-4 h-4"></i></button>
-                                                                   <button type="button" onclick="showNavModal('nav-edit-modal', @grandChild.id)" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="編輯"><i data-lucide="edit" class="w-4 h-4"></i></button>
-                                                                   <button type="button" onclick="if(confirm('確定要刪除「@grandChild.title」嗎？')) console.log('刪除ID:@grandChild.id')" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="刪除"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                                                               </div>
+                               <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                   <button type="button" onclick="showNavModal('detail', @grandChild.id)" class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="查看詳情"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                                   <button type="button" onclick="showNavModal('edit', @grandChild.id)" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="編輯"><i data-lucide="edit" class="w-4 h-4"></i></button>
+                                   <button type="button" onclick="showNavModal('delete', @grandChild.id)" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="刪除"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                               </div>
                                                             </div>
                                                         </div>
                                                     }

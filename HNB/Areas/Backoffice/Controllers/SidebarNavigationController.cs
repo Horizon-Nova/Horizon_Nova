@@ -17,28 +17,57 @@ public class SidebarNavigationController(SidebarNavigationService sev) : BaseCon
         return View();
     }
 
-
     /// <summary>
-    /// 載入導航詳情（Partial View）
+    /// 載入導航詳情（JSON）
     /// </summary>
+    [HttpGet]
     public IActionResult LoadDetail(int id)
     {
-        var results = sev.LoadNavigationById(id);
-        return PartialView("_NavigationModal", results);
+        var result = sev.LoadNavigationById(id);
+        return Json(result);
+    }
+
+    /// <summary>
+    /// 獲取上層目錄選項
+    /// </summary>
+    [HttpGet]
+    public IActionResult GetParentOptions()
+    {
+        var navigations = sev.LoadAllNavigations();
+        var options = navigations
+            .Where(n => string.IsNullOrEmpty(n.parent_code)) // 只返回根目錄
+            .Select(n => new
+            {
+                code = n.code,
+                title = n.title,
+                full_path = n.full_path
+            })
+            .ToList();
+        
+        return Json(options);
     }
 
     #region 基本 CRUD 操作
     
     /// <summary>
-    /// 新增導航項目
+    /// 提交導航項目（新增或編輯）
     /// </summary>
     [HttpPost]
-    public IActionResult Create(sidebar_navigation form)
+    public IActionResult SubmitNavigation(sidebar_navigation form)
     {
         var result = sev.CreateNavigation(form);
-        return Json(new { success = result != null, message = result != null ? "導航項目儲存成功" : "儲存失敗" });
+        return Json(new { success = result != null, message = result != null ? "導航項目新增成功" : "新增失敗" });
+    }
+
+    /// <summary>
+    /// 刪除導航項目
+    /// </summary>
+    [HttpPost]
+    public IActionResult Delete(int id)
+    {
+        var result = sev.DeleteNavigation(id);
+        return Json(new { success = result, message = result ? "導航項目刪除成功" : "刪除失敗，可能包含子項目" });
     }
 
     #endregion
-
 }

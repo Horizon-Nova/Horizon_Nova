@@ -1,32 +1,33 @@
-# Horizon Nova 架构规范文档
+﻿# Horizon Nova 架構規範文件
 
-## 📋 目录
+## 目錄
 - [概述](#概述)
-- [Repository 层规范](#repository-层规范)
-- [Service 层规范](#service-层规范)
-- [命名规则](#命名规则)
-- [代码规范](#代码规范)
-- [示例](#示例)
+- [Repository 層規範](#repository-層規範)
+- [Service 層規範](#service-層規範)
+- [Controller 層規範](#controller-層規範)
+- [命名規則](#命名規則)
+- [程式碼規範](#程式碼規範)
+- [範例](#範例)
 
 ---
 
 ## 概述
 
-本项目采用三层架构：**Controller → Service → Repository → Database**
+本專案採用三層架構：**Controller → Service → Repository → Database**
 
-### 核心原则
-1. **一张表只会出现一个 Insert*** - 避免重复的 CRUD 方法
-2. **使用几个表就要做多少 Query*List、Query*** - 确保完整的查询覆盖
+### 核心原則
+1. **一張表只會出現一個 Insert*** - 避免重複的 CRUD 方法
+2. **使用幾個表就要做多少 Query*List、Query*** - 確保完整的查詢覆蓋
 3. **不使用 Async** - 保持同步操作
-4. **不使用 try...catch** - 使用 `=>` 表达式和 `??` 操作符
-5. **Repository 只做简单查询** - 业务逻辑放在 Service 层
-6. **不可使用 Get 命名** - 查询或调用数据库资料一律使用 `Query*` / `Load*` 命名
+4. **不使用 try...catch** - 使用 `=>` 表達式和 `??` 運算子
+5. **Repository 只做簡單查詢** - 業務邏輯放在 Service 層
+6. **不可使用 Get 命名** - 查詢或呼叫資料庫資料一律使用 `Query*` / `Load*` 命名
 
 ---
 
-## Repository 层规范
+## Repository 層規範
 
-### 结构模板
+### 結構範本
 
 ```csharp
 public class ExampleRepository(DbContext db)
@@ -40,37 +41,37 @@ public class ExampleRepository(DbContext db)
 
     #region 專用查詢方法
     
-    // 表1 查询
-    public List<Table1> QueryTable1List(参数...) => ValidTable1s.Where(...).ToList();
+    // 表1 查詢
+    public List<Table1> QueryTable1List(參數...) => ValidTable1s.Where(...).ToList();
     public Table1? QueryTable1(int? id = null, string? name = null) { ... }
     
-    // 表2 查询
-    public List<Table2> QueryTable2List(参数...) => ValidTable2s.Where(...).ToList();
+    // 表2 查詢
+    public List<Table2> QueryTable2List(參數...) => ValidTable2s.Where(...).ToList();
     public Table2? QueryTable2(int? id = null) => ValidTable2s.FirstOrDefault(...);
     
     #endregion
 
     #region 基本 CRUD 操作
     
-    // 一张表只有一个 Insert 方法
+    // 一張表只有一個 Insert 方法
     public Table InsertTable(Table data)
     {
         var existingEntity = db.tables.Find(data.id);
         
         if (existingEntity == null)
         {
-            // 新增逻辑
+            // 新增邏輯
             data.created_at = DateTime.Now;
             db.tables.Add(data);
             db.SaveChanges();
             return data;
         }
         
-        // 更新逻辑
+        // 更新邏輯
         existingEntity.field1 = data.field1;
-        // ... 更新所有字段
+        // ... 更新所有欄位
         
-        // 条件性更新（如密码）
+        // 條件性更新（如密碼）
         if (!string.IsNullOrEmpty(data.password_hash))
         {
             existingEntity.password_hash = data.password_hash;
@@ -97,21 +98,21 @@ public class ExampleRepository(DbContext db)
 }
 ```
 
-### 命名规则
+### 命名規則
 
-| 方法类型 | 命名格式 | 说明 | 示例 |
+| 方法類型 | 命名格式 | 說明 | 範例 |
 |---------|---------|------|------|
-| 列表查询 | `Query*表名*List` | 返回列表 | `QueryUserList()` |
-| 单一查询 | `Query*表名*` | 返回单个对象 | `QueryUser(int? id = null)` |
+| 列表查詢 | `Query*表名*List` | 返回列表 | `QueryUserList()` |
+| 單一查詢 | `Query*表名*` | 返回單個物件 | `QueryUser(int? id = null)` |
 | 插入/更新 | `Insert*表名*` | 新增或更新 | `InsertUser(user)` |
-| 删除 | `Delete*表名*` | 删除记录 | `DeleteUser(int id)` |
+| 刪除 | `Delete*表名*` | 刪除記錄 | `DeleteUser(int id)` |
 
-### 重要规则
+### 重要規則
 
-#### ✅ 正确示例
+####  正確範例
 
 ```csharp
-// 使用 2 张表的 Repository
+// 使用 2 張表的 Repository
 public class AuthRepository(DbContext db)
 {
     // 表1: vw_permission_user
@@ -122,23 +123,23 @@ public class AuthRepository(DbContext db)
     public List<permission_management> QueryPermissionUserList(...) { }
     public permission_management? QueryPermissionUser(...) { }
     
-    // 只有 1 个 Insert 方法（针对 permission_management 表）
+    // 只有 1 個 Insert 方法（針對 permission_management 表）
     public permission_management InsertPermissionUser(permission_management user) { }
 }
 ```
 
-#### ❌ 错误示例
+####  錯誤範例
 
 ```csharp
-// ❌ 一张表出现多个 Insert
+//  一張表出现多個 Insert
 public permission_management InsertUser(permission_management user) { }
 public permission_management InsertRole(permission_management role) { }
 public permission_management InsertOrganization(permission_management org) { }
 
-// ❌ 使用了 Async
+//  使用了 Async
 public async Task<User?> QueryUserAsync(int id) { }
 
-// ❌ 使用了 try...catch
+//  使用了 try...catch
 public User CreateUser(User user)
 {
     try
@@ -153,26 +154,26 @@ public User CreateUser(User user)
     }
 }
 
-// ❌ 缺少对应的 Query 方法
+//  缺少對应的 Query 方法
 // 使用了 permission_management 表，但没有 QueryPermissionManagementList 和 QueryPermissionManagement
 ```
 
 ---
 
-## Service 层规范
+## Service 層規範
 
-### 结构模板
+### 结構範本
 
 ```csharp
 public class ExampleService(ExampleRepository repo)
 {
     #region 統一的查詢方法
     
-    // 对应 Repository 的 Query 方法
-    public List<Table1> LoadTable1List(参数...) => repo.QueryTable1List(参数...);
+    // 對应 Repository 的 Query 方法
+    public List<Table1> LoadTable1List(參數...) => repo.QueryTable1List(參數...);
     public Table1? LoadTable1(int? id = null) => repo.QueryTable1(id);
     
-    public List<Table2> LoadTable2List(参数...) => repo.QueryTable2List(参数...);
+    public List<Table2> LoadTable2List(參數...) => repo.QueryTable2List(參數...);
     public Table2? LoadTable2(int id) => repo.QueryTable2(id);
     
     #endregion
@@ -198,74 +199,170 @@ public class ExampleService(ExampleRepository repo)
 
     #region 輔助方法
     
-    // 复杂的业务逻辑
+    // 复杂的業務邏輯
     public (bool success, string message) ProcessBusinessLogic(...)
     {
         var data = LoadTable1(id);
         if (data == null)
-            return (false, "数据不存在");
+            return (false, "數据不存在");
         
-        // 业务逻辑处理
+        // 業務邏輯處理
         // ...
         
-        return (true, "处理成功");
+        return (true, "處理成功");
     }
     
     #endregion
 }
 ```
 
-### 命名规则
+### 命名規則
 
-| 方法类型 | 命名格式 | 说明 | 示例 |
+| 方法類型 | 命名格式 | 說明 | 範例 |
 |---------|---------|------|------|
-| 列表载入 | `Load*表名*List` | 调用 Query*List | `LoadUserList()` |
-| 单一载入 | `Load*表名*` | 调用 Query* | `LoadUser(int id)` |
-| 创建/更新 | `Create*表名*` | 调用 Insert* | `CreateUser(user)` |
-| 删除 | `Delete*表名*` | 调用 Delete* | `DeleteUser(int id)` |
-| ViewBag | `ViewBagModel` | 设置 ViewBag | `ViewBagModel(viewBag, id)` |
+| 列表載入 | `Load*表名*List` | 呼叫 Query*List | `LoadUserList()` |
+| 單一載入 | `Load*表名*` | 呼叫 Query* | `LoadUser(int id)` |
+| 創建/更新 | `Create*表名*` | 呼叫 Insert* | `CreateUser(user)` |
+| 刪除 | `Delete*表名*` | 呼叫 Delete* | `DeleteUser(int id)` |
+| ViewBag | `ViewBagModel` | 設定 ViewBag | `ViewBagModel(viewBag, id)` |
 
 ---
 
-## 命名规则
+## Controller 層規範
 
-### Repository 层
+### 控制器原則
+
+#### 1. **查詢方法**
+- **`LoadDetail`** - 用於導入 Models 資料（模態框/局部視圖）
+  ```csharp
+  [HttpGet]
+  public IActionResult LoadDetail(int id)
+  {
+      sev.ViewBagModel(ViewBag, id);
+      return PartialView("_DetailModal");
+  }
+  ```
+
+#### 2. **ViewBag 使用方式**
+- 在主頁面的 Action 中呼叫 `sev.ViewBagModel(ViewBag)`
+  ```csharp
+  public IActionResult PageName()
+  {
+      sev.ViewBagModel(ViewBag);  // ← 設定初始資料
+      return View();
+  }
+  ```
+
+#### 3. **Submit 方法（統一提交）**
+- **命名格式**：`Submit*頁面名称*`
+- **用途**：統一處理新增和編輯，由 Repository 根據 `id` 判斷
+- **範例**：
+  ```csharp
+  [HttpPost]
+  public IActionResult SubmitNavigation(sidebar_navigation form)
+  {
+      var result = sev.CreateNavigation(form);
+      return Json(new { 
+          success = result != null, 
+          message = result != null ? "儲存成功" : "儲存失敗" 
+      });
+  }
+  ```
+
+#### 4. **Delete 方法（只能有一個）**
+- **原則**：每個 Controller 只能有一個 `Delete` 函數
+- **範例**：
+  ```csharp
+  [HttpPost]
+  public IActionResult Delete(int id)
+  {
+      var result = sev.DeleteModel(id);
+      return Json(new { 
+          success = result, 
+          message = result ? "刪除成功" : "刪除失敗" 
+      });
+  }
+  ```
+
+### 完整範例
+
+```csharp
+public class NavigationController(NavigationService sev) : BaseController
+{
+    // 1. 主頁面 - 設定初始 ViewBag
+    public IActionResult NavigationManagement()
+    {
+        sev.ViewBagModel(ViewBag);
+        return View();
+    }
+
+    // 2. 查詢詳情 - 用於模態框
+    [HttpGet]
+    public IActionResult LoadDetail(int id)
+    {
+        sev.ViewBagModel(ViewBag, id);
+        return PartialView("_NavigationModal");
+    }
+
+    // 3. 統一提交 - 新增或編輯
+    [HttpPost]
+    public IActionResult SubmitNavigation(sidebar_navigation form)
+    {
+        var result = sev.CreateNavigation(form);
+        return Json(new { success = result != null, message = result != null ? "儲存成功" : "儲存失敗" });
+    }
+
+    // 4. 刪除
+    [HttpPost]
+    public IActionResult Delete(int id)
+    {
+        var result = sev.DeleteNavigation(id);
+        return Json(new { success = result, message = result ? "刪除成功" : "刪除失敗" });
+    }
+}
+```
+
+---
+
+## 命名規則
+
+### Repository 層
 
 ```csharp
 // 格式：Query + 表名 + List/无后缀
 QueryUserList()              // 用户列表
-QueryUser(int? id = null)    // 单个用户
+QueryUser(int? id = null)    // 单個用户
 
 QueryPermissionUserList()    // 权限用户列表
-QueryPermissionUser(int id)  // 单个权限用户
+QueryPermissionUser(int id)  // 单個权限用户
 
 // 格式：Insert/Delete + 表名
 InsertUser(user)             // 插入/更新用户
-DeleteUser(int id)           // 删除用户
+DeleteUser(int id)           // 刪除用户
 ```
 
-### Service 层
+### Service 層
 
 ```csharp
 // 格式：Load + 表名 + List/无后缀
-LoadUserList()               // 载入用户列表
-LoadUser(int id)             // 载入单个用户
+LoadUserList()               // 載入用户列表
+LoadUser(int id)             // 載入单個用户
 
 // 格式：Create/Delete + 表名
-CreateUser(user)             // 创建/更新用户
-DeleteUser(int id)           // 删除用户
+CreateUser(user)             // 創建/更新用户
+DeleteUser(int id)           // 刪除用户
 
 // ViewBag 方法
-ViewBagModel(viewBag, id)    // 设置 ViewBag
+ViewBagModel(viewBag, id)    // 設定 ViewBag
 ```
 
 ---
 
-## 代码规范
+## 程式碼規範
 
-### 1. 使用表达式 (`=>`)
+### 1. 使用表達式 (`=>`)
 
-✅ **正确**
+ **正確**
 ```csharp
 public List<User> QueryUserList(bool? isActive = null)
     => ValidUsers.Where(u => !isActive.HasValue || u.is_active == isActive.Value).ToList();
@@ -277,7 +374,7 @@ public User CreateUser(User user)
     => repo.InsertUser(user);
 ```
 
-❌ **错误**
+ **錯誤**
 ```csharp
 public List<User> QueryUserList(bool? isActive = null)
 {
@@ -287,7 +384,7 @@ public List<User> QueryUserList(bool? isActive = null)
 
 ### 2. 不使用 Get 命名
 
-✅ **正确 - Repository 使用 Query***
+ **正確 - Repository 使用 Query***
 ```csharp
 public List<User> QueryUserList() { }
 public User? QueryUser(int id) { }
@@ -295,13 +392,13 @@ public List<string> QueryOccupiedRoleIdList(int orgId) { }
 public Dictionary<string, string> QueryOccupiedRoles(List<string> roleIds) { }
 ```
 
-✅ **正确 - Service 使用 Load***
+ **正確 - Service 使用 Load***
 ```csharp
 public List<User> LoadUserList() { }
 public User? LoadUser(int id) { }
 ```
 
-❌ **错误 - 使用 Get 命名**
+ **錯誤 - 使用 Get 命名**
 ```csharp
 public User? GetUser(int id) { }
 public List<User> GetUsers() { }
@@ -310,13 +407,13 @@ public List<string> GetOccupiedRoleIds(int orgId) { }
 
 ### 3. 不使用 Async
 
-✅ **正确**
+ **正確**
 ```csharp
 public User? QueryUser(int id)
     => db.users.FirstOrDefault(u => u.id == id);
 ```
 
-❌ **错误**
+ **錯誤**
 ```csharp
 public async Task<User?> QueryUserAsync(int id)
     => await db.users.FirstOrDefaultAsync(u => u.id == id);
@@ -324,7 +421,7 @@ public async Task<User?> QueryUserAsync(int id)
 
 ### 4. 不使用 try...catch
 
-✅ **正确**
+ **正確**
 ```csharp
 // Repository
 public User CreateUser(User user)
@@ -336,12 +433,12 @@ public IActionResult Create(User user)
     var result = service.CreateUser(user);
     return Json(new { 
         success = result != null, 
-        message = result != null ? "创建成功" : "创建失败" 
+        message = result != null ? "創建成功" : "創建失败" 
     });
 }
 ```
 
-❌ **错误**
+ **錯誤**
 ```csharp
 public User CreateUser(User user)
 {
@@ -356,9 +453,9 @@ public User CreateUser(User user)
 }
 ```
 
-### 5. 可选参数合并查询
+### 5. 可选參數合并查詢
 
-✅ **正确 - 单个方法使用可选参数**
+ **正確 - 单個方法使用可选參數**
 ```csharp
 public User? QueryUser(int? userId = null, string? username = null)
 {
@@ -371,20 +468,20 @@ public User? QueryUser(int? userId = null, string? username = null)
     return null;
 }
 
-// 调用
+// 呼叫
 var user1 = QueryUser(userId: 123);
 var user2 = QueryUser(username: "admin");
 ```
 
-❌ **错误 - 多个重载方法**
+ **錯誤 - 多個重载方法**
 ```csharp
 public User? QueryUser(int userId) { ... }
 public User? QueryUser(string username) { ... }
 ```
 
-### 6. Insert 方法处理条件性更新
+### 6. Insert 方法處理條件性更新
 
-✅ **正确 - 在 Insert 方法内判断**
+ **正確 - 在 Insert 方法内判斷**
 ```csharp
 public permission_management InsertPermissionUser(permission_management user)
 {
@@ -402,9 +499,9 @@ public permission_management InsertPermissionUser(permission_management user)
     // 更新
     existingEntity.name = user.name;
     existingEntity.email = user.email;
-    // ... 其他字段
+    // ... 其他欄位
     
-    // 判断密码是否为空，有就指定
+    // 判斷密碼是否為空，有就指定
     if (!string.IsNullOrEmpty(user.password_hash) && !string.IsNullOrEmpty(user.salt))
     {
         existingEntity.password_hash = user.password_hash;
@@ -412,7 +509,7 @@ public permission_management InsertPermissionUser(permission_management user)
         existingEntity.last_password_change_at = DateTime.Now;
     }
     
-    // 判断是否更新登录信息
+    // 判斷是否更新登录信息
     if (user.last_login_at.HasValue)
     {
         existingEntity.last_login_at = user.last_login_at;
@@ -426,7 +523,7 @@ public permission_management InsertPermissionUser(permission_management user)
 }
 ```
 
-❌ **错误 - 多个专门的更新方法**
+ **錯誤 - 多個专门的更新方法**
 ```csharp
 public User InsertUser(User user) { ... }
 public User UpdatePassword(int userId, string password) { ... }
@@ -435,9 +532,9 @@ public User UpdateLoginInfo(int userId, string ip) { ... }
 
 ---
 
-## 示例
+## 範例
 
-### 完整示例：AuthRepository
+### 完整範例：AuthRepository
 
 ```csharp
 public class AuthRepository(HnbHnbBackofficeDbContext db)
@@ -507,7 +604,7 @@ public class AuthRepository(HnbHnbBackofficeDbContext db)
         
         existingEntity.name = user.name;
         existingEntity.email = user.email;
-        // ... 更新所有字段
+        // ... 更新所有欄位
         
         if (!string.IsNullOrEmpty(user.password_hash))
         {
@@ -524,7 +621,7 @@ public class AuthRepository(HnbHnbBackofficeDbContext db)
 }
 ```
 
-### 完整示例：AuthService
+### 完整範例：AuthService
 
 ```csharp
 public class AuthService(AuthRepository authRepository)
@@ -566,11 +663,11 @@ public class AuthService(AuthRepository authRepository)
     public (bool success, string? errorMessage, vw_permission_user? user) ProcessLogin(string username, string password)
     {
         if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
-            return (false, "请输入账号和密码", null);
+            return (false, "請输入帳號和密碼", null);
 
         var user = ValidateUserCredentials(username, password);
         if (user == null)
-            return (false, "账号或密码错误", null);
+            return (false, "帳號或密碼錯誤", null);
 
         return (true, null, user);
     }
@@ -578,7 +675,7 @@ public class AuthService(AuthRepository authRepository)
     private bool VerifyPassword(string password, string? hash, string? salt)
     {
         if (string.IsNullOrEmpty(hash) || string.IsNullOrEmpty(salt)) return false;
-        // 密码验证逻辑
+        // 密碼驗證邏輯
         return true;
     }
 
@@ -590,72 +687,72 @@ public class AuthService(AuthRepository authRepository)
 
 ## 快速检查清单
 
-在编写代码时，请检查：
+在編寫程式碼時，請检查：
 
-### Repository 层
-- [ ] 使用了几张表？
-- [ ] 每张表都有 `Query*List` 和 `Query*` 方法吗？
-- [ ] 每张表只有一个 `Insert*` 方法吗？
-- [ ] 没有使用 `Get*` 命名吗？（应使用 `Query*`）
-- [ ] 没有使用 `async`/`await` 吗？
-- [ ] 没有使用 `try...catch` 吗？
-- [ ] 使用 `=>` 表达式了吗？
-- [ ] 有统一的查询来源（`IQueryable`）吗？
+### Repository 層
+- [ ] 使用了几張表？
+- [ ] 每張表都有 `Query*List` 和 `Query*` 方法嗎？
+- [ ] 每張表只有一個 `Insert*` 方法嗎？
+- [ ] 没有使用 `Get*` 命名嗎？（应使用 `Query*`）
+- [ ] 没有使用 `async`/`await` 嗎？
+- [ ] 没有使用 `try...catch` 嗎？
+- [ ] 使用 `=>` 表達式了嗎？
+- [ ] 有統一的查詢来源（`IQueryable`）嗎？
 
-### Service 层
-- [ ] 每个 `Query*` 都有对应的 `Load*` 吗？
-- [ ] 每个 `Insert*` 都有对应的 `Create*` 吗？
-- [ ] 没有使用 `Get*` 命名吗？（应使用 `Load*`）
-- [ ] 没有使用 `async`/`await` 吗？
-- [ ] 没有使用 `try...catch` 吗？
-- [ ] 使用 `=>` 表达式了吗？
-- [ ] 业务逻辑放在辅助方法中了吗？
+### Service 層
+- [ ] 每個 `Query*` 都有對应的 `Load*` 嗎？
+- [ ] 每個 `Insert*` 都有對应的 `Create*` 嗎？
+- [ ] 没有使用 `Get*` 命名嗎？（应使用 `Load*`）
+- [ ] 没有使用 `async`/`await` 嗎？
+- [ ] 没有使用 `try...catch` 嗎？
+- [ ] 使用 `=>` 表達式了嗎？
+- [ ] 業務邏輯放在辅助方法中了嗎？
 
 ---
 
-## 常见错误
+## 常见錯誤
 
-### ❌ 错误 1：使用 Get 命名
+###  錯誤 1：使用 Get 命名
 ```csharp
-// Repository 层
+// Repository 層
 public User? GetUser(int id) { }
 public List<User> GetUserList() { }
 public List<string> GetOccupiedRoleIds(int orgId) { }
 
-// Service 层
+// Service 層
 public User? GetUser(int id) { }
 public List<User> GetUsers() { }
 ```
-**正确做法：** Repository 使用 `Query*`，Service 使用 `Load*`
+**正確做法：** Repository 使用 `Query*`，Service 使用 `Load*`
 ```csharp
-// Repository 层
+// Repository 層
 public User? QueryUser(int id) { }
 public List<User> QueryUserList() { }
 public List<string> QueryOccupiedRoleIdList(int orgId) { }
 
-// Service 层
+// Service 層
 public User? LoadUser(int id) { }
 public List<User> LoadUserList() { }
 ```
 
-### ❌ 错误 2：一张表多个 Insert
+###  錯誤 2：一張表多個 Insert
 ```csharp
 public permission_management InsertUser(permission_management user) { }
 public permission_management InsertRole(permission_management role) { }
 public permission_management InsertOrganization(permission_management org) { }
 ```
-**正确做法：** 合并为一个 `InsertPermissionManagement`，在方法内根据 `type` 字段处理不同逻辑。
+**正確做法：** 合并為一個 `InsertPermissionManagement`，在方法内根據 `type` 欄位處理不同邏輯。
 
-### ❌ 错误 3：缺少对应的 Query 方法
+###  錯誤 3：缺少對应的 Query 方法
 ```csharp
 // 使用了 permission_management 表，但只有
 public permission_management? QueryUserByName(string name) { }
 public permission_management? QueryRoleById(int id) { }
 // 缺少 QueryPermissionManagementList 和 QueryPermissionManagement
 ```
-**正确做法：** 为每张表添加完整的 `Query*List` 和 `Query*` 方法。
+**正確做法：** 為每張表添加完整的 `Query*List` 和 `Query*` 方法。
 
-### ❌ 错误 4：Repository 包含业务逻辑
+###  錯誤 4：Repository 包含業務邏輯
 ```csharp
 public List<string> QueryUserNavigationPermissions(string userName)
 {
@@ -663,37 +760,37 @@ public List<string> QueryUserNavigationPermissions(string userName)
     permissions.AddRange(new[] { "dashboard", "profile" });
     
     var user = db.users.Where(u => u.name == userName).FirstOrDefault();
-    // ... 复杂的权限计算逻辑
+    // ... 复杂的权限计算邏輯
     
     return permissions.Distinct().ToList();
 }
 ```
-**正确做法：** Repository 只做简单查询，业务逻辑放在 Service 层。
+**正確做法：** Repository 只做簡單查詢，業務邏輯放在 Service 層。
 
 ---
 
 ## 版本历史
 
-- **v1.1** (2025-01-09) - 添加禁止 Get 命名规则
-  - 新增核心原则：禁止使用 `Get*` 命名
-  - Repository 层必须使用 `Query*` 命名
-  - Service 层必须使用 `Load*` 命名
-  - 添加相关错误示例和检查清单
+- **v1.1** (2025-01-09) - 添加禁止 Get 命名規則
+  - 新增核心原則：禁止使用 `Get*` 命名
+  - Repository 層必須使用 `Query*` 命名
+  - Service 層必須使用 `Load*` 命名
+  - 添加相关錯誤範例和检查清单
 
 - **v1.0** (2025-01-09) - 初始版本
-  - 建立基础架构规范
-  - 定义命名规则
-  - 确立核心原则
+  - 建立基础架構規範
+  - 定义命名規則
+  - 确立核心原則
 
 ---
 
-## 参考资料
+## 參考資料
 
-- 项目结构：`HNB/Areas/Backoffice/`
-- 示例 Repository：`AuthRepository.cs`, `PermissionManagementRepository.cs`
-- 示例 Service：`AuthService.cs`, `PermissionManagementService.cs`
+- 專案结構：`HNB/Areas/Backoffice/`
+- 範例 Repository：`AuthRepository.cs`, `PermissionManagementRepository.cs`
+- 範例 Service：`AuthService.cs`, `PermissionManagementService.cs`
 
 ---
 
-**注意：** 所有开发者在编写新代码或修改现有代码时，必须遵循本规范。如有疑问，请参考现有的 `AuthRepository` 和 `AuthService` 作为标准示例。
+**注意：** 所有開發者在編寫新程式碼或修改現有程式碼時，必須遵循本規範。如有疑問，請參考現有的 `AuthRepository` 和 `AuthService` 作為標準範例。
 

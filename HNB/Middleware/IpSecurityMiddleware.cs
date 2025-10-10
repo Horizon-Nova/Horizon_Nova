@@ -15,14 +15,14 @@ public class IpSecurityMiddleware
 
     public async Task InvokeAsync(HttpContext ctx, IpMiddlewareServices svc)
     {
-        var ip = svc.GetClientIp(ctx);
-        var (blocked, shouldBlock) = await svc.CheckAsync(ip);
+        var ip = svc.LoadClientIp(ctx);
+        var (blocked, shouldBlock) = svc.Check(ip);
 
         if (blocked)
         {
             ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
             ctx.Response.ContentType = "text/html; charset=utf-8";
-            await ctx.Response.WriteAsync(svc.GetBlockHtml());
+            await ctx.Response.WriteAsync(svc.LoadBlockHtml());
             return;
         }
 
@@ -36,5 +36,4 @@ public class IpSecurityMiddleware
 
         await _next(ctx);
     }
-
 }

@@ -378,18 +378,18 @@
                          <span class="text-sm text-gray-600">型號</span>
                          <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.gpu_model ?? "未知")</span>
                      </div>
-                     <div class="flex justify-between items-center py-1">
-                         <span class="text-sm text-gray-600">記憶體</span>
-                         <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.gpu_memory_size ?? "未知")</span>
-                     </div>
-                     <div class="flex justify-between items-center py-1">
-                         <span class="text-sm text-gray-600">時脈</span>
-                         <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.gpu_base_clock ?? 0) - @(ViewBag.HardwareInfo?.gpu_boost_clock ?? 0) MHz</span>
-                     </div>
-                     <div class="flex justify-between items-center py-1">
-                         <span class="text-sm text-gray-600">溫度</span>
-                         <span class="text-sm font-medium @(ViewBag.HardwareInfo?.gpu_temperature > 80 ? "text-red-600" : ViewBag.HardwareInfo?.gpu_temperature > 60 ? "text-yellow-600" : "text-green-600")">@(ViewBag.HardwareInfo?.gpu_temperature ?? 0)°C</span>
-                     </div>
+                    <div class="flex justify-between items-center py-1">
+                        <span class="text-sm text-gray-600">記憶體</span>
+                        <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.gpu_memory_size ?? "未知")</span>
+                    </div>
+                    <div class="flex justify-between items-center py-1">
+                        <span class="text-sm text-gray-600">製造商</span>
+                        <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.gpu_manufacturer ?? "未知")</span>
+                    </div>
+                    <div class="flex justify-between items-center py-1">
+                        <span class="text-sm text-gray-600">溫度</span>
+                        <span class="text-sm font-medium @(ViewBag.HardwareInfo?.gpu_temperature > 80 ? "text-red-600" : ViewBag.HardwareInfo?.gpu_temperature > 60 ? "text-yellow-600" : "text-green-600")">@(ViewBag.HardwareInfo?.gpu_temperature ?? 0)°C</span>
+                    </div>
                      <div class="flex justify-between items-center py-1">
                          <span class="text-sm text-gray-600">健康度</span>
                          <span class="text-sm font-medium @(ViewBag.HardwareInfo?.gpu_health_percentage < 80 ? "text-red-600" : ViewBag.HardwareInfo?.gpu_health_percentage < 90 ? "text-yellow-600" : "text-green-600")">@(ViewBag.HardwareInfo?.gpu_health_percentage ?? 0)%</span>
@@ -637,7 +637,7 @@
                 'all': '所有快取'
             };
             return names[cacheType] || cacheType;
-        }
+        }   
 
         // 顯示通知
         function showNotification(message, type = 'info') {
