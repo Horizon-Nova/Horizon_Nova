@@ -18,27 +18,27 @@
     );
 }
 
-<div class="flex gap-0 ">
+<div class="flex flex-col lg:flex-row gap-0">
     <!-- 左側：目錄樹 -->
-    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col">
+    <aside class="w-full lg:w-64 bg-white border-r border-slate-200 flex flex-col lg:max-h-screen">
         <!-- 標題列 -->
         <div class="h-12 px-3 flex items-center justify-between border-b border-slate-200">
-            <span class="text-sm font-medium text-slate-900">檔案總管</span>
+            <span class="text-xs lg:text-sm font-medium text-slate-900">檔案總管</span>
             <div class="flex items-center gap-0.5">
                 <button onclick="showCreateFileModal()" class="w-7 h-7 flex items-center justify-center hover:bg-slate-100 rounded" title="新增檔案">
-                    <i data-lucide="file-plus" class="h-4 w-4 text-slate-600"></i>
+                    <i data-lucide="file-plus" class="h-3 w-3 lg:h-4 lg:w-4 text-slate-600"></i>
                 </button>
                 <button onclick="showCreateFolderModal()" class="w-7 h-7 flex items-center justify-center hover:bg-slate-100 rounded" title="新增資料夾">
-                    <i data-lucide="folder-plus" class="h-4 w-4 text-slate-600"></i>
+                    <i data-lucide="folder-plus" class="h-3 w-3 lg:h-4 lg:w-4 text-slate-600"></i>
                 </button>
                 <button onclick="location.reload()" class="w-7 h-7 flex items-center justify-center hover:bg-slate-100 rounded" title="重新整理">
-                    <i data-lucide="refresh-cw" class="h-4 w-4 text-slate-600"></i>
+                    <i data-lucide="refresh-cw" class="h-3 w-3 lg:h-4 lg:w-4 text-slate-600"></i>
                 </button>
             </div>
         </div>
         
         <!-- 目錄樹 -->
-        <div class="flex-1 overflow-y-auto py-2">
+        <div class="flex-1 overflow-y-auto py-2 max-h-60 lg:max-h-none">
             <!-- 根目錄 -->
             <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = "/" })" 
                class="flex items-center gap-1.5 px-3 py-1.5 hover:bg-slate-50 cursor-pointer @(currentPath == "/" ? "bg-slate-100" : "")">
@@ -91,9 +91,9 @@
     <!-- 右側：內容區 -->
     <div class="flex-1 flex flex-col bg-white min-w-0">
         <!-- 頂部導航列 -->
-        <div class="h-12 px-6 flex items-center justify-between border-b border-slate-200">
+        <div class="h-12 px-3 lg:px-6 flex items-center justify-between border-b border-slate-200">
             <!-- 麵包屑 -->
-            <nav class="flex items-center gap-1 text-sm">
+            <nav class="flex items-center gap-1 text-xs lg:text-sm overflow-x-auto">
                 @if (breadcrumb != null && breadcrumb.Any())
                 {
                     @for (int i = 0; i < breadcrumb.Count; i++)
@@ -115,17 +115,17 @@
             </nav>
             
             <!-- 統計資訊 -->
-            <div class="text-xs text-slate-500">
+            <div class="text-xs text-slate-500 hidden lg:block whitespace-nowrap">
                 @stats.FolderCount 個資料夾 · @stats.FileCount 個檔案 · @FormatSize(stats.TotalSize)
             </div>
         </div>
 
         <!-- Dropzone 上傳區 -->
-        <div class="mx-6 mt-4">
-            <div id="dropZone" class="border-2 border-dashed border-slate-300 rounded-lg px-6 py-8 text-center hover:border-slate-400 hover:bg-slate-50/50 cursor-pointer group"
+        <div class="mx-3 lg:mx-6 mt-4">
+            <div id="dropZone" class="border-2 border-dashed border-slate-300 rounded-lg px-4 lg:px-6 py-6 lg:py-8 text-center hover:border-slate-400 hover:bg-slate-50/50 cursor-pointer group"
                  onclick="document.getElementById('fileInput').click()">
-                <i data-lucide="upload-cloud" class="h-10 w-10 mx-auto mb-3 text-slate-400 group-hover:text-slate-500"></i>
-                <p class="text-sm font-medium text-slate-700 mb-1">拖曳檔案或資料夾到這裡上傳</p>
+                <i data-lucide="upload-cloud" class="h-8 w-8 lg:h-10 lg:w-10 mx-auto mb-2 lg:mb-3 text-slate-400 group-hover:text-slate-500"></i>
+                <p class="text-xs lg:text-sm font-medium text-slate-700 mb-1">拖曳檔案或資料夾到這裡上傳</p>
                 <p class="text-xs text-slate-500">或點擊選擇檔案</p>
             </div>
         </div>
@@ -134,9 +134,9 @@
         <input type="file" id="fileInput" multiple class="hidden">
 
         <!-- 檔案列表 -->
-        <div class="flex-1 overflow-y-auto px-6 py-4">
+        <div class="flex-1 overflow-y-auto px-3 lg:px-6 py-4">
             <!-- 表格標題 -->
-            <div class="grid grid-cols-[2fr_140px_180px_120px] gap-4 px-3 py-2 text-xs font-medium text-slate-500 border-b border-slate-200">
+            <div class="hidden lg:grid grid-cols-[2fr_140px_180px_120px] gap-4 px-3 py-2 text-xs font-medium text-slate-500 border-b border-slate-200">
                 <div>名稱</div>
                 <div>大小</div>
                 <div>修改時間</div>
@@ -164,14 +164,29 @@
                             var folderPath = currentPath.TrimEnd('/') + "/" + name;
                             
                             <div onclick="window.location.href='@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = folderPath })'" 
-                                 class="grid grid-cols-[2fr_140px_180px_120px] gap-4 px-3 py-3 hover:bg-slate-50 cursor-pointer group rounded-lg items-center">
+                                 class="grid grid-cols-1 lg:grid-cols-[2fr_140px_180px_120px] gap-2 lg:gap-4 px-3 py-3 hover:bg-slate-50 cursor-pointer group rounded-lg">
                                 <div class="flex items-center gap-3 min-w-0">
                                     <i data-lucide="folder" class="h-5 w-5 text-amber-500 shrink-0"></i>
-                                    <span class="text-sm text-slate-900 truncate">@name</span>
+                                    <span class="text-sm text-slate-900 truncate flex-1">@name</span>
+                                    <div class="flex items-center gap-1 lg:hidden">
+                                        <button onclick="event.preventDefault(); event.stopPropagation(); showRenameModal('@name.Replace("'", "\\'").Replace("\"", "&quot;")', 'folder')" 
+                                                class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="重新命名">
+                                            <i data-lucide="edit-3" class="h-4 w-4 text-slate-600"></i>
+                                        </button>
+                                        <a href="@Url.Action("DownloadFolder", "FileManager", new { area = "Backoffice", path = currentPath, name })" 
+                                           onclick="event.stopPropagation()"
+                                           class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="下載">
+                                            <i data-lucide="download" class="h-4 w-4 text-slate-600"></i>
+                                        </a>
+                                        <button onclick="event.preventDefault(); event.stopPropagation(); deleteItem('@name.Replace("'", "\\'").Replace("\"", "&quot;")', 'folder')" 
+                                                class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="刪除">
+                                            <i data-lucide="trash-2" class="h-4 w-4 text-slate-600"></i>
+                                        </button>
+                                    </div>
                                 </div>
-                                <div class="text-sm text-slate-600">—</div>
-                                <div class="text-sm text-slate-600">@(modified.HasValue ? modified.Value.ToString("yyyy/MM/dd HH:mm") : "—")</div>
-                                <div class="flex items-center justify-end gap-1">
+                                <div class="text-xs lg:text-sm text-slate-600 hidden lg:block">—</div>
+                                <div class="text-xs lg:text-sm text-slate-600 hidden lg:block">@(modified.HasValue ? modified.Value.ToString("yyyy/MM/dd HH:mm") : "—")</div>
+                                <div class="hidden lg:flex items-center justify-end gap-1">
                                     <button onclick="event.preventDefault(); event.stopPropagation(); showRenameModal('@name.Replace("'", "\\'").Replace("\"", "&quot;")', 'folder')" 
                                             class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="重新命名">
                                         <i data-lucide="edit-3" class="h-4 w-4 text-slate-600"></i>

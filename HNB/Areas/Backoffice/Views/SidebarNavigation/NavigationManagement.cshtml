@@ -16,35 +16,35 @@
 @await Html.PartialAsync("_NavigationModal")
 
 
-<div class="space-y-6">
+<div class="space-y-4 lg:space-y-6">
     <!-- 頂部操作欄 -->
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-        <div class="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 lg:p-6">
+        <div class="flex flex-col gap-3 lg:gap-4">
             <!-- 搜尋區 -->
-            <div class="flex-1 w-full lg:w-auto">
+            <div class="w-full">
                 <div class="relative">
                     <input type="text" id="searchInput" placeholder="搜尋目錄名稱、路徑..."
-                           class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                           class="w-full pl-10 pr-4 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
                 </div>
             </div>
 
             <!-- 篩選與操作按鈕 -->
-            <div class="flex gap-3 w-full lg:w-auto">
-                <select id="statusFilter" class="px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-3">
+                <select id="statusFilter" class="px-3 lg:px-4 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <option value="">所有狀態</option>
                     <option value="active">啟用</option>
                     <option value="inactive">停用</option>
                 </select>
 
-                <select id="levelFilter" class="px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <select id="levelFilter" class="px-3 lg:px-4 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <option value="">所有層級</option>
                     <option value="0">第一層</option>
                     <option value="1">第二層</option>
                     <option value="2">第三層</option>
                 </select>
 
-                <button onclick="showNavModal('new')" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 transition-colors whitespace-nowrap">
+                <button onclick="showNavModal('new')" class="col-span-2 lg:col-span-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2 transition-colors whitespace-nowrap text-sm">
                     <i data-lucide="plus" class="w-4 h-4"></i>
                     新增目錄
                 </button>
@@ -54,14 +54,14 @@
 
     <!-- 目錄樹狀結構 -->
     <div id="navigationTreeContainer" class="bg-white rounded-xl shadow-sm border border-slate-200">
-        <div class="p-6 border-b border-slate-200">
-            <div class="flex items-center gap-3">
-                <i data-lucide="folder-tree" class="w-5 h-5 text-blue-600"></i>
-                <h2 class="text-lg font-semibold text-slate-900">目錄結構</h2>
+        <div class="p-4 lg:p-6 border-b border-slate-200">
+            <div class="flex items-center gap-2 lg:gap-3">
+                <i data-lucide="folder-tree" class="w-4 h-4 lg:w-5 lg:h-5 text-blue-600"></i>
+                <h2 class="text-base lg:text-lg font-semibold text-slate-900">目錄結構</h2>
             </div>
         </div>
         
-        <div id="navigationTreeContent" class="p-6">
+        <div id="navigationTreeContent" class="p-4 lg:p-6">
             @if (rootItems != null && rootItems.Any())
             {
                 <div class="space-y-2">

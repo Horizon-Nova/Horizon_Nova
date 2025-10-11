@@ -13,72 +13,72 @@
     var enabledCount = aiConfigs.Count(c => c.is_enabled == true);
 }
 
-<section class="space-y-6">
+<section class="space-y-4 lg:space-y-6">
     <!-- 頁面標題 -->
-    <header class="flex items-center justify-between">
-        <div>
-            <h1 class="text-3xl font-bold flex items-center gap-3">
-                <i data-lucide="brain" class="h-8 w-8"></i> AI模型管理
+    <header class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
+        <div class="w-full lg:w-auto">
+            <h1 class="text-2xl lg:text-3xl font-bold flex items-center gap-2 lg:gap-3">
+                <i data-lucide="brain" class="h-6 w-6 lg:h-8 lg:w-8"></i> AI模型管理
             </h1>
-            <p class="text-slate-500">管理和監控所有AI模型服務</p>
+            <p class="text-sm lg:text-base text-slate-500 mt-1">管理和監控所有AI模型服務</p>
         </div>
     </header>
     <!-- 統計卡片 -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div class="bg-white border rounded-xl p-6 shadow-sm">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6">
+        <div class="bg-white border rounded-xl p-4 lg:p-6 shadow-sm">
             <div class="flex items-center justify-between mb-2">
-                <h3 class="text-sm font-medium text-gray-600">總使用次數 (今日)</h3>
-                <i data-lucide="activity" class="h-4 w-4 text-gray-400"></i>
+                <h3 class="text-xs lg:text-sm font-medium text-gray-600 truncate">總使用次數 (今日)</h3>
+                <i data-lucide="activity" class="h-4 w-4 text-gray-400 flex-shrink-0"></i>
             </div>
-            <div class="text-2xl font-bold text-gray-900" id="todayUsageCount">-</div>
-            <p class="text-xs text-gray-500">統計中...</p>
+            <div class="text-xl lg:text-2xl font-bold text-gray-900" id="todayUsageCount">-</div>
+            <p class="text-xs text-gray-500 truncate">統計中...</p>
         </div>
 
-        <div class="bg-white border rounded-xl p-6 shadow-sm">
+        <div class="bg-white border rounded-xl p-4 lg:p-6 shadow-sm">
             <div class="flex items-center justify-between mb-2">
-                <h3 class="text-sm font-medium text-gray-600">啟用模型</h3>
-                <i data-lucide="zap" class="h-4 w-4 text-gray-400"></i>
+                <h3 class="text-xs lg:text-sm font-medium text-gray-600 truncate">啟用模型</h3>
+                <i data-lucide="zap" class="h-4 w-4 text-gray-400 flex-shrink-0"></i>
             </div>
-            <div class="text-2xl font-bold text-gray-900">@enabledCount</div>
-            <p class="text-xs text-gray-500">共 @totalCount 個模型</p>
+            <div class="text-xl lg:text-2xl font-bold text-gray-900">@enabledCount</div>
+            <p class="text-xs text-gray-500 truncate">共 @totalCount 個模型</p>
         </div>
 
-        <div class="bg-white border rounded-xl p-6 shadow-sm">
+        <div class="bg-white border rounded-xl p-4 lg:p-6 shadow-sm">
             <div class="flex items-center justify-between mb-2">
-                <h3 class="text-sm font-medium text-gray-600">平均品質分數</h3>
-                <i data-lucide="trending-up" class="h-4 w-4 text-gray-400"></i>
+                <h3 class="text-xs lg:text-sm font-medium text-gray-600 truncate">平均品質分數</h3>
+                <i data-lucide="trending-up" class="h-4 w-4 text-gray-400 flex-shrink-0"></i>
             </div>
-            <div class="text-2xl font-bold text-gray-900">
+            <div class="text-xl lg:text-2xl font-bold text-gray-900">
                 @{
                     var avgQuality = aiConfigs.Any() ? aiConfigs.Average(c => c.quality_score ?? 0) : 0;
                 }
                 @avgQuality.ToString("F1")%
             </div>
-            <p class="text-xs text-gray-500">平均模型品質</p>
+            <p class="text-xs text-gray-500 truncate">平均模型品質</p>
         </div>
 
-        <div class="bg-white border rounded-xl p-6 shadow-sm">
+        <div class="bg-white border rounded-xl p-4 lg:p-6 shadow-sm">
             <div class="flex items-center justify-between mb-2">
-                <h3 class="text-sm font-medium text-gray-600">系統狀態</h3>
-                <i data-lucide="server" class="h-4 w-4 text-gray-400"></i>
+                <h3 class="text-xs lg:text-sm font-medium text-gray-600 truncate">系統狀態</h3>
+                <i data-lucide="server" class="h-4 w-4 text-gray-400 flex-shrink-0"></i>
             </div>
-            <div class="text-2xl font-bold @(enabledCount > 0 ? "text-green-600" : "text-gray-400")">
+            <div class="text-xl lg:text-2xl font-bold @(enabledCount > 0 ? "text-green-600" : "text-gray-400")">
                 @(enabledCount > 0 ? "正常" : "無啟用")
             </div>
-            <p class="text-xs text-gray-500">@enabledCount 個服務運行中</p>
+            <p class="text-xs text-gray-500 truncate">@enabledCount 個服務運行中</p>
         </div>
     </div>
 
     <!-- 篩選和搜尋 -->
-    <div class="bg-white border rounded-xl p-6 shadow-sm">
-        <div class="flex flex-col sm:flex-row gap-4 items-center justify-between">
-            <div class="flex gap-4 items-center w-full sm:w-auto">
-                <div class="relative flex-1 sm:flex-none">
-                    <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4"></i>
-                    <input type="text" id="searchInput" placeholder="搜尋模型名稱或描述..."
-                           class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full sm:w-64 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                </div>
-                <select id="typeFilter" class="px-3 py-2 border border-gray-300 rounded-lg w-32 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+    <div class="bg-white border rounded-xl p-4 lg:p-6 shadow-sm">
+        <div class="flex flex-col gap-3 lg:gap-4">
+            <div class="relative w-full">
+                <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4"></i>
+                <input type="text" id="searchInput" placeholder="搜尋模型名稱或描述..."
+                       class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-3">
+                <select id="typeFilter" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     <option value="all">所有類型</option>
                     <option value="text">文字生成</option>
                     <option value="image">圖像生成</option>
@@ -86,28 +86,28 @@
                     <option value="video">視頻處理</option>
                     <option value="multimodal">多模態</option>
                 </select>
-                <select id="statusFilter" class="px-3 py-2 border border-gray-300 rounded-lg w-32 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <select id="statusFilter" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     <option value="all">所有狀態</option>
                     <option value="active">啟用</option>
                     <option value="inactive">停用</option>
                     <option value="maintenance">維護中</option>
                 </select>
+                <a href="@Url.Action("Create")" class="col-span-2 lg:col-span-1 inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                    <i data-lucide="plus" class="h-4 w-4 mr-2"></i>
+                    新增模型
+                </a>
             </div>
-            <a href="@Url.Action("Create")" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                <i data-lucide="plus" class="h-4 w-4 mr-2"></i>
-                新增模型
-            </a>
         </div>
     </div>
 
     <!-- AI控制中心主面板 -->
-    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 lg:gap-6">
         <!-- AI服務列表 -->
         <div class="xl:col-span-2">
-            <div class="bg-white border rounded-xl p-6 shadow-sm">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-xl font-semibold text-gray-900">AI服務控制台</h3>
-                    <button type="button" id="addAIServiceBtn" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <div class="bg-white border rounded-xl p-4 lg:p-6 shadow-sm">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 lg:mb-6">
+                    <h3 class="text-lg lg:text-xl font-semibold text-gray-900">AI服務控制台</h3>
+                    <button type="button" id="addAIServiceBtn" class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
                         <i data-lucide="plus" class="h-4 w-4 mr-2"></i>
                         新增AI服務
                     </button>
@@ -136,19 +136,19 @@
                             var statusClass = config.is_enabled == true ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600";
                             var statusText = config.is_enabled == true ? "啟用" : "停用";
                             
-                            <div class="border rounded-lg p-4 hover:shadow-md transition-shadow" data-service-id="@config.id">
-                                <div class="flex items-center justify-between mb-3">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-10 h-10 @bgColor rounded-full flex items-center justify-center">
+                            <div class="border rounded-lg p-3 lg:p-4 hover:shadow-md transition-shadow" data-service-id="@config.id">
+                                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-3">
+                                    <div class="flex items-center gap-3 min-w-0 flex-1">
+                                        <div class="w-10 h-10 @bgColor rounded-full flex items-center justify-center flex-shrink-0">
                                             <i data-lucide="@iconName" class="h-5 w-5 @iconColor"></i>
                                         </div>
-                                        <div>
-                                            <h4 class="font-medium text-gray-900">@config.service_name</h4>
-                                            <p class="text-sm text-gray-500">@config.provider • @config.scope</p>
+                                        <div class="min-w-0 flex-1">
+                                            <h4 class="font-medium text-gray-900 truncate">@config.service_name</h4>
+                                            <p class="text-xs lg:text-sm text-gray-500 truncate">@config.provider • @config.scope</p>
                                         </div>
                                     </div>
-                                    <div class="flex items-center gap-2">
-                                        <span class="px-2 py-1 text-xs font-medium rounded-full @statusClass">@statusText</span>
+                                    <div class="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+                                        <span class="px-2 py-1 text-xs font-medium rounded-full @statusClass whitespace-nowrap">@statusText</span>
                                         <div class="flex gap-1">
                                             <button class="p-1 text-gray-400 hover:text-blue-600" onclick="editService(@config.id)">
                                                 <i data-lucide="edit" class="h-4 w-4"></i>
@@ -162,25 +162,25 @@
                                 <div class="space-y-1">
                                     @if (!string.IsNullOrEmpty(config.description))
                                     {
-                                        <p class="text-sm text-gray-600">@config.description</p>
+                                        <p class="text-xs lg:text-sm text-gray-600 break-words">@config.description</p>
                                     }
-                                    <div class="text-sm text-gray-600 flex flex-wrap gap-x-4 gap-y-1">
-                                        <span>Model: <span class="font-mono text-xs">@config.model_key</span></span>
+                                    <div class="text-xs lg:text-sm text-gray-600 flex flex-wrap gap-x-3 lg:gap-x-4 gap-y-1">
+                                        <span class="truncate">Model: <span class="font-mono text-xs">@config.model_key</span></span>
                                         @if (config.version != null)
                                         {
-                                            <span>版本: @config.version</span>
+                                            <span class="whitespace-nowrap">版本: @config.version</span>
                                         }
                                         @if (config.priority != null)
                                         {
-                                            <span>優先級: @config.priority</span>
+                                            <span class="whitespace-nowrap">優先級: @config.priority</span>
                                         }
                                         @if (config.quality_score != null)
                                         {
-                                            <span>品質: @config.quality_score.Value.ToString("F1")%</span>
+                                            <span class="whitespace-nowrap">品質: @config.quality_score.Value.ToString("F1")%</span>
                                         }
                                         @if (config.daily_limit != null)
                                         {
-                                            <span>每日限額: @config.daily_limit</span>
+                                            <span class="whitespace-nowrap">每日限額: @config.daily_limit</span>
                                         }
                                     </div>
                                 </div>
@@ -192,20 +192,20 @@
         </div>
 
         <!-- 控制面板 -->
-        <div class="space-y-6">
+        <div class="space-y-4 lg:space-y-6">
             <!-- 快速操作 -->
-            <div class="bg-white border rounded-xl p-6 shadow-sm">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">快速操作</h3>
-                <div class="space-y-3">
-                    <button type="button" id="testAllConnectionsBtn" class="w-full flex items-center justify-center px-4 py-2 bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 transition-colors">
+            <div class="bg-white border rounded-xl p-4 lg:p-6 shadow-sm">
+                <h3 class="text-base lg:text-lg font-semibold text-gray-900 mb-3 lg:mb-4">快速操作</h3>
+                <div class="space-y-2 lg:space-y-3">
+                    <button type="button" id="testAllConnectionsBtn" class="w-full flex items-center justify-center px-4 py-2 bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 transition-colors text-sm">
                         <i data-lucide="wifi" class="h-4 w-4 mr-2"></i>
                         測試所有連線
                     </button>
-                    <button type="button" id="refreshStatsBtn" class="w-full flex items-center justify-center px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors">
+                    <button type="button" id="refreshStatsBtn" class="w-full flex items-center justify-center px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors text-sm">
                         <i data-lucide="refresh-cw" class="h-4 w-4 mr-2"></i>
                         刷新統計
                     </button>
-                    <button type="button" id="exportConfigBtn" class="w-full flex items-center justify-center px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors">
+                    <button type="button" id="exportConfigBtn" class="w-full flex items-center justify-center px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors text-sm">
                         <i data-lucide="download" class="h-4 w-4 mr-2"></i>
                         匯出配置
                     </button>
@@ -213,24 +213,24 @@
             </div>
 
             <!-- 系統狀態 -->
-            <div class="bg-white border rounded-xl p-6 shadow-sm">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">系統狀態</h3>
-                <div class="space-y-3">
+            <div class="bg-white border rounded-xl p-4 lg:p-6 shadow-sm">
+                <h3 class="text-base lg:text-lg font-semibold text-gray-900 mb-3 lg:mb-4">系統狀態</h3>
+                <div class="space-y-2 lg:space-y-3">
                     <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-600">總服務數</span>
-                        <span class="font-medium text-gray-900" id="totalServices">@totalCount</span>
+                        <span class="text-xs lg:text-sm text-gray-600">總服務數</span>
+                        <span class="font-medium text-gray-900 text-sm" id="totalServices">@totalCount</span>
                     </div>
                     <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-600">啟用服務</span>
-                        <span class="font-medium text-green-600" id="activeServices">@enabledCount</span>
+                        <span class="text-xs lg:text-sm text-gray-600">啟用服務</span>
+                        <span class="font-medium text-green-600 text-sm" id="activeServices">@enabledCount</span>
                     </div>
                     <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-600">停用服務</span>
-                        <span class="font-medium text-red-600" id="offlineServices">@(totalCount - enabledCount)</span>
+                        <span class="text-xs lg:text-sm text-gray-600">停用服務</span>
+                        <span class="font-medium text-red-600 text-sm" id="offlineServices">@(totalCount - enabledCount)</span>
                     </div>
                     <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-600">今日調用</span>
-                        <span class="font-medium text-blue-600" id="todayCalls">-</span>
+                        <span class="text-xs lg:text-sm text-gray-600">今日調用</span>
+                        <span class="font-medium text-blue-600 text-sm" id="todayCalls">-</span>
                     </div>
                 </div>
             </div>
@@ -240,31 +240,31 @@
 
 <!-- 動態AI配置控制中心 -->
 <div id="aiConfigModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
-    <div class="flex items-center justify-center min-h-screen p-4">
+    <div class="flex items-center justify-center min-h-screen p-2 lg:p-4">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[95vh] overflow-y-auto">
-            <div class="sticky top-0 bg-white border-b p-6 rounded-t-xl">
+            <div class="sticky top-0 bg-white border-b p-4 lg:p-6 rounded-t-xl">
                 <div class="flex items-center justify-between">
-                    <h2 class="text-2xl font-bold text-gray-900" id="modalTitle">AI服務配置中心</h2>
-                    <button type="button" id="closeModal" class="text-gray-400 hover:text-gray-600">
-                        <i data-lucide="x" class="h-6 w-6"></i>
+                    <h2 class="text-lg lg:text-2xl font-bold text-gray-900 truncate mr-4" id="modalTitle">AI服務配置中心</h2>
+                    <button type="button" id="closeModal" class="text-gray-400 hover:text-gray-600 flex-shrink-0">
+                        <i data-lucide="x" class="h-5 w-5 lg:h-6 lg:w-6"></i>
                     </button>
                 </div>
             </div>
             
-            <div class="p-6">
+            <div class="p-4 lg:p-6">
                 <!-- 服務基本資訊 -->
-                <div class="bg-gray-50 rounded-lg p-6 mb-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">服務基本資訊</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-gray-50 rounded-lg p-4 lg:p-6 mb-4 lg:mb-6">
+                    <h3 class="text-base lg:text-lg font-semibold text-gray-900 mb-3 lg:mb-4">服務基本資訊</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">服務名稱 *</label>
+                            <label class="block text-xs lg:text-sm font-medium text-gray-700 mb-2">服務名稱 *</label>
                             <input type="text" id="serviceName" required 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                   class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                    placeholder="例如: DALL-E 3">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">提供商 *</label>
-                            <select id="provider" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <label class="block text-xs lg:text-sm font-medium text-gray-700 mb-2">提供商 *</label>
+                            <select id="provider" required class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                                 <option value="">選擇提供商</option>
                                 <option value="OpenAI">OpenAI</option>
                                 <option value="Anthropic">Anthropic</option>
@@ -275,15 +275,15 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Scope *</label>
+                            <label class="block text-xs lg:text-sm font-medium text-gray-700 mb-2">Scope *</label>
                             <input type="text" id="scope" required 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                   class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                    placeholder="例如: image.general">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Model Key *</label>
+                            <label class="block text-xs lg:text-sm font-medium text-gray-700 mb-2">Model Key *</label>
                             <input type="text" id="modelKey" required 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                   class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                    placeholder="例如: gpt-image-1">
                         </div>
                     </div>
@@ -402,19 +402,19 @@
                 </div>
 
                 <!-- 操作按鈕 -->
-                <div class="flex justify-end gap-4 pt-6 border-t">
-                    <button type="button" id="cancelBtn" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                <div class="flex flex-col sm:flex-row justify-end gap-2 lg:gap-4 pt-4 lg:pt-6 border-t">
+                    <button type="button" id="cancelBtn" class="px-4 lg:px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-sm order-last sm:order-first">
                         取消
                     </button>
-                    <button type="button" id="testConnectionBtn" class="px-6 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors">
+                    <button type="button" id="testConnectionBtn" class="px-4 lg:px-6 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors text-sm">
                         <i data-lucide="wifi" class="h-4 w-4 mr-2 inline"></i>
                         測試連線
                     </button>
-                    <button type="button" id="previewConfigBtn" class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+                    <button type="button" id="previewConfigBtn" class="px-4 lg:px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm">
                         <i data-lucide="eye" class="h-4 w-4 mr-2 inline"></i>
                         預覽配置
                     </button>
-                    <button type="button" id="saveConfigBtn" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    <button type="button" id="saveConfigBtn" class="px-4 lg:px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
                         <i data-lucide="save" class="h-4 w-4 mr-2 inline"></i>
                         儲存配置
                     </button>
