@@ -3,158 +3,499 @@
 }
 
 <!-- 錯誤日誌說明 -->
-<div id="error-help" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-    <div class="bg-white rounded-lg p-6 max-w-md mx-4">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold flex items-center gap-2">
-                <i data-lucide="alert-triangle" class="h-5 w-5 text-red-500"></i>
-                錯誤日誌說明
-            </h3>
-            <button type="button" onclick="closeHelpModal('error-help')" class="text-gray-400 hover:text-gray-600">
-                <i data-lucide="x" class="h-5 w-5"></i>
-            </button>
+<div id="error-help" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm hidden" style="display: none;">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
+        <!-- Modal Header -->
+        <div class="bg-gradient-to-r from-red-50 to-orange-50 px-8 py-6 border-b border-slate-200">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-red-100 p-2 rounded-lg">
+                        <i data-lucide="alert-triangle" class="w-6 h-6 text-red-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800">錯誤日誌說明</h3>
+                        <p class="text-sm text-slate-500 mt-1">了解錯誤日誌的作用與管理方式</p>
+                    </div>
+                </div>
+                <button type="button" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-lg transition-all duration-200" onclick="closeModal('error-help')">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
         </div>
-        <div class="space-y-3">
-            <p class="text-sm text-gray-600">錯誤日誌記錄系統運行過程中發生的錯誤和異常。</p>
-            <ul class="text-sm text-gray-600 space-y-1">
-                <li>• 包含錯誤訊息、堆疊追蹤和時間戳</li>
-                <li>• 幫助開發者診斷和修復問題</li>
-                <li>• 建議定期清理以節省儲存空間</li>
-            </ul>
+
+        <!-- Modal Body -->
+        <div class="p-8 overflow-y-auto max-h-[calc(95vh-160px)] bg-slate-50">
+            <div class="space-y-6">
+                <div>
+                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
+                        <i data-lucide="info" class="w-4 h-4 mr-2 text-red-600"></i>
+                        什麼是錯誤日誌？
+                    </h6>
+                    <p class="text-slate-600 text-sm leading-relaxed">錯誤日誌記錄系統運行過程中發生的錯誤和異常，是診斷和修復系統問題的重要工具。</p>
+                </div>
+                
+                <div>
+                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
+                        <i data-lucide="file-text" class="w-4 h-4 mr-2 text-blue-600"></i>
+                        記錄內容
+                    </h6>
+                    <ul class="text-slate-600 text-sm space-y-2 leading-relaxed">
+                        <li class="flex items-start">
+                            <span class="bg-red-100 text-red-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">•</span>
+                            包含錯誤訊息、堆疊追蹤和時間戳
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-red-100 text-red-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">•</span>
+                            幫助開發者診斷和修復問題
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-red-100 text-red-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">•</span>
+                            建議定期清理以節省儲存空間
+                        </li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
+                        <i data-lucide="lightbulb" class="w-4 h-4 mr-2 text-orange-600"></i>
+                        管理建議
+                    </h6>
+                    <div class="bg-amber-50 border border-amber-200 p-4 rounded-lg">
+                        <p class="text-sm text-amber-800">
+                            <i data-lucide="alert-circle" class="w-4 h-4 inline mr-1"></i>
+                            建議定期檢查錯誤日誌，及時發現並修復問題。可使用「30天清理」功能保留近期記錄，或「全部清理」釋放所有空間。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
+            <div class="flex items-center justify-end">
+                <button type="button" class="modal-close px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200">
+                    我知道了
+                </button>
+            </div>
         </div>
     </div>
 </div>
 
 <!-- 系統日誌說明 -->
-<div id="system-help" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-    <div class="bg-white rounded-lg p-6 max-w-md mx-4">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold flex items-center gap-2">
-                <i data-lucide="settings" class="h-5 w-5 text-blue-500"></i>
-                系統日誌說明
-            </h3>
-            <button type="button" onclick="closeHelpModal('system-help')" class="text-gray-400 hover:text-gray-600">
-                <i data-lucide="x" class="h-5 w-5"></i>
-            </button>
+<div id="system-help" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm hidden" style="display: none;">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
+        <!-- Modal Header -->
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-8 py-6 border-b border-slate-200">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-blue-100 p-2 rounded-lg">
+                        <i data-lucide="settings" class="w-6 h-6 text-blue-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800">系統日誌說明</h3>
+                        <p class="text-sm text-slate-500 mt-1">了解系統日誌的作用與管理方式</p>
+                    </div>
+                </div>
+                <button type="button" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-lg transition-all duration-200" onclick="closeModal('system-help')">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
         </div>
-        <div class="space-y-3">
-            <p class="text-sm text-gray-600">系統日誌記錄應用程式的運行狀態和重要事件。</p>
-            <ul class="text-sm text-gray-600 space-y-1">
-                <li>• 包含啟動、關閉、配置變更等事件</li>
-                <li>• 用於系統監控和故障排除</li>
-                <li>• 提供系統運行歷史記錄</li>
-            </ul>
+
+        <!-- Modal Body -->
+        <div class="p-8 overflow-y-auto max-h-[calc(95vh-160px)] bg-slate-50">
+            <div class="space-y-6">
+                <div>
+                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
+                        <i data-lucide="info" class="w-4 h-4 mr-2 text-blue-600"></i>
+                        什麼是系統日誌？
+                    </h6>
+                    <p class="text-slate-600 text-sm leading-relaxed">系統日誌記錄應用程式的運行狀態和重要事件，是監控系統健康狀況的重要依據。</p>
+                </div>
+                
+                <div>
+                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
+                        <i data-lucide="list-ordered" class="w-4 h-4 mr-2 text-green-600"></i>
+                        記錄內容
+                    </h6>
+                    <ul class="text-slate-600 text-sm space-y-2 leading-relaxed">
+                        <li class="flex items-start">
+                            <span class="bg-blue-100 text-blue-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">•</span>
+                            包含啟動、關閉、配置變更等事件
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-blue-100 text-blue-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">•</span>
+                            用於系統監控和故障排除
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-blue-100 text-blue-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">•</span>
+                            提供系統運行歷史記錄
+                        </li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
+                        <i data-lucide="lightbulb" class="w-4 h-4 mr-2 text-orange-600"></i>
+                        管理建議
+                    </h6>
+                    <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+                        <p class="text-sm text-blue-800">
+                            <i data-lucide="info" class="w-4 h-4 inline mr-1"></i>
+                            系統日誌可幫助您追蹤系統運行狀況，定期查看有助於及早發現潛在問題。建議保留近期記錄以便追溯。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
+            <div class="flex items-center justify-end">
+                <button type="button" class="modal-close px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200">
+                    我知道了
+                </button>
+            </div>
         </div>
     </div>
 </div>
 
 <!-- 存取日誌說明 -->
-<div id="access-help" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-    <div class="bg-white rounded-lg p-6 max-w-md mx-4">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold flex items-center gap-2">
-                <i data-lucide="users" class="h-5 w-5 text-green-500"></i>
-                存取日誌說明
-            </h3>
-            <button type="button" onclick="closeHelpModal('access-help')" class="text-gray-400 hover:text-gray-600">
-                <i data-lucide="x" class="h-5 w-5"></i>
-            </button>
+<div id="access-help" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm hidden" style="display: none;">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
+        <!-- Modal Header -->
+        <div class="bg-gradient-to-r from-green-50 to-emerald-50 px-8 py-6 border-b border-slate-200">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-green-100 p-2 rounded-lg">
+                        <i data-lucide="users" class="w-6 h-6 text-green-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800">存取日誌說明</h3>
+                        <p class="text-sm text-slate-500 mt-1">了解存取日誌的作用與管理方式</p>
+                    </div>
+                </div>
+                <button type="button" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-lg transition-all duration-200" onclick="closeModal('access-help')">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
         </div>
-        <div class="space-y-3">
-            <p class="text-sm text-gray-600">存取日誌記錄用戶的登入、操作和系統使用情況。</p>
-            <ul class="text-sm text-gray-600 space-y-1">
-                <li>• 包含用戶ID、IP地址、操作時間</li>
-                <li>• 用於安全審計和用戶行為分析</li>
-                <li>• 幫助識別異常登入和操作</li>
-            </ul>
+
+        <!-- Modal Body -->
+        <div class="p-8 overflow-y-auto max-h-[calc(95vh-160px)] bg-slate-50">
+            <div class="space-y-6">
+                <div>
+                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
+                        <i data-lucide="info" class="w-4 h-4 mr-2 text-green-600"></i>
+                        什麼是存取日誌？
+                    </h6>
+                    <p class="text-slate-600 text-sm leading-relaxed">存取日誌記錄用戶的登入、操作和系統使用情況，是安全審計和用戶行為分析的重要資料來源。</p>
+                </div>
+                
+                <div>
+                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
+                        <i data-lucide="shield" class="w-4 h-4 mr-2 text-blue-600"></i>
+                        記錄內容
+                    </h6>
+                    <ul class="text-slate-600 text-sm space-y-2 leading-relaxed">
+                        <li class="flex items-start">
+                            <span class="bg-green-100 text-green-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">•</span>
+                            包含用戶ID、IP地址、操作時間
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-green-100 text-green-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">•</span>
+                            用於安全審計和用戶行為分析
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-green-100 text-green-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">•</span>
+                            幫助識別異常登入和操作
+                        </li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
+                        <i data-lucide="alert-triangle" class="w-4 h-4 mr-2 text-orange-600"></i>
+                        安全提示
+                    </h6>
+                    <div class="bg-green-50 border border-green-200 p-4 rounded-lg">
+                        <p class="text-sm text-green-800">
+                            <i data-lucide="shield-check" class="w-4 h-4 inline mr-1"></i>
+                            存取日誌是安全審計的重要依據，建議定期檢查異常登入記錄。保留適當期間的日誌有助於追溯安全事件。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
+            <div class="flex items-center justify-end">
+                <button type="button" class="modal-close px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200">
+                    我知道了
+                </button>
+            </div>
         </div>
     </div>
 </div>
 
 <!-- 記憶體快取說明 -->
-<div id="memory-help" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-    <div class="bg-white rounded-lg p-6 max-w-md mx-4">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold flex items-center gap-2">
-                <i data-lucide="memory-stick" class="h-5 w-5 text-purple-500"></i>
-                記憶體快取說明
-            </h3>
-            <button type="button" onclick="closeHelpModal('memory-help')" class="text-gray-400 hover:text-gray-600">
-                <i data-lucide="x" class="h-5 w-5"></i>
-            </button>
+<div id="memory-help" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm hidden" style="display: none;">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
+        <!-- Modal Header -->
+        <div class="bg-gradient-to-r from-purple-50 to-violet-50 px-8 py-6 border-b border-slate-200">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-purple-100 p-2 rounded-lg">
+                        <i data-lucide="memory-stick" class="w-6 h-6 text-purple-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800">記憶體快取說明</h3>
+                        <p class="text-sm text-slate-500 mt-1">了解記憶體快取的作用與管理方式</p>
+                    </div>
+                </div>
+                <button type="button" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-lg transition-all duration-200" onclick="closeModal('memory-help')">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
         </div>
-        <div class="space-y-3">
-            <p class="text-sm text-gray-600">記憶體快取將常用資料暫存在記憶體中以提升系統效能。</p>
-            <ul class="text-sm text-gray-600 space-y-1">
-                <li>• 減少資料庫查詢次數</li>
-                <li>• 提升頁面載入速度</li>
-                <li>• 定期清理可釋放記憶體空間</li>
-            </ul>
+
+        <!-- Modal Body -->
+        <div class="p-8 overflow-y-auto max-h-[calc(95vh-160px)] bg-slate-50">
+            <div class="space-y-6">
+                <div>
+                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
+                        <i data-lucide="info" class="w-4 h-4 mr-2 text-purple-600"></i>
+                        什麼是記憶體快取？
+                    </h6>
+                    <p class="text-slate-600 text-sm leading-relaxed">記憶體快取將常用資料暫存在記憶體中以提升系統效能，可大幅減少資料庫查詢次數。</p>
+                </div>
+                
+                <div>
+                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
+                        <i data-lucide="zap" class="w-4 h-4 mr-2 text-orange-600"></i>
+                        優勢特點
+                    </h6>
+                    <ul class="text-slate-600 text-sm space-y-2 leading-relaxed">
+                        <li class="flex items-start">
+                            <span class="bg-purple-100 text-purple-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">•</span>
+                            減少資料庫查詢次數
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-purple-100 text-purple-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">•</span>
+                            提升頁面載入速度
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-purple-100 text-purple-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">•</span>
+                            定期清理可釋放記憶體空間
+                        </li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
+                        <i data-lucide="lightbulb" class="w-4 h-4 mr-2 text-orange-600"></i>
+                        管理建議
+                    </h6>
+                    <div class="bg-purple-50 border border-purple-200 p-4 rounded-lg">
+                        <p class="text-sm text-purple-800">
+                            <i data-lucide="info" class="w-4 h-4 inline mr-1"></i>
+                            記憶體快取可顯著提升系統性能，但過多的快取會占用記憶體資源。建議在系統更新或記憶體不足時清理快取。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
+            <div class="flex items-center justify-end">
+                <button type="button" class="modal-close px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all duration-200">
+                    我知道了
+                </button>
+            </div>
         </div>
     </div>
 </div>
 
 <!-- 資料庫快取說明 -->
-<div id="database-help" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-    <div class="bg-white rounded-lg p-6 max-w-md mx-4">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold flex items-center gap-2">
-                <i data-lucide="database" class="h-5 w-5 text-blue-500"></i>
-                資料庫快取說明
-            </h3>
-            <button type="button" onclick="closeHelpModal('database-help')" class="text-gray-400 hover:text-gray-600">
-                <i data-lucide="x" class="h-5 w-5"></i>
-            </button>
+<div id="database-help" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm hidden" style="display: none;">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
+        <!-- Modal Header -->
+        <div class="bg-gradient-to-r from-cyan-50 to-blue-50 px-8 py-6 border-b border-slate-200">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-cyan-100 p-2 rounded-lg">
+                        <i data-lucide="database" class="w-6 h-6 text-cyan-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800">資料庫快取說明</h3>
+                        <p class="text-sm text-slate-500 mt-1">了解資料庫快取的作用與管理方式</p>
+                    </div>
+                </div>
+                <button type="button" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-lg transition-all duration-200" onclick="closeModal('database-help')">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
         </div>
-        <div class="space-y-3">
-            <p class="text-sm text-gray-600">資料庫快取儲存查詢結果和常用資料以提高資料庫效能。</p>
-            <ul class="text-sm text-gray-600 space-y-1">
-                <li>• 減少重複查詢的執行時間</li>
-                <li>• 降低資料庫負載</li>
-                <li>• 提升整體系統響應速度</li>
-            </ul>
+
+        <!-- Modal Body -->
+        <div class="p-8 overflow-y-auto max-h-[calc(95vh-160px)] bg-slate-50">
+            <div class="space-y-6">
+                <div>
+                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
+                        <i data-lucide="info" class="w-4 h-4 mr-2 text-cyan-600"></i>
+                        什麼是資料庫快取？
+                    </h6>
+                    <p class="text-slate-600 text-sm leading-relaxed">資料庫快取儲存查詢結果和常用資料以提高資料庫效能，可有效降低資料庫負載。</p>
+                </div>
+                
+                <div>
+                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
+                        <i data-lucide="trending-up" class="w-4 h-4 mr-2 text-green-600"></i>
+                        效能優勢
+                    </h6>
+                    <ul class="text-slate-600 text-sm space-y-2 leading-relaxed">
+                        <li class="flex items-start">
+                            <span class="bg-cyan-100 text-cyan-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">•</span>
+                            減少重複查詢的執行時間
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-cyan-100 text-cyan-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">•</span>
+                            降低資料庫負載
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-cyan-100 text-cyan-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">•</span>
+                            提升整體系統響應速度
+                        </li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
+                        <i data-lucide="lightbulb" class="w-4 h-4 mr-2 text-orange-600"></i>
+                        管理建議
+                    </h6>
+                    <div class="bg-cyan-50 border border-cyan-200 p-4 rounded-lg">
+                        <p class="text-sm text-cyan-800">
+                            <i data-lucide="info" class="w-4 h-4 inline mr-1"></i>
+                            資料庫快取可大幅提升查詢效能。當資料庫結構變更或資料更新時，建議清理快取以確保資料一致性。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
+            <div class="flex items-center justify-end">
+                <button type="button" class="modal-close px-6 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-all duration-200">
+                    我知道了
+                </button>
+            </div>
         </div>
     </div>
 </div>
 
 <!-- 檔案快取說明 -->
-<div id="file-help" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-    <div class="bg-white rounded-lg p-6 max-w-md mx-4">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold flex items-center gap-2">
-                <i data-lucide="file" class="h-5 w-5 text-orange-500"></i>
-                檔案快取說明
-            </h3>
-            <button type="button" onclick="closeHelpModal('file-help')" class="text-gray-400 hover:text-gray-600">
-                <i data-lucide="x" class="h-5 w-5"></i>
-            </button>
+<div id="file-help" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm hidden" style="display: none;">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
+        <!-- Modal Header -->
+        <div class="bg-gradient-to-r from-orange-50 to-amber-50 px-8 py-6 border-b border-slate-200">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-orange-100 p-2 rounded-lg">
+                        <i data-lucide="file" class="w-6 h-6 text-orange-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800">檔案快取說明</h3>
+                        <p class="text-sm text-slate-500 mt-1">了解檔案快取的作用與管理方式</p>
+                    </div>
+                </div>
+                <button type="button" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-lg transition-all duration-200" onclick="closeModal('file-help')">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
         </div>
-        <div class="space-y-3">
-            <p class="text-sm text-gray-600">檔案快取儲存靜態檔案和處理結果以減少重複計算。</p>
-            <ul class="text-sm text-gray-600 space-y-1">
-                <li>• 包含圖片、CSS、JS等靜態資源</li>
-                <li>• 減少伺服器處理負擔</li>
-                <li>• 提升用戶體驗和載入速度</li>
-            </ul>
+
+        <!-- Modal Body -->
+        <div class="p-8 overflow-y-auto max-h-[calc(95vh-160px)] bg-slate-50">
+            <div class="space-y-6">
+                <div>
+                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
+                        <i data-lucide="info" class="w-4 h-4 mr-2 text-orange-600"></i>
+                        什麼是檔案快取？
+                    </h6>
+                    <p class="text-slate-600 text-sm leading-relaxed">檔案快取儲存靜態檔案和處理結果以減少重複計算，可大幅提升用戶體驗和載入速度。</p>
+                </div>
+                
+                <div>
+                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
+                        <i data-lucide="folder" class="w-4 h-4 mr-2 text-blue-600"></i>
+                        快取內容
+                    </h6>
+                    <ul class="text-slate-600 text-sm space-y-2 leading-relaxed">
+                        <li class="flex items-start">
+                            <span class="bg-orange-100 text-orange-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">•</span>
+                            包含圖片、CSS、JS等靜態資源
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-orange-100 text-orange-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">•</span>
+                            減少伺服器處理負擔
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-orange-100 text-orange-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">•</span>
+                            提升用戶體驗和載入速度
+                        </li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
+                        <i data-lucide="lightbulb" class="w-4 h-4 mr-2 text-orange-600"></i>
+                        管理建議
+                    </h6>
+                    <div class="bg-orange-50 border border-orange-200 p-4 rounded-lg">
+                        <p class="text-sm text-orange-800">
+                            <i data-lucide="info" class="w-4 h-4 inline mr-1"></i>
+                            檔案快取可減少伺服器負載並加快載入速度。當更新靜態資源或磁碟空間不足時，建議清理快取。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
+            <div class="flex items-center justify-end">
+                <button type="button" class="modal-close px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-all duration-200">
+                    我知道了
+                </button>
+            </div>
         </div>
     </div>
 </div>
 
 <!-- 人員管理說明 -->
-<div id="user-form-help" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden mx-4">
-        <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4 text-white">
+<div id="user-form-help" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm hidden" style="display: none;">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
+        <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6 border-b border-slate-200">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-3">
-                    <i data-lucide="help-circle" class="w-6 h-6"></i>
-                    <h3 class="text-lg font-bold">人員管理操作說明</h3>
+                    <div class="bg-blue-500 p-2 rounded-lg">
+                        <i data-lucide="help-circle" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-white">人員管理操作說明</h3>
+                        <p class="text-sm text-blue-100 mt-1">了解如何管理系統使用者</p>
+                    </div>
                 </div>
-                <button onclick="closeHelpModal('user-form-help')" class="text-white hover:text-blue-200 transition-colors">
+                <button type="button" class="text-white hover:text-blue-200 hover:bg-white hover:bg-opacity-10 p-2 rounded-lg transition-all duration-200" onclick="closeModal('user-form-help')">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
         </div>
-        <div class="p-6 overflow-y-auto max-h-[calc(80vh-120px)]">
+        <div class="p-8 overflow-y-auto max-h-[calc(95vh-160px)] bg-slate-50">
             <div class="space-y-6">
                 <div>
                     <h4 class="font-semibold text-slate-800 mb-3 flex items-center">
@@ -210,24 +551,38 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Modal Footer -->
+        <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
+            <div class="flex items-center justify-end">
+                <button type="button" class="modal-close px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200">
+                    我知道了
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 
 <!-- 角色管理說明 -->
-<div id="role-form-help" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden mx-4">
-        <div class="bg-gradient-to-r from-green-600 to-green-700 px-6 py-4 text-white">
+<div id="role-form-help" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm hidden" style="display: none;">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
+        <div class="bg-gradient-to-r from-green-600 to-green-700 px-8 py-6 border-b border-slate-200">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-3">
-                    <i data-lucide="help-circle" class="w-6 h-6"></i>
-                    <h3 class="text-lg font-bold">角色管理操作說明</h3>
+                    <div class="bg-green-500 p-2 rounded-lg">
+                        <i data-lucide="help-circle" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-white">角色管理操作說明</h3>
+                        <p class="text-sm text-green-100 mt-1">了解如何管理系統角色</p>
+                    </div>
                 </div>
-                <button onclick="closeHelpModal('role-form-help')" class="text-white hover:text-green-200 transition-colors">
+                <button type="button" class="text-white hover:text-green-200 hover:bg-white hover:bg-opacity-10 p-2 rounded-lg transition-all duration-200" onclick="closeModal('role-form-help')">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
         </div>
-        <div class="p-6 overflow-y-auto max-h-[calc(80vh-120px)]">
+        <div class="p-8 overflow-y-auto max-h-[calc(95vh-160px)] bg-slate-50">
             <div class="space-y-6">
                 <div>
                     <h4 class="font-semibold text-slate-800 mb-3 flex items-center">
@@ -267,24 +622,38 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Modal Footer -->
+        <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
+            <div class="flex items-center justify-end">
+                <button type="button" class="modal-close px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200">
+                    我知道了
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 
 <!-- 組織管理說明 -->
-<div id="organization-form-help" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden mx-4">
-        <div class="bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-4 text-white">
+<div id="organization-form-help" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm hidden" style="display: none;">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
+        <div class="bg-gradient-to-r from-purple-600 to-purple-700 px-8 py-6 border-b border-slate-200">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-3">
-                    <i data-lucide="help-circle" class="w-6 h-6"></i>
-                    <h3 class="text-lg font-bold">組織管理操作說明</h3>
+                    <div class="bg-purple-500 p-2 rounded-lg">
+                        <i data-lucide="help-circle" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-white">組織管理操作說明</h3>
+                        <p class="text-sm text-purple-100 mt-1">了解如何管理組織架構</p>
+                    </div>
                 </div>
-                <button onclick="closeHelpModal('organization-form-help')" class="text-white hover:text-purple-200 transition-colors">
+                <button type="button" class="text-white hover:text-purple-200 hover:bg-white hover:bg-opacity-10 p-2 rounded-lg transition-all duration-200" onclick="closeModal('organization-form-help')">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
         </div>
-        <div class="p-6 overflow-y-auto max-h-[calc(80vh-120px)]">
+        <div class="p-8 overflow-y-auto max-h-[calc(95vh-160px)] bg-slate-50">
             <div class="space-y-6">
                 <div>
                     <h4 class="font-semibold text-slate-800 mb-3 flex items-center">
@@ -336,45 +705,14 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Modal Footer -->
+        <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
+            <div class="flex items-center justify-end">
+                <button type="button" class="modal-close px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all duration-200">
+                    我知道了
+                </button>
+            </div>
+        </div>
     </div>
 </div>
-
-<script>
-function showHelpModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden'; // 防止背景滾動
-    }
-}
-
-function closeHelpModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.classList.add('hidden');
-        document.body.style.overflow = 'auto'; // 恢復背景滾動
-    }
-}
-
-// 點擊背景關閉彈出視窗
-document.addEventListener('click', function(e) {
-    if (e.target.classList.contains('bg-black')) {
-        const modal = e.target.closest('.fixed');
-        if (modal) {
-            modal.classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        }
-    }
-});
-
-// ESC 鍵關閉彈出視窗
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        const visibleModal = document.querySelector('.fixed:not(.hidden)');
-        if (visibleModal) {
-            visibleModal.classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        }
-    }
-});
-</script>

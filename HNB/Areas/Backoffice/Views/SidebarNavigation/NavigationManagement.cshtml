@@ -19,6 +19,12 @@
 <div class="space-y-4 lg:space-y-6">
     <!-- 頂部操作欄 -->
     <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 lg:p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-slate-900">操作面板</h3>
+            <button type="button" onclick="event.stopPropagation(); showModal('navigation-help')" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-lg transition-all duration-200" title="操作說明">
+                <i data-lucide="help-circle" class="w-5 h-5"></i>
+            </button>
+        </div>
         <div class="flex flex-col gap-3 lg:gap-4">
             <!-- 搜尋區 -->
             <div class="w-full">

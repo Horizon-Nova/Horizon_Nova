@@ -411,5 +411,117 @@
     </div>
 </div>
 
+<!-- 目錄管理說明視窗 -->
+<div id="navigation-help" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center hidden" style="display: none;">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
+        <!-- Modal Header -->
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-8 py-6 border-b border-slate-200">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-blue-100 p-2 rounded-lg">
+                        <i data-lucide="folder-tree" class="w-6 h-6 text-blue-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800">目錄管理操作說明</h3>
+                        <p class="text-sm text-slate-500 mt-1">了解如何管理系統導航選單結構</p>
+                    </div>
+                </div>
+                <button type="button" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-lg transition-all duration-200" onclick="closeModal('navigation-help')">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="p-8 overflow-y-auto max-h-[calc(95vh-160px)] bg-slate-50">
+            <div class="space-y-6">
+                <div>
+                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
+                        <i data-lucide="info" class="w-4 h-4 mr-2 text-blue-600"></i>
+                        什麼是目錄管理？
+                    </h6>
+                    <p class="text-slate-600 text-sm leading-relaxed">目錄管理讓您設定系統側邊欄導航選單的結構、權限和順序，控制使用者能看到哪些功能選項。</p>
+                </div>
+                
+                <div>
+                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
+                        <i data-lucide="layers" class="w-4 h-4 mr-2 text-green-600"></i>
+                        基本操作
+                    </h6>
+                    <ul class="text-slate-600 text-sm space-y-2 leading-relaxed">
+                        <li class="flex items-start">
+                            <span class="bg-blue-100 text-blue-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">•</span>
+                            <div><strong>新增目錄：</strong>點擊「新增目錄」按鈕建立新的選單項目</div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-blue-100 text-blue-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">•</span>
+                            <div><strong>編輯目錄：</strong>點擊編輯按鈕修改名稱、圖示、路徑等屬性</div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-blue-100 text-blue-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">•</span>
+                            <div><strong>層級結構：</strong>可建立最多三層的目錄結構</div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-blue-100 text-blue-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">•</span>
+                            <div><strong>排序調整：</strong>設定排序值控制顯示順序</div>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
+                        <i data-lucide="settings" class="w-4 h-4 mr-2 text-purple-600"></i>
+                        重要欄位說明
+                    </h6>
+                    <div class="space-y-2 text-sm text-slate-600">
+                        <div class="flex items-start">
+                            <span class="font-semibold mr-2 min-w-[80px]">目錄代碼：</span>
+                            <span>唯一識別碼，不可重複</span>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="font-semibold mr-2 min-w-[80px]">顯示名稱：</span>
+                            <span>在選單中顯示的文字</span>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="font-semibold mr-2 min-w-[80px]">URL路徑：</span>
+                            <span>點擊後跳轉的頁面路徑或外部連結</span>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="font-semibold mr-2 min-w-[80px]">圖示：</span>
+                            <span>使用Lucide圖示名稱</span>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="font-semibold mr-2 min-w-[80px]">父目錄：</span>
+                            <span>選擇父層目錄建立子選單</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
+                        <i data-lucide="shield" class="w-4 h-4 mr-2 text-orange-600"></i>
+                        權限控制
+                    </h6>
+                    <div class="bg-amber-50 border border-amber-200 p-4 rounded-lg">
+                        <p class="text-sm text-amber-800">
+                            <i data-lucide="info" class="w-4 h-4 inline mr-1"></i>
+                            目錄的顯示會根據使用者的角色權限自動過濾，確保使用者只能看到有權限存取的功能選單。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
+            <div class="flex items-center justify-end">
+                <button type="button" class="modal-close px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200">
+                    我知道了
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="/Backoffice/js/NavigationManagement.js"></script>
 

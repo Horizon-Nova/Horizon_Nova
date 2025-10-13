@@ -1,0 +1,83 @@
+<!-- 個人資料說明視窗 -->
+<div id="profile-help" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center hidden" style="display: none;">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
+        <!-- Modal Header -->
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-8 py-6 border-b border-slate-200">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-blue-100 p-2 rounded-lg">
+                        <i data-lucide="user" class="w-6 h-6 text-blue-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800">個人資料管理說明</h3>
+                        <p class="text-sm text-slate-500 mt-1">了解如何管理您的個人資料和帳號設定</p>
+                    </div>
+                </div>
+                <button type="button" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-lg transition-all duration-200" onclick="closeModal('profile-help')">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="p-8 overflow-y-auto max-h-[calc(95vh-160px)] bg-slate-50">
+            <div class="space-y-6">
+                <div>
+                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
+                        <i data-lucide="info" class="w-4 h-4 mr-2 text-blue-600"></i>
+                        什麼是個人資料？
+                    </h6>
+                    <p class="text-slate-600 text-sm leading-relaxed">個人資料頁面讓您管理自己的帳號資訊、安全設定和系統偏好，確保帳號安全和個人化體驗。</p>
+                </div>
+                
+                <div>
+                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
+                        <i data-lucide="user-cog" class="w-4 h-4 mr-2 text-green-600"></i>
+                        功能說明
+                    </h6>
+                    <ul class="text-slate-600 text-sm space-y-2 leading-relaxed">
+                        <li class="flex items-start">
+                            <span class="bg-blue-100 text-blue-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">•</span>
+                            <div><strong>基本資料：</strong>編輯姓名、電子郵件、電話等個人資訊</div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-blue-100 text-blue-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">•</span>
+                            <div><strong>帳號安全：</strong>修改密碼，啟用兩步驟驗證</div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-blue-100 text-blue-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">•</span>
+                            <div><strong>通知設定：</strong>設定接收通知的方式和頻率</div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-blue-100 text-blue-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">•</span>
+                            <div><strong>活動記錄：</strong>查看最近的登入和操作記錄</div>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
+                        <i data-lucide="shield-check" class="w-4 h-4 mr-2 text-purple-600"></i>
+                        安全建議
+                    </h6>
+                    <div class="bg-amber-50 border border-amber-200 p-4 rounded-lg">
+                        <p class="text-sm text-amber-800">
+                            <i data-lucide="alert-triangle" class="w-4 h-4 inline mr-1"></i>
+                            建議定期更新密碼，啟用兩步驟驗證以提高帳號安全性。如發現異常登入記錄，請立即聯繫管理員。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
+            <div class="flex items-center justify-end">
+                <button type="button" class="modal-close px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200">
+                    我知道了
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+

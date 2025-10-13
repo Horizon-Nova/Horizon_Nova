@@ -68,7 +68,7 @@
                      <div class="flex-1 w-full lg:w-auto">
                          <div class="flex items-center gap-2 mb-1">
                              <p class="text-sm lg:text-base font-medium">錯誤日誌</p>
-                             <button type="button" id="error-help-btn" class="text-gray-400 hover:text-gray-600" onclick="showHelpModal('error-help')">
+                             <button type="button" id="error-help-btn" class="text-gray-400 hover:text-gray-600" onclick="event.stopPropagation(); showModal('error-help')">
                                  <i data-lucide="help-circle" class="h-3 w-3 lg:h-4 lg:w-4"></i>
                              </button>
                          </div>
@@ -87,7 +87,7 @@
                      <div class="flex-1">
                          <div class="flex items-center gap-2 mb-1">
                              <p class="font-medium">系統日誌</p>
-                             <button type="button" id="system-help-btn" class="text-gray-400 hover:text-gray-600" onclick="showHelpModal('system-help')">
+                             <button type="button" id="system-help-btn" class="text-gray-400 hover:text-gray-600" onclick="event.stopPropagation(); showModal('system-help')">
                                  <i data-lucide="help-circle" class="h-4 w-4"></i>
                              </button>
                          </div>
@@ -106,7 +106,7 @@
                      <div class="flex-1">
                          <div class="flex items-center gap-2 mb-1">
                              <p class="font-medium">存取日誌</p>
-                             <button type="button" id="access-help-btn" class="text-gray-400 hover:text-gray-600" onclick="showHelpModal('access-help')">
+                             <button type="button" id="access-help-btn" class="text-gray-400 hover:text-gray-600" onclick="event.stopPropagation(); showModal('access-help')">
                                  <i data-lucide="help-circle" class="h-4 w-4"></i>
                              </button>
                          </div>
@@ -140,7 +140,7 @@
                      <div class="flex-1">
                          <div class="flex items-center gap-2 mb-1">
                              <p class="font-medium">記憶體快取</p>
-                             <button type="button" id="memory-help-btn" class="text-gray-400 hover:text-gray-600" onclick="showHelpModal('memory-help')">
+                             <button type="button" id="memory-help-btn" class="text-gray-400 hover:text-gray-600" onclick="event.stopPropagation(); showModal('memory-help')">
                                  <i data-lucide="help-circle" class="h-4 w-4"></i>
                              </button>
                          </div>
@@ -159,7 +159,7 @@
                      <div class="flex-1">
                          <div class="flex items-center gap-2 mb-1">
                              <p class="font-medium">資料庫快取</p>
-                             <button type="button" id="database-help-btn" class="text-gray-400 hover:text-gray-600" onclick="showHelpModal('database-help')">
+                             <button type="button" id="database-help-btn" class="text-gray-400 hover:text-gray-600" onclick="event.stopPropagation(); showModal('database-help')">
                                  <i data-lucide="help-circle" class="h-4 w-4"></i>
                              </button>
                          </div>
@@ -178,7 +178,7 @@
                      <div class="flex-1">
                          <div class="flex items-center gap-2 mb-1">
                              <p class="font-medium">檔案快取</p>
-                             <button type="button" id="file-help-btn" class="text-gray-400 hover:text-gray-600" onclick="showHelpModal('file-help')">
+                             <button type="button" id="file-help-btn" class="text-gray-400 hover:text-gray-600" onclick="event.stopPropagation(); showModal('file-help')">
                                  <i data-lucide="help-circle" class="h-4 w-4"></i>
                              </button>
                          </div>

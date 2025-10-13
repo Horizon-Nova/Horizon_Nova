@@ -14,8 +14,6 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeDragAndDrop();
     
     initializeFileInput();
-    
-    console.log('檔案總管已載入，當前路徑：', currentPath);
 });
 
 // ========== 拖曳上傳初始化 ==========
