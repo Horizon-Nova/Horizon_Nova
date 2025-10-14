@@ -133,27 +133,7 @@ function toggleTreeNode(event, element) {
 }
 
 // ========== Modal 操作 ==========
-
-function showModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-        
-        const input = modal.querySelector('input[type="text"]');
-        if (input) {
-            setTimeout(() => input.focus(), 100);
-        }
-    }
-}
-
-function hideModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-    }
-}
+// 使用統一的 Modal.js 中的 showModal() 和 closeModal() 函數
 
 // ========== 新增資料夾 ==========
 
@@ -180,7 +160,7 @@ async function createFolder() {
         const result = await response.json();
         
         if (result.success) {
-            hideModal('createFolderModal');
+            closeModal('createFolderModal');
             location.reload();
         } else {
             alert(result.message);
@@ -215,7 +195,7 @@ async function createFile() {
         const result = await response.json();
         
         if (result.success) {
-            hideModal('createFileModal');
+            closeModal('createFileModal');
             location.reload();
         } else {
             alert(result.message);
@@ -253,7 +233,7 @@ async function confirmRename() {
     }
     
     if (newName === renameTarget.name) {
-        hideModal('renameModal');
+        closeModal('renameModal');
         return;
     }
     
@@ -272,7 +252,7 @@ async function confirmRename() {
         const result = await response.json();
         
         if (result.success) {
-            hideModal('renameModal');
+            closeModal('renameModal');
             location.reload();
         } else {
             alert(result.message);
@@ -348,7 +328,7 @@ async function confirmDelete() {
         console.log('[刪除結果]', result);
         
         if (result.success) {
-            hideModal('deleteModal');
+            closeModal('deleteModal');
             location.reload();
         } else {
             alert(result.message);
@@ -802,10 +782,10 @@ function closeFileEditor() {
 document.addEventListener('keydown', function(e) {
     // ESC 鍵關閉所有 Modal
     if (e.key === 'Escape') {
-        hideModal('createFolderModal');
-        hideModal('createFileModal');
-        hideModal('renameModal');
-        hideModal('deleteModal');
+        closeModal('createFolderModal');
+        closeModal('createFileModal');
+        closeModal('renameModal');
+        closeModal('deleteModal');
         
         // 關閉檔案編輯器
         const editorModal = document.getElementById('fileEditorModal');
