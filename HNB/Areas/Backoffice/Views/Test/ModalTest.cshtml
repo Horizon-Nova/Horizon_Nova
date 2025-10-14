@@ -1,0 +1,497 @@
+@{
+    ViewData["Title"] = "Modal 測試頁面";
+    ViewData["PageTitle"] = "Modal 功能測試";
+    ViewData["PageDescription"] = "測試所有彈出視窗的穩定性和功能";
+    ViewData["PageIcon"] = "test-tube-2";
+    Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
+}
+
+<div class="space-y-6">
+    <!-- 測試控制面板 -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold">Modal 功能測試</h2>
+            <div class="flex gap-2">
+                <a href="@Url.Action("Index", "Test", new { area = "Backoffice" })" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300">
+                    <i data-lucide="arrow-left" class="w-4 h-4 inline mr-2"></i>返回測試中心
+                </a>
+                <button type="button" onclick="resetTest()" class="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700">
+                    <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i>重置測試
+                </button>
+            </div>
+        </div>
+        
+        <!-- 測試說明 -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div class="flex items-start gap-3">
+                <i data-lucide="info" class="w-5 h-5 text-blue-600 mt-0.5"></i>
+                <div class="text-sm text-blue-800">
+                    <p class="font-semibold mb-1">測試說明：</p>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li>點擊每個按鈕測試 Modal 是否正常開啟</li>
+                        <li>測試關閉後能否再次開啟（測試穩定性）</li>
+                        <li>測試不同關閉方式：X 按鈕、取消按鈕、ESC 鍵</li>
+                        <li>記錄每個 Modal 的開啟次數</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 測試按鈕網格 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- 1. 編輯/新增 Modal (藍色) -->
+            <div class="border border-slate-200 rounded-lg p-4">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-3 h-3 rounded-full bg-blue-600"></div>
+                    <h3 class="font-semibold">編輯/新增 Modal</h3>
+                </div>
+                <button type="button" onclick="testModal('test-edit-modal', 1)" class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 mb-2">
+                    <i data-lucide="edit" class="w-4 h-4 inline mr-2"></i>測試編輯 Modal
+                </button>
+                <p class="text-xs text-slate-500">開啟次數：<span id="count-1">0</span></p>
+            </div>
+
+            <!-- 2. 詳情查看 Modal (靛藍色) -->
+            <div class="border border-slate-200 rounded-lg p-4">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-3 h-3 rounded-full bg-indigo-600"></div>
+                    <h3 class="font-semibold">詳情查看 Modal</h3>
+                </div>
+                <button type="button" onclick="testModal('test-detail-modal', 2)" class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 mb-2">
+                    <i data-lucide="eye" class="w-4 h-4 inline mr-2"></i>測試詳情 Modal
+                </button>
+                <p class="text-xs text-slate-500">開啟次數：<span id="count-2">0</span></p>
+            </div>
+
+            <!-- 3. 選擇器 Modal (紫色) -->
+            <div class="border border-slate-200 rounded-lg p-4">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-3 h-3 rounded-full bg-purple-600"></div>
+                    <h3 class="font-semibold">選擇器 Modal</h3>
+                </div>
+                <button type="button" onclick="testModal('test-picker-modal', 3)" class="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 mb-2">
+                    <i data-lucide="list" class="w-4 h-4 inline mr-2"></i>測試選擇器 Modal
+                </button>
+                <p class="text-xs text-slate-500">開啟次數：<span id="count-3">0</span></p>
+            </div>
+
+            <!-- 4. 刪除確認 Modal (紅色) -->
+            <div class="border border-slate-200 rounded-lg p-4">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-3 h-3 rounded-full bg-red-600"></div>
+                    <h3 class="font-semibold">刪除確認 Modal</h3>
+                </div>
+                <button type="button" onclick="testModal('test-delete-modal', 4)" class="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 mb-2">
+                    <i data-lucide="trash-2" class="w-4 h-4 inline mr-2"></i>測試刪除 Modal
+                </button>
+                <p class="text-xs text-slate-500">開啟次數：<span id="count-4">0</span></p>
+            </div>
+
+            <!-- 5. 說明/幫助 Modal (淡色) -->
+            <div class="border border-slate-200 rounded-lg p-4">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-3 h-3 rounded-full bg-slate-400"></div>
+                    <h3 class="font-semibold">說明/幫助 Modal</h3>
+                </div>
+                <button type="button" onclick="testModal('test-help-modal', 5)" class="w-full px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 mb-2">
+                    <i data-lucide="help-circle" class="w-4 h-4 inline mr-2"></i>測試幫助 Modal
+                </button>
+                <p class="text-xs text-slate-500">開啟次數：<span id="count-5">0</span></p>
+            </div>
+
+            <!-- 6. 連續開啟測試 -->
+            <div class="border border-orange-200 rounded-lg p-4 bg-orange-50">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-3 h-3 rounded-full bg-orange-600"></div>
+                    <h3 class="font-semibold text-orange-900">連續開啟測試</h3>
+                </div>
+                <button type="button" onclick="testMultiple()" class="w-full px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 mb-2">
+                    <i data-lucide="layers" class="w-4 h-4 inline mr-2"></i>連續開啟所有 Modal
+                </button>
+                <p class="text-xs text-orange-700">測試穩定性</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 測試日誌 -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold">測試日誌</h2>
+            <button type="button" onclick="clearLog()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300">
+                <i data-lucide="trash-2" class="w-4 h-4 inline mr-2"></i>清除日誌
+            </button>
+        </div>
+        <div id="testLog" class="bg-slate-50 rounded-lg p-4 font-mono text-xs space-y-1 max-h-96 overflow-y-auto">
+            <p class="text-slate-500">等待測試...</p>
+        </div>
+    </div>
+</div>
+
+<!-- ===== Modal 定義 ===== -->
+
+<!-- 1. 編輯/新增 Modal (藍色) - 使用真實樣式 -->
+<div id="test-edit-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[95vh] lg:max-h-[90vh] overflow-hidden transform transition-all duration-300 ease-out">
+        <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-4 lg:px-6 py-3 lg:py-4 text-white">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2 lg:gap-3 min-w-0 flex-1">
+                    <div class="p-1.5 lg:p-2 bg-white bg-opacity-20 rounded-lg flex-shrink-0">
+                        <i data-lucide="edit" class="w-4 h-4 lg:w-5 lg:h-5"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <h3 class="text-base lg:text-lg font-bold truncate">編輯/新增 Modal 測試</h3>
+                        <p class="text-blue-100 text-xs lg:text-sm hidden lg:block">真實的編輯表單樣式</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeModal('test-edit-modal')" class="text-white hover:text-blue-200 transition-colors flex-shrink-0">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+        <div class="p-4 lg:p-6 overflow-y-auto max-h-[calc(95vh-180px)] lg:max-h-[calc(90vh-180px)]">
+            <div class="bg-slate-50 rounded-lg lg:rounded-xl p-4 lg:p-6">
+                <h4 class="text-sm lg:text-base font-semibold text-slate-800 mb-3 lg:mb-4 flex items-center gap-2">
+                    <i data-lucide="info" class="w-4 h-4 text-blue-600"></i>
+                    測試表單
+                </h4>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-4">
+                    <div>
+                        <label class="block text-xs lg:text-sm font-semibold text-slate-700 mb-1.5 lg:mb-2">
+                            測試欄位 1 <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" placeholder="請輸入內容"
+                               class="w-full px-3 lg:px-4 py-2 lg:py-3 text-sm lg:text-base border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs lg:text-sm font-semibold text-slate-700 mb-1.5 lg:mb-2">測試欄位 2</label>
+                        <input type="text" placeholder="請輸入內容"
+                               class="w-full px-3 lg:px-4 py-2 lg:py-3 text-sm lg:text-base border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="flex justify-end gap-2 lg:gap-3 px-4 lg:px-6 py-3 lg:py-4 border-t bg-slate-50">
+            <button type="button" onclick="closeModal('test-edit-modal')" class="px-4 lg:px-6 py-2 lg:py-3 text-sm lg:text-base bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition-colors font-medium">
+                取消
+            </button>
+            <button type="button" onclick="closeModal('test-edit-modal')" class="px-4 lg:px-6 py-2 lg:py-3 text-sm lg:text-base bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                <i data-lucide="save" class="w-4 h-4 inline mr-1 lg:mr-2"></i>儲存
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 2. 詳情查看 Modal (靛藍色) - 使用真實樣式 -->
+<div id="test-detail-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden transform transition-all duration-300 ease-out">
+        <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 px-6 py-4 text-white">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="p-2 bg-white bg-opacity-20 rounded-lg">
+                        <i data-lucide="eye" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold">詳情查看測試</h3>
+                        <p class="text-indigo-100 text-sm">真實的詳情展示樣式</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeModal('test-detail-modal')" class="text-white hover:text-indigo-200 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+        <div class="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+            <div class="space-y-6">
+                <div class="bg-slate-50 rounded-xl p-6">
+                    <h4 class="text-md font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                        <i data-lucide="info" class="w-4 h-4 text-blue-600"></i>基本資訊
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600 mb-1">項目名稱</label>
+                            <p class="text-slate-900 font-semibold">測試項目</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600 mb-1">項目代碼</label>
+                            <p class="text-slate-900 font-mono">TEST-001</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600 mb-1">狀態</label>
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">啟用</span>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600 mb-1">建立時間</label>
+                            <p class="text-slate-900">2024/01/01 12:00</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="flex justify-end gap-3 px-6 py-4 border-t bg-slate-50">
+            <button type="button" onclick="closeModal('test-detail-modal')" class="px-4 py-2 bg-slate-300 text-slate-700 rounded-md hover:bg-slate-400">
+                關閉
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 3. 選擇器 Modal (紫色) - 使用真實樣式 -->
+<div id="test-picker-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden transform transition-all duration-300 ease-out">
+        <div class="bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-4 text-white">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="p-2 bg-white bg-opacity-20 rounded-lg">
+                        <i data-lucide="sparkles" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold">圖標選擇器測試</h3>
+                        <p class="text-purple-100 text-sm">真實的選擇器樣式</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeModal('test-picker-modal')" class="text-white hover:text-purple-200 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+        <div class="p-4 border-b border-slate-200 bg-slate-50">
+            <div class="relative">
+                <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                <input type="text" placeholder="搜尋圖標..." 
+                       class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+            </div>
+        </div>
+        <div class="p-6 overflow-y-auto" style="max-height: calc(90vh - 240px);">
+            <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-2">
+                <button class="aspect-square p-3 border border-slate-200 rounded-lg hover:bg-purple-50 hover:border-purple-300 transition-all">
+                    <i data-lucide="home" class="w-full h-full text-slate-600"></i>
+                </button>
+                <button class="aspect-square p-3 border border-slate-200 rounded-lg hover:bg-purple-50 hover:border-purple-300 transition-all">
+                    <i data-lucide="user" class="w-full h-full text-slate-600"></i>
+                </button>
+                <button class="aspect-square p-3 border border-slate-200 rounded-lg hover:bg-purple-50 hover:border-purple-300 transition-all">
+                    <i data-lucide="settings" class="w-full h-full text-slate-600"></i>
+                </button>
+                <button class="aspect-square p-3 border border-slate-200 rounded-lg hover:bg-purple-50 hover:border-purple-300 transition-all">
+                    <i data-lucide="folder" class="w-full h-full text-slate-600"></i>
+                </button>
+                <button class="aspect-square p-3 border border-slate-200 rounded-lg hover:bg-purple-50 hover:border-purple-300 transition-all">
+                    <i data-lucide="file" class="w-full h-full text-slate-600"></i>
+                </button>
+                <button class="aspect-square p-3 border border-slate-200 rounded-lg hover:bg-purple-50 hover:border-purple-300 transition-all">
+                    <i data-lucide="star" class="w-full h-full text-slate-600"></i>
+                </button>
+                <button class="aspect-square p-3 border border-slate-200 rounded-lg hover:bg-purple-50 hover:border-purple-300 transition-all">
+                    <i data-lucide="heart" class="w-full h-full text-slate-600"></i>
+                </button>
+                <button class="aspect-square p-3 border border-slate-200 rounded-lg hover:bg-purple-50 hover:border-purple-300 transition-all">
+                    <i data-lucide="mail" class="w-full h-full text-slate-600"></i>
+                </button>
+            </div>
+        </div>
+        <div class="px-6 py-4 border-t bg-slate-50 text-center text-xs text-slate-500">
+            <p>測試用圖標選擇器</p>
+        </div>
+    </div>
+</div>
+
+<!-- 4. 刪除確認 Modal (紅色) - 使用真實樣式 -->
+<div id="test-delete-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full transform transition-all duration-300 ease-out">
+        <div class="bg-gradient-to-r from-red-600 to-red-700 px-6 py-4 text-white">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="p-2 bg-white bg-opacity-20 rounded-lg">
+                        <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold">刪除確認</h3>
+                        <p class="text-red-100 text-sm">此操作無法復原</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeModal('test-delete-modal')" class="text-white hover:text-red-200 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+        <div class="p-6">
+            <div class="mb-6">
+                <p class="text-slate-700 mb-4">您確定要刪除以下目錄嗎？</p>
+                <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <div class="flex items-start gap-3">
+                        <i data-lucide="folder" class="w-5 h-5 text-red-600 mt-0.5"></i>
+                        <div class="flex-1">
+                            <p class="font-semibold text-slate-900">測試項目</p>
+                            <p class="text-sm text-slate-600 mt-1">代碼: <code class="bg-white px-1 rounded">test-item-001</code></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+                <div class="flex items-start gap-2">
+                    <i data-lucide="alert-circle" class="w-4 h-4 text-yellow-600 mt-0.5"></i>
+                    <p class="text-xs text-yellow-800">
+                        <strong>警告：</strong>刪除此目錄將同時移除所有子目錄及相關權限設定。
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="flex justify-end gap-3 px-6 py-4 border-t bg-slate-50">
+            <button type="button" onclick="closeModal('test-delete-modal')" 
+                    class="px-6 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition-colors">
+                取消
+            </button>
+            <button type="button" onclick="closeModal('test-delete-modal')" 
+                    class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                <i data-lucide="trash-2" class="w-4 h-4 inline mr-2"></i>確認刪除
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 5. 說明/幫助 Modal (淡色) - 使用真實樣式 -->
+<div id="test-help-modal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center hidden" style="display: none;">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-8 py-6 border-b border-slate-200">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-blue-100 p-2 rounded-lg">
+                        <i data-lucide="help-circle" class="w-6 h-6 text-blue-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800">操作說明測試</h3>
+                        <p class="text-sm text-slate-500 mt-1">真實的說明視窗樣式</p>
+                    </div>
+                </div>
+                <button type="button" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-lg transition-all duration-200" onclick="closeModal('test-help-modal')">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+        <div class="p-8 overflow-y-auto max-h-[calc(95vh-160px)] bg-slate-50">
+            <div class="space-y-6">
+                <div>
+                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
+                        <i data-lucide="info" class="w-4 h-4 mr-2 text-blue-600"></i>
+                        什麼是測試功能？
+                    </h6>
+                    <p class="text-slate-600 text-sm leading-relaxed">測試頁面讓您驗證系統各項功能的穩定性，確保系統正常運作。</p>
+                </div>
+                <div>
+                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
+                        <i data-lucide="layers" class="w-4 h-4 mr-2 text-green-600"></i>
+                        基本操作
+                    </h6>
+                    <ul class="text-slate-600 text-sm space-y-2 leading-relaxed">
+                        <li class="flex items-start">
+                            <span class="bg-blue-100 text-blue-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">•</span>
+                            <div><strong>開啟測試：</strong>點擊測試按鈕啟動測試項目</div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-blue-100 text-blue-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">•</span>
+                            <div><strong>查看日誌：</strong>觀察測試日誌了解執行狀況</div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-blue-100 text-blue-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">•</span>
+                            <div><strong>重置測試：</strong>清除測試記錄重新開始</div>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
+                        <i data-lucide="shield" class="w-4 h-4 mr-2 text-orange-600"></i>
+                        注意事項
+                    </h6>
+                    <div class="bg-amber-50 border border-amber-200 p-4 rounded-lg">
+                        <p class="text-sm text-amber-800">
+                            <i data-lucide="info" class="w-4 h-4 inline mr-1"></i>
+                            測試功能僅供開發人員使用，請勿在正式環境執行測試。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
+            <div class="flex items-center justify-end">
+                <button type="button" class="modal-close px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200" onclick="closeModal('test-help-modal')">
+                    我知道了
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // 計數器
+        const counters = {
+            1: 0, 2: 0, 3: 0, 4: 0, 5: 0
+        };
+        
+        // 測試 Modal
+        function testModal(modalId, counterId) {
+            try {
+                showModal(modalId);
+                counters[counterId]++;
+                document.getElementById(`count-${counterId}`).textContent = counters[counterId];
+                addLog(`✅ 成功開啟 ${modalId} (第 ${counters[counterId]} 次)`, 'success');
+            } catch (error) {
+                addLog(`❌ 開啟 ${modalId} 失敗: ${error.message}`, 'error');
+            }
+        }
+        
+        // 連續測試
+        async function testMultiple() {
+            addLog('🔄 開始連續測試...', 'info');
+            for (let i = 1; i <= 5; i++) {
+                const modalId = ['test-edit-modal', 'test-detail-modal', 'test-picker-modal', 'test-delete-modal', 'test-help-modal'][i-1];
+                testModal(modalId, i);
+                await new Promise(resolve => setTimeout(resolve, 500));
+                closeModal(modalId);
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+            addLog('✅ 連續測試完成', 'success');
+        }
+        
+        // 重置測試
+        function resetTest() {
+            for (let i = 1; i <= 5; i++) {
+                counters[i] = 0;
+                document.getElementById(`count-${i}`).textContent = '0';
+            }
+            clearLog();
+            addLog('🔄 測試已重置', 'info');
+        }
+        
+        // 日誌
+        function addLog(message, type = 'info') {
+            const logContainer = document.getElementById('testLog');
+            const timestamp = new Date().toLocaleTimeString('zh-TW', { hour12: false });
+            const colors = {
+                success: 'text-green-600',
+                error: 'text-red-600',
+                info: 'text-blue-600'
+            };
+            
+            if (logContainer.children.length === 1 && logContainer.children[0].textContent === '等待測試...') {
+                logContainer.innerHTML = '';
+            }
+            
+            const logEntry = document.createElement('p');
+            logEntry.className = colors[type];
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        
+        function clearLog() {
+            document.getElementById('testLog').innerHTML = '<p class="text-slate-500">等待測試...</p>';
+        }
+        
+        // 初始化
+        $(document).ready(function() {
+            lucide.createIcons();
+            addLog('📋 Modal 測試系統已就緒', 'success');
+        });
+    </script>
+}
