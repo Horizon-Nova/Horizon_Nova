@@ -14,7 +14,7 @@
                         <p class="text-sm text-slate-500 mt-1">查看資料表的完整結構資訊</p>
                     </div>
                 </div>
-                <button type="button" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-lg transition-all duration-200" onclick="$(this).closest('#tableDetailsModal').hide()">
+                <button type="button" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-lg transition-all duration-200" onclick="closeModal('tableDetailsModal')">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
@@ -202,7 +202,7 @@
                     </span>
                 </div>
                 <div class="flex space-x-3">
-                    <button type="button" class="px-4 py-2 text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-all duration-200" onclick="$(this).closest('#tableDetailsModal').hide()">
+                    <button type="button" class="px-4 py-2 text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-all duration-200" onclick="closeModal('tableDetailsModal')">
                         關閉
                     </button>
                 </div>

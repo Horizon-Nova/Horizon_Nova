@@ -12,16 +12,12 @@ function showModal(modalId) {
         return;
     }
     
-    // 移除 hidden 類別
     modal.classList.remove('hidden');
+    // 清除內聯 display，交由類名控制（例如 .flex）
+    modal.style.display = '';
     
-    // 設定顯示方式（使用 flex 讓內容置中）
-    modal.style.display = 'flex';
-    
-    // 禁止背景滾動
     document.body.style.overflow = 'hidden';
     
-    // 重新初始化 lucide icons
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
     }
@@ -35,43 +31,34 @@ function closeModal(modalId) {
         return;
     }
     
-    // 加上 hidden 類別
     modal.classList.add('hidden');
-    
-    // 隱藏 Modal
-    modal.style.display = 'none';
-    
-    // 檢查是否還有其他 Modal 開啟，如果沒有才恢復滾動
-    const openModals = document.querySelectorAll('.fixed:not(.hidden)[id$="-modal"]');
+    // 清除內聯 display，避免影響下次僅移除 hidden 即可顯示
+    modal.style.display = '';
+    const openModals = document.querySelectorAll(
+        '.fixed:not(.hidden)[id$="-modal"], .fixed:not(.hidden)[id$="Modal"], .fixed:not(.hidden)[id$="-help"], .fixed:not(.hidden)[id$="help"]'
+    );
     if (openModals.length === 0) {
         document.body.style.overflow = 'auto';
     }
-    
-    console.log(`[Modal] 已關閉: ${modalId}`);
 }
 
 // 初始化模態框事件監聽
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('[Modal] 初始化 Modal 系統...');
-    
     // ESC 鍵關閉最上層的 Modal
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
-            // 找到所有可見的 Modal（id 結尾是 -modal 的）
-            const visibleModals = document.querySelectorAll('.fixed:not(.hidden)[id$="-modal"]');
-            
-            // 關閉最上層的 Modal（最後一個）
+            const visibleModals = document.querySelectorAll(
+                '.fixed:not(.hidden)[id$="-modal"], .fixed:not(.hidden)[id$="Modal"], .fixed:not(.hidden)[id$="-help"], .fixed:not(.hidden)[id$="help"]'
+            );
+
             if (visibleModals.length > 0) {
                 const topModal = visibleModals[visibleModals.length - 1];
-                if (topModal.id) {
+                if (topModal && topModal.id) {
                     closeModal(topModal.id);
-                    console.log('[Modal] ESC 關閉 Modal:', topModal.id);
                 }
             }
         }
     });
     
-    console.log('[Modal] Modal 系統初始化完成');
-    console.log('[Modal] 關閉方式：X 按鈕或 ESC 鍵');
 });
 

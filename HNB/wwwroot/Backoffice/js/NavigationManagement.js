@@ -174,14 +174,13 @@ const COMMON_ICONS = [
 // ==================== 模態框管理 ====================
 
 /**
- * 顯示模態框
+ * 顯示導航模態框（業務邏輯封裝）
  * @param {string} modalType - 模態框類型: 'new', 'edit', 'detail', 'delete', 'icon-picker'
  * @param {number|null} navId - 導航ID（編輯和詳情時需要）
  */
 function showNavModal(modalType, navId = null) {
     if (modalType === 'icon-picker') {
-        document.getElementById('icon-picker-modal').classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
+        showModal('icon-picker-modal');
         if (allIcons.length === 0) {
             loadIconsFromAPI();
         }
@@ -210,9 +209,8 @@ function showNavModal(modalType, navId = null) {
                 updateDetailModal(response);
             }
             
-            // 顯示模態框
-            document.getElementById(modalId).classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
+            // 顯示模態框 - 使用統一的 showModal 函數
+            showModal(modalId);
             
             // 重新初始化 lucide icons
             if (window.lucide) window.lucide.createIcons();
@@ -224,19 +222,15 @@ function showNavModal(modalType, navId = null) {
 }
 
 /**
- * 關閉模態框
+ * 關閉導航模態框（已棄用，請使用統一的 closeModal）
+ * @deprecated 請使用 closeModal(modalId)
  */
 function closeNavModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.classList.add('hidden');
-        document.body.style.overflow = 'auto';
-        
-        // 如果是編輯框，清空表單
-        if (modalId === 'nav-edit-modal') {
-            resetEditForm();
-        }
+    // 如果是編輯框，清空表單
+    if (modalId === 'nav-edit-modal') {
+        resetEditForm();
     }
+    closeModal(modalId);
 }
 
 /**

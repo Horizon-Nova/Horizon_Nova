@@ -1,12 +1,11 @@
 <!-- 動態AI配置控制中心 -->
-<div id="aiConfigModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
-    <div class="flex items-center justify-center min-h-screen p-2 lg:p-4">
-        <div class="bg-white rounded-xl lg:rounded-2xl shadow-2xl w-full max-w-6xl max-h-[95vh] lg:max-h-[90vh] overflow-hidden flex flex-col">
+<div id="aiConfigModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[95vh] lg:max-h-[90vh] overflow-hidden flex flex-col transform transition-all duration-300 ease-out">
             <!-- 標題區 -->
             <div class="bg-gradient-to-r from-blue-600 to-blue-700 p-3 lg:p-6 flex-shrink-0">
                 <div class="flex items-center justify-between gap-3">
                     <h2 class="text-base lg:text-2xl font-bold text-white truncate min-w-0" id="modalTitle">AI服務配置中心</h2>
-                    <button type="button" id="closeModal" class="text-white hover:text-blue-200 flex-shrink-0 transition-colors">
+                    <button type="button" onclick="closeModal('aiConfigModal')" class="text-white hover:text-blue-200 flex-shrink-0 transition-colors">
                         <i data-lucide="x" class="h-5 w-5 lg:h-6 lg:w-6"></i>
                     </button>
                 </div>
@@ -185,13 +184,12 @@
 </div>
 
 <!-- 配置預覽模態視窗 -->
-<div id="configPreviewModal" class="fixed inset-0 bg-black bg-opacity-50 hidden" style="z-index: 60;">
-    <div class="flex items-center justify-center min-h-screen p-2 lg:p-4">
-        <div class="bg-white rounded-xl lg:rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+<div id="configPreviewModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-2 lg:p-4" style="z-index: 60;">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col transform transition-all duration-300 ease-out">
             <div class="bg-gradient-to-r from-purple-600 to-purple-700 p-3 lg:p-6 flex-shrink-0">
                 <div class="flex items-center justify-between gap-3">
                     <h2 class="text-base lg:text-xl font-bold text-white">配置預覽</h2>
-                    <button type="button" id="closePreviewModal" class="text-white hover:text-purple-200 flex-shrink-0 transition-colors">
+                    <button type="button" onclick="closeModal('configPreviewModal')" class="text-white hover:text-purple-200 flex-shrink-0 transition-colors">
                         <i data-lucide="x" class="h-5 w-5 lg:h-6 lg:w-6"></i>
                     </button>
                 </div>
@@ -204,9 +202,8 @@
 </div>
 
 <!-- 新增AI模型模態視窗 -->
-<div id="createModelModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
-    <div class="flex items-center justify-center min-h-screen p-2 lg:p-4">
-        <div class="bg-white rounded-xl lg:rounded-2xl shadow-2xl w-full max-w-4xl max-h-[95vh] lg:max-h-[90vh] overflow-hidden flex flex-col">
+<div id="createModelModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[95vh] lg:max-h-[90vh] overflow-hidden flex flex-col transform transition-all duration-300 ease-out">
             <!-- 標題區 -->
             <div class="bg-gradient-to-r from-green-600 to-green-700 p-3 lg:p-6 flex-shrink-0">
                 <div class="flex items-center justify-between gap-3">
@@ -219,7 +216,7 @@
                             <p class="text-xs lg:text-sm text-green-100 hidden lg:block">配置新的AI模型服務</p>
                         </div>
                     </div>
-                    <button type="button" id="closeCreateModal" class="text-white hover:text-green-200 flex-shrink-0 transition-colors">
+                    <button type="button" onclick="closeModal('createModelModal')" class="text-white hover:text-green-200 flex-shrink-0 transition-colors">
                         <i data-lucide="x" class="h-5 w-5 lg:h-6 lg:w-6"></i>
                     </button>
                 </div>
@@ -546,4 +543,3 @@
         </div>
     </div>
 </div>
-

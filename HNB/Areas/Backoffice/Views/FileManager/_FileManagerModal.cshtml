@@ -109,12 +109,12 @@
 </div>
 
 <!-- Modal：新增資料夾 -->
-<div id="createFolderModal" class="hidden fixed inset-0 bg-black/40 z-50 items-center justify-center p-4" onclick="if(event.target === this) hideModal('createFolderModal')">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-md" onclick="event.stopPropagation()">
+<div id="createFolderModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all duration-300 ease-out">
         <!-- 標題 -->
         <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
             <h2 class="text-base font-semibold text-slate-900">新增資料夾</h2>
-            <button onclick="hideModal('createFolderModal')" class="w-8 h-8 flex items-center justify-center hover:bg-slate-100 rounded">
+            <button onclick="closeModal('createFolderModal')" class="w-8 h-8 flex items-center justify-center hover:bg-slate-100 rounded">
                 <i data-lucide="x" class="h-5 w-5 text-slate-500"></i>
             </button>
         </div>
@@ -129,8 +129,8 @@
         </div>
         
         <!-- 按鈕 -->
-        <div class="flex items-center justify-end gap-2 px-5 py-4 bg-slate-50 rounded-b-lg">
-            <button onclick="hideModal('createFolderModal')" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 rounded-lg">
+        <div class="flex items-center justify-end gap-2 px-5 py-4 bg-slate-50 border-t border-slate-200">
+            <button onclick="closeModal('createFolderModal')" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 rounded-lg">
                 取消
             </button>
             <button onclick="createFolder()" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg">
@@ -141,12 +141,12 @@
 </div>
 
 <!-- Modal：新增檔案 -->
-<div id="createFileModal" class="hidden fixed inset-0 bg-black/40 z-50 items-center justify-center p-4" onclick="if(event.target === this) hideModal('createFileModal')">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-md" onclick="event.stopPropagation()">
+<div id="createFileModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all duration-300 ease-out">
         <!-- 標題 -->
         <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
             <h2 class="text-base font-semibold text-slate-900">新增檔案</h2>
-            <button onclick="hideModal('createFileModal')" class="w-8 h-8 flex items-center justify-center hover:bg-slate-100 rounded">
+            <button onclick="closeModal('createFileModal')" class="w-8 h-8 flex items-center justify-center hover:bg-slate-100 rounded">
                 <i data-lucide="x" class="h-5 w-5 text-slate-500"></i>
             </button>
         </div>
@@ -161,8 +161,8 @@
         </div>
         
         <!-- 按鈕 -->
-        <div class="flex items-center justify-end gap-2 px-5 py-4 bg-slate-50 rounded-b-lg">
-            <button onclick="hideModal('createFileModal')" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 rounded-lg">
+        <div class="flex items-center justify-end gap-2 px-5 py-4 bg-slate-50 border-t border-slate-200">
+            <button onclick="closeModal('createFileModal')" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 rounded-lg">
                 取消
             </button>
             <button onclick="createFile()" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg">
@@ -173,12 +173,12 @@
 </div>
 
 <!-- Modal：重新命名 -->
-<div id="renameModal" class="hidden fixed inset-0 bg-black/40 z-50 items-center justify-center p-4" onclick="if(event.target === this) hideModal('renameModal')">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-md" onclick="event.stopPropagation()">
+<div id="renameModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all duration-300 ease-out">
         <!-- 標題 -->
         <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
             <h2 id="renameModalTitle" class="text-base font-semibold text-slate-900">重新命名</h2>
-            <button onclick="hideModal('renameModal')" class="w-8 h-8 flex items-center justify-center hover:bg-slate-100 rounded">
+            <button onclick="closeModal('renameModal')" class="w-8 h-8 flex items-center justify-center hover:bg-slate-100 rounded">
                 <i data-lucide="x" class="h-5 w-5 text-slate-500"></i>
             </button>
         </div>
@@ -192,8 +192,8 @@
         </div>
         
         <!-- 按鈕 -->
-        <div class="flex items-center justify-end gap-2 px-5 py-4 bg-slate-50 rounded-b-lg">
-            <button onclick="hideModal('renameModal')" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 rounded-lg">
+        <div class="flex items-center justify-end gap-2 px-5 py-4 bg-slate-50 border-t border-slate-200">
+            <button onclick="closeModal('renameModal')" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 rounded-lg">
                 取消
             </button>
             <button onclick="confirmRename()" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg">
@@ -204,17 +204,24 @@
 </div>
 
 <!-- Modal：刪除確認 -->
-<div id="deleteModal" class="hidden fixed inset-0 bg-black/40 z-50 items-center justify-center p-4" onclick="if(event.target === this) hideModal('deleteModal')">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-md" onclick="event.stopPropagation()">
+<div id="deleteModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all duration-300 ease-out">
         <!-- 標題 -->
-        <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200 bg-red-50">
-            <h2 class="text-base font-semibold text-red-900 flex items-center gap-2">
-                <i data-lucide="alert-triangle" class="h-5 w-5"></i>
-                <span id="deleteModalTitle">刪除確認</span>
-            </h2>
-            <button onclick="hideModal('deleteModal')" class="w-8 h-8 flex items-center justify-center hover:bg-red-100 rounded">
-                <i data-lucide="x" class="h-5 w-5 text-red-500"></i>
-            </button>
+        <div class="bg-gradient-to-r from-red-600 to-red-700 px-6 py-4 text-white">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="p-2 bg-white bg-opacity-20 rounded-lg">
+                        <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 id="deleteModalTitle" class="text-lg font-bold">刪除確認</h3>
+                        <p class="text-red-100 text-sm">此操作無法復原</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeModal('deleteModal')" class="text-white hover:text-red-200 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
         </div>
         
         <!-- 內容 -->
@@ -231,21 +238,21 @@
         </div>
         
         <!-- 按鈕 -->
-        <div class="flex items-center justify-end gap-2 px-5 py-4 bg-slate-50 rounded-b-lg">
-            <button onclick="hideModal('deleteModal')" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 rounded-lg">
+        <div class="flex items-center justify-end gap-3 px-6 py-4 border-t bg-slate-50">
+            <button type="button" onclick="closeModal('deleteModal')" class="px-6 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition-colors">
                 取消
             </button>
-            <button id="deleteConfirmBtn" onclick="confirmDelete()" disabled
-                    class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed">
-                確認刪除
+            <button type="button" id="deleteConfirmBtn" onclick="confirmDelete()" disabled
+                    class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                <i data-lucide="trash-2" class="w-4 h-4 inline mr-2"></i>確認刪除
             </button>
         </div>
     </div>
 </div>
 
 <!-- Modal：檔案編輯器 -->
-<div id="fileEditorModal" class="hidden fixed inset-0 bg-black/40 z-50 items-center justify-center p-4" onclick="if(event.target === this) closeFileEditor()">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-5xl h-[90vh] flex flex-col" onclick="event.stopPropagation()">
+<div id="fileEditorModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl h-[90vh] overflow-hidden flex flex-col transform transition-all duration-300 ease-out">
         <!-- 標題 -->
         <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
             <div class="flex items-center gap-3">
@@ -307,11 +314,11 @@
 </div>
 
 <!-- 上傳進度浮窗 -->
-<div id="uploadProgress" class="hidden fixed bottom-6 right-6 w-80 bg-white rounded-lg shadow-2xl border border-slate-200 z-50">
+<div id="uploadProgress" class="hidden fixed bottom-6 right-6 w-80 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 overflow-hidden">
     <!-- 標題 -->
     <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200">
         <h3 class="text-sm font-semibold text-slate-900">正在上傳</h3>
-        <button onclick="hideModal('uploadProgress')" class="w-7 h-7 flex items-center justify-center hover:bg-slate-100 rounded">
+        <button onclick="closeModal('uploadProgress')" class="w-7 h-7 flex items-center justify-center hover:bg-slate-100 rounded">
             <i data-lucide="x" class="h-4 w-4 text-slate-500"></i>
         </button>
     </div>
@@ -322,7 +329,7 @@
     </div>
     
     <!-- 統計 -->
-    <div class="flex items-center justify-between px-4 py-3 border-t border-slate-200 bg-slate-50 text-xs text-slate-600 rounded-b-lg">
+    <div class="flex items-center justify-between px-4 py-3 border-t border-slate-200 bg-slate-50 text-xs text-slate-600">
         <span id="uploadSpeed">0 KB/s</span>
         <span id="uploadEta">計算中...</span>
     </div>
