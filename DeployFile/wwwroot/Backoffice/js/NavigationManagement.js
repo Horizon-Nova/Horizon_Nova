@@ -2,175 +2,6 @@
 let allIcons = [];
 let deleteTarget = { id: null, title: '' };
 
-// ==================== 預定義圖標列表 ====================
-// 常用的 Lucide Icons（避免 CORS 問題）
-const COMMON_ICONS = [
-    { name: 'home', tags: ['house', 'dashboard'] },
-    { name: 'user', tags: ['person', 'profile', 'account'] },
-    { name: 'users', tags: ['people', 'group', 'team'] },
-    { name: 'settings', tags: ['config', 'preferences'] },
-    { name: 'search', tags: ['find', 'magnifier'] },
-    { name: 'menu', tags: ['hamburger', 'navigation'] },
-    { name: 'x', tags: ['close', 'cancel', 'exit'] },
-    { name: 'check', tags: ['done', 'complete', 'success'] },
-    { name: 'plus', tags: ['add', 'new', 'create'] },
-    { name: 'minus', tags: ['remove', 'subtract'] },
-    
-    { name: 'folder', tags: ['directory', 'files'] },
-    { name: 'folder-open', tags: ['directory', 'files'] },
-    { name: 'folder-plus', tags: ['new folder', 'create'] },
-    { name: 'folder-tree', tags: ['hierarchy', 'structure'] },
-    { name: 'file', tags: ['document'] },
-    { name: 'file-text', tags: ['document', 'text'] },
-    { name: 'files', tags: ['documents', 'multiple'] },
-    
-    { name: 'arrow-left', tags: ['back', 'previous'] },
-    { name: 'arrow-right', tags: ['next', 'forward'] },
-    { name: 'arrow-up', tags: ['top'] },
-    { name: 'arrow-down', tags: ['bottom'] },
-    { name: 'chevron-left', tags: ['back'] },
-    { name: 'chevron-right', tags: ['next'] },
-    { name: 'chevron-down', tags: ['dropdown'] },
-    { name: 'chevron-up', tags: ['collapse'] },
-    
-    { name: 'edit', tags: ['pencil', 'modify', 'change'] },
-    { name: 'edit-2', tags: ['pencil', 'modify'] },
-    { name: 'edit-3', tags: ['pencil', 'modify'] },
-    { name: 'trash', tags: ['delete', 'remove', 'bin'] },
-    { name: 'trash-2', tags: ['delete', 'remove', 'bin'] },
-    { name: 'save', tags: ['floppy', 'disk'] },
-    { name: 'copy', tags: ['duplicate', 'clone'] },
-    
-    { name: 'image', tags: ['photo', 'picture'] },
-    { name: 'video', tags: ['movie', 'film'] },
-    { name: 'music', tags: ['audio', 'sound'] },
-    { name: 'camera', tags: ['photo'] },
-    
-    { name: 'mail', tags: ['email', 'message'] },
-    { name: 'message-square', tags: ['chat', 'comment'] },
-    { name: 'message-circle', tags: ['chat', 'comment'] },
-    { name: 'phone', tags: ['call', 'telephone'] },
-    { name: 'bell', tags: ['notification', 'alarm'] },
-    
-    { name: 'info', tags: ['information', 'help'] },
-    { name: 'alert-circle', tags: ['warning', 'caution'] },
-    { name: 'alert-triangle', tags: ['warning', 'danger'] },
-    { name: 'help-circle', tags: ['question', 'support'] },
-    { name: 'check-circle', tags: ['success', 'done'] },
-    { name: 'x-circle', tags: ['error', 'failed'] },
-    
-    { name: 'eye', tags: ['view', 'visible', 'show'] },
-    { name: 'eye-off', tags: ['hidden', 'invisible', 'hide'] },
-    { name: 'lock', tags: ['secure', 'private'] },
-    { name: 'unlock', tags: ['open', 'public'] },
-    { name: 'shield', tags: ['security', 'protection'] },
-    
-    { name: 'tool', tags: ['wrench', 'repair'] },
-    { name: 'cog', tags: ['settings', 'gear'] },
-    { name: 'sliders', tags: ['controls', 'adjust'] },
-    { name: 'filter', tags: ['funnel', 'sort'] },
-    { name: 'download', tags: ['save', 'export'] },
-    { name: 'upload', tags: ['import', 'load'] },
-    
-    { name: 'shopping-cart', tags: ['cart', 'basket', 'buy'] },
-    { name: 'credit-card', tags: ['payment', 'card'] },
-    { name: 'dollar-sign', tags: ['money', 'currency'] },
-    { name: 'trending-up', tags: ['growth', 'increase'] },
-    { name: 'trending-down', tags: ['decrease', 'decline'] },
-    { name: 'bar-chart', tags: ['graph', 'statistics'] },
-    { name: 'pie-chart', tags: ['graph', 'statistics'] },
-    
-    { name: 'calendar', tags: ['date', 'schedule'] },
-    { name: 'clock', tags: ['time', 'watch'] },
-    
-    { name: 'map', tags: ['location', 'navigation'] },
-    { name: 'map-pin', tags: ['location', 'marker'] },
-    { name: 'navigation', tags: ['compass', 'direction'] },
-    { name: 'globe', tags: ['world', 'international'] },
-    
-    { name: 'smartphone', tags: ['mobile', 'phone'] },
-    { name: 'tablet', tags: ['ipad', 'device'] },
-    { name: 'laptop', tags: ['computer', 'pc'] },
-    { name: 'monitor', tags: ['screen', 'display'] },
-    { name: 'printer', tags: ['print'] },
-    
-    { name: 'share', tags: ['forward', 'social'] },
-    { name: 'share-2', tags: ['forward', 'social'] },
-    { name: 'heart', tags: ['like', 'favorite', 'love'] },
-    { name: 'star', tags: ['favorite', 'bookmark', 'rating'] },
-    { name: 'bookmark', tags: ['save', 'mark'] },
-    
-    // 佈局和顯示
-    { name: 'layout', tags: ['grid', 'arrangement'] },
-    { name: 'grid', tags: ['tiles', 'layout'] },
-    { name: 'list', tags: ['menu', 'items'] },
-    { name: 'columns', tags: ['layout', 'split'] },
-    { name: 'sidebar', tags: ['panel', 'navigation'] },
-    { name: 'maximize', tags: ['fullscreen', 'expand'] },
-    { name: 'minimize', tags: ['reduce', 'collapse'] },
-    
-    // 文本編輯
-    { name: 'bold', tags: ['text', 'format'] },
-    { name: 'italic', tags: ['text', 'format'] },
-    { name: 'underline', tags: ['text', 'format'] },
-    { name: 'align-left', tags: ['text', 'format'] },
-    { name: 'align-center', tags: ['text', 'format'] },
-    { name: 'align-right', tags: ['text', 'format'] },
-    
-    // 資料庫和儲存
-    { name: 'database', tags: ['storage', 'data'] },
-    { name: 'server', tags: ['hosting', 'cloud'] },
-    { name: 'hard-drive', tags: ['storage', 'disk'] },
-    { name: 'archive', tags: ['box', 'storage'] },
-    
-    // 網路和連線
-    { name: 'wifi', tags: ['wireless', 'internet'] },
-    { name: 'link', tags: ['chain', 'url', 'hyperlink'] },
-    { name: 'external-link', tags: ['open', 'new window'] },
-    { name: 'cloud', tags: ['storage', 'sync'] },
-    
-    // 開發和程式碼
-    { name: 'code', tags: ['programming', 'develop'] },
-    { name: 'terminal', tags: ['console', 'command'] },
-    { name: 'git-branch', tags: ['version', 'control'] },
-    { name: 'git-commit', tags: ['version', 'control'] },
-    { name: 'package', tags: ['box', 'module'] },
-    
-    // 組織和管理
-    { name: 'building', tags: ['office', 'organization', 'company'] },
-    { name: 'briefcase', tags: ['work', 'business', 'job'] },
-    { name: 'clipboard', tags: ['paste', 'copy'] },
-    { name: 'tag', tags: ['label', 'category'] },
-    { name: 'hash', tags: ['number', 'tag'] },
-    
-    // 特殊
-    { name: 'zap', tags: ['lightning', 'fast', 'power'] },
-    { name: 'award', tags: ['badge', 'achievement'] },
-    { name: 'gift', tags: ['present', 'reward'] },
-    { name: 'flag', tags: ['banner', 'marker'] },
-    { name: 'target', tags: ['goal', 'aim'] },
-    { name: 'activity', tags: ['pulse', 'monitor'] },
-    { name: 'airplay', tags: ['cast', 'stream'] },
-    { name: 'anchor', tags: ['link', 'fixed'] },
-    { name: 'aperture', tags: ['camera', 'focus'] },
-    { name: 'at-sign', tags: ['email', 'mention'] },
-    
-    // 天氣
-    { name: 'sun', tags: ['weather', 'day'] },
-    { name: 'moon', tags: ['weather', 'night'] },
-    { name: 'cloud', tags: ['weather'] },
-    { name: 'umbrella', tags: ['rain', 'weather'] },
-    
-    // AI 和技術
-    { name: 'cpu', tags: ['processor', 'chip'] },
-    { name: 'brain', tags: ['ai', 'intelligence'] },
-    { name: 'radio', tags: ['signal', 'broadcast'] },
-    { name: 'rss', tags: ['feed', 'news'] },
-    
-    // 衣服和時尚
-    { name: 'shirt', tags: ['clothing', 'apparel'] }
-];
-
 // ==================== 模態框管理 ====================
 
 /**
@@ -179,14 +10,6 @@ const COMMON_ICONS = [
  * @param {number|null} navId - 導航ID（編輯和詳情時需要）
  */
 function showNavModal(modalType, navId = null) {
-    if (modalType === 'icon-picker') {
-        showModal('icon-picker-modal');
-        if (allIcons.length === 0) {
-            loadIconsFromAPI();
-        }
-        return;
-    }
-
     if (modalType === 'delete') {
         showDeleteModal(navId);
         return;
@@ -222,11 +45,11 @@ function showNavModal(modalType, navId = null) {
 }
 
 /**
- * 關閉導航模態框（已棄用，請使用統一的 closeModal）
- * @deprecated 請使用 closeModal(modalId)
+ * 關閉導航模態框（帶表單清理）
+ * 注意：此函數保留是為了在關閉時執行額外的清理邏輯
+ * 內部使用統一的 closeModal 函數
  */
 function closeNavModal(modalId) {
-    // 如果是編輯框，清空表單
     if (modalId === 'nav-edit-modal') {
         resetEditForm();
     }
@@ -328,9 +151,22 @@ function loadParentOptions(selectedCode = null) {
 // ==================== 圖標選擇器 ====================
 
 /**
- * 載入圖標（使用預定義列表）
+ * 打開圖標選擇器
  */
-function loadIconsFromAPI() {
+function openIconPicker() {
+    // 顯示 Modal
+    showModal('icon-picker-modal');
+    // 如果尚未載入圖標，則從 API 載入
+    if (allIcons.length === 0) {
+        loadIconsFromAPI();
+    }
+}
+
+/**
+ * 載入圖標（從 Lucide API）
+ * 使用 lucide-static 的 tags.json API
+ */
+async function loadIconsFromAPI() {
     const loading = document.getElementById('iconLoading');
     const error = document.getElementById('iconError');
     const grid = document.getElementById('iconGrid');
@@ -341,8 +177,23 @@ function loadIconsFromAPI() {
     if (grid) grid.classList.add('hidden');
     
     try {
-        // 使用預定義的圖標列表（避免 CORS 問題）
-        allIcons = [...COMMON_ICONS];
+        // 使用最後一個穩定版本的 API（0.517.0）
+        // 註：0.518.0 的 tags.json 是空的，所以使用 0.517.0
+        const response = await fetch('https://cdn.jsdelivr.net/npm/lucide-static@0.517.0/tags.json');
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const tagsData = await response.json();
+        
+        // 轉換為陣列格式
+        allIcons = Object.keys(tagsData).map(name => ({
+            name: name,
+            tags: tagsData[name] || []
+        })).sort((a, b) => a.name.localeCompare(b.name));
+        
+        console.log(`✅ 成功載入 ${allIcons.length} 個 Lucide 圖標`);
         
         // 更新統計
         document.getElementById('totalIcons').textContent = allIcons.length;
@@ -356,13 +207,13 @@ function loadIconsFromAPI() {
         if (grid) grid.classList.remove('hidden');
         
     } catch (err) {
-        console.error('載入圖標失敗:', err);
+        console.error('❌ 載入圖標失敗:', err);
         if (loading) loading.classList.add('hidden');
         if (error) {
             error.classList.remove('hidden');
             const errorMsg = document.getElementById('iconErrorMessage');
             if (errorMsg) {
-                errorMsg.textContent = `錯誤: ${err.message}`;
+                errorMsg.textContent = `載入失敗: ${err.message}. 請確認網路連線或稍後再試。`;
             }
         }
     }
@@ -447,8 +298,8 @@ function selectIcon(iconName) {
     // 更新預覽
     updateIconPreview(iconName);
     
-    // 關閉圖標選擇器
-    closeNavModal('icon-picker-modal');
+    // 使用統一的 closeModal 函數
+    closeModal('icon-picker-modal');
 }
 
 /**
@@ -487,9 +338,8 @@ function showDeleteModal(navId) {
             document.getElementById('deleteConfirmInput').value = '';
             document.getElementById('deleteConfirmBtn').disabled = true;
             
-            // 顯示模態框
-            document.getElementById('nav-delete-modal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
+            // 使用統一的 showModal 函數
+            showModal('nav-delete-modal');
         },
         error: function () {
             alert('載入資料失敗');
@@ -616,14 +466,17 @@ document.addEventListener('DOMContentLoaded', function () {
         deleteInput.addEventListener('input', validateDeleteInput);
     }
     
-    // ESC 鍵關閉模態框
+    // ESC 鍵關閉模態框（由 Modal.js 統一處理，此處保留作為備用）
     document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') {
             const modals = ['nav-edit-modal', 'nav-detail-modal', 'nav-delete-modal', 'icon-picker-modal'];
             modals.forEach(modalId => {
                 const modal = document.getElementById(modalId);
                 if (modal && !modal.classList.contains('hidden')) {
-                    closeNavModal(modalId);
+                    if (modalId === 'nav-edit-modal') {
+                        resetEditForm();
+                    }
+                    closeModal(modalId);
                 }
             });
         }
