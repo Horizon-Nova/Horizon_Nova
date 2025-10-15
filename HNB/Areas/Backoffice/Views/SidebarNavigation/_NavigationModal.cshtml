@@ -9,7 +9,7 @@
 
 
 <!-- 新增/編輯目錄模態框 -->
-<div id="nav-edit-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2 lg:p-4">
+<div id="nav-edit-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
     <div class="bg-white rounded-xl lg:rounded-2xl shadow-2xl max-w-2xl w-full max-h-[95vh] lg:max-h-[90vh] overflow-hidden">
         <!-- 標題區域 -->
         <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-4 lg:px-6 py-3 lg:py-4 text-white">
@@ -74,8 +74,8 @@
                                 </div>
                                 <input type="text" id="navIcon" placeholder="例如: home" value="@(model.icon)" readonly
                                        class="w-full pl-10 lg:pl-12 pr-10 lg:pr-12 py-2 lg:py-3 text-sm lg:text-base border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 cursor-pointer"
-                                       onclick="showModal('icon-picker')">
-                                <button type="button" onclick="showModal('icon-picker')" 
+                                       onclick="openIconPicker()">
+                                <button type="button" onclick="openIconPicker()" 
                                         class="absolute right-2 top-1/2 transform -translate-y-1/2 text-blue-600 hover:text-blue-700">
                                     <i data-lucide="search" class="w-4 h-4 lg:w-5 lg:h-5"></i>
                                 </button>
@@ -151,17 +151,17 @@
 </div>
 
 <!-- 詳情查看模態框 -->
-<div id="nav-detail-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
-        <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 px-6 py-4 text-white">
+<div id="nav-detail-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden transform transition-all duration-300 ease-out">
+        <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 px-4 lg:px-6 py-3 lg:py-4 text-white">
             <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="p-2 bg-white bg-opacity-20 rounded-lg">
-                        <i data-lucide="folder" class="w-5 h-5"></i>
+                <div class="flex items-center gap-2 lg:gap-3 min-w-0 flex-1">
+                    <div class="p-1.5 lg:p-2 bg-white bg-opacity-20 rounded-lg flex-shrink-0">
+                        <i data-lucide="folder" class="w-4 h-4 lg:w-5 lg:h-5"></i>
                     </div>
-                    <div>
-                        <h3 class="text-lg font-bold">目錄詳情</h3>
-                        <p class="text-indigo-100 text-sm">查看目錄完整資訊</p>
+                    <div class="min-w-0">
+                        <h3 class="text-base lg:text-lg font-bold truncate">目錄詳情</h3>
+                        <p class="text-indigo-100 text-xs lg:text-sm hidden lg:block">查看目錄完整資訊</p>
                     </div>
                 </div>
                 <button type="button" onclick="closeModal('nav-detail-modal')" class="text-white hover:text-indigo-200 transition-colors">
@@ -170,7 +170,7 @@
             </div>
         </div>
         
-        <div id="navDetailContent" class="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+        <div id="navDetailContent" class="p-4 lg:p-6 overflow-y-auto max-h-[calc(95vh-180px)] lg:max-h-[calc(90vh-180px)]">
             <div class="space-y-6">
                 <!-- 基本資訊 -->
                 <div class="bg-slate-50 rounded-xl p-6">
@@ -257,8 +257,8 @@
             </div>
         </div>
         
-        <div class="flex justify-end gap-3 px-6 py-4 border-t bg-slate-50">
-            <button type="button" onclick="closeModal('nav-detail-modal')" class="px-4 py-2 bg-slate-300 text-slate-700 rounded-md hover:bg-slate-400">
+        <div class="flex justify-end gap-2 lg:gap-3 px-4 lg:px-6 py-3 lg:py-4 border-t bg-slate-50">
+            <button type="button" onclick="closeModal('nav-detail-modal')" class="px-4 lg:px-6 py-2 lg:py-3 text-sm lg:text-base bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition-colors font-medium">
                 關閉
             </button>
         </div>
@@ -266,21 +266,21 @@
 </div>
 
 <!-- 圖標選擇器模態框 -->
-<div id="icon-picker-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden">
+<div id="icon-picker-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden transform transition-all duration-300 ease-out">
         <!-- 標題 -->
-        <div class="bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-4 text-white">
+        <div class="bg-gradient-to-r from-purple-600 to-purple-700 px-4 lg:px-6 py-3 lg:py-4 text-white">
             <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="p-2 bg-white bg-opacity-20 rounded-lg">
-                        <i data-lucide="sparkles" class="w-5 h-5"></i>
+                <div class="flex items-center gap-2 lg:gap-3 min-w-0 flex-1">
+                    <div class="p-1.5 lg:p-2 bg-white bg-opacity-20 rounded-lg flex-shrink-0">
+                        <i data-lucide="sparkles" class="w-4 h-4 lg:w-5 lg:h-5"></i>
                     </div>
-                    <div>
-                        <h3 class="text-lg font-bold">圖標選擇器</h3>
-                        <p class="text-purple-100 text-sm">從 Lucide Icons 庫中選擇圖標</p>
+                    <div class="min-w-0">
+                        <h3 class="text-base lg:text-lg font-bold truncate">圖標選擇器</h3>
+                        <p class="text-purple-100 text-xs lg:text-sm hidden lg:block">從 Lucide Icons 庫中選擇圖標</p>
                     </div>
                 </div>
-                <button type="button" onclick="closeModal('icon-picker-modal')" class="text-white hover:text-purple-200 transition-colors">
+                <button type="button" onclick="closeModal('icon-picker-modal')" class="text-white hover:text-purple-200 transition-colors flex-shrink-0">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
@@ -294,7 +294,7 @@
                     <input type="text" id="iconSearch" placeholder="搜尋圖標名稱或標籤... (例如: home, user, folder, settings)" 
                            class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
                 </div>
-                <div class="flex items-center gap-2 text-sm text-slate-600">
+                <div class="hidden lg:flex items-center gap-2 text-sm text-slate-600">
                     <span class="px-3 py-2 bg-white rounded-lg border border-slate-200">
                         總共: <strong id="totalIcons">0</strong> 個
                     </span>
@@ -336,37 +336,37 @@
         </div>
         
         <!-- 底部 -->
-        <div class="px-6 py-4 border-t bg-slate-50 text-center text-xs text-slate-500">
-            <p>圖標來自 <a href="https://lucide.dev" target="_blank" class="text-purple-600 hover:underline">Lucide Icons</a> 開源圖標庫（精選常用圖標）</p>
+        <div class="px-4 lg:px-6 py-3 lg:py-4 border-t bg-slate-50 text-center text-xs lg:text-sm text-slate-500">
+            <p>圖標來自 <a href="https://lucide.dev" target="_blank" class="text-purple-600 hover:underline">Lucide Icons</a> 開源圖標庫（使用 API 動態載入完整圖標集）</p>
         </div>
     </div>
 </div>
 
 <!-- 刪除確認模態框 -->
-<div id="nav-delete-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+<div id="nav-delete-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden transform transition-all duration-300 ease-out">
         <!-- 標題 -->
-        <div class="bg-gradient-to-r from-red-600 to-red-700 px-6 py-4 text-white">
+        <div class="bg-gradient-to-r from-red-600 to-red-700 px-4 lg:px-6 py-3 lg:py-4 text-white">
             <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="p-2 bg-white bg-opacity-20 rounded-lg">
-                        <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                <div class="flex items-center gap-2 lg:gap-3 min-w-0 flex-1">
+                    <div class="p-1.5 lg:p-2 bg-white bg-opacity-20 rounded-lg flex-shrink-0">
+                        <i data-lucide="alert-triangle" class="w-4 h-4 lg:w-5 lg:h-5"></i>
                     </div>
-                    <div>
-                        <h3 class="text-lg font-bold">刪除確認</h3>
-                        <p class="text-red-100 text-sm">此操作無法復原</p>
+                    <div class="min-w-0">
+                        <h3 class="text-base lg:text-lg font-bold truncate">刪除確認</h3>
+                        <p class="text-red-100 text-xs lg:text-sm hidden lg:block">此操作無法復原</p>
                     </div>
                 </div>
-                <button type="button" onclick="closeModal('nav-delete-modal')" class="text-white hover:text-red-200 transition-colors">
+                <button type="button" onclick="closeModal('nav-delete-modal')" class="text-white hover:text-red-200 transition-colors flex-shrink-0">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
         </div>
         
         <!-- 內容 -->
-        <div class="p-6">
-            <div class="mb-6">
-                <p class="text-slate-700 mb-4">您確定要刪除以下目錄嗎？</p>
+        <div class="p-4 lg:p-6">
+            <div class="mb-4 lg:mb-6">
+                <p class="text-sm lg:text-base text-slate-700 mb-3 lg:mb-4">您確定要刪除以下目錄嗎？</p>
                 <div class="bg-red-50 border border-red-200 rounded-lg p-4">
                     <div class="flex items-start gap-3">
                         <i data-lucide="folder" class="w-5 h-5 text-red-600 mt-0.5"></i>
@@ -378,10 +378,10 @@
                 </div>
             </div>
             
-            <div class="mb-6">
-                <p class="text-sm text-slate-700 mb-2">請輸入目錄名稱以確認刪除：</p>
+            <div class="mb-4 lg:mb-6">
+                <p class="text-xs lg:text-sm text-slate-700 mb-1.5 lg:mb-2">請輸入目錄名稱以確認刪除：</p>
                 <input type="text" id="deleteConfirmInput" 
-                       class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                       class="w-full px-3 lg:px-4 py-2 lg:py-3 text-sm lg:text-base border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
                        placeholder="輸入目錄名稱"
                        onkeyup="validateDeleteInput()">
                 <p class="text-xs text-slate-500 mt-1">必須完全匹配才能刪除</p>
@@ -398,21 +398,21 @@
         </div>
         
         <!-- 底部按鈕 -->
-        <div class="flex justify-end gap-3 px-6 py-4 border-t bg-slate-50">
+        <div class="flex justify-end gap-2 lg:gap-3 px-4 lg:px-6 py-3 lg:py-4 border-t bg-slate-50">
             <button type="button" onclick="closeModal('nav-delete-modal')" 
-                    class="px-6 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition-colors">
+                    class="px-4 lg:px-6 py-2 lg:py-3 text-sm lg:text-base bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition-colors font-medium">
                 取消
             </button>
             <button type="button" id="deleteConfirmBtn" onclick="confirmDelete()" disabled
-                    class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                <i data-lucide="trash-2" class="w-4 h-4 inline mr-2"></i>確認刪除
+                    class="px-4 lg:px-6 py-2 lg:py-3 text-sm lg:text-base bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+                <i data-lucide="trash-2" class="w-4 h-4 inline mr-1 lg:mr-2"></i>確認刪除
             </button>
         </div>
     </div>
 </div>
 
 <!-- 目錄管理說明視窗 -->
-<div id="navigation-help" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center hidden" style="display: none;">
+<div id="navigation-help" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
         <!-- Modal Header -->
         <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-8 py-6 border-b border-slate-200">
@@ -515,7 +515,7 @@
         <!-- Modal Footer -->
         <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
             <div class="flex items-center justify-end">
-                <button type="button" class="modal-close px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200">
+                <button type="button" onclick="closeModal('navigation-help')" class="modal-close px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200">
                     我知道了
                 </button>
             </div>

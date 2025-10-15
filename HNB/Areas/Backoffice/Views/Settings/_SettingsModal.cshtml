@@ -3,7 +3,7 @@
 }
 
 <!-- 錯誤日誌說明 -->
-<div id="error-help" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm hidden" style="display: none;">
+<div id="error-help" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
         <!-- Modal Header -->
         <div class="bg-gradient-to-r from-red-50 to-orange-50 px-8 py-6 border-b border-slate-200">
@@ -73,7 +73,7 @@
         <!-- Modal Footer -->
         <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
             <div class="flex items-center justify-end">
-                <button type="button" class="modal-close px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200">
+                <button type="button" onclick="closeModal('error-help')" class="modal-close px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200">
                     我知道了
                 </button>
             </div>
@@ -82,7 +82,7 @@
 </div>
 
 <!-- 系統日誌說明 -->
-<div id="system-help" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm hidden" style="display: none;">
+<div id="system-help" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
         <!-- Modal Header -->
         <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-8 py-6 border-b border-slate-200">
@@ -152,7 +152,7 @@
         <!-- Modal Footer -->
         <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
             <div class="flex items-center justify-end">
-                <button type="button" class="modal-close px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200">
+                <button type="button" onclick="closeModal('system-help')" class="modal-close px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200">
                     我知道了
                 </button>
             </div>
@@ -161,7 +161,7 @@
 </div>
 
 <!-- 存取日誌說明 -->
-<div id="access-help" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm hidden" style="display: none;">
+<div id="access-help" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
         <!-- Modal Header -->
         <div class="bg-gradient-to-r from-green-50 to-emerald-50 px-8 py-6 border-b border-slate-200">
@@ -231,7 +231,7 @@
         <!-- Modal Footer -->
         <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
             <div class="flex items-center justify-end">
-                <button type="button" class="modal-close px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200">
+                <button type="button" onclick="closeModal('access-help')" class="modal-close px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200">
                     我知道了
                 </button>
             </div>
@@ -240,7 +240,7 @@
 </div>
 
 <!-- 記憶體快取說明 -->
-<div id="memory-help" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm hidden" style="display: none;">
+<div id="memory-help" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
         <!-- Modal Header -->
         <div class="bg-gradient-to-r from-purple-50 to-violet-50 px-8 py-6 border-b border-slate-200">
@@ -310,7 +310,7 @@
         <!-- Modal Footer -->
         <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
             <div class="flex items-center justify-end">
-                <button type="button" class="modal-close px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all duration-200">
+                <button type="button" onclick="closeModal('memory-help')" class="modal-close px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all duration-200">
                     我知道了
                 </button>
             </div>
@@ -319,7 +319,7 @@
 </div>
 
 <!-- 資料庫快取說明 -->
-<div id="database-help" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm hidden" style="display: none;">
+<div id="database-help" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
         <!-- Modal Header -->
         <div class="bg-gradient-to-r from-cyan-50 to-blue-50 px-8 py-6 border-b border-slate-200">
@@ -389,7 +389,7 @@
         <!-- Modal Footer -->
         <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
             <div class="flex items-center justify-end">
-                <button type="button" class="modal-close px-6 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-all duration-200">
+                <button type="button" onclick="closeModal('database-help')" class="modal-close px-6 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-all duration-200">
                     我知道了
                 </button>
             </div>
@@ -398,7 +398,7 @@
 </div>
 
 <!-- 檔案快取說明 -->
-<div id="file-help" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm hidden" style="display: none;">
+<div id="file-help" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
         <!-- Modal Header -->
         <div class="bg-gradient-to-r from-orange-50 to-amber-50 px-8 py-6 border-b border-slate-200">
@@ -468,7 +468,7 @@
         <!-- Modal Footer -->
         <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
             <div class="flex items-center justify-end">
-                <button type="button" class="modal-close px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-all duration-200">
+                <button type="button" onclick="closeModal('file-help')" class="modal-close px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-all duration-200">
                     我知道了
                 </button>
             </div>
@@ -477,7 +477,7 @@
 </div>
 
 <!-- 人員管理說明 -->
-<div id="user-form-help" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm hidden" style="display: none;">
+<div id="user-form-help" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
         <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6 border-b border-slate-200">
             <div class="flex items-center justify-between">
@@ -555,7 +555,7 @@
         <!-- Modal Footer -->
         <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
             <div class="flex items-center justify-end">
-                <button type="button" class="modal-close px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200">
+                <button type="button" onclick="closeModal('user-form-help')" class="modal-close px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200">
                     我知道了
                 </button>
             </div>
@@ -564,7 +564,7 @@
 </div>
 
 <!-- 角色管理說明 -->
-<div id="role-form-help" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm hidden" style="display: none;">
+<div id="role-form-help" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
         <div class="bg-gradient-to-r from-green-600 to-green-700 px-8 py-6 border-b border-slate-200">
             <div class="flex items-center justify-between">
@@ -626,7 +626,7 @@
         <!-- Modal Footer -->
         <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
             <div class="flex items-center justify-end">
-                <button type="button" class="modal-close px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200">
+                <button type="button" onclick="closeModal('role-form-help')" class="modal-close px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200">
                     我知道了
                 </button>
             </div>
@@ -635,7 +635,7 @@
 </div>
 
 <!-- 組織管理說明 -->
-<div id="organization-form-help" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm hidden" style="display: none;">
+<div id="organization-form-help" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
         <div class="bg-gradient-to-r from-purple-600 to-purple-700 px-8 py-6 border-b border-slate-200">
             <div class="flex items-center justify-between">
@@ -709,7 +709,7 @@
         <!-- Modal Footer -->
         <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
             <div class="flex items-center justify-end">
-                <button type="button" class="modal-close px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all duration-200">
+                <button type="button" onclick="closeModal('organization-form-help')" class="modal-close px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all duration-200">
                     我知道了
                 </button>
             </div>

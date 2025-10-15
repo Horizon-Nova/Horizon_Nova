@@ -3,7 +3,7 @@
 }
 
 <!-- 使用者表單彈出視窗 -->
-<div id="userFormModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden">
+<div id="userFormModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[95vh] overflow-hidden">
         <!-- 標題區域 -->
         <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6 text-white">
@@ -18,7 +18,7 @@
                     </div>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <button onclick="showUserFormHelp()" class="text-white hover:text-blue-200 transition-colors p-2 rounded-lg hover:bg-white hover:bg-opacity-10" title="操作說明">
+                    <button onclick="showModal('userFormHelpModal')" class="text-white hover:text-blue-200 transition-colors p-2 rounded-lg hover:bg-white hover:bg-opacity-10" title="操作說明">
                         <i data-lucide="help-circle" class="w-5 h-5"></i>
                     </button>
                     <button onclick="closeModal('userFormModal')" class="text-white hover:text-blue-200 transition-colors p-2 rounded-lg hover:bg-white hover:bg-opacity-10" title="關閉">
@@ -247,12 +247,12 @@
 </div>
 
 <!-- 使用者詳情查看視窗 -->
-<div id="userDetailModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden">
+<div id="userDetailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
     <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
         <div class="flex items-center justify-between p-6 border-b">
             <h3 class="text-lg font-semibold">帳號詳細資訊</h3>
             <div class="flex items-center space-x-2">
-                <button onclick="showUserDetailHelp()" class="text-slate-400 hover:text-slate-600 p-2 rounded-lg hover:bg-slate-100" title="操作說明">
+                <button onclick="showModal('userDetailHelpModal')" class="text-slate-400 hover:text-slate-600 p-2 rounded-lg hover:bg-slate-100" title="操作說明">
                     <i data-lucide="help-circle" class="w-5 h-5"></i>
                 </button>
                 <button onclick="closeModal('userDetailModal')" class="text-slate-400 hover:text-slate-600 p-2 rounded-lg hover:bg-slate-100" title="關閉">
@@ -364,7 +364,7 @@
             </button>
             @if (ViewBag.User != null)
             {
-                <button onclick="showUserEdit(@ViewBag.User.id)" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-2">
+                <button onclick="closeModal('userDetailModal'); showModal('userFormModal')" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-2">
                     <i data-lucide="edit" class="w-4 h-4"></i>
                     編輯
                 </button>
@@ -374,7 +374,7 @@
 </div>
 
 <!-- 角色表單彈出視窗 -->
-<div id="roleFormModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden">
+<div id="roleFormModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[95vh] overflow-hidden">
         <!-- 標題區域 -->
         <div class="bg-gradient-to-r from-green-600 to-green-700 px-8 py-6 text-white">
@@ -389,7 +389,7 @@
                     </div>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <button onclick="showRoleFormHelp()" class="text-white hover:text-green-200 transition-colors p-2 rounded-lg hover:bg-white hover:bg-opacity-10" title="操作說明">
+                    <button onclick="showModal('roleFormHelpModal')" class="text-white hover:text-green-200 transition-colors p-2 rounded-lg hover:bg-white hover:bg-opacity-10" title="操作說明">
                         <i data-lucide="help-circle" class="w-5 h-5"></i>
                     </button>
                     <button onclick="closeModal('roleFormModal')" class="text-white hover:text-green-200 transition-colors p-2 rounded-lg hover:bg-white hover:bg-opacity-10" title="關閉">
@@ -521,12 +521,12 @@
 </div>
 
 <!-- 角色詳情查看視窗 -->
-<div id="roleDetailModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden">
+<div id="roleDetailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
     <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
         <div class="flex items-center justify-between p-6 border-b">
             <h3 class="text-lg font-semibold">角色詳細資訊</h3>
             <div class="flex items-center space-x-2">
-                <button onclick="showRoleDetailHelp()" class="text-slate-400 hover:text-slate-600 p-2 rounded-lg hover:bg-slate-100" title="操作說明">
+                <button onclick="showModal('roleDetailHelpModal')" class="text-slate-400 hover:text-slate-600 p-2 rounded-lg hover:bg-slate-100" title="操作說明">
                     <i data-lucide="help-circle" class="w-5 h-5"></i>
                 </button>
                 <button onclick="closeModal('roleDetailModal')" class="text-slate-400 hover:text-slate-600 p-2 rounded-lg hover:bg-slate-100" title="關閉">
@@ -616,7 +616,7 @@
             </button>
             @if (ViewBag.Role != null)
             {
-                <button onclick="showRoleEdit(@ViewBag.Role.id)" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center gap-2">
+                <button onclick="closeModal('roleDetailModal'); showModal('roleFormModal')" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center gap-2">
                     <i data-lucide="edit" class="w-4 h-4"></i>
                     編輯
                 </button>
@@ -626,7 +626,7 @@
 </div>
 
 <!-- 組織表單彈出視窗 -->
-<div id="organizationFormModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden">
+<div id="organizationFormModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[95vh] overflow-hidden">
         <!-- 標題區域 -->
         <div class="bg-gradient-to-r from-purple-600 to-purple-700 px-8 py-6 text-white">
@@ -641,7 +641,7 @@
                     </div>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <button onclick="showOrganizationFormHelp()" class="text-white hover:text-purple-200 transition-colors p-2 rounded-lg hover:bg-white hover:bg-opacity-10" title="操作說明">
+                    <button onclick="showModal('organizationFormHelpModal')" class="text-white hover:text-purple-200 transition-colors p-2 rounded-lg hover:bg-white hover:bg-opacity-10" title="操作說明">
                         <i data-lucide="help-circle" class="w-5 h-5"></i>
                     </button>
                     <button onclick="closeModal('organizationFormModal')" class="text-white hover:text-purple-200 transition-colors p-2 rounded-lg hover:bg-white hover:bg-opacity-10" title="關閉">
@@ -809,12 +809,12 @@
 </div>
 
 <!-- 組織詳情查看視窗 -->
-<div id="organizationDetailModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden">
+<div id="organizationDetailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
     <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
         <div class="flex items-center justify-between p-6 border-b">
             <h3 class="text-lg font-semibold">組織詳細資訊</h3>
             <div class="flex items-center space-x-2">
-                <button onclick="showOrganizationDetailHelp()" class="text-slate-400 hover:text-slate-600 p-2 rounded-lg hover:bg-slate-100" title="操作說明">
+                <button onclick="showModal('organizationDetailHelpModal')" class="text-slate-400 hover:text-slate-600 p-2 rounded-lg hover:bg-slate-100" title="操作說明">
                     <i data-lucide="help-circle" class="w-5 h-5"></i>
                 </button>
                 <button onclick="closeModal('organizationDetailModal')" class="text-slate-400 hover:text-slate-600 p-2 rounded-lg hover:bg-slate-100" title="關閉">
@@ -909,7 +909,7 @@
             </button>
             @if (ViewBag.Organization != null)
             {
-                <button onclick="showOrganizationEdit(@ViewBag.Organization.id)" class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 flex items-center gap-2">
+                <button onclick="closeModal('organizationDetailModal'); showModal('organizationFormModal')" class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 flex items-center gap-2">
                     <i data-lucide="edit" class="w-4 h-4"></i>
                     編輯
                 </button>
@@ -919,7 +919,7 @@
 </div>
 
 <!-- 使用者表單說明視窗 -->
-<div id="userFormHelpModal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 hidden">
+<div id="userFormHelpModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
         <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6 border-b border-slate-200">
             <div class="flex items-center justify-between">
@@ -932,7 +932,7 @@
                         <p class="text-sm text-blue-100 mt-1">了解如何管理系統使用者</p>
                     </div>
                 </div>
-                <button onclick="closeHelp()" class="text-white hover:text-blue-200 hover:bg-white hover:bg-opacity-10 p-2 rounded-lg transition-all duration-200">
+                <button onclick="closeModal('userFormHelpModal')" class="text-white hover:text-blue-200 hover:bg-white hover:bg-opacity-10 p-2 rounded-lg transition-all duration-200">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
@@ -998,7 +998,7 @@
         <!-- Modal Footer -->
         <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
             <div class="flex items-center justify-end">
-                <button type="button" onclick="closeHelp()" class="modal-close px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200">
+                <button type="button" onclick="closeModal('userFormHelpModal')" class="modal-close px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200">
                     我知道了
                 </button>
             </div>
@@ -1007,7 +1007,7 @@
 </div>
 
 <!-- 使用者詳情說明視窗 -->
-<div id="userDetailHelpModal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 hidden">
+<div id="userDetailHelpModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
         <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6 border-b border-slate-200">
             <div class="flex items-center justify-between">
@@ -1020,7 +1020,7 @@
                         <p class="text-sm text-blue-100 mt-1">了解詳情頁面的操作方式</p>
                     </div>
                 </div>
-                <button onclick="closeHelp()" class="text-white hover:text-blue-200 hover:bg-white hover:bg-opacity-10 p-2 rounded-lg transition-all duration-200">
+                <button onclick="closeModal('userDetailHelpModal')" class="text-white hover:text-blue-200 hover:bg-white hover:bg-opacity-10 p-2 rounded-lg transition-all duration-200">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
@@ -1052,7 +1052,7 @@
         <!-- Modal Footer -->
         <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
             <div class="flex items-center justify-end">
-                <button type="button" onclick="closeHelp()" class="modal-close px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200">
+                <button type="button" onclick="closeModal('userDetailHelpModal')" class="modal-close px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200">
                     我知道了
                 </button>
             </div>
@@ -1061,7 +1061,7 @@
 </div>
 
 <!-- 角色表單說明視窗 -->
-<div id="roleFormHelpModal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 hidden">
+<div id="roleFormHelpModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
         <div class="bg-gradient-to-r from-green-600 to-green-700 px-8 py-6 border-b border-slate-200">
             <div class="flex items-center justify-between">
@@ -1074,7 +1074,7 @@
                         <p class="text-sm text-green-100 mt-1">了解如何管理系統角色</p>
                     </div>
                 </div>
-                <button onclick="closeHelp()" class="text-white hover:text-green-200 hover:bg-white hover:bg-opacity-10 p-2 rounded-lg transition-all duration-200">
+                <button onclick="closeModal('roleFormHelpModal')" class="text-white hover:text-green-200 hover:bg-white hover:bg-opacity-10 p-2 rounded-lg transition-all duration-200">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
@@ -1134,7 +1134,7 @@
         <!-- Modal Footer -->
         <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
             <div class="flex items-center justify-end">
-                <button type="button" onclick="closeHelp()" class="modal-close px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200">
+                <button type="button" onclick="closeModal('roleFormHelpModal')" class="modal-close px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200">
                     我知道了
                 </button>
             </div>
@@ -1143,7 +1143,7 @@
 </div>
 
 <!-- 角色詳情說明視窗 -->
-<div id="roleDetailHelpModal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 hidden">
+<div id="roleDetailHelpModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
         <div class="bg-gradient-to-r from-green-600 to-green-700 px-8 py-6 border-b border-slate-200">
             <div class="flex items-center justify-between">
@@ -1156,7 +1156,7 @@
                         <p class="text-sm text-green-100 mt-1">了解詳情頁面的操作方式</p>
                     </div>
                 </div>
-                <button onclick="closeHelp()" class="text-white hover:text-green-200 hover:bg-white hover:bg-opacity-10 p-2 rounded-lg transition-all duration-200">
+                <button onclick="closeModal('roleDetailHelpModal')" class="text-white hover:text-green-200 hover:bg-white hover:bg-opacity-10 p-2 rounded-lg transition-all duration-200">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
@@ -1188,7 +1188,7 @@
         <!-- Modal Footer -->
         <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
             <div class="flex items-center justify-end">
-                <button type="button" onclick="closeHelp()" class="modal-close px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200">
+                <button type="button" onclick="closeModal('roleDetailHelpModal')" class="modal-close px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200">
                     我知道了
                 </button>
             </div>
@@ -1197,7 +1197,7 @@
 </div>
 
 <!-- 組織表單說明視窗 -->
-<div id="organizationFormHelpModal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 hidden">
+<div id="organizationFormHelpModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
         <div class="bg-gradient-to-r from-purple-600 to-purple-700 px-8 py-6 border-b border-slate-200">
             <div class="flex items-center justify-between">
@@ -1210,7 +1210,7 @@
                         <p class="text-sm text-purple-100 mt-1">了解如何管理組織架構</p>
                     </div>
                 </div>
-                <button onclick="closeHelp()" class="text-white hover:text-purple-200 hover:bg-white hover:bg-opacity-10 p-2 rounded-lg transition-all duration-200">
+                <button onclick="closeModal('organizationFormHelpModal')" class="text-white hover:text-purple-200 hover:bg-white hover:bg-opacity-10 p-2 rounded-lg transition-all duration-200">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
@@ -1271,7 +1271,7 @@
         <!-- Modal Footer -->
         <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
             <div class="flex items-center justify-end">
-                <button type="button" onclick="closeHelp()" class="modal-close px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all duration-200">
+                <button type="button" onclick="closeModal('organizationFormHelpModal')" class="modal-close px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all duration-200">
                     我知道了
                 </button>
             </div>
@@ -1280,7 +1280,7 @@
 </div>
 
 <!-- 組織詳情說明視窗 -->
-<div id="organizationDetailHelpModal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 hidden">
+<div id="organizationDetailHelpModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
         <div class="bg-gradient-to-r from-purple-600 to-purple-700 px-8 py-6 border-b border-slate-200">
             <div class="flex items-center justify-between">
@@ -1293,7 +1293,7 @@
                         <p class="text-sm text-purple-100 mt-1">了解詳情頁面的操作方式</p>
                     </div>
                 </div>
-                <button onclick="closeHelp()" class="text-white hover:text-purple-200 hover:bg-white hover:bg-opacity-10 p-2 rounded-lg transition-all duration-200">
+                <button onclick="closeModal('organizationDetailHelpModal')" class="text-white hover:text-purple-200 hover:bg-white hover:bg-opacity-10 p-2 rounded-lg transition-all duration-200">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
@@ -1325,7 +1325,7 @@
         <!-- Modal Footer -->
         <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
             <div class="flex items-center justify-end">
-                <button type="button" onclick="closeHelp()" class="modal-close px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all duration-200">
+                <button type="button" onclick="closeModal('organizationDetailHelpModal')" class="modal-close px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all duration-200">
                     我知道了
                 </button>
             </div>
@@ -1351,92 +1351,6 @@ function togglePassword() {
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
     }
-}
-
-// 顯示使用者表單說明
-function showUserFormHelp() {
-    closeHelp();
-    
-    const helpModal = document.getElementById('userFormHelpModal');
-    if (helpModal) {
-        helpModal.classList.remove('hidden');
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
-        }
-    }
-}
-
-// 顯示使用者詳情說明
-function showUserDetailHelp() {
-    closeHelp();
-    
-    const helpModal = document.getElementById('userDetailHelpModal');
-    if (helpModal) {
-        helpModal.classList.remove('hidden');
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
-        }
-    }
-}
-
-// 顯示角色表單說明
-function showRoleFormHelp() {
-    closeHelp();
-    
-    const helpModal = document.getElementById('roleFormHelpModal');
-    if (helpModal) {
-        helpModal.classList.remove('hidden');
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
-        }
-    }
-}
-
-// 顯示角色詳情說明
-function showRoleDetailHelp() {
-    closeHelp();
-    
-    const helpModal = document.getElementById('roleDetailHelpModal');
-    if (helpModal) {
-        helpModal.classList.remove('hidden');
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
-        }
-    }
-}
-
-// 顯示組織表單說明
-function showOrganizationFormHelp() {
-    closeHelp();
-    
-    const helpModal = document.getElementById('organizationFormHelpModal');
-    if (helpModal) {
-        helpModal.classList.remove('hidden');
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
-        }
-    }
-}
-
-// 顯示組織詳情說明
-function showOrganizationDetailHelp() {
-    closeHelp();
-    
-    const helpModal = document.getElementById('organizationDetailHelpModal');
-    if (helpModal) {
-        helpModal.classList.remove('hidden');
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
-        }
-    }
-}
-
-// 關閉說明視窗
-function closeHelp() {
-    const helpModals = document.querySelectorAll('.z-\\[9999\\]');
-    helpModals.forEach(modal => {
-        modal.classList.add('hidden');
-    });
 }
 
 // 提交使用者表單
@@ -1506,23 +1420,5 @@ function submitOrganizationForm() {
             alert('提交失敗，請稍後再試');
         }
     });
-}
-
-// 顯示使用者編輯
-function showUserEdit(userId) {
-    closeModal('userDetailModal');
-    loadAndShowModal('user', userId, 'userFormModal');
-}
-
-// 顯示角色編輯
-function showRoleEdit(roleId) {
-    closeModal('roleDetailModal');
-    loadAndShowModal('role', roleId, 'roleFormModal');
-}
-
-// 顯示組織編輯
-function showOrganizationEdit(organizationId) {
-    closeModal('organizationDetailModal');
-    loadAndShowModal('organization', organizationId, 'organizationFormModal');
 }
 </script>

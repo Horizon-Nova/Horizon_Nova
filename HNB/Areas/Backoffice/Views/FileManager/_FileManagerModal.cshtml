@@ -1,5 +1,5 @@
 <!-- 檔案總管說明視窗 -->
-<div id="filemanager-help" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center hidden" style="display: none;">
+<div id="filemanager-help" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
         <!-- Modal Header -->
         <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-8 py-6 border-b border-slate-200">
@@ -100,7 +100,7 @@
         <!-- Modal Footer -->
         <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
             <div class="flex items-center justify-end">
-                <button type="button" class="modal-close px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200">
+                <button type="button" onclick="closeModal('filemanager-help')" class="modal-close px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200">
                     我知道了
                 </button>
             </div>
@@ -109,7 +109,7 @@
 </div>
 
 <!-- Modal：新增資料夾 -->
-<div id="createFolderModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+<div id="createFolderModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all duration-300 ease-out">
         <!-- 標題 -->
         <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
@@ -141,7 +141,7 @@
 </div>
 
 <!-- Modal：新增檔案 -->
-<div id="createFileModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+<div id="createFileModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all duration-300 ease-out">
         <!-- 標題 -->
         <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
@@ -173,7 +173,7 @@
 </div>
 
 <!-- Modal：重新命名 -->
-<div id="renameModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+<div id="renameModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all duration-300 ease-out">
         <!-- 標題 -->
         <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
@@ -204,7 +204,7 @@
 </div>
 
 <!-- Modal：刪除確認 -->
-<div id="deleteModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+<div id="deleteModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all duration-300 ease-out">
         <!-- 標題 -->
         <div class="bg-gradient-to-r from-red-600 to-red-700 px-6 py-4 text-white">
@@ -251,7 +251,7 @@
 </div>
 
 <!-- Modal：檔案編輯器 -->
-<div id="fileEditorModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+<div id="fileEditorModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl h-[90vh] overflow-hidden flex flex-col transform transition-all duration-300 ease-out">
         <!-- 標題 -->
         <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">

@@ -16,7 +16,7 @@
             </div>
             <h3 class="text-lg font-semibold text-slate-900">建立資料庫連線</h3>
             <button type="button" class="ml-2 p-1 text-slate-400 hover:text-slate-600" 
-                    onclick="showHelpModal()">
+                    onclick="showModal('helpModal')">
                 <i data-lucide="help-circle" class="w-4 h-4"></i>
             </button>
         </div>
@@ -127,110 +127,7 @@
     </div>
 </div>
 
-<!-- 說明模態視窗 -->
-<div id="helpModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 backdrop-blur-sm" style="display: none;">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
-        <!-- Modal Header -->
-        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-8 py-6 border-b border-slate-200">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="bg-blue-100 p-2 rounded-lg">
-                        <i data-lucide="help-circle" class="w-6 h-6 text-blue-600"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-slate-800">資料庫管理說明</h3>
-                        <p class="text-sm text-slate-500 mt-1">了解如何使用資料庫管理功能</p>
-                    </div>
-                </div>
-                <button type="button" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-lg transition-all duration-200" onclick="closeModal('helpModal')">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- Modal Body -->
-        <div class="p-8 overflow-y-auto max-h-[calc(95vh-160px)] bg-slate-50">
-            <div class="space-y-6">
-                <div>
-                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
-                        <i data-lucide="database" class="w-4 h-4 mr-2 text-blue-600"></i>
-                        什麼是資料庫管理？
-                    </h6>
-                    <p class="text-slate-600 text-sm leading-relaxed">這個工具可以幫您從現有的資料庫自動備份資料表結構和資料，讓您可以輕鬆管理和遷移資料庫。</p>
-                </div>
-                
-                <div>
-                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
-                        <i data-lucide="list-ordered" class="w-4 h-4 mr-2 text-green-600"></i>
-                        如何使用？
-                    </h6>
-                    <ol class="text-slate-600 text-sm space-y-2 leading-relaxed">
-                        <li class="flex items-start">
-                            <span class="bg-blue-100 text-blue-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">1</span>
-                            選擇您使用的資料庫類型（SQL Server、PostgreSQL）
-                        </li>
-                        <li class="flex items-start">
-                            <span class="bg-blue-100 text-blue-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">2</span>
-                            填入連線字串（就像在 DBeaver 中連線資料庫一樣）
-                        </li>
-                        <li class="flex items-start">
-                            <span class="bg-blue-100 text-blue-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">3</span>
-                            測試連線確保可以正常連接
-                        </li>
-                        <li class="flex items-start">
-                            <span class="bg-blue-100 text-blue-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">4</span>
-                            點擊備份資料表，系統會自動建立結構和資料檔案
-                        </li>
-                    </ol>
-                </div>
-                
-                <div>
-                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
-                        <i data-lucide="code" class="w-4 h-4 mr-2 text-purple-600"></i>
-                        連線字串範例
-                    </h6>
-                    <div class="bg-slate-100 p-4 rounded-lg">
-                        <div class="space-y-3">
-                            <div>
-                                <p class="text-xs font-semibold text-slate-700 mb-1">SQL Server:</p>
-                                <code class="text-xs text-slate-800 font-mono bg-white px-2 py-1 rounded border">Server=localhost;Database=MyDB;User Id=sa;Password=123456;</code>
-                            </div>
-                            <div>
-                                <p class="text-xs font-semibold text-slate-700 mb-1">PostgreSQL:</p>
-                                <code class="text-xs text-slate-800 font-mono bg-white px-2 py-1 rounded border">Host=localhost;Database=MyDB;Username=postgres;Password=123456;</code>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
-                        <i data-lucide="info" class="w-4 h-4 mr-2 text-orange-600"></i>
-                        備份說明
-                    </h6>
-                    <div class="bg-amber-50 border border-amber-200 p-4 rounded-lg">
-                        <p class="text-sm text-amber-800">
-                            <i data-lucide="alert-triangle" class="w-4 h-4 inline mr-1"></i>
-                            備份會建立帶時間戳記的資料夾，每次備份都是獨立的，避免資料累積。
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal Footer -->
-        <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
-            <div class="flex items-center justify-end">
-                <button type="button" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200" onclick="closeModal('helpModal')">
-                    我知道了
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 資料表詳情彈出視窗容器 -->
-<div id="tableDetailsModalContainer"></div>
+@await Html.PartialAsync("_DatabaseManagementModal")
 
 @section Scripts {
 
