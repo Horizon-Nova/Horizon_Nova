@@ -22,8 +22,19 @@ public class FileManagerRepository(HnbHnbBackofficeDbContext db)
                       || f.owner_username == username 
                       || f.owner_username == "system"
                       || f.shared_users!.Contains(username))
-                     && (parentCode == null || f.parent_code == parentCode))
+                     && f.parent_code == parentCode)
             .OrderByDescending(f => f.item_type)
+            .ThenBy(f => f.file_name)
+            .ToList();
+
+    public List<vw_file_manager> QueryAllFolders(string? username = null)
+        => ValidFiles
+            .Where(f => f.item_type == "folder"
+                     && (username == null 
+                      || f.owner_username == username 
+                      || f.owner_username == "system"
+                      || f.shared_users!.Contains(username)))
+            .OrderBy(f => f.parent_code ?? "")
             .ThenBy(f => f.file_name)
             .ToList();
 

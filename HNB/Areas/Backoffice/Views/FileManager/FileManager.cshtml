@@ -1,3 +1,4 @@
+@model List<Models.HnbHnbBackoffice.vw_file_manager>
 @{
     ViewData["Title"] = "檔案總管";
     ViewData["PageTitle"] = "檔案總管";
@@ -5,18 +6,15 @@
     ViewData["PageIcon"] = "folder";
     Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
     
-    var currentPath = ViewBag.CurrentPath as string ?? "/";
-    var breadcrumb = ViewBag.Breadcrumb as List<(string Name, string VirtualPath)> ?? new();
-    var tree = ViewBag.Tree as List<(string Name, string VirtualPath, int Depth)> ?? new();
-    var folders = ViewBag.Folders as List<(string Name, DateTime? LastWriteUtc)> ?? new();
-    var files = ViewBag.Files as List<(string Name, long Size, DateTime? LastWriteUtc)> ?? new();
-    var stats = (
-        FolderCount: ViewBag.FolderCount ?? 0,
-        FileCount: ViewBag.FileCount ?? 0,
-        TotalSize: ViewBag.TotalSize ?? 0L,
-        LastModified: ViewBag.LastModified as DateTime?
-    );
+    var currentParentCode = ViewBag.CurrentParentCode as string;
+    var currentFolder = ViewBag.CurrentFolder as Models.HnbHnbBackoffice.vw_file_manager;
+    var allFolders = ViewBag.AllFolders as List<Models.HnbHnbBackoffice.vw_file_manager> ?? new();
+    
+    var folders = Model.Where(f => f.item_type == "folder").ToList();
+    var files = Model.Where(f => f.item_type == "file").ToList();
 }
+
+<link rel="stylesheet" href="~/Backoffice/css/FileManager.css" asp-append-version="true">
 
 <div class="flex flex-col lg:flex-row gap-0">
     <!-- 左側：目錄樹 -->
@@ -43,49 +41,92 @@
         <!-- 目錄樹 -->
         <div class="flex-1 overflow-y-auto py-2 max-h-60 lg:max-h-none">
             <!-- 根目錄 -->
-            <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = "/" })" 
-               class="flex items-center gap-1.5 px-3 py-1.5 hover:bg-slate-50 cursor-pointer @(currentPath == "/" ? "bg-slate-100" : "")">
-                <i data-lucide="@(currentPath == "/" ? "folder-open" : "folder")" class="h-4 w-4 text-amber-500"></i>
-                <span class="text-sm @(currentPath == "/" ? "font-medium text-slate-900" : "text-slate-700")">根目錄</span>
+            <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice" })" 
+               class="flex items-center gap-1.5 px-3 py-1.5 hover:bg-slate-50 cursor-pointer @(string.IsNullOrEmpty(currentParentCode) ? "bg-slate-100" : "")">
+                <i data-lucide="@(string.IsNullOrEmpty(currentParentCode) ? "folder-open" : "folder")" class="h-4 w-4 text-amber-500"></i>
+                <span class="text-sm @(string.IsNullOrEmpty(currentParentCode) ? "font-medium text-slate-900" : "text-slate-700")">根目錄</span>
             </a>
             
-            @if (tree != null && tree.Any())
+            @if (allFolders != null && allFolders.Any())
             {
-                @for (int i = 0; i < tree.Count; i++)
+                @foreach (var folder1 in allFolders.Where(f => string.IsNullOrEmpty(f.parent_code)))
                 {
-                    var (name, path, depth) = tree[i];
+                    var children1 = allFolders.Where(f => f.parent_code == folder1.code).ToList();
+                    var hasChildren1 = children1.Any();
+                    var isActive1 = currentParentCode == folder1.code;
+                    var isInPath1 = IsInPath(folder1.code, currentParentCode, allFolders);
+                    var isExpanded1 = isActive1 || isInPath1;
                     
-                    // 跳過根目錄項目（如果存在）
-                    if (name == "根目錄" && depth == 0)
-                    {
-                        continue;
-                    }
-                    
-                    // 檢查是否有子節點
-                    var hasChildren = i < tree.Count - 1 && tree.Skip(i + 1).Any(t => t.Depth > depth && t.VirtualPath.StartsWith(path + "/"));
-                    
-                    // 計算縮排
-                    var indentPx = 0.75 + (depth * 1.0); // 0.75rem base + 1rem per level
-                    
-                    // 是否為當前路徑
-                    var isActive = currentPath == path;
-                    
-                    <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = path })" 
-                       class="flex items-center gap-1.5 px-3 py-1.5 hover:bg-slate-50 cursor-pointer @(isActive ? "bg-slate-100" : "") @(depth > 1 ? "hidden" : "")"
-                       style="padding-left: @(indentPx)rem">
-                        @if (hasChildren)
+                    <div class="tree-folder" data-code="@folder1.code">
+                        <div class="flex items-center gap-1.5 px-3 py-1.5 hover:bg-slate-50 @(isActive1 ? "bg-slate-100" : "")" style="padding-left: 0.75rem">
+                            @if (hasChildren1)
+                            {
+                                <button onclick="toggleTreeFolder(event, '@folder1.code')" class="w-4 h-4 flex-shrink-0 hover:bg-slate-200 rounded tree-toggle">
+                                    <i data-lucide="chevron-right" class="h-4 w-4 text-slate-600 tree-chevron @(isExpanded1 ? "rotate-90" : "")"></i>
+                                </button>
+                            }
+                            else
+                            {
+                                <span class="w-4"></span>
+                            }
+                            <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice", parentCode = folder1.code })" 
+                               class="flex items-center gap-1.5 flex-1 min-w-0">
+                                <i data-lucide="@(isActive1 ? "folder-open" : "folder")" class="h-4 w-4 text-amber-500"></i>
+                                <span class="text-sm truncate @(isActive1 ? "font-medium text-slate-900" : "text-slate-700")">@folder1.file_name</span>
+                            </a>
+                        </div>
+                        
+                        @if (hasChildren1)
                         {
-                            <i data-lucide="chevron-right" 
-                               onclick="toggleTreeNode(event, this)"
-                               class="h-4 w-4 text-slate-600 cursor-pointer hover:bg-slate-200 rounded"></i>
+                            <div class="tree-children @(isExpanded1 ? "" : "hidden")">
+                                @foreach (var folder2 in children1)
+                                {
+                                    var children2 = allFolders.Where(f => f.parent_code == folder2.code).ToList();
+                                    var hasChildren2 = children2.Any();
+                                    var isActive2 = currentParentCode == folder2.code;
+                                    var isInPath2 = IsInPath(folder2.code, currentParentCode, allFolders);
+                                    var isExpanded2 = isActive2 || isInPath2;
+                                    
+                                    <div class="tree-folder" data-code="@folder2.code">
+                                        <div class="flex items-center gap-1.5 px-3 py-1.5 hover:bg-slate-50 @(isActive2 ? "bg-slate-100" : "")" style="padding-left: 1.25rem">
+                                            @if (hasChildren2)
+                                            {
+                                                <button onclick="toggleTreeFolder(event, '@folder2.code')" class="w-4 h-4 flex-shrink-0 hover:bg-slate-200 rounded tree-toggle">
+                                                    <i data-lucide="chevron-right" class="h-4 w-4 text-slate-600 tree-chevron @(isExpanded2 ? "rotate-90" : "")"></i>
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <span class="w-4"></span>
+                                            }
+                                            <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice", parentCode = folder2.code })" 
+                                               class="flex items-center gap-1.5 flex-1 min-w-0">
+                                                <i data-lucide="@(isActive2 ? "folder-open" : "folder")" class="h-4 w-4 text-amber-500"></i>
+                                                <span class="text-sm truncate @(isActive2 ? "font-medium text-slate-900" : "text-slate-700")">@folder2.file_name</span>
+                                            </a>
+                                        </div>
+                                        
+                                        @if (hasChildren2)
+                                        {
+                                            <div class="tree-children @(isExpanded2 ? "" : "hidden")">
+                                                @foreach (var folder3 in children2)
+                                                {
+                                                    var isActive3 = currentParentCode == folder3.code;
+                                                    
+                                                    <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice", parentCode = folder3.code })" 
+                                                       class="flex items-center gap-1.5 px-3 py-1.5 hover:bg-slate-50 @(isActive3 ? "bg-slate-100" : "")" style="padding-left: 1.75rem">
+                                                        <span class="w-4"></span>
+                                                        <i data-lucide="folder" class="h-4 w-4 text-amber-500"></i>
+                                                        <span class="text-sm truncate @(isActive3 ? "font-medium text-slate-900" : "text-slate-700")">@folder3.file_name</span>
+                                                    </a>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
                         }
-                        else
-                        {
-                            <span class="w-4"></span>
-                        }
-                        <i data-lucide="@(isActive ? "folder-open" : "folder")" class="h-4 w-4 text-amber-500"></i>
-                        <span class="text-sm @(isActive ? "font-medium text-slate-900" : "text-slate-700")">@name</span>
-                    </a>
+                    </div>
                 }
             }
         </div>
@@ -97,29 +138,20 @@
         <div class="h-12 px-3 lg:px-6 flex items-center justify-between border-b border-slate-200">
             <!-- 麵包屑 -->
             <nav class="flex items-center gap-1 text-xs lg:text-sm overflow-x-auto">
-                @if (breadcrumb != null && breadcrumb.Any())
+                <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice" })" 
+                   class="px-2 py-1 hover:bg-slate-100 rounded @(string.IsNullOrEmpty(currentParentCode) ? "font-medium text-slate-900" : "text-slate-700")">
+                    根目錄
+                </a>
+                @if (currentFolder != null)
                 {
-                    @for (int i = 0; i < breadcrumb.Count; i++)
-                    {
-                        var (name, path) = breadcrumb[i];
-                        var isLast = i == breadcrumb.Count - 1;
-                        
-                        if (i > 0)
-                        {
-                            <i data-lucide="chevron-right" class="h-4 w-4 text-slate-400"></i>
-                        }
-                        
-                        <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = path })" 
-                           class="px-2 py-1 hover:bg-slate-100 rounded @(isLast ? "font-medium text-slate-900" : "text-slate-700")">
-                            @name
-                        </a>
-                    }
+                    <i data-lucide="chevron-right" class="h-4 w-4 text-slate-400"></i>
+                    <span class="px-2 py-1 font-medium text-slate-900">@currentFolder.file_name</span>
                 }
             </nav>
             
             <!-- 統計資訊 -->
             <div class="text-xs text-slate-500 hidden lg:block whitespace-nowrap">
-                @stats.FolderCount 個資料夾 · @stats.FileCount 個檔案 · @FormatSize(stats.TotalSize)
+                @folders.Count 個資料夾 · @files.Count 個檔案 · @FormatSize(files.Sum(f => f.file_size ?? 0))
             </div>
         </div>
 
@@ -139,8 +171,9 @@
         <!-- 檔案列表 -->
         <div class="flex-1 overflow-y-auto px-3 lg:px-6 py-4">
             <!-- 表格標題 -->
-            <div class="hidden lg:grid grid-cols-[2fr_140px_180px_120px] gap-4 px-3 py-2 text-xs font-medium text-slate-500 border-b border-slate-200">
+            <div class="hidden lg:grid grid-cols-[2fr_140px_140px_180px_120px] gap-4 px-3 py-2 text-xs font-medium text-slate-500 border-b border-slate-200">
                 <div>名稱</div>
+                <div>擁有者</div>
                 <div>大小</div>
                 <div>修改時間</div>
                 <div class="text-right">操作</div>
@@ -148,7 +181,7 @@
 
             <!-- 檔案項目 -->
             <div class="divide-y divide-slate-100">
-                @if ((folders == null || !folders.Any()) && (files == null || !files.Any()))
+                @if (!folders.Any() && !files.Any())
                 {
                     <!-- 空狀態 -->
                     <div class="py-16 text-center">
@@ -159,47 +192,35 @@
                 else
                 {
                     <!-- 資料夾列表 -->
-                    @if (folders != null && folders.Any())
+                    @if (folders.Any())
                     {
                         @foreach (var folder in folders)
                         {
-                            var (name, modified) = folder;
-                            var folderPath = currentPath.TrimEnd('/') + "/" + name;
-                            
-                            <div onclick="window.location.href='@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = folderPath })'" 
-                                 class="grid grid-cols-1 lg:grid-cols-[2fr_140px_180px_120px] gap-2 lg:gap-4 px-3 py-3 hover:bg-slate-50 cursor-pointer group rounded-lg">
+                            <div onclick="window.location.href='@Url.Action("FileManager", "FileManager", new { area = "Backoffice", parentCode = folder.code })'" 
+                                 class="grid grid-cols-1 lg:grid-cols-[2fr_140px_140px_180px_120px] gap-2 lg:gap-4 px-3 py-3 hover:bg-slate-50 cursor-pointer group rounded-lg">
                                 <div class="flex items-center gap-3 min-w-0">
                                     <i data-lucide="folder" class="h-5 w-5 text-amber-500 shrink-0"></i>
-                                    <span class="text-sm text-slate-900 truncate flex-1">@name</span>
+                                    <span class="text-sm text-slate-900 truncate flex-1">@folder.file_name</span>
                                     <div class="flex items-center gap-1 lg:hidden">
-                                        <button onclick="event.preventDefault(); event.stopPropagation(); showRenameModal('@name.Replace("'", "\\'").Replace("\"", "&quot;")', 'folder')" 
+                                        <button onclick="event.preventDefault(); event.stopPropagation(); showRenameModal('@folder.file_name?.Replace("'", "\\'").Replace("\"", "&quot;")', 'folder')" 
                                                 class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="重新命名">
                                             <i data-lucide="edit-3" class="h-4 w-4 text-slate-600"></i>
                                         </button>
-                                        <a href="@Url.Action("DownloadFolder", "FileManager", new { area = "Backoffice", path = currentPath, name })" 
-                                           onclick="event.stopPropagation()"
-                                           class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="下載">
-                                            <i data-lucide="download" class="h-4 w-4 text-slate-600"></i>
-                                        </a>
-                                        <button onclick="event.preventDefault(); event.stopPropagation(); deleteItem('@name.Replace("'", "\\'").Replace("\"", "&quot;")', 'folder')" 
+                                        <button onclick="event.preventDefault(); event.stopPropagation(); deleteItem('@folder.file_name?.Replace("'", "\\'").Replace("\"", "&quot;")', 'folder')" 
                                                 class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="刪除">
                                             <i data-lucide="trash-2" class="h-4 w-4 text-slate-600"></i>
                                         </button>
                                     </div>
                                 </div>
+                                <div class="text-xs lg:text-sm text-slate-600 hidden lg:block truncate">@folder.owner_username</div>
                                 <div class="text-xs lg:text-sm text-slate-600 hidden lg:block">—</div>
-                                <div class="text-xs lg:text-sm text-slate-600 hidden lg:block">@(modified.HasValue ? modified.Value.ToString("yyyy/MM/dd HH:mm") : "—")</div>
+                                <div class="text-xs lg:text-sm text-slate-600 hidden lg:block">@(folder.created_at.HasValue ? folder.created_at.Value.ToString("yyyy/MM/dd HH:mm") : "—")</div>
                                 <div class="hidden lg:flex items-center justify-end gap-1">
-                                    <button onclick="event.preventDefault(); event.stopPropagation(); showRenameModal('@name.Replace("'", "\\'").Replace("\"", "&quot;")', 'folder')" 
+                                    <button onclick="event.preventDefault(); event.stopPropagation(); showRenameModal('@folder.file_name?.Replace("'", "\\'").Replace("\"", "&quot;")', 'folder')" 
                                             class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="重新命名">
                                         <i data-lucide="edit-3" class="h-4 w-4 text-slate-600"></i>
                                     </button>
-                                    <a href="@Url.Action("DownloadFolder", "FileManager", new { area = "Backoffice", path = currentPath, name })" 
-                                       onclick="event.stopPropagation()"
-                                       class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="下載">
-                                        <i data-lucide="download" class="h-4 w-4 text-slate-600"></i>
-                                    </a>
-                                    <button onclick="event.preventDefault(); event.stopPropagation(); deleteItem('@name.Replace("'", "\\'").Replace("\"", "&quot;")', 'folder')" 
+                                    <button onclick="event.preventDefault(); event.stopPropagation(); deleteItem('@folder.file_name?.Replace("'", "\\'").Replace("\"", "&quot;")', 'folder')" 
                                             class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="刪除">
                                         <i data-lucide="trash-2" class="h-4 w-4 text-slate-600"></i>
                                     </button>
@@ -209,31 +230,30 @@
                     }
                     
                     <!-- 檔案列表 -->
-                    @if (files != null && files.Any())
+                    @if (files.Any())
                     {
                         @foreach (var file in files)
                         {
-                            var (name, size, modified) = file;
-                            
-                            <div onclick="openFile('@name.Replace("'", "\\'").Replace("\"", "&quot;")')" 
-                                 class="grid grid-cols-[2fr_140px_180px_120px] gap-4 px-3 py-3 hover:bg-slate-50 cursor-pointer group rounded-lg items-center">
+                            <div onclick="openFile('@file.code', '@file.file_name?.Replace("'", "\\'").Replace("\"", "&quot;")')" 
+                                 class="grid grid-cols-[2fr_140px_140px_180px_120px] gap-4 px-3 py-3 hover:bg-slate-50 cursor-pointer group rounded-lg items-center">
                                 <div class="flex items-center gap-3 min-w-0">
                                     <div class="w-5 h-5 shrink-0"></div>
-                                    <span class="text-sm text-slate-900 truncate">@name</span>
+                                    <span class="text-sm text-slate-900 truncate">@file.file_name</span>
                                 </div>
-                                <div class="text-sm text-slate-600">@FormatSize(size)</div>
-                                <div class="text-sm text-slate-600">@(modified.HasValue ? modified.Value.ToString("yyyy/MM/dd HH:mm") : "—")</div>
+                                <div class="text-sm text-slate-600 truncate">@file.owner_username</div>
+                                <div class="text-sm text-slate-600">@FormatSize(file.file_size ?? 0)</div>
+                                <div class="text-sm text-slate-600">@(file.created_at.HasValue ? file.created_at.Value.ToString("yyyy/MM/dd HH:mm") : "—")</div>
                                 <div class="flex items-center justify-end gap-1">
-                                    <button onclick="event.preventDefault(); event.stopPropagation(); showRenameModal('@name.Replace("'", "\\'").Replace("\"", "&quot;")', 'file')" 
+                                    <button onclick="event.preventDefault(); event.stopPropagation(); showRenameModal('@file.file_name?.Replace("'", "\\'").Replace("\"", "&quot;")', 'file')" 
                                             class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="重新命名">
                                         <i data-lucide="edit-3" class="h-4 w-4 text-slate-600"></i>
                                     </button>
-                                    <a href="@Url.Action("Download", "FileManager", new { area = "Backoffice", path = currentPath, name })" 
+                                    <a href="@Url.Action("Download", "FileManager", new { area = "Backoffice", code = file.code })" 
                                        onclick="event.stopPropagation()"
                                        class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="下載">
                                         <i data-lucide="download" class="h-4 w-4 text-slate-600"></i>
                                     </a>
-                                    <button onclick="event.preventDefault(); event.stopPropagation(); deleteItem('@name.Replace("'", "\\'").Replace("\"", "&quot;")', 'file')" 
+                                    <button onclick="event.preventDefault(); event.stopPropagation(); deleteItem('@file.file_name?.Replace("'", "\\'").Replace("\"", "&quot;")', 'file')" 
                                             class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="刪除">
                                         <i data-lucide="trash-2" class="h-4 w-4 text-slate-600"></i>
                                     </button>
@@ -259,6 +279,20 @@
             len = len / 1024;
         }
         return $"{len:0.##} {sizes[order]}";
+    }
+
+    bool IsInPath(string? folderCode, string? targetCode, List<Models.HnbHnbBackoffice.vw_file_manager> allFolders)
+    {
+        if (string.IsNullOrEmpty(targetCode) || string.IsNullOrEmpty(folderCode)) return false;
+        
+        var current = allFolders.FirstOrDefault(f => f.code == targetCode);
+        while (current != null)
+        {
+            if (current.parent_code == folderCode) return true;
+            current = allFolders.FirstOrDefault(f => f.code == current.parent_code);
+        }
+        
+        return false;
     }
 }
 

@@ -8,29 +8,14 @@ namespace HNB.Areas.Backoffice.Services;
 /// </summary>
 public class FileManagerServices(DirectoryManagerUtilities DM)
 {
-    #region 統一的 ViewBag 模型設置
-    /// <summary>
-    /// 設置 ViewBag 模型資料（從資料庫讀取）
-    /// </summary>
-    public void ViewBagModel(dynamic viewBag, string? parentCode = null, string? username = null)
-    {
-        viewBag.CurrentParentCode = parentCode;
-        
-        var files = DM.LoadFileList(username, parentCode);
-        
-        viewBag.Folders = files.Where(f => f.item_type == "folder").ToList();
-        viewBag.Files = files.Where(f => f.item_type == "file").ToList();
-        
-        viewBag.FolderCount = viewBag.Folders.Count;
-        viewBag.FileCount = viewBag.Files.Count;
-        viewBag.TotalSize = files.Where(f => f.item_type == "file").Sum(f => f.file_size ?? 0);
-    }
-    #endregion
 
-    #region 查詢方法（從資料庫）
+    #region 查詢方法
 
     public List<vw_file_manager> LoadFileList(string? username = null, string? parentCode = null)
         => DM.LoadFileList(username, parentCode);
+
+    public List<vw_file_manager> LoadAllFolders(string? username = null)
+        => DM.LoadAllFolders(username);
 
     public vw_file_manager? LoadFile(long? id = null, string? code = null)
         => DM.LoadFile(id, code);

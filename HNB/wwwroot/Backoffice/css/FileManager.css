@@ -1,0 +1,20 @@
+/* 檔案總管樣式 */
+
+/* 目錄樹折疊動畫 */
+.tree-chevron {
+    transition: transform 0.2s ease;
+}
+
+.tree-chevron.rotate-90 {
+    transform: rotate(90deg);
+}
+
+.tree-children {
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.tree-children.hidden {
+    max-height: 0;
+}
+

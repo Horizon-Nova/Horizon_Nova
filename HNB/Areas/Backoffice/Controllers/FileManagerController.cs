@@ -1,77 +1,7 @@
-﻿using HNB.Areas.Backoffice.Services;
+﻿using HNB.Areas.Backoffice.Controllers;
+using HNB.Areas.Backoffice.Services;
 using Microsoft.AspNetCore.Mvc;
-
-namespace HNB.Areas.Backoffice.Controllers;
-
-#region 請求與響應模型
-public class CreateItemRequest
-{
-    public string Path { get; set; } = string.Empty;
-    public string Name { get; set; } = string.Empty;
-}
-
-public class DeleteItemRequest
-{
-    public string Path { get; set; } = string.Empty;
-    public string Name { get; set; } = string.Empty;
-}
-
-public class RenameItemRequest
-{
-    public string Path { get; set; } = string.Empty;
-    public string OldName { get; set; } = string.Empty;
-    public string NewName { get; set; } = string.Empty;
-}
-
-public class SaveTextFileRequest
-{
-    public string Path { get; set; } = string.Empty;
-    public string Name { get; set; } = string.Empty;
-    public string Content { get; set; } = string.Empty;
-    public string? Encoding { get; set; } = "utf-8";
-}
-
-public class FileManagerResponse
-{
-    public bool Success { get; set; }
-    public string Message { get; set; } = string.Empty;
-}
-
-public class ReadTextFileResponse
-{
-    public bool Success { get; set; }
-    public string? Content { get; set; }
-    public string? Encoding { get; set; }
-    public DateTime? LastModified { get; set; }
-    public string? Message { get; set; }
-}
-
-public class UploadResponse
-{
-    public bool Success { get; set; }
-    public int Saved { get; set; }
-    public int Failed { get; set; }
-    public List<string>? Errors { get; set; }
-    public string Message { get; set; } = string.Empty;
-}
-
-public class LoadDirectoryResponse
-{
-    public bool Success { get; set; }
-    public object? Folders { get; set; }
-    public object? Files { get; set; }
-    public object? Breadcrumb { get; set; }
-    public object? Stats { get; set; }
-    public string? Message { get; set; }
-}
-
-public class LoadTreeResponse
-{
-    public bool Success { get; set; }
-    public object? Tree { get; set; }
-    public string? Message { get; set; }
-}
-#endregion
+using Models.HnbHnbBackoffice;
 
 [Area("Backoffice")]
 public class FileManagerController(FileManagerServices svc) : BaseController
@@ -82,9 +12,14 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// </summary>
     public IActionResult FileManager(string? parentCode = null)
     {
-        var username = User.Identity?.Name;
-        svc.ViewBagModel(ViewBag, parentCode, username);
-        return View();
+        var username = User.Identity!.Name!;
+        var files = svc.LoadFileList(username, parentCode);
+        
+        ViewBag.CurrentParentCode = parentCode;
+        ViewBag.CurrentFolder = !string.IsNullOrEmpty(parentCode) ? svc.LoadFile(code: parentCode) : null;
+        ViewBag.AllFolders = svc.LoadAllFolders(username);
+        
+        return View(files);
     }
     #endregion
 
@@ -93,30 +28,30 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// 建立資料夾
     /// </summary>
     [HttpPost]
-    public IActionResult CreateFolder([FromBody] CreateItemRequest request)
+    public IActionResult CreateFolder(string path, string name)
     {
-        var result = svc.CreateFolder(request.Path, request.Name);
-        return Json(new FileManagerResponse { Success = result.success, Message = result.message });
+        var result = svc.CreateFolder(path, name);
+        return Json(new { Success = result.success, Message = result.message });
     }
 
     /// <summary>
     /// 刪除資料夾
     /// </summary>
     [HttpPost]
-    public IActionResult DeleteFolder([FromBody] DeleteItemRequest request)
+    public IActionResult DeleteFolder(string path, string name)
     {
-        var result = svc.DeleteFolder(request.Path, request.Name);
-        return Json(new FileManagerResponse { Success = result.success, Message = result.message });
+        var result = svc.DeleteFolder(path, name);
+        return Json(new { Success = result.success, Message = result.message });
     }
 
     /// <summary>
     /// 重新命名資料夾
     /// </summary>
     [HttpPost]
-    public IActionResult RenameFolder([FromBody] RenameItemRequest request)
+    public IActionResult RenameFolder(string path, string oldName, string newName)
     {
-        var result = svc.RenameFolder(request.Path, request.OldName, request.NewName);
-        return Json(new FileManagerResponse { Success = result.success, Message = result.message });
+        var result = svc.RenameFolder(path, oldName, newName);
+        return Json(new { Success = result.success, Message = result.message });
     }
     #endregion
 
@@ -125,30 +60,30 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// 建立檔案
     /// </summary>
     [HttpPost]
-    public IActionResult CreateFile([FromBody] CreateItemRequest request)
+    public IActionResult CreateFile(string path, string name)
     {
-        var result = svc.CreateFile(request.Path, request.Name);
-        return Json(new FileManagerResponse { Success = result.success, Message = result.message });
+        var result = svc.CreateFile(path, name);
+        return Json(new { Success = result.success, Message = result.message });
     }
 
     /// <summary>
     /// 刪除檔案
     /// </summary>
     [HttpPost]
-    public IActionResult DeleteFile([FromBody] DeleteItemRequest request)
+    public IActionResult DeleteFile(string path, string name)
     {
-        var result = svc.DeleteFile(request.Path, request.Name);
-        return Json(new FileManagerResponse { Success = result.success, Message = result.message });
+        var result = svc.DeleteFile(path, name);
+        return Json(new { Success = result.success, Message = result.message });
     }
 
     /// <summary>
     /// 重新命名檔案
     /// </summary>
     [HttpPost]
-    public IActionResult RenameFile([FromBody] RenameItemRequest request)
+    public IActionResult RenameFile(string path, string oldName, string newName)
     {
-        var result = svc.RenameFile(request.Path, request.OldName, request.NewName);
-        return Json(new FileManagerResponse { Success = result.success, Message = result.message });
+        var result = svc.RenameFile(path, oldName, newName);
+        return Json(new { Success = result.success, Message = result.message });
     }
 
     /// <summary>
@@ -160,7 +95,7 @@ public class FileManagerController(FileManagerServices svc) : BaseController
         try
         {
             var (content, encoding, lastModified) = svc.LoadTextFile(path, name);
-            return Json(new ReadTextFileResponse 
+            return Json(new 
             { 
                 Success = true, 
                 Content = content, 
@@ -170,7 +105,7 @@ public class FileManagerController(FileManagerServices svc) : BaseController
         }
         catch (Exception ex)
         {
-            return Json(new ReadTextFileResponse { Success = false, Message = ex.Message });
+            return Json(new { Success = false, Message = ex.Message });
         }
     }
 
@@ -178,10 +113,10 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// 儲存文字檔案
     /// </summary>
     [HttpPost]
-    public IActionResult SaveTextFile([FromBody] SaveTextFileRequest request)
+    public IActionResult SaveTextFile(string path, string name, string content, string? encoding = "utf-8")
     {
-        var result = svc.SaveTextFile(request.Path, request.Name, request.Content, request.Encoding);
-        return Json(new FileManagerResponse { Success = result.success, Message = result.message });
+        var result = svc.SaveTextFile(path, name, content, encoding);
+        return Json(new { Success = result.success, Message = result.message });
     }
     #endregion
 
@@ -196,12 +131,12 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     public IActionResult Upload(string path, List<IFormFile> files, List<string>? keys)
     {
         if (files == null || files.Count == 0)
-            return Json(new FileManagerResponse { Success = false, Message = "未選擇檔案" });
+            return Json(new { Success = false, Message = "未選擇檔案" });
 
-        var username = User.Identity?.Name ?? "anonymous";
+        var username = User.Identity!.Name!;
         var result = svc.UploadBatchFiles(path, files, keys, username);
         
-        return Json(new UploadResponse
+        return Json(new
         {
             Success = result.success,
             Saved = result.savedCount,
@@ -229,7 +164,7 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     }
     #endregion
 
-    #region 輔助 API
+    #region AJAX API
     /// <summary>
     /// 重新載入目錄內容（AJAX，從資料庫）
     /// </summary>
@@ -238,18 +173,17 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     {
         try
         {
-            var username = User.Identity?.Name;
+            var username = User.Identity!.Name!;
             var files = svc.LoadFileList(username, parentCode);
             
             var folders = files.Where(f => f.item_type == "folder").ToList();
             var fileList = files.Where(f => f.item_type == "file").ToList();
 
-            return Json(new LoadDirectoryResponse
+            return Json(new
             {
                 Success = true,
                 Folders = folders,
                 Files = fileList,
-                Breadcrumb = null,
                 Stats = new
                 {
                     FolderCount = folders.Count,
@@ -260,7 +194,7 @@ public class FileManagerController(FileManagerServices svc) : BaseController
         }
         catch (Exception ex)
         {
-            return Json(new LoadDirectoryResponse { Success = false, Message = ex.Message });
+            return Json(new { Success = false, Message = ex.Message });
         }
     }
     #endregion

@@ -145,6 +145,9 @@ public sealed class DirectoryManagerUtilities
     public List<vw_file_manager> LoadFileList(string? username = null, string? parentCode = null)
         => _repo?.QueryFileList(username, parentCode) ?? new List<vw_file_manager>();
 
+    public List<vw_file_manager> LoadAllFolders(string? username = null)
+        => _repo?.QueryAllFolders(username) ?? new List<vw_file_manager>();
+
     public vw_file_manager? LoadFile(long? id = null, string? code = null)
         => _repo?.QueryFile(id, code);
 
