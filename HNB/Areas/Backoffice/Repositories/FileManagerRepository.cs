@@ -18,7 +18,10 @@ public class FileManagerRepository(HnbHnbBackofficeDbContext db)
 
     public List<vw_file_manager> QueryFileList(string? username = null, string? parentCode = null)
         => ValidFiles
-            .Where(f => (username == null || f.owner_username == username || f.shared_users!.Contains(username))
+            .Where(f => (username == null 
+                      || f.owner_username == username 
+                      || f.owner_username == "system"
+                      || f.shared_users!.Contains(username))
                      && (parentCode == null || f.parent_code == parentCode))
             .OrderByDescending(f => f.item_type)
             .ThenBy(f => f.file_name)
