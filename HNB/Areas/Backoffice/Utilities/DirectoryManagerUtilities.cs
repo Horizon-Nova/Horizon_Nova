@@ -61,26 +61,28 @@ public sealed class DirectoryManagerUtilities
     {
         if (!Directory.Exists(_root) || _repo == null) return;
 
-        // 一次性載入所有資料庫記錄
-        var existingFiles = _repo.QueryFileList().Select(f => f.file_path).ToHashSet();
+        // 載入所有已存在的檔案路徑和 code
+        var pathToCode = _repo.QueryAllFilePaths();
 
-        ScanDirectory("/", null);
+        ScanDirectory("", null);
 
-        void ScanDirectory(string virtualPath, string? parentCode)
+        void ScanDirectory(string relativePath, string? parentCode)
         {
-            var absPath = GetSafeAbsolutePath(virtualPath);
+            var absPath = string.IsNullOrEmpty(relativePath) ? _root : Path.Combine(_root, relativePath.TrimStart('/'));
             if (!Directory.Exists(absPath)) return;
 
             // 掃描資料夾
             foreach (var dir in Directory.GetDirectories(absPath))
             {
                 var folderName = Path.GetFileName(dir);
-                if (IsProtected(virtualPath, folderName)) continue;
+                if (IsProtected(relativePath, folderName)) continue;
 
-                var folderPath = virtualPath == "/" ? "/" + folderName : virtualPath + "/" + folderName;
+                var folderPath = string.IsNullOrEmpty(relativePath) 
+                    ? folderName 
+                    : relativePath.TrimStart('/') + "/" + folderName;
 
                 // 檢查是否已存在
-                if (!existingFiles.Contains(folderPath))
+                if (!pathToCode.ContainsKey(folderPath))
                 {
                     var code = $"folder_{Guid.NewGuid():N}";
                     
@@ -97,24 +99,25 @@ public sealed class DirectoryManagerUtilities
                         mime_type = null
                     });
                     
-                    existingFiles.Add(folderPath);
+                    pathToCode[folderPath] = code;
                 }
 
                 // 遞迴掃描子資料夾
-                var folderCode = _repo.QueryFileList().FirstOrDefault(f => f.file_path == folderPath)?.code;
-                ScanDirectory(folderPath, folderCode);
+                ScanDirectory(folderPath, pathToCode[folderPath]);
             }
 
             // 掃描檔案
             foreach (var file in Directory.GetFiles(absPath))
             {
                 var fileName = Path.GetFileName(file);
-                if (IsProtected(virtualPath, fileName)) continue;
+                if (IsProtected(relativePath, fileName)) continue;
 
-                var filePath = virtualPath == "/" ? "/" + fileName : virtualPath + "/" + fileName;
+                var filePath = string.IsNullOrEmpty(relativePath) 
+                    ? fileName 
+                    : relativePath.TrimStart('/') + "/" + fileName;
 
                 // 檢查是否已存在
-                if (!existingFiles.Contains(filePath))
+                if (!pathToCode.ContainsKey(filePath))
                 {
                     var code = $"file_{Guid.NewGuid():N}";
                     var fileInfo = new FileInfo(file);
@@ -133,7 +136,7 @@ public sealed class DirectoryManagerUtilities
                         mime_type = contentType
                     });
                     
-                    existingFiles.Add(filePath);
+                    pathToCode[filePath] = code;
                 }
             }
         }

@@ -38,6 +38,11 @@ public class FileManagerRepository(HnbHnbBackofficeDbContext db)
             .ThenBy(f => f.file_name)
             .ToList();
 
+    public Dictionary<string, string> QueryAllFilePaths()
+        => ValidFiles
+            .Where(f => !string.IsNullOrEmpty(f.file_path))
+            .ToDictionary(f => f.file_path!, f => f.code!);
+
     public vw_file_manager? QueryFile(long? id = null, string? code = null)
     {
         if (id.HasValue)

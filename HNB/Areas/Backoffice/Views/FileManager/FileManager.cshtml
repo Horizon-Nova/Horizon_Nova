@@ -206,6 +206,11 @@
                                                 class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="重新命名">
                                             <i data-lucide="edit-3" class="h-4 w-4 text-slate-600"></i>
                                         </button>
+                                        <a href="@Url.Action("DownloadFolder", "FileManager", new { area = "Backoffice", code = folder.code })" 
+                                           onclick="event.stopPropagation()"
+                                           class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="下載 ZIP">
+                                            <i data-lucide="download" class="h-4 w-4 text-slate-600"></i>
+                                        </a>
                                         <button onclick="event.preventDefault(); event.stopPropagation(); deleteItem('@folder.file_name?.Replace("'", "\\'").Replace("\"", "&quot;")', 'folder')" 
                                                 class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="刪除">
                                             <i data-lucide="trash-2" class="h-4 w-4 text-slate-600"></i>
@@ -220,6 +225,11 @@
                                             class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="重新命名">
                                         <i data-lucide="edit-3" class="h-4 w-4 text-slate-600"></i>
                                     </button>
+                                    <a href="@Url.Action("DownloadFolder", "FileManager", new { area = "Backoffice", code = folder.code })" 
+                                       onclick="event.stopPropagation()"
+                                       class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="下載 ZIP">
+                                        <i data-lucide="download" class="h-4 w-4 text-slate-600"></i>
+                                    </a>
                                     <button onclick="event.preventDefault(); event.stopPropagation(); deleteItem('@folder.file_name?.Replace("'", "\\'").Replace("\"", "&quot;")', 'folder')" 
                                             class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="刪除">
                                         <i data-lucide="trash-2" class="h-4 w-4 text-slate-600"></i>
