@@ -202,7 +202,7 @@
                                     <i data-lucide="folder" class="h-5 w-5 text-amber-500 shrink-0"></i>
                                     <span class="text-sm text-slate-900 truncate flex-1">@folder.file_name</span>
                                     <div class="flex items-center gap-1 lg:hidden">
-                                        <button onclick="event.preventDefault(); event.stopPropagation(); showRenameModal('@folder.file_name?.Replace("'", "\\'").Replace("\"", "&quot;")', 'folder')" 
+                                        <button onclick="event.preventDefault(); event.stopPropagation(); showRenameModal('@folder.code', '@folder.file_name?.Replace("'", "\\'").Replace("\"", "&quot;")', 'folder')" 
                                                 class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="重新命名">
                                             <i data-lucide="edit-3" class="h-4 w-4 text-slate-600"></i>
                                         </button>
@@ -211,7 +211,7 @@
                                            class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="下載 ZIP">
                                             <i data-lucide="download" class="h-4 w-4 text-slate-600"></i>
                                         </a>
-                                        <button onclick="event.preventDefault(); event.stopPropagation(); deleteItem('@folder.file_name?.Replace("'", "\\'").Replace("\"", "&quot;")', 'folder')" 
+                                        <button onclick="event.preventDefault(); event.stopPropagation(); deleteItem('@folder.code', '@folder.file_name?.Replace("'", "\\'").Replace("\"", "&quot;")', 'folder')" 
                                                 class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="刪除">
                                             <i data-lucide="trash-2" class="h-4 w-4 text-slate-600"></i>
                                         </button>
@@ -221,7 +221,7 @@
                                 <div class="text-xs lg:text-sm text-slate-600 hidden lg:block">—</div>
                                 <div class="text-xs lg:text-sm text-slate-600 hidden lg:block">@(folder.created_at.HasValue ? folder.created_at.Value.ToString("yyyy/MM/dd HH:mm") : "—")</div>
                                 <div class="hidden lg:flex items-center justify-end gap-1">
-                                    <button onclick="event.preventDefault(); event.stopPropagation(); showRenameModal('@folder.file_name?.Replace("'", "\\'").Replace("\"", "&quot;")', 'folder')" 
+                                    <button onclick="event.preventDefault(); event.stopPropagation(); showRenameModal('@folder.code', '@folder.file_name?.Replace("'", "\\'").Replace("\"", "&quot;")', 'folder')" 
                                             class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="重新命名">
                                         <i data-lucide="edit-3" class="h-4 w-4 text-slate-600"></i>
                                     </button>
@@ -230,7 +230,7 @@
                                        class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="下載 ZIP">
                                         <i data-lucide="download" class="h-4 w-4 text-slate-600"></i>
                                     </a>
-                                    <button onclick="event.preventDefault(); event.stopPropagation(); deleteItem('@folder.file_name?.Replace("'", "\\'").Replace("\"", "&quot;")', 'folder')" 
+                                    <button onclick="event.preventDefault(); event.stopPropagation(); deleteItem('@folder.code', '@folder.file_name?.Replace("'", "\\'").Replace("\"", "&quot;")', 'folder')" 
                                             class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="刪除">
                                         <i data-lucide="trash-2" class="h-4 w-4 text-slate-600"></i>
                                     </button>
@@ -254,7 +254,7 @@
                                 <div class="text-sm text-slate-600">@FormatSize(file.file_size ?? 0)</div>
                                 <div class="text-sm text-slate-600">@(file.created_at.HasValue ? file.created_at.Value.ToString("yyyy/MM/dd HH:mm") : "—")</div>
                                 <div class="flex items-center justify-end gap-1">
-                                    <button onclick="event.preventDefault(); event.stopPropagation(); showRenameModal('@file.file_name?.Replace("'", "\\'").Replace("\"", "&quot;")', 'file')" 
+                                    <button onclick="event.preventDefault(); event.stopPropagation(); showRenameModal('@file.code', '@file.file_name?.Replace("'", "\\'").Replace("\"", "&quot;")', 'file')" 
                                             class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="重新命名">
                                         <i data-lucide="edit-3" class="h-4 w-4 text-slate-600"></i>
                                     </button>
@@ -263,7 +263,7 @@
                                        class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="下載">
                                         <i data-lucide="download" class="h-4 w-4 text-slate-600"></i>
                                     </a>
-                                    <button onclick="event.preventDefault(); event.stopPropagation(); deleteItem('@file.file_name?.Replace("'", "\\'").Replace("\"", "&quot;")', 'file')" 
+                                    <button onclick="event.preventDefault(); event.stopPropagation(); deleteItem('@file.code', '@file.file_name?.Replace("'", "\\'").Replace("\"", "&quot;")', 'file')" 
                                             class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="刪除">
                                         <i data-lucide="trash-2" class="h-4 w-4 text-slate-600"></i>
                                     </button>

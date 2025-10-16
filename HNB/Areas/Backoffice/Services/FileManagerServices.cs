@@ -26,95 +26,126 @@ public class FileManagerServices(DirectoryManagerUtilities DM)
     #endregion
 
     #region 資料夾 CRUD 操作
-    /// <summary>
-    /// 建立資料夾
-    /// </summary>
-    /// <param name="virtualPath">虛擬路徑</param>
-    /// <param name="folderName">資料夾名稱</param>
-    /// <returns>操作結果</returns>
-    public (bool success, string message) CreateFolder(string virtualPath, string folderName)
+
+    public (bool success, string message) CreateFolder(string? parentCode, string folderName)
     {
-        DM.CreateFolder(virtualPath, folderName);
-        return (true, "資料夾已建立");
+        try
+        {
+            DM.CreateFolderByCode(parentCode, folderName);
+            return (true, "資料夾已建立");
+        }
+        catch (Exception ex)
+        {
+            return (false, ex.Message);
+        }
     }
 
-    /// <summary>
-    /// 刪除資料夾
-    /// </summary>
-    /// <param name="virtualPath">虛擬路徑</param>
-    /// <param name="folderName">資料夾名稱</param>
-    /// <returns>操作結果</returns>
-    public (bool success, string message) DeleteFolder(string virtualPath, string folderName)
+    public (bool success, string message) DeleteFolder(string code)
     {
-        DM.DeleteFolder(virtualPath, folderName);
-        return (true, "資料夾已刪除");
+        try
+        {
+            DM.DeleteByCode(code);
+            return (true, "資料夾已刪除");
+        }
+        catch (Exception ex)
+        {
+            return (false, ex.Message);
+        }
     }
 
-    /// <summary>
-    /// 重新命名資料夾
-    /// </summary>
-    /// <param name="virtualPath">虛擬路徑</param>
-    /// <param name="oldName">舊資料夾名</param>
-    /// <param name="newName">新資料夾名</param>
-    /// <returns>操作結果</returns>
-    public (bool success, string message) RenameFolder(string virtualPath, string oldName, string newName)
+    public (bool success, string message) RenameFolder(string code, string newName)
     {
-        DM.RenameFolder(virtualPath, oldName, newName);
-        return (true, "資料夾已重新命名");
+        try
+        {
+            DM.RenameByCode(code, newName);
+            return (true, "資料夾已重新命名");
+        }
+        catch (Exception ex)
+        {
+            return (false, ex.Message);
+        }
     }
+
+    public (bool success, byte[]? zipBytes, string? fileName, string message) DownloadFolderAsZip(string code)
+    {
+        try
+        {
+            var (bytes, fileName) = DM.CreateZipFromFolder(code);
+            return (true, bytes, fileName, "成功");
+        }
+        catch (Exception ex)
+        {
+            return (false, null, null, ex.Message);
+        }
+    }
+
     #endregion
 
     #region 檔案 CRUD 操作
-    /// <summary>
-    /// 建立空檔案
-    /// </summary>
-    /// <param name="virtualPath">虛擬路徑</param>
-    /// <param name="fileName">檔案名稱</param>
-    /// <returns>操作結果</returns>
-    public (bool success, string message) CreateFile(string virtualPath, string fileName)
+
+    public (bool success, string message) CreateFile(string? parentCode, string fileName)
     {
-        DM.CreateEmptyFile(virtualPath, fileName);
-        return (true, "檔案已建立");
+        try
+        {
+            DM.CreateFileByCode(parentCode, fileName);
+            return (true, "檔案已建立");
+        }
+        catch (Exception ex)
+        {
+            return (false, ex.Message);
+        }
     }
 
-    /// <summary>
-    /// 刪除檔案
-    /// </summary>
-    /// <param name="virtualPath">虛擬路徑</param>
-    /// <param name="fileName">檔案名稱</param>
-    /// <returns>操作結果</returns>
-    public (bool success, string message) DeleteFile(string virtualPath, string fileName)
+    public (bool success, string message) DeleteFile(string code)
     {
-        DM.DeleteFile(virtualPath, fileName);
-        return (true, "檔案已刪除");
+        try
+        {
+            DM.DeleteByCode(code);
+            return (true, "檔案已刪除");
+        }
+        catch (Exception ex)
+        {
+            return (false, ex.Message);
+        }
     }
 
-    /// <summary>
-    /// 重新命名檔案
-    /// </summary>
-    /// <param name="virtualPath">虛擬路徑</param>
-    /// <param name="oldName">舊檔名</param>
-    /// <param name="newName">新檔名</param>
-    /// <returns>操作結果</returns>
-    public (bool success, string message) RenameFile(string virtualPath, string oldName, string newName)
+    public (bool success, string message) RenameFile(string code, string newName)
     {
-        DM.RenameFile(virtualPath, oldName, newName);
-        return (true, "檔案已重新命名");
+        try
+        {
+            DM.RenameByCode(code, newName);
+            return (true, "檔案已重新命名");
+        }
+        catch (Exception ex)
+        {
+            return (false, ex.Message);
+        }
     }
 
-    /// <summary>
-    /// 儲存文字檔案
-    /// </summary>
-    /// <param name="virtualPath">虛擬路徑</param>
-    /// <param name="fileName">檔案名稱</param>
-    /// <param name="content">檔案內容</param>
-    /// <param name="encodingName">編碼名稱</param>
-    /// <returns>操作結果</returns>
-    public (bool success, string message) SaveTextFile(string virtualPath, string fileName, string content, string? encodingName = "utf-8")
+    public (string content, string encoding, DateTime? lastModified) ReadTextFile(string code)
     {
-        DM.SaveTextFile(virtualPath, fileName, content, encodingName);
-        return (true, "檔案已儲存");
+        var file = DM.LoadFile(code: code);
+        if (file == null) throw new FileNotFoundException("檔案不存在");
+        
+        return DM.LoadTextFileByPath(file.file_path!);
     }
+
+    public (bool success, string message) SaveTextFile(string code, string content, string? encodingName = "utf-8")
+    {
+        try
+        {
+            var file = DM.LoadFile(code: code);
+            if (file == null) throw new FileNotFoundException("檔案不存在");
+            
+            DM.SaveTextFileByPath(file.file_path!, content, encodingName);
+            return (true, "檔案已儲存");
+        }
+        catch (Exception ex)
+        {
+            return (false, ex.Message);
+        }
+    }
+
     #endregion
 
     #region 檔案上傳

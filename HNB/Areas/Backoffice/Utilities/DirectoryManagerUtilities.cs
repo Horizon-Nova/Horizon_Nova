@@ -63,8 +63,22 @@ public sealed class DirectoryManagerUtilities
 
         // 載入所有已存在的檔案路徑和 code
         var pathToCode = _repo.QueryAllFilePaths();
+        var foundPaths = new HashSet<string>();
 
         ScanDirectory("", null);
+
+        // 清理資料庫中存在但檔案系統不存在的記錄
+        foreach (var kvp in pathToCode)
+        {
+            if (!foundPaths.Contains(kvp.Key))
+            {
+                var item = _repo.QueryFile(code: kvp.Value);
+                if (item?.id != null)
+                {
+                    _repo.DeleteFile(item.id.Value);
+                }
+            }
+        }
 
         void ScanDirectory(string relativePath, string? parentCode)
         {
@@ -80,6 +94,8 @@ public sealed class DirectoryManagerUtilities
                 var folderPath = string.IsNullOrEmpty(relativePath) 
                     ? folderName 
                     : relativePath.TrimStart('/') + "/" + folderName;
+
+                foundPaths.Add(folderPath);
 
                 // 檢查是否已存在
                 if (!pathToCode.ContainsKey(folderPath))
@@ -115,6 +131,8 @@ public sealed class DirectoryManagerUtilities
                 var filePath = string.IsNullOrEmpty(relativePath) 
                     ? fileName 
                     : relativePath.TrimStart('/') + "/" + fileName;
+
+                foundPaths.Add(filePath);
 
                 // 檢查是否已存在
                 if (!pathToCode.ContainsKey(filePath))
@@ -153,6 +171,177 @@ public sealed class DirectoryManagerUtilities
 
     public vw_file_manager? LoadFile(long? id = null, string? code = null)
         => _repo?.QueryFile(id, code);
+
+    #endregion
+
+    #region 基於 Code 的操作方法
+
+    public void CreateFolderByCode(string? parentCode, string folderName)
+    {
+#if DEBUG
+        throw new InvalidOperationException("開發環境不支援此操作");
+#else
+        var parentPath = GetFilePathByCode(parentCode);
+        CreateFolder(parentPath, folderName);
+#endif
+    }
+
+    public void CreateFileByCode(string? parentCode, string fileName)
+    {
+#if DEBUG
+        throw new InvalidOperationException("開發環境不支援此操作");
+#else
+        var parentPath = GetFilePathByCode(parentCode);
+        CreateEmptyFile(parentPath, fileName);
+#endif
+    }
+
+    public void DeleteByCode(string code)
+    {
+#if DEBUG
+        throw new InvalidOperationException("開發環境不支援此操作");
+#else
+        var item = _repo?.QueryFile(code: code);
+        if (item == null) throw new FileNotFoundException("項目不存在");
+        
+        if (item.item_type == "folder")
+        {
+            var folderPath = GetAbsolutePathFromFilePath(item.file_path!);
+            if (Directory.Exists(folderPath))
+                Directory.Delete(folderPath, true);
+        }
+        else
+        {
+            var filePath = GetAbsolutePathFromFilePath(item.file_path!);
+            if (File.Exists(filePath))
+                File.Delete(filePath);
+        }
+        
+        _repo?.DeleteFile(item.id!.Value);
+#endif
+    }
+
+    public void RenameByCode(string code, string newName)
+    {
+#if DEBUG
+        throw new InvalidOperationException("開發環境不支援此操作");
+#else
+        var item = _repo?.QueryFile(code: code);
+        if (item == null) throw new FileNotFoundException("項目不存在");
+        
+        var safe = SanitizeName(newName);
+        if (string.IsNullOrWhiteSpace(safe)) throw new InvalidOperationException("新名稱不合法");
+        
+        var oldPath = GetAbsolutePathFromFilePath(item.file_path!);
+        var newPath = Path.Combine(Path.GetDirectoryName(oldPath)!, safe);
+        
+        if (item.item_type == "folder" && Directory.Exists(oldPath))
+        {
+            Directory.Move(oldPath, newPath);
+        }
+        else if (item.item_type == "file" && File.Exists(oldPath))
+        {
+            File.Move(oldPath, newPath);
+        }
+        
+        // 更新資料庫
+        var fileManager = _repo?.QueryFileManagement(code: code);
+        if (fileManager != null)
+        {
+            fileManager.file_name = safe;
+            var parentPath = !string.IsNullOrEmpty(item.parent_code) 
+                ? _repo?.QueryFile(code: item.parent_code)?.file_path 
+                : null;
+            fileManager.file_path = string.IsNullOrEmpty(parentPath) 
+                ? safe 
+                : parentPath + "/" + safe;
+            _repo?.InsertFile(fileManager);
+        }
+#endif
+    }
+
+    public (byte[] zipBytes, string fileName) CreateZipFromFolder(string code)
+    {
+#if DEBUG
+        throw new InvalidOperationException("開發環境不支援此操作");
+#else
+        var folder = _repo?.QueryFile(code: code);
+        if (folder == null || folder.item_type != "folder") 
+            throw new DirectoryNotFoundException("資料夾不存在");
+        
+        var folderPath = GetAbsolutePathFromFilePath(folder.file_path!);
+        if (!Directory.Exists(folderPath))
+            throw new DirectoryNotFoundException("資料夾不存在");
+        
+        using var ms = new MemoryStream();
+        System.IO.Compression.ZipFile.CreateFromDirectory(folderPath, ms);
+        
+        return (ms.ToArray(), $"{folder.file_name}.zip");
+#endif
+    }
+
+    public (string content, string encoding, DateTime? lastModified) LoadTextFileByPath(string filePath)
+    {
+        var absPath = GetAbsolutePathFromFilePath(filePath);
+        if (!File.Exists(absPath)) throw new FileNotFoundException("檔案不存在");
+        
+        var fi = new FileInfo(absPath);
+        if (fi.Length > 1_048_576)
+            throw new InvalidOperationException($"檔案過大（{fi.Length:N0} bytes）");
+
+        using var fs = File.OpenRead(absPath);
+        var preamble = new byte[4];
+        var read = fs.Read(preamble, 0, 4);
+        fs.Position = 0;
+
+        Encoding enc = Encoding.UTF8;
+        if (read >= 3 && preamble[0] == 0xEF && preamble[1] == 0xBB && preamble[2] == 0xBF) enc = new UTF8Encoding(true);
+        else if (read >= 2 && preamble[0] == 0xFF && preamble[1] == 0xFE) enc = Encoding.Unicode;
+        else if (read >= 2 && preamble[0] == 0xFE && preamble[1] == 0xFF) enc = Encoding.BigEndianUnicode;
+
+        using var sr = new StreamReader(fs, enc, detectEncodingFromByteOrderMarks: true);
+        var text = sr.ReadToEnd();
+        
+        return (text, enc.WebName, fi.LastWriteTimeUtc);
+    }
+
+    public void SaveTextFileByPath(string filePath, string content, string? encodingName = "utf-8")
+    {
+#if DEBUG
+        throw new InvalidOperationException("開發環境不支援此操作");
+#else
+        var absPath = GetAbsolutePathFromFilePath(filePath);
+        var enc = GetEncoding(encodingName ?? "utf-8");
+        File.WriteAllText(absPath, content, enc);
+#endif
+    }
+
+    private string GetFilePathByCode(string? code)
+    {
+        if (string.IsNullOrEmpty(code)) return "";
+        
+        var item = _repo?.QueryFile(code: code);
+        return item?.file_path ?? "";
+    }
+
+    private string GetAbsolutePathFromFilePath(string filePath)
+    {
+        if (string.IsNullOrEmpty(filePath)) return _root;
+        return Path.Combine(_root, filePath.TrimStart('/'));
+    }
+
+    private Encoding GetEncoding(string encodingName)
+    {
+        return encodingName.ToLower() switch
+        {
+            "utf-8" or "utf8" => Encoding.UTF8,
+            "utf-16" or "utf16" or "unicode" => Encoding.Unicode,
+            "utf-32" or "utf32" => Encoding.UTF32,
+            "ascii" => Encoding.ASCII,
+            "big5" => Encoding.GetEncoding("big5"),
+            _ => Encoding.UTF8
+        };
+    }
 
     #endregion
 

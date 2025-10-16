@@ -28,9 +28,9 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// 建立資料夾
     /// </summary>
     [HttpPost]
-    public IActionResult CreateFolder(string path, string name)
+    public IActionResult CreateFolder(string? parentCode, string name)
     {
-        var result = svc.CreateFolder(path, name);
+        var result = svc.CreateFolder(parentCode, name);
         return Json(new { Success = result.success, Message = result.message });
     }
 
@@ -38,9 +38,9 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// 刪除資料夾
     /// </summary>
     [HttpPost]
-    public IActionResult DeleteFolder(string path, string name)
+    public IActionResult DeleteFolder(string code)
     {
-        var result = svc.DeleteFolder(path, name);
+        var result = svc.DeleteFolder(code);
         return Json(new { Success = result.success, Message = result.message });
     }
 
@@ -48,10 +48,23 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// 重新命名資料夾
     /// </summary>
     [HttpPost]
-    public IActionResult RenameFolder(string path, string oldName, string newName)
+    public IActionResult RenameFolder(string code, string newName)
     {
-        var result = svc.RenameFolder(path, oldName, newName);
+        var result = svc.RenameFolder(code, newName);
         return Json(new { Success = result.success, Message = result.message });
+    }
+
+    /// <summary>
+    /// 下載資料夾（ZIP）
+    /// </summary>
+    [HttpGet]
+    public IActionResult DownloadFolder(string code)
+    {
+        var result = svc.DownloadFolderAsZip(code);
+        if (!result.success)
+            return NotFound(result.message);
+        
+        return File(result.zipBytes!, "application/zip", result.fileName);
     }
     #endregion
 
@@ -60,9 +73,9 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// 建立檔案
     /// </summary>
     [HttpPost]
-    public IActionResult CreateFile(string path, string name)
+    public IActionResult CreateFile(string? parentCode, string name)
     {
-        var result = svc.CreateFile(path, name);
+        var result = svc.CreateFile(parentCode, name);
         return Json(new { Success = result.success, Message = result.message });
     }
 
@@ -70,9 +83,9 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// 刪除檔案
     /// </summary>
     [HttpPost]
-    public IActionResult DeleteFile(string path, string name)
+    public IActionResult DeleteFile(string code)
     {
-        var result = svc.DeleteFile(path, name);
+        var result = svc.DeleteFile(code);
         return Json(new { Success = result.success, Message = result.message });
     }
 
@@ -80,9 +93,9 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// 重新命名檔案
     /// </summary>
     [HttpPost]
-    public IActionResult RenameFile(string path, string oldName, string newName)
+    public IActionResult RenameFile(string code, string newName)
     {
-        var result = svc.RenameFile(path, oldName, newName);
+        var result = svc.RenameFile(code, newName);
         return Json(new { Success = result.success, Message = result.message });
     }
 
@@ -90,17 +103,17 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// 讀取文字檔案
     /// </summary>
     [HttpGet]
-    public IActionResult ReadTextFile(string path, string name)
+    public IActionResult ReadTextFile(string code)
     {
         try
         {
-            var (content, encoding, lastModified) = svc.LoadTextFile(path, name);
+            var result = svc.ReadTextFile(code);
             return Json(new 
             { 
                 Success = true, 
-                Content = content, 
-                Encoding = encoding, 
-                LastModified = lastModified 
+                Content = result.content, 
+                Encoding = result.encoding, 
+                LastModified = result.lastModified 
             });
         }
         catch (Exception ex)
@@ -113,9 +126,9 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// 儲存文字檔案
     /// </summary>
     [HttpPost]
-    public IActionResult SaveTextFile(string path, string name, string content, string? encoding = "utf-8")
+    public IActionResult SaveTextFile(string code, string content, string? encoding = "utf-8")
     {
-        var result = svc.SaveTextFile(path, name, content, encoding);
+        var result = svc.SaveTextFile(code, content, encoding);
         return Json(new { Success = result.success, Message = result.message });
     }
     #endregion
