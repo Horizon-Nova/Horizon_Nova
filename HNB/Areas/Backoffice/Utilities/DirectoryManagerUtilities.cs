@@ -1,6 +1,4 @@
-﻿using HNB.Areas.Backoffice.Repositories;
-using Microsoft.AspNetCore.StaticFiles;
-using Models.HnbHnbBackoffice;
+﻿using Microsoft.AspNetCore.StaticFiles;
 using System.IO.Compression;
 using System.Net;
 using System.Text;
@@ -20,12 +18,11 @@ public sealed class DirectoryManagerUtilities
     private readonly string[] _ignorePatternsFromConfig;
     private readonly string _ignoreFileName;
     private readonly List<Regex> _protectedRegexes = new();
-    private readonly FileManagerRepository? _repo;
-    
     private static readonly Regex FolderAsciiRegex = new(@"^[A-Za-z0-9 _.\-]+$", RegexOptions.Compiled);
     private static readonly Regex InvalidChars = new(@"[\\/:*?""<>|]", RegexOptions.Compiled);
     private static readonly FileExtensionContentTypeProvider Ct = new();
 
+    // 可線上檢視/編輯的純文字副檔名
     private static readonly HashSet<string> EditableExt = new(StringComparer.OrdinalIgnoreCase)
     {
         ".txt",".md",".json",".jsonl",".js",".ts",".css",".scss",".sass",
@@ -36,390 +33,23 @@ public sealed class DirectoryManagerUtilities
 
     #region 建構子和初始化
     /// <summary>
-    /// 建構子，初始化檔案管理服務並同步資料庫
+    /// 建構子，初始化檔案管理服務
     /// </summary>
-    public DirectoryManagerUtilities(IConfiguration cfg, FileManagerRepository repo)
+    /// <param name="cfg">配置物件</param>
+    public DirectoryManagerUtilities(IConfiguration cfg)
     {
         _root = Path.GetFullPath(cfg["Storage:Root"] ?? "/app/storage");
         _ignoreCase = cfg.GetValue<bool>("Storage:IgnoreCase", true);
         _ignoreFileName = cfg["Storage:IgnoreFileName"] ?? ".backofficeignore";
         _ignorePatternsFromConfig = cfg.GetSection("Storage:IgnorePatterns").Get<string[]>() ?? Array.Empty<string>();
-        _repo = repo;
-        
-#if !DEBUG
-        // 正式環境：確保資料夾存在並同步資料庫
         Directory.CreateDirectory(_root);
         BuildIgnoreRegexCache();
-        SyncDatabaseWithFileSystem();
-#endif
     }
+    #endregion
 
+    #region 統一查詢方法
     /// <summary>
-    /// 同步資料庫與檔案系統（掃描 Volume，確保資料庫有記錄）
-    /// </summary>
-    private void SyncDatabaseWithFileSystem()
-    {
-        if (!Directory.Exists(_root) || _repo == null) return;
-
-        // 載入所有已存在的檔案路徑和 code
-        var pathToCode = _repo.QueryAllFilePaths();
-        var foundPaths = new HashSet<string>();
-
-        ScanDirectory("", null);
-
-        // 清理資料庫中存在但檔案系統不存在的記錄
-        foreach (var kvp in pathToCode)
-        {
-            if (!foundPaths.Contains(kvp.Key))
-            {
-                var item = _repo.QueryFile(code: kvp.Value);
-                if (item?.id != null)
-                {
-                    _repo.DeleteFile(item.id.Value);
-                }
-            }
-        }
-
-        void ScanDirectory(string relativePath, string? parentCode)
-        {
-            var absPath = string.IsNullOrEmpty(relativePath) ? _root : Path.Combine(_root, relativePath.TrimStart('/'));
-            if (!Directory.Exists(absPath)) return;
-
-            // 掃描資料夾
-            foreach (var dir in Directory.GetDirectories(absPath))
-            {
-                var folderName = Path.GetFileName(dir);
-                if (IsProtected(relativePath, folderName)) continue;
-
-                var folderPath = string.IsNullOrEmpty(relativePath) 
-                    ? folderName 
-                    : relativePath.TrimStart('/') + "/" + folderName;
-
-                foundPaths.Add(folderPath);
-
-                // 檢查是否已存在
-                if (!pathToCode.ContainsKey(folderPath))
-                {
-                    var code = $"folder_{Guid.NewGuid():N}";
-                    
-                    _repo.InsertFile(new file_manager
-                    {
-                        code = code,
-                        file_name = folderName,
-                        file_path = folderPath,
-                        shared_users = new List<string> { "ALL" },
-                        file_size = null,
-                        parent_code = parentCode,
-                        item_type = "folder",
-                        owner_username = "system",
-                        mime_type = null
-                    });
-                    
-                    pathToCode[folderPath] = code;
-                }
-
-                // 遞迴掃描子資料夾
-                ScanDirectory(folderPath, pathToCode[folderPath]);
-            }
-
-            // 掃描檔案
-            foreach (var file in Directory.GetFiles(absPath))
-            {
-                var fileName = Path.GetFileName(file);
-                if (IsProtected(relativePath, fileName)) continue;
-
-                var filePath = string.IsNullOrEmpty(relativePath) 
-                    ? fileName 
-                    : relativePath.TrimStart('/') + "/" + fileName;
-
-                foundPaths.Add(filePath);
-
-                // 檢查是否已存在
-                if (!pathToCode.ContainsKey(filePath))
-                {
-                    var code = $"file_{Guid.NewGuid():N}";
-                    var fileInfo = new FileInfo(file);
-                    var contentType = Ct.TryGetContentType(fileName, out var ct) ? ct : "application/octet-stream";
-
-                    _repo.InsertFile(new file_manager
-                    {
-                        code = code,
-                        file_name = fileName,
-                        file_path = filePath,
-                        shared_users = new List<string> { "ALL" },
-                        file_size = fileInfo.Length,
-                        parent_code = parentCode,
-                        item_type = "file",
-                        owner_username = "system",
-                        mime_type = contentType
-                    });
-                    
-                    pathToCode[filePath] = code;
-                }
-            }
-        }
-    }
-    #endregion
-
-    #region 統一查詢方法（從資料庫）
-
-    public List<vw_file_manager> LoadFileList(string? username = null, string? parentCode = null)
-        => _repo?.QueryFileList(username, parentCode) ?? new List<vw_file_manager>();
-
-    public List<vw_file_manager> LoadAllFolders(string? username = null)
-        => _repo?.QueryAllFolders(username) ?? new List<vw_file_manager>();
-
-    public vw_file_manager? LoadFile(long? id = null, string? code = null)
-        => _repo?.QueryFile(id, code);
-
-    #endregion
-
-    #region 基於 Code 的操作方法
-
-    public void CreateFolderByCode(string? parentCode, string folderName)
-    {
-#if DEBUG
-        throw new InvalidOperationException("開發環境不支援此操作");
-#else
-        // 1. 先操作 Volume
-        var parentPath = GetFilePathByCode(parentCode);
-        var parentAbsPath = GetAbsolutePathFromFilePath(parentPath);
-        
-        var safe = SanitizeName(folderName);
-        if (string.IsNullOrWhiteSpace(safe)) throw new InvalidOperationException($"資料夾名稱不合法：{folderName}");
-        
-        if (IsProtected(parentPath, safe)) throw new InvalidOperationException("保護路徑，禁止建立資料夾");
-        
-        var newDir = Path.Combine(parentAbsPath, safe);
-        Directory.CreateDirectory(newDir);
-        
-        // 2. 再記錄到資料庫
-        var actualFolderName = Path.GetFileName(newDir);
-        var folderPath = string.IsNullOrEmpty(parentPath) 
-            ? actualFolderName 
-            : parentPath + "/" + actualFolderName;
-        
-        var code = $"folder_{Guid.NewGuid():N}";
-        _repo?.InsertFile(new file_manager
-        {
-            code = code,
-            file_name = actualFolderName,
-            file_path = folderPath,
-            shared_users = new List<string> { "ALL" },
-            file_size = null,
-            parent_code = parentCode,
-            item_type = "folder",
-            owner_username = "system",
-            mime_type = null
-        });
-#endif
-    }
-
-    public void CreateFileByCode(string? parentCode, string fileName)
-    {
-#if DEBUG
-        throw new InvalidOperationException("開發環境不支援此操作");
-#else
-        // 1. 先操作 Volume
-        var parentPath = GetFilePathByCode(parentCode);
-        var parentAbsPath = GetAbsolutePathFromFilePath(parentPath);
-        
-        var safe = SanitizeName(fileName);
-        if (string.IsNullOrWhiteSpace(safe)) throw new InvalidOperationException($"檔名不合法：{fileName}");
-        
-        if (IsProtected(parentPath, safe)) throw new InvalidOperationException("保護路徑，禁止建立檔案");
-        
-        Directory.CreateDirectory(parentAbsPath);
-        var target = Path.Combine(parentAbsPath, safe);
-        File.WriteAllBytes(target, Array.Empty<byte>());
-        
-        // 2. 再記錄到資料庫
-        var actualFileName = Path.GetFileName(target);
-        var filePath = string.IsNullOrEmpty(parentPath) 
-            ? actualFileName 
-            : parentPath + "/" + actualFileName;
-        
-        var code = $"file_{Guid.NewGuid():N}";
-        var fileInfo = new FileInfo(target);
-        var contentType = Ct.TryGetContentType(actualFileName, out var ct) ? ct : "application/octet-stream";
-        
-        _repo?.InsertFile(new file_manager
-        {
-            code = code,
-            file_name = actualFileName,
-            file_path = filePath,
-            shared_users = new List<string> { "ALL" },
-            file_size = fileInfo.Length,
-            parent_code = parentCode,
-            item_type = "file",
-            owner_username = "system",
-            mime_type = contentType
-        });
-#endif
-    }
-
-    public void DeleteByCode(string code)
-    {
-#if DEBUG
-        throw new InvalidOperationException("開發環境不支援此操作");
-#else
-        // 先查詢資料庫取得 file_path
-        var item = _repo?.QueryFile(code: code);
-        if (item == null) throw new FileNotFoundException($"資料庫中找不到項目：{code}");
-        
-        // 1. 先操作 Volume（主要）
-        var absPath = GetAbsolutePathFromFilePath(item.file_path!);
-        
-        if (item.item_type == "folder")
-        {
-            if (Directory.Exists(absPath))
-                Directory.Delete(absPath, true);
-            // 即使 Volume 不存在，也繼續刪除資料庫記錄
-        }
-        else
-        {
-            if (File.Exists(absPath))
-                File.Delete(absPath);
-            // 即使 Volume 不存在，也繼續刪除資料庫記錄
-        }
-        
-        // 2. 再更新資料庫（輔助）
-        if (item.id.HasValue)
-            _repo?.DeleteFile(item.id.Value);
-#endif
-    }
-
-    public void RenameByCode(string code, string newName)
-    {
-#if DEBUG
-        throw new InvalidOperationException("開發環境不支援此操作");
-#else
-        var item = _repo?.QueryFile(code: code);
-        if (item == null) throw new FileNotFoundException($"資料庫中找不到項目：{code}");
-        
-        var safe = SanitizeName(newName);
-        if (string.IsNullOrWhiteSpace(safe)) throw new InvalidOperationException($"新名稱不合法：{newName}");
-        
-        // 1. 先操作 Volume（主要）
-        var oldAbsPath = GetAbsolutePathFromFilePath(item.file_path!);
-        var newAbsPath = Path.Combine(Path.GetDirectoryName(oldAbsPath)!, safe);
-        
-        if (item.item_type == "folder")
-        {
-            if (Directory.Exists(oldAbsPath))
-                Directory.Move(oldAbsPath, newAbsPath);
-        }
-        else
-        {
-            if (File.Exists(oldAbsPath))
-                File.Move(oldAbsPath, newAbsPath);
-        }
-        
-        // 2. 再更新資料庫（輔助）
-        var fileManager = _repo?.QueryFileManagement(code: code);
-        if (fileManager != null)
-        {
-            fileManager.file_name = safe;
-            var parentPath = !string.IsNullOrEmpty(item.parent_code) 
-                ? _repo?.QueryFile(code: item.parent_code)?.file_path 
-                : "";
-            fileManager.file_path = string.IsNullOrEmpty(parentPath) 
-                ? safe 
-                : parentPath + "/" + safe;
-            _repo?.InsertFile(fileManager);
-        }
-#endif
-    }
-
-    public (byte[] zipBytes, string fileName) CreateZipFromFolder(string code)
-    {
-#if DEBUG
-        throw new InvalidOperationException("開發環境不支援此操作");
-#else
-        var folder = _repo?.QueryFile(code: code);
-        if (folder == null || folder.item_type != "folder") 
-            throw new DirectoryNotFoundException("資料夾不存在");
-        
-        var folderPath = GetAbsolutePathFromFilePath(folder.file_path!);
-        if (!Directory.Exists(folderPath))
-            throw new DirectoryNotFoundException("資料夾不存在");
-        
-        using var ms = new MemoryStream();
-        System.IO.Compression.ZipFile.CreateFromDirectory(folderPath, ms);
-        
-        return (ms.ToArray(), $"{folder.file_name}.zip");
-#endif
-    }
-
-    public (string content, string encoding, DateTime? lastModified) LoadTextFileByPath(string filePath)
-    {
-        var absPath = GetAbsolutePathFromFilePath(filePath);
-        if (!File.Exists(absPath)) throw new FileNotFoundException("檔案不存在");
-        
-        var fi = new FileInfo(absPath);
-        if (fi.Length > 1_048_576)
-            throw new InvalidOperationException($"檔案過大（{fi.Length:N0} bytes）");
-
-        using var fs = File.OpenRead(absPath);
-        var preamble = new byte[4];
-        var read = fs.Read(preamble, 0, 4);
-        fs.Position = 0;
-
-        Encoding enc = Encoding.UTF8;
-        if (read >= 3 && preamble[0] == 0xEF && preamble[1] == 0xBB && preamble[2] == 0xBF) enc = new UTF8Encoding(true);
-        else if (read >= 2 && preamble[0] == 0xFF && preamble[1] == 0xFE) enc = Encoding.Unicode;
-        else if (read >= 2 && preamble[0] == 0xFE && preamble[1] == 0xFF) enc = Encoding.BigEndianUnicode;
-
-        using var sr = new StreamReader(fs, enc, detectEncodingFromByteOrderMarks: true);
-        var text = sr.ReadToEnd();
-        
-        return (text, enc.WebName, fi.LastWriteTimeUtc);
-    }
-
-    public void SaveTextFileByPath(string filePath, string content, string? encodingName = "utf-8")
-    {
-#if DEBUG
-        throw new InvalidOperationException("開發環境不支援此操作");
-#else
-        var absPath = GetAbsolutePathFromFilePath(filePath);
-        var enc = GetEncoding(encodingName ?? "utf-8");
-        File.WriteAllText(absPath, content, enc);
-#endif
-    }
-
-    private string GetFilePathByCode(string? code)
-    {
-        if (string.IsNullOrEmpty(code)) return "";
-        
-        var item = _repo?.QueryFile(code: code);
-        return item?.file_path ?? "";
-    }
-
-    private string GetAbsolutePathFromFilePath(string filePath)
-    {
-        if (string.IsNullOrEmpty(filePath)) return _root;
-        return Path.Combine(_root, filePath.TrimStart('/'));
-    }
-
-    private Encoding GetEncoding(string encodingName)
-    {
-        return encodingName.ToLower() switch
-        {
-            "utf-8" or "utf8" => Encoding.UTF8,
-            "utf-16" or "utf16" or "unicode" => Encoding.Unicode,
-            "utf-32" or "utf32" => Encoding.UTF32,
-            "ascii" => Encoding.ASCII,
-            "big5" => Encoding.GetEncoding("big5"),
-            _ => Encoding.UTF8
-        };
-    }
-
-    #endregion
-
-    #region 本地檔案系統查詢方法
-
-    /// <summary>
-    /// 載入資料夾清單（本地檔案系統）
+    /// 載入資料夾清單
     /// </summary>
     /// <param name="virtualPath">虛擬路徑</param>
     /// <returns>資料夾清單</returns>
@@ -481,20 +111,41 @@ public sealed class DirectoryManagerUtilities
     public List<(string Name, string VirtualPath, int Depth)> LoadTree()
     {
         var tree = new List<(string, string, int)> { ("根目錄", "/", 0) };
-        Dfs("/", 1);
+        try
+        {
+            Dfs("/", 1);
+        }
+        catch (Exception)
+        {
+            // 如果載入失敗，返回只有根目錄的列表
+            // 避免整個頁面因為目錄樹載入失敗而崩潰
+        }
         return tree;
 
         void Dfs(string curV, int depth)
         {
             var curAbs = GetSafeAbsolutePath(curV);
-            foreach (var dir in Directory.EnumerateDirectories(curAbs).OrderBy(Path.GetFileName))
+            if (!Directory.Exists(curAbs)) return;
+            
+            try
             {
-                var name = Path.GetFileName(dir);
-                if (IsProtected(curV, name)) continue;
+                foreach (var dir in Directory.EnumerateDirectories(curAbs).OrderBy(Path.GetFileName))
+                {
+                    var name = Path.GetFileName(dir);
+                    if (IsProtected(curV, name)) continue;
 
-                var childV = curV == "/" ? "/" + name : curV + "/" + name;
-                tree.Add((name, childV, depth));
-                Dfs(childV, depth + 1);
+                    var childV = curV == "/" ? "/" + name : curV + "/" + name;
+                    tree.Add((name, childV, depth));
+                    Dfs(childV, depth + 1);
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
+                // 如果沒有權限訪問某個目錄，跳過它
+            }
+            catch (Exception)
+            {
+                // 其他錯誤也跳過，避免整個樹載入失敗
             }
         }
     }
@@ -536,18 +187,19 @@ public sealed class DirectoryManagerUtilities
     }
     #endregion
 
-    #region 基本 CRUD 操作（只在正式環境執行）
-
+    #region 基本 CRUD 操作
     /// <summary>
     /// 建立資料夾
     /// </summary>
+    /// <param name="virtualPath">虛擬路徑</param>
+    /// <param name="folderName">資料夾名稱</param>
     public void CreateFolder(string virtualPath, string folderName)
     {
-#if DEBUG
-        throw new InvalidOperationException("開發環境不支援此操作");
-#else
         var absDir = GetSafeAbsolutePath(virtualPath);
         Directory.CreateDirectory(absDir);
+
+        // 移除 ASCII 限制，允許中文資料夾名稱
+        // EnsureFolderAsciiOnlyOrThrow(folderName);
 
         var safe = SanitizeName(folderName);
         if (string.IsNullOrWhiteSpace(safe)) throw new InvalidOperationException("資料夾名稱不合法");
@@ -555,14 +207,15 @@ public sealed class DirectoryManagerUtilities
 
         var newDir = EnsureUniqueDirectory(Path.Combine(absDir, safe));
         Directory.CreateDirectory(newDir);
-#endif
     }
 
+    /// <summary>
+    /// 建立空檔案
+    /// </summary>
+    /// <param name="virtualPath">虛擬路徑</param>
+    /// <param name="fileName">檔案名稱</param>
     public void CreateEmptyFile(string virtualPath, string fileName)
     {
-#if DEBUG
-        throw new InvalidOperationException("開發環境不支援此操作");
-#else
         var absDir = GetSafeAbsolutePath(virtualPath);
         Directory.CreateDirectory(absDir);
 
@@ -572,14 +225,15 @@ public sealed class DirectoryManagerUtilities
 
         var target = EnsureUniqueFile(Path.Combine(absDir, safe));
         File.WriteAllBytes(target, Array.Empty<byte>());
-#endif
     }
 
+    /// <summary>
+    /// 刪除檔案
+    /// </summary>
+    /// <param name="virtualPath">虛擬路徑</param>
+    /// <param name="fileName">檔案名稱</param>
     public void DeleteFile(string virtualPath, string fileName)
     {
-#if DEBUG
-        throw new InvalidOperationException("開發環境不支援此操作");
-#else
         if (string.IsNullOrWhiteSpace(fileName)) throw new InvalidOperationException("檔案名稱不可為空");
         if (IsProtected(virtualPath, fileName)) throw new InvalidOperationException("保護路徑，禁止刪除");
         
@@ -590,18 +244,20 @@ public sealed class DirectoryManagerUtilities
         
         var full = Path.Combine(absDir, safe);
         
+        // 安全檢查：確保刪除的是檔案，且路徑包含檔案名稱
         if (!full.EndsWith(safe)) throw new InvalidOperationException("路徑驗證失敗");
         if (!File.Exists(full)) throw new FileNotFoundException($"檔案不存在: {fileName}");
         
         File.Delete(full);
-#endif
     }
 
+    /// <summary>
+    /// 刪除資料夾
+    /// </summary>
+    /// <param name="virtualPath">虛擬路徑</param>
+    /// <param name="folderName">資料夾名稱</param>
     public void DeleteFolder(string virtualPath, string folderName)
     {
-#if DEBUG
-        throw new InvalidOperationException("開發環境不支援此操作");
-#else
         if (string.IsNullOrWhiteSpace(folderName)) throw new InvalidOperationException("資料夾名稱不可為空");
         if (IsProtected(virtualPath, folderName)) throw new InvalidOperationException("保護路徑，禁止刪除");
         
@@ -612,20 +268,24 @@ public sealed class DirectoryManagerUtilities
         
         var dir = Path.Combine(absDir, safe);
         
+        // 安全檢查：確保刪除的是資料夾，且路徑包含資料夾名稱
         if (!dir.EndsWith(safe)) throw new InvalidOperationException("路徑驗證失敗");
         if (!Directory.Exists(dir)) throw new DirectoryNotFoundException($"資料夾不存在: {folderName}");
         
+        // 額外安全檢查：確保不是刪除根目錄或父目錄
         if (dir == _root || dir.Length <= _root.Length) throw new InvalidOperationException("禁止刪除根目錄");
         
         Directory.Delete(dir, recursive: true);
-#endif
     }
 
+    /// <summary>
+    /// 重新命名檔案
+    /// </summary>
+    /// <param name="virtualPath">虛擬路徑</param>
+    /// <param name="oldName">舊檔名</param>
+    /// <param name="newName">新檔名</param>
     public void RenameFile(string virtualPath, string oldName, string newName)
     {
-#if DEBUG
-        throw new InvalidOperationException("開發環境不支援此操作");
-#else
         var absDir = GetSafeAbsolutePath(virtualPath);
         var src = Path.Combine(absDir, SanitizeName(oldName));
         var newSafe = SanitizeName(newName);
@@ -637,15 +297,19 @@ public sealed class DirectoryManagerUtilities
         if (File.Exists(dst)) throw new InvalidOperationException("目標檔名已存在");
 
         File.Move(src, dst);
-#endif
     }
 
+    /// <summary>
+    /// 重新命名資料夾
+    /// </summary>
+    /// <param name="virtualPath">虛擬路徑</param>
+    /// <param name="oldName">舊資料夾名</param>
+    /// <param name="newName">新資料夾名</param>
     public void RenameFolder(string virtualPath, string oldName, string newName)
     {
-#if DEBUG
-        throw new InvalidOperationException("開發環境不支援此操作");
-#else
         var absDir = GetSafeAbsolutePath(virtualPath);
+        // 移除 ASCII 限制，允許中文資料夾名稱
+        // EnsureFolderAsciiOnlyOrThrow(newName);
 
         var src = Path.Combine(absDir, SanitizeName(oldName));
         var newSafe = SanitizeName(newName);
@@ -657,14 +321,17 @@ public sealed class DirectoryManagerUtilities
         if (Directory.Exists(dst)) throw new InvalidOperationException("目標資料夾已存在");
 
         Directory.Move(src, dst);
-#endif
     }
 
+    /// <summary>
+    /// 儲存文字檔案
+    /// </summary>
+    /// <param name="virtualPath">虛擬路徑</param>
+    /// <param name="fileName">檔案名稱</param>
+    /// <param name="content">檔案內容</param>
+    /// <param name="encodingName">編碼名稱</param>
     public void SaveTextFile(string virtualPath, string fileName, string content, string? encodingName = "utf-8")
     {
-#if DEBUG
-        throw new InvalidOperationException("開發環境不支援此操作");
-#else
         if (IsProtected(virtualPath, fileName))
             throw new InvalidOperationException("保護路徑，禁止寫入");
         if (!IsEditable(fileName))
@@ -680,7 +347,6 @@ public sealed class DirectoryManagerUtilities
             : Encoding.UTF8;
 
         File.WriteAllText(full, content ?? string.Empty, enc);
-#endif
     }
 
     /// <summary>
@@ -709,6 +375,9 @@ public sealed class DirectoryManagerUtilities
     /// <summary>
     /// 準備單一檔案上傳目標
     /// </summary>
+    /// <param name="virtualPath">虛擬路徑</param>
+    /// <param name="originalFileName">原始檔名</param>
+    /// <returns>絕對路徑和安全檔名</returns>
     public (string AbsFilePath, string SafeFileName) PrepareSingleUploadTarget(string virtualPath, string originalFileName)
     {
         var absDir = GetSafeAbsolutePath(virtualPath);
@@ -722,41 +391,12 @@ public sealed class DirectoryManagerUtilities
         return (absTarget, Path.GetFileName(absTarget));
     }
 
-    public (string SafeFileName, string Code) SaveUploadedFile(string virtualPath, IFormFile file, string username)
-    {
-#if DEBUG
-        throw new InvalidOperationException("開發環境不支援此操作");
-#else
-        var (absPath, safeName) = PrepareSingleUploadTarget(virtualPath, file.FileName);
-        
-        using (var stream = new FileStream(absPath, FileMode.Create))
-        {
-            file.CopyTo(stream);
-        }
-
-        var code = $"file_{Guid.NewGuid():N}";
-        var fileInfo = new FileInfo(absPath);
-        
-        _repo?.InsertFile(new file_manager
-        {
-            code = code,
-            file_name = safeName,
-            file_path = virtualPath.TrimEnd('/') + "/" + safeName,
-            shared_users = new List<string> { "ALL" },
-            file_size = fileInfo.Length,
-            parent_code = null,
-            item_type = "file",
-            owner_username = username,
-            mime_type = file.ContentType
-        });
-
-        return (safeName, code);
-#endif
-    }
-
     /// <summary>
     /// 準備批量上傳目標（支援相對路徑）
     /// </summary>
+    /// <param name="virtualPath">虛擬路徑</param>
+    /// <param name="relativePath">相對路徑</param>
+    /// <returns>絕對路徑、安全檔名和目標虛擬目錄</returns>
     public (string AbsFilePath, string SafeFileName, string TargetVirtualDir) PrepareBatchUploadTarget(string virtualPath, string relativePath)
     {
         var rel = (relativePath ?? "").Replace('\\', '/').Trim('/');
@@ -767,6 +407,8 @@ public sealed class DirectoryManagerUtilities
         if (string.IsNullOrWhiteSpace(safeRel)) throw new InvalidOperationException("檔名不合法");
 
         var segs = safeRel.Split('/', StringSplitOptions.RemoveEmptyEntries);
+        // 移除 ASCII 限制，允許中文資料夾名稱
+        // for (int i = 0; i < segs.Length - 1; i++) EnsureFolderAsciiOnlyOrThrow(segs[i]);
 
         var dirPart = Path.GetDirectoryName("/" + safeRel)?.Replace('\\', '/') ?? "/";
         var filePart = SanitizeName(Path.GetFileName(safeRel));
@@ -779,54 +421,6 @@ public sealed class DirectoryManagerUtilities
 
         var absTarget = EnsureUniqueFile(Path.Combine(absDir, filePart));
         return (absTarget, Path.GetFileName(absTarget), targetVDir);
-    }
-
-    public (int savedCount, int failedCount, List<string> errors) SaveBatchUploadedFiles(string virtualPath, List<IFormFile> files, List<string>? relativePaths, string username)
-    {
-#if DEBUG
-        throw new InvalidOperationException("開發環境不支援此操作");
-#else
-        var saved = 0;
-        var errors = new List<string>();
-        
-        relativePaths ??= files.Select(f => f.FileName).ToList();
-        
-        if (relativePaths.Count != files.Count)
-        {
-            errors.Add("檔案數量與路徑數量不符");
-            return (0, 1, errors);
-        }
-        
-        for (int i = 0; i < files.Count; i++)
-        {
-            var (absPath, safeName, targetVDir) = PrepareBatchUploadTarget(virtualPath, relativePaths[i]);
-            
-            using (var stream = new FileStream(absPath, FileMode.Create))
-            {
-                files[i].CopyTo(stream);
-            }
-
-            var code = $"file_{Guid.NewGuid():N}";
-            var fileInfo = new FileInfo(absPath);
-            
-            _repo?.InsertFile(new file_manager
-            {
-                code = code,
-                file_name = safeName,
-                file_path = targetVDir.TrimEnd('/') + "/" + safeName,
-                shared_users = new List<string> { "ALL" },
-                file_size = fileInfo.Length,
-                parent_code = null,
-                item_type = "file",
-                owner_username = username,
-                mime_type = files[i].ContentType
-            });
-            
-            saved++;
-        }
-        
-        return (saved, errors.Count, errors);
-#endif
     }
 
     /// <summary>
@@ -1034,6 +628,7 @@ public sealed class DirectoryManagerUtilities
         var rel = (v == "/" ? "" : v.TrimStart('/') + "/") + (name ?? "");
         rel = rel.Trim('/');
 
+        // 當作資料夾語意再試一次（尾斜線）
         var folderRel = rel.Length == 0 ? "" : rel + "/";
 
         foreach (var rx in _protectedRegexes)
@@ -1052,6 +647,7 @@ public sealed class DirectoryManagerUtilities
 
         var patterns = new List<string>(_ignorePatternsFromConfig);
 
+        // 從根目錄讀 ignore 檔
         var ignoreFile = Path.Combine(_root, _ignoreFileName);
         if (File.Exists(ignoreFile))
         {
@@ -1063,6 +659,7 @@ public sealed class DirectoryManagerUtilities
             }
         }
 
+        // 預設也保護 ignore 檔本身
         if (!patterns.Contains(_ignoreFileName)) patterns.Add(_ignoreFileName);
 
         var rxOpt = (_ignoreCase ? RegexOptions.IgnoreCase : 0) | RegexOptions.Compiled;
