@@ -150,37 +150,7 @@ function toggleTreeNode(event, element) {
     }
 }
 
-// ========== Modal 操作 ==========
-
-function showModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-        
-        // 聚焦到輸入框
-        const input = modal.querySelector('input[type="text"]');
-        if (input) {
-            setTimeout(() => input.focus(), 100);
-        }
-    }
-}
-
-function hideModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-    }
-}
-
 // ========== 新增資料夾 ==========
-
-function showCreateFolderModal() {
-    const input = document.getElementById('folderNameInput');
-    if (input) input.value = '';
-    showModal('createFolderModal');
-}
 
 async function createFolder() {
     const name = document.getElementById('folderNameInput').value.trim();
@@ -199,7 +169,7 @@ async function createFolder() {
         const result = await response.json();
         
         if (result.success) {
-            hideModal('createFolderModal');
+            closeModal('createFolderModal');
             location.reload();
         } else {
             alert(result.message);
@@ -210,12 +180,6 @@ async function createFolder() {
 }
 
 // ========== 新增檔案 ==========
-
-function showCreateFileModal() {
-    const input = document.getElementById('fileNameInput');
-    if (input) input.value = '';
-    showModal('createFileModal');
-}
 
 async function createFile() {
     const name = document.getElementById('fileNameInput').value.trim();
@@ -234,7 +198,7 @@ async function createFile() {
         const result = await response.json();
         
         if (result.success) {
-            hideModal('createFileModal');
+            closeModal('createFileModal');
             location.reload();
         } else {
             alert(result.message);
@@ -253,15 +217,16 @@ function showRenameModal(name, type) {
     const input = document.getElementById('renameInput');
     
     if (title) title.textContent = type === 'folder' ? '重新命名資料夾' : '重新命名檔案';
+    if (input) input.value = name;
+    
+    showModal('renameModal');
+    
     if (input) {
-        input.value = name;
         setTimeout(() => {
             input.focus();
             input.select();
         }, 100);
     }
-    
-    showModal('renameModal');
 }
 
 async function confirmRename() {
@@ -272,7 +237,7 @@ async function confirmRename() {
     }
     
     if (newName === renameTarget.name) {
-        hideModal('renameModal');
+        closeModal('renameModal');
         return;
     }
     
@@ -291,7 +256,7 @@ async function confirmRename() {
         const result = await response.json();
         
         if (result.success) {
-            hideModal('renameModal');
+            closeModal('renameModal');
             location.reload();
         } else {
             alert(result.message);
@@ -370,7 +335,7 @@ async function confirmDelete() {
         console.log('[刪除結果]', result);
         
         if (result.success) {
-            hideModal('deleteModal');
+            closeModal('deleteModal');
             location.reload();
         } else {
             alert(result.message);
@@ -825,10 +790,10 @@ function closeFileEditor() {
 document.addEventListener('keydown', function(e) {
     // ESC 鍵關閉所有 Modal
     if (e.key === 'Escape') {
-        hideModal('createFolderModal');
-        hideModal('createFileModal');
-        hideModal('renameModal');
-        hideModal('deleteModal');
+        closeModal('createFolderModal');
+        closeModal('createFileModal');
+        closeModal('renameModal');
+        closeModal('deleteModal');
         
         // 關閉檔案編輯器
         const editorModal = document.getElementById('fileEditorModal');

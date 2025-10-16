@@ -9,12 +9,28 @@
     transform: rotate(90deg);
 }
 
-.tree-children {
-    overflow: hidden;
-    transition: max-height 0.3s ease;
+/* Drag & Drop 上傳區動畫 */
+#dropZone {
+    transition: all 0.2s ease;
 }
 
-.tree-children.hidden {
-    max-height: 0;
+#dropZone.drag-over {
+    border-color: #3b82f6;
+    background-color: #eff6ff;
 }
 
+/* 檔案項目 hover 效果 */
+.file-item:hover .file-actions {
+    opacity: 1;
+}
+
+.file-actions {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+@media (max-width: 768px) {
+    .file-actions {
+        opacity: 1;
+    }
+}
