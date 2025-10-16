@@ -102,6 +102,7 @@ public partial class HnbHnbBackofficeDbContext : DbContext
                 .HasComment("是否已軟刪除");
             entity.Property(e => e.item_type).HasComment("類型（file/folder）");
             entity.Property(e => e.mime_type).HasComment("MIME 類型");
+            entity.Property(e => e.mode).HasComment("環境模式（development=開發區/測試區, production=正式區）");
             entity.Property(e => e.owner_username).HasComment("擁有者使用者名稱");
             entity.Property(e => e.parent_code).HasComment("上層資料夾 code");
             entity.Property(e => e.shared_users).HasComment("共享使用者陣列");

@@ -3,6 +3,7 @@ using System.IO.Compression;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
+using Models.HnbHnbBackoffice;
 
 namespace HNB.Areas.Backoffice.Utilities;
 
@@ -29,6 +30,9 @@ public sealed class DirectoryManagerUtilities
         ".cs",".cshtml",".html",".htm",".xml",".yml",".yaml",".ini",".conf",".cfg",
         ".log",".py",".sh",".bat",".ps1",".sql",".env",".properties",".toml",".gitignore",".editorconfig"
     };
+    
+    // 延遲載入 Repository（避免循環依賴）
+    private readonly IServiceProvider _serviceProvider;
     #endregion
 
     #region 建構子和初始化
@@ -36,12 +40,14 @@ public sealed class DirectoryManagerUtilities
     /// 建構子，初始化檔案管理服務
     /// </summary>
     /// <param name="cfg">配置物件</param>
-    public DirectoryManagerUtilities(IConfiguration cfg)
+    /// <param name="serviceProvider">服務提供者</param>
+    public DirectoryManagerUtilities(IConfiguration cfg, IServiceProvider serviceProvider)
     {
         _root = Path.GetFullPath(cfg["Storage:Root"] ?? "/app/storage");
         _ignoreCase = cfg.GetValue<bool>("Storage:IgnoreCase", true);
         _ignoreFileName = cfg["Storage:IgnoreFileName"] ?? ".backofficeignore";
         _ignorePatternsFromConfig = cfg.GetSection("Storage:IgnorePatterns").Get<string[]>() ?? Array.Empty<string>();
+        _serviceProvider = serviceProvider;
         Directory.CreateDirectory(_root);
         BuildIgnoreRegexCache();
     }
@@ -117,8 +123,6 @@ public sealed class DirectoryManagerUtilities
         }
         catch (Exception)
         {
-            // 如果載入失敗，返回只有根目錄的列表
-            // 避免整個頁面因為目錄樹載入失敗而崩潰
         }
         return tree;
 
@@ -141,11 +145,9 @@ public sealed class DirectoryManagerUtilities
             }
             catch (UnauthorizedAccessException)
             {
-                // 如果沒有權限訪問某個目錄，跳過它
             }
             catch (Exception)
             {
-                // 其他錯誤也跳過，避免整個樹載入失敗
             }
         }
     }
@@ -193,20 +195,19 @@ public sealed class DirectoryManagerUtilities
     /// </summary>
     /// <param name="virtualPath">虛擬路徑</param>
     /// <param name="folderName">資料夾名稱</param>
-    public void CreateFolder(string virtualPath, string folderName)
+    /// <param name="currentUsername">當前用戶名</param>
+    public void CreateFolder(string virtualPath, string folderName, string? currentUsername = null)
     {
         var absDir = GetSafeAbsolutePath(virtualPath);
         Directory.CreateDirectory(absDir);
-
-        // 移除 ASCII 限制，允許中文資料夾名稱
-        // EnsureFolderAsciiOnlyOrThrow(folderName);
-
         var safe = SanitizeName(folderName);
         if (string.IsNullOrWhiteSpace(safe)) throw new InvalidOperationException("資料夾名稱不合法");
         if (IsProtected(virtualPath, safe)) throw new InvalidOperationException("保護路徑，禁止建立資料夾");
 
         var newDir = EnsureUniqueDirectory(Path.Combine(absDir, safe));
         Directory.CreateDirectory(newDir);
+        
+        UpdateFile(virtualPath, Path.GetFileName(newDir), currentUsername);
     }
 
     /// <summary>
@@ -214,7 +215,8 @@ public sealed class DirectoryManagerUtilities
     /// </summary>
     /// <param name="virtualPath">虛擬路徑</param>
     /// <param name="fileName">檔案名稱</param>
-    public void CreateEmptyFile(string virtualPath, string fileName)
+    /// <param name="currentUsername">當前用戶名</param>
+    public void CreateEmptyFile(string virtualPath, string fileName, string? currentUsername = null)
     {
         var absDir = GetSafeAbsolutePath(virtualPath);
         Directory.CreateDirectory(absDir);
@@ -225,6 +227,8 @@ public sealed class DirectoryManagerUtilities
 
         var target = EnsureUniqueFile(Path.Combine(absDir, safe));
         File.WriteAllBytes(target, Array.Empty<byte>());
+        
+        UpdateFile(virtualPath, Path.GetFileName(target), currentUsername);
     }
 
     /// <summary>
@@ -244,11 +248,12 @@ public sealed class DirectoryManagerUtilities
         
         var full = Path.Combine(absDir, safe);
         
-        // 安全檢查：確保刪除的是檔案，且路徑包含檔案名稱
         if (!full.EndsWith(safe)) throw new InvalidOperationException("路徑驗證失敗");
         if (!File.Exists(full)) throw new FileNotFoundException($"檔案不存在: {fileName}");
         
         File.Delete(full);
+        
+        DeleteFileFromDatabase(virtualPath, fileName);
     }
 
     /// <summary>
@@ -268,14 +273,14 @@ public sealed class DirectoryManagerUtilities
         
         var dir = Path.Combine(absDir, safe);
         
-        // 安全檢查：確保刪除的是資料夾，且路徑包含資料夾名稱
         if (!dir.EndsWith(safe)) throw new InvalidOperationException("路徑驗證失敗");
         if (!Directory.Exists(dir)) throw new DirectoryNotFoundException($"資料夾不存在: {folderName}");
         
-        // 額外安全檢查：確保不是刪除根目錄或父目錄
         if (dir == _root || dir.Length <= _root.Length) throw new InvalidOperationException("禁止刪除根目錄");
         
         Directory.Delete(dir, recursive: true);
+        
+        DeleteFileFromDatabase(virtualPath, folderName);
     }
 
     /// <summary>
@@ -297,6 +302,12 @@ public sealed class DirectoryManagerUtilities
         if (File.Exists(dst)) throw new InvalidOperationException("目標檔名已存在");
 
         File.Move(src, dst);
+        
+        var existingRecord = _serviceProvider.GetService<Repositories.FileManagerRepository>()?.QueryFileManager(virtualPath: virtualPath, fileName: oldName);
+        var sharedUsers = existingRecord?.shared_users;
+        
+        DeleteFileFromDatabase(virtualPath, oldName);
+        UpdateFileWithSharedUsers(virtualPath, newSafe, sharedUsers);
     }
 
     /// <summary>
@@ -308,8 +319,6 @@ public sealed class DirectoryManagerUtilities
     public void RenameFolder(string virtualPath, string oldName, string newName)
     {
         var absDir = GetSafeAbsolutePath(virtualPath);
-        // 移除 ASCII 限制，允許中文資料夾名稱
-        // EnsureFolderAsciiOnlyOrThrow(newName);
 
         var src = Path.Combine(absDir, SanitizeName(oldName));
         var newSafe = SanitizeName(newName);
@@ -321,6 +330,12 @@ public sealed class DirectoryManagerUtilities
         if (Directory.Exists(dst)) throw new InvalidOperationException("目標資料夾已存在");
 
         Directory.Move(src, dst);
+        
+        var existingRecord = _serviceProvider.GetService<Repositories.FileManagerRepository>()?.QueryFileManager(virtualPath: virtualPath, fileName: oldName);
+        var sharedUsers = existingRecord?.shared_users;
+        
+        DeleteFileFromDatabase(virtualPath, oldName);
+        UpdateFileWithSharedUsers(virtualPath, newSafe, sharedUsers);
     }
 
     /// <summary>
@@ -347,6 +362,8 @@ public sealed class DirectoryManagerUtilities
             : Encoding.UTF8;
 
         File.WriteAllText(full, content ?? string.Empty, enc);
+        
+        UpdateFile(virtualPath, safe);
     }
 
     /// <summary>
@@ -407,8 +424,6 @@ public sealed class DirectoryManagerUtilities
         if (string.IsNullOrWhiteSpace(safeRel)) throw new InvalidOperationException("檔名不合法");
 
         var segs = safeRel.Split('/', StringSplitOptions.RemoveEmptyEntries);
-        // 移除 ASCII 限制，允許中文資料夾名稱
-        // for (int i = 0; i < segs.Length - 1; i++) EnsureFolderAsciiOnlyOrThrow(segs[i]);
 
         var dirPart = Path.GetDirectoryName("/" + safeRel)?.Replace('\\', '/') ?? "/";
         var filePart = SanitizeName(Path.GetFileName(safeRel));
@@ -601,20 +616,6 @@ public sealed class DirectoryManagerUtilities
     }
 
     /// <summary>
-    /// 確保資料夾名稱符合ASCII規範
-    /// </summary>
-    /// <param name="rawName">原始名稱</param>
-    /// <exception cref="InvalidOperationException">當名稱不符合規範時拋出</exception>
-    private void EnsureFolderAsciiOnlyOrThrow(string? rawName)
-    {
-        var name = WebUtility.HtmlDecode(rawName ?? string.Empty).Trim();
-        if (string.IsNullOrWhiteSpace(name))
-            throw new InvalidOperationException("資料夾名稱不可為空");
-        if (!FolderAsciiRegex.IsMatch(name))
-            throw new InvalidOperationException("資料夾名稱僅限英文/數字/空白/.-_（不允許中文或其他非 ASCII 字元）");
-    }
-
-    /// <summary>
     /// 檢查路徑是否受保護
     /// </summary>
     /// <param name="virtualPath">虛擬路徑</param>
@@ -706,6 +707,192 @@ public sealed class DirectoryManagerUtilities
         sb.Append('$');
         return new Regex(sb.ToString(), options);
     }
+    #endregion
+
+    #region 資料庫同步方法
+
+    /// <summary>
+    /// 更新檔案到資料庫（公開方法，統一處理所有檔案操作的同步）
+    /// 自動判斷檔案類型、大小、MIME 類型
+    /// </summary>
+    public void UpdateFile(string virtualPath, string fileName, string? currentUsername = null)
+    {
+        var repo = _serviceProvider.GetService<Repositories.FileManagerRepository>();
+        if (repo == null) return;
+        
+        var absDir = GetSafeAbsolutePath(virtualPath);
+        var fullPath = Path.Combine(absDir, fileName);
+        
+        var isDirectory = Directory.Exists(fullPath);
+        var isFile = File.Exists(fullPath);
+        
+        if (!isDirectory && !isFile) return;
+        
+        var sharedUsers = !string.IsNullOrEmpty(currentUsername) 
+            ? new List<string> { currentUsername } 
+            : null;
+        
+        var data = new file_manager
+        {
+            file_name = fileName,
+            file_path = virtualPath,
+            item_type = isDirectory ? "folder" : "file",
+            file_size = isFile ? new FileInfo(fullPath).Length : null,
+            mime_type = isFile ? GetMimeType(fileName) : null,
+            shared_users = sharedUsers
+        };
+        
+        repo.InsertFileManager(data);
+    }
+
+    /// <summary>
+    /// 從資料庫刪除檔案（物理刪除）
+    /// </summary>
+    private void DeleteFileFromDatabase(string virtualPath, string fileName)
+    {
+        var repo = _serviceProvider.GetService<Repositories.FileManagerRepository>();
+        if (repo == null) return;
+        
+        repo.DeleteFileManager(virtualPath, fileName);
+    }
+
+    /// <summary>
+    /// 更新檔案並保留 shared_users（用於重命名）
+    /// </summary>
+    private void UpdateFileWithSharedUsers(string virtualPath, string fileName, List<string>? sharedUsers)
+    {
+        var repo = _serviceProvider.GetService<Repositories.FileManagerRepository>();
+        if (repo == null) return;
+        
+        var absDir = GetSafeAbsolutePath(virtualPath);
+        var fullPath = Path.Combine(absDir, fileName);
+        
+        var isDirectory = Directory.Exists(fullPath);
+        var isFile = File.Exists(fullPath);
+        
+        if (!isDirectory && !isFile) return;
+        
+        var data = new file_manager
+        {
+            file_name = fileName,
+            file_path = virtualPath,
+            item_type = isDirectory ? "folder" : "file",
+            file_size = isFile ? new FileInfo(fullPath).Length : null,
+            mime_type = isFile ? GetMimeType(fileName) : null,
+            shared_users = sharedUsers
+        };
+        
+        repo.InsertFileManager(data);
+    }
+
+    /// <summary>
+    /// 完整同步檔案系統到資料庫（應用啟動時呼叫）
+    /// 掃描檔案系統並記錄，同時清理資料庫中不存在的記錄
+    /// </summary>
+    public void SyncAllFilesToDatabase()
+    {
+        var repo = _serviceProvider.GetService<Repositories.FileManagerRepository>();
+        if (repo == null) return;
+        
+        var existingItems = new HashSet<string>();
+        CollectExistingItems(_root, "/", existingItems);
+        
+        SyncDirectoryRecursive(_root, "/");
+        
+        var allRecords = repo.QueryFileManagerList(currentUsername: null);
+        foreach (var record in allRecords)
+        {
+            var key = $"{record.file_path}|{record.file_name}";
+            if (!existingItems.Contains(key))
+            {
+                repo.DeleteFileManager(record.file_path ?? "/", record.file_name);
+            }
+        }
+    }
+    
+    /// <summary>
+    /// 收集檔案系統中實際存在的所有項目
+    /// </summary>
+    private void CollectExistingItems(string physicalPath, string virtualPath, HashSet<string> existingItems)
+    {
+        if (!Directory.Exists(physicalPath)) return;
+
+        foreach (var dir in Directory.GetDirectories(physicalPath))
+        {
+            var folderName = Path.GetFileName(dir);
+            if (IsProtected(virtualPath, folderName)) continue;
+            
+            existingItems.Add($"{virtualPath}|{folderName}");
+            
+            var childVirtualPath = virtualPath == "/" ? $"/{folderName}" : $"{virtualPath}/{folderName}";
+            CollectExistingItems(dir, childVirtualPath, existingItems);
+        }
+
+        foreach (var file in Directory.GetFiles(physicalPath))
+        {
+            var fileName = Path.GetFileName(file);
+            if (IsProtected(virtualPath, fileName)) continue;
+            
+            existingItems.Add($"{virtualPath}|{fileName}");
+        }
+    }
+
+    /// <summary>
+    /// 遞迴同步目錄
+    /// </summary>
+    private void SyncDirectoryRecursive(string physicalPath, string virtualPath)
+    {
+        if (!Directory.Exists(physicalPath)) return;
+
+        foreach (var dir in Directory.GetDirectories(physicalPath))
+        {
+            var folderName = Path.GetFileName(dir);
+            
+            if (IsProtected(virtualPath, folderName)) continue;
+            
+            UpdateFile(virtualPath, folderName);
+            
+            var childVirtualPath = virtualPath == "/" ? $"/{folderName}" : $"{virtualPath}/{folderName}";
+            SyncDirectoryRecursive(dir, childVirtualPath);
+        }
+
+        foreach (var file in Directory.GetFiles(physicalPath))
+        {
+            var fileName = Path.GetFileName(file);
+            
+            if (IsProtected(virtualPath, fileName)) continue;
+            
+            UpdateFile(virtualPath, fileName);
+        }
+    }
+
+    /// <summary>
+    /// 取得 MIME 類型
+    /// </summary>
+    private string GetMimeType(string fileName)
+    {
+        var ext = Path.GetExtension(fileName).ToLowerInvariant();
+        return ext switch
+        {
+            ".txt" => "text/plain",
+            ".pdf" => "application/pdf",
+            ".jpg" or ".jpeg" => "image/jpeg",
+            ".png" => "image/png",
+            ".gif" => "image/gif",
+            ".zip" => "application/zip",
+            ".json" => "application/json",
+            ".xml" => "application/xml",
+            ".html" or ".htm" => "text/html",
+            ".css" => "text/css",
+            ".js" => "application/javascript",
+            ".mp4" => "video/mp4",
+            ".mp3" => "audio/mpeg",
+            ".md" => "text/markdown",
+            ".csv" => "text/csv",
+            _ => "application/octet-stream"
+        };
+    }
+
     #endregion
 }
 

@@ -1,119 +1,152 @@
+using Microsoft.EntityFrameworkCore;
 using Models.HnbHnbBackoffice;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace HNB.Areas.Backoffice.Repositories;
 
+/// <summary>
+/// 檔案管理資料存取層
+/// </summary>
 public class FileManagerRepository(HnbHnbBackofficeDbContext db)
 {
+#if DEBUG
+    private readonly string _currentMode = "development";
+#else
+    private readonly string _currentMode = "production";
+#endif
+    
     #region 統一的查詢來源
-
-    private IQueryable<vw_file_manager> ValidFiles
-        => db.vw_file_managers.Where(f => f.is_deleted == false);
-
-    private IQueryable<file_manager> ValidFileManagers
-        => db.file_managers.Where(f => f.is_deleted == false);
-
+    
+    /// <summary>
+    /// 有效的檔案管理查詢來源（當前環境且未刪除）
+    /// </summary>
+    private IQueryable<file_manager> ValidFileManagers => db.file_managers
+        .Where(fm => fm.is_deleted == false || fm.is_deleted == null)
+        .Where(fm => fm.mode == _currentMode);
+    
+    /// <summary>
+    /// 有效的檔案管理視圖查詢來源
+    /// </summary>
+    private IQueryable<vw_file_manager> ValidFileManagerViews => db.vw_file_managers
+        .Where(fm => fm.mode == _currentMode);
+    
     #endregion
 
     #region 專用查詢方法
-
-    public List<vw_file_manager> QueryFileList(string? username = null, string? parentCode = null)
-        => ValidFiles
-            .Where(f => (username == null 
-                      || f.owner_username == username 
-                      || f.shared_users!.Contains("ALL")
-                      || f.shared_users!.Contains(username))
-                     && f.parent_code == parentCode)
-            .OrderByDescending(f => f.item_type)
-            .ThenBy(f => f.file_name)
-            .ToList();
-
-    public List<vw_file_manager> QueryAllFolders(string? username = null)
-        => ValidFiles
-            .Where(f => f.item_type == "folder"
-                     && (username == null 
-                      || f.owner_username == username 
-                      || f.shared_users!.Contains("ALL")
-                      || f.shared_users!.Contains(username)))
-            .OrderBy(f => f.parent_code ?? "")
-            .ThenBy(f => f.file_name)
-            .ToList();
-
-    public Dictionary<string, string> QueryAllFilePaths()
-        => ValidFiles
-            .Where(f => !string.IsNullOrEmpty(f.file_path))
-            .ToDictionary(f => f.file_path!, f => f.code!);
-
-    public vw_file_manager? QueryFile(long? id = null, string? code = null)
-    {
-        if (id.HasValue)
-            return ValidFiles.FirstOrDefault(f => f.id == id.Value);
-
-        if (!string.IsNullOrEmpty(code))
-            return ValidFiles.FirstOrDefault(f => f.code == code);
-
-        return null;
-    }
-
-    public List<file_manager> QueryFileManagementList(string? username = null, string? itemType = null)
+    
+    /// <summary>
+    /// 查詢檔案管理列表（根據當前用戶權限過濾）
+    /// </summary>
+    public List<file_manager> QueryFileManagerList(string? currentUsername = null, string? virtualPath = null, string? itemType = null)
         => ValidFileManagers
-            .Where(f => (username == null || f.owner_username == username)
-                     && (itemType == null || f.item_type == itemType))
+            .Where(fm => string.IsNullOrEmpty(virtualPath) || fm.file_path == virtualPath)
+            .Where(fm => string.IsNullOrEmpty(itemType) || fm.item_type == itemType)
+            .Where(fm => !string.IsNullOrEmpty(currentUsername) && fm.shared_users != null && fm.shared_users.Contains(currentUsername))
             .ToList();
 
-    public file_manager? QueryFileManagement(long? id = null, string? code = null)
+    /// <summary>
+    /// 查詢單一檔案管理記錄（不過濾權限，內部使用）
+    /// </summary>
+    public file_manager? QueryFileManager(string? code = null, string? virtualPath = null, string? fileName = null)
     {
-        if (id.HasValue)
-            return ValidFileManagers.FirstOrDefault(f => f.id == id.Value);
-
         if (!string.IsNullOrEmpty(code))
-            return ValidFileManagers.FirstOrDefault(f => f.code == code);
-
+            return ValidFileManagers.FirstOrDefault(fm => fm.code == code);
+        
+        if (!string.IsNullOrEmpty(virtualPath) && !string.IsNullOrEmpty(fileName))
+            return ValidFileManagers.FirstOrDefault(fm => fm.file_path == virtualPath && fm.file_name == fileName);
+        
         return null;
     }
+
+    /// <summary>
+    /// 查詢檔案管理視圖列表
+    /// </summary>
+    public List<vw_file_manager> QueryFileManagerViewList(string? virtualPath = null)
+        => ValidFileManagerViews
+            .Where(fm => string.IsNullOrEmpty(virtualPath) || fm.file_path == virtualPath)
+            .ToList();
+
+    /// <summary>
+    /// 檢查檔案是否存在
+    /// </summary>
+    public bool QueryFileManagerExists(string virtualPath, string fileName)
+        => ValidFileManagers.Any(fm => fm.file_path == virtualPath && fm.file_name == fileName);
 
     #endregion
 
     #region 基本 CRUD 操作
-
-    public file_manager? InsertFile(file_manager data)
+    
+    /// <summary>
+    /// 插入或更新檔案管理記錄（一張表只有一個 Insert 方法）
+    /// </summary>
+    public file_manager InsertFileManager(file_manager data)
     {
-#if DEBUG
-        return null;
-#else
-        var existingEntity = db.file_managers.Find(data.id);
-
+        var existingEntity = QueryFileManager(virtualPath: data.file_path, fileName: data.file_name);
+        
         if (existingEntity == null)
         {
-            data.created_at = DateTime.Now;
+            data.code = GenerateUniqueCode(data.file_path ?? "/", data.file_name);
+            data.is_deleted = false;
+            data.mode = _currentMode;
+            data.owner_username = "system";
             db.file_managers.Add(data);
             db.SaveChanges();
             return data;
         }
-
-        existingEntity.file_name = data.file_name;
-        existingEntity.file_path = data.file_path;
-        existingEntity.shared_users = data.shared_users;
+        
         existingEntity.file_size = data.file_size;
-        existingEntity.parent_code = data.parent_code;
         existingEntity.mime_type = data.mime_type;
-        existingEntity.updated_at = DateTime.Now;
-
+        existingEntity.item_type = data.item_type;
+        existingEntity.shared_users = data.shared_users ?? existingEntity.shared_users;
+        existingEntity.is_deleted = false;
+        existingEntity.deleted_at = null;
         db.SaveChanges();
         return existingEntity;
-#endif
     }
 
-    public bool DeleteFile(long id)
+    /// <summary>
+    /// 刪除檔案管理記錄（物理刪除）
+    /// </summary>
+    public bool DeleteFileManager(string virtualPath, string fileName)
     {
-        var entity = db.file_managers.Find(id);
+        var entity = QueryFileManager(virtualPath: virtualPath, fileName: fileName);
         if (entity != null)
         {
-            entity.is_deleted = true;
-            entity.deleted_at = DateTime.Now;
+            db.file_managers.Remove(entity);
             db.SaveChanges();
             return true;
         }
         return false;
+    }
+
+    #endregion
+
+    #region 輔助方法
+
+    /// <summary>
+    /// 生成唯一的 code
+    /// </summary>
+    private string GenerateUniqueCode(string virtualPath, string fileName)
+    {
+        var input = $"{virtualPath}|{fileName}|{_currentMode}|{DateTime.UtcNow.Ticks}";
+        using var sha256 = SHA256.Create();
+        var hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(input));
+        var code = Convert.ToBase64String(hashBytes)
+            .Replace("+", "")
+            .Replace("/", "")
+            .Replace("=", "")
+            .Substring(0, 32);
+        
+        // 確保唯一性
+        var counter = 0;
+        var finalCode = code;
+        while (db.file_managers.Any(fm => fm.code == finalCode))
+        {
+            finalCode = $"{code}_{++counter}";
+        }
+        
+        return finalCode;
     }
 
     #endregion

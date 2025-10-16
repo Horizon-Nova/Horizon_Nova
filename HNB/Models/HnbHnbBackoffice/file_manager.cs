@@ -24,6 +24,7 @@ namespace Models.HnbHnbBackoffice;
 [Table("file_manager", Schema = "dbo")]
 [Index("code", Name = "file_manager_code_key", IsUnique = true)]
 [Index("code", Name = "idx_code")]
+[Index("mode", Name = "idx_file_manager_mode")]
 [Index("is_deleted", Name = "idx_is_deleted")]
 [Index("item_type", Name = "idx_item_type")]
 [Index("owner_username", Name = "idx_owner")]
@@ -109,4 +110,10 @@ public partial class file_manager
     /// </summary>
     [Column(TypeName = "timestamp without time zone")]
     public DateTime? updated_at { get; set; }
+
+    /// <summary>
+    /// 環境模式（development=開發區/測試區, production=正式區）
+    /// </summary>
+    [StringLength(20)]
+    public string? mode { get; set; }
 }

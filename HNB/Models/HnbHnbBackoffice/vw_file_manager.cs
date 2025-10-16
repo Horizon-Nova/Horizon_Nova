@@ -59,4 +59,7 @@ public partial class vw_file_manager
 
     [Column(TypeName = "timestamp without time zone")]
     public DateTime? updated_at { get; set; }
+
+    [StringLength(20)]
+    public string? mode { get; set; }
 }

@@ -1,53 +1,59 @@
 ﻿using HNB.Areas.Backoffice.Utilities;
+using HNB.Areas.Backoffice.Repositories;
 
 namespace HNB.Areas.Backoffice.Services;
 
 /// <summary>
 /// 檔案管理服務層，負責處理檔案和資料夾的業務邏輯
 /// </summary>
-public class FileManagerServices(DirectoryManagerUtilities DM)
+public class FileManagerServices(DirectoryManagerUtilities DM, FileManagerRepository repo, IHttpContextAccessor httpContextAccessor)
 {
-    #region 統一的 ViewBag 模型設置
+    #region 統一的 ViewBag 設置
     /// <summary>
-    /// 設置 ViewBag 模型資料
+    /// 設置 ViewBag（從資料庫讀取，根據當前用戶權限過濾）
     /// </summary>
-    /// <param name="viewBag">ViewBag 物件</param>
-    /// <param name="virtualPath">當前虛擬路徑</param>
     public void ViewBagModel(dynamic viewBag, string virtualPath = "/")
     {
         var safePath = virtualPath ?? "/";
+        var currentUsername = httpContextAccessor.HttpContext?.User?.Identity?.Name;
         
-        try
-        {
-            // 設置基本資訊
-            viewBag.CurrentPath = safePath;
-            viewBag.Breadcrumb = DM.LoadBreadcrumb(safePath) ?? new List<(string, string)>();
-            viewBag.Tree = DM.LoadTree() ?? new List<(string, string, int)>();
-            
-            // 設置檔案和資料夾清單
-            viewBag.Folders = DM.LoadFolders(safePath) ?? new List<(string, DateTime?)>();
-            viewBag.Files = DM.LoadFiles(safePath) ?? new List<(string, long, DateTime?)>();
-            
-            // 設置統計資訊
-            var stats = DM.QueryStatistics(safePath);
-            viewBag.FolderCount = stats.FolderCount;
-            viewBag.FileCount = stats.FileCount;
-            viewBag.TotalSize = stats.TotalSize;
-            viewBag.LastModified = stats.LastModified;
-        }
-        catch (Exception)
-        {
-            // 如果載入失敗，設置安全的預設值
-            viewBag.CurrentPath = safePath;
-            viewBag.Breadcrumb = new List<(string, string)> { ("/", "/") };
-            viewBag.Tree = new List<(string, string, int)> { ("根目錄", "/", 0) };
-            viewBag.Folders = new List<(string, DateTime?)>();
-            viewBag.Files = new List<(string, long, DateTime?)>();
-            viewBag.FolderCount = 0;
-            viewBag.FileCount = 0;
-            viewBag.TotalSize = 0L;
-            viewBag.LastModified = null;
-        }
+        viewBag.CurrentPath = safePath;
+        viewBag.Breadcrumb = DM.LoadBreadcrumb(safePath) ?? new List<(string, string)>();
+        
+        var allFolders = repo.QueryFileManagerList(currentUsername: currentUsername, itemType: "folder");
+        var allFiles = repo.QueryFileManagerList(currentUsername: currentUsername, itemType: "file");
+        
+        viewBag.Tree = allFolders
+            .Select(f => (f.file_name, f.file_path + "/" + f.file_name, CalculateDepth(f.file_path ?? "/")))
+            .OrderBy(t => t.Item2)
+            .ToList();
+        
+        viewBag.Folders = repo.QueryFileManagerList(currentUsername: currentUsername, virtualPath: safePath, itemType: "folder")
+            .Select(f => (f.file_name, f.updated_at ?? f.created_at))
+            .ToList();
+        
+        viewBag.Files = repo.QueryFileManagerList(currentUsername: currentUsername, virtualPath: safePath, itemType: "file")
+            .Select(f => (f.file_name, f.file_size ?? 0L, f.updated_at ?? f.created_at))
+            .ToList();
+        
+        var foldersInPath = repo.QueryFileManagerList(currentUsername: currentUsername, virtualPath: safePath, itemType: "folder");
+        var filesInPath = repo.QueryFileManagerList(currentUsername: currentUsername, virtualPath: safePath, itemType: "file");
+        
+        viewBag.FolderCount = foldersInPath.Count;
+        viewBag.FileCount = filesInPath.Count;
+        viewBag.TotalSize = filesInPath.Sum(f => f.file_size ?? 0L);
+        viewBag.LastModified = filesInPath.Any() || foldersInPath.Any()
+            ? filesInPath.Select(f => f.updated_at ?? f.created_at)
+                .Concat(foldersInPath.Select(f => f.updated_at ?? f.created_at))
+                .Where(d => d.HasValue)
+                .Max()
+            : (DateTime?)null;
+    }
+    
+    private int CalculateDepth(string path)
+    {
+        if (path == "/") return 0;
+        return path.Split('/', StringSplitOptions.RemoveEmptyEntries).Length;
     }
     #endregion
 
@@ -113,7 +119,8 @@ public class FileManagerServices(DirectoryManagerUtilities DM)
     {
         try
         {
-            DM.CreateFolder(virtualPath, folderName);
+            var currentUsername = httpContextAccessor.HttpContext?.User?.Identity?.Name;
+            DM.CreateFolder(virtualPath, folderName, currentUsername);
             return (true, "資料夾已建立");
         }
         catch (Exception ex)
@@ -179,7 +186,8 @@ public class FileManagerServices(DirectoryManagerUtilities DM)
     {
         try
         {
-            DM.CreateEmptyFile(virtualPath, fileName);
+            var currentUsername = httpContextAccessor.HttpContext?.User?.Identity?.Name;
+            DM.CreateEmptyFile(virtualPath, fileName, currentUsername);
             return (true, "檔案已建立");
         }
         catch (Exception ex)

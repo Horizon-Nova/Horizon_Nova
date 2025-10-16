@@ -10,12 +10,9 @@
     var tree = ViewBag.Tree as List<(string Name, string VirtualPath, int Depth)> ?? new();
     var folders = ViewBag.Folders as List<(string Name, DateTime? LastWriteUtc)> ?? new();
     var files = ViewBag.Files as List<(string Name, long Size, DateTime? LastWriteUtc)> ?? new();
-    var stats = (
-        FolderCount: ViewBag.FolderCount ?? 0,
-        FileCount: ViewBag.FileCount ?? 0,
-        TotalSize: ViewBag.TotalSize ?? 0L,
-        LastModified: ViewBag.LastModified as DateTime?
-    );
+    var folderCount = ViewBag.FolderCount ?? 0;
+    var fileCount = ViewBag.FileCount ?? 0;
+    var totalSize = ViewBag.TotalSize ?? 0L;
 }
 
 <div class="flex gap-0 ">
@@ -25,10 +22,10 @@
         <div class="h-12 px-3 flex items-center justify-between border-b border-slate-200">
             <span class="text-sm font-medium text-slate-900">檔案總管</span>
             <div class="flex items-center gap-0.5">
-                <button onclick="showCreateFileModal()" class="w-7 h-7 flex items-center justify-center hover:bg-slate-100 rounded" title="新增檔案">
+                <button onclick="showModal('createFileModal')" class="w-7 h-7 flex items-center justify-center hover:bg-slate-100 rounded" title="新增檔案">
                     <i data-lucide="file-plus" class="h-4 w-4 text-slate-600"></i>
                 </button>
-                <button onclick="showCreateFolderModal()" class="w-7 h-7 flex items-center justify-center hover:bg-slate-100 rounded" title="新增資料夾">
+                <button onclick="showModal('createFolderModal')" class="w-7 h-7 flex items-center justify-center hover:bg-slate-100 rounded" title="新增資料夾">
                     <i data-lucide="folder-plus" class="h-4 w-4 text-slate-600"></i>
                 </button>
                 <button onclick="location.reload()" class="w-7 h-7 flex items-center justify-center hover:bg-slate-100 rounded" title="重新整理">
@@ -46,44 +43,35 @@
                 <span class="text-sm @(currentPath == "/" ? "font-medium text-slate-900" : "text-slate-700")">根目錄</span>
             </a>
             
-            @if (tree != null && tree.Any())
+            @for (int i = 0; i < tree.Count; i++)
             {
-                @for (int i = 0; i < tree.Count; i++)
+                var (name, path, depth) = tree[i];
+                
+                if (name == "根目錄" && depth == 0)
                 {
-                    var (name, path, depth) = tree[i];
-                    
-                    // 跳過根目錄項目（如果存在）
-                    if (name == "根目錄" && depth == 0)
-                    {
-                        continue;
-                    }
-                    
-                    // 檢查是否有子節點
-                    var hasChildren = i < tree.Count - 1 && tree.Skip(i + 1).Any(t => t.Depth > depth && t.VirtualPath.StartsWith(path + "/"));
-                    
-                    // 計算縮排
-                    var indentPx = 0.75 + (depth * 1.0); // 0.75rem base + 1rem per level
-                    
-                    // 是否為當前路徑
-                    var isActive = currentPath == path;
-                    
-                    <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = path })" 
-                       class="flex items-center gap-1.5 px-3 py-1.5 hover:bg-slate-50 cursor-pointer @(isActive ? "bg-slate-100" : "") @(depth > 1 ? "hidden" : "")"
-                       style="padding-left: @(indentPx)rem">
-                        @if (hasChildren)
-                        {
-                            <i data-lucide="chevron-right" 
-                               onclick="toggleTreeNode(event, this)"
-                               class="h-4 w-4 text-slate-600 cursor-pointer hover:bg-slate-200 rounded"></i>
-                        }
-                        else
-                        {
-                            <span class="w-4"></span>
-                        }
-                        <i data-lucide="@(isActive ? "folder-open" : "folder")" class="h-4 w-4 text-amber-500"></i>
-                        <span class="text-sm @(isActive ? "font-medium text-slate-900" : "text-slate-700")">@name</span>
-                    </a>
+                    continue;
                 }
+                
+                var hasChildren = i < tree.Count - 1 && tree.Skip(i + 1).Any(t => t.Depth > depth && t.VirtualPath.StartsWith(path + "/"));
+                var indentPx = 0.75 + (depth * 1.0);
+                var isActive = currentPath == path;
+                
+                <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = path })" 
+                   class="flex items-center gap-1.5 px-3 py-1.5 hover:bg-slate-50 cursor-pointer @(isActive ? "bg-slate-100" : "") @(depth > 1 ? "hidden" : "")"
+                   style="padding-left: @(indentPx)rem">
+                    @if (hasChildren)
+                    {
+                        <i data-lucide="chevron-right" 
+                           onclick="toggleTreeNode(event, this)"
+                           class="h-4 w-4 text-slate-600 cursor-pointer hover:bg-slate-200 rounded tree-chevron"></i>
+                    }
+                    else
+                    {
+                        <span class="w-4"></span>
+                    }
+                    <i data-lucide="@(isActive ? "folder-open" : "folder")" class="h-4 w-4 text-amber-500"></i>
+                    <span class="text-sm @(isActive ? "font-medium text-slate-900" : "text-slate-700")">@name</span>
+                </a>
             }
         </div>
     </aside>
@@ -94,29 +82,26 @@
         <div class="h-12 px-6 flex items-center justify-between border-b border-slate-200">
             <!-- 麵包屑 -->
             <nav class="flex items-center gap-1 text-sm">
-                @if (breadcrumb != null && breadcrumb.Any())
+                @for (int i = 0; i < breadcrumb.Count; i++)
                 {
-                    @for (int i = 0; i < breadcrumb.Count; i++)
+                    var (name, path) = breadcrumb[i];
+                    var isLast = i == breadcrumb.Count - 1;
+                    
+                    if (i > 0)
                     {
-                        var (name, path) = breadcrumb[i];
-                        var isLast = i == breadcrumb.Count - 1;
-                        
-                        if (i > 0)
-                        {
-                            <i data-lucide="chevron-right" class="h-4 w-4 text-slate-400"></i>
-                        }
-                        
-                        <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = path })" 
-                           class="px-2 py-1 hover:bg-slate-100 rounded @(isLast ? "font-medium text-slate-900" : "text-slate-700")">
-                            @name
-                        </a>
+                        <i data-lucide="chevron-right" class="h-4 w-4 text-slate-400"></i>
                     }
+                    
+                    <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = path })" 
+                       class="px-2 py-1 hover:bg-slate-100 rounded @(isLast ? "font-medium text-slate-900" : "text-slate-700")">
+                        @name
+                    </a>
                 }
             </nav>
             
             <!-- 統計資訊 -->
             <div class="text-xs text-slate-500">
-                @stats.FolderCount 個資料夾 · @stats.FileCount 個檔案 · @FormatSize(stats.TotalSize)
+                @folderCount 個資料夾 · @fileCount 個檔案 · @FormatSize(totalSize)
             </div>
         </div>
 
@@ -145,9 +130,8 @@
 
             <!-- 檔案項目 -->
             <div class="divide-y divide-slate-100">
-                @if ((folders == null || !folders.Any()) && (files == null || !files.Any()))
+                @if (!folders.Any() && !files.Any())
                 {
-                    <!-- 空狀態 -->
                     <div class="py-16 text-center">
                         <i data-lucide="folder-open" class="h-16 w-16 mx-auto mb-3 text-slate-300"></i>
                         <p class="text-sm text-slate-500">此資料夾是空的</p>
@@ -155,73 +139,65 @@
                 }
                 else
                 {
-                    <!-- 資料夾列表 -->
-                    @if (folders != null && folders.Any())
+                    @foreach (var folder in folders)
                     {
-                        @foreach (var folder in folders)
-                        {
-                            var (name, modified) = folder;
-                            var folderPath = currentPath.TrimEnd('/') + "/" + name;
+                        var (name, modified) = folder;
+                        var folderPath = currentPath.TrimEnd('/') + "/" + name;
                             
-                            <div onclick="window.location.href='@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = folderPath })'" 
-                                 class="grid grid-cols-[2fr_140px_180px_120px] gap-4 px-3 py-3 hover:bg-slate-50 cursor-pointer group rounded-lg items-center">
-                                <div class="flex items-center gap-3 min-w-0">
-                                    <i data-lucide="folder" class="h-5 w-5 text-amber-500 shrink-0"></i>
-                                    <span class="text-sm text-slate-900 truncate">@name</span>
-                                </div>
-                                <div class="text-sm text-slate-600">—</div>
-                                <div class="text-sm text-slate-600">@(modified.HasValue ? modified.Value.ToString("yyyy/MM/dd HH:mm") : "—")</div>
-                                <div class="flex items-center justify-end gap-1">
-                                    <button onclick="event.preventDefault(); event.stopPropagation(); showRenameModal('@name.Replace("'", "\\'").Replace("\"", "&quot;")', 'folder')" 
-                                            class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="重新命名">
-                                        <i data-lucide="edit-3" class="h-4 w-4 text-slate-600"></i>
-                                    </button>
-                                    <a href="@Url.Action("DownloadFolder", "FileManager", new { area = "Backoffice", path = currentPath, name })" 
-                                       onclick="event.stopPropagation()"
-                                       class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="下載">
-                                        <i data-lucide="download" class="h-4 w-4 text-slate-600"></i>
-                                    </a>
-                                    <button onclick="event.preventDefault(); event.stopPropagation(); deleteItem('@name.Replace("'", "\\'").Replace("\"", "&quot;")', 'folder')" 
-                                            class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="刪除">
-                                        <i data-lucide="trash-2" class="h-4 w-4 text-slate-600"></i>
-                                    </button>
-                                </div>
+                        <div onclick="window.location.href='@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = folderPath })'" 
+                             class="grid grid-cols-[2fr_140px_180px_120px] gap-4 px-3 py-3 hover:bg-slate-50 cursor-pointer group rounded-lg items-center">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <i data-lucide="folder" class="h-5 w-5 text-amber-500 shrink-0"></i>
+                                <span class="text-sm text-slate-900 truncate">@name</span>
                             </div>
-                        }
+                            <div class="text-sm text-slate-600">—</div>
+                            <div class="text-sm text-slate-600">@(modified.HasValue ? modified.Value.ToString("yyyy/MM/dd HH:mm") : "—")</div>
+                            <div class="flex items-center justify-end gap-1">
+                                <button onclick="event.preventDefault(); event.stopPropagation(); showRenameModal('@name.Replace("'", "\\'").Replace("\"", "&quot;")', 'folder')" 
+                                        class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="重新命名">
+                                    <i data-lucide="edit-3" class="h-4 w-4 text-slate-600"></i>
+                                </button>
+                                <a href="@Url.Action("DownloadFolder", "FileManager", new { area = "Backoffice", path = currentPath, name })" 
+                                   onclick="event.stopPropagation()"
+                                   class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="下載">
+                                    <i data-lucide="download" class="h-4 w-4 text-slate-600"></i>
+                                </a>
+                                <button onclick="event.preventDefault(); event.stopPropagation(); deleteItem('@name.Replace("'", "\\'").Replace("\"", "&quot;")', 'folder')" 
+                                        class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="刪除">
+                                    <i data-lucide="trash-2" class="h-4 w-4 text-slate-600"></i>
+                                </button>
+                            </div>
+                        </div>
                     }
                     
-                    <!-- 檔案列表 -->
-                    @if (files != null && files.Any())
+                    @foreach (var file in files)
                     {
-                        @foreach (var file in files)
-                        {
-                            var (name, size, modified) = file;
+                        var (name, size, modified) = file;
                             
-                            <div onclick="openFile('@name.Replace("'", "\\'").Replace("\"", "&quot;")')" 
-                                 class="grid grid-cols-[2fr_140px_180px_120px] gap-4 px-3 py-3 hover:bg-slate-50 cursor-pointer group rounded-lg items-center">
-                                <div class="flex items-center gap-3 min-w-0">
-                                    <div class="w-5 h-5 shrink-0"></div>
-                                    <span class="text-sm text-slate-900 truncate">@name</span>
-                                </div>
-                                <div class="text-sm text-slate-600">@FormatSize(size)</div>
-                                <div class="text-sm text-slate-600">@(modified.HasValue ? modified.Value.ToString("yyyy/MM/dd HH:mm") : "—")</div>
-                                <div class="flex items-center justify-end gap-1">
-                                    <button onclick="event.preventDefault(); event.stopPropagation(); showRenameModal('@name.Replace("'", "\\'").Replace("\"", "&quot;")', 'file')" 
-                                            class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="重新命名">
-                                        <i data-lucide="edit-3" class="h-4 w-4 text-slate-600"></i>
-                                    </button>
-                                    <a href="@Url.Action("Download", "FileManager", new { area = "Backoffice", path = currentPath, name })" 
-                                       onclick="event.stopPropagation()"
-                                       class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="下載">
-                                        <i data-lucide="download" class="h-4 w-4 text-slate-600"></i>
-                                    </a>
-                                    <button onclick="event.preventDefault(); event.stopPropagation(); deleteItem('@name.Replace("'", "\\'").Replace("\"", "&quot;")', 'file')" 
-                                            class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="刪除">
-                                        <i data-lucide="trash-2" class="h-4 w-4 text-slate-600"></i>
-                                    </button>
-                                </div>
+                        <div onclick="openFile('@name.Replace("'", "\\'").Replace("\"", "&quot;")')" 
+                             class="grid grid-cols-[2fr_140px_180px_120px] gap-4 px-3 py-3 hover:bg-slate-50 cursor-pointer group rounded-lg items-center">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <div class="w-5 h-5 shrink-0"></div>
+                                <span class="text-sm text-slate-900 truncate">@name</span>
                             </div>
-                        }
+                            <div class="text-sm text-slate-600">@FormatSize(size)</div>
+                            <div class="text-sm text-slate-600">@(modified.HasValue ? modified.Value.ToString("yyyy/MM/dd HH:mm") : "—")</div>
+                            <div class="flex items-center justify-end gap-1">
+                                <button onclick="event.preventDefault(); event.stopPropagation(); showRenameModal('@name.Replace("'", "\\'").Replace("\"", "&quot;")', 'file')" 
+                                        class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="重新命名">
+                                    <i data-lucide="edit-3" class="h-4 w-4 text-slate-600"></i>
+                                </button>
+                                <a href="@Url.Action("Download", "FileManager", new { area = "Backoffice", path = currentPath, name })" 
+                                   onclick="event.stopPropagation()"
+                                   class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="下載">
+                                    <i data-lucide="download" class="h-4 w-4 text-slate-600"></i>
+                                </a>
+                                <button onclick="event.preventDefault(); event.stopPropagation(); deleteItem('@name.Replace("'", "\\'").Replace("\"", "&quot;")', 'file')" 
+                                        class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="刪除">
+                                    <i data-lucide="trash-2" class="h-4 w-4 text-slate-600"></i>
+                                </button>
+                            </div>
+                        </div>
                     }
                 }
             </div>
@@ -230,17 +206,15 @@
 </div>
 
 <!-- Modal：新增資料夾 -->
-<div id="createFolderModal" class="hidden fixed inset-0 bg-black/40 z-50 items-center justify-center p-4" onclick="if(event.target === this) hideModal('createFolderModal')">
+<div id="createFolderModal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onclick="if(event.target === this) closeModal('createFolderModal')">
     <div class="bg-white rounded-lg shadow-xl w-full max-w-md" onclick="event.stopPropagation()">
-        <!-- 標題 -->
         <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
             <h2 class="text-base font-semibold text-slate-900">新增資料夾</h2>
-            <button onclick="hideModal('createFolderModal')" class="w-8 h-8 flex items-center justify-center hover:bg-slate-100 rounded">
+            <button onclick="closeModal('createFolderModal')" class="w-8 h-8 flex items-center justify-center hover:bg-slate-100 rounded">
                 <i data-lucide="x" class="h-5 w-5 text-slate-500"></i>
             </button>
         </div>
         
-        <!-- 內容 -->
         <div class="px-5 py-5">
             <label class="block text-sm font-medium text-slate-700 mb-2">資料夾名稱</label>
             <input type="text" 
@@ -249,9 +223,8 @@
                    class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
         </div>
         
-        <!-- 按鈕 -->
         <div class="flex items-center justify-end gap-2 px-5 py-4 bg-slate-50 rounded-b-lg">
-            <button onclick="hideModal('createFolderModal')" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 rounded-lg">
+            <button onclick="closeModal('createFolderModal')" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 rounded-lg">
                 取消
             </button>
             <button onclick="createFolder()" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg">
@@ -262,17 +235,15 @@
 </div>
 
 <!-- Modal：新增檔案 -->
-<div id="createFileModal" class="hidden fixed inset-0 bg-black/40 z-50 items-center justify-center p-4" onclick="if(event.target === this) hideModal('createFileModal')">
+<div id="createFileModal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onclick="if(event.target === this) closeModal('createFileModal')">
     <div class="bg-white rounded-lg shadow-xl w-full max-w-md" onclick="event.stopPropagation()">
-        <!-- 標題 -->
         <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
             <h2 class="text-base font-semibold text-slate-900">新增檔案</h2>
-            <button onclick="hideModal('createFileModal')" class="w-8 h-8 flex items-center justify-center hover:bg-slate-100 rounded">
+            <button onclick="closeModal('createFileModal')" class="w-8 h-8 flex items-center justify-center hover:bg-slate-100 rounded">
                 <i data-lucide="x" class="h-5 w-5 text-slate-500"></i>
             </button>
         </div>
         
-        <!-- 內容 -->
         <div class="px-5 py-5">
             <label class="block text-sm font-medium text-slate-700 mb-2">檔案名稱（含副檔名）</label>
             <input type="text" 
@@ -281,9 +252,8 @@
                    class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
         </div>
         
-        <!-- 按鈕 -->
         <div class="flex items-center justify-end gap-2 px-5 py-4 bg-slate-50 rounded-b-lg">
-            <button onclick="hideModal('createFileModal')" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 rounded-lg">
+            <button onclick="closeModal('createFileModal')" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 rounded-lg">
                 取消
             </button>
             <button onclick="createFile()" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg">
@@ -294,17 +264,15 @@
 </div>
 
 <!-- Modal：重新命名 -->
-<div id="renameModal" class="hidden fixed inset-0 bg-black/40 z-50 items-center justify-center p-4" onclick="if(event.target === this) hideModal('renameModal')">
+<div id="renameModal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onclick="if(event.target === this) closeModal('renameModal')">
     <div class="bg-white rounded-lg shadow-xl w-full max-w-md" onclick="event.stopPropagation()">
-        <!-- 標題 -->
         <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
             <h2 id="renameModalTitle" class="text-base font-semibold text-slate-900">重新命名</h2>
-            <button onclick="hideModal('renameModal')" class="w-8 h-8 flex items-center justify-center hover:bg-slate-100 rounded">
+            <button onclick="closeModal('renameModal')" class="w-8 h-8 flex items-center justify-center hover:bg-slate-100 rounded">
                 <i data-lucide="x" class="h-5 w-5 text-slate-500"></i>
             </button>
         </div>
         
-        <!-- 內容 -->
         <div class="px-5 py-5">
             <label class="block text-sm font-medium text-slate-700 mb-2">新名稱</label>
             <input type="text" 
@@ -312,9 +280,8 @@
                    class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
         </div>
         
-        <!-- 按鈕 -->
         <div class="flex items-center justify-end gap-2 px-5 py-4 bg-slate-50 rounded-b-lg">
-            <button onclick="hideModal('renameModal')" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 rounded-lg">
+            <button onclick="closeModal('renameModal')" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 rounded-lg">
                 取消
             </button>
             <button onclick="confirmRename()" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg">
@@ -325,20 +292,18 @@
 </div>
 
 <!-- Modal：刪除確認 -->
-<div id="deleteModal" class="hidden fixed inset-0 bg-black/40 z-50 items-center justify-center p-4" onclick="if(event.target === this) hideModal('deleteModal')">
+<div id="deleteModal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onclick="if(event.target === this) closeModal('deleteModal')">
     <div class="bg-white rounded-lg shadow-xl w-full max-w-md" onclick="event.stopPropagation()">
-        <!-- 標題 -->
         <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200 bg-red-50">
             <h2 class="text-base font-semibold text-red-900 flex items-center gap-2">
                 <i data-lucide="alert-triangle" class="h-5 w-5"></i>
                 <span id="deleteModalTitle">刪除確認</span>
             </h2>
-            <button onclick="hideModal('deleteModal')" class="w-8 h-8 flex items-center justify-center hover:bg-red-100 rounded">
+            <button onclick="closeModal('deleteModal')" class="w-8 h-8 flex items-center justify-center hover:bg-red-100 rounded">
                 <i data-lucide="x" class="h-5 w-5 text-red-500"></i>
             </button>
         </div>
         
-        <!-- 內容 -->
         <div class="px-5 py-5">
             <p class="text-sm text-slate-700 mb-4">
                 此操作<strong class="text-red-600">無法復原</strong>。請輸入 <strong id="deleteTargetName" class="text-slate-900"></strong> 以確認刪除。
@@ -351,9 +316,8 @@
                    class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
         </div>
         
-        <!-- 按鈕 -->
         <div class="flex items-center justify-end gap-2 px-5 py-4 bg-slate-50 rounded-b-lg">
-            <button onclick="hideModal('deleteModal')" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 rounded-lg">
+            <button onclick="closeModal('deleteModal')" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 rounded-lg">
                 取消
             </button>
             <button id="deleteConfirmBtn" onclick="confirmDelete()" disabled
@@ -365,7 +329,7 @@
 </div>
 
 <!-- Modal：檔案編輯器 -->
-<div id="fileEditorModal" class="hidden fixed inset-0 bg-black/40 z-50 items-center justify-center p-4" onclick="if(event.target === this) closeFileEditor()">
+<div id="fileEditorModal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onclick="if(event.target === this) closeFileEditor()">
     <div class="bg-white rounded-lg shadow-xl w-full max-w-5xl h-[90vh] flex flex-col" onclick="event.stopPropagation()">
         <!-- 標題 -->
         <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
@@ -464,4 +428,6 @@
     }
 }
 
+<link rel="stylesheet" href="~/Backoffice/css/FileManager.css">
+<script src="~/Backoffice/js/Modal.js"></script>
 <script src="~/Backoffice/js/FileManager.js"></script>

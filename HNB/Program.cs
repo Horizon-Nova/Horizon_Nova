@@ -103,4 +103,10 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller= }/{action= }/{id?}");
 
+using (var scope = app.Services.CreateScope())
+{
+    var dirUtil = scope.ServiceProvider.GetRequiredService<HNB.Areas.Backoffice.Utilities.DirectoryManagerUtilities>();
+    dirUtil.SyncAllFilesToDatabase();
+}
+
 app.Run();
