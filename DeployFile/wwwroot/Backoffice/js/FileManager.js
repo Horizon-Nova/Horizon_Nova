@@ -263,7 +263,7 @@ async function createFolder() {
         const response = await fetch('/Backoffice/FileManager/CreateFolder', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ path: currentParentCode || '', name })
+            body: JSON.stringify({ parentCode: currentParentCode, name })
         });
         
         const result = await response.json();
@@ -298,7 +298,7 @@ async function createFile() {
         const response = await fetch('/Backoffice/FileManager/CreateFile', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ path: currentParentCode || '', name })
+            body: JSON.stringify({ parentCode: currentParentCode, name })
         });
         
         const result = await response.json();
@@ -316,8 +316,8 @@ async function createFile() {
 
 // ========== 重新命名 ==========
 
-function showRenameModal(name, type) {
-    renameTarget = { name, type };
+function showRenameModal(code, name, type) {
+    renameTarget = { code, name, type };
     
     const title = document.getElementById('renameModalTitle');
     const input = document.getElementById('renameInput');
@@ -352,8 +352,7 @@ async function confirmRename() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
-                path: currentParentCode || '', 
-                oldName: renameTarget.name, 
+                code: renameTarget.code, 
                 newName 
             })
         });
@@ -373,8 +372,8 @@ async function confirmRename() {
 
 // ========== 刪除 ==========
 
-function deleteItem(name, type) {
-    deleteTarget = { name, type };
+function deleteItem(code, name, type) {
+    deleteTarget = { code, name, type };
     
     const itemType = type === 'folder' ? '資料夾' : '檔案';
     const title = document.getElementById('deleteModalTitle');
@@ -403,17 +402,14 @@ function validateDeleteInput() {
 }
 
 async function confirmDelete() {
-    if (!deleteTarget.name) return;
+    if (!deleteTarget.code) return;
     
     try {
         const endpoint = deleteTarget.type === 'folder' ? 'DeleteFolder' : 'DeleteFile';
         const response = await fetch(`/Backoffice/FileManager/${endpoint}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                path: currentParentCode || '', 
-                name: deleteTarget.name 
-            })
+            body: JSON.stringify({ code: deleteTarget.code })
         });
         
         const result = await response.json();
@@ -457,7 +453,7 @@ async function openFile(code, fileName) {
     if (fileType === 'editable') {
         // 可編輯文字檔案
         try {
-            const response = await fetch(`/Backoffice/FileManager/ReadTextFile?path=${encodeURIComponent(currentParentCode || '')}&name=${encodeURIComponent(fileName)}`);
+            const response = await fetch(`/Backoffice/FileManager/ReadTextFile?code=${encodeURIComponent(code)}`);
             const result = await response.json();
             
             if (result.success) {
@@ -559,8 +555,7 @@ async function saveFile() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                path: currentParentCode || '',
-                name: currentEditingFile.name,
+                code: currentEditingFile.code,
                 content: newContent,
                 encoding: currentEditingFile.encoding
             })
