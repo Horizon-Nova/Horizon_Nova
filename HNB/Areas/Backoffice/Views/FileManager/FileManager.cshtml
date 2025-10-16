@@ -8,11 +8,12 @@
     var currentPath = ViewBag.CurrentPath as string ?? "/";
     var breadcrumb = ViewBag.Breadcrumb as List<(string Name, string VirtualPath)> ?? new();
     var tree = ViewBag.Tree as List<(string Name, string VirtualPath, int Depth)> ?? new();
-    var folders = ViewBag.Folders as List<(string Name, DateTime? LastWriteUtc)> ?? new();
-    var files = ViewBag.Files as List<(string Name, long Size, DateTime? LastWriteUtc)> ?? new();
+    var folders = ViewBag.Folders as List<(string Name, string Owner, List<string> SharedUsers, DateTime? LastWriteUtc)> ?? new();
+    var files = ViewBag.Files as List<(string Name, long Size, string? MimeType, string Owner, List<string> SharedUsers, DateTime? LastWriteUtc)> ?? new();
     var folderCount = ViewBag.FolderCount ?? 0;
     var fileCount = ViewBag.FileCount ?? 0;
     var totalSize = ViewBag.TotalSize ?? 0L;
+    var currentUser = User?.Identity?.Name ?? "guest";
 }
 
 <div class="flex gap-0 ">
@@ -22,6 +23,9 @@
         <div class="h-12 px-3 flex items-center justify-between border-b border-slate-200">
             <span class="text-sm font-medium text-slate-900">檔案總管</span>
             <div class="flex items-center gap-0.5">
+                <button onclick="showModal('filemanager-help')" class="w-7 h-7 flex items-center justify-center hover:bg-slate-100 rounded" title="操作說明">
+                    <i data-lucide="help-circle" class="h-4 w-4 text-slate-600"></i>
+                </button>
                 <button onclick="showModal('createFileModal')" class="w-7 h-7 flex items-center justify-center hover:bg-slate-100 rounded" title="新增檔案">
                     <i data-lucide="file-plus" class="h-4 w-4 text-slate-600"></i>
                 </button>
@@ -32,6 +36,7 @@
                     <i data-lucide="refresh-cw" class="h-4 w-4 text-slate-600"></i>
                 </button>
             </div>
+
         </div>
         
         <!-- 目錄樹 -->
@@ -59,16 +64,9 @@
                 <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = path })" 
                    class="flex items-center gap-1.5 px-3 py-1.5 hover:bg-slate-50 cursor-pointer @(isActive ? "bg-slate-100" : "") @(depth > 1 ? "hidden" : "")"
                    style="padding-left: @(indentPx)rem">
-                    @if (hasChildren)
-                    {
-                        <i data-lucide="chevron-right" 
-                           onclick="toggleTreeNode(event, this)"
-                           class="h-4 w-4 text-slate-600 cursor-pointer hover:bg-slate-200 rounded tree-chevron"></i>
-                    }
-                    else
-                    {
-                        <span class="w-4"></span>
-                    }
+                    <i data-lucide="chevron-right"
+                       class="h-4 w-4 text-slate-600 rounded tree-chevron @(hasChildren ? "cursor-pointer hover:bg-slate-200" : "invisible")"
+                       onclick="@(hasChildren ? "toggleTreeNode(event, this)" : "")"></i>
                     <i data-lucide="@(isActive ? "folder-open" : "folder")" class="h-4 w-4 text-amber-500"></i>
                     <span class="text-sm @(isActive ? "font-medium text-slate-900" : "text-slate-700")">@name</span>
                 </a>
@@ -121,9 +119,11 @@
         <!-- 檔案列表 -->
         <div class="flex-1 overflow-y-auto px-6 py-4">
             <!-- 表格標題 -->
-            <div class="grid grid-cols-[2fr_140px_180px_120px] gap-4 px-3 py-2 text-xs font-medium text-slate-500 border-b border-slate-200">
+            <div class="grid grid-cols-[2fr_100px_120px_140px_180px_120px] gap-4 px-3 py-2 text-xs font-medium text-slate-500 border-b border-slate-200">
                 <div>名稱</div>
                 <div>大小</div>
+                <div>擁有者</div>
+                <div>共享狀態</div>
                 <div>修改時間</div>
                 <div class="text-right">操作</div>
             </div>
@@ -141,17 +141,32 @@
                 {
                     @foreach (var folder in folders)
                     {
-                        var (name, modified) = folder;
+                        var (name, owner, sharedUsers, modified) = folder;
                         var folderPath = currentPath.TrimEnd('/') + "/" + name;
+                        var isOwner = owner == currentUser;
+                        var sharedCount = sharedUsers?.Count ?? 0;
+                        var shareStatus = sharedCount > 1 ? $"共享 ({sharedCount}人)" : (sharedCount == 1 ? "私有" : "無權限");
                             
                         <div onclick="window.location.href='@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = folderPath })'" 
-                             class="grid grid-cols-[2fr_140px_180px_120px] gap-4 px-3 py-3 hover:bg-slate-50 cursor-pointer group rounded-lg items-center">
+                             class="grid grid-cols-[2fr_100px_120px_140px_180px_120px] gap-4 px-3 py-3 hover:bg-slate-50 cursor-pointer group rounded-lg items-center">
                             <div class="flex items-center gap-3 min-w-0">
                                 <i data-lucide="folder" class="h-5 w-5 text-amber-500 shrink-0"></i>
                                 <span class="text-sm text-slate-900 truncate">@name</span>
                             </div>
                             <div class="text-sm text-slate-600">—</div>
-                            <div class="text-sm text-slate-600">@(modified.HasValue ? modified.Value.ToString("yyyy/MM/dd HH:mm") : "—")</div>
+                            <div class="text-sm text-slate-700 truncate" title="@owner">
+                                @Html.Raw(isOwner
+                                    ? "<span class=\"inline-flex items-center gap-1 text-blue-600\"><i data-lucide=\"user-check\" class=\"h-3.5 w-3.5\"></i><span class=\"font-medium\">我</span></span>"
+                                    : $"<span>{owner}</span>")
+                            </div>
+                            <div class="text-sm">
+                                @Html.Raw(sharedCount > 1
+                                    ? $"<span class=\"inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs\"><i data-lucide=\"users\" class=\"h-3 w-3\"></i>共享 ({sharedCount}人)</span>"
+                                    : (sharedCount == 1
+                                        ? "<span class=\"inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full text-xs\"><i data-lucide=\"lock\" class=\"h-3 w-3\"></i>私有</span>"
+                                        : "<span class=\"text-slate-400 text-xs\">—</span>"))
+                            </div>
+                            <div class="text-sm text-slate-600">@(modified?.ToString("yyyy/MM/dd HH:mm") ?? "—")</div>
                             <div class="flex items-center justify-end gap-1">
                                 <button onclick="event.preventDefault(); event.stopPropagation(); showRenameModal('@name.Replace("'", "\\'").Replace("\"", "&quot;")', 'folder')" 
                                         class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="重新命名">
@@ -172,16 +187,30 @@
                     
                     @foreach (var file in files)
                     {
-                        var (name, size, modified) = file;
+                        var (name, size, mimeType, owner, sharedUsers, modified) = file;
+                        var isOwner = owner == currentUser;
+                        var sharedCount = sharedUsers?.Count ?? 0;
                             
                         <div onclick="openFile('@name.Replace("'", "\\'").Replace("\"", "&quot;")')" 
-                             class="grid grid-cols-[2fr_140px_180px_120px] gap-4 px-3 py-3 hover:bg-slate-50 cursor-pointer group rounded-lg items-center">
+                             class="grid grid-cols-[2fr_100px_120px_140px_180px_120px] gap-4 px-3 py-3 hover:bg-slate-50 cursor-pointer group rounded-lg items-center">
                             <div class="flex items-center gap-3 min-w-0">
-                                <div class="w-5 h-5 shrink-0"></div>
+                                <i data-lucide="file" class="h-5 w-5 text-slate-400 shrink-0"></i>
                                 <span class="text-sm text-slate-900 truncate">@name</span>
                             </div>
                             <div class="text-sm text-slate-600">@FormatSize(size)</div>
-                            <div class="text-sm text-slate-600">@(modified.HasValue ? modified.Value.ToString("yyyy/MM/dd HH:mm") : "—")</div>
+                            <div class="text-sm text-slate-700 truncate" title="@owner">
+                                @Html.Raw(isOwner
+                                    ? "<span class=\"inline-flex items-center gap-1 text-blue-600\"><i data-lucide=\"user-check\" class=\"h-3.5 w-3.5\"></i><span class=\"font-medium\">我</span></span>"
+                                    : $"<span>{owner}</span>")
+                            </div>
+                            <div class="text-sm">
+                                @Html.Raw(sharedCount > 1
+                                    ? $"<span class=\"inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs\"><i data-lucide=\"users\" class=\"h-3 w-3\"></i>共享 ({sharedCount}人)</span>"
+                                    : (sharedCount == 1
+                                        ? "<span class=\"inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full text-xs\"><i data-lucide=\"lock\" class=\"h-3 w-3\"></i>私有</span>"
+                                        : "<span class=\"text-slate-400 text-xs\">—</span>"))
+                            </div>
+                            <div class="text-sm text-slate-600">@(modified?.ToString("yyyy/MM/dd HH:mm") ?? "—")</div>
                             <div class="flex items-center justify-end gap-1">
                                 <button onclick="event.preventDefault(); event.stopPropagation(); showRenameModal('@name.Replace("'", "\\'").Replace("\"", "&quot;")', 'file')" 
                                         class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="重新命名">
@@ -205,214 +234,6 @@
     </div>
 </div>
 
-<!-- Modal：新增資料夾 -->
-<div id="createFolderModal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onclick="if(event.target === this) closeModal('createFolderModal')">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-md" onclick="event.stopPropagation()">
-        <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
-            <h2 class="text-base font-semibold text-slate-900">新增資料夾</h2>
-            <button onclick="closeModal('createFolderModal')" class="w-8 h-8 flex items-center justify-center hover:bg-slate-100 rounded">
-                <i data-lucide="x" class="h-5 w-5 text-slate-500"></i>
-            </button>
-        </div>
-        
-        <div class="px-5 py-5">
-            <label class="block text-sm font-medium text-slate-700 mb-2">資料夾名稱</label>
-            <input type="text" 
-                   id="folderNameInput"
-                   placeholder="請輸入資料夾名稱" 
-                   class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-        </div>
-        
-        <div class="flex items-center justify-end gap-2 px-5 py-4 bg-slate-50 rounded-b-lg">
-            <button onclick="closeModal('createFolderModal')" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 rounded-lg">
-                取消
-            </button>
-            <button onclick="createFolder()" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg">
-                建立
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Modal：新增檔案 -->
-<div id="createFileModal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onclick="if(event.target === this) closeModal('createFileModal')">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-md" onclick="event.stopPropagation()">
-        <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
-            <h2 class="text-base font-semibold text-slate-900">新增檔案</h2>
-            <button onclick="closeModal('createFileModal')" class="w-8 h-8 flex items-center justify-center hover:bg-slate-100 rounded">
-                <i data-lucide="x" class="h-5 w-5 text-slate-500"></i>
-            </button>
-        </div>
-        
-        <div class="px-5 py-5">
-            <label class="block text-sm font-medium text-slate-700 mb-2">檔案名稱（含副檔名）</label>
-            <input type="text" 
-                   id="fileNameInput"
-                   placeholder="example.txt" 
-                   class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-        </div>
-        
-        <div class="flex items-center justify-end gap-2 px-5 py-4 bg-slate-50 rounded-b-lg">
-            <button onclick="closeModal('createFileModal')" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 rounded-lg">
-                取消
-            </button>
-            <button onclick="createFile()" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg">
-                建立
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Modal：重新命名 -->
-<div id="renameModal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onclick="if(event.target === this) closeModal('renameModal')">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-md" onclick="event.stopPropagation()">
-        <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
-            <h2 id="renameModalTitle" class="text-base font-semibold text-slate-900">重新命名</h2>
-            <button onclick="closeModal('renameModal')" class="w-8 h-8 flex items-center justify-center hover:bg-slate-100 rounded">
-                <i data-lucide="x" class="h-5 w-5 text-slate-500"></i>
-            </button>
-        </div>
-        
-        <div class="px-5 py-5">
-            <label class="block text-sm font-medium text-slate-700 mb-2">新名稱</label>
-            <input type="text" 
-                   id="renameInput"
-                   class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-        </div>
-        
-        <div class="flex items-center justify-end gap-2 px-5 py-4 bg-slate-50 rounded-b-lg">
-            <button onclick="closeModal('renameModal')" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 rounded-lg">
-                取消
-            </button>
-            <button onclick="confirmRename()" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg">
-                確定
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Modal：刪除確認 -->
-<div id="deleteModal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onclick="if(event.target === this) closeModal('deleteModal')">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-md" onclick="event.stopPropagation()">
-        <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200 bg-red-50">
-            <h2 class="text-base font-semibold text-red-900 flex items-center gap-2">
-                <i data-lucide="alert-triangle" class="h-5 w-5"></i>
-                <span id="deleteModalTitle">刪除確認</span>
-            </h2>
-            <button onclick="closeModal('deleteModal')" class="w-8 h-8 flex items-center justify-center hover:bg-red-100 rounded">
-                <i data-lucide="x" class="h-5 w-5 text-red-500"></i>
-            </button>
-        </div>
-        
-        <div class="px-5 py-5">
-            <p class="text-sm text-slate-700 mb-4">
-                此操作<strong class="text-red-600">無法復原</strong>。請輸入 <strong id="deleteTargetName" class="text-slate-900"></strong> 以確認刪除。
-            </p>
-            <label class="block text-sm font-medium text-slate-700 mb-2">請輸入名稱以確認</label>
-            <input type="text" 
-                   id="deleteConfirmInput"
-                   oninput="validateDeleteInput()"
-                   placeholder="輸入名稱以確認刪除" 
-                   class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
-        </div>
-        
-        <div class="flex items-center justify-end gap-2 px-5 py-4 bg-slate-50 rounded-b-lg">
-            <button onclick="closeModal('deleteModal')" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 rounded-lg">
-                取消
-            </button>
-            <button id="deleteConfirmBtn" onclick="confirmDelete()" disabled
-                    class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed">
-                確認刪除
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Modal：檔案編輯器 -->
-<div id="fileEditorModal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onclick="if(event.target === this) closeFileEditor()">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-5xl h-[90vh] flex flex-col" onclick="event.stopPropagation()">
-        <!-- 標題 -->
-        <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
-            <div class="flex items-center gap-3">
-                <i data-lucide="file-text" class="h-5 w-5 text-slate-600"></i>
-                <h2 id="editorFileName" class="text-base font-semibold text-slate-900">檔案編輯器</h2>
-                <span id="editorReadOnlyBadge" class="hidden px-2 py-0.5 text-xs font-medium bg-amber-100 text-amber-800 rounded">唯讀</span>
-            </div>
-            <div class="flex items-center gap-2">
-                <button id="saveFileBtn" onclick="saveFile()" class="hidden px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg">
-                    <i data-lucide="save" class="h-4 w-4 inline-block mr-1"></i>
-                    儲存
-                </button>
-                <button onclick="closeFileEditor()" class="w-8 h-8 flex items-center justify-center hover:bg-slate-100 rounded">
-                    <i data-lucide="x" class="h-5 w-5 text-slate-500"></i>
-                </button>
-            </div>
-        </div>
-        
-        <!-- 內容 -->
-        <div class="flex-1 overflow-hidden">
-            <!-- 文字編輯器 -->
-            <textarea id="fileEditorContent" 
-                      class="hidden w-full h-full px-5 py-4 text-sm font-mono border-0 focus:outline-none resize-none"
-                      spellcheck="false"></textarea>
-            
-            <!-- Office 文件預覽 -->
-            <iframe id="filePreviewFrame" 
-                    class="hidden w-full h-full border-0"></iframe>
-            
-            <!-- 載入中 -->
-            <div id="editorLoading" class="flex items-center justify-center h-full">
-                <div class="text-center">
-                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                    <p class="text-sm text-slate-600">載入中...</p>
-                </div>
-            </div>
-            
-            <!-- 無法預覽提示 -->
-            <div id="cannotPreview" class="hidden flex items-center justify-center h-full">
-                <div class="text-center max-w-md px-6">
-                    <i data-lucide="file-x" class="h-16 w-16 mx-auto mb-4 text-slate-300"></i>
-                    <h3 class="text-lg font-semibold text-slate-900 mb-2">無法預覽此檔案</h3>
-                    <p class="text-sm text-slate-600 mb-4" id="cannotPreviewMessage">此檔案類型不支援線上預覽</p>
-                    <a id="downloadFileLink" href="#" 
-                       class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg">
-                        <i data-lucide="download" class="h-4 w-4"></i>
-                        下載檔案
-                    </a>
-                </div>
-            </div>
-        </div>
-        
-        <!-- 底部資訊 -->
-        <div class="flex items-center justify-between px-5 py-3 border-t border-slate-200 bg-slate-50 text-xs text-slate-600">
-            <span id="editorInfo">就緒</span>
-            <span id="editorEncoding"></span>
-        </div>
-    </div>
-</div>
-
-<!-- 上傳進度浮窗 -->
-<div id="uploadProgress" class="hidden fixed bottom-6 right-6 w-80 bg-white rounded-lg shadow-2xl border border-slate-200 z-50">
-    <!-- 標題 -->
-    <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200">
-        <h3 class="text-sm font-semibold text-slate-900">正在上傳</h3>
-        <button onclick="hideModal('uploadProgress')" class="w-7 h-7 flex items-center justify-center hover:bg-slate-100 rounded">
-            <i data-lucide="x" class="h-4 w-4 text-slate-500"></i>
-        </button>
-    </div>
-    
-    <!-- 上傳項目列表 -->
-    <div id="uploadItems" class="p-4 max-h-60 overflow-y-auto space-y-3">
-        <!-- 由 JavaScript 動態生成 -->
-    </div>
-    
-    <!-- 統計 -->
-    <div class="flex items-center justify-between px-4 py-3 border-t border-slate-200 bg-slate-50 text-xs text-slate-600 rounded-b-lg">
-        <span id="uploadSpeed">0 KB/s</span>
-        <span id="uploadEta">計算中...</span>
-    </div>
-</div>
-
 @functions {
     string FormatSize(long bytes)
     {
@@ -428,6 +249,18 @@
     }
 }
 
+<!-- 引入所有 Modal 視圖 -->
+@await Html.PartialAsync("_FileManagerModal")
+
 <link rel="stylesheet" href="~/Backoffice/css/FileManager.css">
 <script src="~/Backoffice/js/Modal.js"></script>
 <script src="~/Backoffice/js/FileManager.js"></script>
+<link rel="stylesheet" href="~/lib/datatable/hnb-datatable.css">
+<script src="~/lib/datatable/hnb-datatable.js"></script>
+<script>
+    $(function(){
+        if ($('#filesTable').length) {
+            HNBDataTable.init('#filesTable');
+        }
+    });
+</script>

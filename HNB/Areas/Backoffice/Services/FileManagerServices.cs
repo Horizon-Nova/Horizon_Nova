@@ -29,11 +29,23 @@ public class FileManagerServices(DirectoryManagerUtilities DM, FileManagerReposi
             .ToList();
         
         viewBag.Folders = repo.QueryFileManagerList(currentUsername: currentUsername, virtualPath: safePath, itemType: "folder")
-            .Select(f => (f.file_name, f.updated_at ?? f.created_at))
+            .Select(f => (
+                f.file_name, 
+                f.owner_username, 
+                f.shared_users ?? new List<string>(), 
+                f.updated_at ?? f.created_at
+            ))
             .ToList();
         
         viewBag.Files = repo.QueryFileManagerList(currentUsername: currentUsername, virtualPath: safePath, itemType: "file")
-            .Select(f => (f.file_name, f.file_size ?? 0L, f.updated_at ?? f.created_at))
+            .Select(f => (
+                f.file_name, 
+                f.file_size ?? 0L, 
+                f.mime_type, 
+                f.owner_username, 
+                f.shared_users ?? new List<string>(), 
+                f.updated_at ?? f.created_at
+            ))
             .ToList();
         
         var foldersInPath = repo.QueryFileManagerList(currentUsername: currentUsername, virtualPath: safePath, itemType: "folder");
@@ -274,10 +286,14 @@ public class FileManagerServices(DirectoryManagerUtilities DM, FileManagerReposi
     {
         try
         {
+            var currentUsername = httpContextAccessor.HttpContext?.User?.Identity?.Name;
             var (absPath, safeName) = DM.PrepareSingleUploadTarget(virtualPath, file.FileName);
             
             using var stream = new FileStream(absPath, FileMode.Create);
             file.CopyTo(stream);
+            
+            // 同步到資料庫
+            DM.UpdateFile(virtualPath, safeName, currentUsername);
             
             return (true, "檔案已上傳", safeName);
         }
@@ -296,6 +312,7 @@ public class FileManagerServices(DirectoryManagerUtilities DM, FileManagerReposi
     /// <returns>操作結果</returns>
     public (bool success, int savedCount, int failedCount, List<string> errors) UploadBatchFiles(string virtualPath, List<IFormFile> files, List<string>? relativePaths = null)
     {
+        var currentUsername = httpContextAccessor.HttpContext?.User?.Identity?.Name;
         var saved = 0;
         var errors = new List<string>();
         
@@ -310,10 +327,13 @@ public class FileManagerServices(DirectoryManagerUtilities DM, FileManagerReposi
         {
             try
             {
-                var (absPath, _, _) = DM.PrepareBatchUploadTarget(virtualPath, relativePaths[i]);
+                var (absPath, safeName, targetVirtualDir) = DM.PrepareBatchUploadTarget(virtualPath, relativePaths[i]);
                 
                 using var stream = new FileStream(absPath, FileMode.Create);
                 files[i].CopyTo(stream);
+                
+                // 同步到資料庫
+                DM.UpdateFile(targetVirtualDir, safeName, currentUsername);
                 
                 saved++;
             }

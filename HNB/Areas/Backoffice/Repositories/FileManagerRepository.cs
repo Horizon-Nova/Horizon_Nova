@@ -39,11 +39,20 @@ public class FileManagerRepository(HnbHnbBackofficeDbContext db)
     /// 查詢檔案管理列表（根據當前用戶權限過濾）
     /// </summary>
     public List<file_manager> QueryFileManagerList(string? currentUsername = null, string? virtualPath = null, string? itemType = null)
-        => ValidFileManagers
+    {
+        var query = ValidFileManagers
             .Where(fm => string.IsNullOrEmpty(virtualPath) || fm.file_path == virtualPath)
-            .Where(fm => string.IsNullOrEmpty(itemType) || fm.item_type == itemType)
-            .Where(fm => !string.IsNullOrEmpty(currentUsername) && fm.shared_users != null && fm.shared_users.Contains(currentUsername))
-            .ToList();
+            .Where(fm => string.IsNullOrEmpty(itemType) || fm.item_type == itemType);
+        
+        // 如果 currentUsername 不為空，則進行權限過濾
+        // 如果為空（系統內部調用），則返回所有記錄
+        if (!string.IsNullOrEmpty(currentUsername))
+        {
+            query = query.Where(fm => fm.shared_users != null && fm.shared_users.Contains(currentUsername));
+        }
+        
+        return query.ToList();
+    }
 
     /// <summary>
     /// 查詢單一檔案管理記錄（不過濾權限，內部使用）
