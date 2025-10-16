@@ -40,6 +40,7 @@ public static class ServiceRegistrationExtensions
         services.AddScoped<HardwareMonitoringRepository>();
         services.AddScoped<BlockedIpRepository>();
         services.AddScoped<AIModelRepositories>();
+        services.AddScoped<FileManagerRepository>();
         return services;
     }
     /// <summary> DI注入管理 Utilities 功能 </summary>

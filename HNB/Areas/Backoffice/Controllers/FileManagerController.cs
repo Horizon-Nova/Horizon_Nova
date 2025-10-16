@@ -80,9 +80,10 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// <summary>
     /// 檔案管理主頁面
     /// </summary>
-    public IActionResult FileManager(string path = "/")
+    public IActionResult FileManager(string? parentCode = null)
     {
-        svc.ViewBagModel(ViewBag, path);
+        var username = User.Identity?.Name;
+        svc.ViewBagModel(ViewBag, parentCode, username);
         return View();
     }
     #endregion
@@ -197,7 +198,8 @@ public class FileManagerController(FileManagerServices svc) : BaseController
         if (files == null || files.Count == 0)
             return Json(new FileManagerResponse { Success = false, Message = "未選擇檔案" });
 
-        var result = svc.UploadBatchFiles(path, files, keys);
+        var username = User.Identity?.Name ?? "anonymous";
+        var result = svc.UploadBatchFiles(path, files, keys, username);
         
         return Json(new UploadResponse
         {
@@ -214,101 +216,51 @@ public class FileManagerController(FileManagerServices svc) : BaseController
 
     #region 檔案下載
     /// <summary>
-    /// 下載檔案
+    /// 下載檔案（重定向到 URL）
     /// </summary>
     [HttpGet]
-    public IActionResult Download(string path, string name)
+    public IActionResult Download(string code)
     {
-        try
-        {
-            var (stream, fileName, contentType) = svc.DownloadFile(path, name);
-            return File(stream, contentType, fileName, enableRangeProcessing: true);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
-    }
+        var url = svc.GetFileUrl(code);
+        if (string.IsNullOrEmpty(url))
+            return NotFound("檔案不存在");
 
-    /// <summary>
-    /// 下載資料夾（ZIP）
-    /// </summary>
-    [HttpGet]
-    public IActionResult DownloadFolder(string path, string name)
-    {
-        try
-        {
-            var (stream, fileName, contentType) = svc.DownloadFolderAsZip(path, name);
-            return File(stream, contentType, fileName, enableRangeProcessing: true);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
-    }
-
-    /// <summary>
-    /// 預覽檔案
-    /// </summary>
-    [HttpGet]
-    public IActionResult Preview(string path, string name)
-    {
-        try
-        {
-            var (stream, contentType) = svc.PreviewFile(path, name);
-            Response.Headers["Content-Disposition"] = $"inline; filename*=UTF-8''{Uri.EscapeDataString(name)}";
-            return File(stream, contentType, enableRangeProcessing: true);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        return Redirect(url);
     }
     #endregion
 
     #region 輔助 API
     /// <summary>
-    /// 重新載入目錄內容（AJAX）
+    /// 重新載入目錄內容（AJAX，從資料庫）
     /// </summary>
     [HttpGet]
-    public IActionResult LoadDirectory(string path)
+    public IActionResult LoadDirectory(string? parentCode = null)
     {
         try
         {
-            var folders = svc.LoadFolders(path);
-            var files = svc.LoadFiles(path);
-            var breadcrumb = svc.LoadBreadcrumb(path);
-            var stats = svc.QueryStatistics(path);
+            var username = User.Identity?.Name;
+            var files = svc.LoadFileList(username, parentCode);
+            
+            var folders = files.Where(f => f.item_type == "folder").ToList();
+            var fileList = files.Where(f => f.item_type == "file").ToList();
 
             return Json(new LoadDirectoryResponse
             {
                 Success = true,
                 Folders = folders,
-                Files = files,
-                Breadcrumb = breadcrumb,
-                Stats = stats
+                Files = fileList,
+                Breadcrumb = null,
+                Stats = new
+                {
+                    FolderCount = folders.Count,
+                    FileCount = fileList.Count,
+                    TotalSize = fileList.Sum(f => f.file_size ?? 0)
+                }
             });
         }
         catch (Exception ex)
         {
             return Json(new LoadDirectoryResponse { Success = false, Message = ex.Message });
-        }
-    }
-
-    /// <summary>
-    /// 載入目錄樹（AJAX）
-    /// </summary>
-    [HttpGet]
-    public IActionResult LoadTree()
-    {
-        try
-        {
-            var tree = svc.LoadTree();
-            return Json(new LoadTreeResponse { Success = true, Tree = tree });
-        }
-        catch (Exception ex)
-        {
-            return Json(new LoadTreeResponse { Success = false, Message = ex.Message });
         }
     }
     #endregion
