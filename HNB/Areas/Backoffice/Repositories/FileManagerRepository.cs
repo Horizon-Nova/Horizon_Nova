@@ -20,7 +20,7 @@ public class FileManagerRepository(HnbHnbBackofficeDbContext db)
         => ValidFiles
             .Where(f => (username == null 
                       || f.owner_username == username 
-                      || f.owner_username == "system"
+                      || f.shared_users!.Contains("ALL")
                       || f.shared_users!.Contains(username))
                      && f.parent_code == parentCode)
             .OrderByDescending(f => f.item_type)
@@ -32,7 +32,7 @@ public class FileManagerRepository(HnbHnbBackofficeDbContext db)
             .Where(f => f.item_type == "folder"
                      && (username == null 
                       || f.owner_username == username 
-                      || f.owner_username == "system"
+                      || f.shared_users!.Contains("ALL")
                       || f.shared_users!.Contains(username)))
             .OrderBy(f => f.parent_code ?? "")
             .ThenBy(f => f.file_name)

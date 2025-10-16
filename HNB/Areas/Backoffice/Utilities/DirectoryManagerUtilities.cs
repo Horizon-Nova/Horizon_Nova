@@ -107,7 +107,7 @@ public sealed class DirectoryManagerUtilities
                         code = code,
                         file_name = folderName,
                         file_path = folderPath,
-                        shared_users = new List<string>(),
+                        shared_users = new List<string> { "ALL" },
                         file_size = null,
                         parent_code = parentCode,
                         item_type = "folder",
@@ -146,7 +146,7 @@ public sealed class DirectoryManagerUtilities
                         code = code,
                         file_name = fileName,
                         file_path = filePath,
-                        shared_users = new List<string>(),
+                        shared_users = new List<string> { "ALL" },
                         file_size = fileInfo.Length,
                         parent_code = parentCode,
                         item_type = "file",
@@ -181,8 +181,37 @@ public sealed class DirectoryManagerUtilities
 #if DEBUG
         throw new InvalidOperationException("開發環境不支援此操作");
 #else
+        // 1. 先操作 Volume
         var parentPath = GetFilePathByCode(parentCode);
-        CreateFolder(parentPath, folderName);
+        var parentAbsPath = GetAbsolutePathFromFilePath(parentPath);
+        
+        var safe = SanitizeName(folderName);
+        if (string.IsNullOrWhiteSpace(safe)) throw new InvalidOperationException($"資料夾名稱不合法：{folderName}");
+        
+        if (IsProtected(parentPath, safe)) throw new InvalidOperationException("保護路徑，禁止建立資料夾");
+        
+        var newDir = Path.Combine(parentAbsPath, safe);
+        Directory.CreateDirectory(newDir);
+        
+        // 2. 再記錄到資料庫
+        var actualFolderName = Path.GetFileName(newDir);
+        var folderPath = string.IsNullOrEmpty(parentPath) 
+            ? actualFolderName 
+            : parentPath + "/" + actualFolderName;
+        
+        var code = $"folder_{Guid.NewGuid():N}";
+        _repo?.InsertFile(new file_manager
+        {
+            code = code,
+            file_name = actualFolderName,
+            file_path = folderPath,
+            shared_users = new List<string> { "ALL" },
+            file_size = null,
+            parent_code = parentCode,
+            item_type = "folder",
+            owner_username = "system",
+            mime_type = null
+        });
 #endif
     }
 
@@ -191,8 +220,41 @@ public sealed class DirectoryManagerUtilities
 #if DEBUG
         throw new InvalidOperationException("開發環境不支援此操作");
 #else
+        // 1. 先操作 Volume
         var parentPath = GetFilePathByCode(parentCode);
-        CreateEmptyFile(parentPath, fileName);
+        var parentAbsPath = GetAbsolutePathFromFilePath(parentPath);
+        
+        var safe = SanitizeName(fileName);
+        if (string.IsNullOrWhiteSpace(safe)) throw new InvalidOperationException($"檔名不合法：{fileName}");
+        
+        if (IsProtected(parentPath, safe)) throw new InvalidOperationException("保護路徑，禁止建立檔案");
+        
+        Directory.CreateDirectory(parentAbsPath);
+        var target = Path.Combine(parentAbsPath, safe);
+        File.WriteAllBytes(target, Array.Empty<byte>());
+        
+        // 2. 再記錄到資料庫
+        var actualFileName = Path.GetFileName(target);
+        var filePath = string.IsNullOrEmpty(parentPath) 
+            ? actualFileName 
+            : parentPath + "/" + actualFileName;
+        
+        var code = $"file_{Guid.NewGuid():N}";
+        var fileInfo = new FileInfo(target);
+        var contentType = Ct.TryGetContentType(actualFileName, out var ct) ? ct : "application/octet-stream";
+        
+        _repo?.InsertFile(new file_manager
+        {
+            code = code,
+            file_name = actualFileName,
+            file_path = filePath,
+            shared_users = new List<string> { "ALL" },
+            file_size = fileInfo.Length,
+            parent_code = parentCode,
+            item_type = "file",
+            owner_username = "system",
+            mime_type = contentType
+        });
 #endif
     }
 
@@ -201,23 +263,29 @@ public sealed class DirectoryManagerUtilities
 #if DEBUG
         throw new InvalidOperationException("開發環境不支援此操作");
 #else
+        // 先查詢資料庫取得 file_path
         var item = _repo?.QueryFile(code: code);
-        if (item == null) throw new FileNotFoundException("項目不存在");
+        if (item == null) throw new FileNotFoundException($"資料庫中找不到項目：{code}");
+        
+        // 1. 先操作 Volume（主要）
+        var absPath = GetAbsolutePathFromFilePath(item.file_path!);
         
         if (item.item_type == "folder")
         {
-            var folderPath = GetAbsolutePathFromFilePath(item.file_path!);
-            if (Directory.Exists(folderPath))
-                Directory.Delete(folderPath, true);
+            if (Directory.Exists(absPath))
+                Directory.Delete(absPath, true);
+            // 即使 Volume 不存在，也繼續刪除資料庫記錄
         }
         else
         {
-            var filePath = GetAbsolutePathFromFilePath(item.file_path!);
-            if (File.Exists(filePath))
-                File.Delete(filePath);
+            if (File.Exists(absPath))
+                File.Delete(absPath);
+            // 即使 Volume 不存在，也繼續刪除資料庫記錄
         }
         
-        _repo?.DeleteFile(item.id!.Value);
+        // 2. 再更新資料庫（輔助）
+        if (item.id.HasValue)
+            _repo?.DeleteFile(item.id.Value);
 #endif
     }
 
@@ -227,31 +295,34 @@ public sealed class DirectoryManagerUtilities
         throw new InvalidOperationException("開發環境不支援此操作");
 #else
         var item = _repo?.QueryFile(code: code);
-        if (item == null) throw new FileNotFoundException("項目不存在");
+        if (item == null) throw new FileNotFoundException($"資料庫中找不到項目：{code}");
         
         var safe = SanitizeName(newName);
-        if (string.IsNullOrWhiteSpace(safe)) throw new InvalidOperationException("新名稱不合法");
+        if (string.IsNullOrWhiteSpace(safe)) throw new InvalidOperationException($"新名稱不合法：{newName}");
         
-        var oldPath = GetAbsolutePathFromFilePath(item.file_path!);
-        var newPath = Path.Combine(Path.GetDirectoryName(oldPath)!, safe);
+        // 1. 先操作 Volume（主要）
+        var oldAbsPath = GetAbsolutePathFromFilePath(item.file_path!);
+        var newAbsPath = Path.Combine(Path.GetDirectoryName(oldAbsPath)!, safe);
         
-        if (item.item_type == "folder" && Directory.Exists(oldPath))
+        if (item.item_type == "folder")
         {
-            Directory.Move(oldPath, newPath);
+            if (Directory.Exists(oldAbsPath))
+                Directory.Move(oldAbsPath, newAbsPath);
         }
-        else if (item.item_type == "file" && File.Exists(oldPath))
+        else
         {
-            File.Move(oldPath, newPath);
+            if (File.Exists(oldAbsPath))
+                File.Move(oldAbsPath, newAbsPath);
         }
         
-        // 更新資料庫
+        // 2. 再更新資料庫（輔助）
         var fileManager = _repo?.QueryFileManagement(code: code);
         if (fileManager != null)
         {
             fileManager.file_name = safe;
             var parentPath = !string.IsNullOrEmpty(item.parent_code) 
                 ? _repo?.QueryFile(code: item.parent_code)?.file_path 
-                : null;
+                : "";
             fileManager.file_path = string.IsNullOrEmpty(parentPath) 
                 ? safe 
                 : parentPath + "/" + safe;
@@ -671,7 +742,7 @@ public sealed class DirectoryManagerUtilities
             code = code,
             file_name = safeName,
             file_path = virtualPath.TrimEnd('/') + "/" + safeName,
-            shared_users = new List<string>(),
+            shared_users = new List<string> { "ALL" },
             file_size = fileInfo.Length,
             parent_code = null,
             item_type = "file",
@@ -743,7 +814,7 @@ public sealed class DirectoryManagerUtilities
                 code = code,
                 file_name = safeName,
                 file_path = targetVDir.TrimEnd('/') + "/" + safeName,
-                shared_users = new List<string>(),
+                shared_users = new List<string> { "ALL" },
                 file_size = fileInfo.Length,
                 parent_code = null,
                 item_type = "file",
