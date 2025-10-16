@@ -1,0 +1,6 @@
+#filesTable thead th { white-space: nowrap; }
+#filesTable td, #filesTable th { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+.dt-container .dataTables_filter input,
+.dt-container .dataTables_length select { border: 1px solid rgb(226 232 240); border-radius: 0.375rem; padding: 0.25rem 0.5rem; }
+#filesTable td:last-child { text-align: right; }
+
