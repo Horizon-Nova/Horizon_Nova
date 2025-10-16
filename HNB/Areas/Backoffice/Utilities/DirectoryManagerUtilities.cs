@@ -59,8 +59,84 @@ public sealed class DirectoryManagerUtilities
     /// </summary>
     private void SyncDatabaseWithFileSystem()
     {
-        // TODO: 掃描 Volume 中的資料夾，確保都有記錄在資料庫中
-        // 如果發現未記錄的資料夾，自動新增到資料庫
+        if (!Directory.Exists(_root) || _repo == null) return;
+
+        // 一次性載入所有資料庫記錄
+        var existingFiles = _repo.QueryFileList().Select(f => f.file_path).ToHashSet();
+
+        ScanDirectory("/", null);
+
+        void ScanDirectory(string virtualPath, string? parentCode)
+        {
+            var absPath = GetSafeAbsolutePath(virtualPath);
+            if (!Directory.Exists(absPath)) return;
+
+            // 掃描資料夾
+            foreach (var dir in Directory.GetDirectories(absPath))
+            {
+                var folderName = Path.GetFileName(dir);
+                if (IsProtected(virtualPath, folderName)) continue;
+
+                var folderPath = virtualPath == "/" ? "/" + folderName : virtualPath + "/" + folderName;
+
+                // 檢查是否已存在
+                if (!existingFiles.Contains(folderPath))
+                {
+                    var code = $"folder_{Guid.NewGuid():N}";
+                    
+                    _repo.InsertFile(new file_manager
+                    {
+                        code = code,
+                        file_name = folderName,
+                        file_path = folderPath,
+                        shared_users = new List<string>(),
+                        file_size = null,
+                        parent_code = parentCode,
+                        item_type = "folder",
+                        owner_username = "system",
+                        mime_type = null
+                    });
+                    
+                    existingFiles.Add(folderPath);
+                }
+
+                // 遞迴掃描子資料夾
+                var folderCode = _repo.QueryFileList().FirstOrDefault(f => f.file_path == folderPath)?.code;
+                ScanDirectory(folderPath, folderCode);
+            }
+
+            // 掃描檔案
+            foreach (var file in Directory.GetFiles(absPath))
+            {
+                var fileName = Path.GetFileName(file);
+                if (IsProtected(virtualPath, fileName)) continue;
+
+                var filePath = virtualPath == "/" ? "/" + fileName : virtualPath + "/" + fileName;
+
+                // 檢查是否已存在
+                if (!existingFiles.Contains(filePath))
+                {
+                    var code = $"file_{Guid.NewGuid():N}";
+                    var fileInfo = new FileInfo(file);
+                    var contentType = Ct.TryGetContentType(fileName, out var ct) ? ct : "application/octet-stream";
+
+                    _repo.InsertFile(new file_manager
+                    {
+                        code = code,
+                        file_name = fileName,
+                        file_path = filePath,
+                        shared_users = new List<string>(),
+                        file_size = fileInfo.Length,
+                        parent_code = parentCode,
+                        item_type = "file",
+                        owner_username = "system",
+                        mime_type = contentType
+                    });
+                    
+                    existingFiles.Add(filePath);
+                }
+            }
+        }
     }
     #endregion
 
