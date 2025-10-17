@@ -41,37 +41,34 @@ let __imgPv = {
     startY: 0
 };
 
+// 初始化圖片預覽（置中、以容器中心縮放、支援拖移）
 function setupImagePreview(src) {
     const wrap = document.getElementById('imagePreviewWrapper');
     const img = document.getElementById('imagePreview');
     if (!wrap || !img) return;
-    // 重置狀態
     __imgPv.scale = 1; __imgPv.originX = 0; __imgPv.originY = 0; __imgPv.fitScale = 1;
     img.style.transformOrigin = '0 0';
     img.style.transform = 'translate(0px, 0px) scale(1)';
     img.style.cursor = 'grab';
     img.style.willChange = 'transform';
     img.onload = () => {
-        // 計算適合視窗的縮放（容器 = wrap）
         const wrapRect = wrap.getBoundingClientRect();
         const scaleX = wrapRect.width / img.naturalWidth;
         const scaleY = wrapRect.height / img.naturalHeight;
         __imgPv.fitScale = Math.min(scaleX, scaleY, 1);
         __imgPv.scale = __imgPv.fitScale;
-        // 置中顯示（以容器中心為基準）
         __imgPv.originX = Math.round((wrapRect.width - img.naturalWidth * __imgPv.scale) / 2);
         __imgPv.originY = Math.round((wrapRect.height - img.naturalHeight * __imgPv.scale) / 2);
         applyImageTransform();
     };
     img.src = src;
-    // 滾輪縮放（以容器中心為錨點）
     wrap.onwheel = (e) => {
         e.preventDefault();
         const delta = e.deltaY < 0 ? 1.1 : 0.9;
         const newScale = clamp(__imgPv.scale * delta, __imgPv.minScale, __imgPv.maxScale);
         const wrapRect = wrap.getBoundingClientRect();
-        const mx = wrapRect.width / 2; // 容器中心 X
-        const my = wrapRect.height / 2; // 容器中心 Y
+        const mx = wrapRect.width / 2;
+        const my = wrapRect.height / 2;
         const preX = (mx - __imgPv.originX) / __imgPv.scale;
         const preY = (my - __imgPv.originY) / __imgPv.scale;
         __imgPv.scale = newScale;
@@ -79,7 +76,6 @@ function setupImagePreview(src) {
         __imgPv.originY = Math.round(my - preY * __imgPv.scale);
         applyImageTransform();
     };
-    // 拖移
     wrap.onmousedown = (e) => {
         if (e.button !== 0) return;
         __imgPv.isPanning = true;
@@ -107,23 +103,26 @@ function applyImageTransform() {
 
 function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
 
-// 控制列按鈕
+// 圖片預覽：適合視窗
 function imagePreviewFit() {
     __imgPv.scale = __imgPv.fitScale || 1;
     __imgPv.originX = 0;
     __imgPv.originY = 0;
     applyImageTransform();
 }
+// 圖片預覽：實際大小
 function imagePreviewActual() {
     __imgPv.scale = 1;
     __imgPv.originX = 0;
     __imgPv.originY = 0;
     applyImageTransform();
 }
+// 圖片預覽：放大
 function imagePreviewZoomIn() {
     __imgPv.scale = clamp(__imgPv.scale * 1.2, __imgPv.minScale, __imgPv.maxScale);
     applyImageTransform();
 }
+// 圖片預覽：縮小
 function imagePreviewZoomOut() {
     __imgPv.scale = clamp(__imgPv.scale / 1.2, __imgPv.minScale, __imgPv.maxScale);
     applyImageTransform();
@@ -222,83 +221,60 @@ function initializeFileInput() {
 // ========== 新增資料夾 ==========
 
 async function createFolder() {
-    const name = document.getElementById('folderNameInput').value.trim();
-    if (!name) {
-        alert('請輸入資料夾名稱');
-        return;
-    }
-    
-    // 取得共享使用者（用逗號分隔）
-    const sharedUsersInput = document.getElementById('folderSharedUsersInput').value.trim();
-    const sharedUsers = sharedUsersInput
-        ? sharedUsersInput.split(',').map(u => u.trim()).filter(u => u.length > 0)
-        : [];
-    
-    try {
-        const response = await fetch('/Backoffice/FileManager/CreateFolder', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                path: currentPath, 
-                name: name,
-                sharedUsers: sharedUsers
-            })
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            closeModal('createFolderModal');
-            document.getElementById('folderNameInput').value = '';
-            document.getElementById('folderSharedUsersInput').value = '';
-            location.reload();
-        } else {
-            alert(result.message);
-        }
-    } catch (error) {
-        alert('操作失敗：' + error.message);
-    }
+    const $form = $('#createFolderForm');
+    const dataStr = $form.serialize();
+    const name = ($form.find('[name="Name"]').val() || '').toString().trim();
+    if (!name) { alert('請輸入資料夾名稱'); return; }
+    const $btn = $("#createFolderModal button:contains('建立')");
+    $btn.prop('disabled', true).text('處理中...');
+    $.ajax({
+        type: 'POST',
+        url: '/Backoffice/FileManager/CreateFolder',
+        contentType: 'application/json; charset=utf-8',
+        data: JSON.stringify({ Path: currentPath, Name: name, SharedUsers: parseShared($form.find('[name="SharedUsers"]').val()) }),
+        success: function (res) {
+            if (res && res.success) {
+                closeModal('createFolderModal');
+                location.reload();
+            } else {
+                alert(res && res.message ? res.message : '建立失敗');
+            }
+        },
+        error: function () { alert('建立失敗，請稍後再試。'); },
+        complete: function () { $btn.prop('disabled', false).text('建立'); }
+    });
 }
 
 // ========== 新增檔案 ==========
 
 async function createFile() {
-    const name = document.getElementById('fileNameInput').value.trim();
-    if (!name) {
-        alert('請輸入檔案名稱');
-        return;
-    }
-    
-    // 取得共享使用者（用逗號分隔）
-    const sharedUsersInput = document.getElementById('fileSharedUsersInput').value.trim();
-    const sharedUsers = sharedUsersInput
-        ? sharedUsersInput.split(',').map(u => u.trim()).filter(u => u.length > 0)
-        : [];
-    
-    try {
-        const response = await fetch('/Backoffice/FileManager/CreateFile', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                path: currentPath, 
-                name: name,
-                sharedUsers: sharedUsers
-            })
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            closeModal('createFileModal');
-            document.getElementById('fileNameInput').value = '';
-            document.getElementById('fileSharedUsersInput').value = '';
-            location.reload();
-        } else {
-            alert(result.message);
-        }
-    } catch (error) {
-        alert('操作失敗：' + error.message);
-    }
+    const $form = $('#createFileForm');
+    const name = ($form.find('[name="Name"]').val() || '').toString().trim();
+    if (!name) { alert('請輸入檔案名稱'); return; }
+    const $btn = $("#createFileModal button:contains('建立')");
+    $btn.prop('disabled', true).text('處理中...');
+    $.ajax({
+        type: 'POST',
+        url: '/Backoffice/FileManager/CreateFile',
+        contentType: 'application/json; charset=utf-8',
+        data: JSON.stringify({ Path: currentPath, Name: name, SharedUsers: parseShared($form.find('[name="SharedUsers"]').val()) }),
+        success: function (res) {
+            if (res && res.success) {
+                closeModal('createFileModal');
+                location.reload();
+            } else {
+                alert(res && res.message ? res.message : '建立失敗');
+            }
+        },
+        error: function () { alert('建立失敗，請稍後再試。'); },
+        complete: function () { $btn.prop('disabled', false).text('建立'); }
+    });
+}
+
+function parseShared(val) {
+    const s = (val || '').toString().trim();
+    if (!s) return [];
+    return s.split(',').map(x => x.trim()).filter(x => x.length > 0);
 }
 
 // ========== 重新命名 ==========

@@ -123,10 +123,7 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// <summary>
     /// 上傳檔案（最大 4GB）
     /// </summary>
-    [HttpPost]
-    [DisableRequestSizeLimit]
-    [RequestFormLimits(MultipartBodyLengthLimit = 4294967296)] // 4GB = 4 * 1024 * 1024 * 1024
-    [RequestSizeLimit(4294967296)] // 4GB
+    [HttpPost,DisableRequestSizeLimit,RequestFormLimits(MultipartBodyLengthLimit = 4294967296),RequestSizeLimit(4294967296)] // 4GB
     public IActionResult Upload(string path, List<IFormFile> files, List<string>? keys)
     {
         if (files == null || files.Count == 0)
