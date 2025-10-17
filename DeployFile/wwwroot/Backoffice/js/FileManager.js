@@ -822,3 +822,46 @@ document.addEventListener('keydown', function(e) {
         }
     }
 });
+
+// ========== 目錄樹折疊功能（以 data-virtual-path 為前綴判斷） ==========
+function toggleTreeNode(event, element) {
+    event.preventDefault();
+    event.stopPropagation();
+    const chevron = element;
+    const row = element.closest('a');
+    if (!row) return;
+    const currentPath = row.getAttribute('data-virtual-path') || '';
+    const currentIndentRem = parseFloat((row.style.paddingLeft || '0.75rem').replace('rem',''));
+    const currentIndent = isNaN(currentIndentRem) ? 0.75 : currentIndentRem;
+
+    const isOpen = chevron.getAttribute('data-lucide') === 'chevron-down';
+    chevron.setAttribute('data-lucide', isOpen ? 'chevron-right' : 'chevron-down');
+    if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
+
+    let next = row.nextElementSibling;
+    while (next) {
+        // 只處理同樣是 tree 節點的 <a>
+        if (next.tagName !== 'A') {
+            next = next.nextElementSibling;
+            continue;
+        }
+        const nextPath = next.getAttribute('data-virtual-path') || '';
+        const nextIndentRem = parseFloat((next.style.paddingLeft || '0.75rem').replace('rem',''));
+        const nextIndent = isNaN(nextIndentRem) ? 0.75 : nextIndentRem;
+        // 若縮排小於等於當前層，表示不同分支，停止
+        if (nextIndent <= currentIndent) break;
+        // 僅當 nextPath 是當前路徑的真正後代（以 currentPath + '/' 作為前綴）才處理
+        const prefix = currentPath === '/' ? '//' : currentPath + '/';
+        const isDescendant = nextPath.startsWith(prefix);
+        if (!isDescendant) break;
+        const isDirectChild = Math.abs(nextIndent - currentIndent - 1.0) < 0.1;
+        if (isOpen) {
+            // 收合：隱藏所有子孫
+            next.classList.add('hidden');
+        } else {
+            // 展開：只顯示直接子節點
+            if (isDirectChild) next.classList.remove('hidden');
+        }
+        next = next.nextElementSibling;
+    }
+}
