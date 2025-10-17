@@ -11,18 +11,24 @@ window.HNBDataTable = (function () {
 
         var defaults = {
             stateSave: true,
-            order: [[4, 'desc']],
+            order: [[0, 'asc']],
             pageLength: 25,
-            lengthMenu: [10, 25, 50, 100],
-            language: { url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/zh-HANT.json' },
-            columnDefs: [
-                { targets: 0, className: 'whitespace-nowrap' },
-                { targets: 1, className: 'text-slate-700' },
-                { targets: 2, className: 'text-slate-700' },
-                { targets: 3, className: 'text-slate-700' },
-                { targets: 4, className: 'text-slate-700' },
-                { targets: 5, className: 'text-right' }
-            ],
+            lengthMenu: [10, 25, 50, 100, 200],
+            dom: '<"flex items-center justify-between mb-4"l<"ml-auto"f>>rt<"flex items-center justify-between mt-4"i<"ml-auto"p>>',
+            language: {
+                url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/zh-HANT.json',
+                search: '搜尋:',
+                lengthMenu: '顯示 _MENU_ 筆',
+                info: '顯示第 _START_ 至 _END_ 筆，共 _TOTAL_ 筆',
+                infoEmpty: '沒有資料',
+                infoFiltered: '(從 _MAX_ 筆中篩選)',
+                paginate: {
+                    first: '首頁',
+                    last: '末頁',
+                    next: '下一頁',
+                    previous: '上一頁'
+                }
+            },
             drawCallback: function () {
                 if (typeof lucide !== 'undefined' && lucide.createIcons) {
                     lucide.createIcons();

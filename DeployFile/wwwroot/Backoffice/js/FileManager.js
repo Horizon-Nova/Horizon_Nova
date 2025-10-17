@@ -10,9 +10,14 @@ document.addEventListener('DOMContentLoaded', function() {
         lucide.createIcons();
     }
     
-    // 取得當前路徑
-    const urlParams = new URLSearchParams(window.location.search);
-    currentPath = urlParams.get('path') || '/';
+    // 取得當前路徑（從頁面元素或 URL）
+    const pathEl = document.querySelector('[data-current-path]');
+    if (pathEl) {
+        currentPath = pathEl.getAttribute('data-current-path') || '/';
+    } else {
+        const urlParams = new URLSearchParams(window.location.search);
+        currentPath = urlParams.get('path') || '/';
+    }
     
     // 初始化拖曳上傳
     initializeDragAndDrop();
@@ -112,43 +117,6 @@ function initializeFileInput() {
     });
 }
 
-// ========== 目錄樹折疊功能 ==========
-
-function toggleTreeNode(event, element) {
-    event.preventDefault();
-    event.stopPropagation();
-    
-    const chevron = element;
-    const isExpanded = chevron.getAttribute('data-lucide') === 'chevron-down';
-    const treeNode = element.closest('a, div');
-    const currentIndent = parseFloat(treeNode.style.paddingLeft || '0.75rem');
-    
-    // 切換 chevron 圖標
-    chevron.setAttribute('data-lucide', isExpanded ? 'chevron-right' : 'chevron-down');
-    lucide.createIcons();
-    
-    // 找到所有子節點並顯示/隱藏
-    let nextNode = treeNode.nextElementSibling;
-    while (nextNode) {
-        const nextIndent = parseFloat(nextNode.style.paddingLeft || '0.75rem');
-        
-        // 如果縮排較小或相等，表示不是子節點
-        if (nextIndent <= currentIndent) break;
-        
-        // 顯示/隱藏節點
-        if (isExpanded) {
-            nextNode.classList.add('hidden');
-        } else {
-            // 只顯示直接子節點，不顯示更深層的節點
-            const isDirectChild = Math.abs(nextIndent - currentIndent - 1.0) < 0.1;
-            if (isDirectChild) {
-                nextNode.classList.remove('hidden');
-            }
-        }
-        
-        nextNode = nextNode.nextElementSibling;
-    }
-}
 
 // ========== 新增資料夾 ==========
 
@@ -159,17 +127,29 @@ async function createFolder() {
         return;
     }
     
+    // 取得共享使用者（用逗號分隔）
+    const sharedUsersInput = document.getElementById('folderSharedUsersInput').value.trim();
+    const sharedUsers = sharedUsersInput
+        ? sharedUsersInput.split(',').map(u => u.trim()).filter(u => u.length > 0)
+        : [];
+    
     try {
         const response = await fetch('/Backoffice/FileManager/CreateFolder', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ path: currentPath, name })
+            body: JSON.stringify({ 
+                path: currentPath, 
+                name: name,
+                sharedUsers: sharedUsers
+            })
         });
         
         const result = await response.json();
         
         if (result.success) {
             closeModal('createFolderModal');
+            document.getElementById('folderNameInput').value = '';
+            document.getElementById('folderSharedUsersInput').value = '';
             location.reload();
         } else {
             alert(result.message);
@@ -188,17 +168,29 @@ async function createFile() {
         return;
     }
     
+    // 取得共享使用者（用逗號分隔）
+    const sharedUsersInput = document.getElementById('fileSharedUsersInput').value.trim();
+    const sharedUsers = sharedUsersInput
+        ? sharedUsersInput.split(',').map(u => u.trim()).filter(u => u.length > 0)
+        : [];
+    
     try {
         const response = await fetch('/Backoffice/FileManager/CreateFile', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ path: currentPath, name })
+            body: JSON.stringify({ 
+                path: currentPath, 
+                name: name,
+                sharedUsers: sharedUsers
+            })
         });
         
         const result = await response.json();
         
         if (result.success) {
             closeModal('createFileModal');
+            document.getElementById('fileNameInput').value = '';
+            document.getElementById('fileSharedUsersInput').value = '';
             location.reload();
         } else {
             alert(result.message);
