@@ -28,6 +28,107 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('檔案總管已載入，當前路徑：', currentPath);
 });
 
+// ===== 圖片預覽（自訂 Viewer） =====
+let __imgPv = {
+    scale: 1,
+    minScale: 0.1,
+    maxScale: 5,
+    fitScale: 1,
+    originX: 0,
+    originY: 0,
+    isPanning: false,
+    startX: 0,
+    startY: 0
+};
+
+function setupImagePreview(src) {
+    const wrap = document.getElementById('imagePreviewWrapper');
+    const img = document.getElementById('imagePreview');
+    if (!wrap || !img) return;
+    // 重置狀態
+    __imgPv.scale = 1; __imgPv.originX = 0; __imgPv.originY = 0; __imgPv.fitScale = 1;
+    img.style.transformOrigin = '0 0';
+    img.style.transform = 'translate(0px, 0px) scale(1)';
+    img.style.cursor = 'grab';
+    img.style.willChange = 'transform';
+    img.onload = () => {
+        // 計算適合視窗的縮放（容器 = wrap）
+        const wrapRect = wrap.getBoundingClientRect();
+        const scaleX = wrapRect.width / img.naturalWidth;
+        const scaleY = wrapRect.height / img.naturalHeight;
+        __imgPv.fitScale = Math.min(scaleX, scaleY, 1);
+        __imgPv.scale = __imgPv.fitScale;
+        // 置中顯示（以容器中心為基準）
+        __imgPv.originX = Math.round((wrapRect.width - img.naturalWidth * __imgPv.scale) / 2);
+        __imgPv.originY = Math.round((wrapRect.height - img.naturalHeight * __imgPv.scale) / 2);
+        applyImageTransform();
+    };
+    img.src = src;
+    // 滾輪縮放（以容器中心為錨點）
+    wrap.onwheel = (e) => {
+        e.preventDefault();
+        const delta = e.deltaY < 0 ? 1.1 : 0.9;
+        const newScale = clamp(__imgPv.scale * delta, __imgPv.minScale, __imgPv.maxScale);
+        const wrapRect = wrap.getBoundingClientRect();
+        const mx = wrapRect.width / 2; // 容器中心 X
+        const my = wrapRect.height / 2; // 容器中心 Y
+        const preX = (mx - __imgPv.originX) / __imgPv.scale;
+        const preY = (my - __imgPv.originY) / __imgPv.scale;
+        __imgPv.scale = newScale;
+        __imgPv.originX = Math.round(mx - preX * __imgPv.scale);
+        __imgPv.originY = Math.round(my - preY * __imgPv.scale);
+        applyImageTransform();
+    };
+    // 拖移
+    wrap.onmousedown = (e) => {
+        if (e.button !== 0) return;
+        __imgPv.isPanning = true;
+        __imgPv.startX = e.clientX - __imgPv.originX;
+        __imgPv.startY = e.clientY - __imgPv.originY;
+        img.style.cursor = 'grabbing';
+    };
+    window.onmouseup = () => {
+        __imgPv.isPanning = false;
+        img.style.cursor = 'grab';
+    };
+    window.onmousemove = (e) => {
+        if (!__imgPv.isPanning) return;
+        __imgPv.originX = Math.round(e.clientX - __imgPv.startX);
+        __imgPv.originY = Math.round(e.clientY - __imgPv.startY);
+        applyImageTransform();
+    };
+}
+
+function applyImageTransform() {
+    const img = document.getElementById('imagePreview');
+    if (!img) return;
+    img.style.transform = `translate(${__imgPv.originX}px, ${__imgPv.originY}px) scale(${__imgPv.scale})`;
+}
+
+function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+
+// 控制列按鈕
+function imagePreviewFit() {
+    __imgPv.scale = __imgPv.fitScale || 1;
+    __imgPv.originX = 0;
+    __imgPv.originY = 0;
+    applyImageTransform();
+}
+function imagePreviewActual() {
+    __imgPv.scale = 1;
+    __imgPv.originX = 0;
+    __imgPv.originY = 0;
+    applyImageTransform();
+}
+function imagePreviewZoomIn() {
+    __imgPv.scale = clamp(__imgPv.scale * 1.2, __imgPv.minScale, __imgPv.maxScale);
+    applyImageTransform();
+}
+function imagePreviewZoomOut() {
+    __imgPv.scale = clamp(__imgPv.scale / 1.2, __imgPv.minScale, __imgPv.maxScale);
+    applyImageTransform();
+}
+
 // ========== 拖曳上傳初始化 ==========
 
 function initializeDragAndDrop() {
@@ -558,6 +659,8 @@ async function openFile(fileName) {
     const modal = document.getElementById('fileEditorModal');
     const editorContent = document.getElementById('fileEditorContent');
     const previewFrame = document.getElementById('filePreviewFrame');
+    const imgWrap = document.getElementById('imagePreviewWrapper');
+    const imgEl = document.getElementById('imagePreview');
     const loading = document.getElementById('editorLoading');
     const cannotPreview = document.getElementById('cannotPreview');
     const fileNameEl = document.getElementById('editorFileName');
@@ -571,6 +674,7 @@ async function openFile(fileName) {
     modal.classList.add('flex');
     editorContent.classList.add('hidden');
     previewFrame.classList.add('hidden');
+    if (imgWrap) imgWrap.classList.add('hidden');
     cannotPreview.classList.add('hidden');
     loading.classList.remove('hidden');
     fileNameEl.textContent = fileName;
@@ -678,24 +782,35 @@ async function openFile(fileName) {
         if (typeof lucide !== 'undefined') {
             lucide.createIcons();
         }
-    } else if (fileType === 'image' || fileType === 'video' || fileType === 'audio') {
-        // 圖片、影片、音訊 - 使用預覽
+    } else if (fileType === 'image') {
+        // 圖片：用自訂 viewer（適合視窗＋縮放/拖移）
+        const previewUrl = `/Backoffice/FileManager/Download?path=${encodeURIComponent(currentPath)}&name=${encodeURIComponent(fileName)}`;
+        if (imgWrap && imgEl) {
+            setupImagePreview(previewUrl);
+            imgWrap.classList.remove('hidden');
+            loading.classList.add('hidden');
+            readOnlyBadge.classList.remove('hidden');
+            saveBtn.classList.add('hidden');
+            infoEl.textContent = '圖片預覽';
+            encodingEl.textContent = '';
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        } else {
+            // 後備：用 iframe
+            previewFrame.src = `/Backoffice/FileManager/Preview?path=${encodeURIComponent(currentPath)}&name=${encodeURIComponent(fileName)}`;
+            previewFrame.classList.remove('hidden');
+            loading.classList.add('hidden');
+        }
+    } else if (fileType === 'video' || fileType === 'audio') {
+        // 影片 / 音訊：仍使用內建預覽頁
         const previewUrl = `/Backoffice/FileManager/Preview?path=${encodeURIComponent(currentPath)}&name=${encodeURIComponent(fileName)}`;
-        
         previewFrame.src = previewUrl;
         previewFrame.classList.remove('hidden');
         loading.classList.add('hidden');
-        
         readOnlyBadge.classList.remove('hidden');
         saveBtn.classList.add('hidden');
-        
         infoEl.textContent = `預覽模式 (${fileType})`;
         encodingEl.textContent = '';
-        
-        // 重新初始化 Lucide Icons
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
-        }
+        if (typeof lucide !== 'undefined') lucide.createIcons();
     } else {
         // 其他檔案類型 - 顯示無法預覽提示
         loading.classList.add('hidden');
@@ -761,6 +876,8 @@ function closeFileEditor() {
     const modal = document.getElementById('fileEditorModal');
     const editorContent = document.getElementById('fileEditorContent');
     const previewFrame = document.getElementById('filePreviewFrame');
+    const imgWrap = document.getElementById('imagePreviewWrapper');
+    const imgEl = document.getElementById('imagePreview');
     
     // 檢查是否有未儲存的變更
     if (editorContent.value !== currentEditingFile.originalContent) {
@@ -773,6 +890,8 @@ function closeFileEditor() {
     modal.classList.remove('flex');
     editorContent.value = '';
     previewFrame.src = '';
+    if (imgWrap) imgWrap.classList.add('hidden');
+    if (imgEl) imgEl.src = '';
     
     currentEditingFile = { name: '', path: '', encoding: 'utf-8', originalContent: '' };
 }
@@ -882,6 +1001,9 @@ function ensureItemMenu() {
         <button type="button" data-action="open" class="w-full text-left flex items-center gap-2 px-3 py-2 rounded-md hover:bg-slate-100">
             <i data-lucide="corner-down-right" class="h-4 w-4"></i> 開啟
         </button>
+        <button type="button" data-action="details" class="w-full text-left flex items-center gap-2 px-3 py-2 rounded-md hover:bg-slate-100">
+            <i data-lucide="eye" class="h-4 w-4"></i> 詳細資料
+        </button>
         <button type="button" data-action="rename" class="w-full text-left flex items-center gap-2 px-3 py-2 rounded-md hover:bg-slate-100">
             <i data-lucide="edit-3" class="h-4 w-4"></i> 重新命名
         </button>
@@ -958,6 +1080,10 @@ function openItemMenu(e, kind, name, path) {
         }
         hideItemMenu();
     };
+    menu.querySelector('[data-action="details"]').onclick = () => {
+        showItemDetails(kind, name, path);
+        hideItemMenu();
+    };
     menu.querySelector('[data-action="rename"]').onclick = () => {
         showRenameModal(name, kind);
         hideItemMenu();
@@ -975,3 +1101,41 @@ function openItemMenu(e, kind, name, path) {
         hideItemMenu();
     };
 }
+
+// ========== 詳細資料（樣式驗證用 Mock） ==========
+function showItemDetails(kind, name, path) {
+    const modal = document.getElementById('itemDetailModal');
+    if (!modal) return;
+    const isFolder = kind === 'folder';
+    const icon = document.getElementById('detailIcon');
+    const elName = document.getElementById('detailName');
+    const elType = document.getElementById('detailType');
+    const elPath = document.getElementById('detailPath');
+    const elSize = document.getElementById('detailSize');
+    const elOwner = document.getElementById('detailOwner');
+    const elShared = document.getElementById('detailShared');
+    const elCreated = document.getElementById('detailCreated');
+    const elUpdated = document.getElementById('detailUpdated');
+
+    if (icon) icon.setAttribute('data-lucide', isFolder ? 'folder' : 'file');
+    if (elName) elName.textContent = name || '—';
+    if (elType) elType.textContent = isFolder ? '資料夾' : '檔案';
+    const fullPath = path === '/' ? `/${name}` : `${path}/${name}`;
+    if (elPath) elPath.textContent = fullPath;
+
+    // Demo mock data for style preview (no real fetching)
+    if (elSize) elSize.textContent = isFolder ? '—' : '1.2 MB';
+    if (elOwner) elOwner.textContent = 'system';
+    if (elShared) elShared.textContent = 'Ming, admin';
+    if (elCreated) elCreated.textContent = '2025/10/16 22:30';
+    if (elUpdated) elUpdated.textContent = isFolder ? '—' : '2025/10/17 09:45';
+
+    if (typeof showModal === 'function') {
+        showModal('itemDetailModal');
+    } else {
+        modal.classList.remove('hidden');
+        if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
+    }
+}
+
+

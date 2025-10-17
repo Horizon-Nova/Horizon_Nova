@@ -31,7 +31,6 @@
     foreach (var key in childrenMap.Keys.ToList())
         childrenMap[key] = childrenMap[key].Distinct(StringComparer.Ordinal).OrderBy(n => n, StringComparer.Ordinal).ToList();
 
-    // 以 DFS 方式展平成 (Name, VirtualPath, Depth)
     var tree = new List<(string Name, string VirtualPath, int Depth)>();
     void Append(string parentPath, int depth)
     {
@@ -239,35 +238,21 @@
                             <td class="font-medium">@name</td>
                             <td data-order="0">—</td>
                             <td>
-                                @if (isOwner)
-                                {
-                                    <span class="inline-flex items-center gap-1 text-blue-600">
-                                        <i data-lucide="user-check" class="h-3.5 w-3.5"></i>
-                                        <span class="font-medium">我</span>
-                                    </span>
-                                }
-                                else
-                                {
-                                    <span>@owner</span>
-                                }
+                                <span class="inline-flex items-center gap-1 @(isOwner ? "text-blue-600" : "")">
+                                    <i data-lucide="user-check" class="h-3.5 w-3.5 @(isOwner ? "" : "hidden")"></i>
+                                    <span class="@(isOwner ? "font-medium" : "")">@(isOwner ? "我" : owner)</span>
+                                </span>
                             </td>
                             <td>
-                                @if (sharedCount > 1)
-                                {
-                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs">
-                                        <i data-lucide="users" class="h-3 w-3"></i>共享 (@(sharedCount)人)
-                                    </span>
+                                @{ 
+                                    var sharedIcon = sharedCount > 1 ? "users" : (sharedCount == 1 ? "lock" : "");
+                                    var sharedText = sharedCount > 1 ? $"共享 ({sharedCount}人)" : (sharedCount == 1 ? "私有" : "—");
+                                    var sharedBase = sharedCount > 0 ? "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs" : "text-slate-400 text-xs";
+                                    var sharedColor = sharedCount > 1 ? "bg-green-100 text-green-700" : (sharedCount == 1 ? "bg-slate-100 text-slate-600" : "");
                                 }
-                                else if (sharedCount == 1)
-                                {
-                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full text-xs">
-                                        <i data-lucide="lock" class="h-3 w-3"></i>私有
-                                    </span>
-                                }
-                                else
-                                {
-                                    <span class="text-slate-400 text-xs">—</span>
-                                }
+                                <span class="@sharedBase @sharedColor">
+                                    <i data-lucide="@sharedIcon" class="h-3 w-3 @(sharedCount > 0 ? "" : "hidden")"></i>@sharedText
+                                </span>
                             </td>
                             <td data-order="@modifiedTimestamp">@(modified?.ToString("yyyy/MM/dd HH:mm") ?? "—")</td>
                             <td class="text-right">
@@ -298,35 +283,21 @@
                             <td>@name</td>
                             <td data-order="@size">@FormatSize(size)</td>
                             <td>
-                                @if (isOwner)
-                                {
-                                    <span class="inline-flex items-center gap-1 text-blue-600">
-                                        <i data-lucide="user-check" class="h-3.5 w-3.5"></i>
-                                        <span class="font-medium">我</span>
-                                    </span>
-                                }
-                                else
-                                {
-                                    <span>@owner</span>
-                                }
+                                <span class="inline-flex items-center gap-1 @(isOwner ? "text-blue-600" : "")">
+                                    <i data-lucide="user-check" class="h-3.5 w-3.5 @(isOwner ? "" : "hidden")"></i>
+                                    <span class="@(isOwner ? "font-medium" : "")">@(isOwner ? "我" : owner)</span>
+                                </span>
                             </td>
                             <td>
-                                @if (sharedCount > 1)
-                                {
-                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs">
-                                        <i data-lucide="users" class="h-3 w-3"></i>共享 (@(sharedCount)人)
-                                    </span>
+                                @{ 
+                                    var sharedIconF = sharedCount > 1 ? "users" : (sharedCount == 1 ? "lock" : "");
+                                    var sharedTextF = sharedCount > 1 ? $"共享 ({sharedCount}人)" : (sharedCount == 1 ? "私有" : "—");
+                                    var sharedBaseF = sharedCount > 0 ? "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs" : "text-slate-400 text-xs";
+                                    var sharedColorF = sharedCount > 1 ? "bg-green-100 text-green-700" : (sharedCount == 1 ? "bg-slate-100 text-slate-600" : "");
                                 }
-                                else if (sharedCount == 1)
-                                {
-                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full text-xs">
-                                        <i data-lucide="lock" class="h-3 w-3"></i>私有
-                                    </span>
-                                }
-                                else
-                                {
-                                    <span class="text-slate-400 text-xs">—</span>
-                                }
+                                <span class="@sharedBaseF @sharedColorF">
+                                    <i data-lucide="@sharedIconF" class="h-3 w-3 @(sharedCount > 0 ? "" : "hidden")"></i>@sharedTextF
+                                </span>
                             </td>
                             <td data-order="@modifiedTimestamp">@(modified?.ToString("yyyy/MM/dd HH:mm") ?? "—")</td>
                             <td class="text-right">

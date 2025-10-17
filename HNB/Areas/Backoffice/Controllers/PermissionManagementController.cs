@@ -56,7 +56,6 @@ public class PermissionManagementController(PermissionManagementService sev, Aut
             form.roles = new List<string>();
         }
         
-        // 處理密碼：使用 AuthService 進行加密
         if (!string.IsNullOrEmpty(form.password_hash))
         {
             var (hash, salt) = authService.HashNewPassword(form.password_hash);

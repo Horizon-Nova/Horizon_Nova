@@ -1,5 +1,94 @@
-<!-- help modal removed -->
-<div id="filemanager-help" class="hidden fixed inset-0"></div>
+<!-- Modal：檔案總管使用說明 -->
+<div id="filemanager-help" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
+        <!-- 標題（比照測試頁樣式） -->
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-8 py-6 border-b border-slate-200">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-blue-100 p-2 rounded-lg">
+                        <i data-lucide="help-circle" class="w-5 h-5 text-blue-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-800">檔案總管使用說明</h3>
+                        <p class="text-sm text-slate-500 mt-1">操作指引與快捷鍵</p>
+                    </div>
+                </div>
+                <button type="button" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-lg transition-all duration-200" onclick="closeModal('filemanager-help')">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- 內容（比照測試頁間距與背景） -->
+        <div class="p-8 overflow-y-auto max-h-[calc(95vh-160px)] bg-slate-50 text-sm text-slate-700">
+            <!-- 快速操作 -->
+            <section>
+                <h3 class="text-sm font-semibold text-slate-900 mb-2 flex items-center gap-2">
+                    <i data-lucide="zap" class="h-4 w-4 text-amber-500"></i>快速操作
+                </h3>
+                <ul class="list-disc pl-5 space-y-1">
+                    <li>點選左側目錄樹或麵包屑，快速切換資料夾</li>
+                    <li>拖曳檔案或資料夾到「上傳區」即可上傳（支援資料夾結構）</li>
+                    <li>點擊列表列右側「…」開啟選單：開啟、重新命名、下載、刪除、詳細資料</li>
+                </ul>
+            </section>
+
+            <!-- 新增與權限 -->
+            <section>
+                <h3 class="text-sm font-semibold text-slate-900 mb-2 flex items-center gap-2">
+                    <i data-lucide="plus-circle" class="h-4 w-4 text-blue-600"></i>新增與共享
+                </h3>
+                <ul class="list-disc pl-5 space-y-1">
+                    <li>使用「新增資料夾 / 新增檔案」可建立內容</li>
+                    <li>共享使用者以逗號分隔（例如：user1, user2）。留空為私有</li>
+                </ul>
+            </section>
+
+            <!-- 檔案預覽與編輯 -->
+            <section>
+                <h3 class="text-sm font-semibold text-slate-900 mb-2 flex items-center gap-2">
+                    <i data-lucide="eye" class="h-4 w-4 text-emerald-600"></i>預覽與編輯
+                </h3>
+                <ul class="list-disc pl-5 space-y-1">
+                    <li>支援一般文字檔直接編輯與儲存</li>
+                    <li>支援圖片、PDF、常見 Office 檔案線上預覽（大型檔案可能較慢）</li>
+                </ul>
+            </section>
+
+            <!-- 鍵盤快捷鍵 -->
+            <section>
+                <h3 class="text-sm font-semibold text-slate-900 mb-2 flex items-center gap-2">
+                    <i data-lucide="keyboard" class="h-4 w-4 text-violet-600"></i>鍵盤快捷鍵
+                </h3>
+                <ul class="list-disc pl-5 space-y-1">
+                    <li>Esc：關閉目前視窗</li>
+                    <li>Ctrl / Cmd + S：編輯器中儲存檔案</li>
+                    <li>Enter：在開啟的表單視窗中直接提交</li>
+                </ul>
+            </section>
+
+            <!-- 注意事項 -->
+            <section>
+                <h3 class="text-sm font-semibold text-slate-900 mb-2 flex items-center gap-2">
+                    <i data-lucide="info" class="h-4 w-4 text-slate-600"></i>注意事項
+                </h3>
+                <ul class="list-disc pl-5 space-y-1">
+                    <li>刪除操作無法復原，請謹慎操作</li>
+                    <li>大型檔案上傳需較長時間，上傳中請勿關閉視窗</li>
+                </ul>
+            </section>
+        </div>
+
+        <!-- 底部（比照測試頁底部樣式） -->
+        <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
+            <div class="flex items-center justify-end">
+                <button type="button" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200" onclick="closeModal('filemanager-help')">
+                    我知道了
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Modal：新增資料夾 -->
 <div id="createFolderModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
@@ -198,7 +287,28 @@
             <textarea id="fileEditorContent" 
                       class="hidden w-full h-full px-5 py-4 text-sm font-mono border-0 focus:outline-none resize-none"
                       spellcheck="false"></textarea>
-            
+			
+			<!-- 圖片預覽：自適應視窗，提供縮放/拖移控制 -->
+			<div id="imagePreviewWrapper" class="hidden relative w-full h-full bg-black overflow-hidden select-none">
+				<img id="imagePreview" src="" alt="preview" class="absolute top-0 left-0 select-none" draggable="false" />
+				<!-- 控制列 -->
+				<div id="imagePreviewControls" class="absolute top-3 right-3 bg-white/90 backdrop-blur rounded-md shadow p-1 flex items-center gap-1">
+					<button type="button" class="px-2 py-1 hover:bg-slate-100 rounded" onclick="imagePreviewZoomOut()" title="縮小">
+						<i data-lucide="zoom-out" class="w-4 h-4"></i>
+					</button>
+					<button type="button" class="px-2 py-1 hover:bg-slate-100 rounded" onclick="imagePreviewZoomIn()" title="放大">
+						<i data-lucide="zoom-in" class="w-4 h-4"></i>
+					</button>
+					<div class="w-px h-5 bg-slate-200 mx-1"></div>
+					<button type="button" class="px-2 py-1 hover:bg-slate-100 rounded" onclick="imagePreviewFit()" title="適合視窗">
+						<i data-lucide="maximize" class="w-4 h-4"></i>
+					</button>
+					<button type="button" class="px-2 py-1 hover:bg-slate-100 rounded" onclick="imagePreviewActual()" title="實際大小">
+						<i data-lucide="ratio" class="w-4 h-4"></i>
+					</button>
+				</div>
+			</div>
+			
             <!-- Office 文件預覽 -->
             <iframe id="filePreviewFrame" 
                     class="hidden w-full h-full border-0"></iframe>
@@ -254,5 +364,67 @@
         <span id="uploadSpeed">0 KB/s</span>
         <span id="uploadEta">計算中...</span>
     </div>
+</div>
+
+<!-- Modal：項目詳細資訊 -->
+<div id="itemDetailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden transform transition-all duration-300 ease-out">
+        <!-- 標題 -->
+        <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
+            <div class="flex items-center gap-2">
+                <i id="detailIcon" data-lucide="file" class="h-5 w-5 text-slate-600"></i>
+                <h2 class="text-base font-semibold text-slate-900">詳細資料</h2>
+            </div>
+            <button onclick="closeModal('itemDetailModal')" class="w-8 h-8 flex items-center justify-center hover:bg-slate-100 rounded">
+                <i data-lucide="x" class="h-5 w-5 text-slate-500"></i>
+            </button>
+        </div>
+
+        <!-- 內容 -->
+        <div class="px-5 py-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                <div>
+                    <div class="text-slate-500">名稱</div>
+                    <div id="detailName" class="text-slate-900 font-medium break-all">範例檔案.txt</div>
+                </div>
+                <div>
+                    <div class="text-slate-500">類型</div>
+                    <div id="detailType" class="text-slate-900">檔案</div>
+                </div>
+                <div class="sm:col-span-2">
+                    <div class="text-slate-500">路徑</div>
+                    <div id="detailPath" class="text-slate-900 break-all">/sample/path/範例檔案.txt</div>
+                </div>
+                <div>
+                    <div class="text-slate-500">大小</div>
+                    <div id="detailSize" class="text-slate-900">1.2 MB</div>
+                </div>
+                <div>
+                    <div class="text-slate-500">擁有者</div>
+                    <div id="detailOwner" class="text-slate-900">system</div>
+                </div>
+                <div class="sm:col-span-2">
+                    <div class="text-slate-500">共享使用者</div>
+                    <div id="detailShared" class="text-slate-900 break-words">Ming, admin</div>
+                </div>
+                <div>
+                    <div class="text-slate-500">建立時間</div>
+                    <div id="detailCreated" class="text-slate-900">2025/10/16 22:30</div>
+                </div>
+                <div>
+                    <div class="text-slate-500">更新時間</div>
+                    <div id="detailUpdated" class="text-slate-900">2025/10/17 09:45</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部 -->
+        <div class="flex items-center justify-end gap-2 px-5 py-4 bg-slate-50 border-t border-slate-200">
+            <button onclick="closeModal('itemDetailModal')" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 rounded-lg">
+                關閉
+            </button>
+        </div>
+    </div>
+    
 </div>
 
