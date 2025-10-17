@@ -64,9 +64,9 @@
     }
 }
 
-<div class="flex gap-0 ">
+<div class="flex gap-0 flex-col md:flex-row">
     <!-- 左側：目錄樹 -->
-    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col">
+    <aside class="hidden md:flex md:w-64 bg-white border-r border-slate-200 flex-col">
         <!-- 標題列 -->
         <div class="h-12 px-3 flex items-center justify-between border-b border-slate-200">
             <span class="text-sm font-medium text-slate-900">檔案總管</span>
@@ -125,6 +125,11 @@
         <div class="h-12 px-6 flex items-center justify-between border-b border-slate-200">
             <!-- 麵包屑 -->
             <nav class="flex items-center gap-1 text-sm">
+                <button type="button" class="md:hidden inline-flex items-center gap-1 px-2 py-1 mr-2 rounded border border-slate-200 text-slate-700"
+                        onclick="document.getElementById('mobileTree').classList.remove('hidden')">
+                    <i data-lucide="panel-left" class="h-4 w-4"></i>
+                    目錄
+                </button>
                 @for (int i = 0; i < breadcrumb.Count; i++)
                 {
                     var (name, path) = breadcrumb[i];
@@ -145,6 +150,46 @@
             <!-- 統計資訊 -->
             <div class="text-xs text-slate-500">
                 @folderCount 個資料夾 · @fileCount 個檔案 · @FormatSize(totalSize)
+            </div>
+        </div>
+
+        <!-- 手機目錄樹抽屜 -->
+        <div id="mobileTree" class="fixed inset-0 z-40 md:hidden hidden">
+            <div class="absolute inset-0 bg-black/40" onclick="document.getElementById('mobileTree').classList.add('hidden')"></div>
+            <div class="absolute left-0 top-0 bottom-0 w-64 bg-white border-r border-slate-200 shadow-xl flex flex-col">
+                <div class="h-12 px-3 flex items-center justify-between border-b border-slate-200">
+                    <span class="text-sm font-medium text-slate-900">目錄</span>
+                    <button class="w-7 h-7 flex items-center justify-center hover:bg-slate-100 rounded" onclick="document.getElementById('mobileTree').classList.add('hidden')">
+                        <i data-lucide="x" class="h-4 w-4 text-slate-600"></i>
+                    </button>
+                </div>
+                <div class="flex-1 overflow-y-auto py-2">
+                    <!-- 根目錄 -->
+                    <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = "/" })"
+                       data-virtual-path="/"
+                       class="flex items-center gap-1.5 px-3 py-1.5 hover:bg-slate-50 cursor-pointer @(currentPath == "/" ? "bg-slate-100" : "")">
+                        <i data-lucide="@(currentPath == "/" ? "folder-open" : "folder")" class="h-4 w-4 text-amber-500"></i>
+                        <span class="text-sm @(currentPath == "/" ? "font-medium text-slate-900" : "text-slate-700")">根目錄</span>
+                    </a>
+                    @for (int i = 0; i < tree.Count; i++)
+                    {
+                        var (name, path, depth) = tree[i];
+                        var isActive = currentPath == path;
+                        var indentPx = 0.75 + (depth * 1.0);
+                        var isRootChild = depth <= 1;
+                        var hasChildren = i < tree.Count - 1 && tree.Skip(i + 1).Any(t => t.Depth > depth && t.VirtualPath.StartsWith(path + "/"));
+                        <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = path })"
+                           data-virtual-path="@path"
+                           class="flex items-center gap-1.5 px-3 py-1.5 hover:bg-slate-50 cursor-pointer @(isActive ? "bg-slate-100" : "") @(isRootChild ? "" : "hidden")"
+                           style="padding-left: @(indentPx)rem">
+                            <i data-lucide="chevron-right"
+                               class="h-4 w-4 text-slate-600 rounded tree-chevron @(hasChildren ? "cursor-pointer hover:bg-slate-200" : "invisible")"
+                               onclick="@(hasChildren ? "toggleTreeNode(event, this)" : "")"></i>
+                            <i data-lucide="@(isActive ? "folder-open" : "folder")" class="h-4 w-4 text-amber-500"></i>
+                            <span class="text-sm @(isActive ? "font-medium text-slate-900" : "text-slate-700")">@name</span>
+                        </a>
+                    }
+                </div>
             </div>
         </div>
 
@@ -226,21 +271,10 @@
                             </td>
                             <td data-order="@modifiedTimestamp">@(modified?.ToString("yyyy/MM/dd HH:mm") ?? "—")</td>
                             <td class="text-right">
-                                <div class="flex items-center justify-end gap-1">
-                                    <button onclick="event.stopPropagation(); showRenameModal('@name.Replace("'", "\\'").Replace("\"", "&quot;")', 'folder')"
-                                            class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="重新命名">
-                                        <i data-lucide="edit-3" class="h-4 w-4 text-slate-600"></i>
-                                    </button>
-                                    <a href="@Url.Action("DownloadFolder", "FileManager", new { area = "Backoffice", path = currentPath, name })"
-                                       onclick="event.stopPropagation()"
-                                       class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="下載">
-                                        <i data-lucide="download" class="h-4 w-4 text-slate-600"></i>
-                                    </a>
-                                    <button onclick="event.stopPropagation(); deleteItem('@name.Replace("'", "\\'").Replace("\"", "&quot;")', 'folder')"
-                                            class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="刪除">
-                                        <i data-lucide="trash-2" class="h-4 w-4 text-slate-600"></i>
-                                    </button>
-                                </div>
+                                <button onclick="openItemMenu(event, 'folder', '@name.Replace("'", "\\'").Replace("\"", "&quot;")', '@currentPath')"
+                                        class="w-8 h-8 inline-flex items-center justify-center hover:bg-slate-200 rounded" title="更多">
+                                    <i data-lucide="more-vertical" class="h-4 w-4 text-slate-600"></i>
+                                </button>
                             </td>
                         </tr>
                     }
@@ -296,21 +330,10 @@
                             </td>
                             <td data-order="@modifiedTimestamp">@(modified?.ToString("yyyy/MM/dd HH:mm") ?? "—")</td>
                             <td class="text-right">
-                                <div class="flex items-center justify-end gap-1">
-                                    <button onclick="event.stopPropagation(); showRenameModal('@name.Replace("'", "\\'").Replace("\"", "&quot;")', 'file')"
-                                            class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="重新命名">
-                                        <i data-lucide="edit-3" class="h-4 w-4 text-slate-600"></i>
-                                    </button>
-                                    <a href="@Url.Action("Download", "FileManager", new { area = "Backoffice", path = currentPath, name })"
-                                       onclick="event.stopPropagation()"
-                                       class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="下載">
-                                        <i data-lucide="download" class="h-4 w-4 text-slate-600"></i>
-                                    </a>
-                                    <button onclick="event.stopPropagation(); deleteItem('@name.Replace("'", "\\'").Replace("\"", "&quot;")', 'file')"
-                                            class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="刪除">
-                                        <i data-lucide="trash-2" class="h-4 w-4 text-slate-600"></i>
-                                    </button>
-                                </div>
+                                <button onclick="openItemMenu(event, 'file', '@name.Replace("'", "\\'").Replace("\"", "&quot;")', '@currentPath')"
+                                        class="w-8 h-8 inline-flex items-center justify-center hover:bg-slate-200 rounded" title="更多">
+                                    <i data-lucide="more-vertical" class="h-4 w-4 text-slate-600"></i>
+                                </button>
                             </td>
                         </tr>
                     }
