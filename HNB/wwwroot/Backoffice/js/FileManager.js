@@ -1057,7 +1057,7 @@ function openItemMenu(e, kind, name, path) {
         hideItemMenu();
     };
     menu.querySelector('[data-action="details"]').onclick = () => {
-        showItemDetails(kind, name, path);
+        loadAndShowFileDetail(path, name);
         hideItemMenu();
     };
     menu.querySelector('[data-action="rename"]').onclick = () => {
@@ -1078,40 +1078,22 @@ function openItemMenu(e, kind, name, path) {
     };
 }
 
-// ========== 詳細資料（樣式驗證用 Mock） ==========
-function showItemDetails(kind, name, path) {
-    const modal = document.getElementById('itemDetailModal');
-    if (!modal) return;
-    const isFolder = kind === 'folder';
-    const icon = document.getElementById('detailIcon');
-    const elName = document.getElementById('detailName');
-    const elType = document.getElementById('detailType');
-    const elPath = document.getElementById('detailPath');
-    const elSize = document.getElementById('detailSize');
-    const elOwner = document.getElementById('detailOwner');
-    const elShared = document.getElementById('detailShared');
-    const elCreated = document.getElementById('detailCreated');
-    const elUpdated = document.getElementById('detailUpdated');
-
-    if (icon) icon.setAttribute('data-lucide', isFolder ? 'folder' : 'file');
-    if (elName) elName.textContent = name || '—';
-    if (elType) elType.textContent = isFolder ? '資料夾' : '檔案';
-    const fullPath = path === '/' ? `/${name}` : `${path}/${name}`;
-    if (elPath) elPath.textContent = fullPath;
-
-    // Demo mock data for style preview (no real fetching)
-    if (elSize) elSize.textContent = isFolder ? '—' : '1.2 MB';
-    if (elOwner) elOwner.textContent = 'system';
-    if (elShared) elShared.textContent = 'Ming, admin';
-    if (elCreated) elCreated.textContent = '2025/10/16 22:30';
-    if (elUpdated) elUpdated.textContent = isFolder ? '—' : '2025/10/17 09:45';
-
-    if (typeof showModal === 'function') {
-        showModal('itemDetailModal');
-    } else {
-        modal.classList.remove('hidden');
-        if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
-    }
+// 載入並顯示檔案/資料夾詳細資料（部分視圖）
+function loadAndShowFileDetail(path, name) {
+    $.ajax({
+        type: 'GET',
+        url: '/Backoffice/FileManager/LoadDetail',
+        data: { path, name },
+        success: function (html) {
+            const host = document.getElementById('fileManagerModalHost');
+            if (host) host.innerHTML = html;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            showModal('itemDetailModal');
+        },
+        error: function () {
+            alert('載入詳細資料失敗');
+        }
+    });
 }
 
 

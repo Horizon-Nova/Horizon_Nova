@@ -22,6 +22,28 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     }
     #endregion
 
+    #region 動態載入部分視圖
+    /// <summary>
+    /// 載入檔案/資料夾詳細資料部分視圖
+    /// </summary>
+    [HttpGet]
+    public IActionResult LoadDetail(string path, string name)
+    {
+        var item = svc.LoadVWFileManager(new Models.HnbHnbBackoffice.vw_file_manager
+        {
+            file_path = path,
+            file_name = name
+        });
+
+        if (item == null)
+        {
+            return Content("<div class=\"p-6\">找不到項目</div>", "text/html; charset=utf-8");
+        }
+
+        return PartialView("_FileManagerDetail", item);
+    }
+    #endregion
+
     #region 資料夾操作 API
     /// <summary>
     /// 建立資料夾
