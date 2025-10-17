@@ -118,7 +118,8 @@ public class FileManagerServices(DirectoryManagerUtilities DM, FileManagerReposi
         using var stream = new FileStream(absPath, FileMode.Create);
         file.CopyTo(stream);
         
-        DM.SyncAllFilesToDatabase();
+        var defaultUser = httpContextAccessor?.HttpContext?.User?.Identity?.Name;
+        DM.SyncAllFilesToDatabase(defaultUser);
         
         return (true, "檔案已上傳", safeName);
     }
@@ -143,7 +144,8 @@ public class FileManagerServices(DirectoryManagerUtilities DM, FileManagerReposi
             saved++;
         }
         
-        DM.SyncAllFilesToDatabase();
+        var defaultUser = httpContextAccessor?.HttpContext?.User?.Identity?.Name;
+        DM.SyncAllFilesToDatabase(defaultUser);
         
         var failed = errors.Count;
         return (failed == 0, saved, failed, errors);

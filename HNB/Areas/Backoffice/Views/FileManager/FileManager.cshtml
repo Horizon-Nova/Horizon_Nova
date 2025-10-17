@@ -17,13 +17,34 @@
     var totalSize = files.Sum(f => f.file_size ?? 0L);
 
     var allFolders = Model?.Where(f => f.item_type == "folder").ToList() ?? new();
-    var tree = allFolders.Select(f =>
+    var childrenMap = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+    foreach (var f in allFolders)
     {
-        var path = f.file_path ?? "/";
-        var fullPath = path == "/" ? "/" + f.file_name : path + "/" + f.file_name;
-        var depth = fullPath == "/" ? 0 : fullPath.Split('/', StringSplitOptions.RemoveEmptyEntries).Length;
-        return (Name: f.file_name, VirtualPath: fullPath, Depth: depth);
-    }).OrderBy(t => t.VirtualPath).ToList();
+        var parent = f.file_path ?? "/";
+        if (!childrenMap.TryGetValue(parent, out var list))
+        {
+            list = new List<string>();
+            childrenMap[parent] = list;
+        }
+        list.Add(f.file_name);
+    }
+    foreach (var key in childrenMap.Keys.ToList())
+        childrenMap[key] = childrenMap[key].Distinct(StringComparer.Ordinal).OrderBy(n => n, StringComparer.Ordinal).ToList();
+
+    // 以 DFS 方式展平成 (Name, VirtualPath, Depth)
+    var tree = new List<(string Name, string VirtualPath, int Depth)>();
+    void Append(string parentPath, int depth)
+    {
+        if (!childrenMap.TryGetValue(parentPath, out var names)) return;
+        foreach (var name in names)
+        {
+            var vp = parentPath == "/" ? "/" + name : parentPath + "/" + name;
+            var d = depth + 1;
+            tree.Add((name, vp, d));
+            Append(vp, d);
+        }
+    }
+    Append("/", 0);
 
     var breadcrumb = new List<(string Name, string VirtualPath)>();
     if (currentPath == "/")
@@ -70,6 +91,7 @@
         <div class="flex-1 overflow-y-auto py-2">
             <!-- 根目錄 -->
             <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = "/" })"
+               data-virtual-path="/"
                class="flex items-center gap-1.5 px-3 py-1.5 hover:bg-slate-50 cursor-pointer @(currentPath == "/" ? "bg-slate-100" : "")">
                 <i data-lucide="@(currentPath == "/" ? "folder-open" : "folder")" class="h-4 w-4 text-amber-500"></i>
                 <span class="text-sm @(currentPath == "/" ? "font-medium text-slate-900" : "text-slate-700")">根目錄</span>
@@ -80,10 +102,16 @@
                 var (name, path, depth) = tree[i];
                 var isActive = currentPath == path;
                 var indentPx = 0.75 + (depth * 1.0);
+                var isRootChild = depth <= 1;
+                var hasChildren = i < tree.Count - 1 && tree.Skip(i + 1).Any(t => t.Depth > depth && t.VirtualPath.StartsWith(path + "/"));
 
                 <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = path })"
-                   class="flex items-center gap-1.5 px-3 py-1.5 hover:bg-slate-50 cursor-pointer @(isActive ? "bg-slate-100" : "")"
+                   data-virtual-path="@path"
+                   class="flex items-center gap-1.5 px-3 py-1.5 hover:bg-slate-50 cursor-pointer @(isActive ? "bg-slate-100" : "") @(isRootChild ? "" : "hidden")"
                    style="padding-left: @(indentPx)rem">
+                    <i data-lucide="chevron-right"
+                       class="h-4 w-4 text-slate-600 rounded tree-chevron @(hasChildren ? "cursor-pointer hover:bg-slate-200" : "invisible")"
+                       onclick="@(hasChildren ? "toggleTreeNode(event, this)" : "")"></i>
                     <i data-lucide="@(isActive ? "folder-open" : "folder")" class="h-4 w-4 text-amber-500"></i>
                     <span class="text-sm @(isActive ? "font-medium text-slate-900" : "text-slate-700")">@name</span>
                 </a>
