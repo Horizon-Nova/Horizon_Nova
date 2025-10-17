@@ -36,45 +36,92 @@ public class FileManagerRepository(HnbHnbBackofficeDbContext db)
     #region 專用查詢方法
     
     /// <summary>
-    /// 查詢檔案管理列表（根據當前用戶權限過濾）
+    /// 查詢檔案管理列表（支援多欄位過濾）
     /// </summary>
-    public List<file_manager> QueryFileManagerList(string? currentUsername = null, string? virtualPath = null, string? itemType = null)
+    public List<file_manager> QueryFileManagerList(file_manager? filter = null, string? currentUsername = null)
     {
-        var query = ValidFileManagers
-            .Where(fm => string.IsNullOrEmpty(virtualPath) || fm.file_path == virtualPath)
-            .Where(fm => string.IsNullOrEmpty(itemType) || fm.item_type == itemType);
+        var query = ValidFileManagers;
         
-        // 如果 currentUsername 不為空，則進行權限過濾
-        // 如果為空（系統內部調用），則返回所有記錄
-        if (!string.IsNullOrEmpty(currentUsername))
+        if (filter != null)
         {
-            query = query.Where(fm => fm.shared_users != null && fm.shared_users.Contains(currentUsername));
+            query = query.Where(fm => 
+                (string.IsNullOrEmpty(filter.code) || fm.code == filter.code) &&
+                (string.IsNullOrEmpty(filter.file_name) || fm.file_name == filter.file_name) &&
+                (string.IsNullOrEmpty(filter.file_path) || fm.file_path == filter.file_path) &&
+                (string.IsNullOrEmpty(filter.item_type) || fm.item_type == filter.item_type) &&
+                (string.IsNullOrEmpty(filter.owner_username) || fm.owner_username == filter.owner_username) &&
+                (string.IsNullOrEmpty(filter.mime_type) || fm.mime_type == filter.mime_type) &&
+                (string.IsNullOrEmpty(filter.parent_code) || fm.parent_code == filter.parent_code) &&
+                (!filter.file_size.HasValue || fm.file_size == filter.file_size.Value)
+            );
         }
+        
+        if (!string.IsNullOrEmpty(currentUsername))
+            query = query.Where(fm => fm.shared_users != null && fm.shared_users.Contains(currentUsername));
         
         return query.ToList();
     }
 
     /// <summary>
-    /// 查詢單一檔案管理記錄（不過濾權限，內部使用）
+    /// 查詢單一檔案管理記錄
     /// </summary>
-    public file_manager? QueryFileManager(string? code = null, string? virtualPath = null, string? fileName = null)
+    public file_manager? QueryFileManager(file_manager filter)
     {
-        if (!string.IsNullOrEmpty(code))
-            return ValidFileManagers.FirstOrDefault(fm => fm.code == code);
+        if (!string.IsNullOrEmpty(filter.code))
+            return ValidFileManagers.FirstOrDefault(fm => fm.code == filter.code);
         
-        if (!string.IsNullOrEmpty(virtualPath) && !string.IsNullOrEmpty(fileName))
-            return ValidFileManagers.FirstOrDefault(fm => fm.file_path == virtualPath && fm.file_name == fileName);
+        if (!string.IsNullOrEmpty(filter.file_path) && !string.IsNullOrEmpty(filter.file_name))
+            return ValidFileManagers.FirstOrDefault(fm => fm.file_path == filter.file_path && fm.file_name == filter.file_name);
+        
+        if (filter.id > 0)
+            return ValidFileManagers.FirstOrDefault(fm => fm.id == filter.id);
         
         return null;
     }
 
     /// <summary>
-    /// 查詢檔案管理視圖列表
+    /// 查詢檔案管理視圖列表（支援多欄位過濾）
     /// </summary>
-    public List<vw_file_manager> QueryFileManagerViewList(string? virtualPath = null)
-        => ValidFileManagerViews
-            .Where(fm => string.IsNullOrEmpty(virtualPath) || fm.file_path == virtualPath)
-            .ToList();
+    public List<vw_file_manager> QueryVWFileManagerList(vw_file_manager? filter = null, string? currentUsername = null)
+    {
+        var query = ValidFileManagerViews;
+        
+        if (filter != null)
+        {
+            query = query.Where(fm => 
+                (string.IsNullOrEmpty(filter.code) || fm.code == filter.code) &&
+                (string.IsNullOrEmpty(filter.file_name) || fm.file_name == filter.file_name) &&
+                (string.IsNullOrEmpty(filter.file_path) || fm.file_path == filter.file_path) &&
+                (string.IsNullOrEmpty(filter.item_type) || fm.item_type == filter.item_type) &&
+                (string.IsNullOrEmpty(filter.owner_username) || fm.owner_username == filter.owner_username) &&
+                (string.IsNullOrEmpty(filter.mime_type) || fm.mime_type == filter.mime_type) &&
+                (string.IsNullOrEmpty(filter.parent_code) || fm.parent_code == filter.parent_code) &&
+                (!filter.file_size.HasValue || fm.file_size == filter.file_size.Value)
+            );
+        }
+        
+        if (!string.IsNullOrEmpty(currentUsername))
+            query = query.Where(fm => fm.shared_users != null && fm.shared_users.Contains(currentUsername));
+        
+        return query.ToList();
+    }
+
+    /// <summary>
+    /// 查詢單一檔案管理視圖記錄
+    /// </summary>
+    public vw_file_manager? QueryVWFileManager(vw_file_manager filter)
+    {
+        if (!string.IsNullOrEmpty(filter.code))
+            return ValidFileManagerViews.FirstOrDefault(fm => fm.code == filter.code);
+        
+        if (!string.IsNullOrEmpty(filter.file_path) && !string.IsNullOrEmpty(filter.file_name))
+            return ValidFileManagerViews.FirstOrDefault(fm => fm.file_path == filter.file_path && fm.file_name == filter.file_name);
+        
+        if (filter.id.HasValue && filter.id.Value > 0)
+            return ValidFileManagerViews.FirstOrDefault(fm => fm.id == filter.id.Value);
+        
+        return null;
+    }
 
     /// <summary>
     /// 檢查檔案是否存在
@@ -87,46 +134,47 @@ public class FileManagerRepository(HnbHnbBackofficeDbContext db)
     #region 基本 CRUD 操作
     
     /// <summary>
-    /// 插入或更新檔案管理記錄（一張表只有一個 Insert 方法）
+    /// 完整覆蓋當前環境的檔案記錄
     /// </summary>
-    public file_manager InsertFileManager(file_manager data)
+    public void InsertFileManagerBatch(List<file_manager> dataList)
     {
-        var existingEntity = QueryFileManager(virtualPath: data.file_path, fileName: data.file_name);
-        
-        if (existingEntity == null)
+        // 防呆：同批資料先以 (file_path, file_name) 去重，避免上層重複導致唯一鍵衝突
+        var distinct = dataList
+            .GroupBy(d => new { Path = d.file_path ?? "/", Name = d.file_name })
+            .Select(g => g.First())
+            .ToList();
+
+        using var tx = db.Database.BeginTransaction();
+
+        // 先清空當前 mode 再寫入，確保鏡像一致
+        db.file_managers.Where(fm => fm.mode == _currentMode).ExecuteDelete();
+
+        foreach (var data in distinct)
         {
             data.code = GenerateUniqueCode(data.file_path ?? "/", data.file_name);
             data.is_deleted = false;
             data.mode = _currentMode;
-            data.owner_username = "system";
-            db.file_managers.Add(data);
-            db.SaveChanges();
-            return data;
+            
+            // 如果沒有設置 owner，則使用 system
+            if (string.IsNullOrEmpty(data.owner_username))
+                data.owner_username = "system";
+            
+            // 確保 shared_users 不為空
+            if (data.shared_users == null || data.shared_users.Count == 0)
+                data.shared_users = new List<string> { "system" };
         }
-        
-        existingEntity.file_size = data.file_size;
-        existingEntity.mime_type = data.mime_type;
-        existingEntity.item_type = data.item_type;
-        existingEntity.shared_users = data.shared_users ?? existingEntity.shared_users;
-        existingEntity.is_deleted = false;
-        existingEntity.deleted_at = null;
+
+        db.file_managers.AddRange(distinct);
         db.SaveChanges();
-        return existingEntity;
+        tx.Commit();
     }
 
     /// <summary>
-    /// 刪除檔案管理記錄（物理刪除）
+    /// 更新檔案管理記錄
     /// </summary>
-    public bool DeleteFileManager(string virtualPath, string fileName)
+    public void UpdateFileManager(file_manager entity)
     {
-        var entity = QueryFileManager(virtualPath: virtualPath, fileName: fileName);
-        if (entity != null)
-        {
-            db.file_managers.Remove(entity);
-            db.SaveChanges();
-            return true;
-        }
-        return false;
+        db.SaveChanges();
     }
 
     #endregion

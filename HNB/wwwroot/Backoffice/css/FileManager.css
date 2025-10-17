@@ -1,14 +1,5 @@
 /* 檔案總管樣式 */
 
-/* 目錄樹折疊動畫 */
-.tree-chevron {
-    transition: transform 0.2s ease;
-}
-
-.tree-chevron.rotate-90 {
-    transform: rotate(90deg);
-}
-
 /* Drag & Drop 上傳區動畫 */
 #dropZone {
     transition: all 0.2s ease;
@@ -17,20 +8,4 @@
 #dropZone.drag-over {
     border-color: #3b82f6;
     background-color: #eff6ff;
-}
-
-/* 檔案項目 hover 效果 */
-.file-item:hover .file-actions {
-    opacity: 1;
-}
-
-.file-actions {
-    opacity: 0;
-    transition: opacity 0.2s ease;
-}
-
-@media (max-width: 768px) {
-    .file-actions {
-        opacity: 1;
-    }
 }

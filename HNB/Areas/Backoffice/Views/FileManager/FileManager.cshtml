@@ -1,19 +1,46 @@
+@model List<Models.HnbHnbBackoffice.vw_file_manager>
+
 @{
     ViewData["Title"] = "檔案總管";
     ViewData["PageTitle"] = "檔案總管";
     ViewData["PageDescription"] = "管理檔案和資料夾、上傳下載、預覽編輯";
     ViewData["PageIcon"] = "folder";
     Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
-    
+
     var currentPath = ViewBag.CurrentPath as string ?? "/";
-    var breadcrumb = ViewBag.Breadcrumb as List<(string Name, string VirtualPath)> ?? new();
-    var tree = ViewBag.Tree as List<(string Name, string VirtualPath, int Depth)> ?? new();
-    var folders = ViewBag.Folders as List<(string Name, string Owner, List<string> SharedUsers, DateTime? LastWriteUtc)> ?? new();
-    var files = ViewBag.Files as List<(string Name, long Size, string? MimeType, string Owner, List<string> SharedUsers, DateTime? LastWriteUtc)> ?? new();
-    var folderCount = ViewBag.FolderCount ?? 0;
-    var fileCount = ViewBag.FileCount ?? 0;
-    var totalSize = ViewBag.TotalSize ?? 0L;
     var currentUser = User?.Identity?.Name ?? "guest";
+    var folders = Model?.Where(f => f.item_type == "folder" && f.file_path == currentPath).ToList() ?? new();
+    var files = Model?.Where(f => f.item_type == "file" && f.file_path == currentPath).ToList() ?? new();
+
+    var folderCount = folders.Count;
+    var fileCount = files.Count;
+    var totalSize = files.Sum(f => f.file_size ?? 0L);
+
+    var allFolders = Model?.Where(f => f.item_type == "folder").ToList() ?? new();
+    var tree = allFolders.Select(f =>
+    {
+        var path = f.file_path ?? "/";
+        var fullPath = path == "/" ? "/" + f.file_name : path + "/" + f.file_name;
+        var depth = fullPath == "/" ? 0 : fullPath.Split('/', StringSplitOptions.RemoveEmptyEntries).Length;
+        return (Name: f.file_name, VirtualPath: fullPath, Depth: depth);
+    }).OrderBy(t => t.VirtualPath).ToList();
+
+    var breadcrumb = new List<(string Name, string VirtualPath)>();
+    if (currentPath == "/")
+    {
+        breadcrumb.Add(("根目錄", "/"));
+    }
+    else
+    {
+        breadcrumb.Add(("根目錄", "/"));
+        var parts = currentPath.Split('/', StringSplitOptions.RemoveEmptyEntries);
+        var accumulated = "";
+        foreach (var part in parts)
+        {
+            accumulated += "/" + part;
+            breadcrumb.Add((part, accumulated));
+        }
+    }
 }
 
 <div class="flex gap-0 ">
@@ -38,35 +65,25 @@
             </div>
 
         </div>
-        
+
         <!-- 目錄樹 -->
         <div class="flex-1 overflow-y-auto py-2">
             <!-- 根目錄 -->
-            <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = "/" })" 
+            <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = "/" })"
                class="flex items-center gap-1.5 px-3 py-1.5 hover:bg-slate-50 cursor-pointer @(currentPath == "/" ? "bg-slate-100" : "")">
                 <i data-lucide="@(currentPath == "/" ? "folder-open" : "folder")" class="h-4 w-4 text-amber-500"></i>
                 <span class="text-sm @(currentPath == "/" ? "font-medium text-slate-900" : "text-slate-700")">根目錄</span>
             </a>
-            
+
             @for (int i = 0; i < tree.Count; i++)
             {
                 var (name, path, depth) = tree[i];
-                
-                if (name == "根目錄" && depth == 0)
-                {
-                    continue;
-                }
-                
-                var hasChildren = i < tree.Count - 1 && tree.Skip(i + 1).Any(t => t.Depth > depth && t.VirtualPath.StartsWith(path + "/"));
-                var indentPx = 0.75 + (depth * 1.0);
                 var isActive = currentPath == path;
-                
-                <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = path })" 
-                   class="flex items-center gap-1.5 px-3 py-1.5 hover:bg-slate-50 cursor-pointer @(isActive ? "bg-slate-100" : "") @(depth > 1 ? "hidden" : "")"
+                var indentPx = 0.75 + (depth * 1.0);
+
+                <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = path })"
+                   class="flex items-center gap-1.5 px-3 py-1.5 hover:bg-slate-50 cursor-pointer @(isActive ? "bg-slate-100" : "")"
                    style="padding-left: @(indentPx)rem">
-                    <i data-lucide="chevron-right"
-                       class="h-4 w-4 text-slate-600 rounded tree-chevron @(hasChildren ? "cursor-pointer hover:bg-slate-200" : "invisible")"
-                       onclick="@(hasChildren ? "toggleTreeNode(event, this)" : "")"></i>
                     <i data-lucide="@(isActive ? "folder-open" : "folder")" class="h-4 w-4 text-amber-500"></i>
                     <span class="text-sm @(isActive ? "font-medium text-slate-900" : "text-slate-700")">@name</span>
                 </a>
@@ -84,19 +101,19 @@
                 {
                     var (name, path) = breadcrumb[i];
                     var isLast = i == breadcrumb.Count - 1;
-                    
+
                     if (i > 0)
                     {
                         <i data-lucide="chevron-right" class="h-4 w-4 text-slate-400"></i>
                     }
-                    
-                    <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = path })" 
+
+                    <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = path })"
                        class="px-2 py-1 hover:bg-slate-100 rounded @(isLast ? "font-medium text-slate-900" : "text-slate-700")">
                         @name
                     </a>
                 }
             </nav>
-            
+
             <!-- 統計資訊 -->
             <div class="text-xs text-slate-500">
                 @folderCount 個資料夾 · @fileCount 個檔案 · @FormatSize(totalSize)
@@ -112,124 +129,165 @@
                 <p class="text-xs text-slate-500">或點擊選擇檔案</p>
             </div>
         </div>
-        
+
         <!-- 隱藏的檔案輸入 -->
         <input type="file" id="fileInput" multiple class="hidden">
 
         <!-- 檔案列表 -->
-        <div class="flex-1 overflow-y-auto px-6 py-4">
-            <!-- 表格標題 -->
-            <div class="grid grid-cols-[2fr_100px_120px_140px_180px_120px] gap-4 px-3 py-2 text-xs font-medium text-slate-500 border-b border-slate-200">
-                <div>名稱</div>
-                <div>大小</div>
-                <div>擁有者</div>
-                <div>共享狀態</div>
-                <div>修改時間</div>
-                <div class="text-right">操作</div>
-            </div>
-
-            <!-- 檔案項目 -->
-            <div class="divide-y divide-slate-100">
-                @if (!folders.Any() && !files.Any())
-                {
-                    <div class="py-16 text-center">
-                        <i data-lucide="folder-open" class="h-16 w-16 mx-auto mb-3 text-slate-300"></i>
-                        <p class="text-sm text-slate-500">此資料夾是空的</p>
-                    </div>
-                }
-                else
-                {
+        <div class="flex-1 overflow-auto px-6 py-4">
+            <table id="filesTable" class="display compact" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>類型</th>
+                        <th>名稱</th>
+                        <th>大小</th>
+                        <th>擁有者</th>
+                        <th>共享狀態</th>
+                        <th>修改時間</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
                     @foreach (var folder in folders)
                     {
-                        var (name, owner, sharedUsers, modified) = folder;
-                        var folderPath = currentPath.TrimEnd('/') + "/" + name;
+                        var name = folder.file_name;
+                        var owner = folder.owner_username;
+                        var sharedUsers = folder.shared_users;
+                        var modified = folder.updated_at ?? folder.created_at;
+                        var folderPath = currentPath == "/" ? "/" + name : currentPath + "/" + name;
                         var isOwner = owner == currentUser;
                         var sharedCount = sharedUsers?.Count ?? 0;
-                        var shareStatus = sharedCount > 1 ? $"共享 ({sharedCount}人)" : (sharedCount == 1 ? "私有" : "無權限");
-                            
-                        <div onclick="window.location.href='@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = folderPath })'" 
-                             class="grid grid-cols-[2fr_100px_120px_140px_180px_120px] gap-4 px-3 py-3 hover:bg-slate-50 cursor-pointer group rounded-lg items-center">
-                            <div class="flex items-center gap-3 min-w-0">
-                                <i data-lucide="folder" class="h-5 w-5 text-amber-500 shrink-0"></i>
-                                <span class="text-sm text-slate-900 truncate">@name</span>
-                            </div>
-                            <div class="text-sm text-slate-600">—</div>
-                            <div class="text-sm text-slate-700 truncate" title="@owner">
-                                @Html.Raw(isOwner
-                                    ? "<span class=\"inline-flex items-center gap-1 text-blue-600\"><i data-lucide=\"user-check\" class=\"h-3.5 w-3.5\"></i><span class=\"font-medium\">我</span></span>"
-                                    : $"<span>{owner}</span>")
-                            </div>
-                            <div class="text-sm">
-                                @Html.Raw(sharedCount > 1
-                                    ? $"<span class=\"inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs\"><i data-lucide=\"users\" class=\"h-3 w-3\"></i>共享 ({sharedCount}人)</span>"
-                                    : (sharedCount == 1
-                                        ? "<span class=\"inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full text-xs\"><i data-lucide=\"lock\" class=\"h-3 w-3\"></i>私有</span>"
-                                        : "<span class=\"text-slate-400 text-xs\">—</span>"))
-                            </div>
-                            <div class="text-sm text-slate-600">@(modified?.ToString("yyyy/MM/dd HH:mm") ?? "—")</div>
-                            <div class="flex items-center justify-end gap-1">
-                                <button onclick="event.preventDefault(); event.stopPropagation(); showRenameModal('@name.Replace("'", "\\'").Replace("\"", "&quot;")', 'folder')" 
-                                        class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="重新命名">
-                                    <i data-lucide="edit-3" class="h-4 w-4 text-slate-600"></i>
-                                </button>
-                                <a href="@Url.Action("DownloadFolder", "FileManager", new { area = "Backoffice", path = currentPath, name })" 
-                                   onclick="event.stopPropagation()"
-                                   class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="下載">
-                                    <i data-lucide="download" class="h-4 w-4 text-slate-600"></i>
-                                </a>
-                                <button onclick="event.preventDefault(); event.stopPropagation(); deleteItem('@name.Replace("'", "\\'").Replace("\"", "&quot;")', 'folder')" 
-                                        class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="刪除">
-                                    <i data-lucide="trash-2" class="h-4 w-4 text-slate-600"></i>
-                                </button>
-                            </div>
-                        </div>
+                        var modifiedTimestamp = modified?.ToString("yyyy-MM-dd HH:mm:ss") ?? "";
+
+                        <tr class="cursor-pointer hover:bg-slate-50" onclick="window.location.href='@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = folderPath })'">
+                            <td data-order="0">
+                                <i data-lucide="folder" class="h-5 w-5 text-amber-500"></i>
+                            </td>
+                            <td class="font-medium">@name</td>
+                            <td data-order="0">—</td>
+                            <td>
+                                @if (isOwner)
+                                {
+                                    <span class="inline-flex items-center gap-1 text-blue-600">
+                                        <i data-lucide="user-check" class="h-3.5 w-3.5"></i>
+                                        <span class="font-medium">我</span>
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span>@owner</span>
+                                }
+                            </td>
+                            <td>
+                                @if (sharedCount > 1)
+                                {
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs">
+                                        <i data-lucide="users" class="h-3 w-3"></i>共享 (@(sharedCount)人)
+                                    </span>
+                                }
+                                else if (sharedCount == 1)
+                                {
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full text-xs">
+                                        <i data-lucide="lock" class="h-3 w-3"></i>私有
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-slate-400 text-xs">—</span>
+                                }
+                            </td>
+                            <td data-order="@modifiedTimestamp">@(modified?.ToString("yyyy/MM/dd HH:mm") ?? "—")</td>
+                            <td class="text-right">
+                                <div class="flex items-center justify-end gap-1">
+                                    <button onclick="event.stopPropagation(); showRenameModal('@name.Replace("'", "\\'").Replace("\"", "&quot;")', 'folder')"
+                                            class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="重新命名">
+                                        <i data-lucide="edit-3" class="h-4 w-4 text-slate-600"></i>
+                                    </button>
+                                    <a href="@Url.Action("DownloadFolder", "FileManager", new { area = "Backoffice", path = currentPath, name })"
+                                       onclick="event.stopPropagation()"
+                                       class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="下載">
+                                        <i data-lucide="download" class="h-4 w-4 text-slate-600"></i>
+                                    </a>
+                                    <button onclick="event.stopPropagation(); deleteItem('@name.Replace("'", "\\'").Replace("\"", "&quot;")', 'folder')"
+                                            class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="刪除">
+                                        <i data-lucide="trash-2" class="h-4 w-4 text-slate-600"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
                     }
-                    
+
                     @foreach (var file in files)
                     {
-                        var (name, size, mimeType, owner, sharedUsers, modified) = file;
+                        var name = file.file_name;
+                        var size = file.file_size ?? 0L;
+                        var mimeType = file.mime_type;
+                        var owner = file.owner_username;
+                        var sharedUsers = file.shared_users;
+                        var modified = file.updated_at ?? file.created_at;
                         var isOwner = owner == currentUser;
                         var sharedCount = sharedUsers?.Count ?? 0;
-                            
-                        <div onclick="openFile('@name.Replace("'", "\\'").Replace("\"", "&quot;")')" 
-                             class="grid grid-cols-[2fr_100px_120px_140px_180px_120px] gap-4 px-3 py-3 hover:bg-slate-50 cursor-pointer group rounded-lg items-center">
-                            <div class="flex items-center gap-3 min-w-0">
-                                <i data-lucide="file" class="h-5 w-5 text-slate-400 shrink-0"></i>
-                                <span class="text-sm text-slate-900 truncate">@name</span>
-                            </div>
-                            <div class="text-sm text-slate-600">@FormatSize(size)</div>
-                            <div class="text-sm text-slate-700 truncate" title="@owner">
-                                @Html.Raw(isOwner
-                                    ? "<span class=\"inline-flex items-center gap-1 text-blue-600\"><i data-lucide=\"user-check\" class=\"h-3.5 w-3.5\"></i><span class=\"font-medium\">我</span></span>"
-                                    : $"<span>{owner}</span>")
-                            </div>
-                            <div class="text-sm">
-                                @Html.Raw(sharedCount > 1
-                                    ? $"<span class=\"inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs\"><i data-lucide=\"users\" class=\"h-3 w-3\"></i>共享 ({sharedCount}人)</span>"
-                                    : (sharedCount == 1
-                                        ? "<span class=\"inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full text-xs\"><i data-lucide=\"lock\" class=\"h-3 w-3\"></i>私有</span>"
-                                        : "<span class=\"text-slate-400 text-xs\">—</span>"))
-                            </div>
-                            <div class="text-sm text-slate-600">@(modified?.ToString("yyyy/MM/dd HH:mm") ?? "—")</div>
-                            <div class="flex items-center justify-end gap-1">
-                                <button onclick="event.preventDefault(); event.stopPropagation(); showRenameModal('@name.Replace("'", "\\'").Replace("\"", "&quot;")', 'file')" 
-                                        class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="重新命名">
-                                    <i data-lucide="edit-3" class="h-4 w-4 text-slate-600"></i>
-                                </button>
-                                <a href="@Url.Action("Download", "FileManager", new { area = "Backoffice", path = currentPath, name })" 
-                                   onclick="event.stopPropagation()"
-                                   class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="下載">
-                                    <i data-lucide="download" class="h-4 w-4 text-slate-600"></i>
-                                </a>
-                                <button onclick="event.preventDefault(); event.stopPropagation(); deleteItem('@name.Replace("'", "\\'").Replace("\"", "&quot;")', 'file')" 
-                                        class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="刪除">
-                                    <i data-lucide="trash-2" class="h-4 w-4 text-slate-600"></i>
-                                </button>
-                            </div>
-                        </div>
+                        var modifiedTimestamp = modified?.ToString("yyyy-MM-dd HH:mm:ss") ?? "";
+
+                        <tr class="cursor-pointer hover:bg-slate-50" onclick="openFile('@name.Replace("'", "\\'").Replace("\"", "&quot;")')">
+                            <td data-order="1">
+                                <i data-lucide="file" class="h-5 w-5 text-slate-400"></i>
+                            </td>
+                            <td>@name</td>
+                            <td data-order="@size">@FormatSize(size)</td>
+                            <td>
+                                @if (isOwner)
+                                {
+                                    <span class="inline-flex items-center gap-1 text-blue-600">
+                                        <i data-lucide="user-check" class="h-3.5 w-3.5"></i>
+                                        <span class="font-medium">我</span>
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span>@owner</span>
+                                }
+                            </td>
+                            <td>
+                                @if (sharedCount > 1)
+                                {
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs">
+                                        <i data-lucide="users" class="h-3 w-3"></i>共享 (@(sharedCount)人)
+                                    </span>
+                                }
+                                else if (sharedCount == 1)
+                                {
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full text-xs">
+                                        <i data-lucide="lock" class="h-3 w-3"></i>私有
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-slate-400 text-xs">—</span>
+                                }
+                            </td>
+                            <td data-order="@modifiedTimestamp">@(modified?.ToString("yyyy/MM/dd HH:mm") ?? "—")</td>
+                            <td class="text-right">
+                                <div class="flex items-center justify-end gap-1">
+                                    <button onclick="event.stopPropagation(); showRenameModal('@name.Replace("'", "\\'").Replace("\"", "&quot;")', 'file')"
+                                            class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="重新命名">
+                                        <i data-lucide="edit-3" class="h-4 w-4 text-slate-600"></i>
+                                    </button>
+                                    <a href="@Url.Action("Download", "FileManager", new { area = "Backoffice", path = currentPath, name })"
+                                       onclick="event.stopPropagation()"
+                                       class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="下載">
+                                        <i data-lucide="download" class="h-4 w-4 text-slate-600"></i>
+                                    </a>
+                                    <button onclick="event.stopPropagation(); deleteItem('@name.Replace("'", "\\'").Replace("\"", "&quot;")', 'file')"
+                                            class="w-8 h-8 flex items-center justify-center hover:bg-slate-200 rounded" title="刪除">
+                                        <i data-lucide="trash-2" class="h-4 w-4 text-slate-600"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
                     }
-                }
-            </div>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
@@ -260,7 +318,18 @@
 <script>
     $(function(){
         if ($('#filesTable').length) {
-            HNBDataTable.init('#filesTable');
+            HNBDataTable.init('#filesTable', {
+                order: [[0, 'asc'], [5, 'desc']],
+                columnDefs: [
+                    { targets: 0, width: '60px', orderable: true },
+                    { targets: 1, orderable: true },
+                    { targets: 2, width: '100px', orderable: true },
+                    { targets: 3, width: '120px', orderable: false },
+                    { targets: 4, width: '140px', orderable: false },
+                    { targets: 5, width: '150px', orderable: true },
+                    { targets: 6, width: '140px', orderable: false, className: 'text-right' }
+                ]
+            });
         }
     });
 </script>

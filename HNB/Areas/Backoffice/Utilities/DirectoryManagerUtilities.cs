@@ -33,6 +33,8 @@ public sealed class DirectoryManagerUtilities
     
     // 延遲載入 Repository（避免循環依賴）
     private readonly IServiceProvider _serviceProvider;
+	// 同步鎖（防止並行執行）
+	private static readonly object _syncLock = new object();
     #endregion
 
     #region 建構子和初始化
@@ -195,8 +197,7 @@ public sealed class DirectoryManagerUtilities
     /// </summary>
     /// <param name="virtualPath">虛擬路徑</param>
     /// <param name="folderName">資料夾名稱</param>
-    /// <param name="currentUsername">當前用戶名</param>
-    public void CreateFolder(string virtualPath, string folderName, string? currentUsername = null)
+    public void CreateFolder(string virtualPath, string folderName)
     {
         var absDir = GetSafeAbsolutePath(virtualPath);
         Directory.CreateDirectory(absDir);
@@ -206,8 +207,6 @@ public sealed class DirectoryManagerUtilities
 
         var newDir = EnsureUniqueDirectory(Path.Combine(absDir, safe));
         Directory.CreateDirectory(newDir);
-        
-        UpdateFile(virtualPath, Path.GetFileName(newDir), currentUsername);
     }
 
     /// <summary>
@@ -215,8 +214,7 @@ public sealed class DirectoryManagerUtilities
     /// </summary>
     /// <param name="virtualPath">虛擬路徑</param>
     /// <param name="fileName">檔案名稱</param>
-    /// <param name="currentUsername">當前用戶名</param>
-    public void CreateEmptyFile(string virtualPath, string fileName, string? currentUsername = null)
+    public void CreateEmptyFile(string virtualPath, string fileName)
     {
         var absDir = GetSafeAbsolutePath(virtualPath);
         Directory.CreateDirectory(absDir);
@@ -227,8 +225,6 @@ public sealed class DirectoryManagerUtilities
 
         var target = EnsureUniqueFile(Path.Combine(absDir, safe));
         File.WriteAllBytes(target, Array.Empty<byte>());
-        
-        UpdateFile(virtualPath, Path.GetFileName(target), currentUsername);
     }
 
     /// <summary>
@@ -252,8 +248,6 @@ public sealed class DirectoryManagerUtilities
         if (!File.Exists(full)) throw new FileNotFoundException($"檔案不存在: {fileName}");
         
         File.Delete(full);
-        
-        DeleteFileFromDatabase(virtualPath, fileName);
     }
 
     /// <summary>
@@ -279,8 +273,6 @@ public sealed class DirectoryManagerUtilities
         if (dir == _root || dir.Length <= _root.Length) throw new InvalidOperationException("禁止刪除根目錄");
         
         Directory.Delete(dir, recursive: true);
-        
-        DeleteFileFromDatabase(virtualPath, folderName);
     }
 
     /// <summary>
@@ -302,12 +294,6 @@ public sealed class DirectoryManagerUtilities
         if (File.Exists(dst)) throw new InvalidOperationException("目標檔名已存在");
 
         File.Move(src, dst);
-        
-        var existingRecord = _serviceProvider.GetService<Repositories.FileManagerRepository>()?.QueryFileManager(virtualPath: virtualPath, fileName: oldName);
-        var sharedUsers = existingRecord?.shared_users;
-        
-        DeleteFileFromDatabase(virtualPath, oldName);
-        UpdateFileWithSharedUsers(virtualPath, newSafe, sharedUsers);
     }
 
     /// <summary>
@@ -330,12 +316,6 @@ public sealed class DirectoryManagerUtilities
         if (Directory.Exists(dst)) throw new InvalidOperationException("目標資料夾已存在");
 
         Directory.Move(src, dst);
-        
-        var existingRecord = _serviceProvider.GetService<Repositories.FileManagerRepository>()?.QueryFileManager(virtualPath: virtualPath, fileName: oldName);
-        var sharedUsers = existingRecord?.shared_users;
-        
-        DeleteFileFromDatabase(virtualPath, oldName);
-        UpdateFileWithSharedUsers(virtualPath, newSafe, sharedUsers);
     }
 
     /// <summary>
@@ -362,8 +342,6 @@ public sealed class DirectoryManagerUtilities
             : Encoding.UTF8;
 
         File.WriteAllText(full, content ?? string.Empty, enc);
-        
-        UpdateFile(virtualPath, safe);
     }
 
     /// <summary>
@@ -712,108 +690,36 @@ public sealed class DirectoryManagerUtilities
     #region 資料庫同步方法
 
     /// <summary>
-    /// 更新檔案到資料庫（公開方法，統一處理所有檔案操作的同步）
-    /// 自動判斷檔案類型、大小、MIME 類型
+    /// 完整同步檔案系統到資料庫（覆蓋方式）
     /// </summary>
-    public void UpdateFile(string virtualPath, string fileName, string? currentUsername = null)
-    {
-        var repo = _serviceProvider.GetService<Repositories.FileManagerRepository>();
-        if (repo == null) return;
-        
-        var absDir = GetSafeAbsolutePath(virtualPath);
-        var fullPath = Path.Combine(absDir, fileName);
-        
-        var isDirectory = Directory.Exists(fullPath);
-        var isFile = File.Exists(fullPath);
-        
-        if (!isDirectory && !isFile) return;
-        
-        var sharedUsers = !string.IsNullOrEmpty(currentUsername) 
-            ? new List<string> { currentUsername } 
-            : null;
-        
-        var data = new file_manager
-        {
-            file_name = fileName,
-            file_path = virtualPath,
-            item_type = isDirectory ? "folder" : "file",
-            file_size = isFile ? new FileInfo(fullPath).Length : null,
-            mime_type = isFile ? GetMimeType(fileName) : null,
-            shared_users = sharedUsers
-        };
-        
-        repo.InsertFileManager(data);
-    }
-
-    /// <summary>
-    /// 從資料庫刪除檔案（物理刪除）
-    /// </summary>
-    private void DeleteFileFromDatabase(string virtualPath, string fileName)
-    {
-        var repo = _serviceProvider.GetService<Repositories.FileManagerRepository>();
-        if (repo == null) return;
-        
-        repo.DeleteFileManager(virtualPath, fileName);
-    }
-
-    /// <summary>
-    /// 更新檔案並保留 shared_users（用於重命名）
-    /// </summary>
-    private void UpdateFileWithSharedUsers(string virtualPath, string fileName, List<string>? sharedUsers)
-    {
-        var repo = _serviceProvider.GetService<Repositories.FileManagerRepository>();
-        if (repo == null) return;
-        
-        var absDir = GetSafeAbsolutePath(virtualPath);
-        var fullPath = Path.Combine(absDir, fileName);
-        
-        var isDirectory = Directory.Exists(fullPath);
-        var isFile = File.Exists(fullPath);
-        
-        if (!isDirectory && !isFile) return;
-        
-        var data = new file_manager
-        {
-            file_name = fileName,
-            file_path = virtualPath,
-            item_type = isDirectory ? "folder" : "file",
-            file_size = isFile ? new FileInfo(fullPath).Length : null,
-            mime_type = isFile ? GetMimeType(fileName) : null,
-            shared_users = sharedUsers
-        };
-        
-        repo.InsertFileManager(data);
-    }
-
-    /// <summary>
-    /// 完整同步檔案系統到資料庫（應用啟動時呼叫）
-    /// 掃描檔案系統並記錄，同時清理資料庫中不存在的記錄
-    /// </summary>
-    public void SyncAllFilesToDatabase()
-    {
-        var repo = _serviceProvider.GetService<Repositories.FileManagerRepository>();
-        if (repo == null) return;
-        
-        var existingItems = new HashSet<string>();
-        CollectExistingItems(_root, "/", existingItems);
-        
-        SyncDirectoryRecursive(_root, "/");
-        
-        var allRecords = repo.QueryFileManagerList(currentUsername: null);
-        foreach (var record in allRecords)
-        {
-            var key = $"{record.file_path}|{record.file_name}";
-            if (!existingItems.Contains(key))
-            {
-                repo.DeleteFileManager(record.file_path ?? "/", record.file_name);
-            }
-        }
-    }
+    public void SyncAllFilesToDatabase(string? defaultSharedUser = null)
+	{
+		lock (_syncLock)
+		{
+			var repo = _serviceProvider.GetService<Repositories.FileManagerRepository>();
+			if (repo == null) return;
+			
+			var existingRecords = repo.QueryFileManagerList(currentUsername: null);
+			var existingSharedUsers = existingRecords
+				.GroupBy(r => $"{r.file_path}|{r.file_name}")
+				.ToDictionary(g => g.Key, g => g.First().shared_users);
+			
+            var allItems = new List<file_manager>();
+            CollectAllItems(_root, "/", allItems, existingSharedUsers, defaultSharedUser);
+			
+			var uniqueItems = allItems
+				.GroupBy(item => $"{item.file_path}|{item.file_name}")
+				.Select(g => g.First())
+				.ToList();
+			
+			repo.InsertFileManagerBatch(uniqueItems);
+		}
+	}
     
     /// <summary>
-    /// 收集檔案系統中實際存在的所有項目
+    /// 遞迴收集所有檔案和資料夾
     /// </summary>
-    private void CollectExistingItems(string physicalPath, string virtualPath, HashSet<string> existingItems)
+    private void CollectAllItems(string physicalPath, string virtualPath, List<file_manager> items, Dictionary<string, List<string>?> existingSharedUsers, string? defaultSharedUser)
     {
         if (!Directory.Exists(physicalPath)) return;
 
@@ -822,10 +728,26 @@ public sealed class DirectoryManagerUtilities
             var folderName = Path.GetFileName(dir);
             if (IsProtected(virtualPath, folderName)) continue;
             
-            existingItems.Add($"{virtualPath}|{folderName}");
+            var key = $"{virtualPath}|{folderName}";
+            var sharedUsers = existingSharedUsers.ContainsKey(key) ? existingSharedUsers[key] : null;
+            if (sharedUsers == null || sharedUsers.Count == 0)
+            {
+                var fallback = !string.IsNullOrWhiteSpace(defaultSharedUser) ? defaultSharedUser! : "system";
+                sharedUsers = new List<string> { fallback };
+            }
+            
+            items.Add(new file_manager
+            {
+                file_name = folderName,
+                file_path = virtualPath,
+                item_type = "folder",
+                file_size = null,
+                mime_type = null,
+                shared_users = sharedUsers
+            });
             
             var childVirtualPath = virtualPath == "/" ? $"/{folderName}" : $"{virtualPath}/{folderName}";
-            CollectExistingItems(dir, childVirtualPath, existingItems);
+            CollectAllItems(dir, childVirtualPath, items, existingSharedUsers, defaultSharedUser);
         }
 
         foreach (var file in Directory.GetFiles(physicalPath))
@@ -833,36 +755,24 @@ public sealed class DirectoryManagerUtilities
             var fileName = Path.GetFileName(file);
             if (IsProtected(virtualPath, fileName)) continue;
             
-            existingItems.Add($"{virtualPath}|{fileName}");
-        }
-    }
-
-    /// <summary>
-    /// 遞迴同步目錄
-    /// </summary>
-    private void SyncDirectoryRecursive(string physicalPath, string virtualPath)
-    {
-        if (!Directory.Exists(physicalPath)) return;
-
-        foreach (var dir in Directory.GetDirectories(physicalPath))
-        {
-            var folderName = Path.GetFileName(dir);
+            var key = $"{virtualPath}|{fileName}";
+            var sharedUsers = existingSharedUsers.ContainsKey(key) ? existingSharedUsers[key] : null;
+            if (sharedUsers == null || sharedUsers.Count == 0)
+            {
+                var fallback = !string.IsNullOrWhiteSpace(defaultSharedUser) ? defaultSharedUser! : "system";
+                sharedUsers = new List<string> { fallback };
+            }
+            var fileInfo = new FileInfo(file);
             
-            if (IsProtected(virtualPath, folderName)) continue;
-            
-            UpdateFile(virtualPath, folderName);
-            
-            var childVirtualPath = virtualPath == "/" ? $"/{folderName}" : $"{virtualPath}/{folderName}";
-            SyncDirectoryRecursive(dir, childVirtualPath);
-        }
-
-        foreach (var file in Directory.GetFiles(physicalPath))
-        {
-            var fileName = Path.GetFileName(file);
-            
-            if (IsProtected(virtualPath, fileName)) continue;
-            
-            UpdateFile(virtualPath, fileName);
+            items.Add(new file_manager
+            {
+                file_name = fileName,
+                file_path = virtualPath,
+                item_type = "file",
+                file_size = fileInfo.Length,
+                mime_type = GetMimeType(fileName),
+                shared_users = sharedUsers
+            });
         }
     }
 
