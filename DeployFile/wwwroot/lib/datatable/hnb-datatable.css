@@ -13,6 +13,7 @@ table.dataTable thead th {
     font-weight: 600;
     color: #475569;
     font-size: 14px;
+    white-space: nowrap;
 }
 
 table.dataTable tbody td {
@@ -32,6 +33,7 @@ table.dataTable tbody tr:hover {
 /* 搜索框样式 - 右对齐 */
 .dataTables_filter {
     float: right;
+    white-space: nowrap;
 }
 
 .dataTables_filter label {
@@ -40,6 +42,7 @@ table.dataTable tbody tr:hover {
     gap: 8px;
     font-size: 14px;
     color: #64748b;
+    white-space: nowrap;
 }
 
 .dataTables_filter input {
@@ -60,6 +63,7 @@ table.dataTable tbody tr:hover {
 /* 每页显示条数 - 左对齐 */
 .dataTables_length {
     float: left;
+    white-space: nowrap;
 }
 
 .dataTables_length label {
@@ -68,6 +72,7 @@ table.dataTable tbody tr:hover {
     gap: 8px;
     font-size: 14px;
     color: #64748b;
+    white-space: nowrap;
 }
 
 .dataTables_length select {
@@ -84,12 +89,14 @@ table.dataTable tbody tr:hover {
     padding: 12px 0;
     font-size: 14px;
     color: #64748b;
+    white-space: nowrap;
 }
 
 /* 分页控件 - 右下角 */
 .dataTables_paginate {
     float: right;
     padding: 12px 0;
+    white-space: nowrap;
 }
 
 .dataTables_paginate .paginate_button {
@@ -103,6 +110,7 @@ table.dataTable tbody tr:hover {
     cursor: pointer;
     font-size: 14px;
     transition: all 0.2s;
+    white-space: nowrap;
 }
 
 .dataTables_paginate .paginate_button:hover {

@@ -865,3 +865,113 @@ function toggleTreeNode(event, element) {
         next = next.nextElementSibling;
     }
 }
+
+// ========== 項目操作選單（更多 ...） ==========
+let itemMenuEl = null;
+let itemMenuAnchor = null;
+let itemMenuOnDocClick = null;
+let itemMenuOnScroll = null;
+let itemMenuOnResize = null;
+function ensureItemMenu() {
+    if (itemMenuEl) return itemMenuEl;
+    itemMenuEl = document.createElement('div');
+    itemMenuEl.id = 'itemActionMenu';
+    // 改為 fixed，避免滾動時偏移
+    itemMenuEl.className = 'hidden fixed z-50 w-44 rounded-md border border-slate-200 bg-white shadow-md p-2';
+    itemMenuEl.innerHTML = `
+        <button type="button" data-action="open" class="w-full text-left flex items-center gap-2 px-3 py-2 rounded-md hover:bg-slate-100">
+            <i data-lucide="corner-down-right" class="h-4 w-4"></i> 開啟
+        </button>
+        <button type="button" data-action="rename" class="w-full text-left flex items-center gap-2 px-3 py-2 rounded-md hover:bg-slate-100">
+            <i data-lucide="edit-3" class="h-4 w-4"></i> 重新命名
+        </button>
+        <button type="button" data-action="download" class="w-full text-left flex items-center gap-2 px-3 py-2 rounded-md hover:bg-slate-100">
+            <i data-lucide="download" class="h-4 w-4"></i> 下載
+        </button>
+        <div class="my-2 h-px bg-slate-200"></div>
+        <button type="button" data-action="delete" class="w-full text-left flex items-center gap-2 px-3 py-2 rounded-md hover:bg-slate-100 text-red-600">
+            <i data-lucide="trash-2" class="h-4 w-4"></i> 刪除
+        </button>
+    `;
+    document.body.appendChild(itemMenuEl);
+    if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
+    return itemMenuEl;
+}
+
+function hideItemMenu() {
+    if (!itemMenuEl) return;
+    itemMenuEl.classList.add('hidden');
+    itemMenuAnchor = null;
+    if (itemMenuOnDocClick) document.removeEventListener('click', itemMenuOnDocClick, true);
+    if (itemMenuOnScroll) window.removeEventListener('scroll', itemMenuOnScroll, true);
+    if (itemMenuOnResize) window.removeEventListener('resize', itemMenuOnResize, true);
+    itemMenuOnDocClick = null;
+    itemMenuOnScroll = null;
+    itemMenuOnResize = null;
+}
+
+function openItemMenu(e, kind, name, path) {
+    e.preventDefault();
+    e.stopPropagation();
+    const menu = ensureItemMenu();
+
+    // 若點同一顆按鈕 -> 切換顯示/隱藏
+    if (!menu.classList.contains('hidden') && itemMenuAnchor === e.currentTarget) {
+        hideItemMenu();
+        return;
+    }
+
+    // 定位在按鈕下方（fixed 以 viewport 為參考）
+    const rect = e.currentTarget.getBoundingClientRect();
+    menu.style.visibility = 'hidden';
+    menu.classList.remove('hidden');
+    const top = rect.bottom + 4;
+    menu.style.top = `${top}px`;
+    const menuWidth = menu.offsetWidth || 176;
+    const padding = 8;
+    const viewportRight = window.innerWidth - padding;
+    let left = rect.right - menuWidth; // 右對齊按鈕
+    if (left + menuWidth > viewportRight) left = viewportRight - menuWidth;
+    if (left < padding) left = padding;
+    menu.style.left = `${left}px`;
+    menu.style.visibility = 'visible';
+
+    // 記住來源，綁定關閉事件（點外部 / 捲動 / 變更尺寸）
+    itemMenuAnchor = e.currentTarget;
+    itemMenuOnDocClick = (ev) => {
+        if (!menu.contains(ev.target) && ev.target !== itemMenuAnchor) hideItemMenu();
+    };
+    itemMenuOnScroll = () => hideItemMenu();
+    itemMenuOnResize = () => hideItemMenu();
+    setTimeout(() => {
+        document.addEventListener('click', itemMenuOnDocClick, true);
+        window.addEventListener('scroll', itemMenuOnScroll, true);
+        window.addEventListener('resize', itemMenuOnResize, true);
+    }, 0);
+
+    // 設定動作
+    menu.querySelector('[data-action="open"]').onclick = () => {
+        if (kind === 'folder') {
+            window.location.href = `/Backoffice/FileManager/FileManager?path=${encodeURIComponent(path === '/' ? '/' + name : path + '/' + name)}`;
+        } else {
+            openFile(name);
+        }
+        hideItemMenu();
+    };
+    menu.querySelector('[data-action="rename"]').onclick = () => {
+        showRenameModal(name, kind);
+        hideItemMenu();
+    };
+    menu.querySelector('[data-action="download"]').onclick = () => {
+        if (kind === 'folder') {
+            window.location.href = `/Backoffice/FileManager/DownloadFolder?path=${encodeURIComponent(path)}&name=${encodeURIComponent(name)}`;
+        } else {
+            window.location.href = `/Backoffice/FileManager/Download?path=${encodeURIComponent(path)}&name=${encodeURIComponent(name)}`;
+        }
+        hideItemMenu();
+    };
+    menu.querySelector('[data-action="delete"]').onclick = () => {
+        deleteItem(name, kind);
+        hideItemMenu();
+    };
+}
