@@ -31,7 +31,7 @@ public class AuthorizeController(AuthService authService) : Controller
     /// </summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> LoginFuntion(string username, string password, bool rememberMe, string? returnUrl = null)
+    public IActionResult LoginFuntion(string username, string password, bool rememberMe, string? returnUrl = null)
     {
         var loginResult = authService.ProcessLogin(username, password);
         
@@ -66,8 +66,8 @@ public class AuthorizeController(AuthService authService) : Controller
             ExpiresUtc = rememberMe ? DateTimeOffset.UtcNow.AddDays(30) : DateTimeOffset.UtcNow.AddHours(8)
         };
 
-        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, 
-            new ClaimsPrincipal(claimsIdentity), authProperties);
+        HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, 
+            new ClaimsPrincipal(claimsIdentity), authProperties).GetAwaiter().GetResult();
 
         return !string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl) 
             ? Redirect(returnUrl) 
@@ -79,9 +79,9 @@ public class AuthorizeController(AuthService authService) : Controller
     /// </summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Logout()
+    public IActionResult Logout()
     {
-        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme).GetAwaiter().GetResult();
         return RedirectToAction("Login");
     }
 

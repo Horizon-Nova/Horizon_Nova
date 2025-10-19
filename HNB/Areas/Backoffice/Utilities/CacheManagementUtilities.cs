@@ -5,7 +5,7 @@ namespace HNB.Areas.Backoffice.Utilities;
 
 public class CacheManagementUtilities(IMemoryCache memoryCache)
 {
-    public CacheStatistics GetCacheStatistics()
+    public CacheStatistics LoadCacheStatistics()
     {
         var memoryCacheSize = GetMemoryCacheSize();
         var databaseCacheSize = 0;

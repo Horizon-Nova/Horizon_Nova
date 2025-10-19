@@ -35,12 +35,12 @@ public class DynamicDbContext : DbContext
     /// <summary>
     /// 動態獲取資料表清單 - 使用 EF Core API
     /// </summary>
-    public async Task<List<string>> QueryTableNamesAsync()
+    public List<string> QueryTableNames()
     {
         try
         {
             var connection = Database.GetDbConnection();
-            await connection.OpenAsync();
+            connection.Open();
 
             var tableNames = new List<string>();
 
@@ -60,8 +60,8 @@ public class DynamicDbContext : DbContext
                 command.Parameters.Add(new Npgsql.NpgsqlParameter("@prefix1", "pg_%"));
                 command.Parameters.Add(new Npgsql.NpgsqlParameter("@prefix2", "sql_%"));
 
-                using var reader = await command.ExecuteReaderAsync();
-                while (await reader.ReadAsync())
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
                 {
                     tableNames.Add(reader.GetString(0));
                 }
@@ -81,8 +81,8 @@ public class DynamicDbContext : DbContext
                 command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@prefix1", "sys%"));
                 command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@prefix2", "dt%"));
 
-                using var reader = await command.ExecuteReaderAsync();
-                while (await reader.ReadAsync())
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
                 {
                     tableNames.Add(reader.GetString(0));
                 }
@@ -103,12 +103,12 @@ public class DynamicDbContext : DbContext
     /// <summary>
     /// 動態獲取資料表欄位資訊
     /// </summary>
-    public async Task<List<TableColumnDto>> QueryTableColumnsAsync(string tableName)
+    public List<TableColumnDto> QueryTableColumns(string tableName)
     {
         try
         {
             var connection = Database.GetDbConnection();
-            await connection.OpenAsync();
+            connection.Open();
 
             var columns = new List<TableColumnDto>();
 
@@ -150,8 +150,8 @@ public class DynamicDbContext : DbContext
                 command.Parameters.Add(new Npgsql.NpgsqlParameter("@schemaName", schemaName));
                 command.Parameters.Add(new Npgsql.NpgsqlParameter("@tableName", actualTableName));
 
-                using var reader = await command.ExecuteReaderAsync();
-                while (await reader.ReadAsync())
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
                 {
                     var column = new TableColumnDto
                     {
@@ -191,8 +191,8 @@ public class DynamicDbContext : DbContext
 
                 command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@tableName", tableName));
 
-                using var reader = await command.ExecuteReaderAsync();
-                while (await reader.ReadAsync())
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
                 {
                     var column = new TableColumnDto
                     {

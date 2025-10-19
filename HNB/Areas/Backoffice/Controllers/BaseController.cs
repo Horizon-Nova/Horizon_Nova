@@ -10,17 +10,16 @@ namespace HNB.Areas.Backoffice.Controllers;
 public abstract class BaseController : Controller
 {
 
-    public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+    public override void OnActionExecuting(ActionExecutingContext context)
     {
-        await LoadSidebarNavigationAsync();
-        
-        await base.OnActionExecutionAsync(context, next);
+        LoadSidebarNavigation();
+        base.OnActionExecuting(context);
     }
 
     /// <summary>
     /// 載入側欄導航數據到 ViewBag（根據用戶角色權限）
     /// </summary>
-    protected Task LoadSidebarNavigationAsync()
+    protected void LoadSidebarNavigation()
     {
         if (User.Identity?.IsAuthenticated == true)
         {
@@ -40,8 +39,6 @@ public abstract class BaseController : Controller
         {
             ViewBag.SidebarNavigation = new List<Models.HnbHnbBackoffice.vw_sidebar_navigation>();
         }
-        
-        return Task.CompletedTask;
     }
 
 }

@@ -28,10 +28,10 @@ public class SidebarNavigationController(SidebarNavigationService sev) : BaseCon
     }
 
     /// <summary>
-    /// 獲取上層目錄選項
+    /// 載入上層目錄選項
     /// </summary>
     [HttpGet]
-    public IActionResult GetParentOptions()
+    public IActionResult LoadParentOptions()
     {
         var navigations = sev.LoadAllNavigations();
         var options = navigations

@@ -111,10 +111,7 @@ public class SettingsServices(SettingsRepositories rep)
     /// <summary>
     /// 清理所有快取
     /// </summary>
-    public bool ClearAllCache()
-    {
-        return true;
-    }
+    public bool ClearAllCache() => true;
 
     /// <summary>
     /// 載入系統健康狀態

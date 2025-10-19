@@ -26,19 +26,19 @@ public class DatabaseService()
     /// 測試資料庫連線
     /// </summary>
     public (bool Success, string Message) TestConnection(string provider, string connectionString)
-        => DatabaseUtilities.TestConnectionAsync(provider, connectionString).GetAwaiter().GetResult();
+        => DatabaseUtilities.TestConnection(provider, connectionString);
 
     /// <summary>
     /// 載入資料庫中的資料表列表
     /// </summary>
     public (bool Success, List<string> Tables, string Message) LoadDatabaseTables(string provider, string connectionString)
-        => DatabaseUtilities.LoadDatabaseTablesAsync(provider, connectionString).GetAwaiter().GetResult();
+        => DatabaseUtilities.LoadDatabaseTables(provider, connectionString);
 
     /// <summary>
     /// 載入資料表欄位詳情
     /// </summary>
     public (bool Success, List<TableColumnDto> Columns, string Message) LoadTableDetails(string provider, string connectionString, string tableName)
-        => DatabaseUtilities.LoadTableDetailsAsync(provider, connectionString, tableName).GetAwaiter().GetResult();
+        => DatabaseUtilities.LoadTableDetails(provider, connectionString, tableName);
 
 
     #endregion
@@ -49,7 +49,7 @@ public class DatabaseService()
     /// 備份資料庫資料表
     /// </summary>
     public (bool Success, string Message) BackupDatabaseTables(GenerateModelsRequestDto request)
-        => DatabaseUtilities.BackupDatabaseTables(request).GetAwaiter().GetResult();
+        => DatabaseUtilities.BackupDatabaseTables(request);
 
     #endregion
 

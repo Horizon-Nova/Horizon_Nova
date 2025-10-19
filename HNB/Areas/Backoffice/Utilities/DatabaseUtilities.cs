@@ -16,13 +16,13 @@ public static class DatabaseUtilities
     /// <param name="provider">資料庫提供者</param>
     /// <param name="connectionString">連線字串</param>
     /// <returns>連線測試結果</returns>
-    public static async Task<(bool Success, string Message)> TestConnectionAsync(string provider, string connectionString)
+    public static (bool Success, string Message) TestConnection(string provider, string connectionString)
     {
         try
         {
             using var context = new DynamicDbContext(provider, connectionString);
-            await context.Database.OpenConnectionAsync();
-            await context.Database.CloseConnectionAsync();
+            context.Database.OpenConnection();
+            context.Database.CloseConnection();
 
             return (true, "連線成功");
         }
@@ -42,12 +42,12 @@ public static class DatabaseUtilities
     /// <param name="provider">資料庫提供者</param>
     /// <param name="connectionString">連線字串</param>
     /// <returns>資料表清單</returns>
-    public static async Task<(bool Success, List<string> Tables, string Message)> LoadDatabaseTablesAsync(string provider, string connectionString)
+    public static (bool Success, List<string> Tables, string Message) LoadDatabaseTables(string provider, string connectionString)
     {
         try
         {
             using var context = new DynamicDbContext(provider, connectionString);
-            var tables = await context.QueryTableNamesAsync();
+            var tables = context.QueryTableNames();
             return (true, tables, $"成功載入 {tables.Count} 個資料表");
         }
         catch (Exception ex)
@@ -65,7 +65,7 @@ public static class DatabaseUtilities
     /// </summary>
     /// <param name="request">備份請求參數</param>
     /// <returns>備份結果</returns>
-    public static async Task<(bool Success, string Message)> BackupDatabaseTables(GenerateModelsRequestDto request)
+    public static (bool Success, string Message) BackupDatabaseTables(GenerateModelsRequestDto request)
     {
         try
         {
@@ -81,7 +81,7 @@ public static class DatabaseUtilities
             Directory.CreateDirectory(fullOutputPath);
 
             using var context = new DynamicDbContext(request.Provider, request.ConnectionString);
-            var tables = await context.QueryTableNamesAsync();
+            var tables = context.QueryTableNames();
 
             if (!tables.Any())
             {
@@ -95,14 +95,14 @@ public static class DatabaseUtilities
                 try
                 {
                     using var columnContext = new DynamicDbContext(request.Provider, request.ConnectionString);
-                    var columns = await columnContext.QueryTableColumnsAsync(tableName);
+                    var columns = columnContext.QueryTableColumns(tableName);
                     var structureSql = GenerateTableStructureSql(columns, tableName, request.Provider);
                     var structureFile = Path.Combine(fullOutputPath, $"{tableName}_structure.sql");
-                    await File.WriteAllTextAsync(structureFile, structureSql);
+                    File.WriteAllText(structureFile, structureSql);
 
-                    var dataSql = await GenerateTableDataTemplateSql(columnContext, tableName, request.Provider);
+                    var dataSql = GenerateTableDataTemplateSql(columnContext, tableName, request.Provider);
                     var dataFile = Path.Combine(fullOutputPath, $"{tableName}_data.sql");
-                    await File.WriteAllTextAsync(dataFile, dataSql);
+                    File.WriteAllText(dataFile, dataSql);
 
                     backupResults.Add($"✓ {tableName} (結構 + 資料)");
                 }
@@ -127,7 +127,7 @@ public static class DatabaseUtilities
 成功: {backupResults.Count(r => r.StartsWith("✓"))} 個
 失敗: {backupResults.Count(r => r.StartsWith("✗"))} 個
 ";
-            await File.WriteAllTextAsync(summaryFile, summary);
+            File.WriteAllText(summaryFile, summary);
 
             return (true, $"資料表備份完成！\n找到 {tables.Count} 個資料表\n備份資料夾: {folderName}\n輸出目錄: {request.OutputDirectory}");
         }
@@ -148,12 +148,12 @@ public static class DatabaseUtilities
     /// <param name="connectionString">連線字串</param>
     /// <param name="tableName">資料表名稱</param>
     /// <returns>欄位詳情</returns>
-    public static async Task<(bool Success, List<TableColumnDto> Columns, string Message)> LoadTableDetailsAsync(string provider, string connectionString, string tableName)
+    public static (bool Success, List<TableColumnDto> Columns, string Message) LoadTableDetails(string provider, string connectionString, string tableName)
     {
         try
         {
             using var context = new DynamicDbContext(provider, connectionString);
-            var columns = await context.QueryTableColumnsAsync(tableName);
+            var columns = context.QueryTableColumns(tableName);
             return (true, columns, $"成功獲取資料表 {tableName} 的 {columns.Count} 個欄位");
         }
         catch (Exception ex)
@@ -240,11 +240,11 @@ CREATE TABLE [{tableName}] (
     /// <summary>
     /// 生成資料表資料的 SQL 語句
     /// </summary>
-    private static async Task<string> GenerateTableDataTemplateSql(DynamicDbContext context, string tableName, string provider)
+    private static string GenerateTableDataTemplateSql(DynamicDbContext context, string tableName, string provider)
     {
         try
         {
-            var data = await QueryTableData(context, tableName, provider);
+            var data = QueryTableData(context, tableName, provider);
 
             if (!data.Any())
             {
@@ -320,7 +320,7 @@ CREATE TABLE [{tableName}] (
     /// <summary>
     /// 查詢資料表的實際資料
     /// </summary>
-    private static async Task<List<Dictionary<string, object>>> QueryTableData(DynamicDbContext context, string tableName, string provider)
+    private static List<Dictionary<string, object>> QueryTableData(DynamicDbContext context, string tableName, string provider)
     {
         var data = new List<Dictionary<string, object>>();
 
@@ -338,12 +338,12 @@ CREATE TABLE [{tableName}] (
 
             if (context.Database.GetDbConnection().State != System.Data.ConnectionState.Open)
             {
-                await context.Database.GetDbConnection().OpenAsync();
+                context.Database.GetDbConnection().Open();
             }
 
-            using var reader = await command.ExecuteReaderAsync();
+            using var reader = command.ExecuteReader();
 
-            while (await reader.ReadAsync())
+            while (reader.Read())
             {
                 var row = new Dictionary<string, object>();
 

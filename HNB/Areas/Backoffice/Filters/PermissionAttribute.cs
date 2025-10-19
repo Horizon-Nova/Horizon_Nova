@@ -9,7 +9,7 @@ namespace HNB.Areas.Backoffice.Filters;
 /// 權限驗證屬性
 /// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
-public class PermissionAttribute : Attribute, IAsyncAuthorizationFilter
+public class PermissionAttribute : Attribute, IAuthorizationFilter
 {
 
     /// <summary>
@@ -17,7 +17,7 @@ public class PermissionAttribute : Attribute, IAsyncAuthorizationFilter
     /// </summary>
     public PermissionAttribute() { }
 
-    public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
+    public void OnAuthorization(AuthorizationFilterContext context)
     {
         var currentUserName = context.HttpContext.User.Identity?.Name;
         if (string.IsNullOrEmpty(currentUserName))
@@ -36,7 +36,7 @@ public class PermissionAttribute : Attribute, IAsyncAuthorizationFilter
 
         // 檢查導航權限
         var currentPath = context.HttpContext.Request.Path.Value?.ToLowerInvariant() ?? "";
-        if (!await CheckUserNavigationPermissionAsync(context, currentUserName, currentPath))
+        if (!CheckUserNavigationPermission(context, currentUserName, currentPath))
         {
             context.Result = new RedirectToActionResult("AccessDenied", "Authorize",
                 new { area = "Backoffice" });
@@ -48,7 +48,7 @@ public class PermissionAttribute : Attribute, IAsyncAuthorizationFilter
     /// <summary>
     /// 檢查用戶是否有當前 URL 的導航權限
     /// </summary>
-    private Task<bool> CheckUserNavigationPermissionAsync(AuthorizationFilterContext context, string userName, string currentPath)
+    private bool CheckUserNavigationPermission(AuthorizationFilterContext context, string userName, string currentPath)
     {
         var whitelistPaths = new[]
         {
@@ -59,30 +59,27 @@ public class PermissionAttribute : Attribute, IAsyncAuthorizationFilter
         };
         
         if (whitelistPaths.Any(path => currentPath.StartsWith(path, StringComparison.OrdinalIgnoreCase)))
-        {
-            return Task.FromResult(true);
-        }
+            return true;
         
         var sidebarService = context.HttpContext.RequestServices.GetService<SidebarNavigationService>();
-        if (sidebarService == null) return Task.FromResult(false);
+        if (sidebarService == null) return false;
 
         var userNavigations = sidebarService.LoadUserNavigationList(userName);
         
-        if (!userNavigations.Any()) return Task.FromResult(false);
+        if (!userNavigations.Any()) return false;
         
         var pathSegments = currentPath.TrimStart('/').Split('/');
         if (pathSegments.Length >= 2)
         {
             var currentController = $"/{pathSegments[0]}/{pathSegments[1]}";
-            
-            return Task.FromResult(userNavigations.Any(nav => 
+            return userNavigations.Any(nav => 
                 !string.IsNullOrEmpty(nav.url) && 
-                nav.url.ToLowerInvariant().StartsWith(currentController, StringComparison.OrdinalIgnoreCase)));
+                nav.url.ToLowerInvariant().StartsWith(currentController, StringComparison.OrdinalIgnoreCase));
         }
         
-        return Task.FromResult(userNavigations.Any(nav => 
+        return userNavigations.Any(nav => 
             !string.IsNullOrEmpty(nav.url) && 
             (currentPath.StartsWith(nav.url.ToLowerInvariant(), StringComparison.OrdinalIgnoreCase) ||
-             currentPath.Contains(nav.url.ToLowerInvariant(), StringComparison.OrdinalIgnoreCase))));
+             currentPath.Contains(nav.url.ToLowerInvariant(), StringComparison.OrdinalIgnoreCase)));
     }
 }

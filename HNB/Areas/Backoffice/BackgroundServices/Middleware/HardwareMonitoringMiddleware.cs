@@ -15,14 +15,14 @@ public class HardwareMonitoringMiddleware(RequestDelegate next, IServiceProvider
     private readonly RequestDelegate _next = next;
     private readonly IServiceProvider _serviceProvider = serviceProvider;
 
-    public async Task InvokeAsync(HttpContext context)
+    public Task InvokeAsync(HttpContext context)
     {
         if (ShouldPerformHardwareMonitoring(context))
         {
-            await PerformHardwareMonitoringAsync(context);
+            PerformHardwareMonitoring(context);
         }
 
-        await _next(context);
+        return _next(context);
     }
 
     /// <summary>
@@ -49,7 +49,7 @@ public class HardwareMonitoringMiddleware(RequestDelegate next, IServiceProvider
     /// <summary>
     /// 執行硬體監控
     /// </summary>
-    private async Task PerformHardwareMonitoringAsync(HttpContext context)
+    private void PerformHardwareMonitoring(HttpContext context)
     {
         var clientIp = GetClientIpAddress(context);
         
