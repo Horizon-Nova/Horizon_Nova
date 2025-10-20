@@ -1,94 +1,102 @@
 // NavigationManagement.js - 目錄管理專用腳本
 
-document.addEventListener('DOMContentLoaded', () => {
+$(document).ready(() => {
     window.lucide?.createIcons?.();
     $('#searchInput').on('input', applyFilters);
     $('#statusFilter').on('change', applyFilters);
     $('#levelFilter').on('change', applyFilters);
 });
 
-// 載入導航資料並顯示指定的 Modal
-const loadAndShowModal = (id, modalId) => {
-    $.ajax({
-        type: 'GET',
-        url: '/Backoffice/SidebarNavigation/LoadDetail',
-        data: { id: id },
-        success: (html) => {
-            // 替換整個 Modal 容器
-            $('#navigationModals').html(html);
-            // 重新初始化 Lucide 圖標
-            window.lucide?.createIcons?.();
-            // 顯示指定的 Modal
-            showModal(modalId);
-        },
-        error: () => alert('載入失敗，系統發生錯誤。')
-    });
-};
+// 便捷函數：顯示編輯 Modal
+const showEditModal = (id) => showModal('nav-edit-modal', {
+    url: '/Backoffice/SidebarNavigation/LoadDetail',
+    method: 'GET',
+    data: { id: id },
+    container: 'navigationModals'
+});
 
-// 便捷函數
-const showEditModal = (id) => loadAndShowModal(id, 'nav-edit-modal');
-const showDetailModal = (id) => loadAndShowModal(id, 'nav-detail-modal');
-const showDeleteModal = (id) => loadAndShowModal(id, 'nav-delete-modal');
+// 便捷函數：顯示詳情 Modal
+const showDetailModal = (id) => showModal('nav-detail-modal', {
+    url: '/Backoffice/SidebarNavigation/LoadDetail',
+    method: 'GET',
+    data: { id: id },
+    container: 'navigationModals'
+});
+
+// 便捷函數：顯示刪除確認 Modal
+const showDeleteModal = (id) => showModal('nav-delete-modal', {
+    url: '/Backoffice/SidebarNavigation/LoadDetail',
+    method: 'GET',
+    data: { id: id },
+    container: 'navigationModals'
+});
 
 // 篩選功能
 const applyFilters = () => {
     const searchKeyword = $('#searchInput').val()?.toLowerCase() || '';
     const statusFilter = $('#statusFilter').val() || '';
     const levelFilter = $('#levelFilter').val() || '';
-    const treeContainer = $('#navigationTreeContent')[0];
-    if (!treeContainer) return;
+    const $treeContainer = $('#navigationTreeContent');
     
-    const allItems = treeContainer.querySelectorAll('.nav-tree-item');
+    if ($treeContainer.length === 0) return;
+    
+    const $allItems = $treeContainer.find('.nav-tree-item');
     let visibleCount = 0;
     
-    allItems.forEach(item => {
-        if (!item) return;
+    $allItems.each(function() {
+        const $item = $(this);
+        const $card = $item.find('.nav-item-card');
         
-        const card = item.querySelector('.nav-item-card');
-        if (!card) return;
+        if ($card.length === 0) return;
         
-        const titleElement = card.querySelector('h6');
-        const title = titleElement?.textContent?.toLowerCase() || '';
+        const $titleElement = $card.find('h6');
+        const title = $titleElement.text()?.toLowerCase() || '';
         
-        const codeElement = card.querySelector('[data-lucide="hash"]')?.parentElement;
-        const code = codeElement?.textContent?.toLowerCase() || '';
+        const $codeElement = $card.find('[data-lucide="hash"]').parent();
+        const code = $codeElement.text()?.toLowerCase() || '';
         
-        const statusBadge = card.querySelector('.badge');
-        const isActive = statusBadge?.textContent?.trim() === '啟用';
+        const $statusBadge = $card.find('.badge');
+        const isActive = $statusBadge.text()?.trim() === '啟用';
         
-        const level = item.closest('.nav-children') 
-            ? (item.closest('.nav-children').closest('.nav-children') ? 3 : 2) 
+        const level = $item.closest('.nav-children').length > 0
+            ? ($item.closest('.nav-children').closest('.nav-children').length > 0 ? 3 : 2)
             : 1;
         
         const matchesSearch = searchKeyword === '' || title.includes(searchKeyword) || code.includes(searchKeyword);
         const matchesStatus = statusFilter === '' || 
-            (statusFilter === '1' && isActive) || 
-            (statusFilter === '0' && !isActive);
+            (statusFilter === 'active' && isActive) || 
+            (statusFilter === 'inactive' && !isActive);
         const matchesLevel = levelFilter === '' || level === parseInt(levelFilter);
         
         const isVisible = matchesSearch && matchesStatus && matchesLevel;
-        item.style.display = isVisible ? '' : 'none';
+        $item.css('display', isVisible ? '' : 'none');
         if (isVisible) visibleCount++;
     });
     
-    const emptyState = treeContainer.querySelector('.text-center');
-    if (emptyState) {
-        emptyState.style.display = visibleCount === 0 ? '' : 'none';
-    }
+    const $emptyState = $treeContainer.find('.text-center');
+    $emptyState.css('display', visibleCount === 0 ? '' : 'none');
 };
 
 // 展開/收合子項目
 const toggleChildren = (btn) => {
     if (!btn) return;
-    const item = btn.closest('.nav-tree-item');
-    if (!item) return;
-    const children = item.querySelector('.nav-children');
-    const icon = btn.querySelector('.nav-chevron-tree');
-    if (!children) return;
-    const isHidden = children.classList.contains('hidden');
-    children.classList.toggle('hidden');
-    icon?.classList.toggle('rotated');
-    isHidden && window.lucide?.createIcons?.();
+    const $btn = $(btn);
+    const $item = $btn.closest('.nav-tree-item');
+    
+    if ($item.length === 0) return;
+    
+    const $children = $item.find('.nav-children').first();
+    const $icon = $btn.find('.nav-chevron-tree');
+    
+    if ($children.length === 0) return;
+    
+    const isHidden = $children.hasClass('hidden');
+    $children.toggleClass('hidden');
+    $icon.toggleClass('rotated');
+    
+    if (isHidden) {
+        window.lucide?.createIcons?.();
+    }
 };
 
 // 儲存導航（新增或編輯）
@@ -141,29 +149,84 @@ const openIconPicker = () => {
     showModal('icon-picker-modal');
 };
 
+// 全域變數儲存圖標數據
+let allIconTags = {};
+
 const loadIconsFromAPI = () => {
-    fetch('https://unpkg.com/lucide-static@latest/icons.json')
-        .then(response => response.json())
-        .then(icons => {
-            const iconGrid = $('#iconGrid');
-            iconGrid.empty();
-            Object.keys(icons).slice(0, 100).forEach(iconName => {
-                iconGrid.append(`
-                    <div class="col-6 col-md-3 col-lg-2">
-                        <button type="button" class="btn btn-outline-secondary w-100 p-3 icon-option" data-icon="${iconName}">
-                            <i data-lucide="${iconName}" class="mb-2" style="width: 1.5rem; height: 1.5rem;"></i>
-                            <div class="small text-truncate">${iconName}</div>
-                        </button>
-                    </div>
-                `);
-            });
-            window.lucide?.createIcons?.();
-            $('.icon-option').on('click', function() {
-                $('.icon-option').removeClass('active');
-                $(this).addClass('active');
-            });
-        })
-        .catch(() => alert('載入圖標失敗'));
+    $.ajax({
+        type: 'GET',
+        url: 'https://cdn.jsdelivr.net/npm/lucide-static@0.517.0/tags.json',
+        dataType: 'json',
+        success: (iconTags) => {
+            allIconTags = iconTags;
+            renderIcons(Object.keys(iconTags));
+            $('#iconCount').text(Object.keys(iconTags).length);
+            
+            // 綁定搜尋事件
+            $('#iconSearchInput').off('input').on('input', filterIcons);
+        },
+        error: () => alert('載入圖標失敗，請檢查網路連線。')
+    });
+};
+
+// 過濾圖標
+const filterIcons = () => {
+    const searchTerm = $('#iconSearchInput').val()?.toLowerCase() || '';
+    const allIconNames = Object.keys(allIconTags);
+    
+    if (!searchTerm) {
+        renderIcons(allIconNames);
+        return;
+    }
+    
+    // 根據圖標名稱和標籤過濾
+    const filteredIcons = allIconNames.filter(iconName => {
+        const tags = allIconTags[iconName] || [];
+        const tagString = tags.join(' ').toLowerCase();
+        
+        return iconName.toLowerCase().includes(searchTerm) || tagString.includes(searchTerm);
+    });
+    
+    renderIcons(filteredIcons);
+};
+
+// 渲染圖標網格
+const renderIcons = (iconNames) => {
+    const $iconGrid = $('#iconGrid');
+    const $noResults = $('#iconNoResults');
+    
+    $iconGrid.empty();
+    
+    if (iconNames.length === 0) {
+        $iconGrid.hide();
+        $noResults.show();
+        window.lucide?.createIcons?.();
+        return;
+    }
+    
+    $iconGrid.show();
+    $noResults.hide();
+    
+    // 限制顯示數量以提升效能
+    const displayIcons = iconNames.slice(0, 200);
+    
+    displayIcons.forEach(iconName => {
+        $iconGrid.append(`
+            <div class="col-6 col-md-3 col-lg-2">
+                <button type="button" class="btn btn-outline-secondary w-100 p-3 icon-option" data-icon="${iconName}">
+                    <i data-lucide="${iconName}" class="mb-2" style="width: 1.5rem; height: 1.5rem;"></i>
+                    <div class="small text-truncate">${iconName}</div>
+                </button>
+            </div>
+        `);
+    });
+    
+    window.lucide?.createIcons?.();
+    
+    $('.icon-option').on('click', function() {
+        $('.icon-option').removeClass('active');
+        $(this).addClass('active');
+    });
 };
 
 const selectIcon = () => {

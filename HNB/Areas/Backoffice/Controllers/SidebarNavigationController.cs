@@ -23,7 +23,7 @@ public class SidebarNavigationController(SidebarNavigationService sev) : BaseCon
     public IActionResult LoadDetail(int id)
     {
         var result = sev.LoadNavigationById(id);
-        return PartialView("_NavigationModal", result);
+        return PartialView("_NavigationManagementModal", result);
     }
 
     /// <summary>

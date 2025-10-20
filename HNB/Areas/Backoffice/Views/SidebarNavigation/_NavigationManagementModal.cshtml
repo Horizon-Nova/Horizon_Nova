@@ -20,11 +20,11 @@
                 </div>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="關閉"></button>
             </div>
-            
+
             <div class="modal-body p-4">
                 <form id="navAddForm">
                     <input type="hidden" id="navAddId" name="id" value="">
-                    
+
                     <!-- 基本資訊 -->
                     <div class="bg-light rounded p-4 mb-4">
                         <h6 class="fw-semibold text-dark mb-3 d-flex align-items-center gap-2">
@@ -38,7 +38,7 @@
                                 </label>
                                 <input type="text" id="navAddTitle" name="title" class="form-control" placeholder="請輸入目錄名稱" required>
                             </div>
-                            
+
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold text-dark">
                                     目錄代碼 <span class="text-danger">*</span>
@@ -46,7 +46,7 @@
                                 <input type="text" id="navAddCode" name="code" class="form-control" placeholder="例如: dashboard" required>
                                 <div class="form-text">唯一識別碼，僅英文小寫與底線</div>
                             </div>
-                            
+
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold text-dark">圖標</label>
                                 <div class="position-relative">
@@ -57,11 +57,11 @@
                                            style="background-color: #f8f9fa; cursor: pointer;" onclick="openIconPicker()">
                                     <button type="button" class="btn btn-link position-absolute top-50 end-0 translate-middle-y me-2 p-0" onclick="openIconPicker()">
                                         <i data-lucide="search" style="width: 1rem; height: 1rem; color: #2563eb;"></i>
-                </button>
-            </div>
+                                    </button>
+                                </div>
                                 <div class="form-text">點擊選擇 Lucide 圖標</div>
                             </div>
-                            
+
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold text-dark">上層目錄</label>
                                 <select id="navAddParent" name="parent_code" class="form-select">
@@ -69,18 +69,18 @@
                                 </select>
                                 <div class="form-text">僅顯示根目錄作為選項</div>
                             </div>
-                            
+
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold text-dark">排序順序</label>
                                 <input type="number" id="navAddSort" name="sort_order" class="form-control" value="0">
                                 <div class="form-text">數字越小越前面</div>
                             </div>
-                            
+
                             <div class="col-12">
                                 <label class="form-label fw-semibold text-dark">路徑 URL</label>
                                 <input type="text" id="navAddUrl" name="url" class="form-control" placeholder="/Backoffice/Dashboard/Index 或 https://example.com">
                                 <div class="form-text">
-                                    內部路徑：<code class="bg-light px-1 rounded small">/Backoffice/...</code> 
+                                    內部路徑：<code class="bg-light px-1 rounded small">/Backoffice/...</code>
                                     或完整 URL：<code class="bg-light px-1 rounded small">https://...</code> 將自動在新標籤頁開啟。留空表示僅為分類項目。
                                 </div>
                             </div>
@@ -105,7 +105,7 @@
                     </div>
                 </form>
             </div>
-            
+
             <div class="modal-footer bg-light">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                 <button type="button" class="btn btn-primary" onclick="saveNavigation('add')">儲存</button>
@@ -129,13 +129,13 @@
                     </div>
                 </div>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="關閉"></button>
-        </div>
-        
+            </div>
+
             <div class="modal-body p-4">
                 <form id="navEditForm">
                     <input type="hidden" id="navEditId" name="id" value="@(model.id?.ToString() ?? "")">
-                    
-                <!-- 基本資訊 -->
+
+                    <!-- 基本資訊 -->
                     <div class="bg-light rounded p-4 mb-4">
                         <h6 class="fw-semibold text-dark mb-3 d-flex align-items-center gap-2">
                             <i data-lucide="info" style="width: 1rem; height: 1rem; color: #2563eb;"></i>
@@ -145,67 +145,67 @@
                             <div class="col-12">
                                 <label class="form-label fw-semibold text-dark">
                                     目錄名稱 <span class="text-danger">*</span>
-                            </label>
+                                </label>
                                 <input type="text" id="navEditTitle" name="title" class="form-control" placeholder="請輸入目錄名稱" value="@(model.title ?? "")" required>
-                        </div>
-                        
+                            </div>
+
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold text-dark">
                                     目錄代碼 <span class="text-danger">*</span>
-                            </label>
+                                </label>
                                 <input type="text" id="navEditCode" name="code" class="form-control" placeholder="例如: dashboard" value="@(model.code ?? "")" required>
                                 <div class="form-text">唯一識別碼，僅英文小寫與底線</div>
-                        </div>
-                        
+                            </div>
+
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold text-dark">圖標</label>
                                 <div class="position-relative">
                                     <div id="navEditIconPreview" class="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted">
-                                    @if (!string.IsNullOrEmpty(model.icon))
-                                    {
+                                        @if (!string.IsNullOrEmpty(model.icon))
+                                        {
                                             <i data-lucide="@(model.icon ?? "")" style="width: 1rem; height: 1rem; color: #6b7280;"></i>
-                                    }
-                                    else
-                                    {
+                                        }
+                                        else
+                                        {
                                             <i data-lucide="image" style="width: 1rem; height: 1rem;"></i>
-                                    }
-                                </div>
+                                        }
+                                    </div>
                                     <input type="text" id="navEditIcon" name="icon" class="form-control ps-5 pe-5" placeholder="例如: home" value="@(model.icon ?? "")" readonly
                                            style="background-color: #f8f9fa; cursor: pointer;" onclick="openIconPicker()">
                                     <button type="button" class="btn btn-link position-absolute top-50 end-0 translate-middle-y me-2 p-0" onclick="openIconPicker()">
                                         <i data-lucide="search" style="width: 1rem; height: 1rem; color: #2563eb;"></i>
-                                </button>
-                            </div>
+                                    </button>
+                                </div>
                                 <div class="form-text">點擊選擇 Lucide 圖標</div>
-                        </div>
-                        
+                            </div>
+
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold text-dark">上層目錄</label>
                                 <select id="navEditParent" name="parent_code" class="form-select">
-                                <option value="">無（第一層目錄）</option>
-                                @* 選項將通過 JavaScript 動態載入 *@
-                            </select>
+                                    <option value="">無（第一層目錄）</option>
+                                    @* 選項將通過 JavaScript 動態載入 *@
+                                </select>
                                 <div class="form-text">僅顯示根目錄作為選項</div>
-                        </div>
-                        
+                            </div>
+
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold text-dark">排序順序</label>
                                 <input type="number" id="navEditSort" name="sort_order" class="form-control" value="@(model.sort_order ?? 0)">
                                 <div class="form-text">數字越小越前面</div>
-                        </div>
-                        
+                            </div>
+
                             <div class="col-12">
                                 <label class="form-label fw-semibold text-dark">路徑 URL</label>
                                 <input type="text" id="navEditUrl" name="url" class="form-control" placeholder="/Backoffice/Dashboard/Index 或 https://example.com" value="@(model.url ?? "")">
                                 <div class="form-text">
-                                    內部路徑：<code class="bg-light px-1 rounded small">/Backoffice/...</code> 
+                                    內部路徑：<code class="bg-light px-1 rounded small">/Backoffice/...</code>
                                     或完整 URL：<code class="bg-light px-1 rounded small">https://...</code> 將自動在新標籤頁開啟。留空表示僅為分類項目。
                                 </div>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- 狀態設定 -->
+                    <!-- 狀態設定 -->
                     <div class="bg-light rounded p-4">
                         <h6 class="fw-semibold text-dark mb-3 d-flex align-items-center gap-2">
                             <i data-lucide="toggle-right" style="width: 1rem; height: 1rem; color: #7c3aed;"></i>
@@ -218,12 +218,12 @@
                             </div>
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox" id="navEditIsActive" name="is_active" @(model.is_active == true ? "checked" : "")>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </form>
-        </div>
-        
+                </form>
+            </div>
+
             <div class="modal-footer bg-light">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                 <button type="button" class="btn btn-primary" onclick="saveNavigation('edit')">儲存</button>
@@ -247,11 +247,11 @@
                     </div>
                 </div>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="關閉"></button>
-        </div>
-        
+            </div>
+
             <div class="modal-body p-4">
                 <div class="row g-4">
-                <!-- 基本資訊 -->
+                    <!-- 基本資訊 -->
                     <div class="col-12">
                         <div class="bg-light rounded p-4">
                             <h6 class="fw-semibold text-dark mb-3 d-flex align-items-center gap-2">
@@ -262,11 +262,11 @@
                                 <div class="col-md-6">
                                     <label class="form-label fw-medium text-muted">目錄名稱</label>
                                     <p class="fw-semibold text-dark mb-0">@(model.title ?? "-")</p>
-                        </div>
+                                </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-medium text-muted">目錄代碼</label>
                                     <p class="text-dark font-monospace mb-0">@(model.code ?? "-")</p>
-                        </div>
+                                </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-medium text-muted">圖標</label>
                                     <div class="d-flex align-items-center gap-2">
@@ -280,16 +280,16 @@
                                             <i data-lucide="image" style="width: 1.25rem; height: 1.25rem;" class="text-muted"></i>
                                             <span class="text-muted">未設定</span>
                                         }
-                            </div>
-                        </div>
+                                    </div>
+                                </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-medium text-muted">狀態</label>
-                        <div>
+                                    <div>
                                         <span class="badge @(model.is_active == true ? "bg-success" : "bg-danger")">
-                                    @(model.is_active == true ? "啟用" : "停用")
-                                </span>
-                            </div>
-                        </div>
+                                            @(model.is_active == true ? "啟用" : "停用")
+                                        </span>
+                                    </div>
+                                </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-medium text-muted">上層目錄</label>
                                     <p class="text-dark mb-0">@(model.parent_code ?? "無（第一層目錄）")</p>
@@ -297,43 +297,43 @@
                                 <div class="col-md-6">
                                     <label class="form-label fw-medium text-muted">排序順序</label>
                                     <p class="text-dark mb-0">@(model.sort_order ?? 0)</p>
-                        </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-                
-                <!-- 路徑資訊 -->
+
+                    <!-- 路徑資訊 -->
                     <div class="col-12">
                         <div class="bg-light rounded p-4">
                             <h6 class="fw-semibold text-dark mb-3 d-flex align-items-center gap-2">
                                 <i data-lucide="link" style="width: 1rem; height: 1rem; color: #7c3aed;"></i>
                                 路徑資訊
                             </h6>
-                    <div>
+                            <div>
                                 <label class="form-label fw-medium text-muted">路徑 URL</label>
-                        @if (!string.IsNullOrEmpty(model.url))
-                        {
+                                @if (!string.IsNullOrEmpty(model.url))
+                                {
                                     var url = model.url ?? "";
                                     <div class="d-flex align-items-center gap-2">
                                         <p class="text-dark mb-0 text-break">@url</p>
-                                        @if (url.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || 
-                                             url.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+                                        @if (url.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                                       url.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
                                         {
                                             <span class="badge bg-warning text-dark d-flex align-items-center gap-1">
                                                 <i data-lucide="external-link" style="width: 0.75rem; height: 0.75rem;"></i>外部連結
-                                    </span>
+                                            </span>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <p class="text-muted mb-0">無連結（分類項目）</p>
                                 }
                             </div>
-                        }
-                        else
-                        {
-                                    <p class="text-muted mb-0">無連結（分類項目）</p>
-                        }
-                            </div>
+                        </div>
                     </div>
-                </div>
-                
-                <!-- 系統資訊 -->
+
+                    <!-- 系統資訊 -->
                     <div class="col-12">
                         <div class="bg-light rounded p-4">
                             <h6 class="fw-semibold text-dark mb-3 d-flex align-items-center gap-2">
@@ -348,13 +348,13 @@
                                 <div class="col-md-6">
                                     <label class="form-label fw-medium text-muted">更新時間</label>
                                     <p class="text-dark mb-0">@(model.updated_at?.ToString("yyyy-MM-dd HH:mm:ss") ?? "-")</p>
-                        </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        
+
             <div class="modal-footer bg-light">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
             </div>
@@ -377,32 +377,32 @@
                     </div>
                 </div>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="關閉"></button>
-        </div>
-        
+            </div>
+
             <div class="modal-body p-4">
                 <input type="hidden" id="deleteNavId" value="@(model.id?.ToString() ?? "")">
-                
+
                 <div class="alert alert-danger d-flex align-items-start gap-3" role="alert">
                     <i data-lucide="alert-triangle" style="width: 1.5rem; height: 1.5rem; flex-shrink: 0;" class="mt-1"></i>
                     <div class="flex-grow-1">
                         <h6 class="fw-semibold mb-2">警告：此操作無法復原</h6>
                         <p class="mb-0 small">刪除此目錄後，所有相關數據將永久移除且無法恢復。</p>
-            </div>
-        </div>
-        
+                    </div>
+                </div>
+
                 <div class="bg-light rounded p-4 mb-4">
                     <h6 class="fw-semibold text-dark mb-3">即將刪除的目錄</h6>
                     <div class="row g-3">
                         <div class="col-12">
                             <label class="form-label fw-medium text-muted">目錄名稱</label>
                             <p class="fw-semibold text-dark mb-0">@(model.title ?? "-")</p>
-            </div>
+                        </div>
                         <div class="col-12">
                             <label class="form-label fw-medium text-muted">目錄代碼</label>
                             <p class="text-dark font-monospace mb-0">@(model.code ?? "-")</p>
-        </div>
-    </div>
-</div>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="bg-light rounded p-4">
                     <h6 class="fw-semibold text-dark mb-3">確認刪除</h6>
@@ -410,35 +410,12 @@
                         請輸入目錄代碼 <code class="bg-white px-2 py-1 rounded text-danger fw-semibold">@(model.code ?? "")</code> 以確認刪除：
                     </p>
                     <input type="text" id="deleteConfirmInput" class="form-control" placeholder="請輸入目錄代碼" oninput="validateDeleteInput()">
+                </div>
             </div>
-        </div>
-        
+
             <div class="modal-footer bg-light">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                 <button type="button" id="btnConfirmDelete" class="btn btn-danger" onclick="confirmDelete()" disabled>確認刪除</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-<!-- 圖標選擇器模態框 -->
-<div id="icon-picker-modal" class="modal fade" tabindex="-1" aria-labelledby="iconPickerModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title fw-bold">選擇圖標</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
-            </div>
-            
-            <div class="modal-body p-4">
-                <div class="row g-3" id="iconGrid">
-                    <!-- 圖標將通過 JavaScript 動態載入 -->
-            </div>
-        </div>
-        
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-primary" onclick="selectIcon()">選擇</button>
             </div>
         </div>
     </div>

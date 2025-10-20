@@ -203,12 +203,12 @@ public class ExampleService(ExampleRepository repo)
 
     #region 輔助方法
     
-    // 复杂的業務邏輯
+    // 複雜的業務邏輯
     public (bool success, string message) ProcessBusinessLogic(...)
     {
         var data = LoadTable1(id);
         if (data == null)
-            return (false, "數据不存在");
+            return (false, "資料不存在");
         
         // 業務邏輯處理
         // ...
@@ -552,13 +552,14 @@ public User UpdateLoginInfo(int userId, string ip) { ... }
 ## 語言與文案規範
 
 ### 語系（強制）
-- 專案文件、UI 文案、註解一律使用繁體中文（zh-TW）。
+- 專案文件、UI 文案、註解、對話一律使用繁體中文（zh-TW）。
 - 程式碼中的識別名稱（類別/方法/變數）保持英文；人類可讀的文字（畫面標題、提示、錯誤訊息、註解）使用繁體中文。
 
 ### 文案風格
 - 用詞一致、正式、避免口語；量詞、標點依照中文書寫習慣。
 - 錯誤訊息應清楚指出原因與建議（例如：「上傳失敗：檔案超過 50MB 上限」）。
 - 禁止在正式文案中出現簡體中文或英文混雜（必要專有名詞除外）。
+- **禁止使用 Emoji**：專案文件、程式碼註解、UI 文案、提交訊息等一律不使用表情符號，保持專業與正式。
 
 ### 多語需求
 - 若未來需要國際化，統一使用資源檔（.resx）並以 zh-TW 為主檔，其他語系再加分支資源檔。
@@ -567,78 +568,406 @@ public User UpdateLoginInfo(int userId, string ip) { ... }
 
 ## 前端彈出視窗（Modal）規範
 
-本規範統一彈出視窗的結構、命名與開關 API，避免「只能開一次」「捲軸不恢復」等問題。實作依據：`HNB/wwwroot/Backoffice/js/Modal.js`（v2.0），測試頁：`HNB/Areas/Backoffice/Views/Test/ModalTest.cshtml`。
+本規範統一彈出視窗的結構、命名與開關 API，避免「只能開一次」「捲軸不恢復」等問題。實作依據：`HNB/wwwroot/Backoffice/js/Modal.js`（v5.1）。
 
 ### JS API（唯一）
-- `showModal(modalId, options)`：開啟指定 ID 的 Modal
+- `showModal(modalId, options)`：開啟指定 ID 的 Modal（支援靜態顯示與 AJAX 載入）
 - `closeModal(modalId)`：關閉指定 ID 的 Modal
 
 使用規則：只允許上述兩個函數；請勿使用 jQuery `.show()`/`.hide()` 或自訂 `showXxxModal()`/`closeXxxModal()`。
 
-**推薦使用方式：直接在 HTML 中寫 `onclick`**
+### 使用方式
+
+#### 場景 1：靜態 Modal（頁面已有內容）
 ```html
-<!-- ✅ 推薦：直接在 HTML 中寫 onclick -->
+<!-- 直接顯示 Modal -->
 <button onclick="showModal('myModal')">開啟模態框</button>
 
+<div id="myModal" class="modal fade" tabindex="-1">
+    <!-- Modal 內容 -->
+</div>
+```
+
+#### 場景 2：動態 Modal（AJAX 載入 PartialView）
+```html
+<!-- AJAX 載入後顯示 -->
 <button onclick="showModal('editModal', {
-    url: '/Backoffice/User/GetUser/123',
+    url: '/Backoffice/User/LoadDetail',
     method: 'GET',
-    onLoad: function(data) {
-        $('#userName').val(data.name);
-        $('#userEmail').val(data.email);
-    }
-})">載入資料</button>
+    data: { id: 123 },
+    container: 'modalContainer'
+})">編輯使用者</button>
+
+<!-- Modal 容器 -->
+<div id="modalContainer">
+    <!-- PartialView 將載入到這裡 -->
+</div>
+```
+
+#### 參數說明
+| 參數 | 類型 | 必填 | 說明 |
+|------|------|------|------|
+| `modalId` | string | | Modal 的 ID |
+| `options.url` | string | X| AJAX 請求 URL |
+| `options.method` | string | X| HTTP 方法（預設 `GET`） |
+| `options.data` | object | X| 請求資料 |
+| `options.container` | string | X| 要替換內容的容器 ID（預設與 `modalId` 相同） |
+
+**重要：** 當指定 `container` 時，`showModal` 會：
+1. 使用 AJAX 載入 PartialView
+2. 將 HTML 內容替換到 `#container` 容器中
+3. 顯示 `#modalId` 的 Modal
+
+#### 完整範例（NavigationManagement.js）
+```javascript
+// 便捷函數：顯示編輯 Modal
+const showEditModal = (id) => showModal('nav-edit-modal', {
+    url: '/Backoffice/SidebarNavigation/LoadDetail',
+    method: 'GET',
+    data: { id: id },
+    container: 'navigationModals'  // 替換整個容器
+});
+
+// 靜態 Modal：直接顯示
+const openIconPicker = () => {
+    loadIconsFromAPI();
+    showModal('icon-picker-modal');
+};
 ```
 
 ### HTML 結構要求（必要）
-- Modal 容器需具備：
-  - 唯一 `id`
-  - 類別必含 `fixed` 與 `hidden`
-  - 建議遮罩：`inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center`
-- 內容容器建議：白底、圓角、陰影，並設定最大高度與 `overflow-y-auto`
-- 關閉按鈕需呼叫 `closeModal('yourId')`
 
-範例（最小可用）：
+Modal 使用 **Bootstrap Modal** 標準結構：
 
+#### 最小可用範例
 ```html
-<div id="userFormModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-  <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden">
-    <div class="px-6 py-4 bg-gradient-to-r from-slate-700 to-slate-800 text-white flex justify-between items-center">
-      <h3 class="text-lg font-bold">標題</h3>
-      <button type="button" onclick="closeModal('userFormModal')"><i data-lucide="x" class="w-5 h-5"></i></button>
+<!-- Modal 容器 -->
+<div id="myModal" class="modal fade" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <!-- 標題列 -->
+            <div class="modal-header">
+                <h5 class="modal-title">標題</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+            </div>
+            
+            <!-- 內容區 -->
+            <div class="modal-body">
+                <p>Modal 內容</p>
+            </div>
+            
+            <!-- 按鈕區 -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary">確認</button>
+            </div>
+        </div>
     </div>
-    <div class="p-6 overflow-y-auto" style="max-height: calc(90vh - 140px);">
-      <!-- 內容區 -->
-    </div>
-    <div class="px-6 py-4 bg-slate-50 border-t flex justify-end gap-3">
-      <button type="button" onclick="closeModal('userFormModal')" class="px-4 py-2 bg-slate-200 rounded-lg">取消</button>
-    </div>
-  </div>
 </div>
-<!-- 觸發 -->
-<button onclick="showModal('userFormModal')">開啟</button>
+
+<!-- 觸發按鈕 -->
+<button onclick="showModal('myModal')" class="btn btn-primary">開啟 Modal</button>
+```
+
+#### 結構說明
+| 元素 | 類別 | 必要 | 說明 |
+|------|------|------|------|
+| 外層容器 | `.modal .fade` | | Modal 主容器，需有唯一 `id` |
+| 對話框 | `.modal-dialog` | | 控制寬度與位置 |
+| 內容容器 | `.modal-content` | | 實際內容區域 |
+| 標題列 | `.modal-header` | X| 標題與關閉按鈕 |
+| 內容區 | `.modal-body` | | 主要內容 |
+| 按鈕區 | `.modal-footer` | X| 操作按鈕 |
+
+#### 尺寸選項
+```html
+<!-- 小型 -->
+<div class="modal-dialog modal-sm">...</div>
+
+<!-- 標準（預設） -->
+<div class="modal-dialog">...</div>
+
+<!-- 大型 -->
+<div class="modal-dialog modal-lg">...</div>
+
+<!-- 超大型 -->
+<div class="modal-dialog modal-xl">...</div>
+
+<!-- 置中顯示 -->
+<div class="modal-dialog modal-dialog-centered">...</div>
+
+<!-- 可滾動內容 -->
+<div class="modal-dialog modal-dialog-scrollable">...</div>
 ```
 
 ### ID 命名規範（建議）
-- 表單：`{feature}FormModal`（如：`userFormModal`）
-- 詳情：`{feature}DetailModal`
-- 說明：`{feature}-help`
-- 確認：`{action}-modal`（如：`delete-modal`）
-- 預覽：`{feature}PreviewModal`
+```javascript
+// 表單 Modal
+'user-form-modal', 'nav-add-modal', 'nav-edit-modal'
 
-### 關閉互動與鍵盤
-- 支援 ESC：自動關閉最上層 Modal（已於 `Modal.js` 內建）
-- 關閉方式：X 按鈕、取消按鈕、遮罩點擊（若有實作）均需呼叫 `closeModal()`
+// 詳情 Modal
+'user-detail-modal', 'nav-detail-modal'
 
-### 多層 Modal 與捲軸
-- 當存在任一顯示中的 Modal，`body` 會鎖定捲動；全部關閉後自動恢復（`Modal.js` 內建）
+// 確認 Modal
+'delete-modal', 'nav-delete-modal'
 
-### 事件冒泡
-- 若按鈕位於可關閉區域內，請使用 `event.stopPropagation()` 再呼叫 `showModal/closeModal`
+// 選擇器 Modal
+'icon-picker-modal', 'file-picker-modal'
 
-### 範例參考
-- 完整樣式與測試流程：`HNB/Areas/Backoffice/Views/Test/ModalTest.cshtml`
-- JS 實作與命名建議：`HNB/wwwroot/Backoffice/js/Modal.js`
+// 說明 Modal
+'navigation-help', 'user-help'
+```
+
+### 關閉方式
+Bootstrap Modal 支援多種關閉方式：
+
+```html
+<!-- 方式 1：使用 data-bs-dismiss（推薦） -->
+<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+
+<!-- 方式 2：呼叫 closeModal() -->
+<button type="button" class="btn btn-secondary" onclick="closeModal('myModal')">取消</button>
+
+<!-- 方式 3：ESC 鍵（自動支援） -->
+<!-- 按下 ESC 會自動關閉最上層 Modal -->
+
+<!-- 方式 4：點擊背景遮罩（需配置） -->
+<!-- Modal.js 預設使用 backdrop: 'static'，不支援點擊背景關閉 -->
+```
+
+### 多層 Modal 與捲軸管理
+- `Modal.js` 自動管理 `body` 捲動鎖定
+- 開啟任一 Modal 時，`body` 會鎖定捲動
+- 關閉所有 Modal 後，自動恢復 `body` 捲動
+
+### 自動功能
+以下功能由 `Modal.js` 自動處理，無需額外程式碼：
+- Lucide 圖標重新初始化
+- Body 捲動鎖定/恢復
+- ESC 鍵關閉最上層 Modal
+- Bootstrap Modal 事件監聽
+- 開啟 Modal 追蹤管理
+
+### 檔案命名與架構規範（強制）
+
+#### 命名格式
+```
+主畫面：{PageName}.cshtml
+Modal 檔案：_{PageName}Modal.cshtml
+```
+
+**重要：** 所有 Modal 集中在**一個檔案**中，不要拆分成多個檔案。
+
+#### 標準架構範例
+
+**主畫面：NavigationManagement.cshtml**
+```cshtml
+@{
+    var allNavigations = ViewBag.Navigations as List<vw_sidebar_navigation>;
+}
+
+<!-- 動態 Modal 容器（會被 AJAX 重新載入）-->
+<div id="navigationModals">
+    @await Html.PartialAsync("_NavigationManagementModal", new vw_sidebar_navigation())
+</div>
+
+<!-- 靜態 Modal（不會被 AJAX 重新載入）-->
+<div id="icon-picker-modal" class="modal fade">
+    <div class="modal-body">
+        <div id="iconGrid"></div>
+    </div>
+</div>
+
+<!-- 頁面內容 -->
+<button onclick="showModal('nav-add-modal')">新增</button>
+<button onclick="showEditModal(123)">編輯</button>
+<button onclick="showModal('icon-picker-modal')">選擇圖標</button>
+```
+
+**Modal 檔案：_NavigationManagementModal.cshtml**
+```cshtml
+@model vw_sidebar_navigation
+@{
+    var model = Model ?? new vw_sidebar_navigation();
+}
+
+<!-- 新增 Modal（使用空數據）-->
+<div id="nav-add-modal" class="modal fade">
+    <form>
+        <input type="text" name="title" value="" />
+    </form>
+</div>
+
+<!-- 編輯 Modal（使用 model 數據）-->
+<div id="nav-edit-modal" class="modal fade">
+    <form>
+        <input type="text" name="title" value="@(model.title ?? "")" />
+    </form>
+</div>
+
+<!-- 詳情 Modal（使用 model 數據）-->
+<div id="nav-detail-modal" class="modal fade">
+    <p>@(model.title ?? "-")</p>
+</div>
+
+<!-- 刪除確認 Modal（使用 model 數據）-->
+<div id="nav-delete-modal" class="modal fade">
+    <p>確認刪除：@(model.title ?? "")</p>
+</div>
+
+<!-- 注意：icon-picker-modal 不在這裡，因為它是完全靜態的，放在主畫面中 -->
+```
+
+#### 核心設計模式（重要）
+
+**這是簡化開發的關鍵設計，雖然不常見，但非常有效：**
+
+1. **一個檔案包含所有需要數據的 Modal**
+   - 新增、編輯、詳情、刪除等需要 Model 數據的 Modal 放在 PartialView 中
+   - 易於維護和管理
+
+2. **通過 `@model` 控制內容**
+   - 頁面初始載入：傳入空 model（用於新增 Modal）
+   - 需要數據時：通過 AJAX 重新載入並傳入特定 model
+
+3. **AJAX 重新載入整個 Modal 容器**
+   - 不是只載入單個 Modal，而是重新載入整個容器
+   - 雖然看似"浪費"，但實際上簡化了架構
+
+4. **完全靜態的 Modal 放在主畫面**（重要例外）
+   - 如圖標選擇器、顏色選擇器等**通用且不需要數據**的 Modal
+   - 應該放在主畫面中，避免被 AJAX 重新載入覆蓋
+   - 這樣可以保持其狀態（例如已載入的圖標列表）
+
+**區分標準：**
+- 需要 `@model` 數據 → 放在 `_NavigationManagementModal.cshtml`
+- 完全靜態/通用 → 放在主畫面 `NavigationManagement.cshtml`
+
+#### 工作流程
+
+**步驟 1：頁面初始載入**
+```cshtml
+<!-- 主畫面載入時 -->
+<div id="navigationModals">
+    @await Html.PartialAsync("_NavigationManagementModal", new vw_sidebar_navigation())
+</div>
+
+<!-- 結果：所有 Modal 都已存在，但編輯/詳情/刪除 Modal 是空數據 -->
+```
+
+**步驟 2：新增操作（不需要 AJAX）**
+```javascript
+// 直接顯示已存在的 Modal（空數據正好符合新增需求）
+showModal('nav-add-modal');
+```
+
+**步驟 3：編輯操作（需要 AJAX 載入數據）**
+```javascript
+// 通過 AJAX 重新載入整個容器，並傳入特定數據
+const showEditModal = (id) => showModal('nav-edit-modal', {
+    url: '/Backoffice/SidebarNavigation/LoadDetail',
+    method: 'GET',
+    data: { id: id },
+    container: 'navigationModals'  // 替換整個容器
+});
+
+// Modal.js 執行：
+// 1. AJAX GET LoadDetail(id)
+// 2. Controller 返回 PartialView("_NavigationManagementModal", model)
+// 3. 將 HTML 替換到 #navigationModals
+// 4. 顯示 #nav-edit-modal
+```
+
+**步驟 4：Controller 實作**
+```csharp
+/// <summary>
+/// 載入 Modal（通用：編輯、詳情、刪除都用這個）
+/// </summary>
+public IActionResult LoadDetail(int id)
+{
+    var model = service.LoadNavigationById(id);
+    return PartialView("_NavigationManagementModal", model);
+}
+```
+
+#### 設計優點
+
+1. **集中管理**
+   - 所有 Modal HTML 在一個檔案中
+   - 修改樣式或結構只需改一個檔案
+
+2. **簡化 Controller**
+   - 只需要一個 `LoadDetail` 方法
+   - 不需要為每個 Modal 建立單獨的 Action
+
+3. **簡化 JavaScript**
+   - 不需要複雜的數據填充邏輯
+   - Modal 內容由伺服器端渲染
+
+4. **型別安全**
+   - 使用強型別 `@model`
+   - 編譯時期檢查
+
+5. **易於維護**
+   - Modal 之間共用相同的 Model
+   - 欄位變更只需修改一次
+
+#### 常見誤解
+
+**誤解 1：每次都重新載入所有 Modal 會影響效能**
+- 實際上：Modal 的 HTML 很小，網路傳輸成本極低
+- 優點：避免複雜的狀態管理和數據同步
+
+**誤解 2：應該為每個 Modal 建立獨立的 PartialView**
+- 實際上：這會導致重複程式碼和維護困難
+- 正確做法：使用同一個模板根據數據動態顯示
+
+**誤解 3：這種做法不符合 RESTful 原則**
+- 實際上：這是 MVC PartialView 的標準用法
+- GET 請求獲取 HTML 片段是常見且合理的設計
+
+#### 錯誤範例
+
+**錯誤 1：拆分成多個檔案**
+```
+主畫面：NavigationManagement.cshtml
+
+Modal 檔案：
+- _NavigationManagementEditModal.cshtml     ← 錯誤：不要拆分
+- _NavigationManagementDetailModal.cshtml   ← 錯誤：不要拆分
+- _NavigationManagementDeleteModal.cshtml   ← 錯誤：不要拆分
+```
+
+**錯誤 2：為每個 Modal 建立專用的 Controller Action**
+```csharp
+// 錯誤：不需要這麼多 Action
+public IActionResult LoadEditModal(int id) { }
+public IActionResult LoadDetailModal(int id) { }
+public IActionResult LoadDeleteModal(int id) { }
+
+// 正確：只需要一個
+public IActionResult LoadDetail(int id) { }
+```
+
+**錯誤 3：檔案名稱不包含完整的主畫面名稱**
+```
+主畫面：NavigationManagement.cshtml
+Modal 檔案：_NavigationModal.cshtml    ← 錯誤：缺少 Management
+正確：_NavigationManagementModal.cshtml
+```
+
+### 實際範例參考
+- **完整實作**：`HNB/wwwroot/Backoffice/js/Modal.js` (v5.1)
+- **使用範例**：`HNB/wwwroot/Backoffice/js/NavigationManagement.js`
+- **HTML 範例**：`HNB/Areas/Backoffice/Views/SidebarNavigation/_NavigationManagementModal.cshtml`
+- **頁面範例**：`HNB/Areas/Backoffice/Views/SidebarNavigation/NavigationManagement.cshtml`
+
+### 重要提示
+
+**Lucide 圖標初始化時機：**
+- Modal.js 會在 Modal 完全顯示後（`shown.bs.modal` 事件）自動初始化 Lucide 圖標
+- 不需要在頁面 JavaScript 中手動調用 `lucide.createIcons()`
+- 這確保圖標在 Modal 可見時才初始化，避免初始化失敗
 
 ---
 
@@ -686,7 +1015,7 @@ public User UpdateLoginInfo(int userId, string ip) { ... }
 ```
 
 ```javascript
-// ✅ 正確：不需手動判斷，required 會自動檢查
+// 正確：不需手動判斷，required 會自動檢查
 function saveNavigation() {
     const formData = $('#navForm').serialize();
     $.ajax({
@@ -705,12 +1034,12 @@ function saveNavigation() {
     });
 }
 
-// ❌ 錯誤：不要手動判斷空值
+// X錯誤：不要手動判斷空值
 function saveNavigation() {
     const title = $('#navTitle').val();
     const code = $('#navCode').val();
     
-    // ❌ 完全不需要這些判斷
+    // X完全不需要這些判斷
     if (!title || !code) {
         alert('請填寫必填欄位');
         return;
@@ -751,7 +1080,7 @@ function saveNavigation() {
 
 ```javascript
 function submitForm() {
-    const formData = $("#FormId").serialize();  // ✅ 自動帶 Token
+    const formData = $("#FormId").serialize();  // 自動帶 Token
     $.ajax({
         type: 'POST',
         url: '@Url.Action("ActionName", "ControllerName")',
@@ -779,7 +1108,7 @@ function submitData() {
         id: 1,
         name: '測試',
         isActive: true,
-        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()  // ✅ 手動加入
+        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()  // 手動加入
     };
     
     $.ajax({
@@ -809,7 +1138,7 @@ function uploadFile() {
     const formData = new FormData();
     formData.append('file', $('#fileInput')[0].files[0]);
     formData.append('path', '/uploads');
-    formData.append('__RequestVerificationToken', $('input[name="__RequestVerificationToken"]').val());  // ✅ 手動加入
+    formData.append('__RequestVerificationToken', $('input[name="__RequestVerificationToken"]').val());  // 手動加入
     
     $.ajax({
         type: 'POST',
@@ -889,17 +1218,22 @@ function downloadFile(id) {
 
 **核心原則：** 統一使用 jQuery 語法，**禁止混用原生 JavaScript DOM 操作**。
 
+**適用範圍：** 
+- 所有 JavaScript 檔案（包括 `Modal.js`、`NavigationManagement.js` 等）
+- 頁面專屬腳本（View 中的 `<script>` 標籤）
+- 所有自定義元件與函數
+
 #### 元素選取與操作
 
 ```javascript
-// ✅ 正確：統一使用 jQuery
+// 正確：統一使用 jQuery
 const value = $('#inputId').val();
 $('#elementId').text('新文字');
 $('#elementId').html('<strong>HTML</strong>');
 $('#checkboxId').prop('checked', true);
 $('#selectId').val('option1');
 
-// ❌ 錯誤：不要使用 document.getElementById
+// X錯誤：不要使用 document.getElementById
 const value = document.getElementById('inputId').value;
 document.getElementById('elementId').textContent = '新文字';
 document.getElementById('elementId').innerHTML = '<strong>HTML</strong>';
@@ -909,29 +1243,29 @@ document.getElementById('checkboxId').checked = true;
 #### 事件綁定
 
 ```javascript
-// ✅ 正確：使用 jQuery .on()
+// 正確：使用 jQuery .on()
 $('#buttonId').on('click', () => { ... });
 $('#inputId').on('input', applyFilters);
 $('#selectId').on('change', loadData);
 
-// ❌ 錯誤：不要使用 addEventListener
+// X錯誤：不要使用 addEventListener
 document.getElementById('buttonId').addEventListener('click', () => { ... });
 ```
 
 #### 表單操作
 
 ```javascript
-// ✅ 正確：使用 jQuery 方法
+// 正確：使用 jQuery 方法
 $('#formId')[0]?.reset();              // 重置表單
 const formData = $('#formId').serialize();  // 序列化
 
-// ❌ 錯誤：混用原生方法
+// X錯誤：混用原生方法
 document.getElementById('formId').reset();
 ```
 
 ### 規範要求
 
-✅ **DO（正確做法）**
+**DO（正確做法）**
 - **統一使用 jQuery 語法** - `$('#id')` 取代 `document.getElementById()`
 - 統一使用 `$.ajax()` 格式
 - 使用 `@Url.Action()` 生成 URL（或直接寫 `/Area/Controller/Action`）
@@ -946,7 +1280,7 @@ document.getElementById('formId').reset();
 - 檔案上傳設定 `processData: false, contentType: false`，並在 FormData 中 `append('__RequestVerificationToken', ...)`
 - 表單序列化（`serialize()`）自動包含 Token，無需手動處理
 
-❌ **DON'T（錯誤做法）**
+X**DON'T（錯誤做法）**
 - **絕對不要使用 `document.getElementById()`、`document.querySelector()` 等原生方法**
 - **絕對不要在 JavaScript 中手動判斷空值**（如：`if (!title) { alert('...'); return; }`）
 - 不要混用 `fetch()`、`XMLHttpRequest`、`axios` 等其他方式（檔案下載除外）
@@ -1218,7 +1552,7 @@ public List<string> QueryUserNavigationPermissions(string userName)
     permissions.AddRange(new[] { "dashboard", "profile" });
     
     var user = db.users.Where(u => u.name == userName).FirstOrDefault();
-    // ... 复杂的权限计算邏輯
+    // ... 複雜的權限計算邏輯
     
     return permissions.Distinct().ToList();
 }
@@ -1228,6 +1562,21 @@ public List<string> QueryUserNavigationPermissions(string userName)
 ---
 
 ## 版本历史
+
+- **v1.3.1** (2025-10-20) - Modal.js 圖標初始化修正
+  - 升級 `Modal.js` 至 v5.1：修正 Lucide 圖標初始化時機
+  - Lucide 圖標改在 `shown.bs.modal` 事件後初始化，確保 Modal 完全可見
+  - 新增靜態 Modal 規範：完全靜態的 Modal（如圖標選擇器）應放在主畫面而非 PartialView
+  - 更新設計模式說明：區分需要數據的 Modal 與完全靜態的 Modal
+
+- **v1.3** (2025-10-20) - Modal.js 升級與 jQuery 規範強化
+  - 升級 `Modal.js` 至 v5.0：支援靜態與動態 AJAX 載入兩種模式
+  - 統一使用 jQuery 語法：禁止混用原生 JavaScript DOM 操作
+  - 採用 Bootstrap Modal API：標準化 Modal 結構與行為
+  - 新增 Modal AJAX 載入參數：`url`、`method`、`data`、`container`
+  - 更新 Modal 規範：完整的使用範例與參數說明
+  - 強制要求：所有 DOM 操作必須使用 jQuery（`$('#id')` 而非 `document.getElementById()`）
+  - 範例更新：`NavigationManagement.js` 完全符合新規範
 
 - **v1.2** (2025-10-19) - 前端規範與安全性強化
   - 新增「ViewBag 與 Model 規範」：限定 ViewBag 僅傳唯一值，資料用強型別 Model

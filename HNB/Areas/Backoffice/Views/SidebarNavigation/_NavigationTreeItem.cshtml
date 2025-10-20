@@ -3,8 +3,8 @@
     var getChildren = ViewData["GetChildren"] as Func<string, List<Models.HnbHnbBackoffice.vw_sidebar_navigation>>;
     var children = getChildren?.Invoke(Model.code ?? "");
     var hasChildren = children?.Any() == true;
-    var isExternalLink = !string.IsNullOrEmpty(Model.url) && 
-        (Model.url.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || 
+    var isExternalLink = !string.IsNullOrEmpty(Model.url) &&
+        (Model.url.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
          Model.url.StartsWith("https://", StringComparison.OrdinalIgnoreCase));
 }
 
@@ -22,7 +22,7 @@
                 <div style="width: 1rem;" class="flex-shrink-0"></div>
             }
 
-            <div class="d-flex align-items-center justify-content-center rounded flex-shrink-0" 
+            <div class="d-flex align-items-center justify-content-center rounded flex-shrink-0"
                  style="width: 2.5rem; height: 2.5rem; background-color: #dbeafe;">
                 <i data-lucide="@(Model.icon ?? "folder")" class="text-primary" style="width: 1.25rem; height: 1.25rem;"></i>
             </div>
@@ -60,15 +60,15 @@
         </div>
 
         <div class="d-flex align-items-center gap-1 gap-lg-2 flex-shrink-0 nav-item-actions">
-            <button type="button" onclick="showDetailModal(@Model.id)" 
+            <button type="button" onclick="showDetailModal(@Model.id)"
                     class="btn btn-sm p-2" style="color: #6366f1;" title="查看詳情">
                 <i data-lucide="eye" style="width: 1rem; height: 1rem;"></i>
             </button>
-            <button type="button" onclick="showEditModal(@Model.id)" 
+            <button type="button" onclick="showEditModal(@Model.id)"
                     class="btn btn-sm p-2 text-primary" title="編輯">
                 <i data-lucide="edit" style="width: 1rem; height: 1rem;"></i>
             </button>
-            <button type="button" onclick="showDeleteModal(@Model.id)" 
+            <button type="button" onclick="showDeleteModal(@Model.id)"
                     class="btn btn-sm p-2 text-danger" title="刪除">
                 <i data-lucide="trash-2" style="width: 1rem; height: 1rem;"></i>
             </button>
