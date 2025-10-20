@@ -18,24 +18,22 @@ public class SidebarNavigationController(SidebarNavigationService sev) : BaseCon
     }
 
     /// <summary>
-    /// 載入導航詳情（JSON）
+    /// 載入導航資料（通用：詳情、編輯、刪除都用這個）
     /// </summary>
-    [HttpGet]
     public IActionResult LoadDetail(int id)
     {
         var result = sev.LoadNavigationById(id);
-        return Json(result);
+        return PartialView("_NavigationModal", result);
     }
 
     /// <summary>
     /// 載入上層目錄選項
     /// </summary>
-    [HttpGet]
     public IActionResult LoadParentOptions()
     {
         var navigations = sev.LoadAllNavigations();
         var options = navigations
-            .Where(n => string.IsNullOrEmpty(n.parent_code)) // 只返回根目錄
+            .Where(n => string.IsNullOrEmpty(n.parent_code)) 
             .Select(n => new
             {
                 code = n.code,

@@ -570,10 +570,25 @@ public User UpdateLoginInfo(int userId, string ip) { ... }
 本規範統一彈出視窗的結構、命名與開關 API，避免「只能開一次」「捲軸不恢復」等問題。實作依據：`HNB/wwwroot/Backoffice/js/Modal.js`（v2.0），測試頁：`HNB/Areas/Backoffice/Views/Test/ModalTest.cshtml`。
 
 ### JS API（唯一）
-- `showModal(modalId)`：開啟指定 ID 的 Modal
+- `showModal(modalId, options)`：開啟指定 ID 的 Modal
 - `closeModal(modalId)`：關閉指定 ID 的 Modal
 
 使用規則：只允許上述兩個函數；請勿使用 jQuery `.show()`/`.hide()` 或自訂 `showXxxModal()`/`closeXxxModal()`。
+
+**推薦使用方式：直接在 HTML 中寫 `onclick`**
+```html
+<!-- ✅ 推薦：直接在 HTML 中寫 onclick -->
+<button onclick="showModal('myModal')">開啟模態框</button>
+
+<button onclick="showModal('editModal', {
+    url: '/Backoffice/User/GetUser/123',
+    method: 'GET',
+    onLoad: function(data) {
+        $('#userName').val(data.name);
+        $('#userEmail').val(data.email);
+    }
+})">載入資料</button>
+```
 
 ### HTML 結構要求（必要）
 - Modal 容器需具備：
@@ -646,34 +661,88 @@ public User UpdateLoginInfo(int userId, string ip) { ... }
 
 **重要：** Token 已在 `Program.cs` 全域啟用驗證，所有 POST/PUT/DELETE 請求都會自動檢查。Token 應加在 **請求 body** 中，不是 headers。
 
-### 表單驗證（HTML5 Required）
+### 表單驗證（HTML5 Required）（強制）
 
-使用 HTML5 的 `required` 屬性自動驗證，避免手動判斷。
+**核心原則：** 使用 HTML5 的 `required` 屬性自動驗證，**禁止在 JavaScript 中手動判斷空值**。
 
+#### 正確做法
 ```html
-<form id="myForm" onsubmit="submitForm(); return false;">
-    <label>
-        名稱 <span class="text-red-500">*</span>
+<!-- HTML：使用 required 屬性 -->
+<form id="navForm">
+    <label class="form-label fw-semibold">
+        目錄名稱 <span class="text-danger">*</span>
     </label>
-    <input type="text" name="Name" required placeholder="請輸入名稱">
+    <input type="text" id="navTitle" name="title" class="form-control" 
+           placeholder="請輸入目錄名稱" required>
     
-    <button type="submit">提交</button>
+    <label class="form-label fw-semibold">
+        目錄代碼 <span class="text-danger">*</span>
+    </label>
+    <input type="text" id="navCode" name="code" class="form-control" 
+           placeholder="例如: dashboard" required>
+    
+    <button type="button" onclick="saveNavigation()" class="btn btn-primary">儲存</button>
 </form>
 ```
 
 ```javascript
 // ✅ 正確：不需手動判斷，required 會自動檢查
-function submitForm() {
-    const formData = $("#myForm").serialize();
-    $.ajax({ ... });
+function saveNavigation() {
+    const formData = $('#navForm').serialize();
+    $.ajax({
+        type: 'POST',
+        url: '/Backoffice/Navigation/Submit',
+        data: formData,
+        success: function(response) {
+            if (response.success) {
+                alert('儲存成功');
+                location.reload();
+            } else {
+                alert(response.message || '儲存失敗');
+            }
+        },
+        error: () => alert('失敗，系統發生錯誤。')
+    });
 }
 
 // ❌ 錯誤：不要手動判斷空值
-function submitForm() {
-    const name = $('#nameInput').val();
-    if (!name) { alert('請輸入名稱'); return; }  // ❌ 多餘
+function saveNavigation() {
+    const title = $('#navTitle').val();
+    const code = $('#navCode').val();
+    
+    // ❌ 完全不需要這些判斷
+    if (!title || !code) {
+        alert('請填寫必填欄位');
+        return;
+    }
+    
     $.ajax({ ... });
 }
+```
+
+#### 進階：自訂驗證訊息（可選）
+
+```html
+<input type="text" name="title" required 
+       oninvalid="this.setCustomValidity('請輸入目錄名稱')"
+       oninput="this.setCustomValidity('')">
+```
+
+#### 其他驗證類型
+
+```html
+<!-- Email 驗證 -->
+<input type="email" name="email" required placeholder="請輸入 Email">
+
+<!-- 數字範圍驗證 -->
+<input type="number" name="sort_order" min="0" max="999" required>
+
+<!-- 長度驗證 -->
+<input type="text" name="code" required minlength="3" maxlength="50">
+
+<!-- 正則表達式驗證 -->
+<input type="text" name="code" required pattern="[a-z_]+" 
+       title="僅允許英文小寫與底線">
 ```
 
 ### 標準範本（表單序列化）
@@ -816,29 +885,79 @@ function downloadFile(id) {
 }
 ```
 
+### jQuery 使用規範（強制）
+
+**核心原則：** 統一使用 jQuery 語法，**禁止混用原生 JavaScript DOM 操作**。
+
+#### 元素選取與操作
+
+```javascript
+// ✅ 正確：統一使用 jQuery
+const value = $('#inputId').val();
+$('#elementId').text('新文字');
+$('#elementId').html('<strong>HTML</strong>');
+$('#checkboxId').prop('checked', true);
+$('#selectId').val('option1');
+
+// ❌ 錯誤：不要使用 document.getElementById
+const value = document.getElementById('inputId').value;
+document.getElementById('elementId').textContent = '新文字';
+document.getElementById('elementId').innerHTML = '<strong>HTML</strong>';
+document.getElementById('checkboxId').checked = true;
+```
+
+#### 事件綁定
+
+```javascript
+// ✅ 正確：使用 jQuery .on()
+$('#buttonId').on('click', () => { ... });
+$('#inputId').on('input', applyFilters);
+$('#selectId').on('change', loadData);
+
+// ❌ 錯誤：不要使用 addEventListener
+document.getElementById('buttonId').addEventListener('click', () => { ... });
+```
+
+#### 表單操作
+
+```javascript
+// ✅ 正確：使用 jQuery 方法
+$('#formId')[0]?.reset();              // 重置表單
+const formData = $('#formId').serialize();  // 序列化
+
+// ❌ 錯誤：混用原生方法
+document.getElementById('formId').reset();
+```
+
 ### 規範要求
 
 ✅ **DO（正確做法）**
+- **統一使用 jQuery 語法** - `$('#id')` 取代 `document.getElementById()`
 - 統一使用 `$.ajax()` 格式
-- 使用 `@Url.Action()` 生成 URL
-- 使用 HTML5 `required` 屬性驗證必填欄位，不要手動判斷空值
-- 按鈕使用 `type="submit"`，表單用 `onsubmit="functionName(); return false;"`
+- 使用 `@Url.Action()` 生成 URL（或直接寫 `/Area/Controller/Action`）
+- **使用 HTML5 `required` 屬性驗證必填欄位**，絕對不要在 JavaScript 中手動判斷空值
+- 所有必填欄位必須標記 `<span class="text-danger">*</span>`
 - 明確指定 `type: 'POST'`、`url:`、`data:`
+- 使用 `$('#formId').serialize()` 序列化表單資料
+- 使用 jQuery 方法：`.val()`、`.text()`、`.html()`、`.prop()`、`.on()`
 - 檢查 `response.success` 並顯示 `response.message`
-- 統一錯誤處理 `error: () => alert('...')`
+- 統一錯誤處理 `error: () => alert('失敗，系統發生錯誤。')`
 - JSON 請求明確設定 `contentType: 'application/json'`，並在資料物件中加入 `__RequestVerificationToken`
 - 檔案上傳設定 `processData: false, contentType: false`，並在 FormData 中 `append('__RequestVerificationToken', ...)`
 - 表單序列化（`serialize()`）自動包含 Token，無需手動處理
 
 ❌ **DON'T（錯誤做法）**
+- **絕對不要使用 `document.getElementById()`、`document.querySelector()` 等原生方法**
+- **絕對不要在 JavaScript 中手動判斷空值**（如：`if (!title) { alert('...'); return; }`）
 - 不要混用 `fetch()`、`XMLHttpRequest`、`axios` 等其他方式（檔案下載除外）
 - 不要使用 `$.post()` 或 `$.get()` 快捷方法
+- 不要使用 `.addEventListener()`（應用 `.on()`）
+- 不要使用 `.textContent`、`.innerHTML`、`.value`（應用 `.text()`、`.html()`、`.val()`）
 - 不要將 Token 放在 headers（應放在 request body）
-- 不要在 JS 中手動判斷空值（用 `required` 屬性）
 - 不要省略錯誤處理
 - 不要使用複雜的 Promise/async-await（保持簡單）
 - 不要在同一專案混用多種 AJAX 風格
-- 不要在按鈕上用 `onclick="submit()"`（應該用 `type="submit"` + form `onsubmit`）
+- 不要使用 `$('#input').val()` 來驗證（應用 `required` 屬性）
 
 ### Controller 回應格式
 

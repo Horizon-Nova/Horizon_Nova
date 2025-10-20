@@ -16,17 +16,17 @@
 @if (hasChildren)
 {
     <!-- 父項目 - 有子項目 -->
-    <div class="space-y-1">
-        <button type="button" 
-                class="w-full flex items-center gap-2 rounded-md px-3 py-2 text-slate-600 hover:bg-slate-100 nav-toggle"
+    <div class="mb-1">
+        <button type="button"
+                class="w-100 d-flex align-items-center rounded px-3 py-2 border-0 bg-transparent nav-item nav-toggle position-relative"
                 data-target="nav-children-@Model.id"
                 data-item-id="@Model.id">
-            <i data-lucide="@(Model.icon ?? "folder")" class="h-4 w-4 shrink-0"></i>
-            <span class="truncate flex-1 text-left" data-collapsed-target>@Model.title</span>
-            <i data-lucide="chevron-right" class="h-4 w-4 shrink-0 transition-transform nav-chevron"></i>
+            <i data-lucide="@(Model.icon ?? "folder")" style="width: 1rem; height: 1rem; flex-shrink: 0;"></i>
+            <span class="text-truncate text-start ms-2" data-collapsed-target>@Model.title</span>
+            <i data-lucide="chevron-right" class="nav-chevron-toggle position-absolute p-1" style="right: 0.75rem; transition: all 0.2s ease-in-out;"></i>
         </button>
         
-        <div id="nav-children-@Model.id" class="ml-6 space-y-1 hidden nav-children">
+        <div id="nav-children-@Model.id" class="nav-children hidden ms-3">
             @foreach (var child in children)
             {
                 @await Html.PartialAsync("_NavigationItem", child, ViewData)
@@ -42,30 +42,30 @@ else if (!string.IsNullOrEmpty(Model.url))
         <a href="@Model.url"
            target="_blank"
            rel="noopener noreferrer"
-           class="nav-item w-full flex items-center gap-2 rounded-md px-3 py-2 hover:bg-slate-100"
+           class="w-100 d-flex align-items-center gap-2 rounded px-3 py-2 text-decoration-none nav-item mb-1 position-relative"
            data-nav-url="@Model.url"
            title="在新標籤頁開啟">
-            <i data-lucide="@(Model.icon ?? "circle")" class="h-4 w-4 shrink-0"></i>
-            <span class="truncate flex-1" data-collapsed-target>@Model.title</span>
-            <i data-lucide="external-link" class="h-3 w-3 shrink-0 text-slate-400" data-collapsed-target></i>
+            <i data-lucide="@(Model.icon ?? "circle")" style="width: 1rem; height: 1rem; flex-shrink: 0;"></i>
+            <span class="text-truncate" data-collapsed-target>@Model.title</span>
+            <i data-lucide="external-link" class="text-muted position-absolute" style="width: 0.75rem; height: 0.75rem; right: 0.75rem;" data-collapsed-target></i>
         </a>
     }
     else
     {
         <!-- 內部連結 -->
         <a href="@Model.url"
-           class="nav-item w-full flex items-center gap-2 rounded-md px-3 py-2 hover:bg-slate-100"
+           class="w-100 d-flex align-items-center gap-2 rounded px-3 py-2 text-decoration-none nav-item mb-1"
            data-nav-url="@Model.url">
-            <i data-lucide="@(Model.icon ?? "circle")" class="h-4 w-4 shrink-0"></i>
-            <span class="truncate" data-collapsed-target>@Model.title</span>
+            <i data-lucide="@(Model.icon ?? "circle")" style="width: 1rem; height: 1rem; flex-shrink: 0;"></i>
+            <span class="text-truncate" data-collapsed-target>@Model.title</span>
         </a>
     }
 }
 else
 {
     <!-- 無連結的標題 -->
-    <div class="flex items-center gap-2 rounded-md px-3 py-2 text-slate-600">
-        <i data-lucide="@(Model.icon ?? "circle")" class="h-4 w-4 shrink-0"></i>
-        <span class="truncate" data-collapsed-target>@Model.title</span>
+    <div class="d-flex align-items-center gap-2 rounded px-3 py-2 text-muted mb-1">
+        <i data-lucide="@(Model.icon ?? "circle")" style="width: 1rem; height: 1rem; flex-shrink: 0;"></i>
+        <span class="text-truncate" data-collapsed-target>@Model.title</span>
     </div>
 }

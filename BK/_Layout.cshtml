@@ -9,7 +9,6 @@
     var userType = User.FindFirst("UserType")?.Value ?? "一般用戶";
     var userRole = User.FindFirst("Role")?.Value ?? userType;
     var displayName = !string.IsNullOrEmpty(fullName) ? fullName : currentUserName;
-    var avatarInitial = string.IsNullOrWhiteSpace(displayName) ? "?" : displayName.Substring(0, 1).ToUpper();
 }
 
 <!DOCTYPE html>
@@ -23,10 +22,8 @@
     <link rel="icon" type="image/png" href="~/HNB_WEB/image/Horizon Nova Icon.png">
     <link rel="shortcut icon" type="image/png" href="~/HNB_WEB/image/Horizon Nova Icon.png">
 
-    <!-- Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -35,42 +32,41 @@
     <script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     
-    <!-- DataTable Bootstrap -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <!-- DataTable -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.tailwindcss.min.css">
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.tailwindcss.min.js"></script>
 
     <!-- 自訂樣式 -->
     <link rel="stylesheet" href="~/Backoffice/css/Layout.css" />
     <link rel="stylesheet" href="~/Backoffice/css/DatabaseManagement.css" />
     <link rel="stylesheet" href="~/Backoffice/css/Wardrobe.css" />
-    
     <script src="~/Backoffice/js/Layout.js"></script>
     <script src="~/Backoffice/js/Modal.js"></script>
     <script src="~/Backoffice/js/DatabaseManagement.js"></script>
     <script src="~/Backoffice/js/Wardrobe.js"></script>
-</head>
-<body class="h-100">
 
-    <div class="d-flex h-100">
+</head>
+<body class="h-screen w-screen bg-gradient-to-br from-slate-50 to-blue-50 text-slate-900">
+
+    <div class="h-screen flex">
         <!-- Sidebar -->
         <aside id="sidebar"
-               class="bg-white border-end border-2 position-fixed position-lg-relative d-flex flex-column"
-               style="height: 100vh; z-index: 40;">
-            <div class="d-flex align-items-center justify-content-between px-3 border-bottom header-height">
-                <h2 class="mb-0 text-truncate fs-6" data-collapsed-target>
+               class="fixed lg:relative z-40 inset-y-0 left-0 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 bg-white border-r border-slate-200 w-64 lg:data-[collapsed=true]:w-16">
+            <div class="flex h-16 items-center justify-between px-4 border-b border-slate-200">
+                <h2 class="text-lg font-semibold truncate hidden lg:data-[collapsed=false]:block"
+                    data-collapsed-target>
                     管理系統
                 </h2>
                 <button id="btnToggleSidebar"
                         type="button"
-                        class="btn p-0 d-none d-lg-inline-flex align-items-center justify-content-center"
-                        style="width: 2rem; height: 2rem; border: none; background: transparent; color: #0f172a;"
+                        class="hidden lg:inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-slate-100"
                         title="收合/展開">
-                    <i id="iconChevron" data-lucide="chevron-left" style="width: 1rem; height: 1rem; transition: transform 0.2s ease-in-out;"></i>
+                    <i id="iconChevron" data-lucide="chevron-left" class="h-4 w-4"></i>
                 </button>
             </div>
 
-            <nav class="px-3 py-3 flex-grow-1" style="height: calc(100vh - 4rem); overflow-y: auto; overflow-x: hidden;">
+            <nav class="px-3 py-4 overflow-y-auto h-[calc(100vh-4rem)] space-y-2">
                 @{
                     var sidebarNavigation = ViewBag.SidebarNavigation as List<Models.HnbHnbBackoffice.vw_sidebar_navigation> ?? new List<Models.HnbHnbBackoffice.vw_sidebar_navigation>();
                     var rootItems = sidebarNavigation.Where(n => string.IsNullOrEmpty(n.parent_code)).OrderBy(n => n.sort_order).ToList();
@@ -85,70 +81,69 @@
                 }
                 else
                 {
-                    <!-- 預設導航項目（當沒有資料時） -->
                     <a href="@Url.Action("Index", "Dashboard", new { area = "Backoffice" })"
-                       class="w-100 d-flex align-items-center gap-2 rounded px-3 py-2 text-decoration-none nav-item mb-1">
-                        <i data-lucide="home" style="width: 1rem; height: 1rem; flex-shrink: 0;"></i>
-                        <span class="text-truncate" data-collapsed-target>儀表板</span>
+                       class="w-full flex items-center gap-2 rounded-md px-3 py-2 hover:bg-slate-100">
+                        <i data-lucide="home" class="h-4 w-4 shrink-0"></i>
+                        <span class="truncate" data-collapsed-target>儀表板</span>
                     </a>
                     
                     @if (ViewBag.SidebarError != null)
                     {
-                        <div class="px-3 py-2 text-danger small">
+                        <div class="px-3 py-2 text-xs text-red-600">
                             @ViewBag.SidebarError
                         </div>
                     }
                 }
+            
             </nav>
         </aside>
 
         <!-- Backdrop for mobile -->
-        <div id="sidebarBackdrop" class="sidebar-backdrop position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50" style="z-index: 30;"></div>
+        <div id="sidebarBackdrop" class="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden hidden"></div>
 
         <!-- Main -->
-        <div class="app-main flex-grow-1 d-flex flex-column overflow-hidden w-100">
+        <div class="flex-1 flex flex-col overflow-hidden w-full lg:w-auto">
             <!-- Header -->
-            <header class="border-bottom bg-white bg-opacity-95 header-height">
-                <div class="d-flex align-items-center justify-content-between p-4 h-100">
+            <header class="h-16 border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+                <div class="flex h-16 items-center justify-between px-4 lg:px-6">
                     <!-- Mobile menu button -->
                     <button id="btnMobileMenu"
                             type="button"
-                            class="btn btn-link p-0 d-lg-none d-inline-flex align-items-center justify-content-center"
-                            style="width: 2.5rem; height: 2.5rem; flex-shrink: 0;"
+                            class="lg:hidden h-10 w-10 inline-flex items-center justify-center rounded-md hover:bg-slate-100"
                             title="選單">
-                        <i data-lucide="menu" style="width: 1.25rem; height: 1.25rem;"></i>
+                        <i data-lucide="menu" class="h-5 w-5"></i>
                     </button>
                     
-                    <h1 class="fs-6 mb-0 text-truncate flex-grow-1 text-start" style="min-width: 0;">後台管理系統</h1>
-                    <div class="position-relative" style="flex-shrink: 0;">
+                    <h1 class="text-lg lg:text-xl font-semibold truncate">後台管理系統</h1>
+                    <div class="relative">
                         <button id="btnUserMenu"
                                 type="button"
-                                class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center"
-                                style="width: 2rem; height: 2rem;"
+                                class="relative h-8 w-8 rounded-full ring-1 ring-slate-200 bg-white flex items-center justify-center hover:bg-slate-50"
                                 aria-haspopup="menu"
                                 aria-expanded="false">
-                            <span class="small fw-medium">@avatarInitial</span>
+                            <span class="text-sm font-medium">
+                                @displayName.Substring(0, 1).ToUpper()
+                            </span>
                         </button>
                         <!-- Dropdown -->
                         <div id="userMenu"
-                             class="dropdown-menu position-absolute end-0 mt-2"
-                             style="width: 14rem; z-index: 50;"
+                             class="hidden absolute right-0 mt-2 w-56 rounded-md border border-slate-200 bg-white shadow-md p-2 z-50"
                              role="menu" aria-labelledby="btnUserMenu">
                             <div class="px-3 py-2">
-                                <p class="small fw-medium mb-0">@displayName</p>
-                                <p class="small text-muted mb-0">@userEmail</p>
-                                <p class="small text-muted mb-0 mt-1">角色: @userRole</p>
+                                <p class="text-sm font-medium leading-none">@displayName</p>
+                                <p class="text-xs leading-none text-slate-500">@userEmail</p>
+                                <p class="text-xs leading-none text-slate-500 mt-1">角色: @userRole</p>
                             </div>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item d-flex align-items-center gap-2" href="@Url.Action("Profile", "Backoffice", new { area = "Backoffice" })">
-                                <i data-lucide="user" style="width: 1rem; height: 1rem;"></i> 個人資料
+                            <div class="my-2 h-px bg-slate-200"></div>
+                            <a class="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-slate-100" href="@Url.Action("Profile", "Backoffice", new { area = "Backoffice" })">
+                                <i data-lucide="user" class="h-4 w-4"></i> 個人資料
                             </a>
-                            <div class="dropdown-divider"></div>
+                            <div class="my-2 h-px bg-slate-200"></div>
                             <form method="post" action="@Url.Action("Logout", "Authorize", new { area = "Backoffice" })">
                                 @Html.AntiForgeryToken()
                                 <button type="submit"
-                                        class="dropdown-item d-flex align-items-center gap-2 w-100 text-start border-0 bg-transparent">
-                                    <i data-lucide="log-out" style="width: 1rem; height: 1rem;"></i> 登出
+                                        class="w-full text-left flex items-center gap-2 px-3 py-2 rounded-md hover:bg-slate-100">
+                                    <i data-lucide="log-out" class="h-4 w-4"></i> 登出
                                 </button>
                             </form>
                         </div>
@@ -157,22 +152,22 @@
             </header>
 
             <!-- Content -->
-            <main class="flex-grow-1 overflow-auto p-3">
+            <main class="flex-1 overflow-auto p-4 lg:p-6">
                 <!-- Page Header -->
                 @if (ViewData["PageTitle"] != null || ViewData["PageDescription"] != null || ViewData["PageIcon"] != null)
                 {
-                    <header class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between mb-3 gap-3">
-                        <div class="w-100">
-                            <h1 class="fw-bold d-flex align-items-center" style="font-size: 1.5rem; gap: 0.5rem;">
+                    <header class="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-4 lg:mb-6 gap-3">
+                        <div class="w-full lg:w-auto">
+                            <h1 class="text-2xl lg:text-3xl font-bold flex items-center gap-2 lg:gap-3">
                                 @if (ViewData["PageIcon"] != null)
                                 {
-                                    <i data-lucide='@ViewData["PageIcon"]' style="width: 1.5rem; height: 1.5rem;"></i>
+                                    <i data-lucide="@ViewData["PageIcon"]" class="h-6 w-6 lg:h-8 lg:w-8"></i>
                                 }
-                                <span>@(ViewData["PageTitle"] ?? ViewData["Title"])</span>
+                                @(ViewData["PageTitle"] ?? ViewData["Title"])
                             </h1>
                             @if (ViewData["PageDescription"] != null)
                             {
-                                <p class="text-muted mb-0 mt-1 small">@ViewData["PageDescription"]</p>
+                                <p class="text-sm lg:text-base text-slate-500 mt-1">@ViewData["PageDescription"]</p>
                             }
                         </div>
                     </header>

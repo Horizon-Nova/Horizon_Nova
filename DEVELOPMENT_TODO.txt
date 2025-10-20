@@ -23,20 +23,28 @@ Horizon Nova 開發代辦清單
 
 中優先級
 --------
-1. refactor: 重構 Modal 表單樣式改用 Bootstrap
+1. refactor: 重構 NavigationManagement Modal 系統設計
+   問題：目前 Modal 設計過於複雜，使用 JSON 動態填充內容
+        違反「靜態 Modal + 簡化操作」的設計理念
+   範圍：_NavigationModal.cshtml、Modal.js、NavigationManagement.js
+        需要分開成獨立的 Modal：新增、編輯、詳情、刪除
+   說明：重新設計為靜態 Modal 內容，showModal 只負責發送請求顯示結果
+        移除複雜的 DOM 操作和 onLoad 回調函數
+
+2. refactor: 重構 Modal 表單樣式改用 Bootstrap
    問題：目前表單樣式偏向宣傳而非實用（漸層、圓角、過多圖示）
         間隔和畫風不適合表單操作
    範圍：PermissionManagement/_Detail.cshtml（使用者、角色、組織表單）
         考慮統一改為 Bootstrap 標準表單風格
    說明：目前 Tailwind 自製樣式過於花俏，Bootstrap 更適合企業後台
 
-2. fix: 優化既有的 45 個建置警告（Null 檢查、方法隱藏）
+3. fix: 優化既有的 45 個建置警告（Null 檢查、方法隱藏）
 
-3. test: 補充單元測試（Repository / Service 層）
+4. test: 補充單元測試（Repository / Service 層）
 
-4. docs: 審查其他 Area 規範（MISSA、HNB_WEB、Weather）
+5. docs: 審查其他 Area 規範（MISSA、HNB_WEB、Weather）
 
-5. docs: 建立 API 文件（Swagger）
+6. docs: 建立 API 文件（Swagger）
 
 低優先級
 --------

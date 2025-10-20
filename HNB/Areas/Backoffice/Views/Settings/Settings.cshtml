@@ -1,6 +1,6 @@
 @{
-    ViewData["Title"] = "系統管理 - 後台管理系統";
-    ViewData["PageTitle"] = "系統管理";
+    ViewData["Title"] = "系統設定";
+    ViewData["PageTitle"] = "系統設定";
     ViewData["PageDescription"] = "系統監控、日誌管理、快取清理和維護工具";
     ViewData["PageIcon"] = "settings";
     Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
@@ -8,189 +8,228 @@
 
 @await Html.PartialAsync("_SettingsModal")
 
-<section class="space-y-4 lg:space-y-6">
-
     <!-- 系統狀態卡片 -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
-        <div class="bg-white border rounded-lg p-3 lg:p-4">
-            <div class="flex items-center justify-between">
-                <div class="min-w-0 flex-1">
-                    <p class="text-xs lg:text-sm text-gray-600 truncate">系統狀態</p>
-                    <p id="systemStatus" class="text-lg lg:text-2xl font-bold truncate @(ViewBag.HardwareInfo?.is_active == true ? "text-green-600" : "text-red-600")">@(ViewBag.HardwareInfo?.is_active == true ? "運行中" : "停止")</p>
+<div class="row g-3 mb-3">
+    <div class="col-6 col-lg-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="flex-grow-1" style="min-width: 0;">
+                        <p class="text-muted small mb-1 text-truncate">系統狀態</p>
+                        <p id="systemStatus" class="fs-5 fw-bold mb-0 text-truncate @(ViewBag.HardwareInfo?.is_active == true ? "text-success" : "text-danger")">
+                            @(ViewBag.HardwareInfo?.is_active == true ? "運行中" : "停止")
+                        </p>
+                    </div>
+                    <i id="systemStatusIcon" data-lucide="activity" class="flex-shrink-0 @(ViewBag.HardwareInfo?.is_active == true ? "text-success" : "text-danger")" style="width: 2rem; height: 2rem;"></i>
                 </div>
-                <i id="systemStatusIcon" data-lucide="activity" class="h-6 w-6 lg:h-8 lg:w-8 flex-shrink-0 @(ViewBag.HardwareInfo?.is_active == true ? "text-green-500" : "text-red-500")"></i>
+                </div>
             </div>
         </div>
-        <div class="bg-white border rounded-lg p-4">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-gray-600">CPU 使用率</p>
-                    <p id="cpuUsage" class="text-2xl font-bold">@(ViewBag.HardwareInfo?.cpu_usage_percent?.ToString("F1") ?? "--")%</p>
+    
+    <div class="col-6 col-lg-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="flex-grow-1" style="min-width: 0;">
+                        <p class="text-muted small mb-1">CPU 使用率</p>
+                        <p id="cpuUsage" class="fs-5 fw-bold mb-0">@(ViewBag.HardwareInfo?.cpu_usage_percent?.ToString("F1") ?? "--")%</p>
+                    </div>
+                    <i data-lucide="cpu" class="text-primary flex-shrink-0" style="width: 2rem; height: 2rem;"></i>
                 </div>
-                <i data-lucide="cpu" class="h-8 w-8 text-blue-500"></i>
+                </div>
             </div>
         </div>
-        <div class="bg-white border rounded-lg p-4">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-gray-600">記憶體使用率</p>
-                    <p id="memoryUsage" class="text-2xl font-bold">@(ViewBag.HardwareInfo?.memory_usage_percent?.ToString("F1") ?? "--")%</p>
+    
+    <div class="col-6 col-lg-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="flex-grow-1" style="min-width: 0;">
+                        <p class="text-muted small mb-1">記憶體使用率</p>
+                        <p id="memoryUsage" class="fs-5 fw-bold mb-0">@(ViewBag.HardwareInfo?.memory_usage_percent?.ToString("F1") ?? "--")%</p>
+                    </div>
+                    <i data-lucide="memory-stick" class="text-purple flex-shrink-0" style="width: 2rem; height: 2rem; color: #9333ea;"></i>
                 </div>
-                <i data-lucide="memory-stick" class="h-8 w-8 text-purple-500"></i>
+                </div>
             </div>
         </div>
-        <div class="bg-white border rounded-lg p-4">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-gray-600">GPU 使用率</p>
-                    <p id="gpuUsage" class="text-2xl font-bold">@(ViewBag.HardwareInfo?.gpu_usage_percent?.ToString("F1") ?? "--")%</p>
+    
+    <div class="col-6 col-lg-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="flex-grow-1" style="min-width: 0;">
+                        <p class="text-muted small mb-1">GPU 使用率</p>
+                        <p id="gpuUsage" class="fs-5 fw-bold mb-0">@(ViewBag.HardwareInfo?.gpu_usage_percent?.ToString("F1") ?? "--")%</p>
+                    </div>
+                    <i data-lucide="monitor" class="text-warning flex-shrink-0" style="width: 2rem; height: 2rem;"></i>
                 </div>
-                <i data-lucide="monitor" class="h-8 w-8 text-orange-500"></i>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- 管理工具 -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+<div class="row g-3 mb-3">
         <!-- 日誌管理 -->
-        <div class="bg-white border rounded-xl p-4 lg:p-6">
-            <div class="flex items-center justify-between mb-3 lg:mb-4">
-                <h3 class="text-base lg:text-lg font-semibold flex items-center gap-2">
-                    <i data-lucide="file-text" class="h-4 w-4 lg:h-5 lg:w-5"></i>
-                    日誌管理
-                </h3>
-                <button type="button" class="text-xs lg:text-sm text-blue-600 hover:text-blue-800" onclick="refreshLogStats()">
-                    <i data-lucide="refresh-cw" class="h-3 w-3 lg:h-4 lg:w-4 inline mr-1"></i>刷新
+    <div class="col-12 col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h5 class="card-title mb-0 fw-semibold d-flex align-items-center gap-2">
+                        <i data-lucide="file-text" style="width: 1.25rem; height: 1.25rem;"></i>
+                        日誌管理
+                    </h5>
+                    <button type="button" class="btn btn-link btn-sm p-0 text-primary" onclick="refreshLogStats()">
+                        <i data-lucide="refresh-cw" style="width: 1rem; height: 1rem;" class="me-1"></i>刷新
                 </button>
             </div>
-             <div class="space-y-2 lg:space-y-3">
-                 <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between p-3 bg-gray-50 rounded-lg gap-2">
-                     <div class="flex-1 w-full lg:w-auto">
-                         <div class="flex items-center gap-2 mb-1">
-                             <p class="text-sm lg:text-base font-medium">錯誤日誌</p>
-                             <button type="button" id="error-help-btn" class="text-gray-400 hover:text-gray-600" onclick="event.stopPropagation(); showModal('error-help')">
-                                 <i data-lucide="help-circle" class="h-3 w-3 lg:h-4 lg:w-4"></i>
+                
+                <div class="d-flex flex-column gap-2">
+                    <!-- 錯誤日誌 -->
+                    <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between p-3 bg-light rounded gap-2">
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <p class="mb-0 fw-medium">錯誤日誌</p>
+                                <button type="button" class="btn btn-link btn-sm p-0 text-muted" onclick="event.stopPropagation(); showModal('error-help')">
+                                    <i data-lucide="help-circle" style="width: 1rem; height: 1rem;"></i>
                              </button>
                          </div>
-                         <p class="text-xs lg:text-sm text-gray-500" id="errorLogCount">@(ViewBag.ErrorLogsCount ?? 0) 條記錄</p>
+                            <p class="small text-muted mb-0" id="errorLogCount">@(ViewBag.ErrorLogsCount ?? 0) 條記錄</p>
                      </div>
-                     <div class="flex gap-2 w-full lg:w-auto">
-                         <button type="button" class="flex-1 lg:flex-none px-3 py-1 bg-red-100 text-red-700 rounded text-xs lg:text-sm hover:bg-red-200 whitespace-nowrap" onclick="clearLogs('error', false)">
+                        <div class="d-flex gap-2 ms-lg-auto">
+                            <button type="button" class="btn btn-sm" style="background-color: #fee2e2; color: #b91c1c; border: none;" onmouseover="this.style.backgroundColor='#fecaca'" onmouseout="this.style.backgroundColor='#fee2e2'" onclick="clearLogs('error', false)">
                              全部清理
                          </button>
-                         <button type="button" class="flex-1 lg:flex-none px-3 py-1 bg-orange-100 text-orange-700 rounded text-xs lg:text-sm hover:bg-orange-200 whitespace-nowrap" onclick="clearLogs('error', true)">
+                            <button type="button" class="btn btn-sm" style="background-color: #fed7aa; color: #c2410c; border: none;" onmouseover="this.style.backgroundColor='#fdba74'" onmouseout="this.style.backgroundColor='#fed7aa'" onclick="clearLogs('error', true)">
                              30天清理
                          </button>
                      </div>
                  </div>
-                 <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                     <div class="flex-1">
-                         <div class="flex items-center gap-2 mb-1">
-                             <p class="font-medium">系統日誌</p>
-                             <button type="button" id="system-help-btn" class="text-gray-400 hover:text-gray-600" onclick="event.stopPropagation(); showModal('system-help')">
-                                 <i data-lucide="help-circle" class="h-4 w-4"></i>
+                    
+                    <!-- 系統日誌 -->
+                    <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between p-3 bg-light rounded gap-2">
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <p class="mb-0 fw-medium">系統日誌</p>
+                                <button type="button" class="btn btn-link btn-sm p-0 text-muted" onclick="event.stopPropagation(); showModal('system-help')">
+                                    <i data-lucide="help-circle" style="width: 1rem; height: 1rem;"></i>
                              </button>
                          </div>
-                        <p class="text-sm text-gray-500" id="systemLogCount">@(ViewBag.AccessLogsCount ?? 0) 條記錄</p>
+                            <p class="small text-muted mb-0" id="systemLogCount">@(ViewBag.AccessLogsCount ?? 0) 條記錄</p>
                      </div>
-                     <div class="flex gap-2">
-                         <button type="button" class="px-3 py-1 bg-blue-100 text-blue-700 rounded text-sm hover:bg-blue-200" onclick="clearLogs('system', false)">
+                        <div class="d-flex gap-2 ms-lg-auto">
+                            <button type="button" class="btn btn-sm" style="background-color: #dbeafe; color: #1e40af; border: none;" onmouseover="this.style.backgroundColor='#bfdbfe'" onmouseout="this.style.backgroundColor='#dbeafe'" onclick="clearLogs('system', false)">
                              全部清理
                          </button>
-                         <button type="button" class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded text-sm hover:bg-indigo-200" onclick="clearLogs('system', true)">
+                            <button type="button" class="btn btn-sm" style="background-color: #e0e7ff; color: #4338ca; border: none;" onmouseover="this.style.backgroundColor='#c7d2fe'" onmouseout="this.style.backgroundColor='#e0e7ff'" onclick="clearLogs('system', true)">
                              30天清理
                          </button>
                      </div>
                  </div>
-                 <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                     <div class="flex-1">
-                         <div class="flex items-center gap-2 mb-1">
-                             <p class="font-medium">存取日誌</p>
-                             <button type="button" id="access-help-btn" class="text-gray-400 hover:text-gray-600" onclick="event.stopPropagation(); showModal('access-help')">
-                                 <i data-lucide="help-circle" class="h-4 w-4"></i>
+                    
+                    <!-- 存取日誌 -->
+                    <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between p-3 bg-light rounded gap-2">
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <p class="mb-0 fw-medium">存取日誌</p>
+                                <button type="button" class="btn btn-link btn-sm p-0 text-muted" onclick="event.stopPropagation(); showModal('access-help')">
+                                    <i data-lucide="help-circle" style="width: 1rem; height: 1rem;"></i>
                              </button>
                          </div>
-                         <p class="text-sm text-gray-500" id="accessLogCount">@(ViewBag.AccessLogsCount ?? 0) 條記錄</p>
+                            <p class="small text-muted mb-0" id="accessLogCount">@(ViewBag.AccessLogsCount ?? 0) 條記錄</p>
                      </div>
-                     <div class="flex gap-2">
-                         <button type="button" class="px-3 py-1 bg-green-100 text-green-700 rounded text-sm hover:bg-green-200" onclick="clearLogs('access', false)">
+                        <div class="d-flex gap-2 ms-lg-auto">
+                            <button type="button" class="btn btn-sm" style="background-color: #d1fae5; color: #065f46; border: none;" onmouseover="this.style.backgroundColor='#a7f3d0'" onmouseout="this.style.backgroundColor='#d1fae5'" onclick="clearLogs('access', false)">
                              全部清理
                          </button>
-                         <button type="button" class="px-3 py-1 bg-teal-100 text-teal-700 rounded text-sm hover:bg-teal-200" onclick="clearLogs('access', true)">
+                            <button type="button" class="btn btn-sm" style="background-color: #ccfbf1; color: #115e59; border: none;" onmouseover="this.style.backgroundColor='#99f6e4'" onmouseout="this.style.backgroundColor='#ccfbf1'" onclick="clearLogs('access', true)">
                              30天清理
                          </button>
+                        </div>
+                    </div>
                      </div>
                  </div>
              </div>
         </div>
 
         <!-- 快取管理 -->
-        <div class="bg-white border rounded-xl p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold flex items-center gap-2">
-                    <i data-lucide="database" class="h-5 w-5"></i>
-                    快取管理
-                </h3>
-                <button type="button" class="text-sm text-blue-600 hover:text-blue-800" onclick="refreshCacheStats()">
-                    <i data-lucide="refresh-cw" class="h-4 w-4 inline mr-1"></i>刷新
+    <div class="col-12 col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h5 class="card-title mb-0 fw-semibold d-flex align-items-center gap-2">
+                        <i data-lucide="database" style="width: 1.25rem; height: 1.25rem;"></i>
+                        快取管理
+                    </h5>
+                    <button type="button" class="btn btn-link btn-sm p-0 text-primary" onclick="refreshCacheStats()">
+                        <i data-lucide="refresh-cw" style="width: 1rem; height: 1rem;" class="me-1"></i>刷新
                 </button>
             </div>
-             <div class="space-y-3">
-                 <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                     <div class="flex-1">
-                         <div class="flex items-center gap-2 mb-1">
-                             <p class="font-medium">記憶體快取</p>
-                             <button type="button" id="memory-help-btn" class="text-gray-400 hover:text-gray-600" onclick="event.stopPropagation(); showModal('memory-help')">
-                                 <i data-lucide="help-circle" class="h-4 w-4"></i>
+                
+                <div class="d-flex flex-column gap-2">
+                    <!-- 記憶體快取 -->
+                    <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between p-3 bg-light rounded gap-2">
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <p class="mb-0 fw-medium">記憶體快取</p>
+                                <button type="button" class="btn btn-link btn-sm p-0 text-muted" onclick="event.stopPropagation(); showModal('memory-help')">
+                                    <i data-lucide="help-circle" style="width: 1rem; height: 1rem;"></i>
                              </button>
                          </div>
-                         <p class="text-sm text-gray-500" id="memoryCacheSize">@(ViewBag.MemoryCacheSize != null ? $"{ViewBag.MemoryCacheSize / (1024 * 1024):F1} MB" : "--")</p>
+                            <p class="small text-muted mb-0" id="memoryCacheSize">@(ViewBag.MemoryCacheSize != null ? $"{ViewBag.MemoryCacheSize / (1024 * 1024):F1} MB" : "--")</p>
                      </div>
-                     <div class="flex gap-2">
-                         <button type="button" class="px-3 py-1 bg-purple-100 text-purple-700 rounded text-sm hover:bg-purple-200" onclick="clearCache('memory', false)">
+                        <div class="d-flex gap-2 ms-lg-auto">
+                            <button type="button" class="btn btn-sm" style="background-color: #e9d5ff; color: #6b21a8; border: none;" onmouseover="this.style.backgroundColor='#d8b4fe'" onmouseout="this.style.backgroundColor='#e9d5ff'" onclick="clearCache('memory', false)">
                              全部清理
                          </button>
-                         <button type="button" class="px-3 py-1 bg-pink-100 text-pink-700 rounded text-sm hover:bg-pink-200" onclick="clearCache('memory', true)">
+                            <button type="button" class="btn btn-sm" style="background-color: #fce7f3; color: #9f1239; border: none;" onmouseover="this.style.backgroundColor='#fbcfe8'" onmouseout="this.style.backgroundColor='#fce7f3'" onclick="clearCache('memory', true)">
                              30天清理
                          </button>
                      </div>
                  </div>
-                 <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                     <div class="flex-1">
-                         <div class="flex items-center gap-2 mb-1">
-                             <p class="font-medium">資料庫快取</p>
-                             <button type="button" id="database-help-btn" class="text-gray-400 hover:text-gray-600" onclick="event.stopPropagation(); showModal('database-help')">
-                                 <i data-lucide="help-circle" class="h-4 w-4"></i>
+                    
+                    <!-- 資料庫快取 -->
+                    <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between p-3 bg-light rounded gap-2">
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <p class="mb-0 fw-medium">資料庫快取</p>
+                                <button type="button" class="btn btn-link btn-sm p-0 text-muted" onclick="event.stopPropagation(); showModal('database-help')">
+                                    <i data-lucide="help-circle" style="width: 1rem; height: 1rem;"></i>
                              </button>
                          </div>
-                         <p class="text-sm text-gray-500" id="databaseCacheSize">@(ViewBag.CacheEntries ?? 0) 個條目</p>
+                            <p class="small text-muted mb-0" id="databaseCacheSize">@(ViewBag.CacheEntries ?? 0) 個條目</p>
                      </div>
-                     <div class="flex gap-2">
-                         <button type="button" class="px-3 py-1 bg-blue-100 text-blue-700 rounded text-sm hover:bg-blue-200" onclick="clearCache('database', false)">
+                        <div class="d-flex gap-2 ms-lg-auto">
+                            <button type="button" class="btn btn-sm" style="background-color: #dbeafe; color: #1e40af; border: none;" onmouseover="this.style.backgroundColor='#bfdbfe'" onmouseout="this.style.backgroundColor='#dbeafe'" onclick="clearCache('database', false)">
                              全部清理
                          </button>
-                         <button type="button" class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded text-sm hover:bg-indigo-200" onclick="clearCache('database', true)">
+                            <button type="button" class="btn btn-sm" style="background-color: #e0e7ff; color: #4338ca; border: none;" onmouseover="this.style.backgroundColor='#c7d2fe'" onmouseout="this.style.backgroundColor='#e0e7ff'" onclick="clearCache('database', true)">
                              30天清理
                          </button>
                      </div>
                  </div>
-                 <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                     <div class="flex-1">
-                         <div class="flex items-center gap-2 mb-1">
-                             <p class="font-medium">檔案快取</p>
-                             <button type="button" id="file-help-btn" class="text-gray-400 hover:text-gray-600" onclick="event.stopPropagation(); showModal('file-help')">
-                                 <i data-lucide="help-circle" class="h-4 w-4"></i>
+                    
+                    <!-- 檔案快取 -->
+                    <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between p-3 bg-light rounded gap-2">
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <p class="mb-0 fw-medium">檔案快取</p>
+                                <button type="button" class="btn btn-link btn-sm p-0 text-muted" onclick="event.stopPropagation(); showModal('file-help')">
+                                    <i data-lucide="help-circle" style="width: 1rem; height: 1rem;"></i>
                              </button>
                          </div>
-                         <p class="text-sm text-gray-500" id="fileCacheSize">最後清理：@(ViewBag.LastCacheCleared?.ToString("yyyy-MM-dd HH:mm") ?? "未知")</p>
+                            <p class="small text-muted mb-0" id="fileCacheSize">最後清理：@(ViewBag.LastCacheCleared?.ToString("yyyy-MM-dd HH:mm") ?? "未知")</p>
                      </div>
-                     <div class="flex gap-2">
-                         <button type="button" class="px-3 py-1 bg-green-100 text-green-700 rounded text-sm hover:bg-green-200" onclick="clearCache('file', false)">
+                        <div class="d-flex gap-2 ms-lg-auto">
+                            <button type="button" class="btn btn-sm" style="background-color: #d1fae5; color: #065f46; border: none;" onmouseover="this.style.backgroundColor='#a7f3d0'" onmouseout="this.style.backgroundColor='#d1fae5'" onclick="clearCache('file', false)">
                              全部清理
                          </button>
-                         <button type="button" class="px-3 py-1 bg-amber-100 text-amber-700 rounded text-sm hover:bg-amber-200" onclick="clearCache('file', true)">
+                            <button type="button" class="btn btn-sm" style="background-color: #fef3c7; color: #92400e; border: none;" onmouseover="this.style.backgroundColor='#fde68a'" onmouseout="this.style.backgroundColor='#fef3c7'" onclick="clearCache('file', true)">
                              30天清理
                          </button>
+                        </div>
+                    </div>
                      </div>
                  </div>
              </div>
@@ -198,271 +237,210 @@
     </div>
 
     <!-- 系統維護工具 -->
-    <div class="bg-white border rounded-xl p-4 lg:p-6">
-        <h3 class="text-base lg:text-lg font-semibold flex items-center gap-2 mb-3 lg:mb-4">
-            <i data-lucide="wrench" class="h-4 w-4 lg:h-5 lg:w-5"></i>
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body p-3">
+        <h5 class="card-title fw-semibold d-flex align-items-center gap-2 mb-3">
+            <i data-lucide="wrench" style="width: 1.25rem; height: 1.25rem;"></i>
             系統維護工具
-        </h3>
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 lg:gap-4">
-            <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between p-3 lg:p-4 border rounded-lg gap-3">
-                <div class="flex-1">
-                    <p class="text-sm lg:text-base font-medium">維護模式</p>
-                    <p class="text-xs lg:text-sm text-gray-500">暫時關閉網站進行維護</p>
+        </h5>
+        <div class="row g-3">
+            <div class="col-12 col-lg-4">
+                <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between p-3 border rounded gap-3">
+                    <div class="flex-grow-1">
+                        <p class="fw-medium mb-1">維護模式</p>
+                        <p class="small text-muted mb-0">暫時關閉網站進行維護</p>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="maintenanceMode" onchange="toggleMaintenanceMode()" style="width: 3rem; height: 1.5rem; cursor: pointer;">
+                    </div>
                 </div>
-                <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" class="sr-only peer" id="maintenanceMode" onchange="toggleMaintenanceMode()">
-                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                </label>
             </div>
-            <div class="flex items-center justify-between p-4 border rounded-lg">
-                <div>
-                    <p class="font-medium">資料庫優化</p>
-                    <p class="text-sm text-gray-500">清理和優化資料庫</p>
+            <div class="col-12 col-lg-4">
+                <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between p-3 border rounded gap-3">
+                    <div class="flex-grow-1">
+                        <p class="fw-medium mb-1">資料庫優化</p>
+                        <p class="small text-muted mb-0">清理和優化資料庫</p>
                 </div>
-                <button type="button" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" onclick="optimizeDatabase()">
+                    <button type="button" class="btn btn-primary btn-sm" onclick="optimizeDatabase()">
                     執行優化
                 </button>
             </div>
-            <div class="flex items-center justify-between p-4 border rounded-lg">
-                <div>
-                    <p class="font-medium">系統重啟</p>
-                    <p class="text-sm text-gray-500">重新啟動應用程式</p>
+            </div>
+            <div class="col-12 col-lg-4">
+                <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between p-3 border rounded gap-3">
+                    <div class="flex-grow-1">
+                        <p class="fw-medium mb-1">系統重啟</p>
+                        <p class="small text-muted mb-0">重新啟動應用程式</p>
                 </div>
-                <button type="button" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700" onclick="restartApplication()">
+                    <button type="button" class="btn btn-danger btn-sm" onclick="restartApplication()">
                     重啟系統
                 </button>
             </div>
         </div>
     </div>
-
-     <!-- 最近活動 -->
-     <div class="bg-white border rounded-xl p-6">
-         <h3 class="text-lg font-semibold flex items-center gap-2 mb-4">
-             <i data-lucide="activity" class="h-5 w-5"></i>
-             最近活動
-         </h3>
-         <div class="space-y-3">
-             @if (!string.IsNullOrEmpty("硬體監控檢查"))
-             {
-                 <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                     <div class="p-2 @("硬體監控檢查" == "系統啟動" ? "bg-green-100" : "硬體監控檢查" == "快取更新" ? "bg-blue-100" : "bg-yellow-100") rounded-lg">
-                         <i data-lucide="@("硬體監控檢查" == "系統啟動" ? "check-circle" : "硬體監控檢查" == "快取更新" ? "refresh-cw" : "alert-triangle")" class="h-4 w-4 @("硬體監控檢查" == "系統啟動" ? "text-green-600" : "硬體監控檢查" == "快取更新" ? "text-blue-600" : "text-yellow-600")"></i>
-                     </div>
-                     <div class="flex-1">
-                         <p class="text-sm font-medium">硬體監控檢查</p>
-                         <p class="text-xs text-gray-500">系統硬體狀態檢查</p>
-                     </div>
-                     <span class="text-xs text-gray-400">
-                        @if (ViewBag.HardwareInfo?.last_check_time != null)
-                        {
-                            var timeDiff = DateTime.Now - ViewBag.HardwareInfo.last_check_time;
-                            if (timeDiff.TotalMinutes < 1)
-                            {
-                                <text>剛剛</text>
-                            }
-                            else if (timeDiff.TotalMinutes < 60)
-                            {
-                                <text>@((int)timeDiff.TotalMinutes) 分鐘前</text>
-                            }
-                            else if (timeDiff.TotalHours < 24)
-                            {
-                                <text>@((int)timeDiff.TotalHours) 小時前</text>
-                            }
-                            else
-                            {
-                                <text>@((int)timeDiff.TotalDays) 天前</text>
-                            }
-                        }
-                        else
-                        {
-                            <text>未知時間</text>
-                        }
-                    </span>
-                 </div>
-             }
-             else
-             {
-                 <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                     <div class="p-2 bg-gray-100 rounded-lg">
-                         <i data-lucide="info" class="h-4 w-4 text-gray-600"></i>
-                     </div>
-                     <div class="flex-1">
-                         <p class="text-sm font-medium">暫無活動記錄</p>
-                         <p class="text-xs text-gray-500">系統尚未記錄任何活動</p>
-                     </div>
-                     <span class="text-xs text-gray-400">--</span>
-                 </div>
-             }
-             
-             @* 如果有 recent_activities JSON 資料，可以在這裡解析並顯示 *@
-             @if (!string.IsNullOrEmpty(""))
-             {
-                 <div class="text-xs text-gray-500 mt-2">
-                     <i data-lucide="info" class="h-3 w-3 inline mr-1"></i>
-                     更多活動記錄請查看系統日誌
-                 </div>
-             }
-         </div>
-     </div>
-
-     <!-- 快速操作 -->
-     <div class="bg-white border rounded-xl p-6">
-         <h3 class="text-lg font-semibold flex items-center gap-2 mb-4">
-             <i data-lucide="zap" class="h-5 w-5"></i>
-             快速操作
-         </h3>
-         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-             <button type="button" class="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50 transition-colors" onclick="systemHealth()">
-                 <i data-lucide="heart" class="h-6 w-6 text-pink-500 mb-2"></i>
-                 <span class="text-sm font-medium">系統健康檢查</span>
-                 <span class="text-xs text-gray-500">檢查系統狀態</span>
-             </button>
-             <button type="button" class="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50 transition-colors" onclick="exportLogs()">
-                 <i data-lucide="download" class="h-6 w-6 text-blue-500 mb-2"></i>
-                 <span class="text-sm font-medium">匯出日誌</span>
-                 <span class="text-xs text-gray-500">下載所有日誌</span>
-             </button>
-             <button type="button" class="flex flex-col items-center p-4 border rounded-lg hover:bg-gray-50 transition-colors" onclick="clearAllCache()">
-                 <i data-lucide="trash-2" class="h-6 w-6 text-red-500 mb-2"></i>
-                 <span class="text-sm font-medium">清理所有快取</span>
-                 <span class="text-xs text-gray-500">清除全部快取</span>
-             </button>
          </div>
      </div>
 
      <!-- 硬體資訊 -->
-     <div class="bg-white border rounded-xl p-4 lg:p-6">
-         <h3 class="text-base lg:text-lg font-semibold flex items-center gap-2 mb-3 lg:mb-4">
-             <i data-lucide="monitor" class="h-4 w-4 lg:h-5 lg:w-5"></i>
-             硬體資訊
-         </h3>
-         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body p-3">
+        <h5 class="card-title fw-semibold d-flex align-items-center gap-2 mb-3">
+            <i data-lucide="monitor" style="width: 1.25rem; height: 1.25rem;"></i>
+            硬體資訊
+        </h5>
+        <div class="row g-3">
              <!-- CPU 資訊 -->
-             <div class="space-y-2 lg:space-y-3">
-                 <h4 class="text-sm lg:text-base font-medium text-gray-800 flex items-center gap-2">
-                     <i data-lucide="cpu" class="h-3 w-3 lg:h-4 lg:w-4"></i>
+            <div class="col-12 col-lg-6">
+                <div class="border rounded p-3">
+                    <h6 class="fw-medium mb-3 d-flex align-items-center gap-2">
+                        <i data-lucide="cpu" style="width: 1rem; height: 1rem;"></i>
                      CPU 資訊
-                 </h4>
-                 <div class="space-y-2">
-                     <div class="flex justify-between items-center py-1">
-                         <span class="text-xs lg:text-sm text-gray-600">型號</span>
-                         <span class="text-xs lg:text-sm font-medium truncate ml-2">@(ViewBag.HardwareInfo?.cpu_model ?? "未知")</span>
+                    </h6>
+                    <div class="d-flex flex-column gap-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small text-muted">型號</span>
+                            <span class="small fw-medium text-truncate ms-2" style="max-width: 60%;">@(ViewBag.HardwareInfo?.cpu_model ?? "未知")</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small text-muted">核心數</span>
+                            <span class="small fw-medium">@(ViewBag.HardwareInfo?.cpu_cores ?? 0) 核心 @(ViewBag.HardwareInfo?.cpu_threads ?? 0) 執行緒</span>
                      </div>
-                     <div class="flex justify-between items-center py-1">
-                         <span class="text-sm text-gray-600">核心數</span>
-                         <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.cpu_cores ?? 0) 核心 @(ViewBag.HardwareInfo?.cpu_threads ?? 0) 執行緒</span>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small text-muted">時脈</span>
+                            <span class="small fw-medium">@(ViewBag.HardwareInfo?.cpu_base_clock?.ToString("F1") ?? "--") - @(ViewBag.HardwareInfo?.cpu_boost_clock?.ToString("F1") ?? "--") GHz</span>
                      </div>
-                     <div class="flex justify-between items-center py-1">
-                         <span class="text-sm text-gray-600">時脈</span>
-                         <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.cpu_base_clock?.ToString("F1") ?? "--") - @(ViewBag.HardwareInfo?.cpu_boost_clock?.ToString("F1") ?? "--") GHz</span>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small text-muted">溫度</span>
+                            <span class="small fw-medium @(ViewBag.HardwareInfo?.cpu_temperature > 80 ? "text-danger" : ViewBag.HardwareInfo?.cpu_temperature > 60 ? "text-warning" : "text-success")">
+                                @(ViewBag.HardwareInfo?.cpu_temperature ?? 0)°C
+                            </span>
                      </div>
-                     <div class="flex justify-between items-center py-1">
-                         <span class="text-sm text-gray-600">溫度</span>
-                         <span class="text-sm font-medium @(ViewBag.HardwareInfo?.cpu_temperature > 80 ? "text-red-600" : ViewBag.HardwareInfo?.cpu_temperature > 60 ? "text-yellow-600" : "text-green-600")">@(ViewBag.HardwareInfo?.cpu_temperature ?? 0)°C</span>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small text-muted">健康度</span>
+                            <span class="small fw-medium @(ViewBag.HardwareInfo?.cpu_health_percentage < 80 ? "text-danger" : ViewBag.HardwareInfo?.cpu_health_percentage < 90 ? "text-warning" : "text-success")">
+                                @(ViewBag.HardwareInfo?.cpu_health_percentage ?? 0)%
+                            </span>
                      </div>
-                     <div class="flex justify-between items-center py-1">
-                         <span class="text-sm text-gray-600">健康度</span>
-                         <span class="text-sm font-medium @(ViewBag.HardwareInfo?.cpu_health_percentage < 80 ? "text-red-600" : ViewBag.HardwareInfo?.cpu_health_percentage < 90 ? "text-yellow-600" : "text-green-600")">@(ViewBag.HardwareInfo?.cpu_health_percentage ?? 0)%</span>
                      </div>
                  </div>
              </div>
              
              <!-- GPU 資訊 -->
-             <div class="space-y-3">
-                 <h4 class="font-medium text-gray-800 flex items-center gap-2">
-                     <i data-lucide="monitor" class="h-4 w-4"></i>
+            <div class="col-12 col-lg-6">
+                <div class="border rounded p-3">
+                    <h6 class="fw-medium mb-3 d-flex align-items-center gap-2">
+                        <i data-lucide="monitor" style="width: 1rem; height: 1rem;"></i>
                      GPU 資訊
-                 </h4>
-                 <div class="space-y-2">
-                     <div class="flex justify-between items-center py-1">
-                         <span class="text-sm text-gray-600">型號</span>
-                         <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.gpu_model ?? "未知")</span>
+                    </h6>
+                    <div class="d-flex flex-column gap-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small text-muted">型號</span>
+                            <span class="small fw-medium text-truncate ms-2" style="max-width: 60%;">@(ViewBag.HardwareInfo?.gpu_model ?? "未知")</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small text-muted">記憶體</span>
+                            <span class="small fw-medium">@(ViewBag.HardwareInfo?.gpu_memory_size ?? "未知")</span>
                      </div>
-                    <div class="flex justify-between items-center py-1">
-                        <span class="text-sm text-gray-600">記憶體</span>
-                        <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.gpu_memory_size ?? "未知")</span>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small text-muted">製造商</span>
+                            <span class="small fw-medium">@(ViewBag.HardwareInfo?.gpu_manufacturer ?? "未知")</span>
                     </div>
-                    <div class="flex justify-between items-center py-1">
-                        <span class="text-sm text-gray-600">製造商</span>
-                        <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.gpu_manufacturer ?? "未知")</span>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small text-muted">溫度</span>
+                            <span class="small fw-medium @(ViewBag.HardwareInfo?.gpu_temperature > 80 ? "text-danger" : ViewBag.HardwareInfo?.gpu_temperature > 60 ? "text-warning" : "text-success")">
+                                @(ViewBag.HardwareInfo?.gpu_temperature ?? 0)°C
+                            </span>
                     </div>
-                    <div class="flex justify-between items-center py-1">
-                        <span class="text-sm text-gray-600">溫度</span>
-                        <span class="text-sm font-medium @(ViewBag.HardwareInfo?.gpu_temperature > 80 ? "text-red-600" : ViewBag.HardwareInfo?.gpu_temperature > 60 ? "text-yellow-600" : "text-green-600")">@(ViewBag.HardwareInfo?.gpu_temperature ?? 0)°C</span>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small text-muted">健康度</span>
+                            <span class="small fw-medium @(ViewBag.HardwareInfo?.gpu_health_percentage < 80 ? "text-danger" : ViewBag.HardwareInfo?.gpu_health_percentage < 90 ? "text-warning" : "text-success")">
+                                @(ViewBag.HardwareInfo?.gpu_health_percentage ?? 0)%
+                            </span>
                     </div>
-                     <div class="flex justify-between items-center py-1">
-                         <span class="text-sm text-gray-600">健康度</span>
-                         <span class="text-sm font-medium @(ViewBag.HardwareInfo?.gpu_health_percentage < 80 ? "text-red-600" : ViewBag.HardwareInfo?.gpu_health_percentage < 90 ? "text-yellow-600" : "text-green-600")">@(ViewBag.HardwareInfo?.gpu_health_percentage ?? 0)%</span>
                      </div>
                  </div>
              </div>
              
              <!-- 記憶體資訊 -->
-             <div class="space-y-3">
-                 <h4 class="font-medium text-gray-800 flex items-center gap-2">
-                     <i data-lucide="memory-stick" class="h-4 w-4"></i>
+            <div class="col-12 col-lg-6">
+                <div class="border rounded p-3">
+                    <h6 class="fw-medium mb-3 d-flex align-items-center gap-2">
+                        <i data-lucide="memory-stick" style="width: 1rem; height: 1rem;"></i>
                      記憶體資訊
-                 </h4>
-                 <div class="space-y-2">
-                     <div class="flex justify-between items-center py-1">
-                         <span class="text-sm text-gray-600">總容量</span>
-                         <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.memory_total_capacity ?? "未知")</span>
+                    </h6>
+                    <div class="d-flex flex-column gap-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small text-muted">總容量</span>
+                            <span class="small fw-medium">@(ViewBag.HardwareInfo?.memory_total_capacity ?? "未知")</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small text-muted">速度</span>
+                            <span class="small fw-medium">@(ViewBag.HardwareInfo?.memory_speed ?? "未知")</span>
                      </div>
-                     <div class="flex justify-between items-center py-1">
-                         <span class="text-sm text-gray-600">速度</span>
-                         <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.memory_speed ?? "未知")</span>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small text-muted">通道數</span>
+                            <span class="small fw-medium">4 通道</span>
                      </div>
-                     <div class="flex justify-between items-center py-1">
-                         <span class="text-sm text-gray-600">通道數</span>
-                         <span class="text-sm font-medium">4 通道</span>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small text-muted">已使用</span>
+                            <span class="small fw-medium">@(ViewBag.HardwareInfo?.memory_used_gb?.ToString("F1") ?? "0") / @(ViewBag.HardwareInfo?.memory_total_capacity_gb ?? 0) GB</span>
                      </div>
-                     <div class="flex justify-between items-center py-1">
-                         <span class="text-sm text-gray-600">已使用</span>
-                         <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.memory_used_gb?.ToString("F1") ?? "0") / @(ViewBag.HardwareInfo?.memory_total_capacity_gb ?? 0) GB</span>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small text-muted">健康度</span>
+                            <span class="small fw-medium @(ViewBag.HardwareInfo?.memory_health_percentage < 80 ? "text-danger" : ViewBag.HardwareInfo?.memory_health_percentage < 90 ? "text-warning" : "text-success")">
+                                @(ViewBag.HardwareInfo?.memory_health_percentage ?? 0)%
+                            </span>
                      </div>
-                     <div class="flex justify-between items-center py-1">
-                         <span class="text-sm text-gray-600">健康度</span>
-                         <span class="text-sm font-medium @(ViewBag.HardwareInfo?.memory_health_percentage < 80 ? "text-red-600" : ViewBag.HardwareInfo?.memory_health_percentage < 90 ? "text-yellow-600" : "text-green-600")">@(ViewBag.HardwareInfo?.memory_health_percentage ?? 0)%</span>
                      </div>
                  </div>
              </div>
              
              <!-- 系統資訊 -->
-             <div class="space-y-3">
-                 <h4 class="font-medium text-gray-800 flex items-center gap-2">
-                     <i data-lucide="server" class="h-4 w-4"></i>
-                     系統資訊
-                 </h4>
-                 <div class="space-y-2">
-                     <div class="flex justify-between items-center py-1">
-                         <span class="text-sm text-gray-600">主機名稱</span>
-                         <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.host_name ?? "未知")</span>
+            <div class="col-12 col-lg-6">
+                <div class="border rounded p-3">
+                    <h6 class="fw-medium mb-3 d-flex align-items-center gap-2">
+                        <i data-lucide="server" style="width: 1rem; height: 1rem;"></i>
+                        系統資訊
+                    </h6>
+                    <div class="d-flex flex-column gap-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small text-muted">主機名稱</span>
+                            <span class="small fw-medium">@(ViewBag.HardwareInfo?.host_name ?? "未知")</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small text-muted">作業系統</span>
+                            <span class="small fw-medium text-truncate ms-2" style="max-width: 60%;">@(ViewBag.HardwareInfo?.operating_system ?? "未知")</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small text-muted">系統版本</span>
+                            <span class="small fw-medium">@(ViewBag.HardwareInfo?.operating_system ?? "未知")</span>
                      </div>
-                    <div class="flex justify-between items-center py-1">
-                        <span class="text-sm text-gray-600">作業系統</span>
-                        <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.operating_system ?? "未知")</span>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small text-muted">運行時間</span>
+                            <span class="small fw-medium">@(ViewBag.HardwareInfo?.uptime ?? "未知")</span>
                     </div>
-                    <div class="flex justify-between items-center py-1">
-                        <span class="text-sm text-gray-600">系統版本</span>
-                        <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.operating_system ?? "未知")</span>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small text-muted">電源狀態</span>
+                            <span class="small fw-medium @(ViewBag.HardwareInfo?.power_efficiency == "正常" ? "text-success" : "text-danger")">
+                                @(ViewBag.HardwareInfo?.power_efficiency ?? "未知")
+                            </span>
                     </div>
-                     <div class="flex justify-between items-center py-1">
-                         <span class="text-sm text-gray-600">運行時間</span>
-                         <span class="text-sm font-medium">@(ViewBag.HardwareInfo?.uptime ?? "未知")</span>
                      </div>
-                     <div class="flex justify-between items-center py-1">
-                         <span class="text-sm text-gray-600">電源狀態</span>
-                         <span class="text-sm font-medium @(ViewBag.HardwareInfo?.power_efficiency == "正常" ? "text-green-600" : "text-red-600")">@(ViewBag.HardwareInfo?.power_efficiency ?? "未知")</span>
                      </div>
                  </div>
              </div>
          </div>
      </div>
- </section>
-
 
 @section Scripts {
     <script>
+        // 初始化 Lucide 圖示
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.lucide && lucide.createIcons) {
+                lucide.createIcons();
+            }
+        });
+        
         // 清理日誌
         function clearLogs(logType, is30Days) {
             const confirmMessage = is30Days 
@@ -473,7 +451,6 @@
                 return;
             }
 
-            // 顯示載入狀態
             const button = event.target;
             const originalText = button.textContent;
             button.textContent = '清理中...';
@@ -490,7 +467,6 @@
             .then(data => {
                 if (data.success) {
                     showNotification(data.message, 'success');
-                    // 刷新統計資料
                     refreshLogStats();
                 } else {
                     showNotification(data.message, 'error');
@@ -515,7 +491,6 @@
                 return;
             }
 
-            // 顯示載入狀態
             const button = event.target;
             const originalText = button.textContent;
             button.textContent = '清理中...';
@@ -532,45 +507,6 @@
             .then(data => {
                 if (data.success) {
                     showNotification(data.message, 'success');
-                    // 刷新統計資料
-                    refreshCacheStats();
-                } else {
-                    showNotification(data.message, 'error');
-                }
-            })
-            .catch(error => {
-                showNotification('清理失敗：' + error.message, 'error');
-            })
-            .finally(() => {
-                button.textContent = originalText;
-                button.disabled = false;
-            });
-        }
-
-        // 清理所有快取
-        function clearAllCache() {
-            if (!confirm('確定要清理所有快取嗎？這可能會影響系統性能。')) {
-                return;
-            }
-
-            // 顯示載入狀態
-            const button = event.target;
-            const originalText = button.textContent;
-            button.textContent = '清理中...';
-            button.disabled = true;
-
-            fetch('/Backoffice/Settings/ClearCache', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: 'cacheType=all&is30Days=false'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showNotification(data.message, 'success');
-                    // 刷新統計資料
                     refreshCacheStats();
                 } else {
                     showNotification(data.message, 'error');
@@ -593,7 +529,6 @@
                 if (data.success) {
                     document.getElementById('errorLogCount').textContent = data.errorLogs + ' 條記錄';
                     document.getElementById('accessLogCount').textContent = data.accessLogs + ' 條記錄';
-                    // 系統日誌和存取日誌是一起的，所以同步更新
                     document.getElementById('systemLogCount').textContent = data.accessLogs + ' 條記錄';
                 }
             })
@@ -610,7 +545,7 @@
                 if (data.success) {
                     document.getElementById('memoryCacheSize').textContent = (data.memoryCacheSize / (1024 * 1024)).toFixed(1) + ' MB';
                     document.getElementById('databaseCacheSize').textContent = data.cacheEntries + ' 個條目';
-                    document.getElementById('fileCacheSize').textContent = '最後清理：' + new Date(data.lastCleared).toLocaleString('zh-TW');
+                    document.getElementById('fileCacheSize').textContent = '最後清理：' + data.lastCleared;
                 }
             })
             .catch(error => {
@@ -641,19 +576,14 @@
 
         // 顯示通知
         function showNotification(message, type = 'info') {
-            // 創建通知元素
             const notification = document.createElement('div');
-            notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
-                type === 'success' ? 'bg-green-500 text-white' :
-                type === 'error' ? 'bg-red-500 text-white' :
-                'bg-blue-500 text-white'
-            }`;
+            const bgColor = type === 'success' ? 'bg-success' : type === 'error' ? 'bg-danger' : 'bg-primary';
+            notification.className = `position-fixed top-0 end-0 m-3 p-3 rounded shadow-lg text-white ${bgColor}`;
+            notification.style.zIndex = '9999';
             notification.textContent = message;
 
-            // 新增到頁面
             document.body.appendChild(notification);
 
-            // 3秒後自動移除
             setTimeout(() => {
                 if (notification.parentNode) {
                     notification.parentNode.removeChild(notification);
@@ -684,114 +614,12 @@
                     showNotification(data.message, 'success');
                 } else {
                     showNotification(data.message, 'error');
-                    checkbox.checked = !enabled; // 恢復原狀態
+                    checkbox.checked = !enabled;
                 }
             })
             .catch(error => {
                 showNotification('操作失敗：' + error.message, 'error');
-                checkbox.checked = !enabled; // 恢復原狀態
-            });
-        }
-
-        // 系統健康檢查
-        function systemHealth() {
-            const button = event.target.closest('button');
-            const originalText = button.innerHTML;
-            button.innerHTML = '<i data-lucide="loader" class="h-6 w-6 text-pink-500 mb-2 animate-spin"></i><span class="text-sm font-medium">檢查中...</span><span class="text-xs text-gray-500">正在分析系統</span>';
-            button.disabled = true;
-
-            fetch('/Backoffice/Settings/SystemHealth')
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showHealthReport(data.data);
-                    showNotification('系統健康檢查完成', 'success');
-                } else {
-                    showNotification(data.message, 'error');
-                }
-            })
-            .catch(error => {
-                showNotification('健康檢查失敗：' + error.message, 'error');
-            })
-            .finally(() => {
-                button.innerHTML = originalText;
-                button.disabled = false;
-            });
-        }
-
-        // 匯出日誌
-        function exportLogs() {
-            const logType = prompt('請選擇要匯出的日誌類型：\n1. error - 錯誤日誌\n2. access - 存取記錄\n3. all - 所有日誌\n\n請輸入選項 (1/2/3 或 error/access/all):', 'all');
-            
-            if (!logType) return;
-            
-            const typeMap = {
-                '1': 'error',
-                '2': 'access', 
-                '3': 'all',
-                'error': 'error',
-                'access': 'access',
-                'all': 'all'
-            };
-            
-            const actualType = typeMap[logType.toLowerCase()] || 'all';
-            
-            const button = event.target.closest('button');
-            const originalText = button.innerHTML;
-            button.innerHTML = '<i data-lucide="loader" class="h-6 w-6 text-blue-500 mb-2 animate-spin"></i><span class="text-sm font-medium">匯出中...</span><span class="text-xs text-gray-500">正在準備檔案</span>';
-            button.disabled = true;
-
-            fetch(`/Backoffice/Settings/ExportLogs?logType=${actualType}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    downloadLogs(data.data, data.fileName);
-                    showNotification(data.message, 'success');
-                } else {
-                    showNotification(data.message, 'error');
-                }
-            })
-            .catch(error => {
-                showNotification('匯出失敗：' + error.message, 'error');
-            })
-            .finally(() => {
-                button.innerHTML = originalText;
-                button.disabled = false;
-            });
-        }
-
-        // 系統重啟
-        function restartApplication() {
-            if (!confirm('確定要重啟系統嗎？這將中斷所有用戶的連接。')) {
-                return;
-            }
-            
-            const button = event.target;
-            const originalText = button.textContent;
-            button.textContent = '重啟中...';
-            button.disabled = true;
-
-            fetch('/Backoffice/Settings/RestartSystem', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showNotification(data.message, 'success');
-                    // 可以新增倒數計時或其他重啟提示
-                } else {
-                    showNotification(data.message, 'error');
-                }
-            })
-            .catch(error => {
-                showNotification('重啟失敗：' + error.message, 'error');
-            })
-            .finally(() => {
-                button.textContent = originalText;
-                button.disabled = false;
+                checkbox.checked = !enabled;
             });
         }
 
@@ -832,119 +660,38 @@
             });
         }
 
-        // 顯示健康報告
-        function showHealthReport(healthData) {
-            const modal = document.createElement('div');
-            modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4';
-            modal.innerHTML = `
-                <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
-                    <div class="bg-gradient-to-r from-pink-600 to-pink-700 px-6 py-4 text-white">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-3">
-                                <i data-lucide="heart" class="w-6 h-6"></i>
-                                <h3 class="text-lg font-bold">系統健康報告</h3>
-                            </div>
-                            <button onclick="closeHealthModal()" class="text-white hover:text-pink-200 transition-colors">
-                                <i data-lucide="x" class="w-5 h-5"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="p-6 overflow-y-auto max-h-[calc(80vh-120px)]">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="space-y-4">
-                                <div class="bg-gray-50 rounded-lg p-4">
-                                    <h4 class="font-semibold text-gray-800 mb-3">系統狀態</h4>
-                                    <div class="space-y-2">
-                                        <div class="flex justify-between">
-                                            <span class="text-sm text-gray-600">狀態</span>
-                                            <span class="text-sm font-medium ${healthData.systemStatus === '運行中' ? 'text-green-600' : 'text-red-600'}">${healthData.systemStatus}</span>
-                                        </div>
-                                        <div class="flex justify-between">
-                                            <span class="text-sm text-gray-600">健康分數</span>
-                                            <span class="text-sm font-medium ${healthData.healthScore >= 80 ? 'text-green-600' : healthData.healthScore >= 60 ? 'text-yellow-600' : 'text-red-600'}">${healthData.healthScore}/100</span>
-                                        </div>
-                                        <div class="flex justify-between">
-                                            <span class="text-sm text-gray-600">運行時間</span>
-                                            <span class="text-sm font-medium">${healthData.uptime}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="bg-gray-50 rounded-lg p-4">
-                                    <h4 class="font-semibold text-gray-800 mb-3">資源使用率</h4>
-                                    <div class="space-y-2">
-                                        <div class="flex justify-between">
-                                            <span class="text-sm text-gray-600">CPU 使用率</span>
-                                            <span class="text-sm font-medium">${healthData.cpuUsage}%</span>
-                                        </div>
-                                        <div class="flex justify-between">
-                                            <span class="text-sm text-gray-600">記憶體使用率</span>
-                                            <span class="text-sm font-medium">${healthData.memoryUsage}%</span>
-                                        </div>
-                                        <div class="flex justify-between">
-                                            <span class="text-sm text-gray-600">快取大小</span>
-                                            <span class="text-sm font-medium">${(healthData.cacheSize / (1024 * 1024)).toFixed(1)} MB</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="space-y-4">
-                                <div class="bg-gray-50 rounded-lg p-4">
-                                    <h4 class="font-semibold text-gray-800 mb-3">日誌統計</h4>
-                                    <div class="space-y-2">
-                                        <div class="flex justify-between">
-                                            <span class="text-sm text-gray-600">錯誤日誌</span>
-                                            <span class="text-sm font-medium">${healthData.errorLogs} 條</span>
-                                        </div>
-                                        <div class="flex justify-between">
-                                            <span class="text-sm text-gray-600">存取記錄</span>
-                                            <span class="text-sm font-medium">${healthData.accessLogs} 條</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="bg-gray-50 rounded-lg p-4">
-                                    <h4 class="font-semibold text-gray-800 mb-3">檢查時間</h4>
-                                    <div class="space-y-2">
-                                        <div class="flex justify-between">
-                                            <span class="text-sm text-gray-600">檢查時間</span>
-                                            <span class="text-sm font-medium">${new Date(healthData.timestamp).toLocaleString('zh-TW')}</span>
-                                        </div>
-                                        <div class="flex justify-between">
-                                            <span class="text-sm text-gray-600">最後更新</span>
-                                            <span class="text-sm font-medium">${new Date(healthData.lastUpdated).toLocaleString('zh-TW')}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            document.body.appendChild(modal);
-        }
-
-        // 關閉健康報告
-        function closeHealthModal() {
-            const modal = document.querySelector('.fixed.inset-0.bg-black.bg-opacity-50');
-            if (modal) {
-                modal.remove();
+        // 系統重啟
+        function restartApplication() {
+            if (!confirm('確定要重啟系統嗎？這將中斷所有用戶的連接。')) {
+                return;
             }
-        }
+            
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = '重啟中...';
+            button.disabled = true;
 
-        // 下載日誌檔案
-        function downloadLogs(data, fileName) {
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
+            fetch('/Backoffice/Settings/RestartSystem', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                } else {
+                    showNotification(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                showNotification('重啟失敗：' + error.message, 'error');
+            })
+            .finally(() => {
+                button.textContent = originalText;
+                button.disabled = false;
+            });
         }
     </script>
 }
