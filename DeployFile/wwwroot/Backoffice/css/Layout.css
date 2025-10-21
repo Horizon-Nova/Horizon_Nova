@@ -1,7 +1,64 @@
-﻿html, body {
+﻿/* Layout.css - Bootstrap 專用樣式 */
+
+html, body {
     height: 100%;
     font-size: 0.875rem;
     line-height: 1.25rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* 背景漸層 */
+body { 
+    background: linear-gradient(135deg, #f8fafc 0%, #f0f4f8 100%);
+    min-height: 100vh;
+}
+
+/* 側欄樣式 */
+#sidebar {
+    width: 16rem;
+    transition: width 0.3s ease-in-out;
+}
+
+#sidebar[data-collapsed="true"] {
+    width: 4rem;
+}
+
+/* 主內容區域 */
+.app-main {
+    margin-left: 16rem;
+    transition: margin-left 0.3s ease-in-out;
+}
+
+#sidebar[data-collapsed="true"] ~ .app-main {
+    margin-left: 4rem;
+}
+
+/* 手機版側欄 */
+@media (max-width: 991.98px) {
+    #sidebar {
+        transform: translateX(-100%);
+        position: fixed;
+        z-index: 40;
+    }
+    
+    #sidebar.show {
+        transform: translateX(0);
+    }
+    
+    .app-main {
+        margin-left: 0;
+    }
+}
+
+/* 手機版背景遮罩 */
+.sidebar-backdrop {
+    display: none;
+}
+
+@media (max-width: 991.98px) {
+    .sidebar-backdrop.show {
+        display: block;
+    }
 }
 
 /* 導航項目樣式 */
@@ -13,7 +70,6 @@
     background-color: #f1f5f9;
 }
 
-/* 活躍導航項目樣式 */
 .nav-item.active {
     background-color: #dbeafe;
     color: #1d4ed8;
@@ -24,15 +80,45 @@
     color: #1d4ed8;
 }
 
+/* 移除連結預設樣式 */
+#sidebar .nav-link,
+#sidebar a {
+    color: #0f172a;
+    text-decoration: none;
+}
+
+#sidebar .nav-link:hover,
+#sidebar a:hover {
+    color: #0f172a;
+    text-decoration: none;
+}
+
+#sidebar .nav-link:focus,
+#sidebar a:focus {
+    color: #0f172a;
+    text-decoration: none;
+}
+
 /* 側欄收縮動畫 */
-.sidebar-collapsed .nav-item span[data-collapsed-target] {
+#sidebar[data-collapsed="true"] .nav-item span[data-collapsed-target],
+#sidebar[data-collapsed="true"] h2[data-collapsed-target] {
     opacity: 0;
     width: 0;
     overflow: hidden;
 }
 
-.sidebar-collapsed .nav-item {
+#sidebar[data-collapsed="true"] .nav-item {
     justify-content: center;
+}
+
+#sidebar[data-collapsed="true"] .nav-toggle {
+    justify-content: center;
+}
+
+#sidebar[data-collapsed="true"] .nav-chevron-toggle {
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
 }
 
 /* 子導航項目動畫 */
@@ -51,11 +137,21 @@
     opacity: 1;
 }
 
-/* 導航箭頭旋轉動畫 */
+/* 導航箭頭動畫 */
 .nav-chevron {
-    transition: transform 0.3s ease-in-out;
+    transition: transform 0.2s ease-in-out;
 }
 
-.nav-toggle.active .nav-chevron {
-    transform: rotate(90deg);
+.nav-chevron.rotated {
+    transform: rotate(180deg);
+}
+
+/* Header 高度統一 */
+.header-height {
+    height: 4rem;
+}
+
+/* 使用者選單 */
+#userMenu.show {
+    display: block;
 }

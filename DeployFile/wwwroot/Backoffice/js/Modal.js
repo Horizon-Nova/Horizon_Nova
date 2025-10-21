@@ -1,154 +1,167 @@
 /**
- * =============================================================================
- * 通用模態框管理系統 v2.0
- * =============================================================================
- * 提供統一的模態框開啟/關閉功能
- * 修復版本：解決 Modal 只能開啟一次、點擊無效等問題
+ * Modal.js v5.1 - 統一的 Modal 顯示/隱藏與 AJAX 載入管理
  * 
- * =============================================================================
- * 使用方式
- * =============================================================================
+ * 設計理念：
+ * - 支援靜態 Modal 直接顯示
+ * - 支援 AJAX 載入 PartialView 後顯示
+ * - 統一使用 jQuery 語法（符合架構規範）
+ * - 使用 Bootstrap Modal API
+ * - 自動在 Modal 完全顯示後初始化 Lucide 圖標
  * 
- * 1. 基本使用
- * ------------
- * // 開啟 Modal
- * showModal('modalId');
+ * 用法：
+ * - showModal('modalId') - 直接顯示 Modal
+ * - showModal('modalId', { url, method, data, container }) - AJAX 載入後顯示
+ * - closeModal('modalId') - 關閉 Modal
  * 
- * // 關閉 Modal
- * closeModal('modalId');
- * 
- * 
- * 2. HTML 結構要求
- * ----------------
- * Modal 容器必須包含以下屬性：
- * - id: Modal 的唯一識別碼
- * - class: 必須包含 'hidden' 和 'fixed'
- * 
- * 範例：
- * <div id="myModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
- *     <div class="bg-white rounded-lg p-6">
- *         <!-- Modal 內容 -->
- *         <button onclick="closeModal('myModal')">關閉</button>
- *     </div>
- * </div>
- * 
- * 
- * 3. 按鈕綁定範例
- * ----------------
- * <!-- 開啟按鈕 -->
- * <button onclick="showModal('userFormModal')">新增用戶</button>
- * 
- * <!-- 關閉按鈕 -->
- * <button onclick="closeModal('userFormModal')">取消</button>
- * 
- * <!-- 切換 Modal (先關閉再開啟) -->
- * <button onclick="closeModal('detailModal'); showModal('editModal')">編輯</button>
- * 
- * 
- * 4. 命名規範建議
- * ----------------
- * 為了統一管理，建議使用以下命名規範：
- * 
- * - 表單類: {feature}FormModal      例如: userFormModal, roleFormModal
- * - 詳情類: {feature}DetailModal    例如: userDetailModal, roleDetailModal
- * - 說明類: {feature}-help          例如: aimodel-help, navigation-help
- * - 確認類: {action}-modal          例如: delete-modal, confirm-modal
- * - 預覽類: {feature}PreviewModal   例如: configPreviewModal
- * 
- * 
- * 5. 注意事項
- * ------------
- * DO (正確做法):
- * - 使用 showModal() 和 closeModal() 兩個標準函數
- * - Modal ID 必須唯一
- * - Modal 容器必須有 'hidden' class
- * - 按鈕使用 onclick="closeModal('id')" 或 onclick="showModal('id')"
- * 
- * DON'T (錯誤做法):
- * - 不要自定義 showXxxModal() 或 closeXxxModal() 等函數
- * - 不要使用 jQuery 的 .show() 或 .hide()
- * - 不要直接操作 display 樣式
- * - 不要忘記加 event.stopPropagation() 防止事件冒泡
- * 
- * 
- * 6. 進階用法
- * ------------
- * // 防止事件冒泡
- * <button onclick="event.stopPropagation(); showModal('helpModal')">
- *     說明
- * </button>
- * 
- * // 表單提交後關閉
- * function submitForm() {
- *     // 提交邏輯...
- *     closeModal('formModal');
- *     location.reload();
- * }
- * 
- * 
- * 7. 鍵盤支援
- * ------------
- * - ESC 鍵: 自動關閉最上層的 Modal
- * - 支援多層 Modal 管理
- * 
- * =============================================================================
+ * 更新日誌：
+ * v5.1 - 修正 Lucide 圖標初始化時機，改在 'shown.bs.modal' 事件後執行
  */
 
-// 顯示模態框
-function showModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (!modal) {
-        console.warn(`[Modal] 找不到 Modal: ${modalId}`);
+// 全域變數
+let openModals = new Set();
+
+/**
+ * 顯示 Modal
+ * @param {string} modalId - Modal 的 ID
+ * @param {object} options - 可選配置
+ * @param {string} options.url - AJAX 請求 URL
+ * @param {string} options.method - HTTP 方法（預設 GET）
+ * @param {object} options.data - 請求資料
+ * @param {string} options.container - 要替換內容的容器 ID（預設與 modalId 相同）
+ */
+const showModal = (modalId, options = null) => {
+    // 場景 1：直接顯示靜態 Modal
+    if (!options || !options.url) {
+        displayModal(modalId);
         return;
     }
     
-    modal.classList.remove('hidden');
-    // 清除內聯 display，交由類名控制（例如 .flex）
-    modal.style.display = '';
+    // 場景 2：AJAX 載入後顯示
+    const { url, method = 'GET', data = {}, container = null } = options;
     
-    document.body.style.overflow = 'hidden';
-    
-    if (typeof lucide !== 'undefined') {
-        lucide.createIcons();
-    }
-}
+    $.ajax({
+        type: method,
+        url: url,
+        data: data,
+        success: (html) => {
+            // 替換容器內容
+            const targetContainer = container || modalId;
+            $(`#${targetContainer}`).html(html);
+            
+            // 顯示 Modal（Lucide 圖標會在 Modal 完全顯示後初始化）
+            displayModal(modalId);
+        },
+        error: () => alert('載入失敗，系統發生錯誤。')
+    });
+};
 
-// 關閉模態框
-function closeModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (!modal) {
-        console.warn(`[Modal] 找不到 Modal: ${modalId}`);
+/**
+ * 實際顯示 Modal（內部函數）
+ * @param {string} modalId - Modal 的 ID
+ */
+const displayModal = (modalId) => {
+    const $modalElement = $(`#${modalId}`);
+    
+    if ($modalElement.length === 0) {
+        console.warn(`[Modal] 找不到模態框: ${modalId}`);
         return;
     }
     
-    modal.classList.add('hidden');
-    // 清除內聯 display，避免影響下次僅移除 hidden 即可顯示
-    modal.style.display = '';
-    const openModals = document.querySelectorAll(
-        '.fixed:not(.hidden)[id$="-modal"], .fixed:not(.hidden)[id$="Modal"], .fixed:not(.hidden)[id$="-help"], .fixed:not(.hidden)[id$="help"]'
-    );
-    if (openModals.length === 0) {
-        document.body.style.overflow = 'auto';
-    }
-}
-
-// 初始化模態框事件監聽
-document.addEventListener('DOMContentLoaded', function() {
-    // ESC 鍵關閉最上層的 Modal
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            const visibleModals = document.querySelectorAll(
-                '.fixed:not(.hidden)[id$="-modal"], .fixed:not(.hidden)[id$="Modal"], .fixed:not(.hidden)[id$="-help"], .fixed:not(.hidden)[id$="help"]'
-            );
-
-            if (visibleModals.length > 0) {
-                const topModal = visibleModals[visibleModals.length - 1];
-                if (topModal && topModal.id) {
-                    closeModal(topModal.id);
-                }
-            }
-        }
+    // 使用 Bootstrap Modal API
+    const modalElement = $modalElement[0];
+    const modal = new bootstrap.Modal(modalElement, {
+        backdrop: 'static',
+        keyboard: true
     });
     
-});
+    // 監聽 Modal 完全顯示後的事件
+    $modalElement.one('shown.bs.modal', () => {
+        // 重新初始化 Lucide 圖標（Modal 完全顯示後）
+        window.lucide?.createIcons?.();
+    });
+    
+    modal.show();
+    
+    // 記錄開啟的 Modal
+    openModals.add(modalId);
+    
+    // 防止 body 滾動
+    $('body').css('overflow', 'hidden');
+    
+    // 監聽關閉事件
+    $modalElement.on('hidden.bs.modal', () => {
+        openModals.delete(modalId);
+        if (openModals.size === 0) {
+            $('body').css('overflow', '');
+        }
+    });
+};
 
+/**
+ * 關閉 Modal
+ * @param {string} modalId - Modal 的 ID
+ */
+const closeModal = (modalId) => {
+    const $modalElement = $(`#${modalId}`);
+    
+    if ($modalElement.length === 0) {
+        console.warn(`[Modal] 找不到模態框: ${modalId}`);
+        return;
+    }
+    
+    // 使用 Bootstrap Modal API 關閉
+    const modalElement = $modalElement[0];
+    const modal = bootstrap.Modal.getInstance(modalElement);
+    
+    if (modal) {
+        modal.hide();
+    } else {
+        // 如果沒有實例，直接隱藏
+        $modalElement.removeClass('show').css('display', 'none');
+        $('body').removeClass('modal-open');
+        
+        // 移除 backdrop
+        $('.modal-backdrop').remove();
+    }
+    
+    // 從開啟列表移除
+    openModals.delete(modalId);
+    
+    // 恢復 body 滾動
+    if (openModals.size === 0) {
+        $('body').css('overflow', '');
+    }
+};
+
+/**
+ * 初始化所有 Modal
+ * 在頁面載入時自動執行
+ */
+const initModals = () => {
+    // 監聽所有 Modal 的關閉事件
+    $('.modal').each(function() {
+        const $modal = $(this);
+        $modal.on('hidden.bs.modal', () => {
+            const modalId = $modal.attr('id');
+            openModals.delete(modalId);
+            if (openModals.size === 0) {
+                $('body').css('overflow', '');
+            }
+        });
+    });
+    
+    // 監聽 ESC 鍵關閉最上層 Modal
+    $(document).on('keydown', (e) => {
+        if (e.key === 'Escape' && openModals.size > 0) {
+            const topModal = Array.from(openModals).pop();
+            closeModal(topModal);
+        }
+    });
+};
+
+// 頁面載入時初始化
+$(document).ready(initModals);
+
+// 全域暴露函數
+window.showModal = showModal;
+window.closeModal = closeModal;
