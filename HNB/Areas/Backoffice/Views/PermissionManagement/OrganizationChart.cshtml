@@ -1,3 +1,4 @@
+@model List<Models.HnbHnbBackoffice.vw_permission_organization>
 @{
     ViewData["Title"] = "組織圖 - 權限管理系統";
     Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
@@ -107,13 +108,13 @@
 @section Scripts {
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script>
-        let chartData = @Html.Raw(Json.Serialize(ViewBag.Organizations));
+        let chartData = @Html.Raw(Json.Serialize(Model ?? new List<Models.HnbHnbBackoffice.vw_permission_organization>()));
         let svg, g, zoom;
         let expandedNodes = new Set();
 
         $(document).ready(function() {
             // 初始化圖標
-            lucide.createIcons();
+            window.lucide?.createIcons?.();
 
             // 初始化組織圖
             initOrganizationChart();
@@ -134,7 +135,7 @@
 
             // 關閉模態框
             $('#closeOrganizationDetailModal, #closeOrganizationDetailBtn').on('click', function() {
-                $('#organizationDetailModal').addClass('hidden');
+                closeModal('organizationDetailModal');
             });
 
             // 視窗大小改變時重新渲染
@@ -320,8 +321,7 @@
                 showOrganizationDetail(d);
             });
 
-            // 重新初始化圖標
-            lucide.createIcons();
+            // 圖標會在需要時自動初始化
         }
 
         function resetView() {
@@ -393,9 +393,8 @@
                 </div>
             `);
             
-            // 重新初始化圖標
-            lucide.createIcons();
-            $('#organizationDetailModal').removeClass('hidden');
+            // 顯示 Modal（圖標會自動初始化）
+            showModal('organizationDetailModal');
         }
 
         function showOrganizationDetailHelp() {
@@ -410,9 +409,7 @@
                 data: { type: 'organizationdetail' },
                 success: function(response) {
                     document.body.insertAdjacentHTML('beforeend', response);
-                    if (typeof lucide !== 'undefined') {
-                        lucide.createIcons();
-                    }
+                    window.lucide?.createIcons?.();
                 },
                 error: function() {
                     alert('載入說明失敗，請稍後再試');

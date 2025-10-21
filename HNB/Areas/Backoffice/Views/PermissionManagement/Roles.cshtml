@@ -1,3 +1,4 @@
+@model List<Models.HnbHnbBackoffice.vw_permission_role>
 @{
     ViewData["Title"] = "角色管理 - 權限管理系統";
     ViewData["PageTitle"] = "角色管理";
@@ -60,7 +61,9 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-slate-200">
-                    @foreach (var role in ViewBag.Roles)
+                    @if (Model != null)
+                    {
+                        @foreach (var role in Model)
                     {
                         <tr class="role-row hover:bg-slate-50 cursor-pointer" onclick="showRoleDetails(@role.id)">
                             <td class="px-6 py-4 whitespace-nowrap">
@@ -100,6 +103,7 @@
                             </td>
                         </tr>
                     }
+                    }
                 </tbody>
             </table>
         </div>
@@ -114,7 +118,7 @@
 
         $(document).ready(function() {
             // 初始化圖標
-            lucide.createIcons();
+            window.lucide?.createIcons?.();
 
             // 初始化 DataTable
             initializeDataTable();
@@ -185,42 +189,29 @@
         }
 
         function showRoleDetails(roleId) {
-            console.log('=== showRoleDetails 被調用 ===');
-            console.log('roleId:', roleId);
-            loadAndShowModal('role', roleId, 'roleDetailModal');
+            showModal('roleDetailModal', {
+                url: '@Url.Action("LoadDetail", "PermissionManagement")',
+                method: 'GET',
+                data: { id: roleId },
+                container: 'roleModal'
+            });
         }
 
         function showRoleAdd() {
-            loadAndShowModal('role', null, 'roleFormModal');
+            showModal('roleFormModal', {
+                url: '@Url.Action("LoadDetail", "PermissionManagement")',
+                method: 'GET',
+                data: { id: null },
+                container: 'roleModal'
+            });
         }
 
         function showRoleEdit(roleId) {
-            loadAndShowModal('role', roleId, 'roleFormModal');
-        }
-
-        function loadAndShowModal(type, id, modalId) {
-            $.ajax({
+            showModal('roleFormModal', {
                 url: '@Url.Action("LoadDetail", "PermissionManagement")',
-                type: 'GET',
-                data: { id: id },
-                success: function(response) {
-                    $('#roleModal').html(response);
-                    lucide.createIcons();
-
-                    $('#' + modalId).removeClass('hidden');
-
-                },
-                error: function(xhr, status, error) {
-                    $('#roleModal').html(`
-                        <div class="text-center py-4">
-                            <i data-lucide="alert-circle" class="w-12 h-12 text-red-500 mx-auto mb-3"></i>
-                            <p class="text-red-600">載入失敗，請稍後再試</p>
-                            <p class="text-red-500 text-sm">錯誤: ${error}</p>
-                        </div>
-                    `);
-                    lucide.createIcons();
-                    $('#roleModal').removeClass('hidden');
-                }
+                method: 'GET',
+                data: { id: roleId },
+                container: 'roleModal'
             });
         }
 
@@ -243,9 +234,5 @@
             });
         }
 
-        // 模態框關閉事件（動態綁定）
-        $(document).on('click', '[data-modal-close]', function() {
-            $('#roleModal').addClass('hidden');
-        });
     </script>
 }

@@ -1,3 +1,4 @@
+@model List<Models.HnbHnbBackoffice.vw_permission_organization>
 @{
     ViewData["Title"] = "組織管理 - 權限管理系統";
     ViewData["PageTitle"] = "組織管理";
@@ -59,7 +60,9 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-slate-200">
-                    @foreach (var org in ViewBag.Organizations)
+                    @if (Model != null)
+                    {
+                        @foreach (var org in Model)
                     {
                         <tr class="organization-row hover:bg-slate-50 cursor-pointer" onclick="showOrganizationDetails(@org.id)">
                             <td class="px-6 py-4 whitespace-nowrap">
@@ -102,6 +105,7 @@
                             </td>
                         </tr>
                     }
+                    }
                 </tbody>
             </table>
         </div>
@@ -117,7 +121,7 @@
 
         $(document).ready(function() {
             // 初始化圖標
-            lucide.createIcons();
+            window.lucide?.createIcons?.();
 
             // 初始化 DataTable
             initializeDataTable();
@@ -188,39 +192,29 @@
         }
 
         function showOrganizationDetails(organizationId) {
-            loadAndShowModal('organization', organizationId, 'organizationDetailModal');
+            showModal('organizationDetailModal', {
+                url: '@Url.Action("LoadDetail", "PermissionManagement")',
+                method: 'GET',
+                data: { id: organizationId },
+                container: 'organizationModal'
+            });
         }
 
         function showOrganizationAdd() {
-            loadAndShowModal('organization', null, 'organizationFormModal');
+            showModal('organizationFormModal', {
+                url: '@Url.Action("LoadDetail", "PermissionManagement")',
+                method: 'GET',
+                data: { id: null },
+                container: 'organizationModal'
+            });
         }
 
         function showOrganizationEdit(organizationId) {
-            loadAndShowModal('organization', organizationId, 'organizationFormModal');
-        }
-
-        function loadAndShowModal(type, id, modalId) {
-            $.ajax({
+            showModal('organizationFormModal', {
                 url: '@Url.Action("LoadDetail", "PermissionManagement")',
-                type: 'GET',
-                data: { id: id },
-                success: function(response) {
-                    $('#organizationModal').html(response);
-                    lucide.createIcons();
-   
-                    $('#' + modalId).removeClass('hidden');
-                },
-                error: function(xhr, status, error) {
-                    $('#organizationModal').html(`
-                        <div class="text-center py-4">
-                            <i data-lucide="alert-circle" class="w-12 h-12 text-red-500 mx-auto mb-3"></i>
-                            <p class="text-red-600">載入失敗，請稍後再試</p>
-                            <p class="text-red-500 text-sm">錯誤: ${error}</p>
-                        </div>
-                    `);
-                    lucide.createIcons();
-                    $('#organizationModal').removeClass('hidden');
-                }
+                method: 'GET',
+                data: { id: organizationId },
+                container: 'organizationModal'
             });
         }
 
@@ -243,9 +237,5 @@
             });
         }
 
-        // 模態框關閉事件（動態綁定）
-        $(document).on('click', '[data-modal-close]', function() {
-            $('#organizationModal').addClass('hidden');
-        });
     </script>
 }

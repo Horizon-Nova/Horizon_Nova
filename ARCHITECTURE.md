@@ -568,7 +568,17 @@ public User UpdateLoginInfo(int userId, string ip) { ... }
 
 ## 前端彈出視窗（Modal）規範
 
-本規範統一彈出視窗的結構、命名與開關 API，避免「只能開一次」「捲軸不恢復」等問題。實作依據：`HNB/wwwroot/Backoffice/js/Modal.js`（v5.1）。
+本規範統一彈出視窗的結構、命名與開關 API，避免「只能開一次」「捲軸不恢復」等問題。
+
+### Modal.js - 通用套件
+
+`Modal.js` 是專案的**通用 Modal 管理套件**，設計用於支援所有頁面的各種 Modal 需求。實作依據：`HNB/wwwroot/Backoffice/js/Modal.js`（v5.1）。
+
+**核心特點：**
+- 通用性：適用於任何頁面、任何類型的 Modal
+- 靈活性：支援靜態 Modal 和動態 AJAX 載入兩種標準場景
+- 一致性：全專案使用統一的 API，避免碎片化
+- 自動化：自動處理 Lucide 圖標、body 捲動、鍵盤事件
 
 ### JS API（唯一）
 - `showModal(modalId, options)`：開啟指定 ID 的 Modal（支援靜態顯示與 AJAX 載入）
@@ -578,29 +588,70 @@ public User UpdateLoginInfo(int userId, string ip) { ... }
 
 ### 使用方式
 
-#### 場景 1：靜態 Modal（頁面已有內容）
-```html
-<!-- 直接顯示 Modal -->
-<button onclick="showModal('myModal')">開啟模態框</button>
+Modal.js 是**通用套件**，設計支援兩種標準使用場景：
 
-<div id="myModal" class="modal fade" tabindex="-1">
-    <!-- Modal 內容 -->
+#### 場景 1：靜態 Modal（不需要數據）
+
+**適用情況：**
+- 說明文檔、操作指南（如：error-help, navigation-help）
+- 圖標選擇器、顏色選擇器等通用工具
+- 確認對話框（固定文案）
+- 任何不需要伺服器端數據的 Modal
+
+**範例：Settings 頁面**
+```html
+<!-- 主畫面：Settings.cshtml -->
+@await Html.PartialAsync("_SettingsModal")
+
+<button onclick="showModal('error-help')">錯誤日誌說明</button>
+<button onclick="showModal('system-help')">系統日誌說明</button>
+```
+
+```cshtml
+<!-- _SettingsModal.cshtml -->
+<div id="error-help" class="modal fade">
+    <!-- 靜態說明內容 -->
+</div>
+
+<div id="system-help" class="modal fade">
+    <!-- 靜態說明內容 -->
 </div>
 ```
 
-#### 場景 2：動態 Modal（AJAX 載入 PartialView）
-```html
-<!-- AJAX 載入後顯示 -->
-<button onclick="showModal('editModal', {
-    url: '/Backoffice/User/LoadDetail',
-    method: 'GET',
-    data: { id: 123 },
-    container: 'modalContainer'
-})">編輯使用者</button>
+#### 場景 2：動態 Modal（需要 AJAX 載入數據）
 
-<!-- Modal 容器 -->
-<div id="modalContainer">
-    <!-- PartialView 將載入到這裡 -->
+**適用情況：**
+- 編輯表單（需要載入特定記錄數據）
+- 詳情查看（需要載入特定記錄數據）
+- 刪除確認（需要顯示要刪除的記錄資訊）
+- 任何需要伺服器端數據的 Modal
+
+**範例：NavigationManagement 頁面**
+```html
+<!-- 主畫面：NavigationManagement.cshtml -->
+<div id="navigationModals">
+    @await Html.PartialAsync("_NavigationManagementModal", new vw_sidebar_navigation())
+</div>
+
+<button onclick="showEditModal(123)">編輯</button>
+```
+
+```javascript
+// NavigationManagement.js
+const showEditModal = (id) => showModal('nav-edit-modal', {
+    url: '/Backoffice/SidebarNavigation/LoadDetail',
+    method: 'GET',
+    data: { id: id },
+    container: 'navigationModals'
+});
+```
+
+```cshtml
+<!-- _NavigationManagementModal.cshtml -->
+@model vw_sidebar_navigation
+
+<div id="nav-edit-modal" class="modal fade">
+    <input type="text" value="@(model.title ?? "")" />
 </div>
 ```
 
@@ -820,11 +871,24 @@ Modal 檔案：_{PageName}Modal.cshtml
 
 #### 核心設計模式（重要）
 
-**這是簡化開發的關鍵設計，雖然不常見，但非常有效：**
+Modal.js 作為**通用套件**，支援兩種標準的 Modal 架構模式：
 
-1. **一個檔案包含所有需要數據的 Modal**
-   - 新增、編輯、詳情、刪除等需要 Model 數據的 Modal 放在 PartialView 中
-   - 易於維護和管理
+**模式 A：靜態 Modal 集合（如 Settings）**
+1. **所有 Modal 都是靜態的**
+   - 不需要 `@model` 數據
+   - 在 PartialView 中集中管理所有 Modal
+   - 頁面載入時一次性引入
+
+2. **使用情境**
+   - 說明文檔（error-help, system-help）
+   - 操作指南（navigation-help）
+   - 通用工具（圖標選擇器、顏色選擇器）
+
+**模式 B：動態 Modal 集合（如 NavigationManagement）**
+1. **所有 Modal 需要數據**
+   - 使用 `@model` 傳遞數據
+   - 在 PartialView 中集中管理所有 Modal
+   - 通過 AJAX 重新載入並傳入特定數據
 
 2. **通過 `@model` 控制內容**
    - 頁面初始載入：傳入空 model（用於新增 Modal）
@@ -834,14 +898,15 @@ Modal 檔案：_{PageName}Modal.cshtml
    - 不是只載入單個 Modal，而是重新載入整個容器
    - 雖然看似"浪費"，但實際上簡化了架構
 
-4. **完全靜態的 Modal 放在主畫面**（重要例外）
-   - 如圖標選擇器、顏色選擇器等**通用且不需要數據**的 Modal
+4. **完全靜態的 Modal 獨立放置**
+   - 如圖標選擇器等**與頁面功能無關的通用 Modal**
    - 應該放在主畫面中，避免被 AJAX 重新載入覆蓋
    - 這樣可以保持其狀態（例如已載入的圖標列表）
 
-**區分標準：**
-- 需要 `@model` 數據 → 放在 `_NavigationManagementModal.cshtml`
-- 完全靜態/通用 → 放在主畫面 `NavigationManagement.cshtml`
+**選擇標準：**
+- 所有 Modal 都是靜態 → 使用模式 A（Settings）
+- 所有 Modal 都需要數據 → 使用模式 B（NavigationManagement）
+- 混合情況 → 數據 Modal 放 PartialView，靜態 Modal 放主畫面
 
 #### 工作流程
 
@@ -957,8 +1022,17 @@ Modal 檔案：_NavigationModal.cshtml    ← 錯誤：缺少 Management
 ```
 
 ### 實際範例參考
+
+**Modal.js 套件：**
 - **完整實作**：`HNB/wwwroot/Backoffice/js/Modal.js` (v5.1)
-- **使用範例**：`HNB/wwwroot/Backoffice/js/NavigationManagement.js`
+
+**場景 1：靜態 Modal（Settings 範例）**
+- **JavaScript 範例**：無需專用 JS（直接使用 showModal）
+- **HTML 範例**：`HNB/Areas/Backoffice/Views/Settings/_SettingsModal.cshtml`
+- **頁面範例**：`HNB/Areas/Backoffice/Views/Settings/Settings.cshtml`
+
+**場景 2：動態 Modal（NavigationManagement 範例）**
+- **JavaScript 範例**：`HNB/wwwroot/Backoffice/js/NavigationManagement.js`
 - **HTML 範例**：`HNB/Areas/Backoffice/Views/SidebarNavigation/_NavigationManagementModal.cshtml`
 - **頁面範例**：`HNB/Areas/Backoffice/Views/SidebarNavigation/NavigationManagement.cshtml`
 
@@ -968,6 +1042,11 @@ Modal 檔案：_NavigationModal.cshtml    ← 錯誤：缺少 Management
 - Modal.js 會在 Modal 完全顯示後（`shown.bs.modal` 事件）自動初始化 Lucide 圖標
 - 不需要在頁面 JavaScript 中手動調用 `lucide.createIcons()`
 - 這確保圖標在 Modal 可見時才初始化，避免初始化失敗
+
+**Modal.js 是通用套件：**
+- 不是針對特定頁面或功能設計
+- 適用於整個專案的所有 Modal 需求
+- 兩種使用場景都是標準用法，根據需求選擇
 
 ---
 

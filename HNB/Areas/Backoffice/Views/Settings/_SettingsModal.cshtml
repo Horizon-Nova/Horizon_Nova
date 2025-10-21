@@ -413,27 +413,3 @@
     </div>
 </div>
 
-<script>
-// Modal 顯示/隱藏函數（使用 Bootstrap Modal API）
-function showModal(modalId) {
-    const modalElement = document.getElementById(modalId);
-    if (modalElement) {
-        const modal = new bootstrap.Modal(modalElement);
-        modal.show();
-        // 初始化 modal 內的 Lucide icons
-        if (window.lucide && lucide.createIcons) {
-            lucide.createIcons();
-        }
-    }
-}
-
-function closeModal(modalId) {
-    const modalElement = document.getElementById(modalId);
-    if (modalElement) {
-        const modal = bootstrap.Modal.getInstance(modalElement);
-        if (modal) {
-            modal.hide();
-        }
-    }
-}
-</script>

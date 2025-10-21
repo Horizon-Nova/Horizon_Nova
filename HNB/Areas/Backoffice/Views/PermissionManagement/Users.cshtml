@@ -1,3 +1,4 @@
+@model List<Models.HnbHnbBackoffice.vw_permission_user>
 @{
     ViewData["Title"] = "帳號管理 - 權限管理系統";
     ViewData["PageTitle"] = "帳號管理";
@@ -70,7 +71,9 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-slate-200">
-                    @foreach (var user in ViewBag.Users)
+                    @if (Model != null)
+                    {
+                        @foreach (var user in Model)
                     {
                         <tr class="user-row hover:bg-slate-50 cursor-pointer flex md:table-row flex-col md:flex-row border-b md:border-0" onclick="showUserDetails(@user.id)">
                             <td class="px-4 lg:px-6 py-3 md:py-4">
@@ -139,6 +142,7 @@
                             </td>
                         </tr>
                     }
+                    }
                 </tbody>
             </table>
         </div>
@@ -153,7 +157,7 @@
         let usersTable;
 
         $(document).ready(function() {
-            lucide.createIcons();
+            window.lucide?.createIcons?.();
 
             initializeDataTable();
 
@@ -222,40 +226,32 @@
         }
 
         function showUserDetails(userId) {
-            loadAndShowModal('user', userId, 'userDetailModal');
+            showModal('userDetailModal', {
+                url: '@Url.Action("LoadDetail", "PermissionManagement")',
+                method: 'GET',
+                data: { id: userId },
+                container: 'userModal'
+            });
         }
 
         function showUserAdd() {
-            loadAndShowModal('user', null, 'userFormModal');
+            showModal('userFormModal', {
+                url: '@Url.Action("LoadDetail", "PermissionManagement")',
+                method: 'GET',
+                data: { id: null },
+                container: 'userModal'
+            });
         }
 
         function showUserEdit(userId) {
-            loadAndShowModal('user', userId, 'userFormModal');
-        }
-
-        function loadAndShowModal(type, id, modalId) {
-            $.ajax({
+            showModal('userFormModal', {
                 url: '@Url.Action("LoadDetail", "PermissionManagement")',
-                type: 'GET',
-                data: { id: id },
-                success: function(response) {
-                    $('#userModal').html(response);
-                    lucide.createIcons();
-                    $('#' + modalId).removeClass('hidden');
-                },
-                error: function(xhr, status, error) {
-                    $('#userModal').html(`
-                        <div class="text-center py-4">
-                            <i data-lucide="alert-circle" class="w-12 h-12 text-red-500 mx-auto mb-3"></i>
-                            <p class="text-red-600">載入失敗，請稍後再試</p>
-                            <p class="text-red-500 text-sm">錯誤: ${error}</p>
-                        </div>
-                    `);
-                    lucide.createIcons();
-                    $('#userModal').removeClass('hidden');
-                }
+                method: 'GET',
+                data: { id: userId },
+                container: 'userModal'
             });
         }
+
 
         function deleteItem(id) {
             $.ajax({
@@ -276,8 +272,5 @@
             });
         }
 
-        $(document).on('click', '[data-modal-close]', function() {
-            $('#userModal').addClass('hidden');
-        });
     </script>
 }

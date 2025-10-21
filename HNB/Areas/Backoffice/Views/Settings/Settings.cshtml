@@ -435,10 +435,8 @@
 @section Scripts {
     <script>
         // 初始化 Lucide 圖示
-        document.addEventListener('DOMContentLoaded', function() {
-            if (window.lucide && lucide.createIcons) {
-                lucide.createIcons();
-            }
+        $(document).ready(() => {
+            window.lucide?.createIcons?.();
         });
         
         // 清理日誌
@@ -451,33 +449,28 @@
                 return;
             }
 
-            const button = event.target;
-            const originalText = button.textContent;
-            button.textContent = '清理中...';
-            button.disabled = true;
+            const $button = $(event.target);
+            const originalText = $button.text();
+            $button.prop('disabled', true).text('清理中...');
 
-            fetch('/Backoffice/Settings/ClearLogs', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
+            $.ajax({
+                type: 'POST',
+                url: '/Backoffice/Settings/ClearLogs',
+                data: { logType: logType, is30Days: is30Days },
+                success: (data) => {
+                    if (data.success) {
+                        showNotification(data.message, 'success');
+                        refreshLogStats();
+                    } else {
+                        showNotification(data.message, 'error');
+                    }
                 },
-                body: `logType=${logType}&is30Days=${is30Days}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showNotification(data.message, 'success');
-                    refreshLogStats();
-                } else {
-                    showNotification(data.message, 'error');
+                error: (xhr, status, error) => {
+                    showNotification('清理失敗：' + error, 'error');
+                },
+                complete: () => {
+                    $button.prop('disabled', false).text(originalText);
                 }
-            })
-            .catch(error => {
-                showNotification('清理失敗：' + error.message, 'error');
-            })
-            .finally(() => {
-                button.textContent = originalText;
-                button.disabled = false;
             });
         }
 
@@ -491,65 +484,64 @@
                 return;
             }
 
-            const button = event.target;
-            const originalText = button.textContent;
-            button.textContent = '清理中...';
-            button.disabled = true;
+            const $button = $(event.target);
+            const originalText = $button.text();
+            $button.prop('disabled', true).text('清理中...');
 
-            fetch('/Backoffice/Settings/ClearCache', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
+            $.ajax({
+                type: 'POST',
+                url: '/Backoffice/Settings/ClearCache',
+                data: { cacheType: cacheType, is30Days: is30Days },
+                success: (data) => {
+                    if (data.success) {
+                        showNotification(data.message, 'success');
+                        refreshCacheStats();
+                    } else {
+                        showNotification(data.message, 'error');
+                    }
                 },
-                body: `cacheType=${cacheType}&is30Days=${is30Days}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showNotification(data.message, 'success');
-                    refreshCacheStats();
-                } else {
-                    showNotification(data.message, 'error');
+                error: (xhr, status, error) => {
+                    showNotification('清理失敗：' + error, 'error');
+                },
+                complete: () => {
+                    $button.prop('disabled', false).text(originalText);
                 }
-            })
-            .catch(error => {
-                showNotification('清理失敗：' + error.message, 'error');
-            })
-            .finally(() => {
-                button.textContent = originalText;
-                button.disabled = false;
             });
         }
 
         // 刷新日誌統計
         function refreshLogStats() {
-            fetch('/Backoffice/Settings/RefreshLogStats')
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    document.getElementById('errorLogCount').textContent = data.errorLogs + ' 條記錄';
-                    document.getElementById('accessLogCount').textContent = data.accessLogs + ' 條記錄';
-                    document.getElementById('systemLogCount').textContent = data.accessLogs + ' 條記錄';
+            $.ajax({
+                type: 'GET',
+                url: '/Backoffice/Settings/RefreshLogStats',
+                success: (data) => {
+                    if (data.success) {
+                        $('#errorLogCount').text(data.errorLogs + ' 條記錄');
+                        $('#accessLogCount').text(data.accessLogs + ' 條記錄');
+                        $('#systemLogCount').text(data.accessLogs + ' 條記錄');
+                    }
+                },
+                error: (xhr, status, error) => {
+                    console.error('刷新日誌統計失敗：', error);
                 }
-            })
-            .catch(error => {
-                console.error('刷新日誌統計失敗：', error);
             });
         }
 
         // 刷新快取統計
         function refreshCacheStats() {
-            fetch('/Backoffice/Settings/RefreshCacheStats')
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    document.getElementById('memoryCacheSize').textContent = (data.memoryCacheSize / (1024 * 1024)).toFixed(1) + ' MB';
-                    document.getElementById('databaseCacheSize').textContent = data.cacheEntries + ' 個條目';
-                    document.getElementById('fileCacheSize').textContent = '最後清理：' + data.lastCleared;
+            $.ajax({
+                type: 'GET',
+                url: '/Backoffice/Settings/RefreshCacheStats',
+                success: (data) => {
+                    if (data.success) {
+                        $('#memoryCacheSize').text((data.memoryCacheSize / (1024 * 1024)).toFixed(1) + ' MB');
+                        $('#databaseCacheSize').text(data.cacheEntries + ' 個條目');
+                        $('#fileCacheSize').text('最後清理：' + data.lastCleared);
+                    }
+                },
+                error: (xhr, status, error) => {
+                    console.error('刷新快取統計失敗：', error);
                 }
-            })
-            .catch(error => {
-                console.error('刷新快取統計失敗：', error);
             });
         }
 
@@ -576,50 +568,45 @@
 
         // 顯示通知
         function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
             const bgColor = type === 'success' ? 'bg-success' : type === 'error' ? 'bg-danger' : 'bg-primary';
-            notification.className = `position-fixed top-0 end-0 m-3 p-3 rounded shadow-lg text-white ${bgColor}`;
-            notification.style.zIndex = '9999';
-            notification.textContent = message;
+            const $notification = $('<div>')
+                .addClass(`position-fixed top-0 end-0 m-3 p-3 rounded shadow-lg text-white ${bgColor}`)
+                .css('z-index', '9999')
+                .text(message);
 
-            document.body.appendChild(notification);
+            $('body').append($notification);
 
             setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.parentNode.removeChild(notification);
-                }
+                $notification.remove();
             }, 3000);
         }
 
         // 切換維護模式
         function toggleMaintenanceMode() {
-            const checkbox = document.getElementById('maintenanceMode');
-            const enabled = checkbox.checked;
+            const $checkbox = $('#maintenanceMode');
+            const enabled = $checkbox.prop('checked');
             
             if (!confirm(enabled ? '確定要啟用維護模式嗎？這將暫時關閉網站。' : '確定要停用維護模式嗎？')) {
-                checkbox.checked = !enabled;
+                $checkbox.prop('checked', !enabled);
                 return;
             }
 
-            fetch('/Backoffice/Settings/ToggleMaintenanceMode', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
+            $.ajax({
+                type: 'POST',
+                url: '/Backoffice/Settings/ToggleMaintenanceMode',
+                data: { enabled: enabled },
+                success: (data) => {
+                    if (data.success) {
+                        showNotification(data.message, 'success');
+                    } else {
+                        showNotification(data.message, 'error');
+                        $checkbox.prop('checked', !enabled);
+                    }
                 },
-                body: `enabled=${enabled}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showNotification(data.message, 'success');
-                } else {
-                    showNotification(data.message, 'error');
-                    checkbox.checked = !enabled;
+                error: (xhr, status, error) => {
+                    showNotification('操作失敗：' + error, 'error');
+                    $checkbox.prop('checked', !enabled);
                 }
-            })
-            .catch(error => {
-                showNotification('操作失敗：' + error.message, 'error');
-                checkbox.checked = !enabled;
             });
         }
 
@@ -629,34 +616,29 @@
                 return;
             }
             
-            const button = event.target;
-            const originalText = button.textContent;
-            button.textContent = '優化中...';
-            button.disabled = true;
+            const $button = $(event.target);
+            const originalText = $button.text();
+            $button.prop('disabled', true).text('優化中...');
 
-            fetch('/Backoffice/Settings/OptimizeDatabase', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showNotification(data.message, 'success');
-                    if (data.details) {
-                        console.log('優化詳情：', data.details);
+            $.ajax({
+                type: 'POST',
+                url: '/Backoffice/Settings/OptimizeDatabase',
+                success: (data) => {
+                    if (data.success) {
+                        showNotification(data.message, 'success');
+                        if (data.details) {
+                            console.log('優化詳情：', data.details);
+                        }
+                    } else {
+                        showNotification(data.message, 'error');
                     }
-                } else {
-                    showNotification(data.message, 'error');
+                },
+                error: (xhr, status, error) => {
+                    showNotification('優化失敗：' + error, 'error');
+                },
+                complete: () => {
+                    $button.prop('disabled', false).text(originalText);
                 }
-            })
-            .catch(error => {
-                showNotification('優化失敗：' + error.message, 'error');
-            })
-            .finally(() => {
-                button.textContent = originalText;
-                button.disabled = false;
             });
         }
 
@@ -666,31 +648,26 @@
                 return;
             }
             
-            const button = event.target;
-            const originalText = button.textContent;
-            button.textContent = '重啟中...';
-            button.disabled = true;
+            const $button = $(event.target);
+            const originalText = $button.text();
+            $button.prop('disabled', true).text('重啟中...');
 
-            fetch('/Backoffice/Settings/RestartSystem', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
+            $.ajax({
+                type: 'POST',
+                url: '/Backoffice/Settings/RestartSystem',
+                success: (data) => {
+                    if (data.success) {
+                        showNotification(data.message, 'success');
+                    } else {
+                        showNotification(data.message, 'error');
+                    }
+                },
+                error: (xhr, status, error) => {
+                    showNotification('重啟失敗：' + error, 'error');
+                },
+                complete: () => {
+                    $button.prop('disabled', false).text(originalText);
                 }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showNotification(data.message, 'success');
-                } else {
-                    showNotification(data.message, 'error');
-                }
-            })
-            .catch(error => {
-                showNotification('重啟失敗：' + error.message, 'error');
-            })
-            .finally(() => {
-                button.textContent = originalText;
-                button.disabled = false;
             });
         }
     </script>
