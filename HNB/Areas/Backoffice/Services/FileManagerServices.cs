@@ -1,133 +1,70 @@
 ﻿using HNB.Areas.Backoffice.Utilities;
-using HNB.Areas.Backoffice.Repositories;
 using HNB.Areas.Backoffice.Models;
 using Microsoft.AspNetCore.Http;
-using Models.HnbHnbBackoffice;
 
 namespace HNB.Areas.Backoffice.Services;
 
 /// <summary>
 /// 檔案管理服務層，負責處理檔案和資料夾的業務邏輯
 /// </summary>
-public class FileManagerServices(DirectoryManagerUtilities DM, FileManagerRepository repo, IHttpContextAccessor httpContextAccessor)
+public class FileManagerServices(DirectoryManagerUtilities DM, IHttpContextAccessor httpContextAccessor)
 {
     #region 查詢方法
-    
-    public List<file_manager> LoadFileManagerList(file_manager? filter = null, string? currentUsername = null)
-        => repo.QueryFileManagerList(filter, currentUsername);
-    
-    public file_manager? LoadFileManager(file_manager filter)
-        => repo.QueryFileManager(filter);
-    
-    public List<vw_file_manager> LoadVWFileManagerList(vw_file_manager? filter = null, string? currentUsername = null)
-        => repo.QueryVWFileManagerList(filter, currentUsername);
-    
-    public vw_file_manager? LoadVWFileManager(vw_file_manager filter)
-        => repo.QueryVWFileManager(filter);
     
     public (string Content, string EncodingName, DateTime? LastWriteUtc) LoadTextFile(string virtualPath, string fileName, long maxBytes = 1_048_576)
         => DM.LoadTextFile(virtualPath, fileName, maxBytes);
 
     public List<FileSystemItem> LoadFileSystemItems(string virtualPath)
         => DM.LoadFileSystemItems(virtualPath);
+
+    public List<(string Name, string VirtualPath, int Depth)> LoadTree()
+        => DM.LoadTree();
         
     #endregion
 
     #region 基本 CRUD 操作
     
-    public void CreateFolder(string virtualPath, string folderName, List<string>? sharedUsers = null)
-    {
-        // 先建立資料夾
-        DM.CreateFolder(virtualPath, folderName);
-        
-        // 同步到資料庫（一律以當前登入者作為擁有者來源）
-        var currentUser = httpContextAccessor?.HttpContext?.User?.Identity?.Name;
-        DM.SyncAllFilesToDatabase(currentUser);
-        
-        // 設置共享使用者
-        if (sharedUsers != null && sharedUsers.Any())
-        {
-            var filter = new file_manager { file_path = virtualPath, file_name = folderName };
-            var entity = repo.QueryFileManager(filter);
-            if (entity != null)
-            {
-                entity.shared_users = sharedUsers;
-                repo.UpdateFileManager(entity);
-            }
-        }
-    }
+    public void CreateFolder(string virtualPath, string folderName)
+        => DM.CreateFolder(virtualPath, folderName);
     
     public void DeleteFolder(string virtualPath, string folderName)
-    {
-        DM.DeleteFolder(virtualPath, folderName);
-        var currentUser = httpContextAccessor?.HttpContext?.User?.Identity?.Name;
-        DM.SyncAllFilesToDatabase(currentUser);
-    }
+        => DM.DeleteFolder(virtualPath, folderName);
     
-    public void RenameFolder(string virtualPath, string oldName, string newName, List<string>? sharedUsers = null)
-    {
-        DM.RenameFolder(virtualPath, oldName, newName, sharedUsers);
-        var currentUser = httpContextAccessor?.HttpContext?.User?.Identity?.Name;
-        DM.SyncAllFilesToDatabase(currentUser);
-    }
+    public void RenameFolder(string virtualPath, string oldName, string newName)
+        => DM.RenameFolder(virtualPath, oldName, newName);
     
-    public void CreateFile(string virtualPath, string fileName, List<string>? sharedUsers = null)
-    {
-        // 先建立檔案
-        DM.CreateEmptyFile(virtualPath, fileName);
-        
-        // 同步到資料庫（一律以當前登入者作為擁有者來源）
-        var currentUserForFile = httpContextAccessor?.HttpContext?.User?.Identity?.Name;
-        DM.SyncAllFilesToDatabase(currentUserForFile);
-        
-        // 設置共享使用者
-        if (sharedUsers != null && sharedUsers.Any())
-        {
-            var filter = new file_manager { file_path = virtualPath, file_name = fileName };
-            var entity = repo.QueryFileManager(filter);
-            if (entity != null)
-            {
-                entity.shared_users = sharedUsers;
-                repo.UpdateFileManager(entity);
-            }
-        }
-    }
+    public void CreateFile(string virtualPath, string fileName)
+        => DM.CreateEmptyFile(virtualPath, fileName);
     
     public void DeleteFile(string virtualPath, string fileName)
-    {
-        DM.DeleteFile(virtualPath, fileName);
-        var currentUser = httpContextAccessor?.HttpContext?.User?.Identity?.Name;
-        DM.SyncAllFilesToDatabase(currentUser);
-    }
+        => DM.DeleteFile(virtualPath, fileName);
     
-    public void RenameFile(string virtualPath, string oldName, string newName, List<string>? sharedUsers = null)
-    {
-        DM.RenameFile(virtualPath, oldName, newName, sharedUsers);
-        var currentUser = httpContextAccessor?.HttpContext?.User?.Identity?.Name;
-        DM.SyncAllFilesToDatabase(currentUser);
-    }
+    public void RenameFile(string virtualPath, string oldName, string newName)
+        => DM.RenameFile(virtualPath, oldName, newName);
     
     public void SaveTextFile(string virtualPath, string fileName, string content, string? encodingName = "utf-8")
-    {
-        DM.SaveTextFile(virtualPath, fileName, content, encodingName);
-        var currentUser = httpContextAccessor?.HttpContext?.User?.Identity?.Name;
-        DM.SyncAllFilesToDatabase(currentUser);
-    }
+        => DM.SaveTextFile(virtualPath, fileName, content, encodingName);
     
     #endregion
 
 
-    #region 輔助方法
+    #region 上傳和下載
     
     public (bool success, string message, string? safeFileName) UploadSingleFile(string virtualPath, IFormFile file)
     {
         var (absPath, safeName) = DM.PrepareSingleUploadTarget(virtualPath, file.FileName);
         
-        using var stream = new FileStream(absPath, FileMode.Create);
-        file.CopyTo(stream);
+        using (var stream = new FileStream(absPath, FileMode.Create))
+        {
+            file.CopyTo(stream);
+        }
         
-        var defaultUser = httpContextAccessor?.HttpContext?.User?.Identity?.Name;
-        DM.SyncAllFilesToDatabase(defaultUser);
+        // 設定擁有者（上傳者永遠在第一位）
+        var uploader = httpContextAccessor?.HttpContext?.User?.Identity?.Name;
+        if (!string.IsNullOrWhiteSpace(uploader))
+        {
+            DirectoryManagerUtilities.UpsertAppOwnersWithActorFirst(absPath, uploader);
+        }
         
         return (true, "檔案已上傳", safeName);
     }
@@ -136,6 +73,7 @@ public class FileManagerServices(DirectoryManagerUtilities DM, FileManagerReposi
     {
         var saved = 0;
         var errors = new List<string>();
+        var uploader = httpContextAccessor?.HttpContext?.User?.Identity?.Name;
         
         relativePaths ??= files.Select(f => f.FileName).ToList();
         
@@ -144,16 +82,28 @@ public class FileManagerServices(DirectoryManagerUtilities DM, FileManagerReposi
         
         for (int i = 0; i < files.Count; i++)
         {
-            var (absPath, _, _) = DM.PrepareBatchUploadTarget(virtualPath, relativePaths[i]);
-            
-            using var stream = new FileStream(absPath, FileMode.Create);
-            files[i].CopyTo(stream);
-            
-            saved++;
+            try
+            {
+                var (absPath, _, _) = DM.PrepareBatchUploadTarget(virtualPath, relativePaths[i]);
+                
+                using (var stream = new FileStream(absPath, FileMode.Create))
+                {
+                    files[i].CopyTo(stream);
+                }
+                
+                // 設定擁有者（上傳者永遠在第一位）
+                if (!string.IsNullOrWhiteSpace(uploader))
+                {
+                    DirectoryManagerUtilities.UpsertAppOwnersWithActorFirst(absPath, uploader);
+                }
+                
+                saved++;
+            }
+            catch (Exception ex)
+            {
+                errors.Add($"{relativePaths[i]}: {ex.Message}");
+            }
         }
-        
-        var defaultUser = httpContextAccessor?.HttpContext?.User?.Identity?.Name;
-        DM.SyncAllFilesToDatabase(defaultUser);
         
         var failed = errors.Count;
         return (failed == 0, saved, failed, errors);

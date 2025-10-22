@@ -1,5 +1,3 @@
-@model List<HNB.Areas.Backoffice.Models.FileSystemItem>
-
 @{
     ViewData["Title"] = "檔案總管";
     ViewData["PageTitle"] = "檔案總管";
@@ -9,41 +7,16 @@
 
     var currentPath = ViewBag.CurrentPath as string ?? "/";
     var currentUser = User?.Identity?.Name ?? "guest";
-    var folders = Model?.Where(f => f.Type == "folder" && f.VirtualPath == currentPath).ToList() ?? new();
-    var files = Model?.Where(f => f.Type == "file" && f.VirtualPath == currentPath).ToList() ?? new();
+    var allItems = ViewBag.Items as List<HNB.Areas.Backoffice.Models.FileSystemItem> ?? new();
+    var folders = allItems.Where(f => f.Type == "folder" && f.VirtualPath == currentPath).ToList();
+    var files = allItems.Where(f => f.Type == "file" && f.VirtualPath == currentPath).ToList();
 
     var folderCount = folders.Count;
     var fileCount = files.Count;
     var totalSize = files.Sum(f => f.Size ?? 0L);
 
-    var allFolders = Model?.Where(f => f.Type == "folder").ToList() ?? new();
-    var childrenMap = new Dictionary<string, List<string>>(StringComparer.Ordinal);
-    foreach (var f in allFolders)
-    {
-        var parent = f.VirtualPath ?? "/";
-        if (!childrenMap.TryGetValue(parent, out var list))
-        {
-            list = new List<string>();
-            childrenMap[parent] = list;
-        }
-        list.Add(f.Name ?? "");
-    }
-    foreach (var key in childrenMap.Keys.ToList())
-        childrenMap[key] = childrenMap[key].Distinct(StringComparer.Ordinal).OrderBy(n => n, StringComparer.Ordinal).ToList();
-
-    var tree = new List<(string Name, string VirtualPath, int Depth)>();
-    void Append(string parentPath, int depth)
-    {
-        if (!childrenMap.TryGetValue(parentPath, out var names)) return;
-        foreach (var name in names)
-        {
-            var vp = parentPath == "/" ? "/" + name : parentPath + "/" + name;
-            var d = depth + 1;
-            tree.Add((name, vp, d));
-            Append(vp, d);
-        }
-    }
-    Append("/", 0);
+    // 使用從後端載入的目錄樹（已包含權限控制）
+    var tree = ViewBag.Tree as List<(string Name, string VirtualPath, int Depth)> ?? new();
 
     var breadcrumb = new List<(string Name, string VirtualPath)>();
     if (currentPath == "/")
@@ -243,10 +216,17 @@
                                 <td class="fw-semibold">@name</td>
                                 <td data-order="0">—</td>
                                 <td>
-                                    <span class="d-inline-flex align-items-center gap-1 @(isOwner ? "text-primary" : "")">
-                                        <i data-lucide="user-check" class="@(isOwner ? "" : "d-none")" style="width:0.9rem;height:0.9rem;"></i>
-                                        <span class="@(isOwner ? "fw-semibold" : "")">@(isOwner ? "我" : owner)</span>
-                                    </span>
+                                    @if (sharedUsers != null && sharedUsers.Count > 0)
+                                    {
+                                        foreach (var sharedOwner in sharedUsers)
+                                        {
+                                            <span class="badge bg-primary me-1">@sharedOwner</span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">未設定</span>
+                                    }
                                 </td>
                                 <td>
                                     @{
@@ -286,10 +266,17 @@
                                 <td>@name</td>
                                 <td data-order="@size">@FormatSize(size)</td>
                                 <td>
-                                    <span class="d-inline-flex align-items-center gap-1 @(isOwner ? "text-primary" : "")">
-                                        <i data-lucide="user-check" class="@(isOwner ? "" : "d-none")" style="width:0.9rem;height:0.9rem;"></i>
-                                        <span class="@(isOwner ? "fw-semibold" : "")">@(isOwner ? "我" : owner)</span>
-                                    </span>
+                                    @if (sharedUsers != null && sharedUsers.Count > 0)
+                                    {
+                                        foreach (var sharedOwner in sharedUsers)
+                                        {
+                                            <span class="badge bg-primary me-1">@sharedOwner</span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">未設定</span>
+                                    }
                                 </td>
                                 <td>
                                     @{

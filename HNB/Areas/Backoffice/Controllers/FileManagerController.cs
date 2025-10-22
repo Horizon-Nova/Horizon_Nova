@@ -16,10 +16,12 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     {
         ViewBag.CurrentPath = path ?? "/";
 
-        // 直接從檔案系統讀取，不依賴資料庫
         var allData = svc.LoadFileSystemItems(path ?? "/");
+        ViewBag.Items = allData;
+        
+        ViewBag.Tree = svc.LoadTree();
 
-        return View(allData);
+        return View();
     }
     #endregion
 
@@ -50,7 +52,7 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     [HttpPost]
     public IActionResult CreateFolder([FromBody] CreateItemRequest request)
     {
-        svc.CreateFolder(request.Path, request.Name, request.SharedUsers);
+        svc.CreateFolder(request.Path, request.Name);
         return Json(new FileManagerResponse { Success = true, Message = "資料夾已建立" });
     }
 
@@ -70,7 +72,7 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     [HttpPost]
     public IActionResult RenameFolder([FromBody] RenameItemRequest request)
     {
-        svc.RenameFolder(request.Path, request.OldName, request.NewName, request.SharedUsers);
+        svc.RenameFolder(request.Path, request.OldName, request.NewName);
         return Json(new FileManagerResponse { Success = true, Message = "資料夾已重新命名" });
     }
     #endregion
@@ -82,7 +84,7 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     [HttpPost]
     public IActionResult CreateFile([FromBody] CreateItemRequest request)
     {
-        svc.CreateFile(request.Path, request.Name, request.SharedUsers);
+        svc.CreateFile(request.Path, request.Name);
         return Json(new FileManagerResponse { Success = true, Message = "檔案已建立" });
     }
 
@@ -102,7 +104,7 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     [HttpPost]
     public IActionResult RenameFile([FromBody] RenameItemRequest request)
     {
-        svc.RenameFile(request.Path, request.OldName, request.NewName, request.SharedUsers);
+        svc.RenameFile(request.Path, request.OldName, request.NewName);
         return Json(new FileManagerResponse { Success = true, Message = "檔案已重新命名" });
     }
 

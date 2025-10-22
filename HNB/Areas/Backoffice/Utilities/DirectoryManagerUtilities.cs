@@ -3,9 +3,8 @@ using System.IO.Compression;
 using System.Net;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
-using Models.HnbHnbBackoffice;
+using System.Runtime.InteropServices;
 using HNB.Areas.Backoffice.Models;
 
 namespace HNB.Areas.Backoffice.Utilities;
@@ -34,16 +33,8 @@ public sealed class DirectoryManagerUtilities
         ".log",".py",".sh",".bat",".ps1",".sql",".env",".properties",".toml",".gitignore",".editorconfig"
     };
     
-    // 延遲載入 Repository（避免循環依賴）
+    // 延遲載入 HttpContextAccessor（取得當前使用者）
     private readonly IServiceProvider _serviceProvider;
-	// 同步鎖（防止並行執行）
-	private static readonly object _syncLock = new object();
-    private static readonly JsonSerializerOptions MetaJsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        WriteIndented = false,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-    };
     #endregion
 
     #region 建構子和初始化
@@ -102,6 +93,7 @@ public sealed class DirectoryManagerUtilities
 
     /// <summary>
     /// 直接從檔案系統載入檔案管理項目（不依賴資料庫）
+    /// 只回傳當前用戶有權限的項目
     /// </summary>
     /// <param name="virtualPath">虛擬路徑</param>
     /// <returns>檔案管理項目清單</returns>
@@ -112,13 +104,26 @@ public sealed class DirectoryManagerUtilities
         
         if (!Directory.Exists(absDir)) return items;
 
+        var currentUser = GetCurrentUserOrNull();
+
         // 載入資料夾
         foreach (var dir in Directory.GetDirectories(absDir))
         {
             var folderName = Path.GetFileName(dir);
             if (IsProtected(virtualPath, folderName)) continue;
 
-            var owner = TryReadOwnerFromDirectory(dir) ?? GetCurrentUserOrNull() ?? "system";
+            var owners = GetAppOwners(dir);
+            
+            // 權限控制：只有擁有者才能看到
+            if (owners.Length > 0 && currentUser != null)
+            {
+                if (!owners.Any(o => o.Equals(currentUser, StringComparison.OrdinalIgnoreCase)))
+                {
+                    continue; // 不是擁有者，跳過
+                }
+            }
+            
+            var primaryOwner = owners.Length > 0 ? owners[0] : (currentUser ?? "system");
             var dirInfo = new DirectoryInfo(dir);
 
             items.Add(new FileSystemItem
@@ -127,8 +132,8 @@ public sealed class DirectoryManagerUtilities
                 Type = "folder",
                 Size = null,
                 MimeType = null,
-                Owner = owner,
-                SharedUsers = new List<string> { owner }, // 預設只有擁有者
+                Owner = primaryOwner,
+                SharedUsers = owners.Length > 0 ? owners.ToList() : new List<string> { primaryOwner },
                 CreatedAt = dirInfo.CreationTimeUtc,
                 UpdatedAt = dirInfo.LastWriteTimeUtc,
                 VirtualPath = virtualPath
@@ -141,7 +146,18 @@ public sealed class DirectoryManagerUtilities
             var fileName = Path.GetFileName(file);
             if (IsProtected(virtualPath, fileName)) continue;
 
-            var owner = TryReadOwnerFromFile(file) ?? GetCurrentUserOrNull() ?? "system";
+            var owners = GetAppOwners(file);
+            
+            // 權限控制：只有擁有者才能看到
+            if (owners.Length > 0 && currentUser != null)
+            {
+                if (!owners.Any(o => o.Equals(currentUser, StringComparison.OrdinalIgnoreCase)))
+                {
+                    continue; // 不是擁有者，跳過
+                }
+            }
+            
+            var primaryOwner = owners.Length > 0 ? owners[0] : (currentUser ?? "system");
             var fileInfo = new FileInfo(file);
 
             items.Add(new FileSystemItem
@@ -150,8 +166,8 @@ public sealed class DirectoryManagerUtilities
                 Type = "file",
                 Size = fileInfo.Length,
                 MimeType = GetMimeType(fileName),
-                Owner = owner,
-                SharedUsers = new List<string> { owner }, // 預設只有擁有者
+                Owner = primaryOwner,
+                SharedUsers = owners.Length > 0 ? owners.ToList() : new List<string> { primaryOwner },
                 CreatedAt = fileInfo.CreationTimeUtc,
                 UpdatedAt = fileInfo.LastWriteTimeUtc,
                 VirtualPath = virtualPath
@@ -183,12 +199,15 @@ public sealed class DirectoryManagerUtilities
     }
 
     /// <summary>
-    /// 載入目錄樹結構
+    /// 載入目錄樹結構（含權限控制）
+    /// 只回傳當前用戶有權限的資料夾
     /// </summary>
     /// <returns>目錄樹清單</returns>
     public List<(string Name, string VirtualPath, int Depth)> LoadTree()
     {
-        var tree = new List<(string, string, int)> { ("根目錄", "/", 0) };
+        var tree = new List<(string, string, int)>();
+        var currentUser = GetCurrentUserOrNull();
+        
         try
         {
             Dfs("/", 1);
@@ -209,6 +228,16 @@ public sealed class DirectoryManagerUtilities
                 {
                     var name = Path.GetFileName(dir);
                     if (IsProtected(curV, name)) continue;
+
+                    // 權限控制：檢查是否為擁有者
+                    var owners = GetAppOwners(dir);
+                    if (owners.Length > 0 && currentUser != null)
+                    {
+                        if (!owners.Any(o => o.Equals(currentUser, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            continue; // 不是擁有者，跳過
+                        }
+                    }
 
                     var childV = curV == "/" ? "/" + name : curV + "/" + name;
                     tree.Add((name, childV, depth));
@@ -278,13 +307,13 @@ public sealed class DirectoryManagerUtilities
         var newDir = EnsureUniqueDirectory(Path.Combine(absDir, safe));
         Directory.CreateDirectory(newDir);
 
-        // 在資料夾建立後，寫入擁有者資訊（隱藏檔案 .owner）
+        // 設定擁有者（操作者永遠在第一位）
         try
         {
             var owner = GetCurrentUserOrNull();
             if (!string.IsNullOrWhiteSpace(owner))
             {
-                WriteOwnerMetaForDirectory(newDir, owner);
+                UpsertAppOwnersWithActorFirst(newDir, owner);
             }
         }
         catch { /* 忽略非關鍵錯誤，不影響主流程 */ }
@@ -307,13 +336,13 @@ public sealed class DirectoryManagerUtilities
         var target = EnsureUniqueFile(Path.Combine(absDir, safe));
         File.WriteAllBytes(target, Array.Empty<byte>());
 
-        // 在檔案旁建立 .owner 檔案紀錄擁有者
+        // 設定擁有者（操作者永遠在第一位）
         try
         {
             var owner = GetCurrentUserOrNull();
             if (!string.IsNullOrWhiteSpace(owner))
             {
-                WriteOwnerMetaForFile(target, owner);
+                UpsertAppOwnersWithActorFirst(target, owner);
             }
         }
         catch { /* 忽略非關鍵錯誤 */ }
@@ -340,13 +369,7 @@ public sealed class DirectoryManagerUtilities
         if (!File.Exists(full)) throw new FileNotFoundException($"檔案不存在: {fileName}");
         
         File.Delete(full);
-        // 一併刪除 .owner 檔
-        try
-        {
-            var meta = full + ".owner";
-            if (File.Exists(meta)) File.Delete(meta);
-        }
-        catch { /* 忽略非關鍵錯誤 */ }
+        // 應用程式擁有者儲存在 ADS/xattr，會隨檔案一起刪除
     }
 
     /// <summary>
@@ -371,14 +394,8 @@ public sealed class DirectoryManagerUtilities
         
         if (dir == _root || dir.Length <= _root.Length) throw new InvalidOperationException("禁止刪除根目錄");
         
-        // 先移除目錄層級的 .owner
-        try
-        {
-            var meta = Path.Combine(dir, ".owner");
-            if (File.Exists(meta)) File.Delete(meta);
-        }
-        catch { /* 忽略非關鍵錯誤 */ }
         Directory.Delete(dir, recursive: true);
+        // 應用程式擁有者儲存在 ADS/xattr，會隨資料夾一起刪除
     }
 
     /// <summary>
@@ -387,7 +404,7 @@ public sealed class DirectoryManagerUtilities
     /// <param name="virtualPath">虛擬路徑</param>
     /// <param name="oldName">舊檔名</param>
     /// <param name="newName">新檔名</param>
-    public void RenameFile(string virtualPath, string oldName, string newName, List<string>? sharedUsers = null)
+    public void RenameFile(string virtualPath, string oldName, string newName)
     {
         var absDir = GetSafeAbsolutePath(virtualPath);
         var src = Path.Combine(absDir, SanitizeName(oldName));
@@ -400,18 +417,7 @@ public sealed class DirectoryManagerUtilities
         if (File.Exists(dst)) throw new InvalidOperationException("目標檔名已存在");
 
         File.Move(src, dst);
-
-        // 如果存在舊的 .owner 檔，跟著改名
-        try
-        {
-            var srcMeta = src + ".owner";
-            var dstMeta = dst + ".owner";
-            if (File.Exists(srcMeta))
-            {
-                File.Move(srcMeta, dstMeta);
-            }
-        }
-        catch { /* 忽略非關鍵錯誤 */ }
+        // 應用程式擁有者儲存在 ADS/xattr，會隨檔案一起移動
     }
 
     /// <summary>
@@ -420,7 +426,7 @@ public sealed class DirectoryManagerUtilities
     /// <param name="virtualPath">虛擬路徑</param>
     /// <param name="oldName">舊資料夾名</param>
     /// <param name="newName">新資料夾名</param>
-    public void RenameFolder(string virtualPath, string oldName, string newName, List<string>? sharedUsers = null)
+    public void RenameFolder(string virtualPath, string oldName, string newName)
     {
         var absDir = GetSafeAbsolutePath(virtualPath);
 
@@ -434,18 +440,7 @@ public sealed class DirectoryManagerUtilities
         if (Directory.Exists(dst)) throw new InvalidOperationException("目標資料夾已存在");
 
         Directory.Move(src, dst);
-
-        // 如果存在舊的 .owner 檔，跟著改名/移動
-        try
-        {
-            var srcMeta = Path.Combine(src, ".owner");
-            var dstMeta = Path.Combine(dst, ".owner");
-            if (File.Exists(srcMeta))
-            {
-                File.Move(srcMeta, dstMeta);
-            }
-        }
-        catch { /* 忽略非關鍵錯誤 */ }
+        // 應用程式擁有者儲存在 ADS/xattr，會隨資料夾一起移動
     }
 
     /// <summary>
@@ -472,17 +467,7 @@ public sealed class DirectoryManagerUtilities
             : Encoding.UTF8;
 
         File.WriteAllText(full, content ?? string.Empty, enc);
-
-        // 若檔案無擁有者，補寫入當前使用者
-        try
-        {
-            var owner = GetCurrentUserOrNull();
-            if (!string.IsNullOrWhiteSpace(owner))
-            {
-                EnsureOwnerMetaIfMissing(full, owner);
-            }
-        }
-        catch { /* 忽略非關鍵錯誤 */ }
+        // 編輯檔案不影響擁有者（ADS/xattr 會保留）
     }
 
     /// <summary>
@@ -524,17 +509,7 @@ public sealed class DirectoryManagerUtilities
         if (IsProtected(virtualPath, safeName)) throw new InvalidOperationException("保護路徑，禁止上傳");
 
         var absTarget = EnsureUniqueFile(Path.Combine(absDir, safeName));
-        // 預先寫入擁有者（若尚未存在）
-        try
-        {
-            var owner = GetCurrentUserOrNull();
-            if (!string.IsNullOrWhiteSpace(owner))
-            {
-                EnsureOwnerMetaIfMissing(absTarget, owner);
-            }
-        }
-        catch { /* 忽略非關鍵錯誤 */ }
-
+        
         return (absTarget, Path.GetFileName(absTarget));
     }
 
@@ -565,17 +540,7 @@ public sealed class DirectoryManagerUtilities
         Directory.CreateDirectory(absDir);
 
         var absTarget = EnsureUniqueFile(Path.Combine(absDir, filePart));
-        // 預先寫入擁有者（若尚未存在）
-        try
-        {
-            var owner = GetCurrentUserOrNull();
-            if (!string.IsNullOrWhiteSpace(owner))
-            {
-                EnsureOwnerMetaIfMissing(absTarget, owner);
-            }
-        }
-        catch { /* 忽略非關鍵錯誤 */ }
-
+        
         return (absTarget, Path.GetFileName(absTarget), targetVDir);
     }
 
@@ -795,74 +760,6 @@ public sealed class DirectoryManagerUtilities
     }
 
     /// <summary>
-    /// 寫入資料夾擁有者（.owner JSON 檔）
-    /// </summary>
-    private void WriteOwnerMetaForDirectory(string absDir, string owner)
-    {
-        var meta = Path.Combine(absDir, ".owner");
-        var json = JsonSerializer.Serialize(new { owner }, MetaJsonOptions);
-        File.WriteAllText(meta, json, Encoding.UTF8);
-    }
-
-    /// <summary>
-    /// 寫入檔案擁有者（相鄰 .owner 檔）
-    /// </summary>
-    private void WriteOwnerMetaForFile(string absFilePath, string owner)
-    {
-        var meta = absFilePath + ".owner";
-        var json = JsonSerializer.Serialize(new { owner }, MetaJsonOptions);
-        File.WriteAllText(meta, json, Encoding.UTF8);
-    }
-
-    /// <summary>
-    /// 若未設定擁有者，補寫入 .owner
-    /// </summary>
-    private void EnsureOwnerMetaIfMissing(string absFilePath, string owner)
-    {
-        var meta = absFilePath + ".owner";
-        if (!File.Exists(meta))
-        {
-            WriteOwnerMetaForFile(absFilePath, owner);
-        }
-    }
-
-    private string? TryReadOwnerFromFile(string absFilePath)
-    {
-        try
-        {
-            var meta = absFilePath + ".owner";
-            if (!File.Exists(meta)) return null;
-            var json = File.ReadAllText(meta);
-            var doc = JsonDocument.Parse(json);
-            if (doc.RootElement.TryGetProperty("owner", out var el))
-            {
-                var v = el.GetString();
-                return string.IsNullOrWhiteSpace(v) ? null : v;
-            }
-        }
-        catch { }
-        return null;
-    }
-
-    private string? TryReadOwnerFromDirectory(string absDir)
-    {
-        try
-        {
-            var meta = Path.Combine(absDir, ".owner");
-            if (!File.Exists(meta)) return null;
-            var json = File.ReadAllText(meta);
-            var doc = JsonDocument.Parse(json);
-            if (doc.RootElement.TryGetProperty("owner", out var el))
-            {
-                var v = el.GetString();
-                return string.IsNullOrWhiteSpace(v) ? null : v;
-            }
-        }
-        catch { }
-        return null;
-    }
-
-    /// <summary>
     /// 建立忽略規則快取
     /// </summary>
     private void BuildIgnoreRegexCache()
@@ -932,101 +829,6 @@ public sealed class DirectoryManagerUtilities
     }
     #endregion
 
-    #region 資料庫同步方法
-
-    /// <summary>
-    /// 完整同步檔案系統到資料庫（覆蓋方式）
-    /// </summary>
-    public void SyncAllFilesToDatabase(string? defaultSharedUser = null)
-	{
-		lock (_syncLock)
-		{
-			var repo = _serviceProvider.GetService<Repositories.FileManagerRepository>();
-			if (repo == null) return;
-			
-			var existingRecords = repo.QueryFileManagerList(currentUsername: null);
-			var existingSharedUsers = existingRecords
-				.GroupBy(r => $"{r.file_path}|{r.file_name}")
-				.ToDictionary(g => g.Key, g => g.First().shared_users);
-			
-            var allItems = new List<file_manager>();
-            CollectAllItems(_root, "/", allItems, existingSharedUsers, defaultSharedUser);
-			
-			var uniqueItems = allItems
-				.GroupBy(item => $"{item.file_path}|{item.file_name}")
-				.Select(g => g.First())
-				.ToList();
-			
-			repo.InsertFileManagerBatch(uniqueItems, defaultSharedUser);
-		}
-	}
-    
-    /// <summary>
-    /// 遞迴收集所有檔案和資料夾
-    /// </summary>
-    private void CollectAllItems(string physicalPath, string virtualPath, List<file_manager> items, Dictionary<string, List<string>?> existingSharedUsers, string? defaultSharedUser)
-    {
-        if (!Directory.Exists(physicalPath)) return;
-
-        foreach (var dir in Directory.GetDirectories(physicalPath))
-        {
-            var folderName = Path.GetFileName(dir);
-            if (IsProtected(virtualPath, folderName)) continue;
-            
-            var key = $"{virtualPath}|{folderName}";
-            var sharedUsers = existingSharedUsers.ContainsKey(key) ? existingSharedUsers[key] : null;
-            if (sharedUsers == null || sharedUsers.Count == 0)
-            {
-                var fallback = !string.IsNullOrWhiteSpace(defaultSharedUser) ? defaultSharedUser! : "system";
-                sharedUsers = new List<string> { fallback };
-            }
-            // 讀取資料夾擁有者（優先 .owner），否則回退為 defaultSharedUser 或 null
-            var ownerFromMetaForDir = TryReadOwnerFromDirectory(dir) ?? (string.IsNullOrWhiteSpace(defaultSharedUser) ? "system" : defaultSharedUser);
-            
-            items.Add(new file_manager
-            {
-                file_name = folderName,
-                file_path = virtualPath,
-                item_type = "folder",
-                file_size = null,
-                mime_type = null,
-                shared_users = sharedUsers,
-                owner_username = ownerFromMetaForDir
-            });
-            
-            var childVirtualPath = virtualPath == "/" ? $"/{folderName}" : $"{virtualPath}/{folderName}";
-            CollectAllItems(dir, childVirtualPath, items, existingSharedUsers, defaultSharedUser);
-        }
-
-        foreach (var file in Directory.GetFiles(physicalPath))
-        {
-            var fileName = Path.GetFileName(file);
-            if (IsProtected(virtualPath, fileName)) continue;
-            
-            var key = $"{virtualPath}|{fileName}";
-            var sharedUsers = existingSharedUsers.ContainsKey(key) ? existingSharedUsers[key] : null;
-            if (sharedUsers == null || sharedUsers.Count == 0)
-            {
-                var fallback = !string.IsNullOrWhiteSpace(defaultSharedUser) ? defaultSharedUser! : "system";
-                sharedUsers = new List<string> { fallback };
-            }
-            var fileInfo = new FileInfo(file);
-            // 讀取檔案擁有者（優先 .owner），否則回退為 defaultSharedUser 或 null
-            var ownerFromMetaForFile = TryReadOwnerFromFile(file) ?? (string.IsNullOrWhiteSpace(defaultSharedUser) ? "system" : defaultSharedUser);
-            
-            items.Add(new file_manager
-            {
-                file_name = fileName,
-                file_path = virtualPath,
-                item_type = "file",
-                file_size = fileInfo.Length,
-                mime_type = GetMimeType(fileName),
-                shared_users = sharedUsers,
-                owner_username = ownerFromMetaForFile
-            });
-        }
-    }
-
     /// <summary>
     /// 取得 MIME 類型
     /// </summary>
@@ -1052,6 +854,260 @@ public sealed class DirectoryManagerUtilities
             ".csv" => "text/csv",
             _ => "application/octet-stream"
         };
+    }
+
+
+    #region 應用程式擁有者管理（跨平台）
+
+    /// <summary>
+    /// Linux: 設定應用程式擁有者（使用 xattr）
+    /// </summary>
+    private static void SetAppOwnerLinux(string path, string jsonData)
+    {
+        try
+        {
+            // 使用 Mono.Posix.NETStandard 套件設定 extended attribute
+            var bytes = Encoding.UTF8.GetBytes(jsonData);
+            var result = Mono.Unix.Native.Syscall.setxattr(
+                path,
+                "user.AppOwner",
+                bytes,
+                (ulong)bytes.Length,
+                Mono.Unix.Native.XattrFlags.XATTR_CREATE | Mono.Unix.Native.XattrFlags.XATTR_REPLACE
+            );
+
+            if (result != 0)
+            {
+                var errno = Mono.Unix.Native.Stdlib.GetLastError();
+                throw new InvalidOperationException($"Linux 設定應用程式擁有者失敗: {errno}");
+            }
+        }
+        catch (Exception ex) when (ex is not InvalidOperationException)
+        {
+            throw new InvalidOperationException($"Linux 設定應用程式擁有者失敗: {ex.Message}", ex);
+        }
+    }
+
+    /// <summary>
+    /// Linux: 取得應用程式擁有者（使用 xattr）
+    /// </summary>
+    private static string GetAppOwnerLinux(string path)
+    {
+        try
+        {
+            // 先取得屬性大小
+            var size = Mono.Unix.Native.Syscall.getxattr(path, "user.AppOwner", null, 0);
+            if (size < 0)
+            {
+                // 屬性不存在
+                return null;
+            }
+
+            // 讀取屬性值
+            var buffer = new byte[size];
+            var result = Mono.Unix.Native.Syscall.getxattr(path, "user.AppOwner", buffer, (ulong)size);
+
+            if (result < 0)
+            {
+                return null;
+            }
+
+            var value = Encoding.UTF8.GetString(buffer, 0, (int)result);
+            return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+        }
+        catch
+        {
+            // 讀取失敗時返回 null，不拋出異常
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// 設定應用程式層級的擁有者（多個擁有者，不影響系統擁有者）
+    /// Windows: 使用 Alternate Data Stream (ADS)
+    /// Linux: 使用 Extended Attributes (xattr)
+    /// </summary>
+    /// <param name="path">檔案或資料夾路徑</param>
+    /// <param name="appOwners">應用程式擁有者名稱列表</param>
+    public static void SetAppOwners(string path, string[] appOwners)
+    {
+        if (!System.IO.File.Exists(path) && !System.IO.Directory.Exists(path))
+            throw new FileNotFoundException($"路徑不存在: {path}");
+
+        if (appOwners == null || appOwners.Length == 0)
+            throw new ArgumentException("擁有者列表不可為空");
+
+        // 使用 JSON 序列化多個擁有者
+        var json = JsonSerializer.Serialize(appOwners);
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            // Windows: 使用 Alternate Data Stream 儲存
+            var adsPath = $"{path}:AppOwners";
+            System.IO.File.WriteAllText(adsPath, json);
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            // Linux: 使用 Extended Attributes (xattr) 儲存
+            SetAppOwnerLinux(path, json);
+        }
+        else
+        {
+            throw new PlatformNotSupportedException("此平台不支援應用程式擁有者功能");
+        }
+    }
+
+    /// <summary>
+    /// 取得應用程式層級的擁有者列表
+    /// </summary>
+    /// <param name="path">檔案或資料夾路徑</param>
+    /// <returns>應用程式擁有者名稱列表，如果未設定則返回空陣列</returns>
+    public static string[] GetAppOwners(string path)
+    {
+        if (!System.IO.File.Exists(path) && !System.IO.Directory.Exists(path))
+            throw new FileNotFoundException($"路徑不存在: {path}");
+
+        try
+        {
+            string json = null;
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                var adsPath = $"{path}:AppOwners";
+                if (System.IO.File.Exists(adsPath))
+                {
+                    json = System.IO.File.ReadAllText(adsPath).Trim();
+                }
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                json = GetAppOwnerLinux(path);
+            }
+
+            if (string.IsNullOrWhiteSpace(json))
+                return Array.Empty<string>();
+
+            // 嘗試解析 JSON
+            var owners = JsonSerializer.Deserialize<string[]>(json);
+            return owners ?? Array.Empty<string>();
+        }
+        catch
+        {
+            return Array.Empty<string>();
+        }
+    }
+
+    /// <summary>
+    /// 新增一個擁有者
+    /// </summary>
+    /// <param name="path">檔案或資料夾路徑</param>
+    /// <param name="owner">擁有者名稱</param>
+    public static void AddAppOwner(string path, string owner)
+    {
+        if (string.IsNullOrWhiteSpace(owner))
+            throw new ArgumentException("擁有者名稱不可為空");
+
+        var owners = GetAppOwners(path).ToList();
+
+        // 避免重複
+        if (!owners.Contains(owner, StringComparer.OrdinalIgnoreCase))
+        {
+            owners.Add(owner);
+            SetAppOwners(path, owners.ToArray());
+        }
+    }
+
+    /// <summary>
+    /// 移除一個擁有者
+    /// </summary>
+    /// <param name="path">檔案或資料夾路徑</param>
+    /// <param name="owner">擁有者名稱</param>
+    public static void RemoveAppOwner(string path, string owner)
+    {
+        if (string.IsNullOrWhiteSpace(owner))
+            throw new ArgumentException("擁有者名稱不可為空");
+
+        var owners = GetAppOwners(path).ToList();
+        owners.RemoveAll(o => o.Equals(owner, StringComparison.OrdinalIgnoreCase));
+
+        if (owners.Count > 0)
+        {
+            SetAppOwners(path, owners.ToArray());
+        }
+    }
+
+    /// <summary>
+    /// 檢查是否為擁有者
+    /// </summary>
+    /// <param name="path">檔案或資料夾路徑</param>
+    /// <param name="owner">擁有者名稱</param>
+    /// <returns>是否為擁有者</returns>
+    public static bool HasAppOwner(string path, string owner)
+    {
+        if (string.IsNullOrWhiteSpace(owner))
+            return false;
+
+        var owners = GetAppOwners(path);
+        return owners.Any(o => o.Equals(owner, StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <summary>
+    /// 取得擁有者顯示字串（用逗號分隔）
+    /// </summary>
+    /// <param name="path">檔案或資料夾路徑</param>
+    /// <returns>擁有者顯示字串</returns>
+    public static string GetAppOwnersDisplay(string path)
+    {
+        var owners = GetAppOwners(path);
+        return owners.Length > 0 ? string.Join(", ", owners) : "未設定";
+    }
+
+    /// <summary>
+    /// 新增/更新擁有者，確保操作者（actor）永遠在第一位
+    /// 如果已有擁有者，將 actor 移到第一位；如果沒有，建立新的擁有者列表
+    /// </summary>
+    /// <param name="path">檔案或資料夾路徑</param>
+    /// <param name="actor">操作者（永遠放第一位）</param>
+    /// <param name="additionalOwners">其他共享擁有者（選填）</param>
+    public static void UpsertAppOwnersWithActorFirst(string path, string actor, params string[] additionalOwners)
+    {
+        if (string.IsNullOrWhiteSpace(actor))
+            throw new ArgumentException("操作者名稱不可為空");
+
+        var existingOwners = GetAppOwners(path).ToList();
+
+        // 移除操作者（如果已存在）
+        existingOwners.RemoveAll(o => o.Equals(actor, StringComparison.OrdinalIgnoreCase));
+
+        // 新增其他擁有者（去重）
+        if (additionalOwners != null && additionalOwners.Length > 0)
+        {
+            foreach (var owner in additionalOwners)
+            {
+                if (!string.IsNullOrWhiteSpace(owner) &&
+                    !actor.Equals(owner, StringComparison.OrdinalIgnoreCase) &&
+                    !existingOwners.Any(o => o.Equals(owner, StringComparison.OrdinalIgnoreCase)))
+                {
+                    existingOwners.Add(owner);
+                }
+            }
+        }
+
+        // 操作者放第一位
+        existingOwners.Insert(0, actor);
+
+        SetAppOwners(path, existingOwners.ToArray());
+    }
+
+    /// <summary>
+    /// 取得第一個擁有者（主要擁有者）
+    /// </summary>
+    /// <param name="path">檔案或資料夾路徑</param>
+    /// <returns>主要擁有者，如果沒有則返回 null</returns>
+    public static string? GetPrimaryOwner(string path)
+    {
+        var owners = GetAppOwners(path);
+        return owners.Length > 0 ? owners[0] : null;
     }
 
     #endregion
