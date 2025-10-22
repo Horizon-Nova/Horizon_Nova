@@ -4,16 +4,16 @@ let currentPath = '/';
 let renameTarget = { name: '', type: '', path: '' };
 
 // 初始化
-document.addEventListener('DOMContentLoaded', function() {
+$(function() {
     // 初始化 Lucide Icons
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
     }
     
     // 取得當前路徑（從頁面元素或 URL）
-    const pathEl = document.querySelector('[data-current-path]');
-    if (pathEl) {
-        currentPath = pathEl.getAttribute('data-current-path') || '/';
+    const $pathEl = $('[data-current-path]');
+    if ($pathEl.length) {
+        currentPath = $pathEl.attr('data-current-path') || '/';
     } else {
         const urlParams = new URLSearchParams(window.location.search);
         currentPath = urlParams.get('path') || '/';
@@ -43,15 +43,17 @@ let __imgPv = {
 
 // 初始化圖片預覽（置中、以容器中心縮放、支援拖移）
 function setupImagePreview(src) {
-    const wrap = document.getElementById('imagePreviewWrapper');
-    const img = document.getElementById('imagePreview');
-    if (!wrap || !img) return;
+    const $wrap = $('#imagePreviewWrapper');
+    const $img = $('#imagePreview');
+    if ($wrap.length === 0 || $img.length === 0) return;
+    const wrap = $wrap[0];
+    const img = $img[0];
     __imgPv.scale = 1; __imgPv.originX = 0; __imgPv.originY = 0; __imgPv.fitScale = 1;
     img.style.transformOrigin = '0 0';
     img.style.transform = 'translate(0px, 0px) scale(1)';
     img.style.cursor = 'grab';
     img.style.willChange = 'transform';
-    img.onload = () => {
+    $img.on('load', function() {
         const wrapRect = wrap.getBoundingClientRect();
         const scaleX = wrapRect.width / img.naturalWidth;
         const scaleY = wrapRect.height / img.naturalHeight;
@@ -60,11 +62,11 @@ function setupImagePreview(src) {
         __imgPv.originX = Math.round((wrapRect.width - img.naturalWidth * __imgPv.scale) / 2);
         __imgPv.originY = Math.round((wrapRect.height - img.naturalHeight * __imgPv.scale) / 2);
         applyImageTransform();
-    };
+    });
     img.src = src;
-    wrap.onwheel = (e) => {
+    $wrap.on('wheel', function(e) {
         e.preventDefault();
-        const delta = e.deltaY < 0 ? 1.1 : 0.9;
+        const delta = e.originalEvent.deltaY < 0 ? 1.1 : 0.9;
         const newScale = clamp(__imgPv.scale * delta, __imgPv.minScale, __imgPv.maxScale);
         const wrapRect = wrap.getBoundingClientRect();
         const mx = wrapRect.width / 2;
@@ -75,30 +77,30 @@ function setupImagePreview(src) {
         __imgPv.originX = Math.round(mx - preX * __imgPv.scale);
         __imgPv.originY = Math.round(my - preY * __imgPv.scale);
         applyImageTransform();
-    };
-    wrap.onmousedown = (e) => {
+    });
+    $wrap.on('mousedown', function(e) {
         if (e.button !== 0) return;
         __imgPv.isPanning = true;
         __imgPv.startX = e.clientX - __imgPv.originX;
         __imgPv.startY = e.clientY - __imgPv.originY;
         img.style.cursor = 'grabbing';
-    };
-    window.onmouseup = () => {
+    });
+    $(window).on('mouseup', function() {
         __imgPv.isPanning = false;
         img.style.cursor = 'grab';
-    };
-    window.onmousemove = (e) => {
+    });
+    $(window).on('mousemove', function(e) {
         if (!__imgPv.isPanning) return;
         __imgPv.originX = Math.round(e.clientX - __imgPv.startX);
         __imgPv.originY = Math.round(e.clientY - __imgPv.startY);
         applyImageTransform();
-    };
+    });
 }
 
 function applyImageTransform() {
-    const img = document.getElementById('imagePreview');
-    if (!img) return;
-    img.style.transform = `translate(${__imgPv.originX}px, ${__imgPv.originY}px) scale(${__imgPv.scale})`;
+    const $img = $('#imagePreview');
+    if ($img.length === 0) return;
+    $img[0].style.transform = `translate(${__imgPv.originX}px, ${__imgPv.originY}px) scale(${__imgPv.scale})`;
 }
 
 function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
@@ -131,37 +133,33 @@ function imagePreviewZoomOut() {
 // ========== 拖曳上傳初始化 ==========
 
 function initializeDragAndDrop() {
-    const dropZone = document.getElementById('dropZone');
-    if (!dropZone) return;
+    const $dropZone = $('#dropZone');
+    if ($dropZone.length === 0) return;
     
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        dropZone.addEventListener(eventName, preventDefaults, false);
-    });
-    
-    function preventDefaults(e) {
+    $dropZone.on('dragenter dragover dragleave drop', function(e) {
         e.preventDefault();
         e.stopPropagation();
-    }
-    
-    dropZone.addEventListener('dragover', function() {
-        dropZone.classList.add('border-blue-500', 'bg-blue-50');
     });
     
-    dropZone.addEventListener('dragleave', function() {
-        dropZone.classList.remove('border-blue-500', 'bg-blue-50');
+    $dropZone.on('dragover', function() {
+        $dropZone.addClass('border-primary bg-light');
     });
     
-    dropZone.addEventListener('drop', async function(e) {
-        dropZone.classList.remove('border-blue-500', 'bg-blue-50');
+    $dropZone.on('dragleave', function() {
+        $dropZone.removeClass('border-primary bg-light');
+    });
+    
+    $dropZone.on('drop', async function(e) {
+        $dropZone.removeClass('border-primary bg-light');
         
         // 使用 DataTransferItems API 來支援資料夾拖曳
-        const items = e.dataTransfer.items;
+        const items = e.originalEvent.dataTransfer.items;
         if (items && items.length > 0) {
             const filesWithPaths = await getAllFilesFromItems(items);
             handleFileUploadWithPaths(filesWithPaths);
         } else {
             // 降級處理：只支援檔案拖曳
-            const files = Array.from(e.dataTransfer.files).map(f => ({ file: f, path: f.name }));
+            const files = Array.from(e.originalEvent.dataTransfer.files).map(f => ({ file: f, path: f.name }));
             handleFileUploadWithPaths(files);
         }
     });
@@ -207,13 +205,13 @@ async function traverseFileTree(item, path, filesWithPaths) {
 }
 
 function initializeFileInput() {
-    const fileInput = document.getElementById('fileInput');
-    if (!fileInput) return;
+    const $fileInput = $('#fileInput');
+    if ($fileInput.length === 0) return;
     
-    fileInput.addEventListener('change', function(e) {
+    $fileInput.on('change', function(e) {
         handleFileUpload(Array.from(e.target.files));
         // 清空 input，允許重複上傳同一檔案
-        e.target.value = '';
+        $(this).val('');
     });
 }
 
@@ -221,12 +219,19 @@ function initializeFileInput() {
 // ========== 新增資料夾 ==========
 
 async function createFolder() {
+    if (isCreatingFolder) return;
+    
     const $form = $('#createFolderForm');
     const dataStr = $form.serialize();
     const name = ($form.find('[name="Name"]').val() || '').toString().trim();
     if (!name) { alert('請輸入資料夾名稱'); return; }
+    
+    // 設定防呆狀態
+    isCreatingFolder = true;
     const $btn = $("#createFolderModal button:contains('建立')");
+    const originalText = $btn.text();
     $btn.prop('disabled', true).text('處理中...');
+    
     $.ajax({
         type: 'POST',
         url: '/Backoffice/FileManager/CreateFolder',
@@ -238,21 +243,35 @@ async function createFolder() {
                 location.reload();
             } else {
                 alert(res && res.message ? res.message : '建立失敗');
+                // 恢復按鈕狀態
+                $btn.prop('disabled', false).text(originalText);
+                isCreatingFolder = false;
             }
         },
-        error: function () { alert('建立失敗，請稍後再試。'); },
-        complete: function () { $btn.prop('disabled', false).text('建立'); }
+        error: function () { 
+            alert('建立失敗，請稍後再試。'); 
+            // 恢復按鈕狀態
+            $btn.prop('disabled', false).text(originalText);
+            isCreatingFolder = false;
+        }
     });
 }
 
 // ========== 新增檔案 ==========
 
 async function createFile() {
+    if (isCreatingFile) return;
+    
     const $form = $('#createFileForm');
     const name = ($form.find('[name="Name"]').val() || '').toString().trim();
     if (!name) { alert('請輸入檔案名稱'); return; }
+    
+    // 設定防呆狀態
+    isCreatingFile = true;
     const $btn = $("#createFileModal button:contains('建立')");
+    const originalText = $btn.text();
     $btn.prop('disabled', true).text('處理中...');
+    
     $.ajax({
         type: 'POST',
         url: '/Backoffice/FileManager/CreateFile',
@@ -264,10 +283,17 @@ async function createFile() {
                 location.reload();
             } else {
                 alert(res && res.message ? res.message : '建立失敗');
+                // 恢復按鈕狀態
+                $btn.prop('disabled', false).text(originalText);
+                isCreatingFile = false;
             }
         },
-        error: function () { alert('建立失敗，請稍後再試。'); },
-        complete: function () { $btn.prop('disabled', false).text('建立'); }
+        error: function () { 
+            alert('建立失敗，請稍後再試。'); 
+            // 恢復按鈕狀態
+            $btn.prop('disabled', false).text(originalText);
+            isCreatingFile = false;
+        }
     });
 }
 
@@ -282,57 +308,58 @@ function parseShared(val) {
 function showRenameModal(name, type) {
     renameTarget = { name, type, path: currentPath };
     
-    const title = document.getElementById('renameModalTitle');
-    const input = document.getElementById('renameInput');
+    const $title = $('#renameModalLabel');
+    const $input = $('#renameInput');
     
-    if (title) title.textContent = type === 'folder' ? '重新命名資料夾' : '重新命名檔案';
-    if (input) input.value = name;
+    if ($title.length) $title.text(type === 'folder' ? '重新命名資料夾' : '重新命名檔案');
+    if ($input.length) $input.val(name);
     
     showModal('renameModal');
     
-    if (input) {
+    if ($input.length) {
         setTimeout(() => {
-            input.focus();
-            input.select();
+            $input.focus().select();
         }, 100);
     }
 }
 
 async function confirmRename() {
-    const newName = document.getElementById('renameInput').value.trim();
+    const newName = $('#renameInput').val().trim();
     if (!newName) {
         alert('請輸入新名稱');
         return;
     }
     
     if (newName === renameTarget.name) {
-        closeModal('renameModal');
+        const modal = bootstrap.Modal.getInstance($('#renameModal')[0]);
+        if (modal) modal.hide();
         return;
     }
     
-    try {
-        const endpoint = renameTarget.type === 'folder' ? 'RenameFolder' : 'RenameFile';
-        const response = await fetch(`/Backoffice/FileManager/${endpoint}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                path: renameTarget.path, 
-                oldName: renameTarget.name, 
-                newName 
-            })
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            closeModal('renameModal');
-            location.reload();
-        } else {
-            alert(result.message);
+    const endpoint = renameTarget.type === 'folder' ? 'RenameFolder' : 'RenameFile';
+    $.ajax({
+        type: 'POST',
+        url: `/Backoffice/FileManager/${endpoint}`,
+        contentType: 'application/json',
+        data: JSON.stringify({ 
+            path: renameTarget.path, 
+            oldName: renameTarget.name, 
+            newName,
+            sharedUsers: [] // 暫時傳送空陣列，需要從資料庫獲取現有共享者
+        }),
+        success: function(result) {
+            if (result.success) {
+                const modal = bootstrap.Modal.getInstance($('#renameModal')[0]);
+                if (modal) modal.hide();
+                location.reload();
+            } else {
+                alert(result.message);
+            }
+        },
+        error: function() {
+            alert('操作失敗，請稍後再試');
         }
-    } catch (error) {
-        alert('操作失敗：' + error.message);
-    }
+    });
 }
 
 // ========== 刪除 ==========
@@ -343,18 +370,18 @@ function deleteItem(name, type) {
     deleteTarget = { name, type, path: currentPath };
     
     const itemType = type === 'folder' ? '資料夾' : '檔案';
-    const title = document.getElementById('deleteModalTitle');
-    const targetName = document.getElementById('deleteTargetName');
-    const input = document.getElementById('deleteConfirmInput');
-    const btn = document.getElementById('deleteConfirmBtn');
+    const $title = $('#deleteModalLabel');
+    const $targetName = $('#deleteTargetName');
+    const $input = $('#deleteConfirmInput');
+    const $btn = $('#deleteConfirmBtn');
     
-    if (title) title.textContent = `刪除${itemType}`;
-    if (targetName) targetName.textContent = name;
-    if (input) {
-        input.value = '';
-        input.placeholder = `輸入「${name}」以確認刪除`;
+    if ($title.length) $title.text(`刪除${itemType}`);
+    if ($targetName.length) $targetName.text(name);
+    if ($input.length) {
+        $input.val('');
+        $input.attr('placeholder', `輸入「${name}」以確認刪除`);
     }
-    if (btn) btn.disabled = true;
+    if ($btn.length) $btn.prop('disabled', true);
     
     showModal('deleteModal');
     
@@ -365,54 +392,70 @@ function deleteItem(name, type) {
 }
 
 function validateDeleteInput() {
-    const input = document.getElementById('deleteConfirmInput');
-    const btn = document.getElementById('deleteConfirmBtn');
+    const $input = $('#deleteConfirmInput');
+    const $btn = $('#deleteConfirmBtn');
     
-    if (!input || !btn) return;
+    if ($input.length === 0 || $btn.length === 0) return;
     
     // 檢查輸入是否與目標名稱完全匹配
-    const isMatch = input.value === deleteTarget.name;
-    btn.disabled = !isMatch;
+    const isMatch = $input.val() === deleteTarget.name;
+    $btn.prop('disabled', !isMatch);
 }
 
+// 防呆變數
+let isDeleting = false;
+let isCreatingFolder = false;
+let isCreatingFile = false;
+
 async function confirmDelete() {
-    if (!deleteTarget.name) return;
+    if (!deleteTarget.name || isDeleting) return;
     
-    // 記錄刪除操作（用於除錯）
+    // 設定防呆狀態
+    isDeleting = true;
+    const $btn = $('#deleteConfirmBtn');
+    const originalText = $btn.text();
+    
+    // 更新按鈕狀態
+    $btn.prop('disabled', true).text('刪除中...');
+    
     console.log('[刪除操作]', {
         type: deleteTarget.type,
         path: deleteTarget.path,
         name: deleteTarget.name
     });
     
-    try {
-        const endpoint = deleteTarget.type === 'folder' ? 'DeleteFolder' : 'DeleteFile';
-        const payload = { 
-            path: deleteTarget.path, 
-            name: deleteTarget.name 
-        };
-        
-        console.log('[發送請求]', endpoint, payload);
-        
-        const response = await fetch(`/Backoffice/FileManager/${endpoint}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-        
-        const result = await response.json();
-        console.log('[刪除結果]', result);
-        
-        if (result.success) {
-            closeModal('deleteModal');
-            location.reload();
-        } else {
-            alert(result.message);
+    const endpoint = deleteTarget.type === 'folder' ? 'DeleteFolder' : 'DeleteFile';
+    const payload = { 
+        path: deleteTarget.path, 
+        name: deleteTarget.name 
+    };
+    
+    $.ajax({
+        type: 'POST',
+        url: `/Backoffice/FileManager/${endpoint}`,
+        contentType: 'application/json',
+        data: JSON.stringify(payload),
+        success: function(result) {
+            console.log('[刪除結果]', result);
+            if (result.success) {
+                const modal = bootstrap.Modal.getInstance($('#deleteModal')[0]);
+                if (modal) modal.hide();
+                location.reload();
+            } else {
+                alert(result.message);
+                // 恢復按鈕狀態
+                $btn.prop('disabled', false).text(originalText);
+                isDeleting = false;
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('[刪除錯誤]', error);
+            alert('操作失敗，請稍後再試');
+            // 恢復按鈕狀態
+            $btn.prop('disabled', false).text(originalText);
+            isDeleting = false;
         }
-    } catch (error) {
-        console.error('[刪除錯誤]', error);
-        alert('操作失敗：' + error.message);
-    }
+    });
 }
 
 // ========== 檔案上傳 ==========
@@ -421,14 +464,15 @@ async function confirmDelete() {
 async function handleFileUploadWithPaths(filesWithPaths) {
     if (!filesWithPaths || filesWithPaths.length === 0) return;
     
-    const progress = document.getElementById('uploadProgress');
-    const items = document.getElementById('uploadItems');
-    const speedEl = document.getElementById('uploadSpeed');
-    const etaEl = document.getElementById('uploadEta');
+    const $progress = $('#uploadProgress');
+    const $items = $('#uploadItems');
+    const $speedEl = $('#uploadSpeed');
+    const $etaEl = $('#uploadEta');
     
     // 顯示上傳進度視窗
-    progress.classList.remove('hidden');
-    items.innerHTML = '';
+    const modal = new bootstrap.Modal($progress[0]);
+    modal.show();
+    $items.html('');
     
     const startTime = Date.now();
     const totalBytes = filesWithPaths.reduce((sum, f) => sum + f.file.size, 0);
@@ -447,24 +491,24 @@ async function handleFileUploadWithPaths(filesWithPaths) {
         const remaining = totalBytes - totalLoaded;
         const eta = remaining / speed;
         
-        speedEl.textContent = formatSize(Math.round(speed)) + '/s';
-        etaEl.textContent = '剩餘 ' + formatTime(eta);
+        $speedEl.text(formatSize(Math.round(speed)) + '/s');
+        $etaEl.text('剩餘 ' + formatTime(eta));
     }
     
     // 建立所有上傳項目的 UI
     filesWithPaths.forEach((item, i) => {
         const itemId = 'upload-item-' + i;
-        items.innerHTML += `
-            <div id="${itemId}">
-                <div class="flex items-center justify-between mb-1.5">
-                    <span class="text-sm text-slate-900 truncate" title="${item.path}">${item.path}</span>
-                    <span class="text-xs font-medium text-slate-600">0%</span>
+        $items.append(`
+            <div id="${itemId}" class="mb-2">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                    <span class="small text-truncate" title="${item.path}">${item.path}</span>
+                    <span class="badge bg-light text-muted upload-percent">0%</span>
                 </div>
-                <div class="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                    <div class="h-full bg-blue-600 rounded-full" style="width: 0%"></div>
+                <div class="progress" style="height: 4px;">
+                    <div class="progress-bar bg-primary upload-bar" role="progressbar" style="width: 0%"></div>
                 </div>
             </div>
-        `;
+        `);
     });
     
     // 並行上傳所有檔案
@@ -485,19 +529,13 @@ async function handleFileUploadWithPaths(filesWithPaths) {
             completedBytes += file.size;
             
             // 標記完成
-            const percentEl = document.querySelector(`#${itemId} .text-xs`);
-            if (percentEl) percentEl.textContent = '完成';
-            const barEl = document.querySelector(`#${itemId} .bg-blue-600`);
-            if (barEl) barEl.classList.replace('bg-blue-600', 'bg-green-600');
+            $(`#${itemId} .upload-percent`).text('完成').removeClass('bg-light text-muted').addClass('bg-success text-white');
+            $(`#${itemId} .upload-bar`).removeClass('bg-primary').addClass('bg-success');
             
             return { success: true, path };
         } catch (error) {
             console.error(`上傳失敗 [${path}]:`, error);
-            const percentEl = document.querySelector(`#${itemId} .text-xs`);
-            if (percentEl) {
-                percentEl.textContent = '失敗';
-                percentEl.classList.add('text-red-600');
-            }
+            $(`#${itemId} .upload-percent`).text('失敗').removeClass('bg-light text-muted').addClass('bg-danger text-white');
             return { success: false, path, error };
         }
     });
@@ -512,7 +550,8 @@ async function handleFileUploadWithPaths(filesWithPaths) {
     
     // 全部完成後延遲關閉並重新載入
     setTimeout(() => {
-        progress.classList.add('hidden');
+        const modal = bootstrap.Modal.getInstance($progress[0]);
+        if (modal) modal.hide();
         location.reload();
     }, 2000);
 }
@@ -527,31 +566,31 @@ function uploadFileWithProgress(file, formData, itemId, onProgress) {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         
-        xhr.upload.addEventListener('progress', (e) => {
+        xhr.upload.onprogress = (e) => {
             if (e.lengthComputable) {
                 const percent = Math.round((e.loaded / e.total) * 100);
                 
                 // 更新此檔案的進度
-                const percentEl = document.querySelector(`#${itemId} .text-xs`);
-                const barEl = document.querySelector(`#${itemId} .bg-blue-600, #${itemId} .bg-green-600`);
+                const $percentEl = $(`#${itemId} .upload-percent`);
+                const $barEl = $(`#${itemId} .upload-bar`);
                 
-                if (percentEl) percentEl.textContent = percent + '%';
-                if (barEl) barEl.style.width = percent + '%';
+                if ($percentEl.length) $percentEl.text(percent + '%');
+                if ($barEl.length) $barEl.css('width', percent + '%');
                 
                 // 回調整體進度
                 if (onProgress) onProgress(e.loaded);
             }
-        });
+        };
         
-        xhr.addEventListener('load', () => {
+        xhr.onload = () => {
             if (xhr.status >= 200 && xhr.status < 300) {
                 resolve(xhr.response);
             } else {
                 reject(new Error('上傳失敗'));
             }
-        });
+        };
         
-        xhr.addEventListener('error', () => reject(new Error('網路錯誤')));
+        xhr.onerror = () => reject(new Error('網路錯誤'));
         
         xhr.open('POST', '/Backoffice/FileManager/Upload');
         xhr.send(formData);
@@ -632,28 +671,27 @@ async function openFile(fileName) {
     };
     
     // 顯示編輯器 Modal
-    const modal = document.getElementById('fileEditorModal');
-    const editorContent = document.getElementById('fileEditorContent');
-    const previewFrame = document.getElementById('filePreviewFrame');
-    const imgWrap = document.getElementById('imagePreviewWrapper');
-    const imgEl = document.getElementById('imagePreview');
-    const loading = document.getElementById('editorLoading');
-    const cannotPreview = document.getElementById('cannotPreview');
-    const fileNameEl = document.getElementById('editorFileName');
-    const readOnlyBadge = document.getElementById('editorReadOnlyBadge');
-    const saveBtn = document.getElementById('saveFileBtn');
-    const infoEl = document.getElementById('editorInfo');
-    const encodingEl = document.getElementById('editorEncoding');
+    const $modal = $('#fileEditorModal');
+    const $editorContent = $('#fileEditorContent');
+    const $previewFrame = $('#filePreviewFrame');
+    const $imgWrap = $('#imagePreviewWrapper');
+    const $loading = $('#editorLoading');
+    const $cannotPreview = $('#cannotPreview');
+    const $fileNameEl = $('#editorFileName');
+    const $readOnlyBadge = $('#editorReadOnlyBadge');
+    const $saveBtn = $('#saveFileBtn');
+    const $infoEl = $('#editorInfo');
+    const $encodingEl = $('#editorEncoding');
     
     // 重置狀態
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-    editorContent.classList.add('hidden');
-    previewFrame.classList.add('hidden');
-    if (imgWrap) imgWrap.classList.add('hidden');
-    cannotPreview.classList.add('hidden');
-    loading.classList.remove('hidden');
-    fileNameEl.textContent = fileName;
+    const modal = new bootstrap.Modal($modal[0]);
+    modal.show();
+    $editorContent.addClass('d-none');
+    $previewFrame.addClass('d-none');
+    $imgWrap.addClass('d-none');
+    $cannotPreview.addClass('d-none');
+    $loading.removeClass('d-none');
+    $fileNameEl.text(fileName);
     
     // 初始化 Lucide Icons
     if (typeof lucide !== 'undefined') {
@@ -662,50 +700,52 @@ async function openFile(fileName) {
     
     if (fileType === 'editable') {
         // 可編輯文字檔案
-        try {
-            const response = await fetch(`/Backoffice/FileManager/ReadTextFile?path=${encodeURIComponent(currentPath)}&name=${encodeURIComponent(fileName)}`);
-            const result = await response.json();
-            
-            if (result.success) {
-                currentEditingFile.originalContent = result.content;
-                currentEditingFile.encoding = result.encoding;
-                
-                editorContent.value = result.content;
-                editorContent.classList.remove('hidden');
-                editorContent.readOnly = false;
-                loading.classList.add('hidden');
-                
-                readOnlyBadge.classList.add('hidden');
-                saveBtn.classList.remove('hidden');
-                
-                infoEl.textContent = `${result.content.split('\n').length} 行`;
-                encodingEl.textContent = `編碼: ${result.encoding}`;
-                
-                // 重新初始化 Lucide Icons
-                if (typeof lucide !== 'undefined') {
-                    lucide.createIcons();
+        $.ajax({
+            type: 'GET',
+            url: '/Backoffice/FileManager/ReadTextFile',
+            data: { path: currentPath, name: fileName },
+            success: function(result) {
+                if (result.success) {
+                    currentEditingFile.originalContent = result.content;
+                    currentEditingFile.encoding = result.encoding;
+                    
+                    $editorContent.val(result.content);
+                    $editorContent.removeClass('d-none').prop('readOnly', false);
+                    $loading.addClass('d-none');
+                    
+                    $readOnlyBadge.addClass('d-none');
+                    $saveBtn.removeClass('d-none');
+                    
+                    $infoEl.text(`${result.content.split('\n').length} 行`);
+                    $encodingEl.text(`編碼: ${result.encoding}`);
+                    
+                    // 重新初始化 Lucide Icons
+                    if (typeof lucide !== 'undefined') {
+                        lucide.createIcons();
+                    }
+                } else {
+                    alert('無法讀取檔案：' + result.message);
+                    closeFileEditor();
                 }
-            } else {
-                alert('無法讀取檔案：' + result.message);
+            },
+            error: function() {
+                alert('讀取檔案失敗，請稍後再試');
                 closeFileEditor();
             }
-        } catch (error) {
-            alert('讀取檔案失敗：' + error.message);
-            closeFileEditor();
-        }
+        });
     } else if (fileType === 'pdf') {
         // PDF 文件 - 直接在瀏覽器預覽
         const previewUrl = `/Backoffice/FileManager/Preview?path=${encodeURIComponent(currentPath)}&name=${encodeURIComponent(fileName)}`;
         
-        previewFrame.src = previewUrl;
-        previewFrame.classList.remove('hidden');
-        loading.classList.add('hidden');
+        $previewFrame.attr('src', previewUrl);
+        $previewFrame.removeClass('d-none');
+        $loading.addClass('d-none');
         
-        readOnlyBadge.classList.remove('hidden');
-        saveBtn.classList.add('hidden');
+        $readOnlyBadge.removeClass('d-none');
+        $saveBtn.addClass('d-none');
         
-        infoEl.textContent = `PDF 預覽`;
-        encodingEl.textContent = '';
+        $infoEl.text('PDF 預覽');
+        $encodingEl.text('');
         
         // 重新初始化 Lucide Icons
         if (typeof lucide !== 'undefined') {
@@ -719,29 +759,26 @@ async function openFile(fileName) {
         // 使用 Microsoft Office Online Viewer
         const officeViewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fullUrl)}`;
         
-        previewFrame.src = officeViewerUrl;
-        previewFrame.classList.remove('hidden');
-        loading.classList.add('hidden');
+        $previewFrame.attr('src', officeViewerUrl);
+        $previewFrame.removeClass('d-none');
+        $loading.addClass('d-none');
         
-        readOnlyBadge.classList.remove('hidden');
-        saveBtn.classList.add('hidden');
+        $readOnlyBadge.removeClass('d-none');
+        $saveBtn.addClass('d-none');
         
-        infoEl.textContent = `Office 線上預覽 (需要網際網路連線)`;
-        encodingEl.textContent = '';
+        $infoEl.text('Office 線上預覽 (需要網際網路連線)');
+        $encodingEl.text('');
         
         // 設定超時檢測（如果 10 秒後還在載入，可能是失敗了）
         const timeout = setTimeout(() => {
             // 顯示無法預覽提示
-            previewFrame.classList.add('hidden');
-            cannotPreview.classList.remove('hidden');
+            $previewFrame.addClass('d-none');
+            $cannotPreview.removeClass('d-none');
             
-            const cannotPreviewMsg = document.getElementById('cannotPreviewMessage');
-            const downloadLink = document.getElementById('downloadFileLink');
+            $('#cannotPreviewMessage').text('Office 線上預覽服務無法載入，可能是網路問題或檔案過大。請下載後使用 Office 應用程式查看。');
+            $('#downloadFileLink').attr('href', downloadUrl);
             
-            cannotPreviewMsg.textContent = 'Office 線上預覽服務無法載入，可能是網路問題或檔案過大。請下載後使用 Office 應用程式查看。';
-            downloadLink.href = downloadUrl;
-            
-            infoEl.textContent = `預覽失敗`;
+            $infoEl.text('預覽失敗');
             
             // 重新初始化 Lucide Icons
             if (typeof lucide !== 'undefined') {
@@ -750,7 +787,7 @@ async function openFile(fileName) {
         }, 10000);
         
         // 如果成功載入，清除超時
-        previewFrame.onload = function() {
+        $previewFrame[0].onload = function() {
             clearTimeout(timeout);
         };
         
@@ -761,48 +798,45 @@ async function openFile(fileName) {
     } else if (fileType === 'image') {
         // 圖片：用自訂 viewer（適合視窗＋縮放/拖移）
         const previewUrl = `/Backoffice/FileManager/Download?path=${encodeURIComponent(currentPath)}&name=${encodeURIComponent(fileName)}`;
-        if (imgWrap && imgEl) {
+        if ($imgWrap.length) {
             setupImagePreview(previewUrl);
-            imgWrap.classList.remove('hidden');
-            loading.classList.add('hidden');
-            readOnlyBadge.classList.remove('hidden');
-            saveBtn.classList.add('hidden');
-            infoEl.textContent = '圖片預覽';
-            encodingEl.textContent = '';
+            $imgWrap.removeClass('d-none');
+            $loading.addClass('d-none');
+            $readOnlyBadge.removeClass('d-none');
+            $saveBtn.addClass('d-none');
+            $infoEl.text('圖片預覽');
+            $encodingEl.text('');
             if (typeof lucide !== 'undefined') lucide.createIcons();
         } else {
             // 後備：用 iframe
-            previewFrame.src = `/Backoffice/FileManager/Preview?path=${encodeURIComponent(currentPath)}&name=${encodeURIComponent(fileName)}`;
-            previewFrame.classList.remove('hidden');
-            loading.classList.add('hidden');
+            $previewFrame.attr('src', `/Backoffice/FileManager/Preview?path=${encodeURIComponent(currentPath)}&name=${encodeURIComponent(fileName)}`);
+            $previewFrame.removeClass('d-none');
+            $loading.addClass('d-none');
         }
     } else if (fileType === 'video' || fileType === 'audio') {
         // 影片 / 音訊：仍使用內建預覽頁
         const previewUrl = `/Backoffice/FileManager/Preview?path=${encodeURIComponent(currentPath)}&name=${encodeURIComponent(fileName)}`;
-        previewFrame.src = previewUrl;
-        previewFrame.classList.remove('hidden');
-        loading.classList.add('hidden');
-        readOnlyBadge.classList.remove('hidden');
-        saveBtn.classList.add('hidden');
-        infoEl.textContent = `預覽模式 (${fileType})`;
-        encodingEl.textContent = '';
+        $previewFrame.attr('src', previewUrl);
+        $previewFrame.removeClass('d-none');
+        $loading.addClass('d-none');
+        $readOnlyBadge.removeClass('d-none');
+        $saveBtn.addClass('d-none');
+        $infoEl.text(`預覽模式 (${fileType})`);
+        $encodingEl.text('');
         if (typeof lucide !== 'undefined') lucide.createIcons();
     } else {
         // 其他檔案類型 - 顯示無法預覽提示
-        loading.classList.add('hidden');
-        cannotPreview.classList.remove('hidden');
+        $loading.addClass('d-none');
+        $cannotPreview.removeClass('d-none');
         
-        const cannotPreviewMsg = document.getElementById('cannotPreviewMessage');
-        const downloadLink = document.getElementById('downloadFileLink');
+        $('#cannotPreviewMessage').text('此檔案類型不支援線上預覽，請下載後查看');
+        $('#downloadFileLink').attr('href', `/Backoffice/FileManager/Download?path=${encodeURIComponent(currentPath)}&name=${encodeURIComponent(fileName)}`);
         
-        cannotPreviewMsg.textContent = '此檔案類型不支援線上預覽，請下載後查看';
-        downloadLink.href = `/Backoffice/FileManager/Download?path=${encodeURIComponent(currentPath)}&name=${encodeURIComponent(fileName)}`;
+        $readOnlyBadge.removeClass('d-none');
+        $saveBtn.addClass('d-none');
         
-        readOnlyBadge.classList.remove('hidden');
-        saveBtn.classList.add('hidden');
-        
-        infoEl.textContent = `不支援預覽`;
-        encodingEl.textContent = '';
+        $infoEl.text('不支援預覽');
+        $encodingEl.text('');
         
         // 重新初始化 Lucide Icons
         if (typeof lucide !== 'undefined') {
@@ -813,8 +847,8 @@ async function openFile(fileName) {
 
 // 儲存檔案
 async function saveFile() {
-    const editorContent = document.getElementById('fileEditorContent');
-    const newContent = editorContent.value;
+    const $editorContent = $('#fileEditorContent');
+    const newContent = $editorContent.val();
     
     // 檢查是否有變更
     if (newContent === currentEditingFile.originalContent) {
@@ -822,79 +856,77 @@ async function saveFile() {
         return;
     }
     
-    try {
-        const response = await fetch('/Backoffice/FileManager/SaveTextFile', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                path: currentEditingFile.path,
-                name: currentEditingFile.name,
-                content: newContent,
-                encoding: currentEditingFile.encoding
-            })
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            currentEditingFile.originalContent = newContent;
-            alert('檔案已儲存');
-        } else {
-            alert('儲存失敗：' + result.message);
+    $.ajax({
+        type: 'POST',
+        url: '/Backoffice/FileManager/SaveTextFile',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            path: currentEditingFile.path,
+            name: currentEditingFile.name,
+            content: newContent,
+            encoding: currentEditingFile.encoding
+        }),
+        success: function(result) {
+            if (result.success) {
+                currentEditingFile.originalContent = newContent;
+                alert('檔案已儲存');
+            } else {
+                alert('儲存失敗：' + result.message);
+            }
+        },
+        error: function() {
+            alert('儲存失敗，請稍後再試');
         }
-    } catch (error) {
-        alert('儲存失敗：' + error.message);
-    }
+    });
 }
 
 // 關閉檔案編輯器
 function closeFileEditor() {
-    const modal = document.getElementById('fileEditorModal');
-    const editorContent = document.getElementById('fileEditorContent');
-    const previewFrame = document.getElementById('filePreviewFrame');
-    const imgWrap = document.getElementById('imagePreviewWrapper');
-    const imgEl = document.getElementById('imagePreview');
+    const $modal = $('#fileEditorModal');
+    const $editorContent = $('#fileEditorContent');
+    const $previewFrame = $('#filePreviewFrame');
+    const $imgWrap = $('#imagePreviewWrapper');
+    const $imgEl = $('#imagePreview');
     
     // 檢查是否有未儲存的變更
-    if (editorContent.value !== currentEditingFile.originalContent) {
+    if ($editorContent.val() !== currentEditingFile.originalContent) {
         if (!confirm('有未儲存的變更，確定要關閉嗎？')) {
             return;
         }
     }
     
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
-    editorContent.value = '';
-    previewFrame.src = '';
-    if (imgWrap) imgWrap.classList.add('hidden');
-    if (imgEl) imgEl.src = '';
+    const modal = bootstrap.Modal.getInstance($modal[0]);
+    if (modal) modal.hide();
+    $editorContent.val('');
+    $previewFrame.attr('src', '');
+    $imgWrap.addClass('d-none');
+    $imgEl.attr('src', '');
     
     currentEditingFile = { name: '', path: '', encoding: 'utf-8', originalContent: '' };
 }
 
 // ========== 鍵盤快捷鍵 ==========
 
-document.addEventListener('keydown', function(e) {
+$(document).on('keydown', function(e) {
     // ESC 鍵關閉所有 Modal
     if (e.key === 'Escape') {
-        closeModal('createFolderModal');
-        closeModal('createFileModal');
-        closeModal('renameModal');
-        closeModal('deleteModal');
+        $('.modal.show').each(function() {
+            const modal = bootstrap.Modal.getInstance(this);
+            if (modal) modal.hide();
+        });
         
         // 關閉檔案編輯器
-        const editorModal = document.getElementById('fileEditorModal');
-        if (editorModal && !editorModal.classList.contains('hidden')) {
+        const $editorModal = $('#fileEditorModal');
+        if ($editorModal.hasClass('show')) {
             closeFileEditor();
         }
     }
     
     // Ctrl+S 或 Cmd+S 儲存檔案
     if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        const editorModal = document.getElementById('fileEditorModal');
-        const saveBtn = document.getElementById('saveFileBtn');
-        if (editorModal && !editorModal.classList.contains('hidden') && 
-            saveBtn && !saveBtn.classList.contains('hidden')) {
+        const $editorModal = $('#fileEditorModal');
+        const $saveBtn = $('#saveFileBtn');
+        if ($editorModal.hasClass('show') && !$saveBtn.hasClass('d-none')) {
             e.preventDefault();
             saveFile();
         }
@@ -903,61 +935,58 @@ document.addEventListener('keydown', function(e) {
     // Enter 鍵確認操作
     if (e.key === 'Enter') {
         // 如果 Modal 開啟，執行對應操作
-        if (!document.getElementById('createFolderModal').classList.contains('hidden')) {
+        if ($('#createFolderModal').hasClass('show')) {
             createFolder();
-        } else if (!document.getElementById('createFileModal').classList.contains('hidden')) {
+        } else if ($('#createFileModal').hasClass('show')) {
             createFile();
-        } else if (!document.getElementById('renameModal').classList.contains('hidden')) {
+        } else if ($('#renameModal').hasClass('show')) {
             confirmRename();
-        } else if (!document.getElementById('deleteModal').classList.contains('hidden')) {
-            const btn = document.getElementById('deleteConfirmBtn');
-            if (btn && !btn.disabled) {
+        } else if ($('#deleteModal').hasClass('show')) {
+            const $btn = $('#deleteConfirmBtn');
+            if ($btn.length && !$btn.prop('disabled')) {
                 confirmDelete();
             }
         }
     }
 });
 
-// ========== 目錄樹折疊功能（以 data-virtual-path 為前綴判斷） ==========
+// ========== 目錄樹折疊功能（簡化版） ==========
 function toggleTreeNode(event, element) {
     event.preventDefault();
     event.stopPropagation();
-    const chevron = element;
-    const row = element.closest('a');
-    if (!row) return;
-    const currentPath = row.getAttribute('data-virtual-path') || '';
-    const currentIndentRem = parseFloat((row.style.paddingLeft || '0.75rem').replace('rem',''));
-    const currentIndent = isNaN(currentIndentRem) ? 0.75 : currentIndentRem;
-
-    const isOpen = chevron.getAttribute('data-lucide') === 'chevron-down';
-    chevron.setAttribute('data-lucide', isOpen ? 'chevron-right' : 'chevron-down');
+    
+    const $button = $(element);
+    const $treeItem = $button.closest('.tree-item');
+    if ($treeItem.length === 0) return;
+    
+    const $chevron = $button.find('.tree-chevron');
+    const isOpen = $chevron.attr('data-lucide') === 'chevron-down';
+    
+    // 切換圖示
+    $chevron.attr('data-lucide', isOpen ? 'chevron-right' : 'chevron-down');
     if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
-
-    let next = row.nextElementSibling;
-    while (next) {
-        // 只處理同樣是 tree 節點的 <a>
-        if (next.tagName !== 'A') {
-            next = next.nextElementSibling;
-            continue;
-        }
-        const nextPath = next.getAttribute('data-virtual-path') || '';
-        const nextIndentRem = parseFloat((next.style.paddingLeft || '0.75rem').replace('rem',''));
-        const nextIndent = isNaN(nextIndentRem) ? 0.75 : nextIndentRem;
-        // 若縮排小於等於當前層，表示不同分支，停止
-        if (nextIndent <= currentIndent) break;
-        // 僅當 nextPath 是當前路徑的真正後代（以 currentPath + '/' 作為前綴）才處理
-        const prefix = currentPath === '/' ? '//' : currentPath + '/';
-        const isDescendant = nextPath.startsWith(prefix);
-        if (!isDescendant) break;
-        const isDirectChild = Math.abs(nextIndent - currentIndent - 1.0) < 0.1;
+    
+    // 簡單的折疊邏輯：找到下一個同級或上級的項目
+    let $next = $treeItem.next('.tree-item');
+    const currentLevel = parseInt($treeItem.data('level')) || 0;
+    
+    while ($next.length) {
+        const nextLevel = parseInt($next.data('level')) || 0;
+        
+        // 如果遇到同級或上級項目，停止
+        if (nextLevel <= currentLevel) break;
+        
         if (isOpen) {
-            // 收合：隱藏所有子孫
-            next.classList.add('hidden');
+            // 收合：隱藏所有子項目
+            $next.addClass('hidden');
         } else {
-            // 展開：只顯示直接子節點
-            if (isDirectChild) next.classList.remove('hidden');
+            // 展開：只顯示直接子項目（level = currentLevel + 1）
+            if (nextLevel === currentLevel + 1) {
+                $next.removeClass('hidden');
+            }
         }
-        next = next.nextElementSibling;
+        
+        $next = $next.next('.tree-item');
     }
 }
 
@@ -969,40 +998,38 @@ let itemMenuOnScroll = null;
 let itemMenuOnResize = null;
 function ensureItemMenu() {
     if (itemMenuEl) return itemMenuEl;
-    itemMenuEl = document.createElement('div');
-    itemMenuEl.id = 'itemActionMenu';
-    // 改為 fixed，避免滾動時偏移
-    itemMenuEl.className = 'hidden fixed z-50 w-44 rounded-md border border-slate-200 bg-white shadow-md p-2';
-    itemMenuEl.innerHTML = `
-        <button type="button" data-action="open" class="w-full text-left flex items-center gap-2 px-3 py-2 rounded-md hover:bg-slate-100">
-            <i data-lucide="corner-down-right" class="h-4 w-4"></i> 開啟
+    const $menu = $('<div id="itemActionMenu" class="d-none position-fixed border rounded shadow-sm bg-white p-2" style="z-index:1050; width:11rem;"></div>');
+    $menu.html(`
+        <button type="button" data-action="open" class="btn btn-light btn-sm w-100 text-start mb-1">
+            <i data-lucide="corner-down-right" style="width:1rem;height:1rem;"></i> 開啟
         </button>
-        <button type="button" data-action="details" class="w-full text-left flex items-center gap-2 px-3 py-2 rounded-md hover:bg-slate-100">
-            <i data-lucide="eye" class="h-4 w-4"></i> 詳細資料
+        <button type="button" data-action="details" class="btn btn-light btn-sm w-100 text-start mb-1">
+            <i data-lucide="eye" style="width:1rem;height:1rem;"></i> 詳細資料
         </button>
-        <button type="button" data-action="rename" class="w-full text-left flex items-center gap-2 px-3 py-2 rounded-md hover:bg-slate-100">
-            <i data-lucide="edit-3" class="h-4 w-4"></i> 重新命名
+        <button type="button" data-action="rename" class="btn btn-light btn-sm w-100 text-start mb-1">
+            <i data-lucide="edit-3" style="width:1rem;height:1rem;"></i> 重新命名
         </button>
-        <button type="button" data-action="download" class="w-full text-left flex items-center gap-2 px-3 py-2 rounded-md hover:bg-slate-100">
-            <i data-lucide="download" class="h-4 w-4"></i> 下載
+        <button type="button" data-action="download" class="btn btn-light btn-sm w-100 text-start mb-1">
+            <i data-lucide="download" style="width:1rem;height:1rem;"></i> 下載
         </button>
-        <div class="my-2 h-px bg-slate-200"></div>
-        <button type="button" data-action="delete" class="w-full text-left flex items-center gap-2 px-3 py-2 rounded-md hover:bg-slate-100 text-red-600">
-            <i data-lucide="trash-2" class="h-4 w-4"></i> 刪除
+        <hr class="my-2">
+        <button type="button" data-action="delete" class="btn btn-light btn-sm w-100 text-start text-danger">
+            <i data-lucide="trash-2" style="width:1rem;height:1rem;"></i> 刪除
         </button>
-    `;
-    document.body.appendChild(itemMenuEl);
+    `);
+    $('body').append($menu);
+    itemMenuEl = $menu[0];
     if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
     return itemMenuEl;
 }
 
 function hideItemMenu() {
     if (!itemMenuEl) return;
-    itemMenuEl.classList.add('hidden');
+    $(itemMenuEl).addClass('d-none');
     itemMenuAnchor = null;
-    if (itemMenuOnDocClick) document.removeEventListener('click', itemMenuOnDocClick, true);
-    if (itemMenuOnScroll) window.removeEventListener('scroll', itemMenuOnScroll, true);
-    if (itemMenuOnResize) window.removeEventListener('resize', itemMenuOnResize, true);
+    if (itemMenuOnDocClick) $(document).off('click', itemMenuOnDocClick);
+    if (itemMenuOnScroll) $(window).off('scroll', itemMenuOnScroll);
+    if (itemMenuOnResize) $(window).off('resize', itemMenuOnResize);
     itemMenuOnDocClick = null;
     itemMenuOnScroll = null;
     itemMenuOnResize = null;
@@ -1012,70 +1039,89 @@ function openItemMenu(e, kind, name, path) {
     e.preventDefault();
     e.stopPropagation();
     const menu = ensureItemMenu();
+    const $menu = $(menu);
 
     // 若點同一顆按鈕 -> 切換顯示/隱藏
-    if (!menu.classList.contains('hidden') && itemMenuAnchor === e.currentTarget) {
+    if (!$menu.hasClass('d-none') && itemMenuAnchor === e.currentTarget) {
         hideItemMenu();
         return;
     }
 
     // 定位在按鈕下方（fixed 以 viewport 為參考）
     const rect = e.currentTarget.getBoundingClientRect();
-    menu.style.visibility = 'hidden';
-    menu.classList.remove('hidden');
-    const top = rect.bottom + 4;
-    menu.style.top = `${top}px`;
-    const menuWidth = menu.offsetWidth || 176;
+    $menu.css('visibility', 'hidden');
+    $menu.removeClass('d-none');
+    
+    // 計算選單尺寸
+    const menuWidth = $menu.outerWidth() || 176;
+    const menuHeight = $menu.outerHeight() || 200; // 預估高度
     const padding = 8;
+    
+    // 水平定位
     const viewportRight = window.innerWidth - padding;
     let left = rect.right - menuWidth; // 右對齊按鈕
     if (left + menuWidth > viewportRight) left = viewportRight - menuWidth;
     if (left < padding) left = padding;
-    menu.style.left = `${left}px`;
-    menu.style.visibility = 'visible';
+    $menu.css('left', `${left}px`);
+    
+    // 垂直定位 - 檢查是否會被底部截掉
+    const viewportBottom = window.innerHeight - padding;
+    let top = rect.bottom + 4;
+    
+    // 如果選單會被底部截掉，則顯示在按鈕上方
+    if (top + menuHeight > viewportBottom) {
+        top = rect.top - menuHeight - 4;
+        // 如果上方也沒有空間，則調整到可見範圍內
+        if (top < padding) {
+            top = padding;
+        }
+    }
+    
+    $menu.css('top', `${top}px`);
+    $menu.css('visibility', 'visible');
 
     // 記住來源，綁定關閉事件（點外部 / 捲動 / 變更尺寸）
     itemMenuAnchor = e.currentTarget;
     itemMenuOnDocClick = (ev) => {
-        if (!menu.contains(ev.target) && ev.target !== itemMenuAnchor) hideItemMenu();
+        if (!$menu[0].contains(ev.target) && ev.target !== itemMenuAnchor) hideItemMenu();
     };
     itemMenuOnScroll = () => hideItemMenu();
     itemMenuOnResize = () => hideItemMenu();
     setTimeout(() => {
-        document.addEventListener('click', itemMenuOnDocClick, true);
-        window.addEventListener('scroll', itemMenuOnScroll, true);
-        window.addEventListener('resize', itemMenuOnResize, true);
+        $(document).on('click', itemMenuOnDocClick);
+        $(window).on('scroll', itemMenuOnScroll);
+        $(window).on('resize', itemMenuOnResize);
     }, 0);
 
     // 設定動作
-    menu.querySelector('[data-action="open"]').onclick = () => {
+    $menu.find('[data-action="open"]').off('click').on('click', () => {
         if (kind === 'folder') {
             window.location.href = `/Backoffice/FileManager/FileManager?path=${encodeURIComponent(path === '/' ? '/' + name : path + '/' + name)}`;
         } else {
             openFile(name);
         }
         hideItemMenu();
-    };
-    menu.querySelector('[data-action="details"]').onclick = () => {
+    });
+    $menu.find('[data-action="details"]').off('click').on('click', () => {
         loadAndShowFileDetail(path, name);
         hideItemMenu();
-    };
-    menu.querySelector('[data-action="rename"]').onclick = () => {
+    });
+    $menu.find('[data-action="rename"]').off('click').on('click', () => {
         showRenameModal(name, kind);
         hideItemMenu();
-    };
-    menu.querySelector('[data-action="download"]').onclick = () => {
+    });
+    $menu.find('[data-action="download"]').off('click').on('click', () => {
         if (kind === 'folder') {
             window.location.href = `/Backoffice/FileManager/DownloadFolder?path=${encodeURIComponent(path)}&name=${encodeURIComponent(name)}`;
         } else {
             window.location.href = `/Backoffice/FileManager/Download?path=${encodeURIComponent(path)}&name=${encodeURIComponent(name)}`;
         }
         hideItemMenu();
-    };
-    menu.querySelector('[data-action="delete"]').onclick = () => {
+    });
+    $menu.find('[data-action="delete"]').off('click').on('click', () => {
         deleteItem(name, kind);
         hideItemMenu();
-    };
+    });
 }
 
 // 載入並顯示檔案/資料夾詳細資料（部分視圖）
@@ -1085,8 +1131,7 @@ function loadAndShowFileDetail(path, name) {
         url: '/Backoffice/FileManager/LoadDetail',
         data: { path, name },
         success: function (html) {
-            const host = document.getElementById('fileManagerModalHost');
-            if (host) host.innerHTML = html;
+            $('#fileManagerModalHost').html(html);
             if (typeof lucide !== 'undefined') lucide.createIcons();
             showModal('itemDetailModal');
         },
