@@ -10,14 +10,8 @@ public class PermissionManagementService(PermissionManagementRepository repo, Si
     /// <summary>
     /// 載入用戶列表
     /// </summary>
-    public List<vw_permission_user> LoadUserList(string? searchTerm = null, string? organization = null, string? role = null, bool? isActive = null)
-        => repo.QueryUserList(null, searchTerm, organization, role, isActive);
-
-    /// <summary>
-    /// 載入用戶列表
-    /// </summary>
-    public List<vw_permission_user> LoadUsers(string? searchTerm = null, string? organization = null, string? role = null, bool? isActive = null)
-        => repo.QueryUserList(null, searchTerm, organization, role, isActive);
+    public List<vw_permission_user> LoadUserList(string? searchTerm = null, string? organization = null, string? role = null, bool? isActive = null, int? organizationId = null)
+        => repo.QueryUserList(null, searchTerm, organization, role, isActive, organizationId);
 
     /// <summary>
     /// 載入用戶
@@ -28,8 +22,8 @@ public class PermissionManagementService(PermissionManagementRepository repo, Si
     /// <summary>
     /// 載入角色列表
     /// </summary>
-    public List<vw_permission_role> LoadRoleList(string? searchTerm = null, string? organization = null, bool? isActive = null)
-        => repo.QueryRoleList(searchTerm, organization, isActive);
+    public List<vw_permission_role> LoadRoleList(string? searchTerm = null, string? organization = null, bool? isActive = null, int? organizationId = null)
+        => repo.QueryRoleList(searchTerm, organization, isActive, organizationId);
 
     /// <summary>
     /// 載入角色
@@ -40,8 +34,8 @@ public class PermissionManagementService(PermissionManagementRepository repo, Si
     /// <summary>
     /// 載入組織列表
     /// </summary>
-    public List<vw_permission_organization> LoadOrganizationList(string? searchTerm = null, int? level = null, bool? isActive = null)
-        => repo.QueryOrganizationList(searchTerm, level, isActive);
+    public List<vw_permission_organization> LoadOrganizationList(string? searchTerm = null, int? level = null, bool? isActive = null, int? organizationId = null)
+        => repo.QueryOrganizationList(searchTerm, level, isActive, organizationId);
 
     /// <summary>
     /// 載入組織
@@ -132,22 +126,49 @@ public class PermissionManagementService(PermissionManagementRepository repo, Si
 
     #endregion
 
+    #region 權限控制輔助方法
+
+    /// <summary>
+    /// 根據用戶名獲取用戶的組織ID
+    /// </summary>
+    /// <param name="username">用戶名</param>
+    /// <returns>組織ID，如果找不到則返回null</returns>
+    public int? LoadUserOrganizationId(string username)
+    {
+        var user = repo.QueryUserByName(username);
+        return user?.organization_id;
+    }
+
+    /// <summary>
+    /// 根據用戶名獲取用戶資訊
+    /// </summary>
+    /// <param name="username">用戶名</param>
+    /// <returns>用戶資訊或null</returns>
+    public vw_permission_user? LoadUserByName(string username)
+        => repo.QueryUserByName(username);
+
+    #endregion
+
     #region ViewBag 設定方法
 
     /// <summary>
-    /// 設定權限管理統一的 ViewBag 資料
+    /// 設定權限管理統一的 ViewBag 資料（帶權限控制）
     /// </summary>
-    public void ViewBagModel(dynamic viewBag, int? id = null)
+    /// <param name="viewBag">ViewBag 物件</param>
+    /// <param name="id">項目ID</param>
+    /// <param name="currentUserOrganizationId">當前用戶的組織ID（用於權限控制）</param>
+    public void ViewBagModel(dynamic viewBag, int? id = null, int? currentUserOrganizationId = null)
     {
         viewBag.Id = id;
 
-        viewBag.Organizations = LoadOrganizationList();
+        // 根據權限過濾：只顯示當前用戶組織的數據
+        viewBag.Organizations = LoadOrganizationList(organizationId: currentUserOrganizationId);
         viewBag.Organization = id.HasValue ? LoadOrganization(id.Value) : null;
 
-        viewBag.Roles = LoadRoleList();
+        viewBag.Roles = LoadRoleList(organizationId: currentUserOrganizationId);
         viewBag.Role = id.HasValue ? LoadRole(id.Value) : null;
 
-        viewBag.Users = LoadUserList();
+        viewBag.Users = LoadUserList(organizationId: currentUserOrganizationId);
         viewBag.User = id.HasValue ? LoadUser(id.Value) : null;
 
         viewBag.Navigations = sidebarService.LoadNavigations();

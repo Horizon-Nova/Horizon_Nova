@@ -7,150 +7,135 @@
     Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
 }
 
-
-
-<section class="space-y-4 lg:space-y-6">
+<section class="mb-3 mb-lg-4">
 
     <!-- 控制面板 -->
-    <div class="bg-white border rounded-xl p-4 lg:p-6">
-        <div class="flex flex-col gap-3 lg:gap-4">
-            <div class="w-full">
-                <div class="relative">
-                    <input type="text" id="searchInput" placeholder="搜尋姓名或電子郵件..." 
-                           class="w-full pl-10 pr-4 py-2 text-sm border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
+    <div class="bg-white border rounded-3 p-3 p-lg-4 mb-3 mb-lg-4">
+        <div class="d-flex flex-column gap-3">
+            <div class="w-100">
+                <div class="position-relative">
+                    <input type="text" id="searchInput" placeholder="搜尋姓名或電子郵件..."
+                           class="form-control form-control-sm ps-5">
+                    <i data-lucide="search" class="position-absolute top-50 translate-middle-y text-muted" style="left: 0.75rem; width: 1rem; height: 1rem;"></i>
                 </div>
             </div>
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-3">
-                <select id="organizationFilter" class="px-3 py-2 text-sm border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="">所有組織</option>
-                    @if (ViewBag.Organizations != null)
-                    {
-                        @foreach (var org in ViewBag.Organizations)
+            <div class="row g-2 g-lg-3">
+                <div class="col-6 col-lg-3">
+                    <select id="organizationFilter" class="form-select form-select-sm">
+                        <option value="">所有組織</option>
+                        @if (ViewBag.Organizations != null)
                         {
-                            <option value="@org.organization_name">@org.organization_name</option>
+                            @foreach (var org in ViewBag.Organizations)
+                            {
+                                <option value="@org.organization_name">@org.organization_name</option>
+                            }
                         }
-                    }
-                </select>
-                <select id="roleFilter" class="px-3 py-2 text-sm border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="">所有角色</option>
-                    @if (ViewBag.Roles != null)
-                    {
-                        @foreach (var role in ViewBag.Roles)
+                    </select>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <select id="roleFilter" class="form-select form-select-sm">
+                        <option value="">所有角色</option>
+                        @if (ViewBag.Roles != null)
                         {
-                            <option value="@role.name">@role.name</option>
+                            @foreach (var role in ViewBag.Roles)
+                            {
+                                <option value="@role.name">@role.name</option>
+                            }
                         }
-                    }
-                </select>
-                <select id="statusFilter" class="px-3 py-2 text-sm border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="">所有狀態</option>
-                    <option value="true">啟用</option>
-                    <option value="false">停用</option>
-                </select>
-                <button onclick="showUserAdd()" class="col-span-2 lg:col-span-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center justify-center gap-2 text-sm">
-                    <i data-lucide="plus" class="w-4 h-4"></i>
-                    新增人員
-                </button>
+                    </select>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <select id="statusFilter" class="form-select form-select-sm">
+                        <option value="">所有狀態</option>
+                        <option value="true">啟用</option>
+                        <option value="false">停用</option>
+                    </select>
+                </div>
+                <div class="col-12 col-lg-3">
+                    <button onclick="showModal('userFormModal', {url: '@Url.Action("LoadDetail", "PermissionManagement")', method: 'GET', data: {id: null, type: 'user'}, container: 'userModal'})" class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2">
+                        <i data-lucide="plus" style="width: 1rem; height: 1rem;"></i>
+                        新增人員
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- 人員列表 -->
-    <div class="bg-white border rounded-xl overflow-hidden">
-        <div class="overflow-x-auto">
-            <table id="usersTable" class="min-w-full divide-y divide-slate-200">
-                <thead class="bg-slate-50 hidden md:table-header-group">
-                    <tr>
-                        <th class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">帳號</th>
-                        <th class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">組織</th>
-                        <th class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">角色</th>
-                        <th class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">狀態</th>
-                        <th class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider hidden lg:table-cell">最後登入</th>
-                        <th class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider hidden lg:table-cell">建立時間</th>
-                        <th class="px-4 lg:px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">操作</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-slate-200">
-                    @if (Model != null)
-                    {
-                        @foreach (var user in Model)
-                    {
-                        <tr class="user-row hover:bg-slate-50 cursor-pointer flex md:table-row flex-col md:flex-row border-b md:border-0" onclick="showUserDetails(@user.id)">
-                            <td class="px-4 lg:px-6 py-3 md:py-4">
-                                <div class="flex items-center gap-3">
-                                    <div class="flex-shrink-0 h-10 w-10">
-                                        @if (!string.IsNullOrEmpty(user.avatar_url))
-                                        {
-                                            <img class="h-10 w-10 rounded-full" src="@user.avatar_url" alt="@user.full_name">
-                                        }
-                                        else
-                                        {
-                                            <div class="h-10 w-10 rounded-full bg-slate-200 flex items-center justify-center">
-                                                <span class="text-slate-600 font-medium text-sm">@(user.full_name?.Substring(0, 1).ToUpper() ?? "?")</span>
-                                            </div>
-                                        }
-                                    </div>
-                                    <div class="min-w-0 flex-1">
-                                        <div class="text-sm font-medium text-slate-900 truncate">@user.full_name</div>
-                                        <div class="text-xs lg:text-sm text-slate-500 truncate">@user.email</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-4 lg:px-6 py-2 md:py-4 text-xs lg:text-sm text-slate-900">
-                                <span class="md:hidden font-medium text-slate-500 mr-2">組織:</span>
-                                <span class="truncate">@(user.organization_name ?? "未分配")</span>
-                            </td>
-                            <td class="px-4 lg:px-6 py-2 md:py-4 text-xs lg:text-sm text-slate-900">
-                                <span class="md:hidden font-medium text-slate-500 mr-2">角色:</span>
-                                @if (user.role_name != null)
+    <table id="usersTable" class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+            <tr>
+                <th>帳號</th>
+                <th>組織</th>
+                <th>角色</th>
+                <th>狀態</th>
+                <th class="d-none d-lg-table-cell">最後登入</th>
+                <th class="d-none d-lg-table-cell">建立時間</th>
+                <th class="text-end">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model ?? new List<Models.HnbHnbBackoffice.vw_permission_user>())
+            {
+                <tr style="cursor: pointer;" onclick="showModal('userDetailModal', {url: '@Url.Action("LoadDetail", "PermissionManagement")', method: 'GET', data: {id: @user.id, type: 'user'}, container: 'userModal'})">
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="flex-shrink-0" style="width: 2.5rem; height: 2.5rem;">
+                                @if (!string.IsNullOrEmpty(user.avatar_url))
                                 {
-                                    @if (user.role_name.Contains(","))
-                                    {
-                                        <div class="flex flex-wrap gap-1">
-                                            @foreach (var role in user.role_name.Split(','))
-                                            {
-                                                <span class="inline-flex px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded whitespace-nowrap">@role.Trim()</span>
-                                            }
-                                        </div>
-                                    }
-                                    else
-                                    {
-                                        <span class="inline-flex px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded whitespace-nowrap">@user.role_name</span>
-                                    }
+                                    <img class="rounded-circle" style="width: 2.5rem; height: 2.5rem; object-fit: cover;" src="@user.avatar_url" alt="@user.full_name">
                                 }
                                 else
                                 {
-                                    <span class="text-slate-400">未分配</span>
+                                    <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 2.5rem; height: 2.5rem;">
+                                        <span class="text-secondary fw-medium small">@(user.full_name?.Substring(0, 1).ToUpper() ?? "?")</span>
+                                    </div>
                                 }
-                            </td>
-                            <td class="px-4 lg:px-6 py-2 md:py-4">
-                                <span class="md:hidden font-medium text-slate-500 mr-2">狀態:</span>
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full @(user.is_active == true ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800") whitespace-nowrap">
-                                    @(user.is_active == true ? "啟用" : "停用")
-                                </span>
-                            </td>
-                            <td class="px-4 lg:px-6 py-2 md:py-4 text-xs lg:text-sm text-slate-500 hidden lg:table-cell">
-                                @(user.last_login_at?.ToString("yyyy/MM/dd HH:mm") ?? "從未登入")
-                            </td>
-                            <td class="px-4 lg:px-6 py-2 md:py-4 text-xs lg:text-sm text-slate-500 hidden lg:table-cell">
-                                @(user.created_at?.ToString("yyyy/MM/dd HH:mm") ?? "-")
-                            </td>
-                            <td class="px-4 lg:px-6 py-2 md:py-4 text-right">
-                                <button class="p-2 text-red-600 hover:text-red-900 hover:bg-red-50 rounded" onclick="event.stopPropagation(); if(confirm('確定要刪除這個使用者嗎？')) deleteItem(@user.id);">
-                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    }
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
-</section>
+                            </div>
+                            <div class="overflow-hidden">
+                                <div class="fw-medium text-truncate">@user.full_name</div>
+                                <div class="small text-muted text-truncate">@user.email</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>@(user.organization_name ?? "未分配")</td>
+                    <td>
+                        @if (string.IsNullOrEmpty(user.role_name))
+                        {
+                            <span class="text-muted">未分配</span>
+                        }
+                        else if (user.role_name.Contains(","))
+                        {
+                            <div class="d-flex flex-wrap gap-1">
+                                @foreach (var role in user.role_name.Split(','))
+                                {
+                                    <span class="badge bg-primary bg-opacity-10 text-primary text-nowrap">@role.Trim()</span>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <span class="badge bg-primary bg-opacity-10 text-primary text-nowrap">@user.role_name</span>
+                        }
+                    </td>
+                    <td>
+                        <span class="badge rounded-pill @(user.is_active == true ? "bg-success" : "bg-danger")">
+                            @(user.is_active == true ? "啟用" : "停用")
+                        </span>
+                    </td>
+                    <td class="small text-muted d-none d-lg-table-cell">@(user.last_login_at?.ToString("yyyy/MM/dd HH:mm") ?? "從未登入")</td>
+                    <td class="small text-muted d-none d-lg-table-cell">@(user.created_at?.ToString("yyyy/MM/dd HH:mm") ?? "-")</td>
+                    <td class="text-end">
+                        <button class="btn btn-sm btn-outline-danger" onclick="event.stopPropagation(); if(confirm('確定要刪除這個使用者嗎？')) deleteItem(@user.id);">
+                            <i data-lucide="trash-2" style="width: 1rem; height: 1rem;"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 
-<!-- 使用者模態框容器 -->
-<div id="userModal" class=""></div>
+</section>
 
 @section Scripts {
     <script>
@@ -172,29 +157,14 @@
         });
 
         function initializeDataTable() {
-            usersTable = $('#usersTable').DataTable({
-                language: {
-                    url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/zh-HANT.json'
-                },
-                pageLength: 25,
-                lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
+            usersTable = HNBDataTable.init('#usersTable', {
                 order: [[5, 'desc']],
                 columnDefs: [
                     { orderable: false, targets: [6] }
                 ],
-                dom: 'rt<"flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-4"<"text-sm text-slate-600"i><"flex items-center gap-2"p>>',
                 initComplete: function() {
                     $('.dataTables_filter').hide();
                     $('.dataTables_length').hide();
-                    
-                    // 美化資訊顯示樣式
-                    $('.dataTables_info').addClass('px-3 py-1 text-sm text-slate-600');
-                    
-                    // 美化分頁樣式
-                    $('.dataTables_paginate').addClass('flex items-center space-x-1');
-                    $('.dataTables_paginate .paginate_button').addClass('px-3 py-1 text-sm border border-slate-300 rounded-md hover:bg-slate-50 transition-colors');
-                    $('.dataTables_paginate .paginate_button.current').addClass('bg-blue-600 text-white border-blue-600 hover:bg-blue-700');
-                    $('.dataTables_paginate .paginate_button.disabled').addClass('opacity-50 cursor-not-allowed hover:bg-transparent');
                 }
             });
         }
@@ -214,7 +184,7 @@
 
                     const matchesOrganization = !organizationFilter || organization.includes(organizationFilter);
                     const matchesRole = !roleFilter || role.includes(roleFilter);
-                    const matchesStatus = !statusFilter || 
+                    const matchesStatus = !statusFilter ||
                         (statusFilter === 'true' && status.includes('啟用')) ||
                         (statusFilter === 'false' && status.includes('停用'));
 
@@ -224,34 +194,6 @@
 
             usersTable.draw();
         }
-
-        function showUserDetails(userId) {
-            showModal('userDetailModal', {
-                url: '@Url.Action("LoadDetail", "PermissionManagement")',
-                method: 'GET',
-                data: { id: userId },
-                container: 'userModal'
-            });
-        }
-
-        function showUserAdd() {
-            showModal('userFormModal', {
-                url: '@Url.Action("LoadDetail", "PermissionManagement")',
-                method: 'GET',
-                data: { id: null },
-                container: 'userModal'
-            });
-        }
-
-        function showUserEdit(userId) {
-            showModal('userFormModal', {
-                url: '@Url.Action("LoadDetail", "PermissionManagement")',
-                method: 'GET',
-                data: { id: userId },
-                container: 'userModal'
-            });
-        }
-
 
         function deleteItem(id) {
             $.ajax({
@@ -274,3 +216,6 @@
 
     </script>
 }
+
+<!-- Modal 容器 -->
+<div id="userModal"></div>

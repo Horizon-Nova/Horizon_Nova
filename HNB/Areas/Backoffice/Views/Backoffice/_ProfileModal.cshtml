@@ -1,83 +1,95 @@
-<!-- 個人資料說明視窗 -->
-<div id="profile-help" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
-        <!-- Modal Header -->
-        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-8 py-6 border-b border-slate-200">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="bg-blue-100 p-2 rounded-lg">
-                        <i data-lucide="user" class="w-6 h-6 text-blue-600"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-slate-800">個人資料管理說明</h3>
-                        <p class="text-sm text-slate-500 mt-1">了解如何管理您的個人資料和帳號設定</p>
-                    </div>
-                </div>
-                <button type="button" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-lg transition-all duration-200" onclick="closeModal('profile-help')">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
+<!-- 個人資料說明 Modal -->
+<div id="profileHelpModal" class="modal fade" tabindex="-1" aria-labelledby="profileHelpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="profileHelpModalLabel">個人資料管理說明</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-        </div>
-
-        <!-- Modal Body -->
-        <div class="p-8 overflow-y-auto max-h-[calc(95vh-160px)] bg-slate-50">
-            <div class="space-y-6">
-                <div>
-                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
-                        <i data-lucide="info" class="w-4 h-4 mr-2 text-blue-600"></i>
-                        什麼是個人資料？
-                    </h6>
-                    <p class="text-slate-600 text-sm leading-relaxed">個人資料頁面讓您管理自己的帳號資訊、安全設定和系統偏好，確保帳號安全和個人化體驗。</p>
-                </div>
-                
-                <div>
-                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
-                        <i data-lucide="user-cog" class="w-4 h-4 mr-2 text-green-600"></i>
-                        功能說明
-                    </h6>
-                    <ul class="text-slate-600 text-sm space-y-2 leading-relaxed">
-                        <li class="flex items-start">
-                            <span class="bg-blue-100 text-blue-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">•</span>
-                            <div><strong>基本資料：</strong>編輯姓名、電子郵件、電話等個人資訊</div>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="bg-blue-100 text-blue-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">•</span>
-                            <div><strong>帳號安全：</strong>修改密碼，啟用兩步驟驗證</div>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="bg-blue-100 text-blue-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">•</span>
-                            <div><strong>通知設定：</strong>設定接收通知的方式和頻率</div>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="bg-blue-100 text-blue-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">•</span>
-                            <div><strong>活動記錄：</strong>查看最近的登入和操作記錄</div>
-                        </li>
-                    </ul>
-                </div>
-                
-                <div>
-                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
-                        <i data-lucide="shield-check" class="w-4 h-4 mr-2 text-purple-600"></i>
-                        安全建議
-                    </h6>
-                    <div class="bg-amber-50 border border-amber-200 p-4 rounded-lg">
-                        <p class="text-sm text-amber-800">
-                            <i data-lucide="alert-triangle" class="w-4 h-4 inline mr-1"></i>
-                            建議定期更新密碼，啟用兩步驟驗證以提高帳號安全性。如發現異常登入記錄，請立即聯繫管理員。
-                        </p>
+            <div class="modal-body">
+                <div class="row g-4">
+                    <!-- 左側：說明內容 -->
+                    <div class="col-md-6">
+                        <div class="vstack gap-3">
+                            <!-- 什麼是個人資料 -->
+                            <div>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">什麼是個人資料？</h6>
+                                <p class="small mb-0">個人資料頁面讓您管理自己的帳號資訊、安全設定和系統偏好，確保帳號安全和個人化體驗。</p>
+                            </div>
+                            
+                            <!-- 功能說明 -->
+                            <div>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">功能說明</h6>
+                                <div class="small">
+                                    <p><strong>基本資料：</strong>編輯姓名、電子郵件、電話等個人資訊</p>
+                                    <p><strong>安全設定：</strong>變更密碼、查看登入記錄</p>
+                                    <p><strong>偏好設定：</strong>自訂系統顯示偏好與通知設定</p>
+                                </div>
+                            </div>
+                            
+                            <!-- 欄位說明 -->
+                            <div>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">欄位說明</h6>
+                                <table class="table table-sm table-bordered small mb-0">
+                                    <thead class="table-light">
+                                        <tr><th>欄位</th><th>說明</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr><td>完整姓名</td><td>您的完整姓名，將顯示於系統中</td></tr>
+                                        <tr><td>使用者名稱</td><td>登入帳號，無法修改</td></tr>
+                                        <tr><td>電子郵件</td><td>用於接收系統通知</td></tr>
+                                        <tr><td>聯絡電話</td><td>緊急聯絡電話</td></tr>
+                                        <tr><td>性別</td><td>個人性別資訊</td></tr>
+                                        <tr><td>暱稱</td><td>系統內顯示的暱稱</td></tr>
+                                        <tr><td>個人簡介</td><td>個人簡介或工作描述</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 右側：常見問題 -->
+                    <div class="col-md-6">
+                        <div class="vstack gap-3">
+                            <!-- 常見問題 -->
+                            <div>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">常見問題 (Q&A)</h6>
+                                <div class="small">
+                                    <p><strong>Q1：為什麼無法修改使用者名稱？</strong></p>
+                                    <p class="ms-3 mb-2">A：使用者名稱為唯一識別碼，建立後無法修改。如需變更請聯絡系統管理員。</p>
+                                    
+                                    <p><strong>Q2：密碼需要符合什麼規則？</strong></p>
+                                    <p class="ms-3 mb-2">A：密碼長度至少6個字元。建議使用英數混合並包含特殊符號以提高安全性。</p>
+                                    
+                                    <p><strong>Q3：修改個人資料後需要重新登入嗎？</strong></p>
+                                    <p class="ms-3 mb-2">A：修改基本資料不需重新登入，但變更密碼後建議重新登入以確保安全。</p>
+                                    
+                                    <p><strong>Q4：如何查看登入記錄？</strong></p>
+                                    <p class="ms-3 mb-2">A：切換至「安全設定」標籤，即可查看最後登入時間、次數與IP。</p>
+                                    
+                                    <p><strong>Q5：偏好設定何時生效？</strong></p>
+                                    <p class="ms-3 mb-2">A：儲存後立即生效，部分設定可能需要重新整理頁面。</p>
+                                </div>
+                            </div>
+                            
+                            <!-- 安全建議 -->
+                            <div class="alert alert-warning small mb-0">
+                                <h6 class="fw-bold mb-2">安全建議</h6>
+                                <ul class="mb-0">
+                                    <li>定期更新密碼（建議每3個月更換一次）</li>
+                                    <li>使用強密碼（英數混合+特殊符號）</li>
+                                    <li>不要與他人共用帳號</li>
+                                    <li>發現異常登入記錄請立即聯絡管理員</li>
+                                    <li>離開電腦前請記得登出系統</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Modal Footer -->
-        <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
-            <div class="flex items-center justify-end">
-                <button type="button" onclick="closeModal('profile-help')" class="modal-close px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200">
-                    我知道了
-                </button>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">我知道了</button>
             </div>
         </div>
     </div>
 </div>
-

@@ -7,126 +7,106 @@
     Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
 }
 
-
-
-<section class="space-y-6">
-
+<section class="mb-3 mb-lg-4">
     <!-- 控制面板 -->
-    <div class="bg-white border rounded-xl p-6">
-        <div class="flex flex-col lg:flex-row gap-4">
-            <div class="flex-1">
-                <div class="relative">
-                    <input type="text" id="searchInput" placeholder="搜尋組織名稱..." 
-                           class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
+    <div class="bg-white border rounded-3 p-3 p-lg-4 mb-3 mb-lg-4">
+        <div class="d-flex flex-column gap-3">
+            <div class="w-100">
+                <div class="position-relative">
+                    <input type="text" id="searchInput" placeholder="搜尋組織名稱..."
+                           class="form-control form-control-sm ps-5">
+                    <i data-lucide="search" class="position-absolute top-50 translate-middle-y text-muted" style="left: 0.75rem; width: 1rem; height: 1rem;"></i>
                 </div>
             </div>
-            <div class="flex gap-4">
-                <select id="levelFilter" class="px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="">所有層級</option>
-                    <option value="1">第1層</option>
-                    <option value="2">第2層</option>
-                    <option value="3">第3層</option>
-                    <option value="4">第4層</option>
-                    <option value="5">第5層</option>
-                </select>
-                <select id="statusFilter" class="px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="">所有狀態</option>
-                    <option value="true">啟用</option>
-                    <option value="false">停用</option>
-                </select>
-                <button onclick="showOrganizationAdd()" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-2">
-                    <i data-lucide="plus" class="w-4 h-4"></i>
-                    新增組織
-                </button>
+            <div class="row g-2 g-lg-3">
+                <div class="col-6 col-lg-4">
+                    <select id="levelFilter" class="form-select form-select-sm">
+                        <option value="">所有層級</option>
+                        <option value="1">第1層</option>
+                        <option value="2">第2層</option>
+                        <option value="3">第3層</option>
+                        <option value="4">第4層</option>
+                        <option value="5">第5層</option>
+                    </select>
+                </div>
+                <div class="col-6 col-lg-4">
+                    <select id="statusFilter" class="form-select form-select-sm">
+                        <option value="">所有狀態</option>
+                        <option value="true">啟用</option>
+                        <option value="false">停用</option>
+                    </select>
+                </div>
+                <div class="col-12 col-lg-4">
+                    <button onclick="showModal('organizationFormModal', {url: '@Url.Action("LoadDetail", "PermissionManagement")', method: 'GET', data: {id: null, type: 'organization'}, container: 'organizationModal'})" class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2">
+                        <i data-lucide="plus" style="width: 1rem; height: 1rem;"></i>
+                        新增組織
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- 組織列表 -->
-    <div class="bg-white border rounded-xl overflow-hidden">
-        <div class="overflow-x-auto">
-            <table id="organizationsTable" class="min-w-full divide-y divide-slate-200">
-                <thead class="bg-slate-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">組織</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">上級組織</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">層級</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">狀態</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">人員數</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">角色數</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">建立時間</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">操作</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-slate-200">
-                    @if (Model != null)
-                    {
-                        @foreach (var org in Model)
-                    {
-                        <tr class="organization-row hover:bg-slate-50 cursor-pointer" onclick="showOrganizationDetails(@org.id)">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 h-10 w-10">
-                                        <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                                            <i data-lucide="building" class="w-5 h-5 text-blue-600"></i>
-                                        </div>
-                                    </div>
-                                    <div class="ml-4">
-                                        <div class="text-sm font-medium text-slate-900">@org.organization_name</div>
-                                        <div class="text-sm text-slate-500">@org.organization_description</div>
-                                    </div>
+    <table id="organizationsTable" class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+            <tr>
+                <th>組織</th>
+                <th>上級組織</th>
+                <th class="d-none d-lg-table-cell">層級</th>
+                <th>狀態</th>
+                <th class="d-none d-lg-table-cell">人員數</th>
+                <th class="d-none d-lg-table-cell">角色數</th>
+                <th class="d-none d-lg-table-cell">建立時間</th>
+                <th class="text-end">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var org in Model ?? new List<Models.HnbHnbBackoffice.vw_permission_organization>())
+            {
+                <tr style="cursor: pointer;" onclick="showModal('organizationDetailModal', {url: '@Url.Action("LoadDetail", "PermissionManagement")', method: 'GET', data: {id: @org.id, type: 'organization'}, container: 'organizationModal'})">
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="flex-shrink-0" style="width: 2.5rem; height: 2.5rem;">
+                                <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center" style="width: 2.5rem; height: 2.5rem;">
+                                    <i data-lucide="building" class="text-primary" style="width: 1.25rem; height: 1.25rem;"></i>
                                 </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
-                                @(org.parent_organization_name ?? "根組織")
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
-                                @(org.organization_level ?? 1)
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full @(org.is_active == true ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800")">
-                                    @(org.is_active == true ? "啟用" : "停用")
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
-                                @(org.total_users_count ?? 0)
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
-                                @(org.total_roles_count ?? 0)
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
-                                @(org.created_at?.ToString("yyyy/MM/dd HH:mm") ?? "-")
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <button class="text-red-600 hover:text-red-900" onclick="event.stopPropagation(); if(confirm('確定要刪除這個組織嗎？')) deleteItem(@org.id);">
-                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    }
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
+                            </div>
+                            <div class="overflow-hidden">
+                                <div class="fw-medium text-truncate">@org.organization_name</div>
+                                <div class="small text-muted text-truncate">@org.organization_description</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>@(org.parent_organization_name ?? "根組織")</td>
+                    <td class="d-none d-lg-table-cell">@(org.organization_level ?? 1)</td>
+                    <td>
+                        <span class="badge rounded-pill @(org.is_active == true ? "bg-success" : "bg-danger")">
+                            @(org.is_active == true ? "啟用" : "停用")
+                        </span>
+                    </td>
+                    <td class="d-none d-lg-table-cell">@(org.total_users_count ?? 0)</td>
+                    <td class="d-none d-lg-table-cell">@(org.total_roles_count ?? 0)</td>
+                    <td class="small text-muted d-none d-lg-table-cell">@(org.created_at?.ToString("yyyy/MM/dd HH:mm") ?? "-")</td>
+                    <td class="text-end">
+                        <button class="btn btn-sm btn-outline-danger" onclick="event.stopPropagation(); if(confirm('確定要刪除這個組織嗎？')) deleteItem(@org.id);">
+                            <i data-lucide="trash-2" style="width: 1rem; height: 1rem;"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </section>
-
-<!-- 組織模態框容器 -->
-<div id="organizationModal" class=""></div>
 
 @section Scripts {
     <script>
         let organizationsTable;
 
         $(document).ready(function() {
-            // 初始化圖標
             window.lucide?.createIcons?.();
 
-            // 初始化 DataTable
             initializeDataTable();
 
-            // 綁定篩選事件
             $('#searchInput').on('input', function() {
                 organizationsTable.search(this.value).draw();
             });
@@ -134,36 +114,17 @@
             $('#levelFilter, #statusFilter').on('change', function() {
                 applyFilters();
             });
-
-            // 新增組織按鈕
-            $('#btnAddOrganization').on('click', function() {
-                showOrganizationAdd();
-            });
-
         });
 
         function initializeDataTable() {
-            organizationsTable = $('#organizationsTable').DataTable({
-                language: {
-                    url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/zh-HANT.json'
-                },
-                pageLength: 25,
-                lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
+            organizationsTable = HNBDataTable.init('#organizationsTable', {
                 order: [[6, 'desc']],
                 columnDefs: [
                     { orderable: false, targets: [7] }
                 ],
-                dom: 'rt<"flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-4"<"text-sm text-slate-600"i><"flex items-center gap-2"p>>',
                 initComplete: function() {
                     $('.dataTables_filter').hide();
                     $('.dataTables_length').hide();
-
-                    $('.dataTables_info').addClass('px-3 py-1 text-sm text-slate-600');
-
-                    $('.dataTables_paginate').addClass('flex items-center space-x-1');
-                    $('.dataTables_paginate .paginate_button').addClass('px-3 py-1 text-sm border border-slate-300 rounded-md hover:bg-slate-50 transition-colors');
-                    $('.dataTables_paginate .paginate_button.current').addClass('bg-blue-600 text-white border-blue-600 hover:bg-blue-700');
-                    $('.dataTables_paginate .paginate_button.disabled').addClass('opacity-50 cursor-not-allowed hover:bg-transparent');
                 }
             });
         }
@@ -180,7 +141,7 @@
                     const status = data[3];
 
                     const matchesLevel = !levelFilter || level.includes(levelFilter);
-                    const matchesStatus = !statusFilter || 
+                    const matchesStatus = !statusFilter ||
                         (statusFilter === 'true' && status.includes('啟用')) ||
                         (statusFilter === 'false' && status.includes('停用'));
 
@@ -189,33 +150,6 @@
             }
 
             organizationsTable.draw();
-        }
-
-        function showOrganizationDetails(organizationId) {
-            showModal('organizationDetailModal', {
-                url: '@Url.Action("LoadDetail", "PermissionManagement")',
-                method: 'GET',
-                data: { id: organizationId },
-                container: 'organizationModal'
-            });
-        }
-
-        function showOrganizationAdd() {
-            showModal('organizationFormModal', {
-                url: '@Url.Action("LoadDetail", "PermissionManagement")',
-                method: 'GET',
-                data: { id: null },
-                container: 'organizationModal'
-            });
-        }
-
-        function showOrganizationEdit(organizationId) {
-            showModal('organizationFormModal', {
-                url: '@Url.Action("LoadDetail", "PermissionManagement")',
-                method: 'GET',
-                data: { id: organizationId },
-                container: 'organizationModal'
-            });
         }
 
         function deleteItem(id) {
@@ -231,11 +165,11 @@
                         alert('刪除失敗：' + response.message);
                     }
                 },
-                error: function() {
-                    alert('刪除失敗，請稍後再試');
-                }
+                error: () => alert('刪除失敗，請稍後再試')
             });
         }
-
     </script>
 }
+
+<!-- Modal 容器 -->
+<div id="organizationModal"></div>

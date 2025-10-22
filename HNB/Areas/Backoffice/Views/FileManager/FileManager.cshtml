@@ -1,4 +1,4 @@
-@model List<Models.HnbHnbBackoffice.vw_file_manager>
+@model List<HNB.Areas.Backoffice.Models.FileSystemItem>
 
 @{
     ViewData["Title"] = "檔案總管";
@@ -9,24 +9,24 @@
 
     var currentPath = ViewBag.CurrentPath as string ?? "/";
     var currentUser = User?.Identity?.Name ?? "guest";
-    var folders = Model?.Where(f => f.item_type == "folder" && f.file_path == currentPath).ToList() ?? new();
-    var files = Model?.Where(f => f.item_type == "file" && f.file_path == currentPath).ToList() ?? new();
+    var folders = Model?.Where(f => f.Type == "folder" && f.VirtualPath == currentPath).ToList() ?? new();
+    var files = Model?.Where(f => f.Type == "file" && f.VirtualPath == currentPath).ToList() ?? new();
 
     var folderCount = folders.Count;
     var fileCount = files.Count;
-    var totalSize = files.Sum(f => f.file_size ?? 0L);
+    var totalSize = files.Sum(f => f.Size ?? 0L);
 
-    var allFolders = Model?.Where(f => f.item_type == "folder").ToList() ?? new();
+    var allFolders = Model?.Where(f => f.Type == "folder").ToList() ?? new();
     var childrenMap = new Dictionary<string, List<string>>(StringComparer.Ordinal);
     foreach (var f in allFolders)
     {
-        var parent = f.file_path ?? "/";
+        var parent = f.VirtualPath ?? "/";
         if (!childrenMap.TryGetValue(parent, out var list))
         {
             list = new List<string>();
             childrenMap[parent] = list;
         }
-        list.Add(f.file_name);
+        list.Add(f.Name ?? "");
     }
     foreach (var key in childrenMap.Keys.ToList())
         childrenMap[key] = childrenMap[key].Distinct(StringComparer.Ordinal).OrderBy(n => n, StringComparer.Ordinal).ToList();
@@ -63,253 +63,255 @@
     }
 }
 
-<div class="flex gap-0 flex-col md:flex-row">
-    <!-- 左側：目錄樹 -->
-    <aside class="hidden md:flex md:w-64 bg-white border-r border-slate-200 flex-col">
-        <!-- 標題列 -->
-        <div class="h-12 px-3 flex items-center justify-between border-b border-slate-200">
-            <span class="text-sm font-medium text-slate-900">檔案總管</span>
-            <div class="flex items-center gap-0.5">
-                <button onclick="showModal('filemanager-help')" class="w-7 h-7 flex items-center justify-center hover:bg-slate-100 rounded" title="操作說明">
-                    <i data-lucide="help-circle" class="h-4 w-4 text-slate-600"></i>
-                </button>
-                <button onclick="showModal('createFileModal')" class="w-7 h-7 flex items-center justify-center hover:bg-slate-100 rounded" title="新增檔案">
-                    <i data-lucide="file-plus" class="h-4 w-4 text-slate-600"></i>
-                </button>
-                <button onclick="showModal('createFolderModal')" class="w-7 h-7 flex items-center justify-center hover:bg-slate-100 rounded" title="新增資料夾">
-                    <i data-lucide="folder-plus" class="h-4 w-4 text-slate-600"></i>
-                </button>
-                <button onclick="location.reload()" class="w-7 h-7 flex items-center justify-center hover:bg-slate-100 rounded" title="重新整理">
-                    <i data-lucide="refresh-cw" class="h-4 w-4 text-slate-600"></i>
-                </button>
-            </div>
-
-        </div>
-
-        <!-- 目錄樹 -->
-        <div class="flex-1 overflow-y-auto py-2">
-            <!-- 根目錄 -->
-            <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = "/" })"
-               data-virtual-path="/"
-               class="flex items-center gap-1.5 px-3 py-1.5 hover:bg-slate-50 cursor-pointer @(currentPath == "/" ? "bg-slate-100" : "")">
-                <i data-lucide="@(currentPath == "/" ? "folder-open" : "folder")" class="h-4 w-4 text-amber-500"></i>
-                <span class="text-sm @(currentPath == "/" ? "font-medium text-slate-900" : "text-slate-700")">根目錄</span>
-            </a>
-
-            @for (int i = 0; i < tree.Count; i++)
-            {
-                var (name, path, depth) = tree[i];
-                var isActive = currentPath == path;
-                var indentPx = 0.75 + (depth * 1.0);
-                var isRootChild = depth <= 1;
-                var hasChildren = i < tree.Count - 1 && tree.Skip(i + 1).Any(t => t.Depth > depth && t.VirtualPath.StartsWith(path + "/"));
-
-                <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = path })"
-                   data-virtual-path="@path"
-                   class="flex items-center gap-1.5 px-3 py-1.5 hover:bg-slate-50 cursor-pointer @(isActive ? "bg-slate-100" : "") @(isRootChild ? "" : "hidden")"
-                   style="padding-left: @(indentPx)rem">
-                    <i data-lucide="chevron-right"
-                       class="h-4 w-4 text-slate-600 rounded tree-chevron @(hasChildren ? "cursor-pointer hover:bg-slate-200" : "invisible")"
-                       onclick="@(hasChildren ? "toggleTreeNode(event, this)" : "")"></i>
-                    <i data-lucide="@(isActive ? "folder-open" : "folder")" class="h-4 w-4 text-amber-500"></i>
-                    <span class="text-sm @(isActive ? "font-medium text-slate-900" : "text-slate-700")">@name</span>
-                </a>
-            }
-        </div>
-    </aside>
-
-    <!-- 右側：內容區 -->
-    <div class="flex-1 flex flex-col bg-white min-w-0">
-        <!-- 頂部導航列 -->
-        <div class="h-12 px-6 flex items-center justify-between border-b border-slate-200">
-            <!-- 麵包屑 -->
-            <nav class="flex items-center gap-1 text-sm">
-                <button type="button" class="md:hidden inline-flex items-center gap-1 px-2 py-1 mr-2 rounded border border-slate-200 text-slate-700"
-                        onclick="document.getElementById('mobileTree').classList.remove('hidden')">
-                    <i data-lucide="panel-left" class="h-4 w-4"></i>
-                    目錄
-                </button>
-                @for (int i = 0; i < breadcrumb.Count; i++)
-                {
-                    var (name, path) = breadcrumb[i];
-                    var isLast = i == breadcrumb.Count - 1;
-
-                    if (i > 0)
-                    {
-                        <i data-lucide="chevron-right" class="h-4 w-4 text-slate-400"></i>
-                    }
-
-                    <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = path })"
-                       class="px-2 py-1 hover:bg-slate-100 rounded @(isLast ? "font-medium text-slate-900" : "text-slate-700")">
-                        @name
-                    </a>
-                }
-            </nav>
-
-            <!-- 統計資訊 -->
-            <div class="text-xs text-slate-500">
-                @folderCount 個資料夾 · @fileCount 個檔案 · @FormatSize(totalSize)
-            </div>
-        </div>
-
-        <!-- 手機目錄樹抽屜 -->
-        <div id="mobileTree" class="fixed inset-0 z-40 md:hidden hidden">
-            <div class="absolute inset-0 bg-black/40" onclick="document.getElementById('mobileTree').classList.add('hidden')"></div>
-            <div class="absolute left-0 top-0 bottom-0 w-64 bg-white border-r border-slate-200 shadow-xl flex flex-col">
-                <div class="h-12 px-3 flex items-center justify-between border-b border-slate-200">
-                    <span class="text-sm font-medium text-slate-900">目錄</span>
-                    <button class="w-7 h-7 flex items-center justify-center hover:bg-slate-100 rounded" onclick="document.getElementById('mobileTree').classList.add('hidden')">
-                        <i data-lucide="x" class="h-4 w-4 text-slate-600"></i>
-                    </button>
+<div class="bg-white border rounded-3 p-3">
+    <div class="row g-0">
+        <!-- 左側：目錄樹 -->
+        <aside class="col-md-3 d-none d-md-block border-end">
+            <div class="d-flex flex-column">
+                <div class="d-flex align-items-center justify-content-between border-bottom p-3" style="min-height: 54px;">
+                    <span class="small fw-semibold">檔案總管</span>
+                    <div class="d-flex align-items-center gap-1">
+                        <button type="button" onclick="showModal('filemanager-help')" class="btn btn-link btn-sm p-0" title="操作說明">
+                            <i data-lucide="help-circle" class="text-muted" style="width:1rem;height:1rem;"></i>
+                        </button>
+                        <button type="button" onclick="showModal('createFileModal')" class="btn btn-link btn-sm p-0" title="新增檔案">
+                            <i data-lucide="file-plus" class="text-muted" style="width:1rem;height:1rem;"></i>
+                        </button>
+                        <button type="button" onclick="showModal('createFolderModal')" class="btn btn-link btn-sm p-0" title="新增資料夾">
+                            <i data-lucide="folder-plus" class="text-muted" style="width:1rem;height:1rem;"></i>
+                        </button>
+                        <button type="button" onclick="location.reload()" class="btn btn-link btn-sm p-0" title="重新整理">
+                            <i data-lucide="refresh-cw" class="text-muted" style="width:1rem;height:1rem;"></i>
+                        </button>
+                    </div>
                 </div>
-                <div class="flex-1 overflow-y-auto py-2">
+                <div class="flex-grow-1 overflow-auto p-2">
                     <!-- 根目錄 -->
-                    <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = "/" })"
-                       data-virtual-path="/"
-                       class="flex items-center gap-1.5 px-3 py-1.5 hover:bg-slate-50 cursor-pointer @(currentPath == "/" ? "bg-slate-100" : "")">
-                        <i data-lucide="@(currentPath == "/" ? "folder-open" : "folder")" class="h-4 w-4 text-amber-500"></i>
-                        <span class="text-sm @(currentPath == "/" ? "font-medium text-slate-900" : "text-slate-700")">根目錄</span>
-                    </a>
+                    <div class="tree-item @(currentPath == "/" ? "active" : "")" data-level="0">
+                        <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = "/" })" class="tree-link">
+                            <i data-lucide="@(currentPath == "/" ? "folder-open" : "folder")" class="tree-icon"></i>
+                            <span class="tree-text">根目錄</span>
+                        </a>
+                    </div>
+                    
+                    <!-- 目錄樹 -->
                     @for (int i = 0; i < tree.Count; i++)
                     {
                         var (name, path, depth) = tree[i];
                         var isActive = currentPath == path;
-                        var indentPx = 0.75 + (depth * 1.0);
                         var isRootChild = depth <= 1;
                         var hasChildren = i < tree.Count - 1 && tree.Skip(i + 1).Any(t => t.Depth > depth && t.VirtualPath.StartsWith(path + "/"));
-                        <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = path })"
-                           data-virtual-path="@path"
-                           class="flex items-center gap-1.5 px-3 py-1.5 hover:bg-slate-50 cursor-pointer @(isActive ? "bg-slate-100" : "") @(isRootChild ? "" : "hidden")"
-                           style="padding-left: @(indentPx)rem">
-                            <i data-lucide="chevron-right"
-                               class="h-4 w-4 text-slate-600 rounded tree-chevron @(hasChildren ? "cursor-pointer hover:bg-slate-200" : "invisible")"
-                               onclick="@(hasChildren ? "toggleTreeNode(event, this)" : "")"></i>
-                            <i data-lucide="@(isActive ? "folder-open" : "folder")" class="h-4 w-4 text-amber-500"></i>
-                            <span class="text-sm @(isActive ? "font-medium text-slate-900" : "text-slate-700")">@name</span>
-                        </a>
+                        
+                        <div class="tree-item @(isRootChild ? "" : "hidden")" data-level="@depth" data-path="@path">
+                            <div class="tree-content" style="padding-left: @(depth * 1.5)rem;">
+                                @if (hasChildren)
+                                {
+                                    <button type="button" class="tree-toggle" onclick="toggleTreeNode(event, this)" title="展開/收合">
+                                        <i data-lucide="chevron-right" class="tree-chevron"></i>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <span class="tree-spacer"></span>
+                                }
+                                <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = path })" class="tree-link @(isActive ? "active" : "")">
+                                    <i data-lucide="@(isActive ? "folder-open" : "folder")" class="tree-icon"></i>
+                                    <span class="tree-text">@name</span>
+                                </a>
+                            </div>
+                        </div>
                     }
                 </div>
             </div>
-        </div>
+        </aside>
 
-        <!-- Dropzone 上傳區 -->
-        <div class="mx-6 mt-4">
-            <div id="dropZone" class="border-2 border-dashed border-slate-300 rounded-lg px-6 py-8 text-center hover:border-slate-400 hover:bg-slate-50/50 cursor-pointer group"
-                 onclick="document.getElementById('fileInput').click()">
-                <i data-lucide="upload-cloud" class="h-10 w-10 mx-auto mb-3 text-slate-400 group-hover:text-slate-500"></i>
-                <p class="text-sm font-medium text-slate-700 mb-1">拖曳檔案或資料夾到這裡上傳</p>
-                <p class="text-xs text-slate-500">或點擊選擇檔案</p>
+        <!-- 右側：內容區 -->
+        <div class="col-md-9">
+            <!-- 頂部導航列 -->
+            <div class="d-flex align-items-center justify-content-between border-bottom p-3" style="min-height: 54px;">
+                <!-- 麵包屑 -->
+                <nav class="d-flex align-items-center gap-1 small">
+                    <button type="button" class="btn btn-outline-secondary btn-sm d-md-none me-2" data-bs-toggle="offcanvas" data-bs-target="#mobileTree">
+                        <i data-lucide="panel-left" style="width:1rem;height:1rem;"></i>
+                        <span class="ms-1">目錄</span>
+                    </button>
+                    @for (int i = 0; i < breadcrumb.Count; i++)
+                    {
+                        var (name, path) = breadcrumb[i];
+                        var isLast = i == breadcrumb.Count - 1;
+
+                        if (i > 0)
+                        {
+                            <i data-lucide="chevron-right" class="text-muted" style="width:1rem;height:1rem;"></i>
+                        }
+
+                        <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = path })" class="text-decoration-none px-2 py-1 rounded @(isLast ? "fw-semibold text-dark" : "text-muted")">@name</a>
+                    }
+                </nav>
+
+                <!-- 統計資訊 -->
+                <div class="text-muted small">@folderCount 個資料夾 · @fileCount 個檔案 · @FormatSize(totalSize)</div>
             </div>
-        </div>
 
-        <!-- 隱藏的檔案輸入 -->
-        <input type="file" id="fileInput" multiple class="hidden">
-
-        <!-- 檔案列表 -->
-        <div class="flex-1 overflow-auto px-6 py-4">
-            <table id="filesTable" class="display compact" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>類型</th>
-                        <th>名稱</th>
-                        <th>大小</th>
-                        <th>擁有者</th>
-                        <th>共享狀態</th>
-                        <th>修改時間</th>
-                        <th>操作</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var folder in folders)
+            <!-- 手機目錄樹（Offcanvas） -->
+            <div class="offcanvas offcanvas-start d-md-none" tabindex="-1" id="mobileTree" aria-labelledby="mobileTreeLabel">
+                <div class="offcanvas-header">
+                    <h6 class="offcanvas-title" id="mobileTreeLabel">目錄</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="關閉"></button>
+                </div>
+                <div class="offcanvas-body p-2">
+                    <!-- 根目錄 -->
+                    <div class="tree-item @(currentPath == "/" ? "active" : "")" data-level="0">
+                        <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = "/" })" class="tree-link">
+                            <i data-lucide="@(currentPath == "/" ? "folder-open" : "folder")" class="tree-icon"></i>
+                            <span class="tree-text">根目錄</span>
+                        </a>
+                    </div>
+                    
+                    <!-- 目錄樹 -->
+                    @for (int i = 0; i < tree.Count; i++)
                     {
-                        var name = folder.file_name;
-                        var owner = folder.owner_username;
-                        var sharedUsers = folder.shared_users;
-                        var modified = folder.updated_at ?? folder.created_at;
-                        var folderPath = currentPath == "/" ? "/" + name : currentPath + "/" + name;
-                        var isOwner = owner == currentUser;
-                        var sharedCount = sharedUsers?.Count ?? 0;
-                        var modifiedTimestamp = modified?.ToString("yyyy-MM-dd HH:mm:ss") ?? "";
-
-                        <tr class="cursor-pointer hover:bg-slate-50" onclick="window.location.href='@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = folderPath })'">
-                            <td data-order="0">
-                                <i data-lucide="folder" class="h-5 w-5 text-amber-500"></i>
-                            </td>
-                            <td class="font-medium">@name</td>
-                            <td data-order="0">—</td>
-                            <td>
-                                <span class="inline-flex items-center gap-1 @(isOwner ? "text-blue-600" : "")">
-                                    <i data-lucide="user-check" class="h-3.5 w-3.5 @(isOwner ? "" : "hidden")"></i>
-                                    <span class="@(isOwner ? "font-medium" : "")">@(isOwner ? "我" : owner)</span>
-                                </span>
-                            </td>
-                            <td>
-                                @{ 
-                                    var sharedIcon = sharedCount > 1 ? "users" : (sharedCount == 1 ? "lock" : "");
-                                    var sharedText = sharedCount > 1 ? $"共享 ({sharedCount}人)" : (sharedCount == 1 ? "私有" : "—");
-                                    var sharedBase = sharedCount > 0 ? "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs" : "text-slate-400 text-xs";
-                                    var sharedColor = sharedCount > 1 ? "bg-green-100 text-green-700" : (sharedCount == 1 ? "bg-slate-100 text-slate-600" : "");
+                        var (name, path, depth) = tree[i];
+                        var isActive = currentPath == path;
+                        var isRootChild = depth <= 1;
+                        var hasChildren = i < tree.Count - 1 && tree.Skip(i + 1).Any(t => t.Depth > depth && t.VirtualPath.StartsWith(path + "/"));
+                        
+                        <div class="tree-item @(isRootChild ? "" : "hidden")" data-level="@depth" data-path="@path">
+                            <div class="tree-content" style="padding-left: @(depth * 1.5)rem;">
+                                @if (hasChildren)
+                                {
+                                    <button type="button" class="tree-toggle" onclick="toggleTreeNode(event, this)" title="展開/收合">
+                                        <i data-lucide="chevron-right" class="tree-chevron"></i>
+                                    </button>
                                 }
-                                <span class="@sharedBase @sharedColor">
-                                    <i data-lucide="@sharedIcon" class="h-3 w-3 @(sharedCount > 0 ? "" : "hidden")"></i>@sharedText
-                                </span>
-                            </td>
-                            <td data-order="@modifiedTimestamp">@(modified?.ToString("yyyy/MM/dd HH:mm") ?? "—")</td>
-                            <td class="text-right">
-                                <button onclick="openItemMenu(event, 'folder', '@name.Replace("'", "\\'").Replace("\"", "&quot;")', '@currentPath')"
-                                        class="w-8 h-8 inline-flex items-center justify-center hover:bg-slate-200 rounded" title="更多">
-                                    <i data-lucide="more-vertical" class="h-4 w-4 text-slate-600"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    }
-
-                    @foreach (var file in files)
-                    {
-                        var name = file.file_name;
-                        var size = file.file_size ?? 0L;
-                        var mimeType = file.mime_type;
-                        var owner = file.owner_username;
-                        var sharedUsers = file.shared_users;
-                        var modified = file.updated_at ?? file.created_at;
-                        var isOwner = owner == currentUser;
-                        var sharedCount = sharedUsers?.Count ?? 0;
-                        var modifiedTimestamp = modified?.ToString("yyyy-MM-dd HH:mm:ss") ?? "";
-
-                        <tr class="cursor-pointer hover:bg-slate-50" onclick="openFile('@name.Replace("'", "\\'").Replace("\"", "&quot;")')">
-                            <td data-order="1">
-                                <i data-lucide="file" class="h-5 w-5 text-slate-400"></i>
-                            </td>
-                            <td>@name</td>
-                            <td data-order="@size">@FormatSize(size)</td>
-                            <td>
-                                <span class="inline-flex items-center gap-1 @(isOwner ? "text-blue-600" : "")">
-                                    <i data-lucide="user-check" class="h-3.5 w-3.5 @(isOwner ? "" : "hidden")"></i>
-                                    <span class="@(isOwner ? "font-medium" : "")">@(isOwner ? "我" : owner)</span>
-                                </span>
-                            </td>
-                            <td>
-                                @{ 
-                                    var sharedIconF = sharedCount > 1 ? "users" : (sharedCount == 1 ? "lock" : "");
-                                    var sharedTextF = sharedCount > 1 ? $"共享 ({sharedCount}人)" : (sharedCount == 1 ? "私有" : "—");
-                                    var sharedBaseF = sharedCount > 0 ? "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs" : "text-slate-400 text-xs";
-                                    var sharedColorF = sharedCount > 1 ? "bg-green-100 text-green-700" : (sharedCount == 1 ? "bg-slate-100 text-slate-600" : "");
+                                else
+                                {
+                                    <span class="tree-spacer"></span>
                                 }
-                                <span class="@sharedBaseF @sharedColorF">
-                                    <i data-lucide="@sharedIconF" class="h-3 w-3 @(sharedCount > 0 ? "" : "hidden")"></i>@sharedTextF
-                                </span>
-                            </td>
-                            <td data-order="@modifiedTimestamp">@(modified?.ToString("yyyy/MM/dd HH:mm") ?? "—")</td>
-                            <td class="text-right">
-                                <button onclick="openItemMenu(event, 'file', '@name.Replace("'", "\\'").Replace("\"", "&quot;")', '@currentPath')"
-                                        class="w-8 h-8 inline-flex items-center justify-center hover:bg-slate-200 rounded" title="更多">
-                                    <i data-lucide="more-vertical" class="h-4 w-4 text-slate-600"></i>
-                                </button>
-                            </td>
-                        </tr>
+                                <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = path })" class="tree-link @(isActive ? "active" : "")">
+                                    <i data-lucide="@(isActive ? "folder-open" : "folder")" class="tree-icon"></i>
+                                    <span class="tree-text">@name</span>
+                                </a>
+                            </div>
+                        </div>
                     }
-                </tbody>
-            </table>
+                </div>
+            </div>
+
+            <!-- Dropzone 上傳區 -->
+            <div class="p-3">
+                <div id="dropZone" class="border border-2 rounded-3 p-4 text-center" style="border-style: dashed; cursor: pointer;" onclick="$('#fileInput').trigger('click')">
+                    <i data-lucide="upload-cloud" class="text-muted d-block mx-auto mb-2" style="width:2rem;height:2rem;"></i>
+                    <p class="small fw-semibold text-muted mb-1">拖曳檔案或資料夾到這裡上傳</p>
+                    <p class="small text-muted">或點擊選擇檔案</p>
+                </div>
+            </div>
+
+            <!-- 隱藏的檔案輸入 -->
+            <input type="file" id="fileInput" multiple class="d-none">
+
+            <!-- 檔案列表 -->
+            <div class="p-3">
+                <table id="filesTable" class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>類型</th>
+                            <th>名稱</th>
+                            <th>大小</th>
+                            <th>擁有者</th>
+                            <th>共享狀態</th>
+                            <th>修改時間</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var folder in folders)
+                        {
+                            var name = folder.Name;
+                            var owner = folder.Owner;
+                            var sharedUsers = folder.SharedUsers;
+                            var modified = folder.UpdatedAt;
+                            var folderPath = currentPath == "/" ? "/" + name : currentPath + "/" + name;
+                            var isOwner = owner == currentUser;
+                            var sharedCount = sharedUsers?.Count ?? 0;
+                            var modifiedTimestamp = modified.ToString("yyyy-MM-dd HH:mm:ss");
+
+                            <tr onclick="window.location.href='@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = folderPath })'">
+                                <td data-order="0">
+                                    <i data-lucide="folder" class="text-warning" style="width:1rem;height:1rem;"></i>
+                                </td>
+                                <td class="fw-semibold">@name</td>
+                                <td data-order="0">—</td>
+                                <td>
+                                    <span class="d-inline-flex align-items-center gap-1 @(isOwner ? "text-primary" : "")">
+                                        <i data-lucide="user-check" class="@(isOwner ? "" : "d-none")" style="width:0.9rem;height:0.9rem;"></i>
+                                        <span class="@(isOwner ? "fw-semibold" : "")">@(isOwner ? "我" : owner)</span>
+                                    </span>
+                                </td>
+                                <td>
+                                    @{
+                                        var sharedIcon = sharedCount > 1 ? "users" : (sharedCount == 1 ? "lock" : "");
+                                        var sharedText = sharedCount > 1 ? $"共享 ({sharedCount}人)" : (sharedCount == 1 ? "私有" : "—");
+                                    }
+                                    <span class="badge rounded-pill bg-light text-muted @(sharedCount > 0 ? "" : "opacity-75")">
+                                        <i data-lucide="@sharedIcon" class="@(sharedCount > 0 ? "" : "d-none")" style="width:0.8rem;height:0.8rem;"></i> @sharedText
+                                    </span>
+                                </td>
+                                <td data-order="@modifiedTimestamp">@(modified.ToString("yyyy/MM/dd HH:mm"))</td>
+                                <td class="text-end">
+                                    <button onclick="openItemMenu(event, 'folder', '@(name?.Replace("'", "\\'").Replace("\"", "&quot;") ?? "")', '@currentPath')"
+                                            class="btn btn-light btn-sm" title="更多">
+                                        <i data-lucide="more-vertical" class="text-muted" style="width:1rem;height:1rem;"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+
+                        @foreach (var file in files)
+                        {
+                            var name = file.Name;
+                            var size = file.Size ?? 0L;
+                            var mimeType = file.MimeType;
+                            var owner = file.Owner;
+                            var sharedUsers = file.SharedUsers;
+                            var modified = file.UpdatedAt;
+                            var isOwner = owner == currentUser;
+                            var sharedCount = sharedUsers?.Count ?? 0;
+                            var modifiedTimestamp = modified.ToString("yyyy-MM-dd HH:mm:ss");
+
+                            <tr onclick="openFile('@(name?.Replace("'", "\\'").Replace("\"", "&quot;") ?? "")')">
+                                <td data-order="1">
+                                    <i data-lucide="file" class="text-muted" style="width:1rem;height:1rem;"></i>
+                                </td>
+                                <td>@name</td>
+                                <td data-order="@size">@FormatSize(size)</td>
+                                <td>
+                                    <span class="d-inline-flex align-items-center gap-1 @(isOwner ? "text-primary" : "")">
+                                        <i data-lucide="user-check" class="@(isOwner ? "" : "d-none")" style="width:0.9rem;height:0.9rem;"></i>
+                                        <span class="@(isOwner ? "fw-semibold" : "")">@(isOwner ? "我" : owner)</span>
+                                    </span>
+                                </td>
+                                <td>
+                                    @{
+                                        var sharedIconF = sharedCount > 1 ? "users" : (sharedCount == 1 ? "lock" : "");
+                                        var sharedTextF = sharedCount > 1 ? $"共享 ({sharedCount}人)" : (sharedCount == 1 ? "私有" : "—");
+                                    }
+                                    <span class="badge rounded-pill bg-light text-muted @(sharedCount > 0 ? "" : "opacity-75")">
+                                        <i data-lucide="@sharedIconF" class="@(sharedCount > 0 ? "" : "d-none")" style="width:0.8rem;height:0.8rem;"></i> @sharedTextF
+                                    </span>
+                                </td>
+                                <td data-order="@modifiedTimestamp">@(modified.ToString("yyyy/MM/dd HH:mm"))</td>
+                                <td class="text-end">
+                                    <button onclick="openItemMenu(event, 'file', '@(name?.Replace("'", "\\'").Replace("\"", "&quot;") ?? "")', '@currentPath')"
+                                            class="btn btn-light btn-sm" title="更多">
+                                        <i data-lucide="more-vertical" class="text-muted" style="width:1rem;height:1rem;"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -335,24 +337,14 @@
 <div id="fileManagerModalHost"></div>
 
 <link rel="stylesheet" href="~/Backoffice/css/FileManager.css">
-<script src="~/Backoffice/js/Modal.js"></script>
 <script src="~/Backoffice/js/FileManager.js"></script>
-<link rel="stylesheet" href="~/lib/datatable/hnb-datatable.css">
-<script src="~/lib/datatable/hnb-datatable.js"></script>
 <script>
     $(function(){
         if ($('#filesTable').length) {
             HNBDataTable.init('#filesTable', {
-                order: [[0, 'asc'], [5, 'desc']],
-                columnDefs: [
-                    { targets: 0, width: '60px', orderable: true },
-                    { targets: 1, orderable: true },
-                    { targets: 2, width: '100px', orderable: true },
-                    { targets: 3, width: '120px', orderable: false },
-                    { targets: 4, width: '140px', orderable: false },
-                    { targets: 5, width: '150px', orderable: true },
-                    { targets: 6, width: '140px', orderable: false, className: 'text-right' }
-                ]
+                initComplete: function() {
+                    $('.dataTables_length').hide();
+                }
             });
         }
     });

@@ -35,12 +35,14 @@ public class PermissionManagementRepository(HnbHnbBackofficeDbContext db)
     /// <summary>
     /// 查詢用戶列表
     /// </summary>
+    /// <param name="id">用戶ID</param>
     /// <param name="searchTerm">搜尋關鍵字</param>
     /// <param name="organization">組織篩選</param>
     /// <param name="role">角色篩選</param>
     /// <param name="isActive">啟用狀態篩選</param>
+    /// <param name="organizationId">組織ID過濾（權限控制）</param>
     /// <returns>用戶列表</returns>
-    public List<vw_permission_user> QueryUserList(int? id, string? searchTerm = null,string? organization = null,string? role = null,bool? isActive = null)
+    public List<vw_permission_user> QueryUserList(int? id, string? searchTerm = null,string? organization = null,string? role = null,bool? isActive = null, int? organizationId = null)
         => ValidUsers
             .Where(u =>
                 (string.IsNullOrEmpty(searchTerm) || 
@@ -50,7 +52,8 @@ public class PermissionManagementRepository(HnbHnbBackofficeDbContext db)
                     (u.email != null && u.email.Contains(searchTerm))) &&
                 (string.IsNullOrEmpty(organization) || u.organization_name == organization) &&
                 (string.IsNullOrEmpty(role) || u.role_name == role) &&
-                (!isActive.HasValue || u.is_active == isActive.Value)
+                (!isActive.HasValue || u.is_active == isActive.Value) &&
+                (!organizationId.HasValue || u.organization_id == organizationId.Value)
             )
             .ToList();
 
@@ -63,20 +66,30 @@ public class PermissionManagementRepository(HnbHnbBackofficeDbContext db)
         => ValidUsers.FirstOrDefault(u => u.id == id);
 
     /// <summary>
+    /// 根據用戶名查詢用戶
+    /// </summary>
+    /// <param name="username">用戶名</param>
+    /// <returns>用戶或null</returns>
+    public vw_permission_user? QueryUserByName(string username)
+        => ValidUsers.FirstOrDefault(u => u.name == username);
+
+    /// <summary>
     /// 查詢角色列表
     /// </summary>
     /// <param name="searchTerm">搜尋關鍵字</param>
     /// <param name="organization">組織篩選</param>
     /// <param name="isActive">啟用狀態篩選</param>
+    /// <param name="organizationId">組織ID過濾（權限控制）</param>
     /// <returns>角色列表</returns>
-    public List<vw_permission_role> QueryRoleList(string? searchTerm = null,string? organization = null,bool? isActive = null)
+    public List<vw_permission_role> QueryRoleList(string? searchTerm = null,string? organization = null,bool? isActive = null, int? organizationId = null)
         => ValidRoles
             .Where(r =>
                 (string.IsNullOrEmpty(searchTerm) || 
                     (r.name != null && r.name.Contains(searchTerm)) ||
                     (r.description != null && r.description.Contains(searchTerm))) &&
                 (string.IsNullOrEmpty(organization) || r.organization_name == organization) &&
-                (!isActive.HasValue || r.is_active == isActive.Value)
+                (!isActive.HasValue || r.is_active == isActive.Value) &&
+                (!organizationId.HasValue || r.organization_id == organizationId.Value)
             )
             .ToList();
 
@@ -94,15 +107,17 @@ public class PermissionManagementRepository(HnbHnbBackofficeDbContext db)
     /// <param name="searchTerm">搜尋關鍵字</param>
     /// <param name="level">層級篩選</param>
     /// <param name="isActive">啟用狀態篩選</param>
+    /// <param name="organizationId">組織ID過濾（權限控制）：只顯示自己的組織或子組織</param>
     /// <returns>組織列表</returns>
-    public List<vw_permission_organization> QueryOrganizationList(string? searchTerm = null,int? level = null,bool? isActive = null)
+    public List<vw_permission_organization> QueryOrganizationList(string? searchTerm = null,int? level = null,bool? isActive = null, int? organizationId = null)
         => ValidOrganizations
             .Where(o =>
                 (string.IsNullOrEmpty(searchTerm) || 
                     (o.organization_name != null && o.organization_name.Contains(searchTerm)) ||
                     (o.organization_description != null && o.organization_description.Contains(searchTerm))) &&
                 (!level.HasValue || o.organization_level == level.Value) &&
-                (!isActive.HasValue || o.is_active == isActive.Value)
+                (!isActive.HasValue || o.is_active == isActive.Value) &&
+                (!organizationId.HasValue || o.id == organizationId.Value || o.parent_id == organizationId.Value)
             )
             .ToList();
 

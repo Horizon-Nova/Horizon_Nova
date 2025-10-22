@@ -7,43 +7,40 @@
     Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
 }
 
-<div class="space-y-6">
+<section class="mb-3 mb-lg-4">
     <!-- 個人資料卡片 -->
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+    <div class="bg-white border rounded-3">
         <!-- 頭部區域 -->
-        <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-8 text-white">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-xl font-semibold">個人資料</h2>
-                <button type="button" onclick="event.stopPropagation(); showModal('profile-help')" class="text-white hover:text-blue-200 hover:bg-white hover:bg-opacity-10 p-2 rounded-lg transition-all duration-200" title="操作說明">
-                    <i data-lucide="help-circle" class="w-5 h-5"></i>
+        <div class="bg-primary text-white p-4 p-lg-5">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h2 class="fs-5 fw-semibold mb-0">個人資料</h2>
+                <button type="button" onclick="showModal('profileHelpModal')" class="btn btn-sm btn-outline-light">
+                    <i data-lucide="help-circle" style="width: 1rem; height: 1rem;"></i>
                 </button>
             </div>
-            <div class="flex items-center space-x-6">
-                <div class="relative">
+            <div class="d-flex align-items-center gap-4">
+                <div class="position-relative">
                     @if (!string.IsNullOrEmpty(Model?.avatar_url))
                     {
-                        <img class="w-20 h-20 rounded-full border-4 border-white shadow-lg" src="@Model.avatar_url" alt="@Model.full_name">
+                        <img class="rounded-circle border border-4 border-white" style="width: 5rem; height: 5rem; object-fit: cover;" src="@Model.avatar_url" alt="@Model.full_name">
                     }
                     else
                     {
-                        <div class="w-20 h-20 rounded-full border-4 border-white shadow-lg bg-white flex items-center justify-center">
-                            <span class="text-2xl font-bold text-blue-600">@((Model?.full_name ?? Model?.name ?? "U").Substring(0, 1).ToUpper())</span>
+                        <div class="rounded-circle border border-4 border-white bg-white d-flex align-items-center justify-content-center" style="width: 5rem; height: 5rem;">
+                            <span class="fs-3 fw-bold text-primary">@((Model?.full_name ?? Model?.name ?? "U").Substring(0, 1).ToUpper())</span>
                         </div>
                     }
-                    <button class="absolute bottom-0 right-0 w-6 h-6 bg-white rounded-full flex items-center justify-center text-blue-600 hover:bg-blue-50 transition-colors">
-                        <i data-lucide="camera" class="w-3 h-3"></i>
-                    </button>
                 </div>
                 <div>
-                    <h2 class="text-2xl font-bold">@(Model?.full_name ?? Model?.name ?? "未設定")</h2>
-                    <p class="text-blue-100 text-lg">@(Model?.email ?? "未設定")</p>
-                    <div class="flex items-center space-x-4 mt-2">
-                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white bg-opacity-20 text-white">
-                            <i data-lucide="shield" class="w-3 h-3 mr-1"></i>
+                    <h2 class="fs-4 fw-bold mb-1">@(Model?.full_name ?? Model?.name ?? "未設定")</h2>
+                    <p class="text-white-50 mb-2">@(Model?.email ?? "未設定")</p>
+                    <div class="d-flex gap-2">
+                        <span class="badge bg-white bg-opacity-25 text-white">
+                            <i data-lucide="shield" style="width: 0.75rem; height: 0.75rem;"></i>
                             @(Model?.role_name ?? "一般用戶")
                         </span>
-                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white bg-opacity-20 text-white">
-                            <i data-lucide="building" class="w-3 h-3 mr-1"></i>
+                        <span class="badge bg-white bg-opacity-25 text-white">
+                            <i data-lucide="building" style="width: 0.75rem; height: 0.75rem;"></i>
                             @(Model?.organization_name ?? "未分配")
                         </span>
                     </div>
@@ -52,470 +49,187 @@
         </div>
 
         <!-- 標籤導航 -->
-        <div class="border-b border-slate-200">
-            <nav class="flex space-x-8 px-6">
-                <button class="tab-button active py-4 px-2 border-b-2 border-blue-600 text-blue-600 font-medium text-sm" data-tab="basic">
-                    <i data-lucide="user" class="w-4 h-4 inline mr-2"></i>基本資料
+        <div class="border-bottom">
+            <ul class="nav nav-tabs border-0 px-3 px-lg-4" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#basicTab" type="button">
+                        <i data-lucide="user" style="width: 1rem; height: 1rem;"></i> 基本資料
                 </button>
-                <button class="tab-button py-4 px-2 border-b-2 border-transparent text-slate-500 hover:text-slate-700 font-medium text-sm" data-tab="security">
-                    <i data-lucide="shield" class="w-4 h-4 inline mr-2"></i>安全設定
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#securityTab" type="button">
+                        <i data-lucide="shield" style="width: 1rem; height: 1rem;"></i> 安全設定
                 </button>
-                <button class="tab-button py-4 px-2 border-b-2 border-transparent text-slate-500 hover:text-slate-700 font-medium text-sm" data-tab="preferences">
-                    <i data-lucide="settings" class="w-4 h-4 inline mr-2"></i>偏好設定
-                </button>
-            </nav>
+                </li>
+            </ul>
         </div>
 
         <!-- 標籤內容 -->
-        <div class="p-6">
+        <div class="tab-content p-3 p-lg-4">
             <!-- 基本資料標籤 -->
-            <div id="basic-tab" class="tab-content">
-                <form id="profileForm" class="space-y-6">
+            <div class="tab-pane fade show active" id="basicTab">
+                <form id="profileForm">
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="id" value="@(Model?.id ?? 0)" />
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- 姓名 -->
-                        <div>
-                            <label for="full_name" class="block text-sm font-semibold text-slate-700 mb-2">
-                                <i data-lucide="user" class="w-4 h-4 inline mr-1"></i>完整姓名
-                            </label>
-                            <input type="text" id="full_name" name="name" value="@(Model?.name ?? "")"
-                                   class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
-                                   placeholder="請輸入您的完整姓名">
+                    <div class="vstack gap-3">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-auto" style="width: 90px;"><label for="full_name" class="col-form-label col-form-label-sm mb-0">完整姓名</label></div>
+                            <div class="col"><input type="text" id="full_name" name="name" value="@(Model?.name ?? "")" class="form-control form-control-sm" placeholder="請輸入完整姓名"></div>
+                            <div class="col-auto" style="width: 90px;"><label for="username" class="col-form-label col-form-label-sm mb-0">使用者名稱</label></div>
+                            <div class="col"><input type="text" id="username" value="@(Model?.full_name ?? "")" class="form-control form-control-sm bg-light" readonly></div>
                         </div>
-
-                        <!-- 使用者名稱 -->
-                        <div>
-                            <label for="username" class="block text-sm font-semibold text-slate-700 mb-2">
-                                <i data-lucide="at-sign" class="w-4 h-4 inline mr-1"></i>使用者名稱
-                            </label>
-                            <input type="text" id="username" name="username" value="@(Model?.full_name ?? "")"
-                                   class="w-full px-4 py-3 border border-slate-300 rounded-lg bg-slate-50 text-slate-500" 
-                                   placeholder="使用者名稱" readonly>
-                            <p class="text-xs text-slate-500 mt-1">使用者名稱無法修改</p>
+                        <div class="row g-2 align-items-center">
+                            <div class="col-auto" style="width: 90px;"><label for="email" class="col-form-label col-form-label-sm mb-0">電子郵件</label></div>
+                            <div class="col"><input type="email" id="email" name="email" value="@(Model?.email ?? "")" class="form-control form-control-sm" placeholder="example@email.com"></div>
+                            <div class="col-auto" style="width: 90px;"><label for="phone" class="col-form-label col-form-label-sm mb-0">聯絡電話</label></div>
+                            <div class="col"><input type="text" id="phone" name="phone" value="@(Model?.phone ?? "")" class="form-control form-control-sm" placeholder="請輸入聯絡電話"></div>
                         </div>
-
-                        <!-- 電子郵件 -->
-                        <div>
-                            <label for="email" class="block text-sm font-semibold text-slate-700 mb-2">
-                                <i data-lucide="mail" class="w-4 h-4 inline mr-1"></i>電子郵件
-                            </label>
-                            <input type="email" id="email" name="email" value="@(Model?.email ?? "")" 
-                                   class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
-                                   placeholder="請輸入您的電子郵件">
-                        </div>
-
-                        <!-- 電話 -->
-                        <div>
-                            <label for="phone" class="block text-sm font-semibold text-slate-700 mb-2">
-                                <i data-lucide="phone" class="w-4 h-4 inline mr-1"></i>聯絡電話
-                            </label>
-                            <input type="text" id="phone" name="phone" value="@(Model?.phone ?? "")" 
-                                   class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
-                                   placeholder="請輸入您的聯絡電話">
-                        </div>
-
-                        <!-- 性別 -->
-                        <div>
-                            <label for="gender" class="block text-sm font-semibold text-slate-700 mb-2">
-                                <i data-lucide="users" class="w-4 h-4 inline mr-1"></i>性別
-                            </label>
-                            <select id="gender" name="gender" 
-                                    class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-auto" style="width: 90px;"><label for="gender" class="col-form-label col-form-label-sm mb-0">性別</label></div>
+                            <div class="col">
+                                <select id="gender" name="gender" class="form-select form-select-sm">
                                 <option value="">請選擇性別</option>
                                 <option value="male" @(Model?.gender == "male" ? "selected" : "")>男性</option>
                                 <option value="female" @(Model?.gender == "female" ? "selected" : "")>女性</option>
                                 <option value="other" @(Model?.gender == "other" ? "selected" : "")>其他</option>
                             </select>
                         </div>
-
-                        <!-- 暱稱 -->
-                        <div>
-                            <label for="nickname" class="block text-sm font-semibold text-slate-700 mb-2">
-                                <i data-lucide="smile" class="w-4 h-4 inline mr-1"></i>暱稱
-                            </label>
-                            <input type="text" id="nickname" name="nickname" value="@(Model?.nickname ?? "")" 
-                                   class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
-                                   placeholder="請輸入您的暱稱">
+                            <div class="col-auto" style="width: 90px;"><label for="nickname" class="col-form-label col-form-label-sm mb-0">暱稱</label></div>
+                            <div class="col"><input type="text" id="nickname" name="nickname" value="@(Model?.nickname ?? "")" class="form-control form-control-sm" placeholder="請輸入暱稱"></div>
                         </div>
-
-                        <!-- 地點 -->
-                        <div>
-                            <label for="location" class="block text-sm font-semibold text-slate-700 mb-2">
-                                <i data-lucide="map-pin" class="w-4 h-4 inline mr-1"></i>常駐地點
-                            </label>
-                            <input type="text" id="location" name="location" value="@(Model?.location ?? "")" 
-                                   class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
-                                   placeholder="請輸入您的常駐地點">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-auto" style="width: 90px;"><label for="location" class="col-form-label col-form-label-sm mb-0">常駐地點</label></div>
+                            <div class="col"><input type="text" id="location" name="location" value="@(Model?.location ?? "")" class="form-control form-control-sm" placeholder="請輸入常駐地點"></div>
+                            <div class="col-auto" style="width: 90px;"><label for="zodiac_sign" class="col-form-label col-form-label-sm mb-0">星座</label></div>
+                            <div class="col"><input type="text" id="zodiac_sign" name="zodiac_sign" value="@(Model?.zodiac_sign ?? "")" class="form-control form-control-sm" placeholder="請輸入星座"></div>
                         </div>
-
-                        <!-- 星座 -->
-                        <div>
-                            <label for="zodiac_sign" class="block text-sm font-semibold text-slate-700 mb-2">
-                                <i data-lucide="star" class="w-4 h-4 inline mr-1"></i>星座
-                            </label>
-                            <input type="text" id="zodiac_sign" name="zodiac_sign" value="@(Model?.zodiac_sign ?? "")" 
-                                   class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
-                                   placeholder="請輸入您的星座">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-auto" style="width: 90px;"><label for="favorite_color" class="col-form-label col-form-label-sm mb-0">喜歡顏色</label></div>
+                            <div class="col"><input type="text" id="favorite_color" name="favorite_color" value="@(Model?.favorite_color ?? "")" class="form-control form-control-sm" placeholder="請輸入喜歡的顏色"></div>
                         </div>
-
-                        <!-- 喜歡顏色 -->
-                        <div>
-                            <label for="favorite_color" class="block text-sm font-semibold text-slate-700 mb-2">
-                                <i data-lucide="palette" class="w-4 h-4 inline mr-1"></i>喜歡顏色
-                            </label>
-                            <input type="text" id="favorite_color" name="favorite_color" value="@(Model?.favorite_color ?? "")" 
-                                   class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
-                                   placeholder="請輸入您喜歡的顏色">
+                        <div class="row g-2">
+                            <div class="col-auto" style="width: 90px;"><label for="bio" class="col-form-label col-form-label-sm mb-0">個人簡介</label></div>
+                            <div class="col"><textarea id="bio" name="bio" rows="3" class="form-control form-control-sm" placeholder="請輸入個人簡介或工作描述">@(Model?.bio ?? "")</textarea></div>
                         </div>
-                    </div>
-
-                    <!-- 個人簡介 -->
-                    <div>
-                        <label for="bio" class="block text-sm font-semibold text-slate-700 mb-2">
-                            <i data-lucide="file-text" class="w-4 h-4 inline mr-1"></i>個人簡介
-                        </label>
-                        <textarea id="bio" name="bio" rows="4" 
-                                  class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none" 
-                                  placeholder="請輸入您的個人簡介或工作描述">@(Model?.bio ?? "")</textarea>
                     </div>
 
                     <!-- 儲存按鈕 -->
-                    <div class="flex justify-end">
-                        <button type="submit" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
-                            <i data-lucide="save" class="w-4 h-4 inline mr-2"></i>儲存變更
+                    <div class="d-flex justify-content-end mt-4">
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i data-lucide="save" style="width: 1rem; height: 1rem;"></i> 儲存變更
                         </button>
                     </div>
                 </form>
             </div>
 
             <!-- 安全設定標籤 -->
-            <div id="security-tab" class="tab-content hidden">
-                <div class="space-y-6">
+            <div class="tab-pane fade" id="securityTab">
+                <div class="vstack gap-4">
                     <!-- 變更密碼 -->
-                    <div class="bg-slate-50 rounded-lg p-6">
-                        <h3 class="text-lg font-semibold text-slate-800 mb-4 flex items-center">
-                            <i data-lucide="lock" class="w-5 h-5 mr-2 text-blue-600"></i>變更密碼
+                    <div class="bg-light rounded-3 p-3 p-lg-4">
+                        <h3 class="fs-6 fw-semibold mb-3">
+                            <i data-lucide="lock" style="width: 1.25rem; height: 1.25rem;"></i> 變更密碼
                         </h3>
-                        <form id="passwordForm" class="space-y-4">
+                        <form id="passwordForm">
                             @Html.AntiForgeryToken()
-                            <div>
-                                <label for="currentPassword" class="block text-sm font-semibold text-slate-700 mb-2">目前密碼</label>
-                                <input type="password" id="currentPassword" name="currentPassword" 
-                                       class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
-                                       placeholder="請輸入目前密碼" required>
+                            <div class="vstack gap-3">
+                                <div class="row g-2 align-items-center">
+                                    <div class="col-auto" style="width: 110px;"><label for="currentPassword" class="col-form-label col-form-label-sm mb-0">目前密碼<span class="text-danger">*</span></label></div>
+                                    <div class="col"><input type="password" id="currentPassword" name="currentPassword" class="form-control form-control-sm" placeholder="請輸入目前密碼" required></div>
+                                </div>
+                                <div class="row g-2 align-items-center">
+                                    <div class="col-auto" style="width: 110px;"><label for="newPassword" class="col-form-label col-form-label-sm mb-0">新密碼<span class="text-danger">*</span></label></div>
+                                    <div class="col"><input type="password" id="newPassword" name="newPassword" class="form-control form-control-sm" placeholder="至少6個字元" required minlength="6"></div>
                             </div>
-                            <div>
-                                <label for="newPassword" class="block text-sm font-semibold text-slate-700 mb-2">新密碼</label>
-                                <input type="password" id="newPassword" name="newPassword" 
-                                       class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
-                                       placeholder="請輸入新密碼（至少6個字元）" required minlength="6">
-                                <p class="text-xs text-slate-500 mt-1">密碼長度至少需要6個字元</p>
+                                <div class="row g-2 align-items-center">
+                                    <div class="col-auto" style="width: 110px;"><label for="confirmPassword" class="col-form-label col-form-label-sm mb-0">確認新密碼<span class="text-danger">*</span></label></div>
+                                    <div class="col"><input type="password" id="confirmPassword" name="confirmPassword" class="form-control form-control-sm" placeholder="請再次輸入新密碼" required minlength="6"></div>
                             </div>
-                            <div>
-                                <label for="confirmPassword" class="block text-sm font-semibold text-slate-700 mb-2">確認新密碼</label>
-                                <input type="password" id="confirmPassword" name="confirmPassword" 
-                                       class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
-                                       placeholder="請再次輸入新密碼" required>
                             </div>
-                            <button type="submit" class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium">
-                                <i data-lucide="key" class="w-4 h-4 inline mr-2"></i>更新密碼
+                            <div class="d-flex justify-content-end mt-3">
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i data-lucide="key" style="width: 1rem; height: 1rem;"></i> 更新密碼
                             </button>
+                            </div>
                         </form>
                     </div>
 
                     <!-- 登入記錄 -->
-                    <div class="bg-slate-50 rounded-lg p-6">
-                        <h3 class="text-lg font-semibold text-slate-800 mb-4 flex items-center">
-                            <i data-lucide="activity" class="w-5 h-5 mr-2 text-green-600"></i>登入記錄
+                    <div class="bg-light rounded-3 p-3 p-lg-4">
+                        <h3 class="fs-6 fw-semibold mb-3">
+                            <i data-lucide="activity" style="width: 1.25rem; height: 1.25rem;"></i> 登入記錄
                         </h3>
-                        <div class="space-y-3">
-                            <div class="flex items-center justify-between py-2">
-                                <span class="text-slate-600">最後登入時間</span>
-                                <span class="font-medium">@(Model?.last_login_at?.ToString("yyyy/MM/dd HH:mm") ?? "未記錄")</span>
+                        <div class="vstack gap-2">
+                            <div class="d-flex justify-content-between py-2 border-bottom">
+                                <span class="text-muted">最後登入時間</span>
+                                <span class="fw-medium">@(Model?.last_login_at?.ToString("yyyy/MM/dd HH:mm") ?? "未記錄")</span>
                             </div>
-                            <div class="flex items-center justify-between py-2">
-                                <span class="text-slate-600">登入次數</span>
-                                <span class="font-medium">@(Model?.login_count ?? 0) 次</span>
+                            <div class="d-flex justify-content-between py-2 border-bottom">
+                                <span class="text-muted">登入次數</span>
+                                <span class="fw-medium">@(Model?.login_count ?? 0) 次</span>
                             </div>
-                            <div class="flex items-center justify-between py-2">
-                                <span class="text-slate-600">最後登入IP</span>
-                                <span class="font-medium">@(Model?.last_login_ip?.ToString() ?? "未記錄")</span>
+                            <div class="d-flex justify-content-between py-2">
+                                <span class="text-muted">最後登入IP</span>
+                                <span class="fw-medium">@(Model?.last_login_ip?.ToString() ?? "未記錄")</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 偏好設定標籤 -->
-            <div id="preferences-tab" class="tab-content hidden">
-                <div class="space-y-6">
-                    <!-- 數據顯示偏好 -->
-                    <div class="bg-slate-50 rounded-lg p-6">
-                        <h3 class="text-lg font-semibold text-slate-800 mb-4 flex items-center">
-                            <i data-lucide="layout" class="w-5 h-5 mr-2 text-purple-600"></i>數據顯示偏好
-                        </h3>
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-semibold text-slate-700 mb-2">每頁顯示筆數</label>
-                                <select class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                                    <option value="10">10 筆</option>
-                                    <option value="25" selected>25 筆</option>
-                                    <option value="50">50 筆</option>
-                                    <option value="100">100 筆</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-slate-700 mb-2">日期格式</label>
-                                <select class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                                    <option value="yyyy/MM/dd" selected>2024/01/15</option>
-                                    <option value="yyyy-MM-dd">2024-01-15</option>
-                                    <option value="dd/MM/yyyy">15/01/2024</option>
-                                    <option value="MM/dd/yyyy">01/15/2024</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-slate-700 mb-2">時間格式</label>
-                                <select class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                                    <option value="24" selected>24 小時制 (14:30)</option>
-                                    <option value="12">12 小時制 (02:30 PM)</option>
-                                </select>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- 通知偏好 -->
-                    <div class="bg-slate-50 rounded-lg p-6">
-                        <h3 class="text-lg font-semibold text-slate-800 mb-4 flex items-center">
-                            <i data-lucide="bell" class="w-5 h-5 mr-2 text-orange-600"></i>通知偏好
-                        </h3>
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between py-2 border-b border-slate-200">
-                                <div>
-                                    <p class="font-medium text-slate-800">電子郵件通知</p>
-                                    <p class="text-sm text-slate-500">接收重要系統通知郵件</p>
-                                </div>
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" class="sr-only peer" checked>
-                                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                                </label>
-                            </div>
-                            <div class="flex items-center justify-between py-2 border-b border-slate-200">
-                                <div>
-                                    <p class="font-medium text-slate-800">桌面通知</p>
-                                    <p class="text-sm text-slate-500">在瀏覽器中顯示即時通知</p>
-                                </div>
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" class="sr-only peer" checked>
-                                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                                </label>
-                            </div>
-                            <div class="flex items-center justify-between py-2 border-b border-slate-200">
-                                <div>
-                                    <p class="font-medium text-slate-800">系統更新通知</p>
-                                    <p class="text-sm text-slate-500">系統維護和更新提醒</p>
-                                </div>
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" class="sr-only peer">
-                                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                                </label>
-                            </div>
-                            <div class="flex items-center justify-between py-2">
-                                <div>
-                                    <p class="font-medium text-slate-800">任務提醒</p>
-                                    <p class="text-sm text-slate-500">即將到期的任務提醒</p>
-                                </div>
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" class="sr-only peer" checked>
-                                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 郵件摘要訂閱 -->
-                    <div class="bg-slate-50 rounded-lg p-6">
-                        <h3 class="text-lg font-semibold text-slate-800 mb-4 flex items-center">
-                            <i data-lucide="mail" class="w-5 h-5 mr-2 text-blue-600"></i>郵件摘要訂閱
-                        </h3>
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between py-2 border-b border-slate-200">
-                                <div>
-                                    <p class="font-medium text-slate-800">每日摘要</p>
-                                    <p class="text-sm text-slate-500">每天早上 9:00 接收昨日活動摘要</p>
-                                </div>
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" class="sr-only peer" checked>
-                                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                                </label>
-                            </div>
-                            <div class="flex items-center justify-between py-2 border-b border-slate-200">
-                                <div>
-                                    <p class="font-medium text-slate-800">每週報告</p>
-                                    <p class="text-sm text-slate-500">每週一接收上週工作總結</p>
-                                </div>
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" class="sr-only peer" checked>
-                                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                                </label>
-                            </div>
-                            <div class="flex items-center justify-between py-2">
-                                <div>
-                                    <p class="font-medium text-slate-800">每月報告</p>
-                                    <p class="text-sm text-slate-500">每月1日接收上月績效報告</p>
-                                </div>
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" class="sr-only peer">
-                                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 工作偏好 -->
-                    <div class="bg-slate-50 rounded-lg p-6">
-                        <h3 class="text-lg font-semibold text-slate-800 mb-4 flex items-center">
-                            <i data-lucide="clock" class="w-5 h-5 mr-2 text-green-600"></i>工作偏好
-                        </h3>
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-semibold text-slate-700 mb-2">工作時段</label>
-                                <select class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                                    <option value="morning">早上 (08:00 - 12:00)</option>
-                                    <option value="afternoon" selected>下午 (13:00 - 18:00)</option>
-                                    <option value="evening">晚上 (18:00 - 22:00)</option>
-                                    <option value="flexible">彈性時間</option>
-                                </select>
-                            </div>
-                            <div class="flex items-center justify-between py-2">
-                                <div>
-                                    <p class="font-medium text-slate-800">自動儲存草稿</p>
-                                    <p class="text-sm text-slate-500">編輯時自動儲存內容</p>
-                                </div>
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" class="sr-only peer" checked>
-                                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 儲存按鈕 -->
-                    <div class="flex justify-end">
-                        <button type="button" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
-                            <i data-lucide="save" class="w-4 h-4 inline mr-2"></i>儲存偏好設定
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+</section>
 
 @await Html.PartialAsync("_ProfileModal")
 
 @section Scripts {
     <script>
         $(document).ready(function() {
-            // 初始化圖標
-            lucide.createIcons();
-
-            // 標籤切換功能
-            $('.tab-button').on('click', function() {
-                const tabName = $(this).data('tab');
-                
-                // 更新按鈕狀態
-                $('.tab-button').removeClass('active border-blue-600 text-blue-600').addClass('border-transparent text-slate-500');
-                $(this).removeClass('border-transparent text-slate-500').addClass('active border-blue-600 text-blue-600');
-                
-                // 顯示對應內容
-                $('.tab-content').addClass('hidden');
-                $(`#${tabName}-tab`).removeClass('hidden');
-            });
+            window.lucide?.createIcons?.();
 
             // 個人資料表單提交
             $('#profileForm').on('submit', function(e) {
                 e.preventDefault();
-                
-                const formData = new FormData(this);
+                const formData = $(this).serialize();
                 
                 $.ajax({
-                    url: '@Url.Action("UpdateProfile", "Backoffice")',
                     type: 'POST',
+                    url: '@Url.Action("UpdateProfile", "Backoffice")',
                     data: formData,
-                    processData: false,
-                    contentType: false,
                     success: function(response) {
                         if (response.success) {
-                            showNotification('個人資料更新成功！', 'success');
+                            alert('個人資料更新成功');
+                            location.reload();
                         } else {
-                            showNotification('更新失敗：' + response.message, 'error');
+                            alert('更新失敗：' + response.message);
                         }
                     },
-                    error: function() {
-                        showNotification('更新失敗，請稍後再試', 'error');
-                    }
+                    error: () => alert('更新失敗，請稍後再試')
                 });
             });
 
             // 密碼變更表單提交
             $('#passwordForm').on('submit', function(e) {
                 e.preventDefault();
-                
-                const currentPassword = $('#currentPassword').val();
-                const newPassword = $('#newPassword').val();
-                const confirmPassword = $('#confirmPassword').val();
-                
-                if (newPassword !== confirmPassword) {
-                    showNotification('新密碼與確認密碼不符', 'error');
-                    return;
-                }
+                const formData = $(this).serialize();
                 
                 $.ajax({
-                    url: '@Url.Action("ChangePassword", "Backoffice")',
                     type: 'POST',
-                    data: {
-                        currentPassword: currentPassword,
-                        newPassword: newPassword,
-                        confirmPassword: confirmPassword,
-                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
-                    },
+                    url: '@Url.Action("ChangePassword", "Backoffice")',
+                    data: formData,
                     success: function(response) {
                         if (response.success) {
-                            showNotification('密碼更新成功！', 'success');
+                            alert('密碼更新成功');
                             $('#passwordForm')[0].reset();
                         } else {
-                            showNotification('密碼更新失敗：' + response.message, 'error');
+                            alert('密碼更新失敗：' + response.message);
                         }
                     },
-                    error: function() {
-                        showNotification('密碼更新失敗，請稍後再試', 'error');
-                    }
+                    error: () => alert('密碼更新失敗，請稍後再試')
                 });
             });
         });
-
-        // 通知函數
-        function showNotification(message, type) {
-            const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
-            const notification = $(`
-                <div class="fixed top-4 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 notification">
-                    <div class="flex items-center">
-                        <i data-lucide="${type === 'success' ? 'check-circle' : 'alert-circle'}" class="w-5 h-5 mr-2"></i>
-                        <span>${message}</span>
-                    </div>
-                </div>
-            `);
-            
-            $('body').append(notification);
-            lucide.createIcons();
-            
-            setTimeout(() => {
-                notification.fadeOut(300, function() {
-                    $(this).remove();
-                });
-            }, 3000);
-        }
     </script>
 }

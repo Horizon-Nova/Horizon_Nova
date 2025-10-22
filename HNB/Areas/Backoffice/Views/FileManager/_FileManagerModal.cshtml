@@ -1,371 +1,229 @@
-<!-- Modal：檔案總管使用說明 -->
-<div id="filemanager-help" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
-        <!-- 標題（比照測試頁樣式） -->
-        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-8 py-6 border-b border-slate-200">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="bg-blue-100 p-2 rounded-lg">
-                        <i data-lucide="help-circle" class="w-5 h-5 text-blue-600"></i>
+<!-- 說明：檔案總管使用說明（modal-xl） -->
+<div id="filemanager-help" class="modal fade" tabindex="-1" aria-labelledby="fileManagerHelpLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="fileManagerHelpLabel">檔案總管使用說明</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <h6 class="fw-semibold pb-2 border-bottom mb-3">基本操作</h6>
+                        <ul class="small mb-4">
+                            <li class="mb-1">點選左側目錄樹或麵包屑，快速切換資料夾</li>
+                            <li class="mb-1">拖曳檔案或資料夾到「上傳區」即可上傳（支援資料夾結構）</li>
+                            <li class="mb-1">列表「更多」選單：開啟、重新命名、下載、刪除、詳細資料</li>
+                        </ul>
+                        <h6 class="fw-semibold pb-2 border-bottom mb-3">新增與共享</h6>
+                        <ul class="small mb-4">
+                            <li class="mb-1">使用「新增資料夾 / 新增檔案」建立內容</li>
+                            <li class="mb-1">共享使用者以逗號分隔（例如：user1, user2），留空為私有</li>
+                        </ul>
+                        <h6 class="fw-semibold pb-2 border-bottom mb-3">預覽與編輯</h6>
+                        <ul class="small mb-0">
+                            <li class="mb-1">支援一般文字檔直接編輯與儲存</li>
+                            <li class="mb-1">支援圖片、PDF、常見 Office 檔案線上預覽（大型檔案可能較慢）</li>
+                        </ul>
                     </div>
-                    <div>
-                        <h3 class="text-lg font-bold text-slate-800">檔案總管使用說明</h3>
-                        <p class="text-sm text-slate-500 mt-1">操作指引與快捷鍵</p>
-                    </div>
-                </div>
-                <button type="button" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-lg transition-all duration-200" onclick="closeModal('filemanager-help')">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- 內容（比照測試頁間距與背景） -->
-        <div class="p-8 overflow-y-auto max-h-[calc(95vh-160px)] bg-slate-50 text-sm text-slate-700">
-            <!-- 快速操作 -->
-            <section>
-                <h3 class="text-sm font-semibold text-slate-900 mb-2 flex items-center gap-2">
-                    <i data-lucide="zap" class="h-4 w-4 text-amber-500"></i>快速操作
-                </h3>
-                <ul class="list-disc pl-5 space-y-1">
-                    <li>點選左側目錄樹或麵包屑，快速切換資料夾</li>
-                    <li>拖曳檔案或資料夾到「上傳區」即可上傳（支援資料夾結構）</li>
-                    <li>點擊列表列右側「…」開啟選單：開啟、重新命名、下載、刪除、詳細資料</li>
-                </ul>
-            </section>
-
-            <!-- 新增與權限 -->
-            <section>
-                <h3 class="text-sm font-semibold text-slate-900 mb-2 flex items-center gap-2">
-                    <i data-lucide="plus-circle" class="h-4 w-4 text-blue-600"></i>新增與共享
-                </h3>
-                <ul class="list-disc pl-5 space-y-1">
-                    <li>使用「新增資料夾 / 新增檔案」可建立內容</li>
-                    <li>共享使用者以逗號分隔（例如：user1, user2）。留空為私有</li>
-                </ul>
-            </section>
-
-            <!-- 檔案預覽與編輯 -->
-            <section>
-                <h3 class="text-sm font-semibold text-slate-900 mb-2 flex items-center gap-2">
-                    <i data-lucide="eye" class="h-4 w-4 text-emerald-600"></i>預覽與編輯
-                </h3>
-                <ul class="list-disc pl-5 space-y-1">
-                    <li>支援一般文字檔直接編輯與儲存</li>
-                    <li>支援圖片、PDF、常見 Office 檔案線上預覽（大型檔案可能較慢）</li>
-                </ul>
-            </section>
-
-            <!-- 鍵盤快捷鍵 -->
-            <section>
-                <h3 class="text-sm font-semibold text-slate-900 mb-2 flex items-center gap-2">
-                    <i data-lucide="keyboard" class="h-4 w-4 text-violet-600"></i>鍵盤快捷鍵
-                </h3>
-                <ul class="list-disc pl-5 space-y-1">
-                    <li>Esc：關閉目前視窗</li>
-                    <li>Ctrl / Cmd + S：編輯器中儲存檔案</li>
-                    <li>Enter：在開啟的表單視窗中直接提交</li>
-                </ul>
-            </section>
-
-            <!-- 注意事項 -->
-            <section>
-                <h3 class="text-sm font-semibold text-slate-900 mb-2 flex items-center gap-2">
-                    <i data-lucide="info" class="h-4 w-4 text-slate-600"></i>注意事項
-                </h3>
-                <ul class="list-disc pl-5 space-y-1">
-                    <li>刪除操作無法復原，請謹慎操作</li>
-                    <li>大型檔案上傳需較長時間，上傳中請勿關閉視窗</li>
-                </ul>
-            </section>
-        </div>
-
-        <!-- 底部（比照測試頁底部樣式） -->
-        <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
-            <div class="flex items-center justify-end">
-                <button type="button" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200" onclick="closeModal('filemanager-help')">
-                    我知道了
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal：新增資料夾 -->
-<div id="createFolderModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
-    <form id="createFolderForm" onsubmit="return false;" class="w-full max-w-md">
-    <div class="bg-white rounded-2xl shadow-2xl w-full overflow-hidden transform transition-all duration-300 ease-out">
-        <!-- 標題 -->
-        <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
-            <h2 class="text-base font-semibold text-slate-900">新增資料夾</h2>
-            <button onclick="closeModal('createFolderModal')" class="w-8 h-8 flex items-center justify-center hover:bg-slate-100 rounded">
-                <i data-lucide="x" class="h-5 w-5 text-slate-500"></i>
-            </button>
-        </div>
-        
-        <!-- 內容 -->
-        <div class="px-5 py-5 space-y-4">
-            <div>
-            <label class="block text-sm font-medium text-slate-700 mb-2">資料夾名稱</label>
-            <input type="text" 
-                   id="folderNameInput" name="Name"
-                   placeholder="請輸入資料夾名稱" 
-                   class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-            </div>
-            
-            <div>
-                <label class="block text-sm font-medium text-slate-700 mb-2">
-                    共享使用者
-                    <span class="text-xs text-slate-500 font-normal ml-1">(可選，多個使用者用逗號分隔)</span>
-                </label>
-                <input type="text" 
-                       id="folderSharedUsersInput" name="SharedUsers"
-                       placeholder="例如: user1, user2, user3" 
-                       class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                <p class="text-xs text-slate-500 mt-1">留空表示只有您能存取此資料夾</p>
-            </div>
-        </div>
-        
-        <!-- 按鈕 -->
-        <div class="flex items-center justify-end gap-2 px-5 py-4 bg-slate-50 border-t border-slate-200">
-            <button onclick="closeModal('createFolderModal')" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 rounded-lg">
-                取消
-            </button>
-            <button onclick="createFolder()" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg">
-                建立
-            </button>
-        </div>
-    </div>
-    </form>
-</div>
-
-<!-- Modal：新增檔案 -->
-<div id="createFileModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
-    <form id="createFileForm" onsubmit="return false;" class="w-full max-w-md">
-    <div class="bg-white rounded-2xl shadow-2xl w-full overflow-hidden transform transition-all duration-300 ease-out">
-        <!-- 標題 -->
-        <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
-            <h2 class="text-base font-semibold text-slate-900">新增檔案</h2>
-            <button onclick="closeModal('createFileModal')" class="w-8 h-8 flex items-center justify-center hover:bg-slate-100 rounded">
-                <i data-lucide="x" class="h-5 w-5 text-slate-500"></i>
-            </button>
-        </div>
-        
-        <!-- 內容 -->
-        <div class="px-5 py-5 space-y-4">
-            <div>
-            <label class="block text-sm font-medium text-slate-700 mb-2">檔案名稱（含副檔名）</label>
-            <input type="text" 
-                   id="fileNameInput" name="Name"
-                   placeholder="example.txt" 
-                   class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-            </div>
-            
-            <div>
-                <label class="block text-sm font-medium text-slate-700 mb-2">
-                    共享使用者
-                    <span class="text-xs text-slate-500 font-normal ml-1">(可選，多個使用者用逗號分隔)</span>
-                </label>
-                <input type="text" 
-                       id="fileSharedUsersInput" name="SharedUsers"
-                       placeholder="例如: user1, user2, user3" 
-                       class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                <p class="text-xs text-slate-500 mt-1">留空表示只有您能存取此檔案</p>
-            </div>
-        </div>
-        
-        <!-- 按鈕 -->
-        <div class="flex items-center justify-end gap-2 px-5 py-4 bg-slate-50 border-t border-slate-200">
-            <button onclick="closeModal('createFileModal')" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 rounded-lg">
-                取消
-            </button>
-            <button onclick="createFile()" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg">
-                建立
-            </button>
-        </div>
-    </div>
-    </form>
-</div>
-
-<!-- Modal：重新命名 -->
-<div id="renameModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all duration-300 ease-out">
-        <!-- 標題 -->
-        <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
-            <h2 id="renameModalTitle" class="text-base font-semibold text-slate-900">重新命名</h2>
-            <button onclick="closeModal('renameModal')" class="w-8 h-8 flex items-center justify-center hover:bg-slate-100 rounded">
-                <i data-lucide="x" class="h-5 w-5 text-slate-500"></i>
-            </button>
-        </div>
-        
-        <!-- 內容 -->
-        <div class="px-5 py-5">
-            <label class="block text-sm font-medium text-slate-700 mb-2">新名稱</label>
-            <input type="text" 
-                   id="renameInput"
-                   class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-        </div>
-        
-        <!-- 按鈕 -->
-        <div class="flex items-center justify-end gap-2 px-5 py-4 bg-slate-50 border-t border-slate-200">
-            <button onclick="closeModal('renameModal')" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 rounded-lg">
-                取消
-            </button>
-            <button onclick="confirmRename()" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg">
-                確定
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Modal：刪除確認 -->
-<div id="deleteModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all duration-300 ease-out">
-        <!-- 標題 -->
-        <div class="bg-gradient-to-r from-red-600 to-red-700 px-6 py-4 text-white">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="p-2 bg-white bg-opacity-20 rounded-lg">
-                        <i data-lucide="alert-triangle" class="w-5 h-5"></i>
-                    </div>
-                    <div>
-                        <h3 id="deleteModalTitle" class="text-lg font-bold">刪除確認</h3>
-                        <p class="text-red-100 text-sm">此操作無法復原</p>
+                    <div class="col-md-6">
+                        <h6 class="fw-semibold pb-2 border-bottom mb-3">鍵盤快捷鍵</h6>
+                        <ul class="small mb-4">
+                            <li class="mb-1">Esc：關閉目前視窗</li>
+                            <li class="mb-1">Ctrl / Cmd + S：編輯器中儲存檔案</li>
+                            <li class="mb-1">Enter：在開啟的表單視窗中直接提交</li>
+                        </ul>
+                        <h6 class="fw-semibold pb-2 border-bottom mb-3">注意事項</h6>
+                        <ul class="small text-muted mb-0">
+                            <li class="mb-1">刪除操作無法復原，請謹慎操作</li>
+                            <li class="mb-1">大型檔案上傳需較長時間，上傳中請勿關閉視窗</li>
+                        </ul>
                     </div>
                 </div>
-                <button type="button" onclick="closeModal('deleteModal')" class="text-white hover:text-red-200 transition-colors">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">我知道了</button>
             </div>
         </div>
-        
-        <!-- 內容 -->
-        <div class="px-5 py-5">
-            <p class="text-sm text-slate-700 mb-4">
-                此操作<strong class="text-red-600">無法復原</strong>。請輸入 <strong id="deleteTargetName" class="text-slate-900"></strong> 以確認刪除。
-            </p>
-            <label class="block text-sm font-medium text-slate-700 mb-2">請輸入名稱以確認</label>
-            <input type="text" 
-                   id="deleteConfirmInput"
-                   oninput="validateDeleteInput()"
-                   placeholder="輸入名稱以確認刪除" 
-                   class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
-        </div>
-        
-        <!-- 按鈕 -->
-        <div class="flex items-center justify-end gap-3 px-6 py-4 border-t bg-slate-50">
-            <button type="button" onclick="closeModal('deleteModal')" class="px-6 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition-colors">
-                取消
-            </button>
-            <button type="button" id="deleteConfirmBtn" onclick="confirmDelete()" disabled
-                    class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                <i data-lucide="trash-2" class="w-4 h-4 inline mr-2"></i>確認刪除
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Modal：檔案編輯器 -->
-<div id="fileEditorModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl h-[90vh] overflow-hidden flex flex-col transform transition-all duration-300 ease-out">
-        <!-- 標題 -->
-        <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
-            <div class="flex items-center gap-3">
-                <i data-lucide="file-text" class="h-5 w-5 text-slate-600"></i>
-                <h2 id="editorFileName" class="text-base font-semibold text-slate-900">檔案編輯器</h2>
-                <span id="editorReadOnlyBadge" class="hidden px-2 py-0.5 text-xs font-medium bg-amber-100 text-amber-800 rounded">唯讀</span>
-            </div>
-            <div class="flex items-center gap-2">
-                <button id="saveFileBtn" onclick="saveFile()" class="hidden px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg">
-                    <i data-lucide="save" class="h-4 w-4 inline-block mr-1"></i>
-                    儲存
-                </button>
-                <button onclick="closeFileEditor()" class="w-8 h-8 flex items-center justify-center hover:bg-slate-100 rounded">
-                    <i data-lucide="x" class="h-5 w-5 text-slate-500"></i>
-                </button>
-            </div>
-        </div>
-        
-        <!-- 內容 -->
-        <div class="flex-1 overflow-hidden">
-            <!-- 文字編輯器 -->
-            <textarea id="fileEditorContent" 
-                      class="hidden w-full h-full px-5 py-4 text-sm font-mono border-0 focus:outline-none resize-none"
-                      spellcheck="false"></textarea>
-			
-			<!-- 圖片預覽：自適應視窗，提供縮放/拖移控制 -->
-			<div id="imagePreviewWrapper" class="hidden relative w-full h-full bg-black overflow-hidden select-none">
-				<img id="imagePreview" src="" alt="preview" class="absolute top-0 left-0 select-none" draggable="false" />
-				<!-- 控制列 -->
-				<div id="imagePreviewControls" class="absolute top-3 right-3 bg-white/90 backdrop-blur rounded-md shadow p-1 flex items-center gap-1">
-					<button type="button" class="px-2 py-1 hover:bg-slate-100 rounded" onclick="imagePreviewZoomOut()" title="縮小">
-						<i data-lucide="zoom-out" class="w-4 h-4"></i>
-					</button>
-					<button type="button" class="px-2 py-1 hover:bg-slate-100 rounded" onclick="imagePreviewZoomIn()" title="放大">
-						<i data-lucide="zoom-in" class="w-4 h-4"></i>
-					</button>
-					<div class="w-px h-5 bg-slate-200 mx-1"></div>
-					<button type="button" class="px-2 py-1 hover:bg-slate-100 rounded" onclick="imagePreviewFit()" title="適合視窗">
-						<i data-lucide="maximize" class="w-4 h-4"></i>
-					</button>
-					<button type="button" class="px-2 py-1 hover:bg-slate-100 rounded" onclick="imagePreviewActual()" title="實際大小">
-						<i data-lucide="ratio" class="w-4 h-4"></i>
-					</button>
-				</div>
-			</div>
-			
-            <!-- Office 文件預覽 -->
-            <iframe id="filePreviewFrame" 
-                    class="hidden w-full h-full border-0"></iframe>
-            
-            <!-- 載入中 -->
-            <div id="editorLoading" class="flex items-center justify-center h-full">
-                <div class="text-center">
-                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                    <p class="text-sm text-slate-600">載入中...</p>
-                </div>
-            </div>
-            
-            <!-- 無法預覽提示 -->
-            <div id="cannotPreview" class="hidden flex items-center justify-center h-full">
-                <div class="text-center max-w-md px-6">
-                    <i data-lucide="file-x" class="h-16 w-16 mx-auto mb-4 text-slate-300"></i>
-                    <h3 class="text-lg font-semibold text-slate-900 mb-2">無法預覽此檔案</h3>
-                    <p class="text-sm text-slate-600 mb-4" id="cannotPreviewMessage">此檔案類型不支援線上預覽</p>
-                    <a id="downloadFileLink" href="#" 
-                       class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg">
-                        <i data-lucide="download" class="h-4 w-4"></i>
-                        下載檔案
-                    </a>
-                </div>
-            </div>
-        </div>
-        
-        <!-- 底部資訊 -->
-        <div class="flex items-center justify-between px-5 py-3 border-t border-slate-200 bg-slate-50 text-xs text-slate-600">
-            <span id="editorInfo">就緒</span>
-            <span id="editorEncoding"></span>
-        </div>
-    </div>
-</div>
-
-<!-- 上傳進度浮窗 -->
-<div id="uploadProgress" class="hidden fixed bottom-6 right-6 w-80 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 overflow-hidden">
-    <!-- 標題 -->
-    <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200">
-        <h3 class="text-sm font-semibold text-slate-900">正在上傳</h3>
-        <button onclick="closeModal('uploadProgress')" class="w-7 h-7 flex items-center justify-center hover:bg-slate-100 rounded">
-            <i data-lucide="x" class="h-4 w-4 text-slate-500"></i>
-        </button>
     </div>
     
-    <!-- 上傳項目列表 -->
-    <div id="uploadItems" class="p-4 max-h-60 overflow-y-auto space-y-3">
-        <!-- 由 JavaScript 動態生成 -->
+</div>
+
+<!-- 新增資料夾（modal-lg） -->
+<div id="createFolderModal" class="modal fade" tabindex="-1" aria-labelledby="createFolderLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createFolderLabel">新增資料夾</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createFolderForm" onsubmit="return false;">
+                    <div class="vstack gap-3">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-auto" style="width: 100px;"><label for="folderNameInput" class="col-form-label col-form-label-sm mb-0">資料夾名稱</label></div>
+                            <div class="col"><input type="text" id="folderNameInput" name="Name" class="form-control form-control-sm" placeholder="請輸入資料夾名稱"></div>
+                        </div>
+                        <div class="row g-2 align-items-center">
+                            <div class="col-auto" style="width: 100px;"><label for="folderSharedUsersInput" class="col-form-label col-form-label-sm mb-0">共享使用者</label></div>
+                            <div class="col">
+                                <input type="text" id="folderSharedUsersInput" name="SharedUsers" class="form-control form-control-sm" placeholder="例如：user1, user2, user3">
+                                <div class="form-text">留空表示只有您能存取此資料夾</div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary btn-sm" onclick="createFolder()">建立</button>
+            </div>
+        </div>
     </div>
-    
-    <!-- 統計 -->
-    <div class="flex items-center justify-between px-4 py-3 border-t border-slate-200 bg-slate-50 text-xs text-slate-600">
-        <span id="uploadSpeed">0 KB/s</span>
-        <span id="uploadEta">計算中...</span>
+</div>
+
+<!-- 新增檔案（modal-lg） -->
+<div id="createFileModal" class="modal fade" tabindex="-1" aria-labelledby="createFileLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createFileLabel">新增檔案</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createFileForm" onsubmit="return false;">
+                    <div class="vstack gap-3">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-auto" style="width: 120px;"><label for="fileNameInput" class="col-form-label col-form-label-sm mb-0">檔案名稱</label></div>
+                            <div class="col"><input type="text" id="fileNameInput" name="Name" class="form-control form-control-sm" placeholder="example.txt"></div>
+                        </div>
+                        <div class="row g-2 align-items-center">
+                            <div class="col-auto" style="width: 120px;"><label for="fileSharedUsersInput" class="col-form-label col-form-label-sm mb-0">共享使用者</label></div>
+                            <div class="col">
+                                <input type="text" id="fileSharedUsersInput" name="SharedUsers" class="form-control form-control-sm" placeholder="例如：user1, user2, user3">
+                                <div class="form-text">留空表示只有您能存取此檔案</div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary btn-sm" onclick="createFile()">建立</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 重新命名（預設大小） -->
+<div id="renameModal" class="modal fade" tabindex="-1" aria-labelledby="renameModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="renameModalLabel">重新命名</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-2 align-items-center">
+                    <div class="col-auto" style="width: 90px;"><label for="renameInput" class="col-form-label col-form-label-sm mb-0">新名稱</label></div>
+                    <div class="col"><input type="text" id="renameInput" class="form-control form-control-sm" placeholder="請輸入新名稱"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary btn-sm" onclick="confirmRename()">確定</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 刪除確認（預設大小） -->
+<div id="deleteModal" class="modal fade" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">刪除確認</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+            </div>
+            <div class="modal-body">
+                <p class="small text-muted mb-3">此操作<strong class="text-danger">無法復原</strong>。請輸入 <strong id="deleteTargetName" class="text-dark"></strong> 以確認刪除。</p>
+                <div class="row g-2 align-items-center">
+                    <div class="col-auto" style="width: 120px;"><label for="deleteConfirmInput" class="col-form-label col-form-label-sm mb-0">確認名稱</label></div>
+                    <div class="col"><input type="text" id="deleteConfirmInput" class="form-control form-control-sm" placeholder="輸入名稱以確認刪除" oninput="validateDeleteInput()"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">取消</button>
+                <button type="button" id="deleteConfirmBtn" class="btn btn-danger btn-sm" onclick="confirmDelete()" disabled>確認刪除</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 檔案編輯器（modal-xl） -->
+<div id="fileEditorModal" class="modal fade" tabindex="-1" aria-labelledby="fileEditorLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="fileEditorLabel"><i data-lucide="file-text" class="me-2"></i><span id="editorFileName">檔案編輯器</span> <span id="editorReadOnlyBadge" class="badge text-bg-warning ms-2 d-none">唯讀</span></h5>
+                <div class="d-flex align-items-center gap-2">
+                    <button id="saveFileBtn" type="button" class="btn btn-primary btn-sm d-none" onclick="saveFile()"><i data-lucide="save" class="me-1" style="width:1rem;height:1rem;"></i>儲存</button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+                </div>
+            </div>
+            <div class="modal-body p-0" style="min-height:60vh;">
+                <textarea id="fileEditorContent" class="form-control border-0 rounded-0 d-none" style="height:60vh; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;" spellcheck="false"></textarea>
+                <div id="imagePreviewWrapper" class="d-none position-relative w-100" style="height:60vh; background:#000; overflow:hidden; user-select:none;">
+                    <img id="imagePreview" src="" alt="preview" class="position-absolute top-0 start-0" draggable="false" />
+                    <div id="imagePreviewControls" class="position-absolute top-0 end-0 m-3 bg-white rounded shadow-sm p-1 d-flex align-items-center gap-1">
+                        <button type="button" class="btn btn-light btn-sm" onclick="imagePreviewZoomOut()" title="縮小"><i data-lucide="zoom-out" style="width:1rem;height:1rem;"></i></button>
+                        <button type="button" class="btn btn-light btn-sm" onclick="imagePreviewZoomIn()" title="放大"><i data-lucide="zoom-in" style="width:1rem;height:1rem;"></i></button>
+                        <span class="mx-1" style="width:1px;height:20px;background:#e9ecef;display:inline-block;"></span>
+                        <button type="button" class="btn btn-light btn-sm" onclick="imagePreviewFit()" title="適合視窗"><i data-lucide="maximize" style="width:1rem;height:1rem;"></i></button>
+                        <button type="button" class="btn btn-light btn-sm" onclick="imagePreviewActual()" title="實際大小"><i data-lucide="ratio" style="width:1rem;height:1rem;"></i></button>
+                    </div>
+                </div>
+                <iframe id="filePreviewFrame" class="d-none w-100" style="height:60vh; border:0;"></iframe>
+                <div id="editorLoading" class="d-flex align-items-center justify-content-center" style="height:60vh;">
+                    <div class="text-center text-muted small">
+                        <div class="spinner-border text-primary mb-3" role="status" style="width:2.5rem;height:2.5rem;"></div>
+                        <div>載入中...</div>
+                    </div>
+                </div>
+                <div id="cannotPreview" class="d-none d-flex align-items-center justify-content-center" style="height:60vh;">
+                    <div class="text-center" style="max-width:480px;">
+                        <i data-lucide="file-x" class="text-muted d-block mx-auto mb-3" style="width:3rem;height:3rem;"></i>
+                        <h6 class="fw-semibold mb-2">無法預覽此檔案</h6>
+                        <p class="text-muted small mb-3" id="cannotPreviewMessage">此檔案類型不支援線上預覽</p>
+                        <a id="downloadFileLink" href="#" class="btn btn-primary btn-sm"><i data-lucide="download" class="me-1" style="width:1rem;height:1rem;"></i>下載檔案</a>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer justify-content-between small text-muted">
+                <span id="editorInfo">就緒</span>
+                <span id="editorEncoding"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 上傳進度（預設大小） -->
+<div id="uploadProgress" class="modal fade" tabindex="-1" aria-labelledby="uploadProgressLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="uploadProgressLabel">正在上傳</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+            </div>
+            <div class="modal-body" style="max-height:300px; overflow:auto;">
+                <div id="uploadItems" class="vstack gap-2">
+                    <!-- 由 JavaScript 動態生成 -->
+                </div>
+            </div>
+            <div class="modal-footer justify-content-between small text-muted">
+                <span id="uploadSpeed">0 KB/s</span>
+                <span id="uploadEta">計算中...</span>
+            </div>
+        </div>
     </div>
 </div>

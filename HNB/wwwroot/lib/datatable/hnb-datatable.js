@@ -14,7 +14,7 @@ window.HNBDataTable = (function () {
             order: [[0, 'asc']],
             pageLength: 25,
             lengthMenu: [10, 25, 50, 100, 200],
-            dom: '<"flex items-center justify-between mb-4"l<"ml-auto"f>>rt<"flex items-center justify-between mt-4"i<"ml-auto"p>>',
+            dom: '<"d-flex align-items-center justify-content-between mb-3"l<"ms-auto"f>>rt<"d-flex align-items-center justify-content-between mt-3"i<"ms-auto"p>>',
             language: {
                 url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/zh-HANT.json',
                 search: '搜尋:',

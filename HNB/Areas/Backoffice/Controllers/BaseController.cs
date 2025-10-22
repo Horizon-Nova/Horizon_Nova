@@ -3,6 +3,8 @@ using HNB.Areas.Backoffice.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Security.Claims;
+using Models.HnbHnbBackoffice;
+
 
 namespace HNB.Areas.Backoffice.Controllers;
 
@@ -32,12 +34,12 @@ public abstract class BaseController : Controller
             }
             else
             {
-                ViewBag.SidebarNavigation = new List<Models.HnbHnbBackoffice.vw_sidebar_navigation>();
+                ViewBag.SidebarNavigation = new List<vw_sidebar_navigation>();
             }
         }
         else
         {
-            ViewBag.SidebarNavigation = new List<Models.HnbHnbBackoffice.vw_sidebar_navigation>();
+            ViewBag.SidebarNavigation = new List<vw_sidebar_navigation>();
         }
     }
 

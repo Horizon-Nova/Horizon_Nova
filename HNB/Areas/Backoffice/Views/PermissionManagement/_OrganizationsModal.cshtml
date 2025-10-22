@@ -2,70 +2,39 @@
     Layout = null;
 }
 
-<!-- 組織表單彈出視窗 -->
-<div id="organizationFormModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[95vh] overflow-hidden">
-        <!-- 標題區域 -->
-        <div class="bg-gradient-to-r from-purple-600 to-purple-700 px-8 py-6 text-white">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="p-2 bg-white bg-opacity-20 rounded-lg">
-                        <i data-lucide="building" class="w-6 h-6"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold">@(ViewBag.Organization?.id > 0 ? "編輯組織" : "新增組織")</h3>
-                        <p class="text-purple-100 text-sm">@(ViewBag.Organization?.id > 0 ? "修改組織結構設定" : "建立新的組織單位")</p>
-                    </div>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <button onclick="showModal('organizationFormHelpModal')" class="text-white hover:text-purple-200 transition-colors p-2 rounded-lg hover:bg-white hover:bg-opacity-10" title="操作說明">
-                        <i data-lucide="help-circle" class="w-5 h-5"></i>
+<!-- 組織表單 Modal -->
+<div id="organizationFormModal" class="modal fade" tabindex="-1" aria-labelledby="organizationFormModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="organizationFormModalLabel">@(ViewBag.Organization?.id > 0 ? "編輯組織" : "新增組織")</h5>
+                <div class="d-flex gap-2">
+                    <button type="button" onclick="showModal('organizationFormHelpModal')" class="btn btn-sm btn-outline-secondary">
+                        <i data-lucide="help-circle" style="width: 1rem; height: 1rem;"></i>
                     </button>
-                    <button onclick="closeModal('organizationFormModal')" class="text-white hover:text-purple-200 transition-colors p-2 rounded-lg hover:bg-white hover:bg-opacity-10" title="關閉">
-                        <i data-lucide="x" class="w-5 h-5"></i>
-                    </button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
             </div>
-        </div>
-        
-        <!-- 表單內容 -->
-        <div class="p-8 overflow-y-auto max-h-[calc(95vh-180px)]">
+            <div class="modal-body p-4">
             <form id="FormDataOrganization" autocomplete="off">
                 <input type="hidden" name="id" value="@(ViewBag.Organization?.id ?? 0)" />
                 
-                <div class="space-y-8">
-                    <!-- 基本資訊區塊 -->
-                    <div class="bg-slate-50 rounded-xl p-6">
-                        <div class="flex items-center space-x-2 mb-4">
-                            <i data-lucide="building" class="w-5 h-5 text-purple-600"></i>
-                            <h4 class="text-lg font-semibold text-slate-800">組織基本資訊</h4>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="vstack gap-4">
+                        <!-- 基本資訊 -->
                             <div>
-                                <label for="name" class="block text-sm font-semibold text-slate-700 mb-2">
-                                    <i data-lucide="building" class="w-4 h-4 inline mr-1"></i>組織名稱 <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" id="name" name="name" value="@(ViewBag.Organization?.organization_name ?? "")" 
-                                       class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" 
-                                       placeholder="請輸入組織名稱" required>
+                            <h6 class="fw-semibold pb-2 border-bottom mb-3">基本資訊</h6>
+                            <div class="vstack gap-2">
+                                <div class="row g-2 align-items-center">
+                                    <div class="col-auto" style="width: 90px;"><label for="name" class="col-form-label col-form-label-sm mb-0">組織名稱<span class="text-danger">*</span></label></div>
+                                    <div class="col"><input type="text" id="name" name="name" value="@(ViewBag.Organization?.organization_name ?? "")" class="form-control form-control-sm" placeholder="請輸入組織名稱" required></div>
+                                    <div class="col-auto" style="width: 90px;"><label for="level" class="col-form-label col-form-label-sm mb-0">組織層級<span class="text-danger">*</span></label></div>
+                                    <div class="col"><input type="number" id="level" name="level" value="@(ViewBag.Organization?.organization_level ?? 1)" min="1" max="10" class="form-control form-control-sm" placeholder="1-10" required></div>
                             </div>
-                            <div>
-                                <label for="level" class="block text-sm font-semibold text-slate-700 mb-2">
-                                    <i data-lucide="layers" class="w-4 h-4 inline mr-1"></i>組織層級 <span class="text-red-500">*</span>
-                                </label>
-                                <input type="number" id="level" name="level" value="@(ViewBag.Organization?.organization_level ?? 1)" min="1" max="10"
-                                       class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" 
-                                       placeholder="請輸入組織層級" required>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-6">
-                            <label for="parent_id" class="block text-sm font-semibold text-slate-700 mb-2">
-                                <i data-lucide="building-2" class="w-4 h-4 inline mr-1"></i>上級組織
-                            </label>
-                            <select id="parent_id" name="parent_id" 
-                                    class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
-                                <option value="">請選擇上級組織（可選）</option>
+                                <div class="row g-2 align-items-center">
+                                    <div class="col-auto" style="width: 90px;"><label for="parent_id" class="col-form-label col-form-label-sm mb-0">上級組織</label></div>
+                                    <div class="col">
+                                        <select id="parent_id" name="parent_id" class="form-select form-select-sm">
+                                            <option value="">無（根組織）</option>
                                 @if (ViewBag.Organizations != null)
                                 {
                                     @foreach (var org in ViewBag.Organizations)
@@ -77,370 +46,325 @@
                                     }
                                 }
                             </select>
+                                    </div>
+                                </div>
                         </div>
                     </div>
 
-                    <!-- 描述資訊區塊 -->
-                    <div class="bg-slate-50 rounded-xl p-6">
-                        <div class="flex items-center space-x-2 mb-4">
-                            <i data-lucide="file-text" class="w-5 h-5 text-blue-600"></i>
-                            <h4 class="text-lg font-semibold text-slate-800">組織描述</h4>
-                        </div>
-                        <div class="space-y-6">
+                        <!-- 描述資訊 -->
                             <div>
-                                <label for="description" class="block text-sm font-semibold text-slate-700 mb-2">
-                                    <i data-lucide="align-left" class="w-4 h-4 inline mr-1"></i>組織描述
-                                </label>
-                                <textarea id="description" name="description" rows="4" 
-                                          class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none" 
-                                          placeholder="請輸入組織描述和職責說明">@(ViewBag.Organization?.organization_description ?? "")</textarea>
+                            <h6 class="fw-semibold pb-2 border-bottom mb-3">描述資訊</h6>
+                            <div class="vstack gap-2">
+                                <div class="row g-2">
+                                    <div class="col-auto" style="width: 90px;"><label for="description" class="col-form-label col-form-label-sm mb-0">組織描述</label></div>
+                                    <div class="col"><textarea id="description" name="description" rows="3" class="form-control form-control-sm" placeholder="請輸入組織描述和職責說明">@(ViewBag.Organization?.organization_description ?? "")</textarea></div>
                             </div>
-                            <div>
-                                <label for="notes" class="block text-sm font-semibold text-slate-700 mb-2">
-                                    <i data-lucide="sticky-note" class="w-4 h-4 inline mr-1"></i>備註
-                                </label>
-                                <textarea id="notes" name="notes" rows="3" 
-                                          class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none" 
-                                          placeholder="請輸入相關備註或特殊說明">@(ViewBag.Organization?.public_notes ?? "")</textarea>
+                                <div class="row g-2">
+                                    <div class="col-auto" style="width: 90px;"><label for="notes" class="col-form-label col-form-label-sm mb-0">備註</label></div>
+                                    <div class="col"><textarea id="notes" name="notes" rows="2" class="form-control form-control-sm" placeholder="請輸入相關備註或特殊說明">@(ViewBag.Organization?.public_notes ?? "")</textarea></div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- 角色分配區塊 -->
-                    <div class="bg-slate-50 rounded-xl p-6">
-                        <div class="flex items-center space-x-2 mb-4">
-                            <i data-lucide="users" class="w-5 h-5 text-orange-600"></i>
-                            <h4 class="text-lg font-semibold text-slate-800">角色分配</h4>
-                        </div>
-                        <div class="space-y-4">
-                            <p class="text-sm text-slate-600">選擇要分配給此組織的角色（每個角色僅能分配給一個組織）：</p>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-60 overflow-y-auto">
+                        <!-- 角色分配 -->
+                        <div>
+                            <h6 class="fw-semibold pb-2 border-bottom mb-3">角色分配</h6>
+                            <p class="small text-muted mb-2">選擇要分配給此組織的角色（每個角色僅能分配給一個組織）</p>
+                            <div class="d-flex flex-wrap gap-2" style="max-height: 240px; overflow-y: auto;">
                                 @if (ViewBag.Roles != null)
                                 {
                                     @foreach (var role in ViewBag.Roles)
                                     {
-                                        var isChecked = false;
-                                        var isOccupied = false;
+                                        var isChecked = ViewBag.OrganizationRoles != null && ViewBag.OrganizationRoles.Contains(role.id.ToString());
+                                        var isOccupied = ViewBag.OccupiedRoleIds != null && ViewBag.OccupiedRoleIds.Contains(role.id.ToString()) && !isChecked;
                                         
-                                        if (ViewBag.OrganizationRoles != null)
-                                        {
-                                            isChecked = ViewBag.OrganizationRoles.Contains(role.id.ToString());
-                                        }
-                                        
-                                        // 檢查角色是否已被其他組織占用
-                                        if (ViewBag.OccupiedRoleIds != null && ViewBag.OccupiedRoleIds.Contains(role.id.ToString()))
-                                        {
-                                            isOccupied = !isChecked; // 如果當前組織已擁有，則不算被占用
-                                        }
-                                        
-                                        <label class="flex items-center space-x-2 p-3 border rounded-lg @(isOccupied ? "border-red-300 bg-red-50 cursor-not-allowed" : "border-slate-200 hover:bg-slate-50 cursor-pointer")">
-                                            <input type="checkbox" name="assigned_roles" value="@role.id" 
-                                                   @(isChecked ? "checked" : "")
-                                                   @(isOccupied ? "disabled" : "")
-                                                   class="w-4 h-4 text-purple-600 border-slate-300 rounded focus:ring-purple-500 @(isOccupied ? "opacity-50 cursor-not-allowed" : "")" />
-                                            <span class="text-sm @(isOccupied ? "text-red-600" : "text-slate-700")">
-                                                @role.name
-                                                @if (isOccupied)
-                                                {
-                                                    <span class="text-xs text-red-500 ml-1">(已被占用)</span>
-                                                }
-                                            </span>
+                                        <div>
+                                            <input type="checkbox" name="assigned_roles" value="@role.id" @(isChecked ? "checked" : "") @(isOccupied ? "disabled" : "") class="btn-check" id="role_@role.id" autocomplete="off">
+                                            <label class="btn btn-outline-@(isOccupied ? "danger" : "success") btn-sm @(isOccupied ? "opacity-50" : "")" for="role_@role.id">
+                                                @role.name @(isOccupied ? "(已被占用)" : "")
                                         </label>
+                                        </div>
                                     }
                                 }
-                            </div>
                         </div>
                     </div>
 
-                    <!-- 狀態設定區塊 -->
-                    <div class="bg-slate-50 rounded-xl p-6">
-                        <div class="flex items-center space-x-2 mb-4">
-                            <i data-lucide="settings" class="w-5 h-5 text-orange-600"></i>
-                            <h4 class="text-lg font-semibold text-slate-800">狀態設定</h4>
-                        </div>
+                        <!-- 狀態設定 -->
                         <div>
-                            <label for="is_active" class="block text-sm font-semibold text-slate-700 mb-2">
-                                <i data-lucide="toggle-right" class="w-4 h-4 inline mr-1"></i>組織狀態
-                            </label>
-                            <select id="is_active" name="is_active" 
-                                    class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
-                                <option value="true" @(ViewBag.Organization?.is_active == true ? "selected" : "")>✓ 啟用</option>
-                                <option value="false" @(ViewBag.Organization?.is_active == false ? "selected" : "")>✗ 停用</option>
+                            <h6 class="fw-semibold pb-2 border-bottom mb-3">狀態設定</h6>
+                            <div class="row g-2 align-items-center">
+                                <div class="col-auto" style="width: 90px;"><label for="is_active" class="col-form-label col-form-label-sm mb-0">組織狀態</label></div>
+                                <div class="col">
+                                    <select id="is_active" name="is_active" class="form-select form-select-sm">
+                                        <option value="true" @(ViewBag.Organization?.is_active == true ? "selected" : "")>啟用</option>
+                                        <option value="false" @(ViewBag.Organization?.is_active == false ? "selected" : "")>停用</option>
                             </select>
+                                </div>
                         </div>
                     </div>
                 </div>
             </form>
         </div>
-        
-        <!-- 底部按鈕區域 -->
-        <div class="flex justify-end gap-4 px-8 py-6 border-t bg-slate-50">
-            <button onclick="closeModal('organizationFormModal')" class="px-6 py-3 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition-colors font-medium">
-                <i data-lucide="x" class="w-4 h-4 inline mr-2"></i>取消
-            </button>
-            <button type="button" class="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium" onclick="submitOrganizationForm()">
-                <i data-lucide="@(ViewBag.Organization?.id > 0 ? "save" : "plus")" class="w-4 h-4 inline mr-2"></i>@(ViewBag.Organization?.id > 0 ? "儲存變更" : "新增組織")
-            </button>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary btn-sm" onclick="submitOrganizationForm()">儲存</button>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- 組織詳情查看視窗 -->
-<div id="organizationDetailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
-    <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
-        <div class="flex items-center justify-between p-6 border-b">
-            <h3 class="text-lg font-semibold">組織詳細資訊</h3>
-            <div class="flex items-center space-x-2">
-                <button onclick="showModal('organizationDetailHelpModal')" class="text-slate-400 hover:text-slate-600 p-2 rounded-lg hover:bg-slate-100" title="操作說明">
-                    <i data-lucide="help-circle" class="w-5 h-5"></i>
+<!-- 組織詳情 Modal -->
+<div id="organizationDetailModal" class="modal fade" tabindex="-1" aria-labelledby="organizationDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="organizationDetailModalLabel">組織詳細資訊</h5>
+                <div class="d-flex gap-2">
+                    <button type="button" onclick="showModal('organizationDetailHelpModal')" class="btn btn-sm btn-outline-secondary">
+                        <i data-lucide="help-circle" style="width: 1rem; height: 1rem;"></i>
                 </button>
-                <button onclick="closeModal('organizationDetailModal')" class="text-slate-400 hover:text-slate-600 p-2 rounded-lg hover:bg-slate-100" title="關閉">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
         </div>
-        <div class="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+            <div class="modal-body">
             @if (ViewBag.Organization != null)
             {
-                <div class="space-y-6">
-                    <div class="flex items-center space-x-4">
-                        <div class="flex-shrink-0 h-20 w-20">
-                            <div class="h-20 w-20 rounded-full bg-blue-100 flex items-center justify-center">
-                                <i data-lucide="building" class="w-8 h-8 text-blue-600"></i>
-                            </div>
+                    <div class="vstack gap-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 5rem; height: 5rem;">
+                                <i data-lucide="building" class="text-primary" style="width: 2rem; height: 2rem;"></i>
                         </div>
                         <div>
-                            <h4 class="text-xl font-semibold text-slate-900">@ViewBag.Organization?.organization_name</h4>
-                            <p class="text-slate-600">@ViewBag.Organization?.organization_description</p>
+                                <h4 class="fs-5 fw-semibold mb-1">@ViewBag.Organization?.organization_name</h4>
+                                <p class="text-muted mb-0">@ViewBag.Organization?.organization_description</p>
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <h5 class="font-medium text-slate-900 mb-2">基本資訊</h5>
-                            <dl class="space-y-2">
-                                <div class="flex justify-between">
-                                    <dt class="text-sm text-slate-500">組織名稱</dt>
-                                    <dd class="text-sm text-slate-900">@ViewBag.Organization?.organization_name</dd>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <h6 class="fw-semibold mb-2">基本資訊</h6>
+                                <table class="table table-sm table-borderless small">
+                                    <tr><td class="text-muted">組織名稱</td><td>@ViewBag.Organization?.organization_name</td></tr>
+                                    <tr><td class="text-muted">層級</td><td>@ViewBag.Organization?.organization_level</td></tr>
+                                    <tr><td class="text-muted">狀態</td><td><span class="badge rounded-pill @(ViewBag.Organization?.is_active == true ? "bg-success" : "bg-danger")">@(ViewBag.Organization?.is_active == true ? "啟用" : "停用")</span></td></tr>
+                                    <tr><td class="text-muted">上級組織</td><td>@(ViewBag.Organization?.parent_organization_name ?? "根組織")</td></tr>
+                                    <tr><td class="text-muted">建立時間</td><td>@(ViewBag.Organization?.created_at?.ToString("yyyy/MM/dd HH:mm") ?? "-")</td></tr>
+                                </table>
                                 </div>
-                                <div class="flex justify-between">
-                                    <dt class="text-sm text-slate-500">層級</dt>
-                                    <dd class="text-sm text-slate-900">@ViewBag.Organization?.organization_level</dd>
-                                </div>
-                                <div class="flex justify-between">
-                                    <dt class="text-sm text-slate-500">狀態</dt>
-                                    <dd class="text-sm">
-                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full @(ViewBag.Organization?.is_active == true ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800")">
-                                            @(ViewBag.Organization?.is_active == true ? "啟用" : "停用")
-                                        </span>
-                                    </dd>
-                                </div>
-                                <div class="flex justify-between">
-                                    <dt class="text-sm text-slate-500">上級組織</dt>
-                                    <dd class="text-sm text-slate-900">@(ViewBag.Organization?.parent_organization_name ?? "根組織")</dd>
-                                </div>
-                                <div class="flex justify-between">
-                                    <dt class="text-sm text-slate-500">建立時間</dt>
-                                    <dd class="text-sm text-slate-900">@(ViewBag.Organization?.created_at?.ToString("yyyy/MM/dd HH:mm") ?? "-")</dd>
-                                </div>
-                            </dl>
-                        </div>
-                        
-                        <div>
-                            <h5 class="font-medium text-slate-900 mb-2">統計資訊</h5>
-                            <dl class="space-y-2">
-                                <div class="flex justify-between">
-                                    <dt class="text-sm text-slate-500">使用者數量</dt>
-                                    <dd class="text-sm text-slate-900">@ViewBag.Organization?.total_users_count</dd>
-                                </div>
-                                <div class="flex justify-between">
-                                    <dt class="text-sm text-slate-500">角色數量</dt>
-                                    <dd class="text-sm text-slate-900">@ViewBag.Organization?.total_roles_count</dd>
-                                </div>
-                                <div class="flex justify-between">
-                                    <dt class="text-sm text-slate-500">子組織數量</dt>
-                                    <dd class="text-sm text-slate-900">@ViewBag.Organization?.total_sub_organizations_count</dd>
-                                </div>
-                                <div class="flex justify-between">
-                                    <dt class="text-sm text-slate-500">更新時間</dt>
-                                    <dd class="text-sm text-slate-900">@(ViewBag.Organization?.updated_at?.ToString("yyyy/MM/dd HH:mm") ?? "-")</dd>
-                                </div>
-                            </dl>
+                            <div class="col-md-6">
+                                <h6 class="fw-semibold mb-2">統計資訊</h6>
+                                <table class="table table-sm table-borderless small">
+                                    <tr><td class="text-muted">使用者數量</td><td>@ViewBag.Organization?.total_users_count</td></tr>
+                                    <tr><td class="text-muted">角色數量</td><td>@ViewBag.Organization?.total_roles_count</td></tr>
+                                    <tr><td class="text-muted">子組織數量</td><td>@ViewBag.Organization?.total_sub_organizations_count</td></tr>
+                                    <tr><td class="text-muted">更新時間</td><td>@(ViewBag.Organization?.updated_at?.ToString("yyyy/MM/dd HH:mm") ?? "-")</td></tr>
+                                </table>
                         </div>
                     </div>
-                    
                     
                     @if (!string.IsNullOrEmpty(ViewBag.Organization?.public_notes))
                     {
                         <div>
-                            <h5 class="font-medium text-slate-900 mb-2">備註</h5>
-                            <p class="text-sm text-slate-600">@ViewBag.Organization?.public_notes</p>
+                                <h6 class="fw-semibold mb-2">備註</h6>
+                                <p class="small text-muted mb-0">@ViewBag.Organization?.public_notes</p>
                         </div>
                     }
                 </div>
             }
         </div>
-        <div class="flex justify-end gap-3 p-6 border-t bg-slate-50">
-            <button onclick="closeModal('organizationDetailModal')" class="px-4 py-2 bg-slate-300 text-slate-700 rounded-md hover:bg-slate-400">
-                關閉
-            </button>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">關閉</button>
             @if (ViewBag.Organization != null)
             {
-                <button onclick="closeModal('organizationDetailModal'); showModal('organizationFormModal')" class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 flex items-center gap-2">
-                    <i data-lucide="edit" class="w-4 h-4"></i>
-                    編輯
-                </button>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="closeModal('organizationDetailModal'); showModal('organizationFormModal', {url: '@Url.Action("LoadDetail", "PermissionManagement")', data: {id: @ViewBag.Organization?.id, type: 'organization'}, container: 'organizationModal'})">編輯</button>
             }
-        </div>
-    </div>
-</div>
-
-<!-- 組織表單說明視窗 -->
-<div id="organizationFormHelpModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
-        <div class="bg-gradient-to-r from-purple-600 to-purple-700 px-8 py-6 border-b border-slate-200">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="bg-purple-500 p-2 rounded-lg">
-                        <i data-lucide="help-circle" class="w-6 h-6 text-white"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-white">組織管理操作說明</h3>
-                        <p class="text-sm text-purple-100 mt-1">了解如何管理組織架構</p>
-                    </div>
-                </div>
-                <button onclick="closeModal('organizationFormHelpModal')" class="text-white hover:text-purple-200 hover:bg-white hover:bg-opacity-10 p-2 rounded-lg transition-all duration-200">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-        </div>
-        <div class="p-8 overflow-y-auto max-h-[calc(95vh-160px)] bg-slate-50">
-            <div class="space-y-6">
-                <div>
-                    <h4 class="font-semibold text-slate-800 mb-3 flex items-center">
-                        <i data-lucide="info" class="w-4 h-4 mr-2 text-purple-600"></i>基本操作
-                    </h4>
-                    <ul class="space-y-2 text-sm text-slate-600">
-                        <li>• <strong>必填欄位</strong>：標示紅色星號 (*) 的欄位為必填</li>
-                        <li>• <strong>組織名稱</strong>：組織單位的正式名稱</li>
-                        <li>• <strong>組織層級</strong>：定義組織在階層中的位置（1-10級）</li>
-                        <li>• <strong>狀態控制</strong>：啟用/停用組織以控制其可用性</li>
-                    </ul>
-                </div>
-                
-                <div>
-                    <h4 class="font-semibold text-slate-800 mb-3 flex items-center">
-                        <i data-lucide="building" class="w-4 h-4 mr-2 text-blue-600"></i>欄位說明
-                    </h4>
-                    <div class="space-y-3 text-sm">
-                        <div>
-                            <p><strong>組織名稱：</strong>組織單位的完整名稱，建議使用正式名稱</p>
-                            <p><strong>組織層級：</strong>數字1-10，表示組織在階層中的層級，數字越小層級越高</p>
-                        </div>
-                        <div>
-                            <p><strong>組織描述：</strong>詳細說明組織的職責、功能和業務範圍</p>
-                            <p><strong>備註：</strong>額外的說明或特殊注意事項</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div>
-                    <h4 class="font-semibold text-slate-800 mb-3 flex items-center">
-                        <i data-lucide="users" class="w-4 h-4 mr-2 text-orange-600"></i>角色分配
-                    </h4>
-                    <div class="space-y-2 text-sm text-slate-600">
-                        <p>• <strong>選擇角色</strong>：勾選要分配給此組織的角色</p>
-                        <p>• <strong>唯一性規則</strong>：每個角色僅能分配給一個組織，已被占用的角色將顯示為紅色且無法選擇</p>
-                        <p>• <strong>權限管理</strong>：組織內的使用者將可以使用分配的角色</p>
-                        <p>• <strong>動態更新</strong>：角色分配變更會即時影響組織權限</p>
-                    </div>
-                </div>
-                
-                <div class="bg-purple-50 rounded-lg p-4">
-                    <h4 class="font-semibold text-purple-800 mb-2 flex items-center">
-                        <i data-lucide="lightbulb" class="w-4 h-4 mr-2"></i>小提示
-                    </h4>
-                    <p class="text-sm text-purple-700">
-                        建議根據實際組織架構設定層級，並在描述中清楚說明組織的職責範圍，以便後續進行人員分配和權限管理。
-                    </p>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Modal Footer -->
-        <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
-            <div class="flex items-center justify-end">
-                <button type="button" onclick="closeModal('organizationFormHelpModal')" class="modal-close px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all duration-200">
-                    我知道了
-                </button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- 組織詳情說明視窗 -->
-<div id="organizationDetailHelpModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
-        <div class="bg-gradient-to-r from-purple-600 to-purple-700 px-8 py-6 border-b border-slate-200">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="bg-purple-500 p-2 rounded-lg">
-                        <i data-lucide="help-circle" class="w-6 h-6 text-white"></i>
+<!-- 組織表單說明 Modal -->
+<div id="organizationFormHelpModal" class="modal fade" tabindex="-1" aria-labelledby="organizationFormHelpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="organizationFormHelpModalLabel">組織管理操作說明</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
+            <div class="modal-body">
+                <div class="row g-4">
+                    <!-- 左側：說明內容 -->
+                    <div class="col-md-6">
+                        <div class="vstack gap-3">
+                            <!-- 基本操作流程 -->
                     <div>
-                        <h3 class="text-xl font-bold text-white">組織詳情說明</h3>
-                        <p class="text-sm text-purple-100 mt-1">了解詳情頁面的操作方式</p>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">基本操作流程</h6>
+                                <ol class="small mb-0">
+                                    <li>填寫組織名稱與層級（必填）</li>
+                                    <li>選擇上級組織（可選，不選擇則為根組織）</li>
+                                    <li>輸入組織描述與備註</li>
+                                    <li>分配角色給組織（每個角色僅能分配給一個組織）</li>
+                                    <li>設定組織狀態（啟用/停用）</li>
+                                    <li>點擊儲存完成新增或編輯</li>
+                                </ol>
+                    </div>
+                            
+                            <!-- 權限控制說明 -->
+                            <div>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">權限控制說明</h6>
+                                <div class="small">
+                                    <p><strong>組織與角色關係：</strong></p>
+                                    <p>組織 → 角色 → 使用者：組織擁有角色，角色控制權限，使用者被分配角色。</p>
+                                    <p class="mt-2"><strong>角色唯一性：</strong></p>
+                                    <p>每個角色僅能分配給一個組織，避免權限衝突。已被其他組織使用的角色會顯示為紅色且無法選擇。</p>
+            </div>
+                </div>
+                
+                            <!-- 欄位說明 -->
+                <div>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">欄位說明</h6>
+                                <table class="table table-sm table-bordered small mb-0">
+                                    <thead class="table-light">
+                                        <tr><th>欄位</th><th>說明</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr><td>組織名稱</td><td>組織單位的正式名稱（必填）</td></tr>
+                                        <tr><td>組織層級</td><td>組織在階層中的位置，1-10（必填）</td></tr>
+                                        <tr><td>上級組織</td><td>所屬的上級組織，不選則為根組織</td></tr>
+                                        <tr><td>組織描述</td><td>詳細說明組織的職責和業務範圍</td></tr>
+                                        <tr><td>備註</td><td>額外的說明或特殊注意事項</td></tr>
+                                        <tr><td>角色分配</td><td>分配給此組織的角色清單</td></tr>
+                                        <tr><td>組織狀態</td><td>控制組織是否可用</td></tr>
+                                    </tbody>
+                                </table>
+                        </div>
                     </div>
                 </div>
-                <button onclick="closeModal('organizationDetailHelpModal')" class="text-white hover:text-purple-200 hover:bg-white hover:bg-opacity-10 p-2 rounded-lg transition-all duration-200">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
+                
+                    <!-- 右側：常見問題 -->
+                    <div class="col-md-6">
+                        <div class="vstack gap-3">
+                            <!-- 常見問題 -->
+                <div>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">常見問題 (Q&A)</h6>
+                                <div class="small">
+                                    <p><strong>Q1：為什麼有些角色無法選擇？</strong></p>
+                                    <p class="ms-3 mb-2">A：該角色已被其他組織使用。每個角色僅能分配給一個組織，避免權限衝突。</p>
+                                    
+                                    <p><strong>Q2：組織層級有什麼作用？</strong></p>
+                                    <p class="ms-3 mb-2">A：層級定義組織在架構中的位置，數字越小層級越高（1為最高層級）。</p>
+                                    
+                                    <p><strong>Q3：停用組織會發生什麼事？</strong></p>
+                                    <p class="ms-3 mb-2">A：停用後，該組織將不會出現在選單中，但資料仍會保留。</p>
+                                    
+                                    <p><strong>Q4：如何建立子組織？</strong></p>
+                                    <p class="ms-3 mb-2">A：在「上級組織」欄位選擇父組織，並設定適當的層級數字。</p>
+                                    
+                                    <p><strong>Q5：為什麼建立組織後沒有出現在清單中？</strong></p>
+                                    <p class="ms-3 mb-2">A：請檢查組織狀態是否為「啟用」，以及是否符合當前的篩選條件。</p>
+                    </div>
+                </div>
+                
+                            <!-- 注意事項 -->
+                            <div class="alert alert-warning small mb-0">
+                                <h6 class="fw-bold mb-2">重要提醒</h6>
+                                <ul class="mb-0">
+                                    <li>組織名稱應具唯一性，避免混淆</li>
+                                    <li>組織層級應符合實際架構（建議1-5層）</li>
+                                    <li>角色分配後，組織內使用者可使用該角色</li>
+                                    <li>停用組織不會影響已分配的角色</li>
+                                    <li>刪除組織前請先移除子組織與使用者</li>
+                                </ul>
+                            </div>
+                        </div>
+                </div>
             </div>
         </div>
-        <div class="p-8 overflow-y-auto max-h-[calc(95vh-160px)] bg-slate-50">
-            <div class="space-y-4">
-                <div>
-                    <h4 class="font-semibold text-slate-800 mb-2 flex items-center">
-                        <i data-lucide="info" class="w-4 h-4 mr-2 text-purple-600"></i>操作說明
-                    </h4>
-                    <ul class="space-y-1 text-sm text-slate-600">
-                        <li>• <strong>編輯</strong>：點擊「編輯」按鈕修改組織資訊</li>
-                        <li>• <strong>關閉</strong>：點擊「關閉」按鈕或右上角 X 關閉視窗</li>
-                        <li>• <strong>統計資訊</strong>：查看組織相關的使用者、角色和子組織數量</li>
-                    </ul>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">我知道了</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 組織詳情說明 Modal -->
+<div id="organizationDetailHelpModal" class="modal fade" tabindex="-1" aria-labelledby="organizationDetailHelpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="organizationDetailHelpModalLabel">組織詳情操作說明</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+            <div class="modal-body">
+                <div class="row g-4">
+                    <!-- 左側：說明內容 -->
+                    <div class="col-md-6">
+                        <div class="vstack gap-3">
+                    <div>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">基本操作流程</h6>
+                                <ol class="small mb-0">
+                                    <li>查看組織完整資訊（名稱、層級、狀態等）</li>
+                                    <li>檢視統計資訊（使用者數、角色數、子組織數）</li>
+                                    <li>點擊「編輯」按鈕修改組織資料</li>
+                                    <li>點擊「關閉」按鈕離開詳情頁</li>
+                                </ol>
                 </div>
                 
                 <div>
-                    <h4 class="font-semibold text-slate-800 mb-2 flex items-center">
-                        <i data-lucide="eye" class="w-4 h-4 mr-2 text-green-600"></i>資訊顯示
-                    </h4>
-                    <p class="text-sm text-slate-600">
-                        此頁面顯示組織的完整資訊，包括組織名稱、人員數量、角色數量、描述等。所有資訊均為唯讀，如需修改請點擊「編輯」按鈕。
-                    </p>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">資訊顯示說明</h6>
+                                <div class="small">
+                                    <p><strong>基本資訊：</strong>組織的基礎設定，包含名稱、層級、狀態、上級組織</p>
+                                    <p><strong>統計資訊：</strong>組織相關的數據統計，包含使用者、角色、子組織數量</p>
+                                    <p><strong>備註：</strong>組織的額外說明或特殊注意事項</p>
+                                </div>
                 </div>
             </div>
         </div>
         
-        <!-- Modal Footer -->
-        <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
-            <div class="flex items-center justify-end">
-                <button type="button" onclick="closeModal('organizationDetailHelpModal')" class="modal-close px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all duration-200">
-                    我知道了
-                </button>
+                    <!-- 右側：常見問題 -->
+                    <div class="col-md-6">
+                        <div class="vstack gap-3">
+                            <div>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">常見問題 (Q&A)</h6>
+                                <div class="small">
+                                    <p><strong>Q1：如何編輯組織資料？</strong></p>
+                                    <p class="ms-3 mb-2">A：點擊右下角「編輯」按鈕即可進入編輯模式。</p>
+                                    
+                                    <p><strong>Q2：統計資訊多久更新一次？</strong></p>
+                                    <p class="ms-3 mb-2">A：即時更新，每次開啟詳情頁都會顯示最新數據。</p>
+                                    
+                                    <p><strong>Q3：為什麼無法編輯組織？</strong></p>
+                                    <p class="ms-3 mb-2">A：可能因為權限不足或組織已被停用。請聯絡系統管理員。</p>
+                                </div>
+                            </div>
+                            
+                            <div class="alert alert-info small mb-0">
+                                <h6 class="fw-bold mb-2">提示</h6>
+                                <ul class="mb-0">
+                                    <li>詳情頁為唯讀，不可直接修改</li>
+                                    <li>統計資訊包含所有子層級的數據</li>
+                                    <li>點擊任意處可關閉詳情頁</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">我知道了</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-
 // 提交組織表單
 function submitOrganizationForm() {
     const formData = $("#FormDataOrganization").serialize();
     
     $.ajax({
-        url: '@Url.Action("SubmitOrganization", "PermissionManagement")',
         type: 'POST',
+        url: '@Url.Action("SubmitOrganization", "PermissionManagement")',
         data: formData,
         success: function(response) {
             if (response.success) {
@@ -451,10 +375,7 @@ function submitOrganizationForm() {
                 alert('操作失敗：' + response.message);
             }
         },
-        error: function() {
-            alert('提交失敗，請稍後再試');
-        }
+        error: () => alert('提交失敗，請稍後再試')
     });
 }
 </script>
-

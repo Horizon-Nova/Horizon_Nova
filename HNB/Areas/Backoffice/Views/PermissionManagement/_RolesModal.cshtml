@@ -3,98 +3,57 @@
 }
 
 <!-- 角色表單彈出視窗 -->
-<div id="roleFormModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[95vh] overflow-hidden">
+<div id="roleFormModal" class="modal fade" tabindex="-1" aria-labelledby="roleFormModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
         <!-- 標題區域 -->
-        <div class="bg-gradient-to-r from-green-600 to-green-700 px-8 py-6 text-white">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="p-2 bg-white bg-opacity-20 rounded-lg">
-                        <i data-lucide="shield" class="w-6 h-6"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold">@(ViewBag.Role?.id > 0 ? "編輯角色" : "新增角色")</h3>
-                        <p class="text-green-100 text-sm">@(ViewBag.Role?.id > 0 ? "修改角色權限設定" : "建立新的系統角色")</p>
-                    </div>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <button onclick="showModal('roleFormHelpModal')" class="text-white hover:text-green-200 transition-colors p-2 rounded-lg hover:bg-white hover:bg-opacity-10" title="操作說明">
-                        <i data-lucide="help-circle" class="w-5 h-5"></i>
+            <div class="modal-header">
+                <h5 class="modal-title" id="roleFormModalLabel">@(ViewBag.Role?.id > 0 ? "編輯角色" : "新增角色")</h5>
+                <div class="d-flex gap-2">
+                    <button type="button" onclick="showModal('roleFormHelpModal')" class="btn btn-sm btn-outline-secondary" title="操作說明">
+                        <i data-lucide="help-circle" style="width: 1rem; height: 1rem;"></i>
                     </button>
-                    <button onclick="closeModal('roleFormModal')" class="text-white hover:text-green-200 transition-colors p-2 rounded-lg hover:bg-white hover:bg-opacity-10" title="關閉">
-                        <i data-lucide="x" class="w-5 h-5"></i>
-                    </button>
-                </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
             </div>
         </div>
         
         <!-- 表單內容 -->
-        <div class="p-8 overflow-y-auto max-h-[calc(95vh-180px)]">
+            <div class="modal-body p-4">
             <form id="FormDataRole" autocomplete="off">
                 <input type="hidden" name="id" value="@(ViewBag.Role?.id ?? 0)" />
                 
-                <div class="space-y-8">
+                <div class="vstack gap-3">
                     <!-- 基本資訊區塊 -->
-                    <div class="bg-slate-50 rounded-xl p-6">
-                        <div class="flex items-center space-x-2 mb-4">
-                            <i data-lucide="shield" class="w-5 h-5 text-green-600"></i>
-                            <h4 class="text-lg font-semibold text-slate-800">角色基本資訊</h4>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label for="name" class="block text-sm font-semibold text-slate-700 mb-2">
-                                    <i data-lucide="shield" class="w-4 h-4 inline mr-1"></i>角色名稱 <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" id="name" name="name" value="@(ViewBag.Role?.name ?? "")" 
-                                       class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all" 
-                                       placeholder="請輸入角色名稱" required>
-                            </div>
-                            <div>
-                                <label for="status" class="block text-sm font-semibold text-slate-700 mb-2">
-                                    <i data-lucide="key" class="w-4 h-4 inline mr-1"></i>權限類型
-                                </label>
-                                <input type="text" id="status" name="status" value="@(ViewBag.Role?.status ?? "")" 
-                                       class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all" 
-                                       placeholder="請輸入權限類型">
-                            </div>
+                        <h6 class="fw-bold mb-3 pb-2 border-bottom">角色基本資訊</h6>
+                        <div class="row g-2 align-items-center">
+                            <div class="col-auto" style="width: 90px;"><label for="name" class="col-form-label col-form-label-sm mb-0">角色名稱<span class="text-danger">*</span></label></div>
+                            <div class="col"><input type="text" id="name" name="name" value="@(ViewBag.Role?.name ?? "")" class="form-control form-control-sm" placeholder="請輸入角色名稱" required></div>
+                            <div class="col-auto" style="width: 90px;"><label for="status" class="col-form-label col-form-label-sm mb-0">權限類型</label></div>
+                            <div class="col"><input type="text" id="status" name="status" value="@(ViewBag.Role?.status ?? "")" class="form-control form-control-sm" placeholder="請輸入權限類型"></div>
                         </div>
                     </div>
 
                     <!-- 描述資訊區塊 -->
-                    <div class="bg-slate-50 rounded-xl p-6">
-                        <div class="flex items-center space-x-2 mb-4">
-                            <i data-lucide="file-text" class="w-5 h-5 text-blue-600"></i>
-                            <h4 class="text-lg font-semibold text-slate-800">角色描述</h4>
-                        </div>
-                        <div class="space-y-6">
                             <div>
-                                <label for="description" class="block text-sm font-semibold text-slate-700 mb-2">
-                                    <i data-lucide="align-left" class="w-4 h-4 inline mr-1"></i>角色描述
-                                </label>
-                                <textarea id="description" name="description" rows="4" 
-                                          class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all resize-none" 
-                                          placeholder="請輸入角色描述和職責說明">@(ViewBag.Role?.description ?? "")</textarea>
+                        <h6 class="fw-bold mb-3 pb-2 border-bottom">角色描述</h6>
+                        <div class="row g-2 align-items-start">
+                            <div class="col-auto" style="width: 90px;"><label for="description" class="col-form-label col-form-label-sm mb-0">角色描述</label></div>
+                            <div class="col"><textarea id="description" name="description" rows="2" class="form-control form-control-sm" placeholder="請輸入角色描述和職責說明">@(ViewBag.Role?.description ?? "")</textarea></div>
                             </div>
-                            <div>
-                                <label for="notes" class="block text-sm font-semibold text-slate-700 mb-2">
-                                    <i data-lucide="sticky-note" class="w-4 h-4 inline mr-1"></i>備註
-                                </label>
-                                <textarea id="notes" name="notes" rows="3" 
-                                          class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all resize-none" 
-                                          placeholder="請輸入相關備註或特殊說明">@(ViewBag.Role?.notes ?? "")</textarea>
-                            </div>
+                        <div class="row g-2 align-items-start mt-2">
+                            <div class="col-auto" style="width: 90px;"><label for="notes" class="col-form-label col-form-label-sm mb-0">備註</label></div>
+                            <div class="col"><textarea id="notes" name="notes" rows="2" class="form-control form-control-sm" placeholder="請輸入相關備註或特殊說明">@(ViewBag.Role?.notes ?? "")</textarea></div>
                         </div>
                     </div>
 
                     <!-- 導航權限區塊 -->
-                    <div class="bg-slate-50 rounded-xl p-6">
-                        <div class="flex items-center space-x-2 mb-4">
-                            <i data-lucide="navigation" class="w-5 h-5 text-purple-600"></i>
-                            <h4 class="text-lg font-semibold text-slate-800">導航權限</h4>
-                        </div>
-                        <div class="space-y-4">
-                            <p class="text-sm text-slate-600">選擇此角色可以訪問的導航項目：</p>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-60 overflow-y-auto">
+                    <div>
+                        <h6 class="fw-bold mb-3 pb-2 border-bottom">導航權限</h6>
+                        <div class="row g-2 align-items-start">
+                            <div class="col-auto" style="width: 90px;"><label class="col-form-label col-form-label-sm mb-0">導航項目</label></div>
+                            <div class="col">
+                                <div class="d-flex flex-wrap gap-2">
                                 @if (ViewBag.Navigations != null)
                                 {
                                     @foreach (var nav in ViewBag.Navigations)
@@ -104,33 +63,28 @@
                                         {
                                             isChecked = ViewBag.RoleNavigationPermissions.Contains(nav.code);
                                         }
-                                        <label class="flex items-center space-x-2 p-3 border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer">
-                                            <input type="checkbox" name="navigation_permissions" value="@nav.code" 
-                                                   @(isChecked ? "checked" : "")
-                                                   class="w-4 h-4 text-green-600 border-slate-300 rounded focus:ring-green-500" />
-                                            <span class="text-sm text-slate-700">@nav.title</span>
-                                        </label>
+                                            <div>
+                                                <input type="checkbox" name="navigation_permissions" value="@nav.code" @(isChecked ? "checked" : "") class="btn-check" id="nav_@nav.code" autocomplete="off">
+                                                <label class="btn btn-outline-success btn-sm" for="nav_@nav.code">@nav.title</label>
+                                            </div>
+                                        }
                                     }
-                                }
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- 狀態設定區塊 -->
-                    <div class="bg-slate-50 rounded-xl p-6">
-                        <div class="flex items-center space-x-2 mb-4">
-                            <i data-lucide="settings" class="w-5 h-5 text-orange-600"></i>
-                            <h4 class="text-lg font-semibold text-slate-800">狀態設定</h4>
-                        </div>
                         <div>
-                            <label for="is_active" class="block text-sm font-semibold text-slate-700 mb-2">
-                                <i data-lucide="toggle-right" class="w-4 h-4 inline mr-1"></i>角色狀態
-                            </label>
-                            <select id="is_active" name="is_active" 
-                                    class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all">
-                                <option value="true" @(ViewBag.Role?.is_active == true ? "selected" : "")>✓ 啟用</option>
-                                <option value="false" @(ViewBag.Role?.is_active == false ? "selected" : "")>✗ 停用</option>
+                        <h6 class="fw-bold mb-3 pb-2 border-bottom">狀態設定</h6>
+                        <div class="row g-2 align-items-center">
+                            <div class="col-auto" style="width: 90px;"><label for="is_active" class="col-form-label col-form-label-sm mb-0">角色狀態</label></div>
+                            <div class="col">
+                                <select id="is_active" name="is_active" class="form-select form-select-sm">
+                                    <option value="true" @(ViewBag.Role?.is_active == true ? "selected" : "")>啟用</option>
+                                    <option value="false" @(ViewBag.Role?.is_active == false ? "selected" : "")>停用</option>
                             </select>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -138,92 +92,88 @@
         </div>
         
         <!-- 底部按鈕區域 -->
-        <div class="flex justify-end gap-4 px-8 py-6 border-t bg-slate-50">
-            <button onclick="closeModal('roleFormModal')" class="px-6 py-3 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition-colors font-medium">
-                <i data-lucide="x" class="w-4 h-4 inline mr-2"></i>取消
-            </button>
-            <button type="button" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium" onclick="submitRoleForm()">
-                <i data-lucide="@(ViewBag.Role?.id > 0 ? "save" : "plus")" class="w-4 h-4 inline mr-2"></i>@(ViewBag.Role?.id > 0 ? "儲存變更" : "新增角色")
-            </button>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-success" onclick="submitRoleForm()">@(ViewBag.Role?.id > 0 ? "儲存變更" : "新增角色")</button>
+            </div>
         </div>
     </div>
 </div>
 
 <!-- 角色詳情查看視窗 -->
-<div id="roleDetailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
-    <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
-        <div class="flex items-center justify-between p-6 border-b">
-            <h3 class="text-lg font-semibold">角色詳細資訊</h3>
-            <div class="flex items-center space-x-2">
-                <button onclick="showModal('roleDetailHelpModal')" class="text-slate-400 hover:text-slate-600 p-2 rounded-lg hover:bg-slate-100" title="操作說明">
-                    <i data-lucide="help-circle" class="w-5 h-5"></i>
+<div id="roleDetailModal" class="modal fade" tabindex="-1" aria-labelledby="roleDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="roleDetailModalLabel">角色詳細資訊</h5>
+                <div class="d-flex gap-2">
+                    <button type="button" onclick="showModal('roleDetailHelpModal')" class="btn btn-sm btn-outline-secondary" title="操作說明">
+                        <i data-lucide="help-circle" style="width: 1rem; height: 1rem;"></i>
                 </button>
-                <button onclick="closeModal('roleDetailModal')" class="text-slate-400 hover:text-slate-600 p-2 rounded-lg hover:bg-slate-100" title="關閉">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
             </div>
         </div>
-        <div class="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+            <div class="modal-body">
             @if (ViewBag.Role != null)
             {
-                <div class="space-y-6">
-                    <div class="flex items-center space-x-4">
-                        <div class="flex-shrink-0 h-20 w-20">
-                            <div class="h-20 w-20 rounded-full bg-purple-100 flex items-center justify-center">
-                                <i data-lucide="shield" class="w-8 h-8 text-purple-600"></i>
+                <div class="vstack gap-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="flex-shrink-0" style="width: 5rem; height: 5rem;">
+                            <div class="rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center" style="width: 5rem; height: 5rem;">
+                                <i data-lucide="shield" class="text-success" style="width: 2rem; height: 2rem;"></i>
                             </div>
                         </div>
                         <div>
-                            <h4 class="text-xl font-semibold text-slate-900">@ViewBag.Role?.name</h4>
-                            <p class="text-slate-600">@ViewBag.Role?.description</p>
+                            <h4 class="fs-5 fw-semibold mb-1">@ViewBag.Role?.name</h4>
+                            <p class="text-muted mb-0">@ViewBag.Role?.description</p>
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <h5 class="font-medium text-slate-900 mb-2">基本資訊</h5>
-                            <dl class="space-y-2">
-                                <div class="flex justify-between">
-                                    <dt class="text-sm text-slate-500">角色名稱</dt>
-                                    <dd class="text-sm text-slate-900">@ViewBag.Role?.name</dd>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <h6 class="fw-medium mb-2">基本資訊</h6>
+                            <dl class="row row-cols-1 g-2">
+                                <div class="d-flex justify-content-between">
+                                    <dt class="small text-muted">角色名稱</dt>
+                                    <dd class="small mb-0">@ViewBag.Role?.name</dd>
                                 </div>
-                                <div class="flex justify-between">
-                                    <dt class="text-sm text-slate-500">狀態</dt>
-                                    <dd class="text-sm">
-                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full @(ViewBag.Role?.is_active == true ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800")">
+                                <div class="d-flex justify-content-between">
+                                    <dt class="small text-muted">狀態</dt>
+                                    <dd class="small mb-0">
+                                        <span class="badge rounded-pill @(ViewBag.Role?.is_active == true ? "bg-success bg-opacity-10 text-success" : "bg-danger bg-opacity-10 text-danger")">
                                             @(ViewBag.Role?.is_active == true ? "啟用" : "停用")
                                         </span>
                                     </dd>
                                 </div>
-                                <div class="flex justify-between">
-                                    <dt class="text-sm text-slate-500">權限類型</dt>
-                                    <dd class="text-sm text-slate-900">@ViewBag.Role?.status</dd>
+                                <div class="d-flex justify-content-between">
+                                    <dt class="small text-muted">權限類型</dt>
+                                    <dd class="small mb-0">@ViewBag.Role?.status</dd>
                                 </div>
-                                <div class="flex justify-between">
-                                    <dt class="text-sm text-slate-500">建立時間</dt>
-                                    <dd class="text-sm text-slate-900">@(ViewBag.Role?.created_at?.ToString("yyyy/MM/dd HH:mm") ?? "-")</dd>
+                                <div class="d-flex justify-content-between">
+                                    <dt class="small text-muted">建立時間</dt>
+                                    <dd class="small mb-0">@(ViewBag.Role?.created_at?.ToString("yyyy/MM/dd HH:mm") ?? "-")</dd>
                                 </div>
                             </dl>
                         </div>
                         
-                        <div>
-                            <h5 class="font-medium text-slate-900 mb-2">統計資訊</h5>
-                            <dl class="space-y-2">
-                                <div class="flex justify-between">
-                                    <dt class="text-sm text-slate-500">組織</dt>
-                                    <dd class="text-sm text-slate-900">@ViewBag.Role?.organization_name</dd>
+                        <div class="col-md-6">
+                            <h6 class="fw-medium mb-2">統計資訊</h6>
+                            <dl class="row row-cols-1 g-2">
+                                <div class="d-flex justify-content-between">
+                                    <dt class="small text-muted">組織</dt>
+                                    <dd class="small mb-0">@ViewBag.Role?.organization_name</dd>
                                 </div>
-                                <div class="flex justify-between">
-                                    <dt class="text-sm text-slate-500">使用者數量</dt>
-                                    <dd class="text-sm text-slate-900">@ViewBag.Role?.user_count</dd>
+                                <div class="d-flex justify-content-between">
+                                    <dt class="small text-muted">使用者數量</dt>
+                                    <dd class="small mb-0">@ViewBag.Role?.user_count</dd>
                                 </div>
-                                <div class="flex justify-between">
-                                    <dt class="text-sm text-slate-500">權限數量</dt>
-                                    <dd class="text-sm text-slate-900">@ViewBag.Role?.permission_count</dd>
+                                <div class="d-flex justify-content-between">
+                                    <dt class="small text-muted">權限數量</dt>
+                                    <dd class="small mb-0">@ViewBag.Role?.permission_count</dd>
                                 </div>
-                                <div class="flex justify-between">
-                                    <dt class="text-sm text-slate-500">更新時間</dt>
-                                    <dd class="text-sm text-slate-900">@(ViewBag.Role?.updated_at?.ToString("yyyy/MM/dd HH:mm") ?? "-")</dd>
+                                <div class="d-flex justify-content-between">
+                                    <dt class="small text-muted">更新時間</dt>
+                                    <dd class="small mb-0">@(ViewBag.Role?.updated_at?.ToString("yyyy/MM/dd HH:mm") ?? "-")</dd>
                                 </div>
                             </dl>
                         </div>
@@ -232,159 +182,19 @@
                     @if (!string.IsNullOrEmpty(ViewBag.Role?.notes))
                     {
                         <div>
-                            <h5 class="font-medium text-slate-900 mb-2">備註</h5>
-                            <p class="text-sm text-slate-600">@ViewBag.Role?.notes</p>
+                            <h6 class="fw-medium mb-2">備註</h6>
+                            <p class="small text-muted mb-0">@ViewBag.Role?.notes</p>
                         </div>
                     }
                 </div>
             }
         </div>
-        <div class="flex justify-end gap-3 p-6 border-t bg-slate-50">
-            <button onclick="closeModal('roleDetailModal')" class="px-4 py-2 bg-slate-300 text-slate-700 rounded-md hover:bg-slate-400">
-                關閉
-            </button>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
             @if (ViewBag.Role != null)
             {
-                <button onclick="closeModal('roleDetailModal'); showModal('roleFormModal')" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center gap-2">
-                    <i data-lucide="edit" class="w-4 h-4"></i>
-                    編輯
-                </button>
-            }
-        </div>
-    </div>
-</div>
-
-<!-- 角色表單說明視窗 -->
-<div id="roleFormHelpModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
-        <div class="bg-gradient-to-r from-green-600 to-green-700 px-8 py-6 border-b border-slate-200">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="bg-green-500 p-2 rounded-lg">
-                        <i data-lucide="help-circle" class="w-6 h-6 text-white"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-white">角色管理操作說明</h3>
-                        <p class="text-sm text-green-100 mt-1">了解如何管理系統角色</p>
-                    </div>
-                </div>
-                <button onclick="closeModal('roleFormHelpModal')" class="text-white hover:text-green-200 hover:bg-white hover:bg-opacity-10 p-2 rounded-lg transition-all duration-200">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-        </div>
-        <div class="p-8 overflow-y-auto max-h-[calc(95vh-160px)] bg-slate-50">
-            <div class="space-y-6">
-                <div>
-                    <h4 class="font-semibold text-slate-800 mb-3 flex items-center">
-                        <i data-lucide="info" class="w-4 h-4 mr-2 text-green-600"></i>基本操作
-                    </h4>
-                    <ul class="space-y-2 text-sm text-slate-600">
-                        <li>• <strong>必填欄位</strong>：標示紅色星號 (*) 的欄位為必填</li>
-                        <li>• <strong>角色名稱</strong>：系統中唯一識別角色的名稱</li>
-                        <li>• <strong>權限類型</strong>：定義角色的權限範圍和等級</li>
-                        <li>• <strong>狀態控制</strong>：啟用/停用角色以控制其可用性</li>
-                    </ul>
-                </div>
-                
-                <div>
-                    <h4 class="font-semibold text-slate-800 mb-3 flex items-center">
-                        <i data-lucide="shield" class="w-4 h-4 mr-2 text-blue-600"></i>欄位說明
-                    </h4>
-                    <div class="space-y-3 text-sm">
-                        <div>
-                            <p><strong>角色名稱：</strong>在系統中顯示的角色名稱，建議使用簡潔明確的名稱</p>
-                            <p><strong>權限類型：</strong>定義角色的權限範圍，如「管理員」、「使用者」、「訪客」等</p>
-                        </div>
-                        <div>
-                            <p><strong>角色描述：</strong>詳細說明角色的職責和權限範圍</p>
-                            <p><strong>備註：</strong>額外的說明或特殊注意事項</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div>
-                    <h4 class="font-semibold text-slate-800 mb-3 flex items-center">
-                        <i data-lucide="navigation" class="w-4 h-4 mr-2 text-purple-600"></i>導航權限
-                    </h4>
-                    <div class="space-y-2 text-sm text-slate-600">
-                        <p>• <strong>選擇權限</strong>：勾選此角色可以訪問的導航項目</p>
-                        <p>• <strong>權限繼承</strong>：使用者將繼承所選角色的所有導航權限</p>
-                        <p>• <strong>動態更新</strong>：權限變更會即時影響使用者的可訪問功能</p>
-                    </div>
-                </div>
-                
-                <div class="bg-green-50 rounded-lg p-4">
-                    <h4 class="font-semibold text-green-800 mb-2 flex items-center">
-                        <i data-lucide="lightbulb" class="w-4 h-4 mr-2"></i>小提示
-                    </h4>
-                    <p class="text-sm text-green-700">
-                        建議為不同層級的使用者建立對應的角色，並在描述中清楚說明每個角色的權限範圍，以便後續管理。
-                    </p>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Modal Footer -->
-        <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
-            <div class="flex items-center justify-end">
-                <button type="button" onclick="closeModal('roleFormHelpModal')" class="modal-close px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200">
-                    我知道了
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 角色詳情說明視窗 -->
-<div id="roleDetailHelpModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
-        <div class="bg-gradient-to-r from-green-600 to-green-700 px-8 py-6 border-b border-slate-200">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="bg-green-500 p-2 rounded-lg">
-                        <i data-lucide="help-circle" class="w-6 h-6 text-white"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-white">角色詳情說明</h3>
-                        <p class="text-sm text-green-100 mt-1">了解詳情頁面的操作方式</p>
-                    </div>
-                </div>
-                <button onclick="closeModal('roleDetailHelpModal')" class="text-white hover:text-green-200 hover:bg-white hover:bg-opacity-10 p-2 rounded-lg transition-all duration-200">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-        </div>
-        <div class="p-8 overflow-y-auto max-h-[calc(95vh-160px)] bg-slate-50">
-            <div class="space-y-4">
-                <div>
-                    <h4 class="font-semibold text-slate-800 mb-2 flex items-center">
-                        <i data-lucide="info" class="w-4 h-4 mr-2 text-green-600"></i>操作說明
-                    </h4>
-                    <ul class="space-y-1 text-sm text-slate-600">
-                        <li>• <strong>編輯</strong>：點擊「編輯」按鈕修改角色資訊</li>
-                        <li>• <strong>關閉</strong>：點擊「關閉」按鈕或右上角 X 關閉視窗</li>
-                        <li>• <strong>統計資訊</strong>：查看角色相關的使用者和權限數量</li>
-                    </ul>
-                </div>
-                
-                <div>
-                    <h4 class="font-semibold text-slate-800 mb-2 flex items-center">
-                        <i data-lucide="eye" class="w-4 h-4 mr-2 text-blue-600"></i>資訊顯示
-                    </h4>
-                    <p class="text-sm text-slate-600">
-                        此頁面顯示角色的完整資訊，包括基本資料、權限設定、統計資訊等。所有資訊均為唯讀，如需修改請點擊「編輯」按鈕。
-                    </p>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Modal Footer -->
-        <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
-            <div class="flex items-center justify-end">
-                <button type="button" onclick="closeModal('roleDetailHelpModal')" class="modal-close px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200">
-                    我知道了
-                </button>
+                    <button type="button" onclick="closeModal('roleDetailModal'); showModal('roleFormModal', {url: '@Url.Action("LoadDetail", "PermissionManagement")', method: 'GET', data: {id: @ViewBag.Role.id, type: 'role'}, container: 'roleModal'})" class="btn btn-success">編輯</button>
+                }
             </div>
         </div>
     </div>
@@ -394,7 +204,15 @@
 
 // 提交角色表單
 function submitRoleForm() {
-    const formData = $("#FormDataRole").serialize();
+    const formElement = document.getElementById('FormDataRole');
+    
+    // 使用 HTML5 原生驗證
+    if (!formElement.checkValidity()) {
+        formElement.reportValidity();
+        return;
+    }
+    
+    const formData = $('#FormDataRole').serialize();
     
     $.ajax({
         url: '@Url.Action("SubmitRole", "PermissionManagement")',
@@ -403,10 +221,9 @@ function submitRoleForm() {
         success: function(response) {
             if (response.success) {
                 alert(response.message);
-                closeModal('roleFormModal');
                 location.reload();
             } else {
-                alert('操作失敗：' + response.message);
+                alert('操作失敗：' + (response.message || '系統錯誤'));
             }
         },
         error: function() {
@@ -414,5 +231,197 @@ function submitRoleForm() {
         }
     });
 }
+
 </script>
 
+<!-- 角色表單說明視窗 -->
+<div id="roleFormHelpModal" class="modal fade" tabindex="-1" aria-labelledby="roleFormHelpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="roleFormHelpModalLabel">角色管理操作說明</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-4">
+                    <!-- 左側：說明內容 -->
+                    <div class="col-md-6">
+                        <div class="vstack gap-3">
+                            <!-- 基本操作 -->
+                            <div>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">基本操作流程</h6>
+                                <ol class="small mb-0">
+                                    <li>輸入角色名稱（必填）</li>
+                                    <li>填寫角色描述和備註（選填）</li>
+                                    <li>勾選此角色可訪問的導航項目（至少一個）</li>
+                                    <li>設定角色狀態（啟用/停用）</li>
+                                    <li>點擊「儲存變更」或「新增角色」完成</li>
+                                </ol>
+                            </div>
+                            
+                            <!-- 權限控制說明 -->
+                            <div>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">權限控制說明</h6>
+                                <div class="small">
+                                    <p class="mb-2"><strong>你可以管理的範圍：</strong></p>
+                                    <ul class="mb-2">
+                                        <li>只能新增/編輯<strong>自己組織</strong>內的角色</li>
+                                        <li>只能指派<strong>自己組織</strong>可見的導航權限</li>
+                                        <li>無法修改或查看其他組織的角色設定</li>
+                                    </ul>
+                                    <p class="mb-2"><strong>角色與使用者的關係：</strong></p>
+                                    <ul class="mb-2">
+                                        <li><strong>角色 → 使用者：</strong>一個角色可以指派給多個使用者</li>
+                                        <li><strong>使用者 → 角色：</strong>一個使用者可以擁有多個角色</li>
+                                        <li><strong>權限合併：</strong>使用者擁有所有角色的權限（取聯集）</li>
+                                    </ul>
+                                    <p class="mb-2"><strong>導航權限說明：</strong></p>
+                                    <ul class="mb-0">
+                                        <li><strong>勾選導航項目：</strong>代表此角色可以訪問該功能頁面</li>
+                                        <li><strong>未勾選項目：</strong>使用者無法在側邊欄看到該導航項目</li>
+                                        <li><strong>即時生效：</strong>權限變更後，使用者需重新登入才能看到新權限</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <!-- 欄位說明 -->
+                            <div>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">欄位說明</h6>
+                                <table class="table table-sm table-bordered small mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 100px;">欄位名稱</th>
+                                            <th>說明</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>角色名稱 *</strong></td>
+                                            <td>角色的顯示名稱</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>權限類型</strong></td>
+                                            <td>權限範圍或等級（選填）</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>角色描述</strong></td>
+                                            <td>詳細說明職責和權限範圍</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>導航權限</strong></td>
+                                            <td>可訪問的導航項目（可多選）</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>角色狀態</strong></td>
+                                            <td>啟用/停用</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 右側：常見問題 -->
+                    <div class="col-md-6">
+                        <div class="vstack gap-3">
+                            <!-- 常見問題 -->
+                            <div>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">常見問題 (Q&A)</h6>
+                                <div class="small">
+                                    <p class="mb-2"><strong>Q1：為什麼我建立角色後，在列表中沒有看到？</strong></p>
+                                    <p class="ms-3 mb-3">A：請檢查你建立的角色是否屬於<strong>你的組織</strong>。系統會自動將新建立的角色歸屬於你的組織，若你看不到，可能是組織篩選器設定有誤。</p>
+                                    
+                                    <p class="mb-2"><strong>Q2：為什麼我看不到某些導航項目可以勾選？</strong></p>
+                                    <p class="ms-3 mb-3">A：導航權限清單顯示的是<strong>系統所有可用的導航項目</strong>。如果你看不到某個項目，可能該導航尚未建立或已被停用。</p>
+                                    
+                                    <p class="mb-2"><strong>Q3：如果我修改角色的導航權限，已有的使用者會受影響嗎？</strong></p>
+                                    <p class="ms-3 mb-3">A：會。角色權限的變更會<strong>立即影響所有擁有該角色的使用者</strong>。使用者需重新登入才能看到新的導航項目。建議在非上班時間進行重大權限調整。</p>
+                                    
+                                    <p class="mb-2"><strong>Q4：停用角色後，原本擁有該角色的使用者會怎樣？</strong></p>
+                                    <p class="ms-3 mb-3">A：已指派給使用者的角色<strong>不會被移除</strong>，使用者仍保有該角色的權限。停用只是防止將此角色指派給新使用者。</p>
+                                    
+                                    <p class="mb-2"><strong>Q5：角色、組織、使用者之間的關係是什麼？</strong></p>
+                                    <p class="ms-3 mb-0">A：<strong>組織</strong>是最上層的權限隔離單位；<strong>角色</strong>屬於某個組織，定義了導航權限；<strong>使用者</strong>屬於某個組織，並可擁有多個角色。權限流向：組織 → 角色 → 導航權限 → 使用者。</p>
+                                </div>
+                            </div>
+                            
+                            <!-- 注意事項 -->
+                            <div class="alert alert-warning small mb-0">
+                                <h6 class="fw-bold mb-2">⚠️ 重要提醒</h6>
+                                <ul class="mb-0">
+                                    <li>修改角色權限會立即影響所有擁有該角色的使用者</li>
+                                    <li>建議在角色描述中詳細記錄設計意圖，方便未來維護</li>
+                                    <li>刪除角色前請確認沒有使用者正在使用該角色</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-bs-dismiss="modal">我知道了</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 角色詳情說明視窗 -->
+<div id="roleDetailHelpModal" class="modal fade" tabindex="-1" aria-labelledby="roleDetailHelpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="roleDetailHelpModalLabel">角色詳情說明</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-4">
+                    <!-- 左側：說明內容 -->
+                    <div class="col-md-6">
+                        <div class="vstack gap-3">
+                            <!-- 操作說明 -->
+                            <div>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">操作說明</h6>
+                                <ul class="small mb-0">
+                                    <li>此頁面顯示角色的完整資訊（唯讀模式）</li>
+                                    <li>點擊右下角「編輯」按鈕可修改角色設定</li>
+                                    <li>點擊「關閉」按鈕或右上角 X 關閉視窗</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- 資訊說明 -->
+                            <div>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">資訊說明</h6>
+                                <div class="small">
+                                    <p class="mb-2"><strong>角色名稱：</strong>角色在系統中的顯示名稱</p>
+                                    <p class="mb-2"><strong>權限類型：</strong>角色的權限範圍或等級（選填）</p>
+                                    <p class="mb-2"><strong>導航權限列表：</strong>此角色可以訪問的所有導航項目</p>
+                                    <p class="mb-0"><strong>角色狀態：</strong>啟用時可指派給使用者；停用時無法指派（已指派的使用者不受影響）</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 右側：常見問題 -->
+                    <div class="col-md-6">
+                        <div class="vstack gap-3">
+                            <!-- 常見問題 -->
+                            <div>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">常見問題 (Q&A)</h6>
+                                <div class="small">
+                                    <p class="mb-2"><strong>Q：如何知道哪些使用者擁有這個角色？</strong></p>
+                                    <p class="ms-3 mb-3">A：目前需至「使用者管理」頁面，使用篩選功能查看特定角色的所有使用者。</p>
+                                    
+                                    <p class="mb-2"><strong>Q：修改角色的導航權限後，使用者會立即生效嗎？</strong></p>
+                                    <p class="ms-3 mb-0">A：會立即生效，但使用者需<strong>重新登入</strong>才能看到新的導航項目。已登入的使用者仍使用舊的權限資訊。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-bs-dismiss="modal">我知道了</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -19,13 +19,28 @@ public class SettingsController(SettingsServices svc) : BaseController
     [HttpPost]
     public IActionResult ClearLogs(string logType, bool is30Days = false)
     {
-        var (success, message) = logType.ToLower() switch
+        bool success;
+        string message;
+        
+        switch (logType.ToLower())
         {
-            "error" => (svc.DeleteErrorLogs(is30Days), svc.DeleteErrorLogs(is30Days) ? $"錯誤日誌清理成功{(is30Days ? "（30天前）" : "（全部）")}" : "錯誤日誌清理失敗"),
-            "access" => (svc.DeleteAccessRecords(is30Days), svc.DeleteAccessRecords(is30Days) ? $"存取記錄清理成功{(is30Days ? "（30天前）" : "（全部）")}" : "存取記錄清理失敗"),
-            "system" => (svc.DeleteAccessRecords(is30Days), svc.DeleteAccessRecords(is30Days) ? $"系統日誌清理成功{(is30Days ? "（30天前）" : "（全部）")}" : "系統日誌清理失敗"),
-            _ => (false, "不支援的日誌類型")
-        };
+            case "error":
+                success = svc.DeleteErrorLogs(is30Days);
+                message = success ? $"錯誤日誌清理成功{(is30Days ? "（30天前）" : "（全部）")}" : "錯誤日誌清理失敗";
+                break;
+            case "access":
+                success = svc.DeleteAccessRecords(is30Days);
+                message = success ? $"存取記錄清理成功{(is30Days ? "（30天前）" : "（全部）")}" : "存取記錄清理失敗";
+                break;
+            case "system":
+                success = svc.DeleteAccessRecords(is30Days);
+                message = success ? $"系統日誌清理成功{(is30Days ? "（30天前）" : "（全部）")}" : "系統日誌清理失敗";
+                break;
+            default:
+                success = false;
+                message = "不支援的日誌類型";
+                break;
+        }
 
         return Json(new { success, message });
     }
@@ -36,11 +51,23 @@ public class SettingsController(SettingsServices svc) : BaseController
     [HttpPost]
     public IActionResult ClearCache(string cacheType, bool is30Days = false)
     {
-        var (success, message) = cacheType.ToLower() switch
+        bool success;
+        string message;
+        
+        switch (cacheType.ToLower())
         {
-            "memory" or "database" or "file" or "all" => (svc.ClearAllCache(), svc.ClearAllCache() ? "快取清理成功" : "快取清理失敗"),
-            _ => (false, "不支援的快取類型")
-        };
+            case "memory":
+            case "database":
+            case "file":
+            case "all":
+                success = svc.ClearAllCache();
+                message = success ? "快取清理成功" : "快取清理失敗";
+                break;
+            default:
+                success = false;
+                message = "不支援的快取類型";
+                break;
+        }
 
         return Json(new { success, message });
     }

@@ -98,12 +98,8 @@
                             <p class="small text-muted mb-0" id="errorLogCount">@(ViewBag.ErrorLogsCount ?? 0) 條記錄</p>
                      </div>
                         <div class="d-flex gap-2 ms-lg-auto">
-                            <button type="button" class="btn btn-sm" style="background-color: #fee2e2; color: #b91c1c; border: none;" onmouseover="this.style.backgroundColor='#fecaca'" onmouseout="this.style.backgroundColor='#fee2e2'" onclick="clearLogs('error', false)">
-                             全部清理
-                         </button>
-                            <button type="button" class="btn btn-sm" style="background-color: #fed7aa; color: #c2410c; border: none;" onmouseover="this.style.backgroundColor='#fdba74'" onmouseout="this.style.backgroundColor='#fed7aa'" onclick="clearLogs('error', true)">
-                             30天清理
-                         </button>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="clearLogs('error', false, $(this))">全部清理</button>
+                            <button type="button" class="btn btn-warning btn-sm" onclick="clearLogs('error', true, $(this))">30天清理</button>
                      </div>
                  </div>
                     
@@ -119,12 +115,8 @@
                             <p class="small text-muted mb-0" id="systemLogCount">@(ViewBag.AccessLogsCount ?? 0) 條記錄</p>
                      </div>
                         <div class="d-flex gap-2 ms-lg-auto">
-                            <button type="button" class="btn btn-sm" style="background-color: #dbeafe; color: #1e40af; border: none;" onmouseover="this.style.backgroundColor='#bfdbfe'" onmouseout="this.style.backgroundColor='#dbeafe'" onclick="clearLogs('system', false)">
-                             全部清理
-                         </button>
-                            <button type="button" class="btn btn-sm" style="background-color: #e0e7ff; color: #4338ca; border: none;" onmouseover="this.style.backgroundColor='#c7d2fe'" onmouseout="this.style.backgroundColor='#e0e7ff'" onclick="clearLogs('system', true)">
-                             30天清理
-                         </button>
+                            <button type="button" class="btn btn-primary btn-sm" onclick="clearLogs('system', false, $(this))">全部清理</button>
+                            <button type="button" class="btn btn-info btn-sm" onclick="clearLogs('system', true, $(this))">30天清理</button>
                      </div>
                  </div>
                     
@@ -140,12 +132,8 @@
                             <p class="small text-muted mb-0" id="accessLogCount">@(ViewBag.AccessLogsCount ?? 0) 條記錄</p>
                      </div>
                         <div class="d-flex gap-2 ms-lg-auto">
-                            <button type="button" class="btn btn-sm" style="background-color: #d1fae5; color: #065f46; border: none;" onmouseover="this.style.backgroundColor='#a7f3d0'" onmouseout="this.style.backgroundColor='#d1fae5'" onclick="clearLogs('access', false)">
-                             全部清理
-                         </button>
-                            <button type="button" class="btn btn-sm" style="background-color: #ccfbf1; color: #115e59; border: none;" onmouseover="this.style.backgroundColor='#99f6e4'" onmouseout="this.style.backgroundColor='#ccfbf1'" onclick="clearLogs('access', true)">
-                             30天清理
-                         </button>
+                            <button type="button" class="btn btn-success btn-sm" onclick="clearLogs('access', false, $(this))">全部清理</button>
+                            <button type="button" class="btn btn-outline-success btn-sm" onclick="clearLogs('access', true, $(this))">30天清理</button>
                         </div>
                     </div>
                      </div>
@@ -180,12 +168,8 @@
                             <p class="small text-muted mb-0" id="memoryCacheSize">@(ViewBag.MemoryCacheSize != null ? $"{ViewBag.MemoryCacheSize / (1024 * 1024):F1} MB" : "--")</p>
                      </div>
                         <div class="d-flex gap-2 ms-lg-auto">
-                            <button type="button" class="btn btn-sm" style="background-color: #e9d5ff; color: #6b21a8; border: none;" onmouseover="this.style.backgroundColor='#d8b4fe'" onmouseout="this.style.backgroundColor='#e9d5ff'" onclick="clearCache('memory', false)">
-                             全部清理
-                         </button>
-                            <button type="button" class="btn btn-sm" style="background-color: #fce7f3; color: #9f1239; border: none;" onmouseover="this.style.backgroundColor='#fbcfe8'" onmouseout="this.style.backgroundColor='#fce7f3'" onclick="clearCache('memory', true)">
-                             30天清理
-                         </button>
+                            <button type="button" class="btn btn-primary btn-sm" onclick="clearCache('memory', false, $(this))">全部清理</button>
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="clearCache('memory', true, $(this))">30天清理</button>
                      </div>
                  </div>
                     
@@ -201,12 +185,8 @@
                             <p class="small text-muted mb-0" id="databaseCacheSize">@(ViewBag.CacheEntries ?? 0) 個條目</p>
                      </div>
                         <div class="d-flex gap-2 ms-lg-auto">
-                            <button type="button" class="btn btn-sm" style="background-color: #dbeafe; color: #1e40af; border: none;" onmouseover="this.style.backgroundColor='#bfdbfe'" onmouseout="this.style.backgroundColor='#dbeafe'" onclick="clearCache('database', false)">
-                             全部清理
-                         </button>
-                            <button type="button" class="btn btn-sm" style="background-color: #e0e7ff; color: #4338ca; border: none;" onmouseover="this.style.backgroundColor='#c7d2fe'" onmouseout="this.style.backgroundColor='#e0e7ff'" onclick="clearCache('database', true)">
-                             30天清理
-                         </button>
+                            <button type="button" class="btn btn-info btn-sm" onclick="clearCache('database', false, $(this))">全部清理</button>
+                            <button type="button" class="btn btn-outline-info btn-sm" onclick="clearCache('database', true, $(this))">30天清理</button>
                      </div>
                  </div>
                     
@@ -222,12 +202,8 @@
                             <p class="small text-muted mb-0" id="fileCacheSize">最後清理：@(ViewBag.LastCacheCleared?.ToString("yyyy-MM-dd HH:mm") ?? "未知")</p>
                      </div>
                         <div class="d-flex gap-2 ms-lg-auto">
-                            <button type="button" class="btn btn-sm" style="background-color: #d1fae5; color: #065f46; border: none;" onmouseover="this.style.backgroundColor='#a7f3d0'" onmouseout="this.style.backgroundColor='#d1fae5'" onclick="clearCache('file', false)">
-                             全部清理
-                         </button>
-                            <button type="button" class="btn btn-sm" style="background-color: #fef3c7; color: #92400e; border: none;" onmouseover="this.style.backgroundColor='#fde68a'" onmouseout="this.style.backgroundColor='#fef3c7'" onclick="clearCache('file', true)">
-                             30天清理
-                         </button>
+                            <button type="button" class="btn btn-success btn-sm" onclick="clearCache('file', false, $(this))">全部清理</button>
+                            <button type="button" class="btn btn-outline-success btn-sm" onclick="clearCache('file', true, $(this))">30天清理</button>
                         </div>
                     </div>
                      </div>
@@ -261,7 +237,7 @@
                         <p class="fw-medium mb-1">資料庫優化</p>
                         <p class="small text-muted mb-0">清理和優化資料庫</p>
                 </div>
-                    <button type="button" class="btn btn-primary btn-sm" onclick="optimizeDatabase()">
+                    <button type="button" id="btnOptimizeDatabase" class="btn btn-primary btn-sm" onclick="optimizeDatabase()">
                     執行優化
                 </button>
             </div>
@@ -272,7 +248,7 @@
                         <p class="fw-medium mb-1">系統重啟</p>
                         <p class="small text-muted mb-0">重新啟動應用程式</p>
                 </div>
-                    <button type="button" class="btn btn-danger btn-sm" onclick="restartApplication()">
+                    <button type="button" id="btnRestartSystem" class="btn btn-danger btn-sm" onclick="restartApplication()">
                     重啟系統
                 </button>
             </div>
@@ -440,16 +416,13 @@
         });
         
         // 清理日誌
-        function clearLogs(logType, is30Days) {
+        function clearLogs(logType, is30Days, $button) {
             const confirmMessage = is30Days 
                 ? `確定要清理30天前的${getLogTypeName(logType)}嗎？` 
                 : `確定要清理所有${getLogTypeName(logType)}嗎？`;
             
-            if (!confirm(confirmMessage)) {
-                return;
-            }
+            if (!confirm(confirmMessage)) return;
 
-            const $button = $(event.target);
             const originalText = $button.text();
             $button.prop('disabled', true).text('清理中...');
 
@@ -475,16 +448,13 @@
         }
 
         // 清理快取
-        function clearCache(cacheType, is30Days) {
+        function clearCache(cacheType, is30Days, $button) {
             const confirmMessage = is30Days 
                 ? `確定要清理30天前的${getCacheTypeName(cacheType)}嗎？` 
                 : `確定要清理所有${getCacheTypeName(cacheType)}嗎？`;
             
-            if (!confirm(confirmMessage)) {
-                return;
-            }
+            if (!confirm(confirmMessage)) return;
 
-            const $button = $(event.target);
             const originalText = $button.text();
             $button.prop('disabled', true).text('清理中...');
 
@@ -612,11 +582,9 @@
 
         // 資料庫優化
         function optimizeDatabase() {
-            if (!confirm('確定要優化資料庫嗎？這可能需要幾分鐘時間。')) {
-                return;
-            }
+            if (!confirm('確定要優化資料庫嗎？這可能需要幾分鐘時間。')) return;
             
-            const $button = $(event.target);
+            const $button = $('#btnOptimizeDatabase');
             const originalText = $button.text();
             $button.prop('disabled', true).text('優化中...');
 
@@ -644,11 +612,9 @@
 
         // 系統重啟
         function restartApplication() {
-            if (!confirm('確定要重啟系統嗎？這將中斷所有用戶的連接。')) {
-                return;
-            }
+            if (!confirm('確定要重啟系統嗎？這將中斷所有用戶的連接。')) return;
             
-            const $button = $(event.target);
+            const $button = $('#btnRestartSystem');
             const originalText = $button.text();
             $button.prop('disabled', true).text('重啟中...');
 

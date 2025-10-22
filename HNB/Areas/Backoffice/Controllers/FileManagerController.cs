@@ -1,5 +1,6 @@
 ﻿using HNB.Areas.Backoffice.Dtos;
 using HNB.Areas.Backoffice.Services;
+using HNB.Areas.Backoffice.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HNB.Areas.Backoffice.Controllers;
@@ -15,8 +16,8 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     {
         ViewBag.CurrentPath = path ?? "/";
 
-        var currentUsername = User?.Identity?.Name;
-        var allData = svc.LoadVWFileManagerList(filter: null, currentUsername: currentUsername);
+        // 直接從檔案系統讀取，不依賴資料庫
+        var allData = svc.LoadFileSystemItems(path ?? "/");
 
         return View(allData);
     }
@@ -29,11 +30,9 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     [HttpGet]
     public IActionResult LoadDetail(string path, string name)
     {
-        var item = svc.LoadVWFileManager(new Models.HnbHnbBackoffice.vw_file_manager
-        {
-            file_path = path,
-            file_name = name
-        });
+        // 直接從檔案系統讀取單一項目
+        var items = svc.LoadFileSystemItems(path);
+        var item = items.FirstOrDefault(i => i.Name == name);
 
         if (item == null)
         {
@@ -71,7 +70,7 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     [HttpPost]
     public IActionResult RenameFolder([FromBody] RenameItemRequest request)
     {
-        svc.RenameFolder(request.Path, request.OldName, request.NewName);
+        svc.RenameFolder(request.Path, request.OldName, request.NewName, request.SharedUsers);
         return Json(new FileManagerResponse { Success = true, Message = "資料夾已重新命名" });
     }
     #endregion
@@ -103,7 +102,7 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     [HttpPost]
     public IActionResult RenameFile([FromBody] RenameItemRequest request)
     {
-        svc.RenameFile(request.Path, request.OldName, request.NewName);
+        svc.RenameFile(request.Path, request.OldName, request.NewName, request.SharedUsers);
         return Json(new FileManagerResponse { Success = true, Message = "檔案已重新命名" });
     }
 
@@ -113,21 +112,14 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     [HttpGet]
     public IActionResult ReadTextFile(string path, string name)
     {
-        try
-        {
-            var (content, encoding, lastModified) = svc.LoadTextFile(path, name);
-            return Json(new ReadTextFileResponse 
-            { 
-                Success = true, 
-                Content = content, 
-                Encoding = encoding, 
-                LastModified = lastModified 
-            });
-        }
-        catch (Exception ex)
-        {
-            return Json(new ReadTextFileResponse { Success = false, Message = ex.Message });
-        }
+        var (content, encoding, lastModified) = svc.LoadTextFile(path, name);
+        return Json(new ReadTextFileResponse 
+        { 
+            Success = true, 
+            Content = content, 
+            Encoding = encoding, 
+            LastModified = lastModified 
+        });
     }
 
     /// <summary>
@@ -173,15 +165,8 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     [HttpGet]
     public IActionResult Download(string path, string name)
     {
-        try
-        {
-            var (stream, fileName, contentType) = svc.DownloadFile(path, name);
-            return File(stream, contentType, fileName, enableRangeProcessing: true);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        var (stream, fileName, contentType) = svc.DownloadFile(path, name);
+        return File(stream, contentType, fileName, enableRangeProcessing: true);
     }
 
     /// <summary>
@@ -190,15 +175,8 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     [HttpGet]
     public IActionResult DownloadFolder(string path, string name)
     {
-        try
-        {
-            var (stream, fileName, contentType) = svc.DownloadFolderAsZip(path, name);
-            return File(stream, contentType, fileName, enableRangeProcessing: true);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        var (stream, fileName, contentType) = svc.DownloadFolderAsZip(path, name);
+        return File(stream, contentType, fileName, enableRangeProcessing: true);
     }
 
     /// <summary>
@@ -207,16 +185,9 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     [HttpGet]
     public IActionResult Preview(string path, string name)
     {
-        try
-        {
-            var (stream, contentType) = svc.PreviewFile(path, name);
-            Response.Headers["Content-Disposition"] = $"inline; filename*=UTF-8''{Uri.EscapeDataString(name)}";
-            return File(stream, contentType, enableRangeProcessing: true);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        var (stream, contentType) = svc.PreviewFile(path, name);
+        Response.Headers["Content-Disposition"] = $"inline; filename*=UTF-8''{Uri.EscapeDataString(name)}";
+        return File(stream, contentType, enableRangeProcessing: true);
     }
     #endregion
 }

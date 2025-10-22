@@ -136,7 +136,7 @@ public class FileManagerRepository(HnbHnbBackofficeDbContext db)
     /// <summary>
     /// 完整覆蓋當前環境的檔案記錄
     /// </summary>
-    public void InsertFileManagerBatch(List<file_manager> dataList)
+    public void InsertFileManagerBatch(List<file_manager> dataList, string? currentUsername = null)
     {
         // 防呆：同批資料先以 (file_path, file_name) 去重，避免上層重複導致唯一鍵衝突
         var distinct = dataList
@@ -155,13 +155,13 @@ public class FileManagerRepository(HnbHnbBackofficeDbContext db)
             data.is_deleted = false;
             data.mode = _currentMode;
             
-            // 如果沒有設置 owner，則使用 system
+            // 如果沒有設置 owner，則使用當前使用者或 system
             if (string.IsNullOrEmpty(data.owner_username))
-                data.owner_username = "system";
+                data.owner_username = !string.IsNullOrEmpty(currentUsername) ? currentUsername : "system";
             
             // 確保 shared_users 不為空
             if (data.shared_users == null || data.shared_users.Count == 0)
-                data.shared_users = new List<string> { "system" };
+                data.shared_users = new List<string> { !string.IsNullOrEmpty(currentUsername) ? currentUsername : "system" };
         }
 
         db.file_managers.AddRange(distinct);

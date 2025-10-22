@@ -133,26 +133,6 @@ public class SidebarNavigationRepository(HnbHnbBackofficeDbContext db)
     }
 
     /// <summary>
-    /// 更新導航項目
-    /// </summary>
-    public bool UpdateNavigation(sidebar_navigation form)
-    {
-        var existing = db.sidebar_navigations.Find(form.id);
-        if (existing == null) return false;
-
-        existing.title = form.title;
-        existing.code = form.code;
-        existing.url = form.url;
-        existing.icon = form.icon;
-        existing.parent_code = form.parent_code;
-        existing.sort_order = form.sort_order;
-        existing.is_active = form.is_active;
-        existing.updated_at = DateTime.Now;
-
-        return db.SaveChanges() > 0;
-    }
-
-    /// <summary>
     /// 刪除導航項目
     /// </summary>
     public bool DeleteNavigation(int id)

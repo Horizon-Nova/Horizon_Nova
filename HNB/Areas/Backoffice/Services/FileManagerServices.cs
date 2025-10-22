@@ -1,5 +1,6 @@
 ﻿using HNB.Areas.Backoffice.Utilities;
 using HNB.Areas.Backoffice.Repositories;
+using HNB.Areas.Backoffice.Models;
 using Microsoft.AspNetCore.Http;
 using Models.HnbHnbBackoffice;
 
@@ -26,6 +27,9 @@ public class FileManagerServices(DirectoryManagerUtilities DM, FileManagerReposi
     
     public (string Content, string EncodingName, DateTime? LastWriteUtc) LoadTextFile(string virtualPath, string fileName, long maxBytes = 1_048_576)
         => DM.LoadTextFile(virtualPath, fileName, maxBytes);
+
+    public List<FileSystemItem> LoadFileSystemItems(string virtualPath)
+        => DM.LoadFileSystemItems(virtualPath);
         
     #endregion
 
@@ -33,13 +37,12 @@ public class FileManagerServices(DirectoryManagerUtilities DM, FileManagerReposi
     
     public void CreateFolder(string virtualPath, string folderName, List<string>? sharedUsers = null)
     {
-        // 先创建文件夹
+        // 先建立資料夾
         DM.CreateFolder(virtualPath, folderName);
         
-        // 同步到数据库
-        // 將當前登入者作為預設共享使用者，如果沒指定 sharedUsers
-        var defaultUser = (sharedUsers != null && sharedUsers.Any()) ? null : httpContextAccessor?.HttpContext?.User?.Identity?.Name;
-        DM.SyncAllFilesToDatabase(defaultUser);
+        // 同步到資料庫（一律以當前登入者作為擁有者來源）
+        var currentUser = httpContextAccessor?.HttpContext?.User?.Identity?.Name;
+        DM.SyncAllFilesToDatabase(currentUser);
         
         // 設置共享使用者
         if (sharedUsers != null && sharedUsers.Any())
@@ -57,23 +60,25 @@ public class FileManagerServices(DirectoryManagerUtilities DM, FileManagerReposi
     public void DeleteFolder(string virtualPath, string folderName)
     {
         DM.DeleteFolder(virtualPath, folderName);
-        DM.SyncAllFilesToDatabase();
+        var currentUser = httpContextAccessor?.HttpContext?.User?.Identity?.Name;
+        DM.SyncAllFilesToDatabase(currentUser);
     }
     
-    public void RenameFolder(string virtualPath, string oldName, string newName)
+    public void RenameFolder(string virtualPath, string oldName, string newName, List<string>? sharedUsers = null)
     {
-        DM.RenameFolder(virtualPath, oldName, newName);
-        DM.SyncAllFilesToDatabase();
+        DM.RenameFolder(virtualPath, oldName, newName, sharedUsers);
+        var currentUser = httpContextAccessor?.HttpContext?.User?.Identity?.Name;
+        DM.SyncAllFilesToDatabase(currentUser);
     }
     
     public void CreateFile(string virtualPath, string fileName, List<string>? sharedUsers = null)
     {
-        // 先创建文件
+        // 先建立檔案
         DM.CreateEmptyFile(virtualPath, fileName);
         
-        // 同步后再更新 shared_users（若未指定，帶入當前使用者作為預設共享）
-        var defaultUserForFile = (sharedUsers != null && sharedUsers.Any()) ? null : httpContextAccessor?.HttpContext?.User?.Identity?.Name;
-        DM.SyncAllFilesToDatabase(defaultUserForFile);
+        // 同步到資料庫（一律以當前登入者作為擁有者來源）
+        var currentUserForFile = httpContextAccessor?.HttpContext?.User?.Identity?.Name;
+        DM.SyncAllFilesToDatabase(currentUserForFile);
         
         // 設置共享使用者
         if (sharedUsers != null && sharedUsers.Any())
@@ -91,19 +96,22 @@ public class FileManagerServices(DirectoryManagerUtilities DM, FileManagerReposi
     public void DeleteFile(string virtualPath, string fileName)
     {
         DM.DeleteFile(virtualPath, fileName);
-        DM.SyncAllFilesToDatabase();
+        var currentUser = httpContextAccessor?.HttpContext?.User?.Identity?.Name;
+        DM.SyncAllFilesToDatabase(currentUser);
     }
     
-    public void RenameFile(string virtualPath, string oldName, string newName)
+    public void RenameFile(string virtualPath, string oldName, string newName, List<string>? sharedUsers = null)
     {
-        DM.RenameFile(virtualPath, oldName, newName);
-        DM.SyncAllFilesToDatabase();
+        DM.RenameFile(virtualPath, oldName, newName, sharedUsers);
+        var currentUser = httpContextAccessor?.HttpContext?.User?.Identity?.Name;
+        DM.SyncAllFilesToDatabase(currentUser);
     }
     
     public void SaveTextFile(string virtualPath, string fileName, string content, string? encodingName = "utf-8")
     {
         DM.SaveTextFile(virtualPath, fileName, content, encodingName);
-        DM.SyncAllFilesToDatabase();
+        var currentUser = httpContextAccessor?.HttpContext?.User?.Identity?.Name;
+        DM.SyncAllFilesToDatabase(currentUser);
     }
     
     #endregion

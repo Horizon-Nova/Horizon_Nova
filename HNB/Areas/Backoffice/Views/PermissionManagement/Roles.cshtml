@@ -7,111 +7,98 @@
     Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
 }
 
-
-
-<section class="space-y-4 lg:space-y-6">
-
+<section class="mb-3 mb-lg-4">
     <!-- 控制面板 -->
-    <div class="bg-white border rounded-xl p-4 lg:p-6">
-        <div class="flex flex-col gap-3 lg:gap-4">
-            <div class="w-full">
-                <div class="relative">
-                    <input type="text" id="searchInput" placeholder="搜尋角色名稱..." 
-                           class="w-full pl-10 pr-4 py-2 text-sm border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
+    <div class="bg-white border rounded-3 p-3 p-lg-4 mb-3 mb-lg-4">
+        <div class="d-flex flex-column gap-3">
+            <div class="w-100">
+                <div class="position-relative">
+                    <input type="text" id="searchInput" placeholder="搜尋角色名稱..."
+                           class="form-control form-control-sm ps-5">
+                    <i data-lucide="search" class="position-absolute top-50 translate-middle-y text-muted" style="left: 0.75rem; width: 1rem; height: 1rem;"></i>
                 </div>
             </div>
-            <div class="grid grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-3">
-                <select id="organizationFilter" class="px-3 py-2 text-sm border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="">所有組織</option>
-                    @if (ViewBag.Organizations != null)
-                    {
-                        @foreach (var org in ViewBag.Organizations)
+            <div class="row g-2 g-lg-3">
+                <div class="col-6 col-lg-4">
+                    <select id="organizationFilter" class="form-select form-select-sm">
+                        <option value="">所有組織</option>
+                        @if (ViewBag.Organizations != null)
                         {
-                            <option value="@org.organization_name">@org.organization_name</option>
+                            @foreach (var org in ViewBag.Organizations)
+                            {
+                                <option value="@org.organization_name">@org.organization_name</option>
+                            }
                         }
-                    }
-                </select>
-                <select id="statusFilter" class="px-3 py-2 text-sm border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="">所有狀態</option>
-                    <option value="true">啟用</option>
-                    <option value="false">停用</option>
-                </select>
-                <button onclick="showRoleAdd()" class="col-span-2 lg:col-span-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center justify-center gap-2 text-sm">
-                    <i data-lucide="plus" class="w-4 h-4"></i>
-                    新增角色
-                </button>
+                    </select>
+                </div>
+                <div class="col-6 col-lg-4">
+                    <select id="statusFilter" class="form-select form-select-sm">
+                        <option value="">所有狀態</option>
+                        <option value="true">啟用</option>
+                        <option value="false">停用</option>
+                    </select>
+                </div>
+                <div class="col-12 col-lg-4">
+                    <button onclick="showModal('roleFormModal', {url: '@Url.Action("LoadDetail", "PermissionManagement")', method: 'GET', data: {id: null, type: 'role'}, container: 'roleModal'})" class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2">
+                        <i data-lucide="plus" style="width: 1rem; height: 1rem;"></i>
+                        新增角色
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- 角色列表 -->
-    <div class="bg-white border rounded-xl overflow-hidden">
-        <div class="overflow-x-auto">
-            <table id="rolesTable" class="min-w-full divide-y divide-slate-200">
-                <thead class="bg-slate-50 hidden md:table-header-group">
-                    <tr>
-                        <th class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">角色</th>
-                        <th class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">組織</th>
-                        <th class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider hidden lg:table-cell">等級</th>
-                        <th class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">狀態</th>
-                        <th class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider hidden lg:table-cell">人員數量</th>
-                        <th class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider hidden lg:table-cell">建立時間</th>
-                        <th class="px-4 lg:px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">操作</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-slate-200">
-                    @if (Model != null)
-                    {
-                        @foreach (var role in Model)
-                    {
-                        <tr class="role-row hover:bg-slate-50 cursor-pointer" onclick="showRoleDetails(@role.id)">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 h-10 w-10">
-                                        <div class="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
-                                            <i data-lucide="shield" class="w-5 h-5 text-purple-600"></i>
-                                        </div>
-                                    </div>
-                                    <div class="ml-4">
-                                        <div class="text-sm font-medium text-slate-900">@role.name</div>
-                                        <div class="text-sm text-slate-500">@role.name</div>
-                                    </div>
+    <table id="rolesTable" class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+            <tr>
+                <th>角色</th>
+                <th>組織</th>
+                <th class="d-none d-lg-table-cell">等級</th>
+                <th>狀態</th>
+                <th class="d-none d-lg-table-cell">人員數量</th>
+                <th class="d-none d-lg-table-cell">建立時間</th>
+                <th class="text-end">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var role in Model ?? new List<Models.HnbHnbBackoffice.vw_permission_role>())
+            {
+                    <tr style="cursor: pointer;" onclick="showModal('roleDetailModal', {url: '@Url.Action("LoadDetail", "PermissionManagement")', method: 'GET', data: {id: @role.id, type: 'role'}, container: 'roleModal'})">
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="flex-shrink-0" style="width: 2.5rem; height: 2.5rem;">
+                                <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center" style="width: 2.5rem; height: 2.5rem;">
+                                    <i data-lucide="shield" class="text-primary" style="width: 1.25rem; height: 1.25rem;"></i>
                                 </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
-                                @(role.organization_name ?? "未分配")
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
-                                1
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full @(role.is_active == true ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800")">
-                                    @(role.is_active == true ? "啟用" : "停用")
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
-                                @(role.user_count ?? 0)
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
-                                @(role.created_at?.ToString("yyyy/MM/dd HH:mm") ?? "-")
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <button class="text-red-600 hover:text-red-900" onclick="event.stopPropagation(); if(confirm('確定要刪除這個角色嗎？')) deleteItem(@role.id);">
-                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    }
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
+                            </div>
+                            <div class="overflow-hidden">
+                                <div class="fw-medium text-truncate">@role.name</div>
+                                <div class="small text-muted text-truncate">@role.description</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>@(role.organization_name ?? "未分配")</td>
+                    <td class="d-none d-lg-table-cell">@(role.level ?? 1)</td>
+                    <td>
+                        <span class="badge rounded-pill @(role.is_active == true ? "bg-success" : "bg-danger")">
+                            @(role.is_active == true ? "啟用" : "停用")
+                        </span>
+                    </td>
+                    <td class="d-none d-lg-table-cell">@(role.user_count ?? 0)</td>
+                    <td class="small text-muted d-none d-lg-table-cell">@(role.created_at?.ToString("yyyy/MM/dd HH:mm") ?? "-")</td>
+                    <td class="text-end">
+                        <button class="btn btn-sm btn-outline-danger" onclick="event.stopPropagation(); if(confirm('確定要刪除這個角色嗎？')) deleteItem(@role.id);">
+                            <i data-lucide="trash-2" style="width: 1rem; height: 1rem;"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
 </section>
 
-<!-- 角色模態框容器 -->
-<div id="roleModal" class=""></div>
 @section Scripts {
     <script>
         let rolesTable;
@@ -132,35 +119,18 @@
                 applyFilters();
             });
 
-            // 新增角色按鈕
-            $('#btnAddRole').on('click', function() {
-                showRoleAdd();
-            });
-
         });
 
         function initializeDataTable() {
-            rolesTable = $('#rolesTable').DataTable({
-                language: {
-                    url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/zh-HANT.json'
-                },
-                pageLength: 25,
-                lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
+            rolesTable = HNBDataTable.init('#rolesTable', {
                 order: [[5, 'desc']],
                 columnDefs: [
                     { orderable: false, targets: [6] }
                 ],
-                dom: 'rt<"flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-4"<"text-sm text-slate-600"i><"flex items-center gap-2"p>>',
                 initComplete: function() {
+                    // 隱藏預設的搜尋和長度選擇器（使用自定義篩選器）
                     $('.dataTables_filter').hide();
                     $('.dataTables_length').hide();
-
-                    $('.dataTables_info').addClass('px-3 py-1 text-sm text-slate-600');
-                    
-                    $('.dataTables_paginate').addClass('flex items-center space-x-1');
-                    $('.dataTables_paginate .paginate_button').addClass('px-3 py-1 text-sm border border-slate-300 rounded-md hover:bg-slate-50 transition-colors');
-                    $('.dataTables_paginate .paginate_button.current').addClass('bg-blue-600 text-white border-blue-600 hover:bg-blue-700');
-                    $('.dataTables_paginate .paginate_button.disabled').addClass('opacity-50 cursor-not-allowed hover:bg-transparent');
                 }
             });
         }
@@ -177,7 +147,7 @@
                     const status = data[3]; // 狀態欄位
 
                     const matchesOrganization = !organizationFilter || organization.includes(organizationFilter);
-                    const matchesStatus = !statusFilter || 
+                    const matchesStatus = !statusFilter ||
                         (statusFilter === 'true' && status.includes('啟用')) ||
                         (statusFilter === 'false' && status.includes('停用'));
 
@@ -186,33 +156,6 @@
             }
 
             rolesTable.draw();
-        }
-
-        function showRoleDetails(roleId) {
-            showModal('roleDetailModal', {
-                url: '@Url.Action("LoadDetail", "PermissionManagement")',
-                method: 'GET',
-                data: { id: roleId },
-                container: 'roleModal'
-            });
-        }
-
-        function showRoleAdd() {
-            showModal('roleFormModal', {
-                url: '@Url.Action("LoadDetail", "PermissionManagement")',
-                method: 'GET',
-                data: { id: null },
-                container: 'roleModal'
-            });
-        }
-
-        function showRoleEdit(roleId) {
-            showModal('roleFormModal', {
-                url: '@Url.Action("LoadDetail", "PermissionManagement")',
-                method: 'GET',
-                data: { id: roleId },
-                container: 'roleModal'
-            });
         }
 
         function deleteItem(id) {
@@ -236,3 +179,6 @@
 
     </script>
 }
+
+<!-- Modal 容器 -->
+<div id="roleModal"></div>

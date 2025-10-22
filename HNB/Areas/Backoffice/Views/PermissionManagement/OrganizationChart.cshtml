@@ -1,165 +1,116 @@
 @model List<Models.HnbHnbBackoffice.vw_permission_organization>
 @{
     ViewData["Title"] = "組織圖 - 權限管理系統";
+    ViewData["PageTitle"] = "組織圖";
+    ViewData["PageDescription"] = "視覺化查看組織架構與層級關係";
+    ViewData["PageIcon"] = "building-2";
     Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
 }
 
-
-<section class="space-y-4 lg:space-y-6">
-    <header>
-        <h1 class="text-xl lg:text-2xl font-bold flex items-center gap-2">
-            <i data-lucide="building-2" class="w-5 h-5 lg:w-6 lg:h-6"></i> 組織圖
-        </h1>
-        <p class="text-sm lg:text-base text-slate-500">視覺化查看組織架構與層級關係</p>
-    </header>
-
+<section class="mb-3 mb-lg-4">
     <!-- 控制面板 -->
-    <div class="bg-white border rounded-xl p-4 lg:p-6">
-        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-                <button id="btnResetView" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-2 text-sm">
-                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+    <div class="bg-white border rounded-3 p-3 p-lg-4 mb-3 mb-lg-4">
+        <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-3">
+            <div class="d-flex gap-2">
+                <button id="btnResetView" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
+                    <i data-lucide="refresh-cw" style="width: 1rem; height: 1rem;"></i>
                     重置視圖
                 </button>
-                <button id="btnFitToScreen" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center gap-2 text-sm">
-                    <i data-lucide="maximize" class="w-4 h-4"></i>
+                <button id="btnFitToScreen" class="btn btn-success btn-sm d-flex align-items-center gap-2">
+                    <i data-lucide="maximize" style="width: 1rem; height: 1rem;"></i>
                     適應螢幕
                 </button>
             </div>
-            <div class="flex items-center gap-4">
-                <label class="flex items-center gap-2">
-                    <input type="checkbox" id="showUserCount" checked class="rounded border-slate-300">
-                    <span class="text-xs lg:text-sm text-slate-700">顯示人員數量</span>
-                </label>
-                <label class="flex items-center gap-2">
-                    <input type="checkbox" id="showRoleCount" checked class="rounded border-slate-300">
-                    <span class="text-xs lg:text-sm text-slate-700">顯示角色數量</span>
-                </label>
+            <div class="d-flex gap-3">
+                <div class="form-check">
+                    <input type="checkbox" id="showUserCount" checked class="form-check-input">
+                    <label class="form-check-label small" for="showUserCount">顯示人員數量</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" id="showRoleCount" checked class="form-check-input">
+                    <label class="form-check-label small" for="showRoleCount">顯示角色數量</label>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- 組織圖容器 -->
-    <div class="bg-white border rounded-xl overflow-hidden">
-        <div class="p-4 lg:p-6">
-            <div id="organizationChart" class="w-full h-[400px] lg:h-[600px] border border-slate-200 rounded-lg bg-gradient-to-br from-slate-50 to-blue-50 relative overflow-hidden">
-                <!-- 組織圖將由 JavaScript 動態生成 -->
-            </div>
+    <div class="bg-white border rounded-3 p-3 p-lg-4 mb-3 mb-lg-4">
+        <div id="organizationChart" class="w-100 border rounded-3 bg-light position-relative overflow-hidden" style="height: 600px;">
+            <!-- 組織圖將由 JavaScript 動態生成 -->
         </div>
     </div>
 
     <!-- 圖例 -->
-    <div class="bg-white border rounded-xl p-4 lg:p-6">
-        <h3 class="text-base lg:text-lg font-semibold mb-3 lg:mb-4">圖例說明</h3>
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 lg:w-12 lg:h-12 bg-blue-100 border-2 border-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <i data-lucide="building" class="w-4 h-4 lg:w-5 lg:h-5 text-blue-600"></i>
-                </div>
-                <div class="min-w-0">
-                    <p class="text-sm lg:text-base font-medium text-slate-900">組織單位</p>
-                    <p class="text-xs lg:text-sm text-slate-500">公司部門或團隊</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 lg:w-12 lg:h-12 bg-green-100 border-2 border-green-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <i data-lucide="users" class="w-4 h-4 lg:w-5 lg:h-5 text-green-600"></i>
-                </div>
-                <div class="min-w-0">
-                    <p class="text-sm lg:text-base font-medium text-slate-900">人員數量</p>
-                    <p class="text-xs lg:text-sm text-slate-500">該組織下的人員數</p>
+    <div class="bg-white border rounded-3 p-3 p-lg-4">
+        <h3 class="fs-6 fw-semibold mb-3">圖例說明</h3>
+        <div class="row g-3 g-lg-4">
+            <div class="col-12 col-lg-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-primary bg-opacity-10 border border-2 border-primary rounded-3 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 3rem; height: 3rem;">
+                        <i data-lucide="building" class="text-primary" style="width: 1.25rem; height: 1.25rem;"></i>
+                    </div>
+                    <div>
+                        <p class="fw-medium mb-0">組織單位</p>
+                        <p class="small text-muted mb-0">公司部門或團隊</p>
+                    </div>
                 </div>
             </div>
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 lg:w-12 lg:h-12 bg-purple-100 border-2 border-purple-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <i data-lucide="shield" class="w-4 h-4 lg:w-5 lg:h-5 text-purple-600"></i>
+            <div class="col-12 col-lg-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-success bg-opacity-10 border border-2 border-success rounded-3 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 3rem; height: 3rem;">
+                        <i data-lucide="users" class="text-success" style="width: 1.25rem; height: 1.25rem;"></i>
+                    </div>
+                    <div>
+                        <p class="fw-medium mb-0">人員數量</p>
+                        <p class="small text-muted mb-0">該組織下的人員數</p>
+                    </div>
                 </div>
-                <div class="min-w-0">
-                    <p class="text-sm lg:text-base font-medium text-slate-900">角色數量</p>
-                    <p class="text-xs lg:text-sm text-slate-500">該組織下的角色數</p>
+            </div>
+            <div class="col-12 col-lg-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-info bg-opacity-10 border border-2 border-info rounded-3 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 3rem; height: 3rem;">
+                        <i data-lucide="shield" class="text-info" style="width: 1.25rem; height: 1.25rem;"></i>
+                    </div>
+                    <div>
+                        <p class="fw-medium mb-0">角色數量</p>
+                        <p class="small text-muted mb-0">該組織下的角色數</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- 組織詳細資訊模態框 -->
-<div id="organizationDetailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50">
-    <div class="flex items-center justify-center min-h-screen p-2 lg:p-4">
-        <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
-            <div class="flex items-center justify-between p-4 lg:p-6 border-b">
-                <h3 class="text-base lg:text-lg font-semibold truncate">組織詳細資訊</h3>
-                <button id="closeOrganizationDetailModal" class="text-slate-400 hover:text-slate-600 flex-shrink-0">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-            <div id="organizationDetailContent" class="p-4 lg:p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
-                <!-- 內容將由 JavaScript 動態載入 -->
-            </div>
-            <div class="flex justify-end gap-3 p-4 lg:p-6 border-t bg-slate-50">
-                <button id="closeOrganizationDetailBtn" class="px-4 py-2 bg-slate-300 text-slate-700 rounded-md hover:bg-slate-400 text-sm lg:text-base">
-                    關閉
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
 @section Scripts {
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script>
         let chartData = @Html.Raw(Json.Serialize(Model ?? new List<Models.HnbHnbBackoffice.vw_permission_organization>()));
         let svg, g, zoom;
-        let expandedNodes = new Set();
 
         $(document).ready(function() {
-            // 初始化圖標
             window.lucide?.createIcons?.();
-
-            // 初始化組織圖
             initOrganizationChart();
 
-            // 控制按鈕事件
-            $('#btnResetView').on('click', function() {
-                resetView();
-            });
+            $('#btnResetView').on('click', resetView);
+            $('#btnFitToScreen').on('click', fitToScreen);
+            $('#showUserCount, #showRoleCount').on('change', updateChart);
 
-            $('#btnFitToScreen').on('click', function() {
-                fitToScreen();
-            });
-
-            // 顯示選項事件
-            $('#showUserCount, #showRoleCount').on('change', function() {
-                updateChart();
-            });
-
-            // 關閉模態框
-            $('#closeOrganizationDetailModal, #closeOrganizationDetailBtn').on('click', function() {
-                closeModal('organizationDetailModal');
-            });
-
-            // 視窗大小改變時重新渲染
             let resizeTimer;
             $(window).on('resize', function() {
                 clearTimeout(resizeTimer);
-                resizeTimer = setTimeout(function() {
-                    initOrganizationChart();
-                }, 250);
+                resizeTimer = setTimeout(initOrganizationChart, 250);
             });
         });
 
         function initOrganizationChart() {
             const container = d3.select('#organizationChart');
-            
-            // 清除舊的 SVG
             container.selectAll('svg').remove();
             
-            // 使用容器的實際寬高
-            const width = container.node().offsetWidth;
-            const height = container.node().offsetHeight;
+            const width = $('#organizationChart').width();
+            const height = $('#organizationChart').height();
 
-            svg = container
-                .append('svg')
+            svg = container.append('svg')
                 .attr('width', '100%')
                 .attr('height', '100%')
                 .attr('viewBox', `0 0 ${width} ${height}`)
@@ -169,14 +120,10 @@
 
             zoom = d3.zoom()
                 .scaleExtent([0.1, 3])
-                .on('zoom', (event) => {
-                    g.attr('transform', event.transform);
-                });
+                .on('zoom', (event) => g.attr('transform', event.transform));
 
             svg.call(zoom);
 
-            const root = buildTreeStructure(chartData);
-            
             updateChart();
         }
 
@@ -184,10 +131,7 @@
             const map = new Map();
             const roots = [];
 
-            data.forEach(d => {
-                map.set(d.id, { ...d, children: [] });
-            });
-
+            data.forEach(d => map.set(d.id, { ...d, children: [] }));
             data.forEach(d => {
                 const node = map.get(d.id);
                 if (d.parent_id && map.has(d.parent_id)) {
@@ -206,9 +150,8 @@
             const root = buildTreeStructure(chartData);
             if (!root) return;
 
-            const container = d3.select('#organizationChart');
-            const width = container.node().offsetWidth;
-            const height = container.node().offsetHeight;
+            const width = $('#organizationChart').width();
+            const height = $('#organizationChart').height();
             const nodeWidth = 200;
             const nodeHeight = 80;
             const levelHeight = 120;
@@ -228,12 +171,10 @@
                     node.children.forEach((child, index) => {
                         const childX = startX + index * nodeWidth;
                         const childY = y + levelHeight;
-
                         links.push({
                             source: { x: x, y: y + nodeHeight / 2 },
                             target: { x: childX, y: childY }
                         });
-
                         positionNodes(child, childX, childY, level + 1);
                     });
                 }
@@ -300,9 +241,9 @@
                     .attr('x', 40)
                     .attr('y', 45)
                     .attr('font-family', 'system-ui, -apple-system, sans-serif')
-                .attr('font-size', '12px')
-                .attr('fill', '#059669')
-                .text(d => `👥 ${d.total_users_count || 0} 人`);
+                    .attr('font-size', '12px')
+                    .attr('fill', '#059669')
+                    .text(d => `人員: ${d.total_users_count || 0}`);
             }
 
             // 角色數量
@@ -311,39 +252,34 @@
                     .attr('x', 40)
                     .attr('y', 60)
                     .attr('font-family', 'system-ui, -apple-system, sans-serif')
-                .attr('font-size', '12px')
-                .attr('fill', '#7c3aed')
-                .text(d => `🛡️ ${d.total_roles_count || 0} 角色`);
+                    .attr('font-size', '12px')
+                    .attr('fill', '#7c3aed')
+                    .text(d => `角色: ${d.total_roles_count || 0}`);
             }
 
             // 點擊事件
             nodeGroups.on('click', function(event, d) {
-                showOrganizationDetail(d);
+                showModal('organizationDetailModal', {
+                    url: '@Url.Action("LoadDetail", "PermissionManagement")',
+                    method: 'GET',
+                    data: { id: d.id, type: 'organization' },
+                    container: 'organizationModal'
+                });
             });
-
-            // 圖標會在需要時自動初始化
         }
 
         function resetView() {
-            svg.transition().duration(750).call(
-                zoom.transform,
-                d3.zoomIdentity
-            );
+            svg.transition().duration(750).call(zoom.transform, d3.zoomIdentity);
         }
 
         function fitToScreen() {
-            const container = d3.select('#organizationChart');
-            const width = container.node().offsetWidth;
-            const height = container.node().offsetHeight;
-            
-            // 計算圖表的邊界
+            const width = $('#organizationChart').width();
+            const height = $('#organizationChart').height();
             const bounds = g.node().getBBox();
             const fullWidth = bounds.width;
             const fullHeight = bounds.height;
             const midX = bounds.x + fullWidth / 2;
             const midY = bounds.y + fullHeight / 2;
-            
-            // 計算縮放比例，留 10% 的邊距
             const scale = 0.9 / Math.max(fullWidth / width, fullHeight / height);
             const translate = [width / 2 - scale * midX, height / 2 - scale * midY];
             
@@ -352,69 +288,8 @@
                 d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale)
             );
         }
-
-        function showOrganizationDetail(organization) {
-            $('#organizationDetailContent').html(`
-                <div class="space-y-4">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                            <i data-lucide="building" class="w-6 h-6 text-blue-600"></i>
-                        </div>
-                        <div>
-                            <h4 class="text-xl font-semibold text-slate-900">${organization.organization_name}</h4>
-                            <p class="text-slate-500">組織單位</p>
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-slate-50 rounded-lg p-4">
-                            <div class="flex items-center space-x-2">
-                                <i data-lucide="users" class="w-4 h-4 text-green-600"></i>
-                                <span class="text-sm font-medium text-slate-700">人員數量</span>
-                            </div>
-                            <p class="text-2xl font-bold text-slate-900 mt-1">${organization.total_users_count || 0}</p>
-                        </div>
-                        <div class="bg-slate-50 rounded-lg p-4">
-                            <div class="flex items-center space-x-2">
-                                <i data-lucide="shield" class="w-4 h-4 text-purple-600"></i>
-                                <span class="text-sm font-medium text-slate-700">角色數量</span>
-                            </div>
-                            <p class="text-2xl font-bold text-slate-900 mt-1">${organization.total_roles_count || 0}</p>
-                        </div>
-                    </div>
-                    
-                    ${organization.organization_description ? `
-                    <div>
-                        <h5 class="text-sm font-medium text-slate-700 mb-2">描述</h5>
-                        <p class="text-slate-600">${organization.organization_description}</p>
-                    </div>
-                    ` : ''}
-                    
-                </div>
-            `);
-            
-            // 顯示 Modal（圖標會自動初始化）
-            showModal('organizationDetailModal');
-        }
-
-        function showOrganizationDetailHelp() {
-            // 檢查是否已經有說明視窗存在
-            if (document.querySelector('.z-\\[9999\\]')) {
-                return; // 如果已存在，直接返回
-            }
-            
-            $.ajax({
-                url: '@Url.Action("LoadHelp", "PermissionManagement")',
-                type: 'GET',
-                data: { type: 'organizationdetail' },
-                success: function(response) {
-                    document.body.insertAdjacentHTML('beforeend', response);
-                    window.lucide?.createIcons?.();
-                },
-                error: function() {
-                    alert('載入說明失敗，請稍後再試');
-                }
-            });
-        }
     </script>
 }
+
+<!-- Modal 容器 -->
+<div id="organizationModal"></div>

@@ -4,55 +4,28 @@
     Layout = null;
 }
 
-<div id="itemDetailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden transform transition-all duration-300 ease-out">
-        <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
-            <div class="flex items-center gap-2">
-                <i id="detailIcon" data-lucide="@(Model.item_type == "folder" ? "folder" : "file")" class="h-5 w-5 text-slate-600"></i>
-                <h2 class="text-base font-semibold text-slate-900">詳細資料</h2>
+<div id="itemDetailModal" class="modal fade" tabindex="-1" aria-labelledby="itemDetailLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="itemDetailLabel"><i id="detailIcon" data-lucide="@(Model.item_type == "folder" ? "folder" : "file")" class="me-2" style="width:1rem;height:1rem;"></i>詳細資料</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
             </div>
-            <button onclick="closeModal('itemDetailModal')" class="w-8 h-8 flex items-center justify-center hover:bg-slate-100 rounded">
-                <i data-lucide="x" class="h-5 w-5 text-slate-500"></i>
-            </button>
-        </div>
-        <div class="px-5 py-5">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                <div>
-                    <div class="text-slate-500">名稱</div>
-                    <div class="text-slate-900 font-medium break-all">@Model.file_name</div>
-                </div>
-                <div>
-                    <div class="text-slate-500">類型</div>
-                    <div class="text-slate-900">@(Model.item_type == "folder" ? "資料夾" : "檔案")</div>
-                </div>
-                <div class="sm:col-span-2">
-                    <div class="text-slate-500">路徑</div>
-                    <div class="text-slate-900 break-all">@Model.file_path/@Model.file_name</div>
-                </div>
-                <div>
-                    <div class="text-slate-500">大小</div>
-                    <div class="text-slate-900">@(Model.item_type == "folder" ? "—" : (Model.file_size.HasValue ? Model.file_size.Value.ToString("N0") + " B" : "—"))</div>
-                </div>
-                <div>
-                    <div class="text-slate-500">擁有者</div>
-                    <div class="text-slate-900">@Model.owner_username</div>
-                </div>
-                <div class="sm:col-span-2">
-                    <div class="text-slate-500">共享使用者</div>
-                    <div class="text-slate-900 break-words">@(Model.shared_users != null && Model.shared_users.Any() ? string.Join(", ", Model.shared_users) : "—")</div>
-                </div>
-                <div>
-                    <div class="text-slate-500">建立時間</div>
-                    <div class="text-slate-900">@Model.created_at?.ToString("yyyy/MM/dd HH:mm")</div>
-                </div>
-                <div>
-                    <div class="text-slate-500">更新時間</div>
-                    <div class="text-slate-900">@Model.updated_at?.ToString("yyyy/MM/dd HH:mm")</div>
-                </div>
+            <div class="modal-body">
+                <table class="table table-sm table-borderless small mb-0">
+                    <tr><td class="text-muted" style="width: 90px;">名稱</td><td class="fw-semibold text-break">@Model.file_name</td></tr>
+                    <tr><td class="text-muted">類型</td><td>@(Model.item_type == "folder" ? "資料夾" : "檔案")</td></tr>
+                    <tr><td class="text-muted">路徑</td><td class="text-break">@Model.file_path/@Model.file_name</td></tr>
+                    <tr><td class="text-muted">大小</td><td>@(Model.item_type == "folder" ? "—" : (Model.file_size.HasValue ? Model.file_size.Value.ToString("N0") + " B" : "—"))</td></tr>
+                    <tr><td class="text-muted">擁有者</td><td>@Model.owner_username</td></tr>
+                    <tr><td class="text-muted">共享使用者</td><td class="text-break">@(Model.shared_users != null && Model.shared_users.Any() ? string.Join(", ", Model.shared_users) : "—")</td></tr>
+                    <tr><td class="text-muted">建立時間</td><td>@Model.created_at?.ToString("yyyy/MM/dd HH:mm")</td></tr>
+                    <tr><td class="text-muted">更新時間</td><td>@Model.updated_at?.ToString("yyyy/MM/dd HH:mm")</td></tr>
+                </table>
             </div>
-        </div>
-        <div class="flex items-center justify-end gap-2 px-5 py-4 bg-slate-50 border-t border-slate-200">
-            <button onclick="closeModal('itemDetailModal')" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 rounded-lg">關閉</button>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">關閉</button>
+            </div>
         </div>
     </div>
 </div>

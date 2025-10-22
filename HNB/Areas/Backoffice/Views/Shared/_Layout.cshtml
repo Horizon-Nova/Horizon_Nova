@@ -7,7 +7,9 @@
     var userEmail = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? "未設定";
     var fullName = User.FindFirst("FullName")?.Value ?? currentUserName;
     var userType = User.FindFirst("UserType")?.Value ?? "一般用戶";
-    var userRole = User.FindFirst("Role")?.Value ?? userType;
+    var userRole = User.FindFirst("Role")?.Value ?? "一般用戶";  // 現在是角色名稱，不是ID
+    var organizationName = User.FindFirst("OrganizationName")?.Value ?? "未分配組織";
+    var organizationId = User.FindFirst("OrganizationId")?.Value;
     var displayName = !string.IsNullOrEmpty(fullName) ? fullName : currentUserName;
     var avatarInitial = string.IsNullOrWhiteSpace(displayName) ? "?" : displayName.Substring(0, 1).ToUpper();
 }
@@ -39,6 +41,10 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    
+    <!-- HNB DataTable 模組 -->
+    <link rel="stylesheet" href="~/lib/datatable/hnb-datatable.css">
+    <script src="~/lib/datatable/hnb-datatable.js"></script>
 
     <!-- 自訂樣式 -->
     <link rel="stylesheet" href="~/Backoffice/css/Layout.css" />
@@ -137,7 +143,14 @@
                             <div class="px-3 py-2">
                                 <p class="small fw-medium mb-0">@displayName</p>
                                 <p class="small text-muted mb-0">@userEmail</p>
-                                <p class="small text-muted mb-0 mt-1">角色: @userRole</p>
+                                <p class="small text-muted mb-0 mt-1">
+                                    <i data-lucide="shield" style="width: 0.875rem; height: 0.875rem; display: inline-block; vertical-align: middle;"></i>
+                                    角色: @userRole
+                                </p>
+                                <p class="small text-muted mb-0">
+                                    <i data-lucide="building" style="width: 0.875rem; height: 0.875rem; display: inline-block; vertical-align: middle;"></i>
+                                    組織: @organizationName
+                                </p>
                             </div>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item d-flex align-items-center gap-2" href="@Url.Action("Profile", "Backoffice", new { area = "Backoffice" })">

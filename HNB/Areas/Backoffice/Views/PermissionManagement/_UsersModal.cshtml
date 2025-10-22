@@ -3,74 +3,41 @@
 }
 
 <!-- 使用者表單彈出視窗 -->
-<div id="userFormModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[95vh] overflow-hidden">
+<div id="userFormModal" class="modal fade" tabindex="-1" aria-labelledby="userFormModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
         <!-- 標題區域 -->
-        <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6 text-white">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="p-2 bg-white bg-opacity-20 rounded-lg">
-                        <i data-lucide="user-plus" class="w-6 h-6"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold">@(ViewBag.User?.id > 0 ? "編輯帳號" : "新增帳號")</h3>
-                        <p class="text-blue-100 text-sm">@(ViewBag.User?.id > 0 ? "修改帳號基本資訊" : "建立新的系統使用者")</p>
-                    </div>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <button onclick="showModal('userFormHelpModal')" class="text-white hover:text-blue-200 transition-colors p-2 rounded-lg hover:bg-white hover:bg-opacity-10" title="操作說明">
-                        <i data-lucide="help-circle" class="w-5 h-5"></i>
+            <div class="modal-header">
+                <h5 class="modal-title" id="userFormModalLabel">@(ViewBag.User?.id > 0 ? "編輯帳號" : "新增帳號")</h5>
+                <div class="d-flex gap-2">
+                    <button type="button" onclick="showModal('userFormHelpModal')" class="btn btn-sm btn-outline-secondary" title="操作說明">
+                        <i data-lucide="help-circle" style="width: 1rem; height: 1rem;"></i>
                     </button>
-                    <button onclick="closeModal('userFormModal')" class="text-white hover:text-blue-200 transition-colors p-2 rounded-lg hover:bg-white hover:bg-opacity-10" title="關閉">
-                        <i data-lucide="x" class="w-5 h-5"></i>
-                    </button>
-                </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
             </div>
         </div>
         
         <!-- 表單內容 -->
-        <div class="p-8 overflow-y-auto max-h-[calc(95vh-180px)]">
+            <div class="modal-body p-4">
             <form id="FormDataUser" autocomplete="off">
                 <input type="hidden" name="id" value="@(ViewBag.User?.id ?? 0)" />
                 
-                <div class="space-y-8">
+                <div class="vstack gap-3">
                     <!-- 基本資訊區塊 -->
-                    <div class="bg-slate-50 rounded-xl p-6">
-                        <div class="flex items-center space-x-2 mb-4">
-                            <i data-lucide="user" class="w-5 h-5 text-blue-600"></i>
-                            <h4 class="text-lg font-semibold text-slate-800">基本資訊</h4>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label for="full_name" class="block text-sm font-semibold text-slate-700 mb-2">
-                                    <i data-lucide="user" class="w-4 h-4 inline mr-1"></i>姓名 <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" id="full_name" name="full_name" value="@(ViewBag.User?.full_name ?? "")" 
-                                       class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
-                                       placeholder="請輸入完整姓名" required>
+                        <h6 class="fw-bold mb-3 pb-2 border-bottom">基本資訊</h6>
+                        <div class="row g-2 align-items-center">
+                            <div class="col-auto" style="width: 90px;"><label for="full_name" class="col-form-label col-form-label-sm mb-0">姓名<span class="text-danger">*</span></label></div>
+                            <div class="col"><input type="text" id="full_name" name="full_name" value="@(ViewBag.User?.full_name ?? "")" class="form-control form-control-sm" placeholder="請輸入完整姓名" required></div>
+                            <div class="col-auto" style="width: 90px;"><label for="email" class="col-form-label col-form-label-sm mb-0">電子郵件<span class="text-danger">*</span></label></div>
+                            <div class="col"><input type="email" id="email" name="email" value="@(ViewBag.User?.email ?? "")" class="form-control form-control-sm" placeholder="example@email.com" required></div>
                             </div>
-                            <div>
-                                <label for="email" class="block text-sm font-semibold text-slate-700 mb-2">
-                                    <i data-lucide="mail" class="w-4 h-4 inline mr-1"></i>電子郵件 <span class="text-red-500">*</span>
-                                </label>
-                                <input type="email" id="email" name="email" value="@(ViewBag.User?.email ?? "")" 
-                                       class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
-                                       placeholder="user@example.com" required>
-                            </div>
-                            <div>
-                                <label for="phone" class="block text-sm font-semibold text-slate-700 mb-2">
-                                    <i data-lucide="phone" class="w-4 h-4 inline mr-1"></i>電話
-                                </label>
-                                <input type="text" id="phone" name="phone" value="@(ViewBag.User?.phone ?? "")" 
-                                       class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
-                                       placeholder="請輸入聯絡電話">
-                            </div>
-                            <div>
-                                <label for="gender" class="block text-sm font-semibold text-slate-700 mb-2">
-                                    <i data-lucide="users" class="w-4 h-4 inline mr-1"></i>性別 <span class="text-red-500">*</span>
-                                </label>
-                                <select id="gender" name="gender" 
-                                        class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                        <div class="row g-2 align-items-center mt-2">
+                            <div class="col-auto" style="width: 90px;"><label for="phone" class="col-form-label col-form-label-sm mb-0">電話</label></div>
+                            <div class="col"><input type="text" id="phone" name="phone" value="@(ViewBag.User?.phone ?? "")" class="form-control form-control-sm" placeholder="請輸入聯絡電話"></div>
+                            <div class="col-auto" style="width: 90px;"><label for="gender" class="col-form-label col-form-label-sm mb-0">性別<span class="text-danger">*</span></label></div>
+                            <div class="col">
+                                <select id="gender" name="gender" class="form-select form-select-sm">
                                     <option value="">請選擇性別</option>
                                     <option value="male" @(ViewBag.User?.gender == "male" ? "selected" : "")>男性</option>
                                     <option value="female" @(ViewBag.User?.gender == "female" ? "selected" : "")>女性</option>
@@ -81,125 +48,64 @@
                     </div>
 
                     <!-- 帳號資訊區塊 -->
-                    <div class="bg-slate-50 rounded-xl p-6">
-                        <div class="flex items-center space-x-2 mb-4">
-                            <i data-lucide="key" class="w-5 h-5 text-green-600"></i>
-                            <h4 class="text-lg font-semibold text-slate-800">帳號資訊</h4>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label for="name" class="block text-sm font-semibold text-slate-700 mb-2">
-                                    <i data-lucide="at-sign" class="w-4 h-4 inline mr-1"></i>使用者名稱 <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" id="name" name="name" value="@(ViewBag.User?.name ?? "")" 
-                                       class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all @(ViewBag.User?.id > 0 ? "bg-slate-100 cursor-not-allowed" : "")" 
-                                       placeholder="請輸入使用者名稱" 
-                                       @(ViewBag.User?.id > 0 ? "readonly" : "") required>
-                            </div>
-                            <div>
-                                <label for="password_hash" class="block text-sm font-semibold text-slate-700 mb-2">
-                                    <i data-lucide="lock" class="w-4 h-4 inline mr-1"></i>密碼 
-                                    @(ViewBag.User?.id > 0 
-                                        ? Html.Raw("<span class=\"text-slate-500 text-xs\">(密碼變更請至個人資料頁面)</span>")
-                                        : Html.Raw("<span class=\"text-red-500\">*</span>"))
-                                </label>
-                                <div class="relative">
-                                    <input type="password" id="password_hash" name="password_hash" 
-                                           class="w-full px-4 py-3 @(ViewBag.User?.id == 0 ? "pr-12" : "") border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all @(ViewBag.User?.id > 0 ? "bg-slate-100 cursor-not-allowed" : "")" 
-                                           placeholder="@(ViewBag.User?.id > 0 ? (!string.IsNullOrEmpty(ViewBag.User?.password_hash) ? "**********" : "請輸入密碼") : "請輸入密碼")" 
-                                           @(ViewBag.User?.id > 0 ? "readonly" : "required")>
-                                    @(ViewBag.User?.id == 0 
-                                        ? Html.Raw("<button type=\"button\" onclick=\"togglePassword()\" class=\"absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors\"><i data-lucide=\"eye\" id=\"password-eye\" class=\"w-5 h-5\"></i></button>")
-                                        : Html.Raw(""))
-                                </div>
+                        <h6 class="fw-bold mb-3 pb-2 border-bottom">帳號資訊</h6>
+                        <div class="row g-2 align-items-center">
+                            <div class="col-auto" style="width: 90px;"><label for="name" class="col-form-label col-form-label-sm mb-0">使用者名稱<span class="text-danger">*</span></label></div>
+                            <div class="col"><input type="text" id="name" name="name" value="@(ViewBag.User?.name ?? "")" class="form-control form-control-sm @(ViewBag.User?.id > 0 ? "bg-light" : "")" placeholder="請輸入使用者名稱" @(ViewBag.User?.id > 0 ? "readonly" : "") required></div>
+                            <div class="col-auto" style="width: 90px;"><label for="password_hash" class="col-form-label col-form-label-sm mb-0">密碼@(ViewBag.User?.id > 0 ? "" : Html.Raw("<span class=\"text-danger\">*</span>"))</label></div>
+                            <div class="col">
+                                <input type="password" id="password_hash" name="password_hash" class="form-control form-control-sm @(ViewBag.User?.id > 0 ? "bg-light" : "")" placeholder="@(ViewBag.User?.id > 0 ? "**********" : "請輸入密碼")" @(ViewBag.User?.id > 0 ? "readonly" : "required")>
                             </div>
                         </div>
                     </div>
 
                     <!-- 個人資訊區塊 -->
-                    <div class="bg-slate-50 rounded-xl p-6">
-                        <div class="flex items-center space-x-2 mb-4">
-                            <i data-lucide="heart" class="w-5 h-5 text-pink-600"></i>
-                            <h4 class="text-lg font-semibold text-slate-800">個人資訊</h4>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label for="nickname" class="block text-sm font-semibold text-slate-700 mb-2">
-                                    <i data-lucide="smile" class="w-4 h-4 inline mr-1"></i>暱稱
-                                </label>
-                                <input type="text" id="nickname" name="nickname" value="@(ViewBag.User?.nickname ?? "")" 
-                                       class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
-                                       placeholder="請輸入暱稱">
+                        <h6 class="fw-bold mb-3 pb-2 border-bottom">個人資訊</h6>
+                        <div class="row g-2 align-items-center">
+                            <div class="col-auto" style="width: 90px;"><label for="nickname" class="col-form-label col-form-label-sm mb-0">暱稱</label></div>
+                            <div class="col"><input type="text" id="nickname" name="nickname" value="@(ViewBag.User?.nickname ?? "")" class="form-control form-control-sm" placeholder="請輸入暱稱"></div>
+                            <div class="col-auto" style="width: 90px;"><label for="zodiac_sign" class="col-form-label col-form-label-sm mb-0">星座</label></div>
+                            <div class="col"><input type="text" id="zodiac_sign" name="zodiac_sign" value="@(ViewBag.User?.zodiac_sign ?? "")" class="form-control form-control-sm" placeholder="請輸入星座"></div>
                             </div>
-                            <div>
-                                <label for="zodiac_sign" class="block text-sm font-semibold text-slate-700 mb-2">
-                                    <i data-lucide="star" class="w-4 h-4 inline mr-1"></i>星座
-                                </label>
-                                <input type="text" id="zodiac_sign" name="zodiac_sign" value="@(ViewBag.User?.zodiac_sign ?? "")" 
-                                       class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
-                                       placeholder="請輸入星座">
+                        <div class="row g-2 align-items-center mt-2">
+                            <div class="col-auto" style="width: 90px;"><label for="favorite_color" class="col-form-label col-form-label-sm mb-0">喜歡顏色</label></div>
+                            <div class="col"><input type="text" id="favorite_color" name="favorite_color" value="@(ViewBag.User?.favorite_color ?? "")" class="form-control form-control-sm" placeholder="請輸入喜歡的顏色"></div>
+                            <div class="col-auto" style="width: 90px;"><label for="location" class="col-form-label col-form-label-sm mb-0">常駐地點</label></div>
+                            <div class="col"><input type="text" id="location" name="location" value="@(ViewBag.User?.location ?? "")" class="form-control form-control-sm" placeholder="請輸入常駐地點"></div>
                             </div>
-                            <div>
-                                <label for="favorite_color" class="block text-sm font-semibold text-slate-700 mb-2">
-                                    <i data-lucide="palette" class="w-4 h-4 inline mr-1"></i>喜歡顏色
-                                </label>
-                                <input type="text" id="favorite_color" name="favorite_color" value="@(ViewBag.User?.favorite_color ?? "")" 
-                                       class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
-                                       placeholder="請輸入喜歡的顏色">
-                            </div>
-                            <div>
-                                <label for="location" class="block text-sm font-semibold text-slate-700 mb-2">
-                                    <i data-lucide="map-pin" class="w-4 h-4 inline mr-1"></i>常駐地點
-                                </label>
-                                <input type="text" id="location" name="location" value="@(ViewBag.User?.location ?? "")" 
-                                       class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
-                                       placeholder="請輸入常駐地點">
-                            </div>
-                            <div class="col-span-full">
-                                <label for="bio" class="block text-sm font-semibold text-slate-700 mb-2">
-                                    <i data-lucide="file-text" class="w-4 h-4 inline mr-1"></i>個人簡介
-                                </label>
-                                <textarea id="bio" name="bio" rows="4" 
-                                          class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none" 
-                                          placeholder="請輸入個人簡介或工作描述">@(ViewBag.User?.bio ?? "")</textarea>
-                            </div>
+                        <div class="row g-2 align-items-start mt-2">
+                            <div class="col-auto" style="width: 90px;"><label for="bio" class="col-form-label col-form-label-sm mb-0">個人簡介</label></div>
+                            <div class="col"><textarea id="bio" name="bio" rows="2" class="form-control form-control-sm" placeholder="請輸入個人簡介或工作描述">@(ViewBag.User?.bio ?? "")</textarea></div>
                         </div>
                     </div>
 
                     <!-- 權限設定區塊 -->
-                    <div class="bg-slate-50 rounded-xl p-6">
-                        <div class="flex items-center space-x-2 mb-4">
-                            <i data-lucide="shield" class="w-5 h-5 text-purple-600"></i>
-                            <h4 class="text-lg font-semibold text-slate-800">權限設定</h4>
-                        </div>
-                        <div class="space-y-6">
                             <div>
-                                <label class="block text-sm font-semibold text-slate-700 mb-3">
-                                    <i data-lucide="user-check" class="w-4 h-4 inline mr-1"></i>角色 <span class="text-red-500">*</span>
-                                    <span class="text-slate-500 text-xs ml-2">(可多選)</span>
-                                </label>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-48 overflow-y-auto border border-slate-200 rounded-lg p-4 bg-white">
+                        <h6 class="fw-bold mb-3 pb-2 border-bottom">權限設定</h6>
+                        <div class="vstack gap-3">
+                            <div class="row g-2 align-items-start">
+                                <div class="col-auto" style="width: 90px;"><label class="col-form-label col-form-label-sm mb-0">角色<span class="text-danger">*</span></label></div>
+                                <div class="col">
+                                    <div class="d-flex flex-wrap gap-2">
                                     @if (ViewBag.Roles != null)
                                     {
                                         @foreach (var role in ViewBag.Roles)
                                         {
                                             var isChecked = ViewBag.User?.roles != null && ViewBag.User.roles.Contains(role.id.ToString());
-                                            <label class="flex items-center space-x-2 p-2 border border-slate-200 rounded-lg hover:bg-blue-50 cursor-pointer transition-colors">
-                                                <input type="checkbox" name="role_ids" value="@role.id" 
-                                                       @(isChecked ? "checked" : "")
-                                                       class="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500" />
-                                                <span class="text-sm text-slate-700">@role.name</span>
-                                            </label>
+                                                <div>
+                                                    <input type="checkbox" name="role_ids" value="@role.id" @(isChecked ? "checked" : "") class="btn-check" id="role_@role.id" autocomplete="off">
+                                                    <label class="btn btn-outline-primary btn-sm" for="role_@role.id">@role.name</label>
+                                                </div>
                                         }
                                     }
                                 </div>
                             </div>
-                            <div>
-                                <label for="parent_id" class="block text-sm font-semibold text-slate-700 mb-2">
-                                    <i data-lucide="building" class="w-4 h-4 inline mr-1"></i>組織 <span class="text-red-500">*</span>
-                                </label>
-                                <select id="parent_id" name="parent_id" required
-                                        class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                            </div>
+                            <div class="row g-2 align-items-center">
+                                <div class="col-auto" style="width: 90px;"><label for="parent_id" class="col-form-label col-form-label-sm mb-0">組織<span class="text-danger">*</span></label></div>
+                                <div class="col"><select id="parent_id" name="parent_id" required class="form-select form-select-sm">
                                     <option value="">請選擇組織</option>
                                     @if (ViewBag.Organizations != null)
                                     {
@@ -208,26 +114,20 @@
                                             <option value="@org.id" @(ViewBag.User?.parent_id == org.id ? "selected" : "")>@org.organization_name</option>
                                         }
                                     }
-                                </select>
+                                </select></div>
                             </div>
                         </div>
                     </div>
 
                     <!-- 狀態設定區塊 -->
-                    <div class="bg-slate-50 rounded-xl p-6">
-                        <div class="flex items-center space-x-2 mb-4">
-                            <i data-lucide="settings" class="w-5 h-5 text-orange-600"></i>
-                            <h4 class="text-lg font-semibold text-slate-800">狀態設定</h4>
-                        </div>
                         <div>
-                            <label for="is_active" class="block text-sm font-semibold text-slate-700 mb-2">
-                                <i data-lucide="toggle-right" class="w-4 h-4 inline mr-1"></i>帳號狀態
-                            </label>
-                            <select id="is_active" name="is_active" 
-                                    class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                                <option value="true" @(ViewBag.User?.is_active == true ? "selected" : "")>✓ 啟用</option>
-                                <option value="false" @(ViewBag.User?.is_active == false ? "selected" : "")>✗ 停用</option>
-                            </select>
+                        <h6 class="fw-bold mb-3 pb-2 border-bottom">狀態設定</h6>
+                        <div class="row g-2 align-items-center">
+                            <div class="col-auto" style="width: 90px;"><label for="is_active" class="col-form-label col-form-label-sm mb-0">帳號狀態</label></div>
+                            <div class="col"><select id="is_active" name="is_active" class="form-select form-select-sm">
+                                <option value="true" @(ViewBag.User?.is_active == true ? "selected" : "")>啟用</option>
+                                <option value="false" @(ViewBag.User?.is_active == false ? "selected" : "")>停用</option>
+                            </select></div>
                         </div>
                     </div>
                 </div>
@@ -235,72 +135,68 @@
         </div>
         
         <!-- 底部按鈕區域 -->
-        <div class="flex justify-end gap-4 px-8 py-6 border-t bg-slate-50">
-            <button onclick="closeModal('userFormModal')" class="px-6 py-3 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition-colors font-medium">
-                <i data-lucide="x" class="w-4 h-4 inline mr-2"></i>取消
-            </button>
-            <button type="button" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium" onclick="submitUserForm()">
-                <i data-lucide="@(ViewBag.User?.id > 0 ? "save" : "plus")" class="w-4 h-4 inline mr-2"></i>@(ViewBag.User?.id > 0 ? "儲存變更" : "新增帳號")
-            </button>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="submitUserForm()">@(ViewBag.User?.id > 0 ? "儲存變更" : "新增帳號")</button>
+            </div>
         </div>
     </div>
 </div>
 
 <!-- 使用者詳情查看視窗 -->
-<div id="userDetailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
-    <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
-        <div class="flex items-center justify-between p-6 border-b">
-            <h3 class="text-lg font-semibold">帳號詳細資訊</h3>
-            <div class="flex items-center space-x-2">
-                <button onclick="showModal('userDetailHelpModal')" class="text-slate-400 hover:text-slate-600 p-2 rounded-lg hover:bg-slate-100" title="操作說明">
-                    <i data-lucide="help-circle" class="w-5 h-5"></i>
+<div id="userDetailModal" class="modal fade" tabindex="-1" aria-labelledby="userDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userDetailModalLabel">帳號詳細資訊</h5>
+                <div class="d-flex gap-2">
+                    <button type="button" onclick="showModal('userDetailHelpModal')" class="btn btn-sm btn-outline-secondary" title="操作說明">
+                        <i data-lucide="help-circle" style="width: 1rem; height: 1rem;"></i>
                 </button>
-                <button onclick="closeModal('userDetailModal')" class="text-slate-400 hover:text-slate-600 p-2 rounded-lg hover:bg-slate-100" title="關閉">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
             </div>
         </div>
-        <div class="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+            <div class="modal-body">
             @if (ViewBag.User != null)
             {
-                <div class="space-y-6">
-                    <div class="flex items-center space-x-4">
-                        <div class="flex-shrink-0 h-20 w-20">
-                            <div class="h-20 w-20 rounded-full bg-slate-200 flex items-center justify-center">
-                                <span class="text-slate-600 font-medium text-xl">@(ViewBag.User?.full_name?.Substring(0, 1).ToUpper() ?? "?")</span>
+                <div class="vstack gap-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="flex-shrink-0" style="width: 5rem; height: 5rem;">
+                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 5rem; height: 5rem;">
+                                <span class="text-secondary fw-medium fs-3">@(ViewBag.User?.full_name?.Substring(0, 1).ToUpper() ?? "?")</span>
                             </div>
                         </div>
                         <div>
-                            <h4 class="text-xl font-semibold text-slate-900">@ViewBag.User?.full_name</h4>
-                            <p class="text-slate-600">@ViewBag.User?.email</p>
-                            <p class="text-sm text-slate-500">@ViewBag.User?.phone</p>
+                            <h4 class="fs-5 fw-semibold mb-1">@ViewBag.User?.full_name</h4>
+                            <p class="text-muted mb-0">@ViewBag.User?.email</p>
+                            <p class="small text-muted mb-0">@ViewBag.User?.phone</p>
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <h5 class="font-medium text-slate-900 mb-2">基本資訊</h5>
-                            <dl class="space-y-2">
-                                <div class="flex justify-between">
-                                    <dt class="text-sm text-slate-500">使用者名稱</dt>
-                                    <dd class="text-sm text-slate-900">@ViewBag.User?.name</dd>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <h6 class="fw-medium mb-2">基本資訊</h6>
+                            <dl class="row row-cols-1 g-2">
+                                <div class="d-flex justify-content-between">
+                                    <dt class="small text-muted">使用者名稱</dt>
+                                    <dd class="small mb-0">@ViewBag.User?.name</dd>
                                 </div>
-                                <div class="flex justify-between">
-                                    <dt class="text-sm text-slate-500">暱稱</dt>
-                                    <dd class="text-sm text-slate-900">@ViewBag.User?.nickname</dd>
+                                <div class="d-flex justify-content-between">
+                                    <dt class="small text-muted">暱稱</dt>
+                                    <dd class="small mb-0">@ViewBag.User?.nickname</dd>
                                 </div>
-                                <div class="flex justify-between">
-                                    <dt class="text-sm text-slate-500">性別</dt>
-                                    <dd class="text-sm text-slate-900">@ViewBag.User?.gender</dd>
+                                <div class="d-flex justify-content-between">
+                                    <dt class="small text-muted">性別</dt>
+                                    <dd class="small mb-0">@ViewBag.User?.gender</dd>
                                 </div>
-                                <div class="flex justify-between">
-                                    <dt class="text-sm text-slate-500">星座</dt>
-                                    <dd class="text-sm text-slate-900">@ViewBag.User?.zodiac_sign</dd>
+                                <div class="d-flex justify-content-between">
+                                    <dt class="small text-muted">星座</dt>
+                                    <dd class="small mb-0">@ViewBag.User?.zodiac_sign</dd>
                                 </div>
-                                <div class="flex justify-between">
-                                    <dt class="text-sm text-slate-500">狀態</dt>
-                                    <dd class="text-sm">
-                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full @(ViewBag.User?.is_active == true ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800")">
+                                <div class="d-flex justify-content-between">
+                                    <dt class="small text-muted">狀態</dt>
+                                    <dd class="small mb-0">
+                                        <span class="badge rounded-pill @(ViewBag.User?.is_active == true ? "bg-success bg-opacity-10 text-success" : "bg-danger bg-opacity-10 text-danger")">
                                             @(ViewBag.User?.is_active == true ? "啟用" : "停用")
                                         </span>
                                     </dd>
@@ -308,41 +204,41 @@
                             </dl>
                         </div>
                         
-                        <div>
-                            <h5 class="font-medium text-slate-900 mb-2">組織資訊</h5>
-                            <dl class="space-y-2">
-                                <div class="flex justify-between">
-                                    <dt class="text-sm text-slate-500">組織</dt>
-                                    <dd class="text-sm text-slate-900">@ViewBag.User?.organization_name</dd>
+                        <div class="col-md-6">
+                            <h6 class="fw-medium mb-2">組織資訊</h6>
+                            <dl class="row row-cols-1 g-2">
+                                <div class="d-flex justify-content-between">
+                                    <dt class="small text-muted">組織</dt>
+                                    <dd class="small mb-0">@ViewBag.User?.organization_name</dd>
                                 </div>
                                 <div>
-                                    <dt class="text-sm text-slate-500 mb-1">角色</dt>
-                                    <dd class="text-sm text-slate-900">
+                                    <dt class="small text-muted mb-1">角色</dt>
+                                    <dd class="small mb-0">
                                         @if (ViewBag.User?.role_name != null)
                                         {
                                             @if (ViewBag.User.role_name.Contains(","))
                                             {
-                                                <div class="flex flex-wrap gap-1">
+                                                <div class="d-flex flex-wrap gap-1">
                                                     @foreach (var role in ViewBag.User.role_name.Split(','))
                                                     {
-                                                        <span class="inline-flex px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded">@role.Trim()</span>
+                                                        <span class="badge bg-primary bg-opacity-10 text-primary">@role.Trim()</span>
                                                     }
                                                 </div>
                                             }
                                             else
                                             {
-                                                <span class="inline-flex px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded">@ViewBag.User.role_name</span>
+                                                <span class="badge bg-primary bg-opacity-10 text-primary">@ViewBag.User.role_name</span>
                                             }
                                         }
                                         else
                                         {
-                                            <span class="text-slate-400">未分配</span>
+                                            <span class="text-muted">未分配</span>
                                         }
                                     </dd>
                                 </div>
-                                <div class="flex justify-between">
-                                    <dt class="text-sm text-slate-500">建立時間</dt>
-                                    <dd class="text-sm text-slate-900">@(ViewBag.User?.created_at?.ToString("yyyy/MM/dd HH:mm") ?? "-")</dd>
+                                <div class="d-flex justify-content-between">
+                                    <dt class="small text-muted">建立時間</dt>
+                                    <dd class="small mb-0">@(ViewBag.User?.created_at?.ToString("yyyy/MM/dd HH:mm") ?? "-")</dd>
                                 </div>
                             </dl>
                         </div>
@@ -351,165 +247,19 @@
                     @if (!string.IsNullOrEmpty(ViewBag.User?.bio))
                     {
                         <div>
-                            <h5 class="font-medium text-slate-900 mb-2">個人簡介</h5>
-                            <p class="text-sm text-slate-600">@ViewBag.User?.bio</p>
+                            <h6 class="fw-medium mb-2">個人簡介</h6>
+                            <p class="small text-muted mb-0">@ViewBag.User?.bio</p>
                         </div>
                     }
                 </div>
             }
         </div>
-        <div class="flex justify-end gap-3 p-6 border-t bg-slate-50">
-            <button onclick="closeModal('userDetailModal')" class="px-4 py-2 bg-slate-300 text-slate-700 rounded-md hover:bg-slate-400">
-                關閉
-            </button>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
             @if (ViewBag.User != null)
             {
-                <button onclick="closeModal('userDetailModal'); showModal('userFormModal')" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-2">
-                    <i data-lucide="edit" class="w-4 h-4"></i>
-                    編輯
-                </button>
-            }
-        </div>
-    </div>
-</div>
-
-<!-- 使用者表單說明視窗 -->
-<div id="userFormHelpModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
-        <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6 border-b border-slate-200">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="bg-blue-500 p-2 rounded-lg">
-                        <i data-lucide="help-circle" class="w-6 h-6 text-white"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-white">帳號管理操作說明</h3>
-                        <p class="text-sm text-blue-100 mt-1">了解如何管理系統使用者</p>
-                    </div>
-                </div>
-                <button onclick="closeModal('userFormHelpModal')" class="text-white hover:text-blue-200 hover:bg-white hover:bg-opacity-10 p-2 rounded-lg transition-all duration-200">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-        </div>
-        <div class="p-8 overflow-y-auto max-h-[calc(95vh-160px)] bg-slate-50">
-            <div class="space-y-6">
-                <div>
-                    <h4 class="font-semibold text-slate-800 mb-3 flex items-center">
-                        <i data-lucide="info" class="w-4 h-4 mr-2 text-blue-600"></i>基本操作
-                    </h4>
-                    <ul class="space-y-2 text-sm text-slate-600">
-                        <li>• <strong>必填欄位</strong>：標示紅色星號 (*) 的欄位為必填</li>
-                        <li>• <strong>密碼顯示</strong>：點擊密碼欄位右側的眼睛圖標可切換顯示/隱藏</li>
-                        <li>• <strong>表單驗證</strong>：系統會自動檢查必填欄位和格式</li>
-                        <li>• <strong>儲存變更</strong>：點擊底部「儲存變更」按鈕完成操作</li>
-                    </ul>
-                </div>
-                
-                <div>
-                    <h4 class="font-semibold text-slate-800 mb-3 flex items-center">
-                        <i data-lucide="user" class="w-4 h-4 mr-2 text-green-600"></i>基本欄位說明
-                    </h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                        <div>
-                            <p><strong>姓名：</strong>使用者的完整姓名</p>
-                            <p><strong>電子郵件：</strong>登入帳號和聯絡方式</p>
-                            <p><strong>電話：</strong>聯絡電話號碼</p>
-                            <p><strong>性別：</strong>使用者性別</p>
-                        </div>
-                        <div>
-                            <p><strong>使用者名稱：</strong>系統登入用的帳號</p>
-                            <p><strong>密碼：</strong>登入密碼（編輯時可留空不變更）</p>
-                            <p><strong>暱稱：</strong>顯示用的暱稱</p>
-                            <p><strong>星座：</strong>個人星座資訊</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div>
-                    <h4 class="font-semibold text-slate-800 mb-3 flex items-center">
-                        <i data-lucide="shield" class="w-4 h-4 mr-2 text-purple-600"></i>權限設定說明
-                    </h4>
-                    <div class="space-y-2 text-sm text-slate-600">
-                        <p>• <strong>角色：</strong>選擇使用者的角色（可多選），決定其系統權限範圍</p>
-                        <p>• <strong>組織：</strong>選擇使用者所屬的組織單位，用於群組管理</p>
-                        <p>• <strong>必填項目：</strong>角色和組織都是必填欄位，請務必選擇</p>
-                        <p>• <strong>權限繼承：</strong>使用者將繼承所選角色的所有權限（多個角色權限合併）</p>
-                        <p>• <strong>多角色：</strong>使用者可同時擁有多個角色，系統會合併所有角色的權限</p>
-                    </div>
-                </div>
-                
-                <div class="bg-blue-50 rounded-lg p-4">
-                    <h4 class="font-semibold text-blue-800 mb-2 flex items-center">
-                        <i data-lucide="lightbulb" class="w-4 h-4 mr-2"></i>小提示
-                    </h4>
-                    <p class="text-sm text-blue-700">
-                        編輯現有帳號時，密碼欄位留空表示不變更現有密碼。所有變更都會即時儲存到系統中。
-                    </p>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Modal Footer -->
-        <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
-            <div class="flex items-center justify-end">
-                <button type="button" onclick="closeModal('userFormHelpModal')" class="modal-close px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200">
-                    我知道了
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 使用者詳情說明視窗 -->
-<div id="userDetailHelpModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
-        <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6 border-b border-slate-200">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="bg-blue-500 p-2 rounded-lg">
-                        <i data-lucide="help-circle" class="w-6 h-6 text-white"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-white">帳號詳情說明</h3>
-                        <p class="text-sm text-blue-100 mt-1">了解詳情頁面的操作方式</p>
-                    </div>
-                </div>
-                <button onclick="closeModal('userDetailHelpModal')" class="text-white hover:text-blue-200 hover:bg-white hover:bg-opacity-10 p-2 rounded-lg transition-all duration-200">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-        </div>
-        <div class="p-8 overflow-y-auto max-h-[calc(95vh-160px)] bg-slate-50">
-            <div class="space-y-4">
-                <div>
-                    <h4 class="font-semibold text-slate-800 mb-2 flex items-center">
-                        <i data-lucide="info" class="w-4 h-4 mr-2 text-blue-600"></i>操作說明
-                    </h4>
-                    <ul class="space-y-1 text-sm text-slate-600">
-                        <li>• <strong>編輯</strong>：點擊「編輯」按鈕修改帳號資訊</li>
-                        <li>• <strong>關閉</strong>：點擊「關閉」按鈕或右上角 X 關閉視窗</li>
-                        <li>• <strong>頭像</strong>：如無頭像則顯示姓名首字母</li>
-                    </ul>
-                </div>
-                
-                <div>
-                    <h4 class="font-semibold text-slate-800 mb-2 flex items-center">
-                        <i data-lucide="eye" class="w-4 h-4 mr-2 text-green-600"></i>資訊顯示
-                    </h4>
-                    <p class="text-sm text-slate-600">
-                        此頁面顯示帳號的完整資訊，包括基本資料、組織歸屬、角色權限等。所有資訊均為唯讀，如需修改請點擊「編輯」按鈕。
-                    </p>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Modal Footer -->
-        <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
-            <div class="flex items-center justify-end">
-                <button type="button" onclick="closeModal('userDetailHelpModal')" class="modal-close px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200">
-                    我知道了
-                </button>
+                    <button type="button" onclick="closeModal('userDetailModal'); showModal('userFormModal', {url: '@Url.Action("LoadDetail", "PermissionManagement")', method: 'GET', data: {id: @ViewBag.User.id, type: 'user'}, container: 'userModal'})" class="btn btn-primary">編輯</button>
+                }
             </div>
         </div>
     </div>
@@ -530,12 +280,22 @@ function togglePassword() {
         $eyeIcon.attr('data-lucide', 'eye');
     }
     
-    window.lucide?.createIcons?.();
+    // 重新初始化 Lucide 圖標
+    lucide.createIcons();
 }
 
 // 提交使用者表單
 function submitUserForm() {
-    const formData = $("#FormDataUser").serialize();
+    const formElement = document.getElementById('FormDataUser');
+    
+    // 使用 HTML5 原生驗證
+    if (!formElement.checkValidity()) {
+        formElement.reportValidity();
+        return;
+    }
+    
+    // 序列化表單資料
+    const formData = $('#FormDataUser').serialize();
     
     $.ajax({
         url: '@Url.Action("SubmitUser", "PermissionManagement")',
@@ -544,10 +304,39 @@ function submitUserForm() {
         success: function(response) {
             if (response.success) {
                 alert(response.message);
-                closeModal('userFormModal');
                 location.reload();
             } else {
-                alert('操作失敗：' + response.message);
+                alert('操作失敗：' + (response.message || '系統錯誤'));
+            }
+        },
+        error: function() {
+            alert('操作失敗，請稍後再試');
+        }
+    });
+}
+
+// 提交使用者表單
+function submitUserForm() {
+    const formElement = document.getElementById('FormDataUser');
+    
+    // 使用 HTML5 原生驗證
+    if (!formElement.checkValidity()) {
+        formElement.reportValidity();
+        return;
+    }
+    
+    const formData = $('#FormDataUser').serialize();
+    
+    $.ajax({
+        url: '@Url.Action("SubmitUser", "PermissionManagement")',
+        type: 'POST',
+        data: formData,
+        success: function(response) {
+            if (response.success) {
+                alert(response.message);
+                location.reload();
+            } else {
+                alert('操作失敗：' + (response.message || '系統錯誤'));
             }
         },
         error: function() {
@@ -555,5 +344,194 @@ function submitUserForm() {
         }
     });
 }
+
 </script>
 
+<!-- 使用者表單說明視窗 -->
+<div id="userFormHelpModal" class="modal fade" tabindex="-1" aria-labelledby="userFormHelpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userFormHelpModalLabel">帳號管理操作說明</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-4">
+                    <!-- 左側：說明內容 -->
+                    <div class="col-md-6">
+                        <div class="vstack gap-3">
+                            <!-- 基本操作 -->
+                            <div>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">基本操作流程</h6>
+                                <ol class="small mb-0">
+                                    <li>填寫必填欄位（標示紅色星號 *）</li>
+                                    <li>選擇至少一個角色（可多選）</li>
+                                    <li>選擇使用者所屬組織</li>
+                                    <li>點擊「儲存變更」或「新增帳號」完成</li>
+                                </ol>
+                            </div>
+                            
+                            <!-- 權限控制說明 -->
+                            <div>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">權限控制說明</h6>
+                                <div class="small">
+                                    <p class="mb-2"><strong>你可以管理的範圍：</strong></p>
+                                    <ul class="mb-2">
+                                        <li>只能新增/編輯<strong>自己組織</strong>內的使用者</li>
+                                        <li>只能指派<strong>自己組織</strong>內的角色</li>
+                                        <li>無法跨組織管理或查看其他組織的資料</li>
+                                    </ul>
+                                    <p class="mb-2"><strong>角色與權限關係：</strong></p>
+                                    <ul class="mb-0">
+                                        <li><strong>單一角色：</strong>使用者繼承該角色的所有導航權限</li>
+                                        <li><strong>多個角色：</strong>使用者擁有所有角色的權限（權限取聯集）</li>
+                                        <li><strong>權限變更：</strong>修改角色權限後，所有擁有該角色的使用者會立即生效</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <!-- 欄位說明 -->
+                            <div>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">欄位說明</h6>
+                                <table class="table table-sm table-bordered small mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 100px;">欄位名稱</th>
+                                            <th>說明</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>姓名 *</strong></td>
+                                            <td>使用者的完整姓名</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>電子郵件 *</strong></td>
+                                            <td>聯絡信箱，系統通知會發送至此</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>使用者名稱 *</strong></td>
+                                            <td>登入帳號（建立後無法修改）</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>密碼</strong></td>
+                                            <td>新增時必填 | 編輯時留空=不變更</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>角色 *</strong></td>
+                                            <td>可多選，權限會自動合併</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>組織 *</strong></td>
+                                            <td>使用者所屬組織，決定資料可見範圍</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 右側：常見問題 -->
+                    <div class="col-md-6">
+                        <div class="vstack gap-3">
+                            <!-- 常見問題 -->
+                            <div>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">常見問題 (Q&A)</h6>
+                                <div class="small">
+                                    <p class="mb-2"><strong>Q1：為什麼我建立使用者後，在列表中沒有看到？</strong></p>
+                                    <p class="ms-3 mb-3">A：請檢查你建立的使用者是否屬於<strong>你的組織</strong>。系統基於權限控制，你只能看到自己組織內的使用者。如果選錯組織，該使用者會被其他組織的管理員看到。</p>
+                                    
+                                    <p class="mb-2"><strong>Q2：為什麼我看不到某些組織或角色選項？</strong></p>
+                                    <p class="ms-3 mb-3">A：下拉選單只會顯示<strong>你有權限管理的組織和角色</strong>（即你自己的組織）。這是為了防止跨組織的資料混亂。</p>
+                                    
+                                    <p class="mb-2"><strong>Q3：使用者可以有多個角色嗎？權限如何計算？</strong></p>
+                                    <p class="ms-3 mb-3">A：可以。使用者會<strong>繼承所有勾選角色的權限</strong>（取聯集）。例如：角色A有導航1、2，角色B有導航2、3，則使用者擁有導航1、2、3。</p>
+                                    
+                                    <p class="mb-2"><strong>Q4：編輯使用者時，密碼欄位要怎麼填？</strong></p>
+                                    <p class="ms-3 mb-3">A：<strong>留空</strong>表示不變更現有密碼；<strong>填入新密碼</strong>則會覆蓋舊密碼。密碼欄位在編輯模式下會自動鎖定，需至個人資料頁面修改。</p>
+                                    
+                                    <p class="mb-2"><strong>Q5：為什麼使用者名稱無法修改？</strong></p>
+                                    <p class="ms-3 mb-0">A：使用者名稱是系統的<strong>唯一識別碼</strong>，用於登入驗證和權限判斷。如需修改，請建立新帳號並停用舊帳號。</p>
+                                </div>
+                            </div>
+                            
+                            <!-- 注意事項 -->
+                            <div class="alert alert-info small mb-0">
+                                <h6 class="fw-bold mb-2">💡 重要提醒</h6>
+                                <ul class="mb-0">
+                                    <li>建立帳號前請確認組織選擇正確，否則會導致權限錯誤</li>
+                                    <li>角色和組織的變更會<strong>立即生效</strong>，使用者需重新登入才能看到新權限</li>
+                                    <li>停用帳號不會刪除資料，僅禁止登入</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">我知道了</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 使用者詳情說明視窗 -->
+<div id="userDetailHelpModal" class="modal fade" tabindex="-1" aria-labelledby="userDetailHelpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userDetailHelpModalLabel">帳號詳情說明</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-4">
+                    <!-- 左側：說明內容 -->
+                    <div class="col-md-6">
+                        <div class="vstack gap-3">
+                            <!-- 操作說明 -->
+                            <div>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">操作說明</h6>
+                                <ul class="small mb-0">
+                                    <li>此頁面顯示帳號的完整資訊（唯讀模式）</li>
+                                    <li>點擊右下角「編輯」按鈕可修改帳號資訊</li>
+                                    <li>點擊「關閉」按鈕或右上角 X 關閉視窗</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- 資訊說明 -->
+                            <div>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">資訊說明</h6>
+                                <div class="small">
+                                    <p class="mb-2"><strong>基本資訊：</strong>顯示使用者的個人資料（姓名、郵件、電話、性別等）</p>
+                                    <p class="mb-2"><strong>帳號資訊：</strong>顯示登入用的使用者名稱（建立後無法修改）</p>
+                                    <p class="mb-2"><strong>所屬組織：</strong>使用者歸屬的組織單位，決定其資料可見範圍</p>
+                                    <p class="mb-0"><strong>角色列表：</strong>使用者擁有的所有角色，多個角色的權限會自動合併</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 右側：常見問題 -->
+                    <div class="col-md-6">
+                        <div class="vstack gap-3">
+                            <!-- 常見問題 -->
+                            <div>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">常見問題 (Q&A)</h6>
+                                <div class="small">
+                                    <p class="mb-2"><strong>Q：為什麼我看不到某些使用者的詳細資料？</strong></p>
+                                    <p class="ms-3 mb-3">A：你只能查看<strong>自己組織</strong>內的使用者資料。如果使用者屬於其他組織，你將無權查看。</p>
+                                    
+                                    <p class="mb-2"><strong>Q：這個使用者有哪些權限？</strong></p>
+                                    <p class="ms-3 mb-0">A：查看「角色列表」區塊，使用者擁有所有已列出角色的權限（取聯集）。要了解每個角色的具體權限，請至「角色管理」頁面查看。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">我知道了</button>
+            </div>
+        </div>
+    </div>
+</div>

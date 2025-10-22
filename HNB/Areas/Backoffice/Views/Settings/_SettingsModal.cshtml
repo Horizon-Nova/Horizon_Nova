@@ -4,70 +4,39 @@
 
 <!-- 錯誤日誌說明 Modal -->
 <div class="modal fade" id="error-help" tabindex="-1" aria-labelledby="errorHelpLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content border-0 shadow">
-        <!-- Modal Header -->
-            <div class="modal-header border-0" style="background: linear-gradient(to right, #fef2f2, #ffedd5);">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="p-2 rounded" style="background-color: #fee2e2;">
-                        <i data-lucide="alert-triangle" class="text-danger" style="width: 1.5rem; height: 1.5rem;"></i>
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="errorHelpLabel">錯誤日誌說明</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <div>
-                        <h5 class="modal-title fw-bold mb-1" id="errorHelpLabel">錯誤日誌說明</h5>
-                        <p class="small text-muted mb-0">了解錯誤日誌的作用與管理方式</p>
-                    </div>
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-
-        <!-- Modal Body -->
-            <div class="modal-body p-4" style="background-color: #f8fafc;">
+            <div class="modal-body">
                 <div class="d-flex flex-column gap-4">
                 <div>
-                        <h6 class="fw-semibold mb-2 d-flex align-items-center">
-                            <i data-lucide="info" class="text-danger me-2" style="width: 1rem; height: 1rem;"></i>
-                        什麼是錯誤日誌？
-                    </h6>
-                        <p class="text-muted small mb-0">錯誤日誌記錄系統運行過程中發生的錯誤和異常，是診斷和修復系統問題的重要工具。</p>
+                    <h6 class="fw-bold mb-2 pb-2 border-bottom">什麼是錯誤日誌？</h6>
+                    <p class="small mb-0">錯誤日誌記錄系統運行過程中發生的錯誤和異常，是診斷和修復系統問題的重要工具。</p>
                 </div>
                 
                 <div>
-                        <h6 class="fw-semibold mb-2 d-flex align-items-center">
-                            <i data-lucide="file-text" class="text-primary me-2" style="width: 1rem; height: 1rem;"></i>
-                        記錄內容
-                    </h6>
-                        <ul class="list-unstyled mb-0">
-                            <li class="d-flex align-items-start mb-2">
-                                <span class="badge bg-danger bg-opacity-10 text-danger rounded-circle me-2" style="width: 1.25rem; height: 1.25rem; padding: 0.125rem;">•</span>
-                                <span class="small text-muted">包含錯誤訊息、堆疊追蹤和時間戳</span>
-                        </li>
-                            <li class="d-flex align-items-start mb-2">
-                                <span class="badge bg-danger bg-opacity-10 text-danger rounded-circle me-2" style="width: 1.25rem; height: 1.25rem; padding: 0.125rem;">•</span>
-                                <span class="small text-muted">幫助開發者診斷和修復問題</span>
-                        </li>
-                            <li class="d-flex align-items-start">
-                                <span class="badge bg-danger bg-opacity-10 text-danger rounded-circle me-2" style="width: 1.25rem; height: 1.25rem; padding: 0.125rem;">•</span>
-                                <span class="small text-muted">建議定期清理以節省儲存空間</span>
-                        </li>
+                    <h6 class="fw-bold mb-2 pb-2 border-bottom">記錄內容</h6>
+                    <ul class="small mb-0">
+                        <li>包含錯誤訊息、堆疊追蹤和時間戳</li>
+                        <li>幫助開發者診斷和修復問題</li>
+                        <li>建議定期清理以節省儲存空間</li>
                     </ul>
                 </div>
                 
                 <div>
-                        <h6 class="fw-semibold mb-2 d-flex align-items-center">
-                            <i data-lucide="lightbulb" class="text-warning me-2" style="width: 1rem; height: 1rem;"></i>
-                        管理建議
-                    </h6>
-                        <div class="alert alert-warning mb-0" role="alert">
-                            <i data-lucide="alert-circle" style="width: 1rem; height: 1rem;" class="me-1"></i>
+                    <h6 class="fw-bold mb-2 pb-2 border-bottom">管理建議</h6>
+                    <div class="alert alert-warning small mb-0">
                             建議定期檢查錯誤日誌，及時發現並修復問題。可使用「30天清理」功能保留近期記錄，或「全部清理」釋放所有空間。
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Modal Footer -->
-            <div class="modal-footer border-0" style="background-color: #f8fafc;">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">我知道了</button>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">我知道了</button>
             </div>
         </div>
     </div>
@@ -75,67 +44,39 @@
 
 <!-- 系統日誌說明 Modal -->
 <div class="modal fade" id="system-help" tabindex="-1" aria-labelledby="systemHelpLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header border-0" style="background: linear-gradient(to right, #eff6ff, #e0e7ff);">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="p-2 rounded" style="background-color: #dbeafe;">
-                        <i data-lucide="settings" class="text-primary" style="width: 1.5rem; height: 1.5rem;"></i>
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="systemHelpLabel">系統日誌說明</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <div>
-                        <h5 class="modal-title fw-bold mb-1" id="systemHelpLabel">系統日誌說明</h5>
-                        <p class="small text-muted mb-0">了解系統日誌的作用與管理方式</p>
-                    </div>
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-
-            <div class="modal-body p-4" style="background-color: #f8fafc;">
+            <div class="modal-body">
                 <div class="d-flex flex-column gap-4">
                 <div>
-                        <h6 class="fw-semibold mb-2 d-flex align-items-center">
-                            <i data-lucide="info" class="text-primary me-2" style="width: 1rem; height: 1rem;"></i>
-                        什麼是系統日誌？
-                    </h6>
-                        <p class="text-muted small mb-0">系統日誌記錄應用程式的運行狀態和重要事件，是監控系統健康狀況的重要依據。</p>
+                    <h6 class="fw-bold mb-2 pb-2 border-bottom">什麼是系統日誌？</h6>
+                    <p class="small mb-0">系統日誌記錄應用程式的運行狀態和重要事件，是監控系統健康狀況的重要依據。</p>
                 </div>
                 
                 <div>
-                        <h6 class="fw-semibold mb-2 d-flex align-items-center">
-                            <i data-lucide="list-ordered" class="text-success me-2" style="width: 1rem; height: 1rem;"></i>
-                        記錄內容
-                    </h6>
-                        <ul class="list-unstyled mb-0">
-                            <li class="d-flex align-items-start mb-2">
-                                <span class="badge bg-primary bg-opacity-10 text-primary rounded-circle me-2" style="width: 1.25rem; height: 1.25rem; padding: 0.125rem;">•</span>
-                                <span class="small text-muted">包含啟動、關閉、配置變更等事件</span>
-                        </li>
-                            <li class="d-flex align-items-start mb-2">
-                                <span class="badge bg-primary bg-opacity-10 text-primary rounded-circle me-2" style="width: 1.25rem; height: 1.25rem; padding: 0.125rem;">•</span>
-                                <span class="small text-muted">用於系統監控和故障排除</span>
-                        </li>
-                            <li class="d-flex align-items-start">
-                                <span class="badge bg-primary bg-opacity-10 text-primary rounded-circle me-2" style="width: 1.25rem; height: 1.25rem; padding: 0.125rem;">•</span>
-                                <span class="small text-muted">提供系統運行歷史記錄</span>
-                        </li>
+                    <h6 class="fw-bold mb-2 pb-2 border-bottom">記錄內容</h6>
+                    <ul class="small mb-0">
+                        <li>包含啟動、關閉、配置變更等事件</li>
+                        <li>用於系統監控和故障排除</li>
+                        <li>提供系統運行歷史記錄</li>
                     </ul>
                 </div>
                 
                 <div>
-                        <h6 class="fw-semibold mb-2 d-flex align-items-center">
-                            <i data-lucide="lightbulb" class="text-warning me-2" style="width: 1rem; height: 1rem;"></i>
-                        管理建議
-                    </h6>
-                        <div class="alert alert-primary mb-0" role="alert">
-                            <i data-lucide="info" style="width: 1rem; height: 1rem;" class="me-1"></i>
+                    <h6 class="fw-bold mb-2 pb-2 border-bottom">管理建議</h6>
+                    <div class="alert alert-info small mb-0">
                             系統日誌可幫助您追蹤系統運行狀況，定期查看有助於及早發現潛在問題。建議保留近期記錄以便追溯。
                     </div>
                 </div>
             </div>
         </div>
 
-            <div class="modal-footer border-0" style="background-color: #f8fafc;">
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">我知道了</button>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">我知道了</button>
             </div>
         </div>
     </div>
@@ -143,67 +84,39 @@
 
 <!-- 存取日誌說明 Modal -->
 <div class="modal fade" id="access-help" tabindex="-1" aria-labelledby="accessHelpLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header border-0" style="background: linear-gradient(to right, #d1fae5, #d1f5e6);">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="p-2 rounded" style="background-color: #a7f3d0;">
-                        <i data-lucide="users" class="text-success" style="width: 1.5rem; height: 1.5rem;"></i>
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="accessHelpLabel">存取日誌說明</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <div>
-                        <h5 class="modal-title fw-bold mb-1" id="accessHelpLabel">存取日誌說明</h5>
-                        <p class="small text-muted mb-0">了解存取日誌的作用與管理方式</p>
-                    </div>
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-
-            <div class="modal-body p-4" style="background-color: #f8fafc;">
+            <div class="modal-body">
                 <div class="d-flex flex-column gap-4">
                 <div>
-                        <h6 class="fw-semibold mb-2 d-flex align-items-center">
-                            <i data-lucide="info" class="text-success me-2" style="width: 1rem; height: 1rem;"></i>
-                        什麼是存取日誌？
-                    </h6>
-                        <p class="text-muted small mb-0">存取日誌記錄用戶的登入、操作和系統使用情況，是安全審計和用戶行為分析的重要資料來源。</p>
+                    <h6 class="fw-bold mb-2 pb-2 border-bottom">什麼是存取日誌？</h6>
+                    <p class="small mb-0">存取日誌記錄用戶的登入、操作和系統使用情況，是安全審計和用戶行為分析的重要資料來源。</p>
                 </div>
                 
                 <div>
-                        <h6 class="fw-semibold mb-2 d-flex align-items-center">
-                            <i data-lucide="shield" class="text-primary me-2" style="width: 1rem; height: 1rem;"></i>
-                        記錄內容
-                    </h6>
-                        <ul class="list-unstyled mb-0">
-                            <li class="d-flex align-items-start mb-2">
-                                <span class="badge bg-success bg-opacity-10 text-success rounded-circle me-2" style="width: 1.25rem; height: 1.25rem; padding: 0.125rem;">•</span>
-                                <span class="small text-muted">包含用戶ID、IP地址、操作時間</span>
-                        </li>
-                            <li class="d-flex align-items-start mb-2">
-                                <span class="badge bg-success bg-opacity-10 text-success rounded-circle me-2" style="width: 1.25rem; height: 1.25rem; padding: 0.125rem;">•</span>
-                                <span class="small text-muted">用於安全審計和用戶行為分析</span>
-                        </li>
-                            <li class="d-flex align-items-start">
-                                <span class="badge bg-success bg-opacity-10 text-success rounded-circle me-2" style="width: 1.25rem; height: 1.25rem; padding: 0.125rem;">•</span>
-                                <span class="small text-muted">幫助識別異常登入和操作</span>
-                        </li>
+                    <h6 class="fw-bold mb-2 pb-2 border-bottom">記錄內容</h6>
+                    <ul class="small mb-0">
+                        <li>包含用戶ID、IP地址、操作時間</li>
+                        <li>用於安全審計和用戶行為分析</li>
+                        <li>幫助識別異常登入和操作</li>
                     </ul>
                 </div>
                 
                 <div>
-                        <h6 class="fw-semibold mb-2 d-flex align-items-center">
-                            <i data-lucide="alert-triangle" class="text-warning me-2" style="width: 1rem; height: 1rem;"></i>
-                        安全提示
-                    </h6>
-                        <div class="alert alert-success mb-0" role="alert">
-                            <i data-lucide="shield-check" style="width: 1rem; height: 1rem;" class="me-1"></i>
+                    <h6 class="fw-bold mb-2 pb-2 border-bottom">安全提示</h6>
+                    <div class="alert alert-warning small mb-0">
                             存取日誌是安全審計的重要依據，建議定期檢查異常登入記錄。保留適當期間的日誌有助於追溯安全事件。
                     </div>
                 </div>
             </div>
         </div>
 
-            <div class="modal-footer border-0" style="background-color: #f8fafc;">
-                <button type="button" class="btn btn-success" data-bs-dismiss="modal">我知道了</button>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">我知道了</button>
             </div>
         </div>
     </div>
@@ -211,67 +124,39 @@
 
 <!-- 記憶體快取說明 Modal -->
 <div class="modal fade" id="memory-help" tabindex="-1" aria-labelledby="memoryHelpLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header border-0" style="background: linear-gradient(to right, #faf5ff, #f3e8ff);">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="p-2 rounded" style="background-color: #e9d5ff;">
-                        <i data-lucide="memory-stick" style="width: 1.5rem; height: 1.5rem; color: #9333ea;"></i>
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="memoryHelpLabel">記憶體快取說明</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <div>
-                        <h5 class="modal-title fw-bold mb-1" id="memoryHelpLabel">記憶體快取說明</h5>
-                        <p class="small text-muted mb-0">了解記憶體快取的作用與管理方式</p>
-                    </div>
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-
-            <div class="modal-body p-4" style="background-color: #f8fafc;">
+            <div class="modal-body">
                 <div class="d-flex flex-column gap-4">
                 <div>
-                        <h6 class="fw-semibold mb-2 d-flex align-items-center">
-                            <i data-lucide="info" class="me-2" style="width: 1rem; height: 1rem; color: #9333ea;"></i>
-                        什麼是記憶體快取？
-                    </h6>
-                        <p class="text-muted small mb-0">記憶體快取將常用資料暫存在記憶體中以提升系統效能，可大幅減少資料庫查詢次數。</p>
+                    <h6 class="fw-bold mb-2 pb-2 border-bottom">什麼是記憶體快取？</h6>
+                    <p class="small mb-0">記憶體快取將常用資料暫存在記憶體中以提升系統效能，可大幅減少資料庫查詢次數。</p>
                 </div>
                 
                 <div>
-                        <h6 class="fw-semibold mb-2 d-flex align-items-center">
-                            <i data-lucide="zap" class="text-warning me-2" style="width: 1rem; height: 1rem;"></i>
-                        優勢特點
-                    </h6>
-                        <ul class="list-unstyled mb-0">
-                            <li class="d-flex align-items-start mb-2">
-                                <span class="badge rounded-circle me-2" style="width: 1.25rem; height: 1.25rem; padding: 0.125rem; background-color: #e9d5ff; color: #9333ea;">•</span>
-                                <span class="small text-muted">減少資料庫查詢次數</span>
-                        </li>
-                            <li class="d-flex align-items-start mb-2">
-                                <span class="badge rounded-circle me-2" style="width: 1.25rem; height: 1.25rem; padding: 0.125rem; background-color: #e9d5ff; color: #9333ea;">•</span>
-                                <span class="small text-muted">提升頁面載入速度</span>
-                        </li>
-                            <li class="d-flex align-items-start">
-                                <span class="badge rounded-circle me-2" style="width: 1.25rem; height: 1.25rem; padding: 0.125rem; background-color: #e9d5ff; color: #9333ea;">•</span>
-                                <span class="small text-muted">定期清理可釋放記憶體空間</span>
-                        </li>
+                    <h6 class="fw-bold mb-2 pb-2 border-bottom">優勢特點</h6>
+                    <ul class="small mb-0">
+                        <li>減少資料庫查詢次數</li>
+                        <li>提升頁面載入速度</li>
+                        <li>定期清理可釋放記憶體空間</li>
                     </ul>
                 </div>
                 
                 <div>
-                        <h6 class="fw-semibold mb-2 d-flex align-items-center">
-                            <i data-lucide="lightbulb" class="text-warning me-2" style="width: 1rem; height: 1rem;"></i>
-                        管理建議
-                    </h6>
-                        <div class="alert mb-0" role="alert" style="background-color: #faf5ff; border-color: #e9d5ff; color: #7e22ce;">
-                            <i data-lucide="info" style="width: 1rem; height: 1rem;" class="me-1"></i>
+                    <h6 class="fw-bold mb-2 pb-2 border-bottom">管理建議</h6>
+                    <div class="alert alert-info small mb-0">
                             記憶體快取可顯著提升系統性能，但過多的快取會占用記憶體資源。建議在系統更新或記憶體不足時清理快取。
                     </div>
                 </div>
             </div>
         </div>
 
-            <div class="modal-footer border-0" style="background-color: #f8fafc;">
-                <button type="button" class="btn btn-primary" style="background-color: #9333ea; border-color: #9333ea;" data-bs-dismiss="modal">我知道了</button>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">我知道了</button>
             </div>
         </div>
     </div>
@@ -279,67 +164,39 @@
 
 <!-- 資料庫快取說明 Modal -->
 <div class="modal fade" id="database-help" tabindex="-1" aria-labelledby="databaseHelpLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header border-0" style="background: linear-gradient(to right, #cffafe, #dbeafe);">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="p-2 rounded" style="background-color: #a5f3fc;">
-                        <i data-lucide="database" class="text-info" style="width: 1.5rem; height: 1.5rem;"></i>
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="databaseHelpLabel">資料庫快取說明</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <div>
-                        <h5 class="modal-title fw-bold mb-1" id="databaseHelpLabel">資料庫快取說明</h5>
-                        <p class="small text-muted mb-0">了解資料庫快取的作用與管理方式</p>
-                    </div>
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-
-            <div class="modal-body p-4" style="background-color: #f8fafc;">
+            <div class="modal-body">
                 <div class="d-flex flex-column gap-4">
                 <div>
-                        <h6 class="fw-semibold mb-2 d-flex align-items-center">
-                            <i data-lucide="info" class="text-info me-2" style="width: 1rem; height: 1rem;"></i>
-                        什麼是資料庫快取？
-                    </h6>
-                        <p class="text-muted small mb-0">資料庫快取儲存查詢結果和常用資料以提高資料庫效能，可有效降低資料庫負載。</p>
+                    <h6 class="fw-bold mb-2 pb-2 border-bottom">什麼是資料庫快取？</h6>
+                    <p class="small mb-0">資料庫快取儲存查詢結果和常用資料以提高資料庫效能，可有效降低資料庫負載。</p>
                 </div>
                 
                 <div>
-                        <h6 class="fw-semibold mb-2 d-flex align-items-center">
-                            <i data-lucide="trending-up" class="text-success me-2" style="width: 1rem; height: 1rem;"></i>
-                        效能優勢
-                    </h6>
-                        <ul class="list-unstyled mb-0">
-                            <li class="d-flex align-items-start mb-2">
-                                <span class="badge bg-info bg-opacity-10 text-info rounded-circle me-2" style="width: 1.25rem; height: 1.25rem; padding: 0.125rem;">•</span>
-                                <span class="small text-muted">減少重複查詢的執行時間</span>
-                        </li>
-                            <li class="d-flex align-items-start mb-2">
-                                <span class="badge bg-info bg-opacity-10 text-info rounded-circle me-2" style="width: 1.25rem; height: 1.25rem; padding: 0.125rem;">•</span>
-                                <span class="small text-muted">降低資料庫負載</span>
-                        </li>
-                            <li class="d-flex align-items-start">
-                                <span class="badge bg-info bg-opacity-10 text-info rounded-circle me-2" style="width: 1.25rem; height: 1.25rem; padding: 0.125rem;">•</span>
-                                <span class="small text-muted">提升整體系統響應速度</span>
-                        </li>
+                    <h6 class="fw-bold mb-2 pb-2 border-bottom">效能優勢</h6>
+                    <ul class="small mb-0">
+                        <li>減少重複查詢的執行時間</li>
+                        <li>降低資料庫負載</li>
+                        <li>提升整體系統響應速度</li>
                     </ul>
                 </div>
                 
                 <div>
-                        <h6 class="fw-semibold mb-2 d-flex align-items-center">
-                            <i data-lucide="lightbulb" class="text-warning me-2" style="width: 1rem; height: 1rem;"></i>
-                        管理建議
-                    </h6>
-                        <div class="alert alert-info mb-0" role="alert">
-                            <i data-lucide="info" style="width: 1rem; height: 1rem;" class="me-1"></i>
+                    <h6 class="fw-bold mb-2 pb-2 border-bottom">管理建議</h6>
+                    <div class="alert alert-info small mb-0">
                             資料庫快取可大幅提升查詢效能。當資料庫結構變更或資料更新時，建議清理快取以確保資料一致性。
                     </div>
                 </div>
             </div>
         </div>
 
-            <div class="modal-footer border-0" style="background-color: #f8fafc;">
-                <button type="button" class="btn btn-info" data-bs-dismiss="modal">我知道了</button>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">我知道了</button>
             </div>
         </div>
     </div>
@@ -347,67 +204,39 @@
 
 <!-- 檔案快取說明 Modal -->
 <div class="modal fade" id="file-help" tabindex="-1" aria-labelledby="fileHelpLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header border-0" style="background: linear-gradient(to right, #ffedd5, #fef3c7);">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="p-2 rounded" style="background-color: #fed7aa;">
-                        <i data-lucide="file" class="text-warning" style="width: 1.5rem; height: 1.5rem;"></i>
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="fileHelpLabel">檔案快取說明</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <div>
-                        <h5 class="modal-title fw-bold mb-1" id="fileHelpLabel">檔案快取說明</h5>
-                        <p class="small text-muted mb-0">了解檔案快取的作用與管理方式</p>
-                    </div>
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-
-            <div class="modal-body p-4" style="background-color: #f8fafc;">
+            <div class="modal-body">
                 <div class="d-flex flex-column gap-4">
                 <div>
-                        <h6 class="fw-semibold mb-2 d-flex align-items-center">
-                            <i data-lucide="info" class="text-warning me-2" style="width: 1rem; height: 1rem;"></i>
-                        什麼是檔案快取？
-                    </h6>
-                        <p class="text-muted small mb-0">檔案快取儲存靜態檔案和處理結果以減少重複計算，可大幅提升用戶體驗和載入速度。</p>
+                    <h6 class="fw-bold mb-2 pb-2 border-bottom">什麼是檔案快取？</h6>
+                    <p class="small mb-0">檔案快取儲存靜態檔案和處理結果以減少重複計算，可大幅提升用戶體驗和載入速度。</p>
                 </div>
                 
                 <div>
-                        <h6 class="fw-semibold mb-2 d-flex align-items-center">
-                            <i data-lucide="folder" class="text-primary me-2" style="width: 1rem; height: 1rem;"></i>
-                        快取內容
-                    </h6>
-                        <ul class="list-unstyled mb-0">
-                            <li class="d-flex align-items-start mb-2">
-                                <span class="badge bg-warning bg-opacity-10 text-warning rounded-circle me-2" style="width: 1.25rem; height: 1.25rem; padding: 0.125rem;">•</span>
-                                <span class="small text-muted">包含圖片、CSS、JS等靜態資源</span>
-                        </li>
-                            <li class="d-flex align-items-start mb-2">
-                                <span class="badge bg-warning bg-opacity-10 text-warning rounded-circle me-2" style="width: 1.25rem; height: 1.25rem; padding: 0.125rem;">•</span>
-                                <span class="small text-muted">減少伺服器處理負擔</span>
-                        </li>
-                            <li class="d-flex align-items-start">
-                                <span class="badge bg-warning bg-opacity-10 text-warning rounded-circle me-2" style="width: 1.25rem; height: 1.25rem; padding: 0.125rem;">•</span>
-                                <span class="small text-muted">提升用戶體驗和載入速度</span>
-                        </li>
+                    <h6 class="fw-bold mb-2 pb-2 border-bottom">快取內容</h6>
+                    <ul class="small mb-0">
+                        <li>包含圖片、CSS、JS等靜態資源</li>
+                        <li>減少伺服器處理負擔</li>
+                        <li>提升用戶體驗和載入速度</li>
                     </ul>
                 </div>
                 
                 <div>
-                        <h6 class="fw-semibold mb-2 d-flex align-items-center">
-                            <i data-lucide="lightbulb" class="text-warning me-2" style="width: 1rem; height: 1rem;"></i>
-                        管理建議
-                    </h6>
-                        <div class="alert alert-warning mb-0" role="alert">
-                            <i data-lucide="info" style="width: 1rem; height: 1rem;" class="me-1"></i>
+                    <h6 class="fw-bold mb-2 pb-2 border-bottom">管理建議</h6>
+                    <div class="alert alert-warning small mb-0">
                             檔案快取可減少伺服器負載並加快載入速度。當更新靜態資源或磁碟空間不足時，建議清理快取。
                     </div>
                 </div>
             </div>
         </div>
 
-            <div class="modal-footer border-0" style="background-color: #f8fafc;">
-                <button type="button" class="btn btn-warning" data-bs-dismiss="modal">我知道了</button>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">我知道了</button>
             </div>
         </div>
     </div>

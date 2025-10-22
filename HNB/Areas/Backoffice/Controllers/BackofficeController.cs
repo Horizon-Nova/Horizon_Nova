@@ -18,7 +18,7 @@ public class BackofficeController(PermissionManagementService permissionService,
         if (string.IsNullOrEmpty(currentUserName))
             return RedirectToAction("Login", "Authorize");
 
-        var users = permissionService.LoadUsers();
+        var users = permissionService.LoadUserList();
         var currentUser = users.FirstOrDefault(u => u.name == currentUserName);
         
         if (currentUser == null)
@@ -44,7 +44,7 @@ public class BackofficeController(PermissionManagementService permissionService,
         if (string.IsNullOrEmpty(currentUserName))
             return Json(new { success = false, message = "使用者未登入" });
 
-        var users = permissionService.LoadUsers();
+        var users = permissionService.LoadUserList();
         var currentUser = users.FirstOrDefault(u => u.name == currentUserName);
         
         if (currentUser?.id == null)
@@ -63,20 +63,14 @@ public class BackofficeController(PermissionManagementService permissionService,
     [ValidateAntiForgeryToken]
     public IActionResult ChangePassword(string currentPassword, string newPassword, string confirmPassword)
     {
-        if (string.IsNullOrEmpty(currentPassword))
-            return Json(new { success = false, message = "請輸入目前密碼" });
-
-        if (string.IsNullOrEmpty(newPassword) || newPassword != confirmPassword)
+        if (newPassword != confirmPassword)
             return Json(new { success = false, message = "新密碼與確認密碼不符" });
-
-        if (newPassword.Length < 6)
-            return Json(new { success = false, message = "新密碼長度至少需要6個字元" });
 
         var currentUserName = User.Identity?.Name;
         if (string.IsNullOrEmpty(currentUserName))
             return Json(new { success = false, message = "使用者未登入" });
 
-        var users = permissionService.LoadUsers();
+        var users = permissionService.LoadUserList();
         var currentUser = users.FirstOrDefault(u => u.name == currentUserName);
         
         if (currentUser?.id == null)
