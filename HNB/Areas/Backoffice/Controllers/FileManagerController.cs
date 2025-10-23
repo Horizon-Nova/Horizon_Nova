@@ -1,6 +1,5 @@
 ﻿using HNB.Areas.Backoffice.Dtos;
 using HNB.Areas.Backoffice.Services;
-using HNB.Areas.Backoffice.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HNB.Areas.Backoffice.Controllers;
@@ -14,34 +13,19 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// </summary>
     public IActionResult FileManager(string path = "/")
     {
-        ViewBag.CurrentPath = path ?? "/";
-
-        var allData = svc.LoadFileSystemItems(path ?? "/");
-        ViewBag.Items = allData;
-        
-        ViewBag.Tree = svc.LoadTree();
-
-        return View();
+        var currentUser = GetCurrentUser();
+        svc.ViewBagModel(ViewBag, path, currentUser);
+        var model = svc.LoadUserFileSystemItems(path ?? "/", currentUser);
+        return View(model);
     }
-    #endregion
 
-    #region 動態載入部分視圖
     /// <summary>
-    /// 載入檔案/資料夾詳細資料部分視圖
+    /// 取得當前用戶名稱
     /// </summary>
-    [HttpGet]
-    public IActionResult LoadDetail(string path, string name)
+    /// <returns>用戶名稱</returns>
+    private string GetCurrentUser()
     {
-        // 直接從檔案系統讀取單一項目
-        var items = svc.LoadFileSystemItems(path);
-        var item = items.FirstOrDefault(i => i.Name == name);
-
-        if (item == null)
-        {
-            return Content("<div class=\"p-6\">找不到項目</div>", "text/html; charset=utf-8");
-        }
-
-        return PartialView("_FileManagerDetail", item);
+        return User.Identity?.Name ?? "anonymous";
     }
     #endregion
 
@@ -50,9 +34,16 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// 建立資料夾
     /// </summary>
     [HttpPost]
-    public IActionResult CreateFolder([FromBody] CreateItemRequest request)
+    public IActionResult SubmitFolder([FromBody] CreateItemRequest request)
     {
         svc.CreateFolder(request.Path, request.Name);
+        
+        // 設定擁有者
+        if (request.SharedUsers != null && request.SharedUsers.Count > 0)
+        {
+            svc.UpdateFolderOwners(request.Path, request.Name, request.SharedUsers.ToArray());
+        }
+        
         return Json(new FileManagerResponse { Success = true, Message = "資料夾已建立" });
     }
 
@@ -60,7 +51,7 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// 刪除資料夾
     /// </summary>
     [HttpPost]
-    public IActionResult DeleteFolder([FromBody] DeleteItemRequest request)
+    public IActionResult Delete([FromBody] DeleteItemRequest request)
     {
         svc.DeleteFolder(request.Path, request.Name);
         return Json(new FileManagerResponse { Success = true, Message = "資料夾已刪除" });
@@ -70,7 +61,7 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// 重新命名資料夾
     /// </summary>
     [HttpPost]
-    public IActionResult RenameFolder([FromBody] RenameItemRequest request)
+    public IActionResult SubmitRename([FromBody] RenameItemRequest request)
     {
         svc.RenameFolder(request.Path, request.OldName, request.NewName);
         return Json(new FileManagerResponse { Success = true, Message = "資料夾已重新命名" });
@@ -82,9 +73,16 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// 建立檔案
     /// </summary>
     [HttpPost]
-    public IActionResult CreateFile([FromBody] CreateItemRequest request)
+    public IActionResult SubmitFile([FromBody] CreateItemRequest request)
     {
         svc.CreateFile(request.Path, request.Name);
+        
+        // 設定擁有者
+        if (request.SharedUsers != null && request.SharedUsers.Count > 0)
+        {
+            svc.UpdateFolderOwners(request.Path, request.Name, request.SharedUsers.ToArray());
+        }
+        
         return Json(new FileManagerResponse { Success = true, Message = "檔案已建立" });
     }
 
@@ -102,7 +100,7 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// 重新命名檔案
     /// </summary>
     [HttpPost]
-    public IActionResult RenameFile([FromBody] RenameItemRequest request)
+    public IActionResult SubmitRenameFile([FromBody] RenameItemRequest request)
     {
         svc.RenameFile(request.Path, request.OldName, request.NewName);
         return Json(new FileManagerResponse { Success = true, Message = "檔案已重新命名" });
@@ -111,7 +109,6 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// <summary>
     /// 讀取文字檔案
     /// </summary>
-    [HttpGet]
     public IActionResult ReadTextFile(string path, string name)
     {
         var (content, encoding, lastModified) = svc.LoadTextFile(path, name);
@@ -128,7 +125,7 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// 儲存文字檔案
     /// </summary>
     [HttpPost]
-    public IActionResult SaveTextFile([FromBody] SaveTextFileRequest request)
+    public IActionResult SubmitTextFile([FromBody] SaveTextFileRequest request)
     {
         svc.SaveTextFile(request.Path, request.Name, request.Content, request.Encoding);
         return Json(new FileManagerResponse { Success = true, Message = "檔案已儲存" });
@@ -140,7 +137,7 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// 上傳檔案（最大 4GB）
     /// </summary>
     [HttpPost,DisableRequestSizeLimit,RequestFormLimits(MultipartBodyLengthLimit = 4294967296),RequestSizeLimit(4294967296)] // 4GB
-    public IActionResult Upload(string path, List<IFormFile> files, List<string>? keys)
+    public IActionResult SubmitUpload(string path, List<IFormFile> files, List<string>? keys)
     {
         if (files == null || files.Count == 0)
             return Json(new FileManagerResponse { Success = false, Message = "未選擇檔案" });
@@ -164,7 +161,6 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// <summary>
     /// 下載檔案
     /// </summary>
-    [HttpGet]
     public IActionResult Download(string path, string name)
     {
         var (stream, fileName, contentType) = svc.DownloadFile(path, name);
@@ -174,7 +170,6 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// <summary>
     /// 下載資料夾（ZIP）
     /// </summary>
-    [HttpGet]
     public IActionResult DownloadFolder(string path, string name)
     {
         var (stream, fileName, contentType) = svc.DownloadFolderAsZip(path, name);
@@ -184,13 +179,13 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// <summary>
     /// 預覽檔案
     /// </summary>
-    [HttpGet]
     public IActionResult Preview(string path, string name)
     {
         var (stream, contentType) = svc.PreviewFile(path, name);
         Response.Headers["Content-Disposition"] = $"inline; filename*=UTF-8''{Uri.EscapeDataString(name)}";
         return File(stream, contentType, enableRangeProcessing: true);
     }
-    #endregion
-}
 
+    #endregion
+
+}

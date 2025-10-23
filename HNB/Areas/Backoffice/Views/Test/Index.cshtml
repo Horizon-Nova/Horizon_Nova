@@ -1,13 +1,13 @@
 @{
-    ViewData["Title"] = "檔案擁有者測試";
+    ViewData["Title"] = "檔案預覽套件測試";
     Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
 }
 
 <div class="container-fluid mt-4">
     <div class="row">
         <div class="col-12">
-            <h2>檔案擁有者功能測試</h2>
-            <p class="text-muted">測試跨平台檔案擁有者變更功能</p>
+            <h2>檔案預覽套件測試</h2>
+            <p class="text-muted">使用 FilePreview 套件測試各種檔案格式的預覽功能</p>
             <p><strong>儲存位置：</strong> <code>@ViewBag.StoragePath</code></p>
             <hr />
         </div>
@@ -17,19 +17,14 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h5>上傳檔案</h5>
+                    <h5>上傳測試檔案</h5>
                 </div>
                 <div class="card-body">
                     <form id="uploadForm" enctype="multipart/form-data">
                         <div class="mb-3">
-                            <label for="fileInput" class="form-label">選擇檔案</label>
+                            <label for="fileInput" class="form-label">選擇測試檔案</label>
                             <input type="file" class="form-control" id="fileInput" name="file" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="newOwner" class="form-label">指定擁有者（選填，可多個）</label>
-                            <input type="text" class="form-control" id="newOwner" name="newOwner" 
-                                   placeholder="例如：Ming, John, Admin">
-                            <small class="form-text text-muted">支援多個擁有者，用逗號分隔 | 留空時將使用登入用戶</small>
+                            <small class="form-text text-muted">支援圖片、PDF、Office、文字、影片、音訊等格式</small>
                         </div>
                         <button type="submit" class="btn btn-primary">上傳檔案</button>
                     </form>
@@ -40,13 +35,14 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h5>系統資訊</h5>
+                    <h5>套件資訊</h5>
                 </div>
                 <div class="card-body">
-                    <p><strong>當前平台：</strong> <span id="platformInfo">載入中...</span></p>
-                    <p><strong>檔案數量：</strong> @ViewBag.Files.Count</p>
+                    <p><strong>套件版本：</strong> FilePreview v1.0</p>
+                    <p><strong>測試檔案數量：</strong> @ViewBag.Files.Count</p>
+                    <p><strong>支援格式：</strong> 圖片、PDF、Office、文字、影片、音訊</p>
                     <button type="button" class="btn btn-secondary" onclick="location.reload()">
-                        重新整理
+                        <i class="fas fa-sync"></i> 重新整理
                     </button>
                 </div>
             </div>
@@ -57,14 +53,10 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h5>檔案列表</h5>
+                    <h5>測試檔案列表</h5>
                 </div>
                 <div class="card-body">
-                    @if (ViewBag.Files.Count == 0)
-                    {
-                        <p class="text-muted">目前沒有檔案，請上傳檔案進行測試</p>
-                    }
-                    else
+                    @if (ViewBag.Files != null && ViewBag.Files.Count > 0)
                     {
                         <div class="table-responsive">
                             <table class="table table-hover">
@@ -72,7 +64,7 @@
                                     <tr>
                                         <th>檔案名稱</th>
                                         <th>大小</th>
-                                        <th>擁有者</th>
+                                        <th>檔案類型</th>
                                         <th>建立時間</th>
                                         <th>操作</th>
                                     </tr>
@@ -80,29 +72,37 @@
                                 <tbody>
                                     @foreach (var file in ViewBag.Files)
                                     {
-                                        <tr data-filename="@file.FileName">
-                                            <td>@file.FileName</td>
+                                        <tr>
+                                            <td>
+                                                <i class="fas fa-file me-2"></i>
+                                                @file.FileName
+                                            </td>
                                             <td>@((file.Size / 1024.0).ToString("N2")) KB</td>
-                                            <td class="owner-cell">
-                                                @if (file.Owners.Length > 0)
-                                                {
-                                                    foreach (var owner in file.Owners)
+                                            <td>
+                                                @{
+                                                    var ext = System.IO.Path.GetExtension(file.FileName).ToLower();
+                                                    var fileType = ext switch
                                                     {
-                                                        <span class="badge bg-primary me-1">@owner</span>
-                                                    }
+                                                        ".jpg" or ".jpeg" or ".png" or ".gif" or ".bmp" or ".webp" or ".svg" => "圖片",
+                                                        ".pdf" => "PDF",
+                                                        ".txt" or ".md" or ".json" or ".xml" or ".html" or ".css" or ".js" or ".ts" or ".cs" or ".py" or ".java" or ".cpp" or ".c" or ".h" or ".sql" or ".log" or ".ini" or ".cfg" or ".conf" or ".csv" or ".yml" or ".yaml" => "文字",
+                                                        ".doc" or ".docx" => "Word",
+                                                        ".xls" or ".xlsx" => "Excel",
+                                                        ".ppt" or ".pptx" => "PowerPoint",
+                                                        ".mp4" or ".webm" or ".ogg" or ".mov" or ".avi" => "影片",
+                                                        ".mp3" or ".wav" or ".ogg" or ".aac" or ".flac" => "音訊",
+                                                        _ => "其他"
+                                                    };
                                                 }
-                                                else
-                                                {
-                                                    <span class="text-muted">未設定</span>
-                                                }
+                                                <span class="badge bg-info">@fileType</span>
                                             </td>
                                             <td>@file.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")</td>
                                             <td>
-                                                <button class="btn btn-sm btn-success btn-manage-owner" data-filename="@file.FileName">
-                                                    管理擁有者
+                                                <button class="btn btn-sm btn-info btn-preview" data-filename="@file.FileName" title="預覽檔案">
+                                                    <i class="fas fa-eye"></i>
                                                 </button>
-                                                <button class="btn btn-sm btn-danger btn-delete" data-filename="@file.FileName">
-                                                    刪除
+                                                <button class="btn btn-sm btn-danger btn-delete" data-filename="@file.FileName" title="刪除檔案">
+                                                    <i class="fas fa-trash"></i>
                                                 </button>
                                             </td>
                                         </tr>
@@ -111,236 +111,94 @@
                             </table>
                         </div>
                     }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="fas fa-folder-open text-muted" style="font-size: 3rem;"></i>
+                            <p class="text-muted mt-3">目前沒有測試檔案，請上傳檔案進行預覽測試。</p>
+                        </div>
+                    }
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 管理擁有者 Modal -->
-<div class="modal fade" id="manageOwnerModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">管理檔案擁有者</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" id="modalFileName">
-                <div class="mb-3">
-                    <label class="form-label">檔案名稱</label>
-                    <input type="text" class="form-control" id="modalFileNameDisplay" readonly>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">當前擁有者</label>
-                    <div id="currentOwnersList" class="mb-2"></div>
-                </div>
-                <hr />
-                <div class="mb-3">
-                    <label for="modalNewOwner" class="form-label">新增擁有者</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control" id="modalNewOwner" 
-                               placeholder="輸入擁有者名稱">
-                        <button type="button" class="btn btn-primary" id="btnAddOwner">
-                            <i class="bi bi-plus"></i> 新增
-                        </button>
-                    </div>
-                    <small class="form-text text-muted">可使用任意名稱（不影響系統擁有者）</small>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
             </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
+    <!-- 引入 FilePreview 套件 -->
+    <link rel="stylesheet" href="~/lib/file-preview/FilePreview.css">
+    <script src="~/lib/file-preview/FilePreview.js"></script>
+    
     <script>
+        // FilePreview 套件會自動初始化，無需手動創建實例
+        
         $(function() {
-            // 載入平台資訊
-            loadPlatformInfo();
-
+            // 預覽檔案按鈕 - 使用 FilePreview 套件的 class 方式
+            $('.btn-preview').on('click', function() {
+                const fileName = $(this).data('filename');
+                const fileUrl = '@Url.Action("GetFile", "Test", new { Area = "Backoffice" })' + '?fileName=' + encodeURIComponent(fileName);
+                
+                // 創建臨時元素來觸發 FilePreview
+                const tempElement = document.createElement('div');
+                tempElement.className = 'file-preview';
+                tempElement.dataset.fileUrl = fileUrl;
+                tempElement.dataset.fileName = fileName;
+                tempElement.style.display = 'none';
+                document.body.appendChild(tempElement);
+                
+                // 觸發點擊事件
+                tempElement.click();
+                
+                // 清理臨時元素
+                setTimeout(() => {
+                    document.body.removeChild(tempElement);
+                }, 100);
+            });
+            
             // 上傳檔案
             $('#uploadForm').on('submit', function(e) {
                 e.preventDefault();
-
-                console.log('[前端] 表單提交事件觸發');
-
+                
                 const formData = new FormData();
                 const fileInput = $('#fileInput')[0];
-                const newOwner = $('#newOwner').val();
-
-                console.log('[前端] fileInput:', fileInput);
-                console.log('[前端] files.length:', fileInput.files.length);
-                console.log('[前端] newOwner:', newOwner);
-
+                
                 if (fileInput.files.length === 0) {
                     alert('請選擇檔案');
                     return;
                 }
-
+                
                 formData.append('file', fileInput.files[0]);
-                console.log('[前端] 檔案:', fileInput.files[0].name, '大小:', fileInput.files[0].size);
-
-                if (newOwner) {
-                    formData.append('newOwner', newOwner);
-                }
-
+                
                 const url = '@Url.Action("UploadFile", "Test", new { Area = "Backoffice" })';
-                console.log('[前端] 準備發送請求到:', url);
-
+                
                 $.ajax({
                     url: url,
                     type: 'POST',
                     data: formData,
                     processData: false,
                     contentType: false,
-                    beforeSend: function() {
-                        console.log('[前端] 請求發送中...');
+                    success: function(response) {
+                        if (response.success) {
+                            alert('上傳成功：' + response.message);
+                            location.reload();
+                        } else {
+                            alert('上傳失敗：' + response.message);
+                        }
                     },
-            success: function(response) {
-                console.log('[前端] 收到回應:', response);
-                if (response.success) {
-                    var message = response.message + '\n路徑：' + response.filePath + '\n擁有者：' + response.ownersDisplay;
-                    alert(message);
-                    location.reload();
-                } else {
-                    alert('上傳失敗：' + response.message);
-                }
-            },
                     error: function(xhr, status, error) {
-                        console.error('[前端] 請求失敗');
-                        console.error('[前端] Status:', status);
-                        console.error('[前端] Error:', error);
-                        console.error('[前端] Response:', xhr.responseText);
-                        alert('上傳失敗\n狀態：' + status + '\n錯誤：' + error + '\n回應：' + xhr.responseText);
+                        alert('上傳失敗：' + error);
                     }
                 });
             });
-
-    // 管理擁有者按鈕
-    $('.btn-manage-owner').on('click', function() {
-        const fileName = $(this).data('filename');
-        
-        $('#modalFileName').val(fileName);
-        $('#modalFileNameDisplay').val(fileName);
-        $('#modalNewOwner').val('');
-        
-        // 載入當前擁有者列表
-        loadOwnersList(fileName);
-        
-        const modal = new bootstrap.Modal($('#manageOwnerModal')[0]);
-        modal.show();
-    });
-
-    // 載入擁有者列表
-    function loadOwnersList(fileName) {
-        $.ajax({
-            url: '@Url.Action("GetOwners", "Test", new { Area = "Backoffice" })',
-            type: 'GET',
-            data: { fileName: fileName },
-            success: function(response) {
-                if (response.success && response.owners.length > 0) {
-                    var html = '';
-                    response.owners.forEach(function(owner) {
-                        html += '<span class="badge bg-primary me-1 mb-1">' + owner + 
-                                ' <button type="button" class="btn-close btn-close-white btn-sm ms-1 btn-remove-owner" ' +
-                                'data-owner="' + owner + '" style="font-size: 0.6rem;"></button></span>';
-                    });
-                    $('#currentOwnersList').html(html);
-                    
-                    // 綁定移除按鈕事件
-                    $('.btn-remove-owner').on('click', function() {
-                        const owner = $(this).data('owner');
-                        removeOwner(fileName, owner);
-                    });
-                } else {
-                    $('#currentOwnersList').html('<span class="text-muted">未設定擁有者</span>');
-                }
-            }
-        });
-    }
-
-    // 新增擁有者
-    $('#btnAddOwner').on('click', function() {
-        const fileName = $('#modalFileName').val();
-        const owner = $('#modalNewOwner').val().trim();
-        
-        if (!owner) {
-            alert('請輸入擁有者名稱');
-            return;
-        }
-        
-        $.ajax({
-            url: '@Url.Action("AddOwner", "Test", new { Area = "Backoffice" })',
-            type: 'POST',
-            data: { fileName: fileName, owner: owner },
-            success: function(response) {
-                if (response.success) {
-                    $('#modalNewOwner').val('');
-                    loadOwnersList(fileName);
-                    // 更新主表格
-                    updateTableRow(fileName, response.owners);
-                } else {
-                    alert('新增失敗：' + response.message);
-                }
-            },
-            error: function() {
-                alert('新增失敗，請稍後再試');
-            }
-        });
-    });
-
-    // 移除擁有者
-    function removeOwner(fileName, owner) {
-        if (!confirm('確定要移除擁有者 "' + owner + '" 嗎？')) {
-            return;
-        }
-        
-        $.ajax({
-            url: '@Url.Action("RemoveOwner", "Test", new { Area = "Backoffice" })',
-            type: 'POST',
-            data: { fileName: fileName, owner: owner },
-            success: function(response) {
-                if (response.success) {
-                    loadOwnersList(fileName);
-                    // 更新主表格
-                    updateTableRow(fileName, response.owners);
-                } else {
-                    alert('移除失敗：' + response.message);
-                }
-            },
-            error: function() {
-                alert('移除失敗，請稍後再試');
-            }
-        });
-    }
-
-    // 更新表格中的擁有者顯示
-    function updateTableRow(fileName, owners) {
-        var $row = $('tr[data-filename="' + fileName + '"]');
-        var $ownerCell = $row.find('.owner-cell');
-        
-        if (owners.length > 0) {
-            var html = '';
-            owners.forEach(function(owner) {
-                html += '<span class="badge bg-primary me-1">' + owner + '</span>';
-            });
-            $ownerCell.html(html);
-        } else {
-            $ownerCell.html('<span class="text-muted">未設定</span>');
-        }
-    }
-
+            
             // 刪除檔案
             $('.btn-delete').on('click', function() {
                 const fileName = $(this).data('filename');
-
+                
                 if (!confirm('確定要刪除檔案 "' + fileName + '" 嗎？')) {
                     return;
                 }
-
+                
                 $.ajax({
                     url: '@Url.Action("DeleteFile", "Test", new { Area = "Backoffice" })',
                     type: 'POST',
@@ -358,21 +216,6 @@
                     }
                 });
             });
-
-            // 載入平台資訊
-            function loadPlatformInfo() {
-                // 簡化版：直接顯示運行環境
-                var platform = navigator.platform;
-                if (platform.indexOf('Win') !== -1) {
-                    $('#platformInfo').text('Windows');
-                } else if (platform.indexOf('Linux') !== -1) {
-                    $('#platformInfo').text('Linux');
-                } else if (platform.indexOf('Mac') !== -1) {
-                    $('#platformInfo').text('macOS');
-                } else {
-                    $('#platformInfo').text(platform);
-                }
-            }
         });
     </script>
 }

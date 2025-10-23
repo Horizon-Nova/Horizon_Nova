@@ -1,3 +1,4 @@
+@model List<HNB.Areas.Backoffice.Dtos.FileSystemItem>
 @{
     ViewData["Title"] = "檔案總管";
     ViewData["PageTitle"] = "檔案總管";
@@ -6,34 +7,30 @@
     Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
 
     var currentPath = ViewBag.CurrentPath as string ?? "/";
-    var currentUser = User?.Identity?.Name ?? "guest";
-    var allItems = ViewBag.Items as List<HNB.Areas.Backoffice.Models.FileSystemItem> ?? new();
-    var folders = allItems.Where(f => f.Type == "folder" && f.VirtualPath == currentPath).ToList();
-    var files = allItems.Where(f => f.Type == "file" && f.VirtualPath == currentPath).ToList();
+    var currentUser = ViewBag.CurrentUser as string ?? "guest";
+    var tree = ViewBag.Tree as List<object> ?? new();
+    var allItems = Model ?? new();
 
-    var folderCount = folders.Count;
-    var fileCount = files.Count;
-    var totalSize = files.Sum(f => f.Size ?? 0L);
+    var itemsByType = allItems.GroupBy(item => item.Type).ToDictionary(g => g.Key, g => g.ToList());
+    var folders = itemsByType.GetValueOrDefault("folder", new List<HNB.Areas.Backoffice.Dtos.FileSystemItem>());
+    var files = itemsByType.GetValueOrDefault("file", new List<HNB.Areas.Backoffice.Dtos.FileSystemItem>());
 
-    // 使用從後端載入的目錄樹（已包含權限控制）
-    var tree = ViewBag.Tree as List<(string Name, string VirtualPath, int Depth)> ?? new();
-
-    var breadcrumb = new List<(string Name, string VirtualPath)>();
-    if (currentPath == "/")
-    {
-        breadcrumb.Add(("根目錄", "/"));
-    }
-    else
-    {
-        breadcrumb.Add(("根目錄", "/"));
-        var parts = currentPath.Split('/', StringSplitOptions.RemoveEmptyEntries);
-        var accumulated = "";
-        foreach (var part in parts)
-        {
-            accumulated += "/" + part;
-            breadcrumb.Add((part, accumulated));
-        }
-    }
+    var (folderCount, fileCount, totalSize) = (
+        ViewBag.FolderCount as int? ?? folders.Count,
+        ViewBag.FileCount as int? ?? files.Count,
+        ViewBag.TotalSize as long? ?? files.Sum(f => f.Size ?? 0L)
+    );
+    var breadcrumb = currentPath == "/"
+        ? new List<(string Name, string VirtualPath)> { ("根目錄", "/") }
+        : new[] { ("根目錄", "/") }
+            .Concat(currentPath.Split('/', StringSplitOptions.RemoveEmptyEntries)
+                .Aggregate(new List<(string, string)>(), (acc, part) =>
+                {
+                    var path = acc.LastOrDefault().Item2 + "/" + part;
+                    acc.Add((part, path));
+                    return acc;
+                }))
+            .ToList();
 }
 
 <div class="bg-white border rounded-3 p-3">
@@ -44,7 +41,7 @@
                 <div class="d-flex align-items-center justify-content-between border-bottom p-3" style="min-height: 54px;">
                     <span class="small fw-semibold">檔案總管</span>
                     <div class="d-flex align-items-center gap-1">
-                        <button type="button" onclick="showModal('filemanager-help')" class="btn btn-link btn-sm p-0" title="操作說明">
+                        <button type="button" onclick="showModal('file-preview-help-modal')" class="btn btn-link btn-sm p-0" title="操作說明">
                             <i data-lucide="help-circle" class="text-muted" style="width:1rem;height:1rem;"></i>
                         </button>
                         <button type="button" onclick="showModal('createFileModal')" class="btn btn-link btn-sm p-0" title="新增檔案">
@@ -66,34 +63,9 @@
                             <span class="tree-text">根目錄</span>
                         </a>
                     </div>
-                    
+
                     <!-- 目錄樹 -->
-                    @for (int i = 0; i < tree.Count; i++)
-                    {
-                        var (name, path, depth) = tree[i];
-                        var isActive = currentPath == path;
-                        var isRootChild = depth <= 1;
-                        var hasChildren = i < tree.Count - 1 && tree.Skip(i + 1).Any(t => t.Depth > depth && t.VirtualPath.StartsWith(path + "/"));
-                        
-                        <div class="tree-item @(isRootChild ? "" : "hidden")" data-level="@depth" data-path="@path">
-                            <div class="tree-content" style="padding-left: @(depth * 1.5)rem;">
-                                @if (hasChildren)
-                                {
-                                    <button type="button" class="tree-toggle" onclick="toggleTreeNode(event, this)" title="展開/收合">
-                                        <i data-lucide="chevron-right" class="tree-chevron"></i>
-                                    </button>
-                                }
-                                else
-                                {
-                                    <span class="tree-spacer"></span>
-                                }
-                                <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = path })" class="tree-link @(isActive ? "active" : "")">
-                                    <i data-lucide="@(isActive ? "folder-open" : "folder")" class="tree-icon"></i>
-                                    <span class="tree-text">@name</span>
-                                </a>
-                            </div>
-                        </div>
-                    }
+                    @await Html.PartialAsync("_TreeNodes", tree)
                 </div>
             </div>
         </aside>
@@ -140,48 +112,33 @@
                             <span class="tree-text">根目錄</span>
                         </a>
                     </div>
-                    
+
                     <!-- 目錄樹 -->
-                    @for (int i = 0; i < tree.Count; i++)
-                    {
-                        var (name, path, depth) = tree[i];
-                        var isActive = currentPath == path;
-                        var isRootChild = depth <= 1;
-                        var hasChildren = i < tree.Count - 1 && tree.Skip(i + 1).Any(t => t.Depth > depth && t.VirtualPath.StartsWith(path + "/"));
-                        
-                        <div class="tree-item @(isRootChild ? "" : "hidden")" data-level="@depth" data-path="@path">
-                            <div class="tree-content" style="padding-left: @(depth * 1.5)rem;">
-                                @if (hasChildren)
-                                {
-                                    <button type="button" class="tree-toggle" onclick="toggleTreeNode(event, this)" title="展開/收合">
-                                        <i data-lucide="chevron-right" class="tree-chevron"></i>
-                                    </button>
-                                }
-                                else
-                                {
-                                    <span class="tree-spacer"></span>
-                                }
-                                <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = path })" class="tree-link @(isActive ? "active" : "")">
-                                    <i data-lucide="@(isActive ? "folder-open" : "folder")" class="tree-icon"></i>
-                                    <span class="tree-text">@name</span>
-                                </a>
-                            </div>
-                        </div>
-                    }
+                    @await Html.PartialAsync("_TreeNodes", tree)
                 </div>
             </div>
 
-            <!-- Dropzone 上傳區 -->
+            <!-- 檔案上傳區 -->
             <div class="p-3">
-                <div id="dropZone" class="border border-2 rounded-3 p-4 text-center" style="border-style: dashed; cursor: pointer;" onclick="$('#fileInput').trigger('click')">
-                    <i data-lucide="upload-cloud" class="text-muted d-block mx-auto mb-2" style="width:2rem;height:2rem;"></i>
-                    <p class="small fw-semibold text-muted mb-1">拖曳檔案或資料夾到這裡上傳</p>
-                    <p class="small text-muted">或點擊選擇檔案</p>
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <h6 class="mb-0 fw-semibold">檔案上傳</h6>
+                    <div class="small text-muted">
+                        <i data-lucide="info" style="width:1rem;height:1rem;"></i>
+                        支援拖放或點擊上傳
+                    </div>
                 </div>
+                
+                <form id="FormDataFileUpload" autocomplete="off">
+                    @Html.AntiForgeryToken()
+                    <div id="fileUploadDropZone" class="dropzone">
+                        <div class="dz-message">
+                            <i data-lucide="upload-cloud" class="text-muted d-block mx-auto mb-2" style="width:2rem;height:2rem;"></i>
+                            <p class="small fw-semibold text-muted mb-1">拖曳檔案到這裡上傳</p>
+                            <p class="small text-muted">或點擊選擇檔案</p>
+                        </div>
+                    </div>
+                </form>
             </div>
-
-            <!-- 隱藏的檔案輸入 -->
-            <input type="file" id="fileInput" multiple class="d-none">
 
             <!-- 檔案列表 -->
             <div class="p-3">
@@ -239,7 +196,7 @@
                                 </td>
                                 <td data-order="@modifiedTimestamp">@(modified.ToString("yyyy/MM/dd HH:mm"))</td>
                                 <td class="text-end">
-                                    <button onclick="openItemMenu(event, 'folder', '@(name?.Replace("'", "\\'").Replace("\"", "&quot;") ?? "")', '@currentPath')"
+                                    <button onclick="showModal('folder-action-modal', {url: '@Url.Action("LoadFolderAction", "FileManager")', method: 'GET', data: {name: '@(name?.Replace("'", "\\'").Replace("\"", "&quot;") ?? "")', currentPath: '@currentPath'}, container: 'file-manager-modal-host'})"
                                             class="btn btn-light btn-sm" title="更多">
                                         <i data-lucide="more-vertical" class="text-muted" style="width:1rem;height:1rem;"></i>
                                     </button>
@@ -259,7 +216,7 @@
                             var sharedCount = sharedUsers?.Count ?? 0;
                             var modifiedTimestamp = modified.ToString("yyyy-MM-dd HH:mm:ss");
 
-                            <tr onclick="openFile('@(name?.Replace("'", "\\'").Replace("\"", "&quot;") ?? "")')">
+                            <tr>
                                 <td data-order="1">
                                     <i data-lucide="file" class="text-muted" style="width:1rem;height:1rem;"></i>
                                 </td>
@@ -289,10 +246,34 @@
                                 </td>
                                 <td data-order="@modifiedTimestamp">@(modified.ToString("yyyy/MM/dd HH:mm"))</td>
                                 <td class="text-end">
-                                    <button onclick="openItemMenu(event, 'file', '@(name?.Replace("'", "\\'").Replace("\"", "&quot;") ?? "")', '@currentPath')"
-                                            class="btn btn-light btn-sm" title="更多">
-                                        <i data-lucide="more-vertical" class="text-muted" style="width:1rem;height:1rem;"></i>
-                                    </button>
+                                    <div class="dropdown">
+                                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" 
+                                                data-bs-toggle="dropdown" aria-expanded="false" title="更多">
+                                            <i data-lucide="more-vertical" class="text-muted" style="width:1rem;height:1rem;"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li>
+                                                <a class="dropdown-item" href="#" onclick="openFile('@(name?.Replace("'", "\\'").Replace("\"", "&quot;") ?? "")', '@currentPath', '@mimeType')">
+                                                    <i data-lucide="corner-down-right" style="width:1rem;height:1rem;"></i> 開啟
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="#" onclick="showModal('file-detail-modal', {url: '@Url.Action("LoadFileDetail", "FileManager")', method: 'GET', data: {name: '@(name?.Replace("'", "\\'").Replace("\"", "&quot;") ?? "")', currentPath: '@currentPath'}, container: 'file-manager-modal-host'})">
+                                                    <i data-lucide="eye" style="width:1rem;height:1rem;"></i> 詳細資訊
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="#" onclick="showModal('file-rename-modal', {url: '@Url.Action("LoadFileRename", "FileManager")', method: 'GET', data: {name: '@(name?.Replace("'", "\\'").Replace("\"", "&quot;") ?? "")', currentPath: '@currentPath'}, container: 'file-manager-modal-host'})">
+                                                    <i data-lucide="edit-3" style="width:1rem;height:1rem;"></i> 重新命名
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="#" onclick="showModal('file-download-modal', {url: '@Url.Action("LoadFileDownload", "FileManager")', method: 'GET', data: {name: '@(name?.Replace("'", "\\'").Replace("\"", "&quot;") ?? "")', currentPath: '@currentPath'}, container: 'file-manager-modal-host'})">
+                                                    <i data-lucide="download" style="width:1rem;height:1rem;"></i> 下載
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </td>
                             </tr>
                         }
@@ -321,10 +302,30 @@
 <!-- 引入所有 Modal 視圖 -->
 @await Html.PartialAsync("_FileManagerModal")
 
-<div id="fileManagerModalHost"></div>
+<div id="file-manager-modal-host"></div>
+
+<!-- 上傳進度 Modal -->
+<div id="uploadProgress" class="modal fade" tabindex="-1" aria-labelledby="uploadProgressLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="uploadProgressLabel">正在上傳檔案</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+            </div>
+            <div class="modal-body" style="max-height:300px; overflow:auto;">
+                <div id="uploadItems" class="vstack gap-2"></div>
+            </div>
+            <div class="modal-footer justify-content-between small text-muted">
+                <span id="uploadSpeed">0 KB/s</span>
+                <span id="uploadEta">計算中...</span>
+            </div>
+        </div>
+    </div>
+</div>
 
 <link rel="stylesheet" href="~/Backoffice/css/FileManager.css">
 <script src="~/Backoffice/js/FileManager.js"></script>
+
 <script>
     $(function(){
         if ($('#filesTable').length) {

@@ -5,293 +5,254 @@ using static HNB.Areas.Backoffice.Utilities.DirectoryManagerUtilities;
 namespace HNB.Areas.Backoffice.Controllers;
 
 /// <summary>
-/// 測試控制器 - 集中管理所有測試功能
+/// 測試控制器
 /// </summary>
 [Area("Backoffice")]
 public class TestController : Controller
 {
-    private readonly string _testStoragePath = @"D:\Private_project-GitHub-Horizon-Nova\Horizon_Nova\HNB\Areas\Backoffice\storage";
-
     /// <summary>
-    /// 測試功能首頁 - 顯示所有可用的測試項目
+    /// DropZone 測試頁面
     /// </summary>
     public IActionResult Index()
     {
-        // 確保目錄存在
-        if (!Directory.Exists(_testStoragePath))
+        var storagePath = Path.Combine(Directory.GetCurrentDirectory(), "Areas", "Backoffice", "storage");
+        
+        // 確保 storage 目錄存在
+        if (!Directory.Exists(storagePath))
         {
-            Directory.CreateDirectory(_testStoragePath);
+            Directory.CreateDirectory(storagePath);
         }
-
-        // 取得目錄中所有檔案
-        var files = Directory.GetFiles(_testStoragePath)
-            .Select(f =>
+        
+        // 獲取檔案列表
+        var files = new List<dynamic>();
+        if (Directory.Exists(storagePath))
+        {
+            var fileInfos = new DirectoryInfo(storagePath).GetFiles();
+            foreach (var file in fileInfos)
             {
-                var owners = GetAppOwners(f);
-                return new
+                files.Add(new
                 {
-                    FileName = Path.GetFileName(f),
-                    FullPath = f,
-                    Size = new FileInfo(f).Length,
-                    Owners = owners,
-                    OwnersDisplay = GetAppOwnersDisplay(f),
-                    CreatedAt = System.IO.File.GetCreationTime(f)
-                };
-            })
-            .ToList();
-
+                    FileName = file.Name,
+                    Size = file.Length,
+                    CreatedAt = file.CreationTime,
+                    Owners = new string[0] // 暫時設為空陣列
+                });
+            }
+        }
+        
+        ViewBag.StoragePath = storagePath;
         ViewBag.Files = files;
-        ViewBag.StoragePath = _testStoragePath;
+        
         return View();
     }
 
     /// <summary>
     /// 上傳檔案
     /// </summary>
-    [HttpPost]
-    public IActionResult UploadFile(IFormFile file, string newOwner)
+    public IActionResult UploadFile(IFormFile file)
     {
         try
         {
-            // 除錯資訊
-            Console.WriteLine($"[除錯] 收到上傳請求");
-            Console.WriteLine($"[除錯] file is null: {file == null}");
-            Console.WriteLine($"[除錯] newOwner: {newOwner ?? "null"}");
-            Console.WriteLine($"[除錯] _testStoragePath: {_testStoragePath}");
-
             if (file == null || file.Length == 0)
-                return Json(new { success = false, message = "未選擇檔案" });
-
-            Console.WriteLine($"[除錯] 檔案名稱: {file.FileName}, 大小: {file.Length}");
-
-            // 確保目錄存在
-            if (!Directory.Exists(_testStoragePath))
             {
-                Console.WriteLine($"[除錯] 建立目錄: {_testStoragePath}");
-                Directory.CreateDirectory(_testStoragePath);
+                return Json(new { success = false, message = "請選擇檔案" });
             }
 
-            // 儲存檔案
-            var filePath = Path.Combine(_testStoragePath, file.FileName);
-            Console.WriteLine($"[除錯] 準備儲存到: {filePath}");
+            var storagePath = Path.Combine(Directory.GetCurrentDirectory(), "Areas", "Backoffice", "storage");
+            
+            // 確保目錄存在
+            if (!Directory.Exists(storagePath))
+            {
+                Directory.CreateDirectory(storagePath);
+            }
+
+            var filePath = Path.Combine(storagePath, file.FileName);
+            
+            // 如果檔案已存在，添加時間戳
+            if (System.IO.File.Exists(filePath))
+            {
+                var nameWithoutExt = Path.GetFileNameWithoutExtension(file.FileName);
+                var ext = Path.GetExtension(file.FileName);
+                var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
+                filePath = Path.Combine(storagePath, $"{nameWithoutExt}_{timestamp}{ext}");
+            }
 
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
                 file.CopyTo(stream);
             }
 
-            Console.WriteLine($"[除錯] 檔案已儲存");
-            Console.WriteLine($"[除錯] User.Identity?.Name: {User.Identity?.Name ?? "null"}");
-            Console.WriteLine($"[除錯] newOwner 參數: {newOwner ?? "null"}");
-
-            // 決定應用程式擁有者：上傳者（登入用戶）永遠在第一位
-            var uploader = User.Identity?.Name;
-            List<string> additionalOwners = new List<string>();
-            
-            if (!string.IsNullOrWhiteSpace(newOwner))
-            {
-                // 支援用逗號分隔多個擁有者
-                var owners = newOwner.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                                     .Select(o => o.Trim())
-                                     .Where(o => !string.IsNullOrWhiteSpace(o))
-                                     .ToArray();
-                additionalOwners.AddRange(owners);
-            }
-
-            Console.WriteLine($"[除錯] 上傳者: {uploader ?? "null"}");
-            Console.WriteLine($"[除錯] 額外擁有者: {string.Join(", ", additionalOwners)}");
-
-            // 設定應用程式擁有者（上傳者永遠在第一位）
-            if (!string.IsNullOrWhiteSpace(uploader))
-            {
-                try
-                {
-                    UpsertAppOwnersWithActorFirst(filePath, uploader, additionalOwners.ToArray());
-                    Console.WriteLine($"[除錯] 應用程式擁有者設定成功");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"[除錯] 應用程式擁有者設定失敗: {ex.Message}");
-                    return Json(new
-                    {
-                        success = false,
-                        message = $"檔案已上傳，但設定擁有者失敗: {ex.Message}",
-                        filePath = filePath
-                    });
-                }
-            }
-            else if (additionalOwners.Count > 0)
-            {
-                // 如果沒有登入用戶，但有指定其他擁有者
-                try
-                {
-                    SetAppOwners(filePath, additionalOwners.ToArray());
-                    Console.WriteLine($"[除錯] 應用程式擁有者設定成功（無登入用戶）");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"[除錯] 應用程式擁有者設定失敗: {ex.Message}");
-                }
-            }
-
-            // 取得最終擁有者
-            var finalOwners = GetAppOwners(filePath);
-            Console.WriteLine($"[除錯] 最終擁有者: {string.Join(", ", finalOwners)}");
-
-            return Json(new
-            {
-                success = true,
-                message = "檔案上傳成功",
-                filePath = filePath,
-                owners = finalOwners,
-                ownersDisplay = GetAppOwnersDisplay(filePath)
-            });
+            return Json(new { success = true, message = "檔案上傳成功", filePath = filePath });
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[除錯] 上傳失敗: {ex.Message}");
-            Console.WriteLine($"[除錯] StackTrace: {ex.StackTrace}");
-            return Json(new
-            {
-                success = false,
-                message = $"上傳失敗: {ex.Message}",
-                detail = ex.ToString()
-            });
-        }
-    }
-
-    /// <summary>
-    /// 新增檔案擁有者
-    /// </summary>
-    [HttpPost]
-    public IActionResult AddOwner(string fileName, string owner)
-    {
-        if (string.IsNullOrWhiteSpace(fileName))
-            return Json(new { success = false, message = "檔案名稱不可為空" });
-
-        if (string.IsNullOrWhiteSpace(owner))
-            return Json(new { success = false, message = "擁有者名稱不可為空" });
-
-        try
-        {
-            var filePath = Path.Combine(_testStoragePath, fileName);
-
-            if (!System.IO.File.Exists(filePath))
-                return Json(new { success = false, message = "檔案不存在" });
-
-            // 檢查是否已經是擁有者
-            if (HasAppOwner(filePath, owner))
-                return Json(new { success = false, message = "此擁有者已存在" });
-
-            // 新增擁有者，新增的人永遠放第一位
-            UpsertAppOwnersWithActorFirst(filePath, owner);
-            var owners = GetAppOwners(filePath);
-
-            return Json(new
-            {
-                success = true,
-                message = "擁有者新增成功",
-                owners = owners,
-                ownersDisplay = GetAppOwnersDisplay(filePath)
-            });
-        }
-        catch (Exception ex)
-        {
-            return Json(new { success = false, message = $"新增失敗: {ex.Message}" });
-        }
-    }
-
-    /// <summary>
-    /// 移除檔案擁有者
-    /// </summary>
-    [HttpPost]
-    public IActionResult RemoveOwner(string fileName, string owner)
-    {
-        if (string.IsNullOrWhiteSpace(fileName))
-            return Json(new { success = false, message = "檔案名稱不可為空" });
-
-        if (string.IsNullOrWhiteSpace(owner))
-            return Json(new { success = false, message = "擁有者名稱不可為空" });
-
-        try
-        {
-            var filePath = Path.Combine(_testStoragePath, fileName);
-
-            if (!System.IO.File.Exists(filePath))
-                return Json(new { success = false, message = "檔案不存在" });
-
-            RemoveAppOwner(filePath, owner);
-            var owners = GetAppOwners(filePath);
-
-            return Json(new
-            {
-                success = true,
-                message = "擁有者移除成功",
-                owners = owners,
-                ownersDisplay = GetAppOwnersDisplay(filePath)
-            });
-        }
-        catch (Exception ex)
-        {
-            return Json(new { success = false, message = $"移除失敗: {ex.Message}" });
+            return Json(new { success = false, message = ex.Message });
         }
     }
 
     /// <summary>
     /// 刪除檔案
     /// </summary>
-    [HttpPost]
     public IActionResult DeleteFile(string fileName)
     {
-        if (string.IsNullOrWhiteSpace(fileName))
-            return Json(new { success = false, message = "檔案名稱不可為空" });
-
         try
         {
-            var filePath = Path.Combine(_testStoragePath, fileName);
-
+            var storagePath = Path.Combine(Directory.GetCurrentDirectory(), "Areas", "Backoffice", "storage");
+            var filePath = Path.Combine(storagePath, fileName);
+            
             if (!System.IO.File.Exists(filePath))
+            {
                 return Json(new { success = false, message = "檔案不存在" });
-
+            }
+            
             System.IO.File.Delete(filePath);
-
-            return Json(new { success = true, message = "檔案已刪除" });
+            return Json(new { success = true, message = "檔案刪除成功" });
         }
         catch (Exception ex)
         {
-            return Json(new { success = false, message = $"刪除失敗: {ex.Message}" });
+            return Json(new { success = false, message = ex.Message });
         }
     }
 
     /// <summary>
-    /// 取得檔案擁有者列表
+    /// 獲取檔案（用於預覽和下載）
     /// </summary>
-    [HttpGet]
-    public IActionResult GetOwners(string fileName)
+    public IActionResult GetFile(string fileName)
     {
-        if (string.IsNullOrWhiteSpace(fileName))
-            return Json(new { success = false, message = "檔案名稱不可為空" });
-
         try
         {
-            var filePath = Path.Combine(_testStoragePath, fileName);
-
+            var storagePath = Path.Combine(Directory.GetCurrentDirectory(), "Areas", "Backoffice", "storage");
+            var filePath = Path.Combine(storagePath, fileName);
+            
             if (!System.IO.File.Exists(filePath))
-                return Json(new { success = false, message = "檔案不存在" });
-
-            var owners = GetAppOwners(filePath);
-
-            return Json(new
             {
-                success = true,
-                owners = owners,
-                ownersDisplay = GetAppOwnersDisplay(filePath)
-            });
+                return NotFound("檔案不存在");
+            }
+
+            var fileBytes = System.IO.File.ReadAllBytes(filePath);
+            var contentType = GetContentType(fileName);
+            return File(fileBytes, contentType);
         }
         catch (Exception ex)
         {
-            return Json(new { success = false, message = $"讀取失敗: {ex.Message}" });
+            return BadRequest($"無法讀取檔案: {ex.Message}");
         }
     }
+
+    /// <summary>
+    /// 獲取檔案內容（用於預覽）
+    /// </summary>
+    public IActionResult GetFileContent(string fileName, string type = "text")
+    {
+        try
+        {
+            var storagePath = Path.Combine(Directory.GetCurrentDirectory(), "Areas", "Backoffice", "storage");
+            var filePath = Path.Combine(storagePath, fileName);
+            
+            if (!System.IO.File.Exists(filePath))
+            {
+                return Json(new { success = false, message = "檔案不存在" });
+            }
+
+            // 根據類型返回不同的內容
+            if (type == "image" || type == "pdf" || type == "video" || type == "audio")
+            {
+                // 直接返回檔案流
+                var fileBytes = System.IO.File.ReadAllBytes(filePath);
+                var contentType = GetContentType(fileName);
+                return File(fileBytes, contentType);
+            }
+            else if (type == "text")
+            {
+                // 文字檔案返回 JSON
+                var content = System.IO.File.ReadAllText(filePath);
+                return Json(new { success = true, content = content });
+            }
+            else if (type == "info")
+            {
+                // 返回檔案資訊
+                var fileInfo = new FileInfo(filePath);
+                return Json(new { success = true, size = fileInfo.Length, name = fileInfo.Name });
+            }
+            else if (type == "download")
+            {
+                // 下載檔案
+                var fileBytes = System.IO.File.ReadAllBytes(filePath);
+                var contentType = GetContentType(fileName);
+                return File(fileBytes, contentType, fileName);
+            }
+            else
+            {
+                // 預設返回檔案流
+                var fileBytes = System.IO.File.ReadAllBytes(filePath);
+                var contentType = GetContentType(fileName);
+                return File(fileBytes, contentType);
+            }
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, message = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// 儲存檔案內容
+    /// </summary>
+    [HttpPost]
+    public IActionResult SaveFileContent(string fileName, string content)
+    {
+        try
+        {
+            var storagePath = Path.Combine(Directory.GetCurrentDirectory(), "Areas", "Backoffice", "storage");
+            var filePath = Path.Combine(storagePath, fileName);
+            
+            if (!System.IO.File.Exists(filePath))
+            {
+                return Json(new { success = false, message = "檔案不存在" });
+            }
+            
+            System.IO.File.WriteAllText(filePath, content, System.Text.Encoding.UTF8);
+            return Json(new { success = true, message = "檔案儲存成功" });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, message = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// 根據檔案副檔名獲取 MIME 類型
+    /// </summary>
+    private string GetContentType(string fileName)
+    {
+        var ext = Path.GetExtension(fileName).ToLower();
+        return ext switch
+        {
+            ".jpg" or ".jpeg" => "image/jpeg",
+            ".png" => "image/png",
+            ".gif" => "image/gif",
+            ".bmp" => "image/bmp",
+            ".webp" => "image/webp",
+            ".svg" => "image/svg+xml",
+            ".pdf" => "application/pdf",
+            ".xls" => "application/vnd.ms-excel",
+            ".xlsx" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            ".doc" => "application/msword",
+            ".docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            ".ppt" => "application/vnd.ms-powerpoint",
+            ".pptx" => "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+            ".mp4" => "video/mp4",
+            ".webm" => "video/webm",
+            ".ogg" => "video/ogg",
+            ".mov" => "video/quicktime",
+            ".avi" => "video/x-msvideo",
+            ".mp3" => "audio/mpeg",
+            ".wav" => "audio/wav",
+            ".aac" => "audio/aac",
+            ".flac" => "audio/flac",
+            _ => "application/octet-stream"
+        };
+    }
+
 }
 

@@ -1,228 +1,195 @@
-<!-- 說明：檔案總管使用說明（modal-xl） -->
-<div id="filemanager-help" class="modal fade" tabindex="-1" aria-labelledby="fileManagerHelpLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+@{
+    Layout = null;
+}
+
+<!-- 資料夾操作 Modal -->
+<div id="folder-action-modal" class="modal fade" tabindex="-1" aria-labelledby="folderActionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title fw-bold" id="fileManagerHelpLabel">檔案總管使用說明</h5>
+                <h5 class="modal-title" id="folderActionModalLabel">資料夾操作</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-outline-primary" onclick="showModal('folder-rename-modal', {url: '@Url.Action("LoadFolderRename", "FileManager")', method: 'GET', data: {name: '@ViewBag.FolderName', currentPath: '@ViewBag.CurrentPath'}, container: 'file-manager-modal-host'})">
+                        <i data-lucide="edit-3" style="width:1rem;height:1rem;"></i> 重新命名
+                    </button>
+                    <button type="button" class="btn btn-outline-danger" onclick="showModal('folder-delete-modal', {url: '@Url.Action("LoadFolderDelete", "FileManager")', method: 'GET', data: {name: '@ViewBag.FolderName', currentPath: '@ViewBag.CurrentPath'}, container: 'file-manager-modal-host'})">
+                        <i data-lucide="trash-2" style="width:1rem;height:1rem;"></i> 刪除
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 檔案預覽 Modal -->
+<div id="file-preview-modal" class="modal fade" tabindex="-1" aria-labelledby="filePreviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filePreviewModalLabel">檔案預覽</h5>
+                <div class="d-flex gap-2">
+                    <button type="button" onclick="showModal('file-preview-help-modal')" class="btn btn-sm btn-outline-secondary">
+                        <i data-lucide="help-circle" style="width: 1rem; height: 1rem;"></i>
+                    </button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <!-- 檔案預覽內容將由 AJAX 載入 -->
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">載入中...</span>
+                    </div>
+                    <p class="mt-2 text-muted">正在載入檔案預覽...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                <button type="button" class="btn btn-primary" onclick="showModal('file-edit-modal', {url: '@Url.Action("LoadFileEdit", "FileManager")', method: 'GET', data: {name: '@ViewBag.FileName', currentPath: '@ViewBag.CurrentPath'}, container: 'file-manager-modal-host'})">編輯</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 檔案詳細資訊 Modal -->
+<div id="file-detail-modal" class="modal fade" tabindex="-1" aria-labelledby="fileDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="fileDetailModalLabel">檔案詳細資訊</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+            </div>
+            <div class="modal-body">
+                <!-- 檔案詳細資訊內容將由 AJAX 載入 -->
+                <div class="text-center py-3">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">載入中...</span>
+                    </div>
+                    <p class="mt-2 text-muted">正在載入檔案資訊...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 檔案重新命名 Modal -->
+<div id="file-rename-modal" class="modal fade" tabindex="-1" aria-labelledby="fileRenameModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="fileRenameModalLabel">重新命名檔案</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+            </div>
+            <div class="modal-body">
+                <!-- 重新命名表單內容將由 AJAX 載入 -->
+                <div class="text-center py-3">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">載入中...</span>
+                    </div>
+                    <p class="mt-2 text-muted">正在載入重新命名表單...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 檔案下載 Modal -->
+<div id="file-download-modal" class="modal fade" tabindex="-1" aria-labelledby="fileDownloadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="fileDownloadModalLabel">檔案下載</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+            </div>
+            <div class="modal-body">
+                <!-- 下載選項內容將由 AJAX 載入 -->
+                <div class="text-center py-3">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">載入中...</span>
+                    </div>
+                    <p class="mt-2 text-muted">正在準備下載...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 檔案預覽說明 Modal -->
+<div id="file-preview-help-modal" class="modal fade" tabindex="-1" aria-labelledby="filePreviewHelpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filePreviewHelpModalLabel">檔案預覽說明</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
             </div>
             <div class="modal-body">
                 <div class="row g-4">
+                    <!-- 左側：說明內容 -->
                     <div class="col-md-6">
-                        <h6 class="fw-semibold pb-2 border-bottom mb-3">基本操作</h6>
-                        <ul class="small mb-4">
-                            <li class="mb-1">點選左側目錄樹或麵包屑，快速切換資料夾</li>
-                            <li class="mb-1">拖曳檔案或資料夾到「上傳區」即可上傳（支援資料夾結構）</li>
-                            <li class="mb-1">列表「更多」選單：開啟、重新命名、下載、刪除、詳細資料</li>
-                        </ul>
-                        <h6 class="fw-semibold pb-2 border-bottom mb-3">新增與共享</h6>
-                        <ul class="small mb-4">
-                            <li class="mb-1">使用「新增資料夾 / 新增檔案」建立內容</li>
-                            <li class="mb-1">共享使用者以逗號分隔（例如：user1, user2），留空為私有</li>
-                        </ul>
-                        <h6 class="fw-semibold pb-2 border-bottom mb-3">預覽與編輯</h6>
-                        <ul class="small mb-0">
-                            <li class="mb-1">支援一般文字檔直接編輯與儲存</li>
-                            <li class="mb-1">支援圖片、PDF、常見 Office 檔案線上預覽（大型檔案可能較慢）</li>
-                        </ul>
-                    </div>
-                    <div class="col-md-6">
-                        <h6 class="fw-semibold pb-2 border-bottom mb-3">鍵盤快捷鍵</h6>
-                        <ul class="small mb-4">
-                            <li class="mb-1">Esc：關閉目前視窗</li>
-                            <li class="mb-1">Ctrl / Cmd + S：編輯器中儲存檔案</li>
-                            <li class="mb-1">Enter：在開啟的表單視窗中直接提交</li>
-                        </ul>
-                        <h6 class="fw-semibold pb-2 border-bottom mb-3">注意事項</h6>
-                        <ul class="small text-muted mb-0">
-                            <li class="mb-1">刪除操作無法復原，請謹慎操作</li>
-                            <li class="mb-1">大型檔案上傳需較長時間，上傳中請勿關閉視窗</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">我知道了</button>
-            </div>
-        </div>
-    </div>
-    
-</div>
-
-<!-- 新增資料夾（modal-lg） -->
-<div id="createFolderModal" class="modal fade" tabindex="-1" aria-labelledby="createFolderLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="createFolderLabel">新增資料夾</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
-            </div>
-            <div class="modal-body">
-                <form id="createFolderForm" onsubmit="return false;">
-                    <div class="vstack gap-3">
-                        <div class="row g-2 align-items-center">
-                            <div class="col-auto" style="width: 100px;"><label for="folderNameInput" class="col-form-label col-form-label-sm mb-0">資料夾名稱</label></div>
-                            <div class="col"><input type="text" id="folderNameInput" name="Name" class="form-control form-control-sm" placeholder="請輸入資料夾名稱"></div>
-                        </div>
-                        <div class="row g-2 align-items-center">
-                            <div class="col-auto" style="width: 100px;"><label for="folderSharedUsersInput" class="col-form-label col-form-label-sm mb-0">共享使用者</label></div>
-                            <div class="col">
-                                <input type="text" id="folderSharedUsersInput" name="SharedUsers" class="form-control form-control-sm" placeholder="例如：user1, user2, user3">
-                                <div class="form-text">留空表示只有您能存取此資料夾</div>
+                        <div class="vstack gap-3">
+                            <!-- 1. 基本操作流程 -->
+                            <div>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">基本操作流程</h6>
+                                <ol class="small mb-0">
+                                    <li>點擊檔案名稱或「開啟」按鈕進入預覽模式</li>
+                                    <li>支援多種檔案格式：圖片、文件、程式碼等</li>
+                                    <li>使用工具列進行編輯、下載等操作</li>
+                                    <li>按 ESC 或點擊關閉按鈕退出預覽</li>
+                                </ol>
+                            </div>
+                            
+                            <!-- 2. 支援的檔案類型 -->
+                            <div>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">支援的檔案類型</h6>
+                                <div class="small">
+                                    <p><strong>圖片檔案：</strong> JPG, PNG, GIF, SVG, WebP</p>
+                                    <p><strong>文件檔案：</strong> PDF, TXT, MD, DOC, DOCX</p>
+                                    <p><strong>程式碼檔案：</strong> JS, CSS, HTML, C#, Python</p>
+                                    <p><strong>其他檔案：</strong> 將提供下載連結</p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-primary btn-sm" onclick="createFolder()">建立</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 新增檔案（modal-lg） -->
-<div id="createFileModal" class="modal fade" tabindex="-1" aria-labelledby="createFileLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="createFileLabel">新增檔案</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
-            </div>
-            <div class="modal-body">
-                <form id="createFileForm" onsubmit="return false;">
-                    <div class="vstack gap-3">
-                        <div class="row g-2 align-items-center">
-                            <div class="col-auto" style="width: 120px;"><label for="fileNameInput" class="col-form-label col-form-label-sm mb-0">檔案名稱</label></div>
-                            <div class="col"><input type="text" id="fileNameInput" name="Name" class="form-control form-control-sm" placeholder="example.txt"></div>
-                        </div>
-                        <div class="row g-2 align-items-center">
-                            <div class="col-auto" style="width: 120px;"><label for="fileSharedUsersInput" class="col-form-label col-form-label-sm mb-0">共享使用者</label></div>
-                            <div class="col">
-                                <input type="text" id="fileSharedUsersInput" name="SharedUsers" class="form-control form-control-sm" placeholder="例如：user1, user2, user3">
-                                <div class="form-text">留空表示只有您能存取此檔案</div>
+                    
+                    <!-- 右側：常見問題 -->
+                    <div class="col-md-6">
+                        <div class="vstack gap-3">
+                            <!-- 常見問題 Q&A -->
+                            <div>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">常見問題 (Q&A)</h6>
+                                <div class="small">
+                                    <p><strong>Q1：為什麼某些檔案無法預覽？</strong></p>
+                                    <p class="ms-3">A：不支援的檔案類型會顯示下載選項，您可以下載到本地查看。</p>
+                                    
+                                    <p><strong>Q2：如何編輯檔案內容？</strong></p>
+                                    <p class="ms-3">A：在預覽模式下點擊「編輯」按鈕，支援文字檔案的線上編輯。</p>
+                                    
+                                    <p><strong>Q3：預覽模式支援哪些快捷鍵？</strong></p>
+                                    <p class="ms-3">A：ESC 關閉預覽，Ctrl+S 儲存編輯，Ctrl+Z 復原操作。</p>
+                                </div>
+                            </div>
+                            
+                            <!-- 注意事項 -->
+                            <div class="alert alert-warning small mb-0">
+                                <h6 class="fw-bold mb-2">重要提醒</h6>
+                                <ul class="mb-0">
+                                    <li>編輯檔案前請確認有寫入權限</li>
+                                    <li>大型檔案可能載入較慢，請耐心等待</li>
+                                    <li>編輯後請記得儲存變更</li>
+                                </ul>
                             </div>
                         </div>
                     </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-primary btn-sm" onclick="createFile()">建立</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 重新命名（預設大小） -->
-<div id="renameModal" class="modal fade" tabindex="-1" aria-labelledby="renameModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="renameModalLabel">重新命名</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row g-2 align-items-center">
-                    <div class="col-auto" style="width: 90px;"><label for="renameInput" class="col-form-label col-form-label-sm mb-0">新名稱</label></div>
-                    <div class="col"><input type="text" id="renameInput" class="form-control form-control-sm" placeholder="請輸入新名稱"></div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-primary btn-sm" onclick="confirmRename()">確定</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 刪除確認（預設大小） -->
-<div id="deleteModal" class="modal fade" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">刪除確認</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
-            </div>
-            <div class="modal-body">
-                <p class="small text-muted mb-3">此操作<strong class="text-danger">無法復原</strong>。請輸入 <strong id="deleteTargetName" class="text-dark"></strong> 以確認刪除。</p>
-                <div class="row g-2 align-items-center">
-                    <div class="col-auto" style="width: 120px;"><label for="deleteConfirmInput" class="col-form-label col-form-label-sm mb-0">確認名稱</label></div>
-                    <div class="col"><input type="text" id="deleteConfirmInput" class="form-control form-control-sm" placeholder="輸入名稱以確認刪除" oninput="validateDeleteInput()"></div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">取消</button>
-                <button type="button" id="deleteConfirmBtn" class="btn btn-danger btn-sm" onclick="confirmDelete()" disabled>確認刪除</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 檔案編輯器（modal-xl） -->
-<div id="fileEditorModal" class="modal fade" tabindex="-1" aria-labelledby="fileEditorLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="fileEditorLabel"><i data-lucide="file-text" class="me-2"></i><span id="editorFileName">檔案編輯器</span> <span id="editorReadOnlyBadge" class="badge text-bg-warning ms-2 d-none">唯讀</span></h5>
-                <div class="d-flex align-items-center gap-2">
-                    <button id="saveFileBtn" type="button" class="btn btn-primary btn-sm d-none" onclick="saveFile()"><i data-lucide="save" class="me-1" style="width:1rem;height:1rem;"></i>儲存</button>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
-                </div>
-            </div>
-            <div class="modal-body p-0" style="min-height:60vh;">
-                <textarea id="fileEditorContent" class="form-control border-0 rounded-0 d-none" style="height:60vh; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;" spellcheck="false"></textarea>
-                <div id="imagePreviewWrapper" class="d-none position-relative w-100" style="height:60vh; background:#000; overflow:hidden; user-select:none;">
-                    <img id="imagePreview" src="" alt="preview" class="position-absolute top-0 start-0" draggable="false" />
-                    <div id="imagePreviewControls" class="position-absolute top-0 end-0 m-3 bg-white rounded shadow-sm p-1 d-flex align-items-center gap-1">
-                        <button type="button" class="btn btn-light btn-sm" onclick="imagePreviewZoomOut()" title="縮小"><i data-lucide="zoom-out" style="width:1rem;height:1rem;"></i></button>
-                        <button type="button" class="btn btn-light btn-sm" onclick="imagePreviewZoomIn()" title="放大"><i data-lucide="zoom-in" style="width:1rem;height:1rem;"></i></button>
-                        <span class="mx-1" style="width:1px;height:20px;background:#e9ecef;display:inline-block;"></span>
-                        <button type="button" class="btn btn-light btn-sm" onclick="imagePreviewFit()" title="適合視窗"><i data-lucide="maximize" style="width:1rem;height:1rem;"></i></button>
-                        <button type="button" class="btn btn-light btn-sm" onclick="imagePreviewActual()" title="實際大小"><i data-lucide="ratio" style="width:1rem;height:1rem;"></i></button>
-                    </div>
-                </div>
-                <iframe id="filePreviewFrame" class="d-none w-100" style="height:60vh; border:0;"></iframe>
-                <div id="editorLoading" class="d-flex align-items-center justify-content-center" style="height:60vh;">
-                    <div class="text-center text-muted small">
-                        <div class="spinner-border text-primary mb-3" role="status" style="width:2.5rem;height:2.5rem;"></div>
-                        <div>載入中...</div>
-                    </div>
-                </div>
-                <div id="cannotPreview" class="d-none d-flex align-items-center justify-content-center" style="height:60vh;">
-                    <div class="text-center" style="max-width:480px;">
-                        <i data-lucide="file-x" class="text-muted d-block mx-auto mb-3" style="width:3rem;height:3rem;"></i>
-                        <h6 class="fw-semibold mb-2">無法預覽此檔案</h6>
-                        <p class="text-muted small mb-3" id="cannotPreviewMessage">此檔案類型不支援線上預覽</p>
-                        <a id="downloadFileLink" href="#" class="btn btn-primary btn-sm"><i data-lucide="download" class="me-1" style="width:1rem;height:1rem;"></i>下載檔案</a>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer justify-content-between small text-muted">
-                <span id="editorInfo">就緒</span>
-                <span id="editorEncoding"></span>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 上傳進度（預設大小） -->
-<div id="uploadProgress" class="modal fade" tabindex="-1" aria-labelledby="uploadProgressLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="uploadProgressLabel">正在上傳</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
-            </div>
-            <div class="modal-body" style="max-height:300px; overflow:auto;">
-                <div id="uploadItems" class="vstack gap-2">
-                    <!-- 由 JavaScript 動態生成 -->
-                </div>
-            </div>
-            <div class="modal-footer justify-content-between small text-muted">
-                <span id="uploadSpeed">0 KB/s</span>
-                <span id="uploadEta">計算中...</span>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">我知道了</button>
             </div>
         </div>
     </div>

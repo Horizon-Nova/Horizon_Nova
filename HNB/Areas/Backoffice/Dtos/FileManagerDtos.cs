@@ -74,3 +74,13 @@ public class UploadResponse
     public string Message { get; set; } = string.Empty;
 }
 
+/// <summary>
+/// 更新資料夾權限請求
+/// </summary>
+public class UpdateFolderPermissionsRequest
+{
+    public string Path { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public string[] Owners { get; set; } = Array.Empty<string>();
+}
+
