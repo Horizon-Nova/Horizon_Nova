@@ -11,20 +11,14 @@ public class DatabaseController(DatabaseService databaseService) : BaseControlle
 {
     public IActionResult DatabaseManagement()
     {
-        return View();
+        return View("DatabaseManagement");
     }
 
     [HttpPost]
     public IActionResult TestConnection(TestConnectionRequestDto request)
     {
         var result = databaseService.TestConnection(request.Provider, request.ConnectionString);
-        var response = new TestConnectionResponseDto
-        {
-            Success = result.Success,
-            Message = result.Message
-        };
-
-        return Json(response);
+        return Json(new { success = result.Success, message = result.Message });
     }
 
     [HttpPost]
@@ -34,44 +28,31 @@ public class DatabaseController(DatabaseService databaseService) : BaseControlle
         return Json(new { success = result.Success, tables = result.Tables, message = result.Message });
     }
 
-
     [HttpPost]
-    public IActionResult BackupTables(GenerateModelsRequestDto request)
+    public IActionResult SubmitBackup(GenerateModelsRequestDto request)
     {
         var result = databaseService.BackupDatabaseTables(request);
-
-        return Json(new GenerateModelsResponseDto
-        {
-            Success = result.Success,
-            Message = result.Message
-        });
+        return Json(new { success = result.Success, message = result.Message });
     }
 
-
-
-
-    /// <summary>
-    /// 獲取資料表詳情部分視圖
-    /// </summary>
-    [HttpPost]
-    public IActionResult LoadTableDetailsPartial([FromBody] TableDetailsRequestDto request)
+    [HttpGet]
+    public IActionResult LoadDetail(string? tableName = null, string? provider = null, string? connectionString = null)
     {
-        if (request == null || string.IsNullOrEmpty(request.Provider) ||
-            string.IsNullOrEmpty(request.ConnectionString) || string.IsNullOrEmpty(request.TableName))
+        ViewBag.TableName = tableName;
+        
+        if (!string.IsNullOrEmpty(tableName) && !string.IsNullOrEmpty(provider) && !string.IsNullOrEmpty(connectionString))
         {
-            return PartialView("_TableDetailsModal", new List<TableColumnDto>());
-        }
-
-        var result = databaseService.LoadTableDetails(request.Provider, request.ConnectionString, request.TableName);
-
-        if (result.Success && result.Columns != null && result.Columns.Any())
-        {
-            return PartialView("_TableDetailsModal", result.Columns);
+            var result = databaseService.LoadTableDetails(provider, connectionString, tableName);
+            ViewBag.TableColumns = result.Columns ?? new List<TableColumnDto>();
+            ViewBag.Success = result.Success;
         }
         else
         {
-            return PartialView("_TableDetailsModal", new List<TableColumnDto>());
+            ViewBag.TableColumns = new List<TableColumnDto>();
+            ViewBag.Success = false;
         }
+        
+        return PartialView("_DatabaseManagementModal");
     }
 
 }

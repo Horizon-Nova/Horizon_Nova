@@ -13,20 +13,25 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// </summary>
     public IActionResult FileManager(string path = "/")
     {
-        var currentUser = GetCurrentUser();
+        var currentUser = User.Identity?.Name;
+        if (string.IsNullOrWhiteSpace(currentUser)) return Unauthorized();
         svc.ViewBagModel(ViewBag, path, currentUser);
         var model = svc.LoadUserFileSystemItems(path ?? "/", currentUser);
         return View(model);
     }
+    #endregion
 
-    /// <summary>
-    /// 取得當前用戶名稱
-    /// </summary>
-    /// <returns>用戶名稱</returns>
-    private string GetCurrentUser()
+    #region Modal 載入
+    public IActionResult LoadDetail(string? name = null, string? currentPath = null, string? type = null)
     {
-        return User.Identity?.Name ?? "anonymous";
+        var currentUser = User.Identity?.Name;
+        if (string.IsNullOrWhiteSpace(currentUser)) return Unauthorized();
+        var detail = svc.LoadFileSystemDetail(currentPath ?? "/", name ?? "", currentUser);
+        ViewBag.CurrentPath = currentPath ?? "/";
+        ViewBag.CurrentUser = currentUser;
+        return PartialView("_FileManagerSidePanelBody", detail);
     }
+
     #endregion
 
     #region 資料夾操作 API
@@ -34,16 +39,15 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// 建立資料夾
     /// </summary>
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public IActionResult SubmitFolder([FromBody] CreateItemRequest request)
     {
-        svc.CreateFolder(request.Path, request.Name);
-        
-        // 設定擁有者
+        if (string.IsNullOrWhiteSpace(User.Identity?.Name)) return Unauthorized();
+        var entry = new FileSystemEntry { VirtualPath = request.Path, Name = request.Name, Type = "folder" };
+        svc.CreateFolder(entry);
         if (request.SharedUsers != null && request.SharedUsers.Count > 0)
-        {
-            svc.UpdateFolderOwners(request.Path, request.Name, request.SharedUsers.ToArray());
-        }
-        
+            svc.UpdateItemOwners(entry, request.SharedUsers.ToArray());
+
         return Json(new FileManagerResponse { Success = true, Message = "資料夾已建立" });
     }
 
@@ -51,9 +55,12 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// 刪除資料夾
     /// </summary>
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public IActionResult Delete([FromBody] DeleteItemRequest request)
     {
-        svc.DeleteFolder(request.Path, request.Name);
+        if (string.IsNullOrWhiteSpace(User.Identity?.Name)) return Unauthorized();
+        var entry = new FileSystemEntry { VirtualPath = request.Path, Name = request.Name, Type = "folder" };
+        svc.DeleteFolder(entry);
         return Json(new FileManagerResponse { Success = true, Message = "資料夾已刪除" });
     }
 
@@ -61,9 +68,12 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// 重新命名資料夾
     /// </summary>
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public IActionResult SubmitRename([FromBody] RenameItemRequest request)
     {
-        svc.RenameFolder(request.Path, request.OldName, request.NewName);
+        if (string.IsNullOrWhiteSpace(User.Identity?.Name)) return Unauthorized();
+        var entry = new FileSystemEntry { VirtualPath = request.Path, Name = request.OldName, Type = "folder" };
+        svc.RenameFolder(entry, request.NewName);
         return Json(new FileManagerResponse { Success = true, Message = "資料夾已重新命名" });
     }
     #endregion
@@ -73,16 +83,15 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// 建立檔案
     /// </summary>
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public IActionResult SubmitFile([FromBody] CreateItemRequest request)
     {
-        svc.CreateFile(request.Path, request.Name);
-        
-        // 設定擁有者
+        if (string.IsNullOrWhiteSpace(User.Identity?.Name)) return Unauthorized();
+        var entry = new FileSystemEntry { VirtualPath = request.Path, Name = request.Name, Type = "file" };
+        svc.CreateFile(entry);
         if (request.SharedUsers != null && request.SharedUsers.Count > 0)
-        {
-            svc.UpdateFolderOwners(request.Path, request.Name, request.SharedUsers.ToArray());
-        }
-        
+            svc.UpdateItemOwners(entry, request.SharedUsers.ToArray());
+
         return Json(new FileManagerResponse { Success = true, Message = "檔案已建立" });
     }
 
@@ -90,9 +99,12 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// 刪除檔案
     /// </summary>
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public IActionResult DeleteFile([FromBody] DeleteItemRequest request)
     {
-        svc.DeleteFile(request.Path, request.Name);
+        if (string.IsNullOrWhiteSpace(User.Identity?.Name)) return Unauthorized();
+        var entry = new FileSystemEntry { VirtualPath = request.Path, Name = request.Name, Type = "file" };
+        svc.DeleteFile(entry);
         return Json(new FileManagerResponse { Success = true, Message = "檔案已刪除" });
     }
 
@@ -100,35 +112,39 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// 重新命名檔案
     /// </summary>
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public IActionResult SubmitRenameFile([FromBody] RenameItemRequest request)
     {
-        svc.RenameFile(request.Path, request.OldName, request.NewName);
+        if (string.IsNullOrWhiteSpace(User.Identity?.Name)) return Unauthorized();
+        var entry = new FileSystemEntry { VirtualPath = request.Path, Name = request.OldName, Type = "file" };
+        svc.RenameFile(entry, request.NewName);
         return Json(new FileManagerResponse { Success = true, Message = "檔案已重新命名" });
-    }
-
-    /// <summary>
-    /// 讀取文字檔案
-    /// </summary>
-    public IActionResult ReadTextFile(string path, string name)
-    {
-        var (content, encoding, lastModified) = svc.LoadTextFile(path, name);
-        return Json(new ReadTextFileResponse 
-        { 
-            Success = true, 
-            Content = content, 
-            Encoding = encoding, 
-            LastModified = lastModified 
-        });
     }
 
     /// <summary>
     /// 儲存文字檔案
     /// </summary>
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public IActionResult SubmitTextFile([FromBody] SaveTextFileRequest request)
     {
-        svc.SaveTextFile(request.Path, request.Name, request.Content, request.Encoding);
+        if (string.IsNullOrWhiteSpace(User.Identity?.Name)) return Unauthorized();
+        var entry = new FileSystemEntry { VirtualPath = request.Path, Name = request.Name, Type = "file" };
+        svc.SaveTextFile(entry, request.Content, request.Encoding);
         return Json(new FileManagerResponse { Success = true, Message = "檔案已儲存" });
+    }
+
+    /// <summary>
+    /// 設定分享擁有者（檔案或資料夾）
+    /// </summary>
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult SubmitShare([FromBody] UpdateOwnersRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(User.Identity?.Name)) return Unauthorized();
+        var entry = new FileSystemEntry { VirtualPath = request.Path, Name = request.Name };
+        svc.UpdateItemOwners(entry, request.Owners?.ToArray() ?? Array.Empty<string>());
+        return Json(new FileManagerResponse { Success = true, Message = "分享設定已更新" });
     }
     #endregion
 
@@ -136,13 +152,18 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// <summary>
     /// 上傳檔案（最大 4GB）
     /// </summary>
-    [HttpPost,DisableRequestSizeLimit,RequestFormLimits(MultipartBodyLengthLimit = 4294967296),RequestSizeLimit(4294967296)] // 4GB
-    public IActionResult SubmitUpload(string path, List<IFormFile> files, List<string>? keys)
+    /// <param name="virtualPath">表單欄位名稱：virtualPath（上傳目標虛擬路徑，例如：/、/FolderA/Sub）</param>
+    /// <param name="files">表單欄位名稱：files（檔案清單，多個檔案可重複此欄位）</param>
+    /// <param name="relativePaths">表單欄位名稱：relativePaths（可選；每個檔案對應一個相對路徑，用於保留資料夾結構）</param>
+    [HttpPost, DisableRequestSizeLimit, RequestFormLimits(MultipartBodyLengthLimit = 4294967296), RequestSizeLimit(4294967296)] // 4GB
+    [ValidateAntiForgeryToken]
+    public IActionResult SubmitUpload(string virtualPath, List<IFormFile> files, List<string>? relativePaths)
     {
+        if (string.IsNullOrWhiteSpace(User.Identity?.Name)) return Unauthorized();
         if (files == null || files.Count == 0)
             return Json(new FileManagerResponse { Success = false, Message = "未選擇檔案" });
 
-        var result = svc.UploadBatchFiles(path, files, keys);
+        var result = svc.UploadBatchFiles(virtualPath, files, relativePaths);
         
         return Json(new UploadResponse
         {
@@ -155,6 +176,7 @@ public class FileManagerController(FileManagerServices svc) : BaseController
                 : $"上傳完成：{result.savedCount} 成功，{result.failedCount} 失敗"
         });
     }
+    
     #endregion
 
     #region 檔案下載
@@ -163,6 +185,7 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// </summary>
     public IActionResult Download(string path, string name)
     {
+        if (string.IsNullOrWhiteSpace(User.Identity?.Name)) return Unauthorized();
         var (stream, fileName, contentType) = svc.DownloadFile(path, name);
         return File(stream, contentType, fileName, enableRangeProcessing: true);
     }
@@ -172,6 +195,7 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// </summary>
     public IActionResult DownloadFolder(string path, string name)
     {
+        if (string.IsNullOrWhiteSpace(User.Identity?.Name)) return Unauthorized();
         var (stream, fileName, contentType) = svc.DownloadFolderAsZip(path, name);
         return File(stream, contentType, fileName, enableRangeProcessing: true);
     }
@@ -181,6 +205,7 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// </summary>
     public IActionResult Preview(string path, string name)
     {
+        if (string.IsNullOrWhiteSpace(User.Identity?.Name)) return Unauthorized();
         var (stream, contentType) = svc.PreviewFile(path, name);
         Response.Headers["Content-Disposition"] = $"inline; filename*=UTF-8''{Uri.EscapeDataString(name)}";
         return File(stream, contentType, enableRangeProcessing: true);

@@ -14,9 +14,24 @@ public class DatabaseService()
     /// <summary>
     /// 建立 DbContext 選項建構器
     /// </summary>
-    public DbContextOptionsBuilder DbContextOptionsBuilder(string provider, string connectionString)
+    public DbContextOptionsBuilder LoadDbContextOptionsBuilder(string provider, string connectionString)
         => DatabaseUtilities.CreateDbContextOptionsBuilder(provider, connectionString);
 
+    #endregion
+
+    #region ViewBag 設定方法
+
+    /// <summary>
+    /// 設定 ViewBag 資料
+    /// </summary>
+    public void ViewBagModel(dynamic viewBag, string? tableName = null)
+    {
+        viewBag.TableName = tableName;
+        if (!string.IsNullOrEmpty(tableName))
+        {
+            // 這裡可以預載入資料表詳情，如需要的話
+        }
+    }
 
     #endregion
 
@@ -39,7 +54,6 @@ public class DatabaseService()
     /// </summary>
     public (bool Success, List<TableColumnDto> Columns, string Message) LoadTableDetails(string provider, string connectionString, string tableName)
         => DatabaseUtilities.LoadTableDetails(provider, connectionString, tableName);
-
 
     #endregion
 

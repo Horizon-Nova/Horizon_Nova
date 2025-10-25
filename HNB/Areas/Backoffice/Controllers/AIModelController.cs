@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using HNB.Areas.Backoffice.Services;
-using System.Text.Json;
+using Models.HnbHnbBackoffice;
 
 namespace HNB.Areas.Backoffice.Controllers;
 
@@ -13,10 +13,24 @@ public class AIModelController(AIModelServices svc) : BaseController
         return View();
     }
 
-    #region 統一的查詢方法
-    #endregion
+    [HttpGet]
+    public IActionResult LoadDetail(long? id = null)
+    {
+        svc.ViewBagModel(ViewBag, id);
+        return PartialView("_AIModelModal");
+    }
 
-    #region 基本 CRUD 操作
+    [HttpPost]
+    public IActionResult SubmitConfig(ai_config form)
+    {
+        var result = svc.CreateAIConfig(form);
+        return Json(new { success = result != null, message = result != null ? "儲存成功" : "儲存失敗" });
+    }
 
-    #endregion
+    [HttpPost]
+    public IActionResult Delete(long id)
+    {
+        var result = svc.DeleteAIConfig(id);
+        return Json(new { success = result, message = result ? "刪除成功" : "刪除失敗" });
+    }
 }

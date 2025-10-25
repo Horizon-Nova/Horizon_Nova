@@ -1,0 +1,123 @@
+@model HNB.Areas.Backoffice.Dtos.FileSystemEntry
+@{
+    var detail = Model;
+    var isFile = detail?.Type == "file";
+    var sharedCount = detail?.SharedUsers?.Count ?? 0;
+    var sharedStatus = sharedCount > 1 ? $"共享 ({sharedCount}人)" : (sharedCount == 1 ? "私有" : "未設定");
+    var currentUser = ViewBag.CurrentUser as string ?? "";
+    var isOwner = detail != null && (detail?.PrimaryOwner ?? "") == currentUser;
+    var locationPath = detail?.VirtualPath ?? (ViewBag.CurrentPath as string ?? "/");
+}
+
+<table class="table table-bordered mb-0">
+    <tbody>
+        <tr>
+            <th style="width: 150px;">類型</th>
+            <td>
+                <i data-lucide="@((detail?.Type == "file") ? "file" : "folder")" style="width:1rem;height:1rem;"></i>
+                @((detail?.Type == "file") ? "檔案" : "資料夾")
+            </td>
+        </tr>
+        <tr>
+            <th>名稱</th>
+            <td>@(detail?.Name ?? "—")</td>
+        </tr>
+        <tr>
+            <th>位置</th>
+            <td class="small text-break">@locationPath</td>
+        </tr>
+        <tr>
+            <th>完整路徑</th>
+            <td class="small text-break">@(detail?.FullPath ?? "—")</td>
+        </tr>
+        @if ((detail?.Type == "file"))
+        {
+            <tr>
+                <th>大小</th>
+                <td>@(detail?.FormattedSize ?? (detail?.Size?.ToString() ?? "—"))</td>
+            </tr>
+            <tr>
+                <th>檔案類型</th>
+                <td>@(detail?.MimeType ?? "—")</td>
+            </tr>
+        }
+        else
+        {
+            <tr>
+                <th>包含</th>
+                <td>—</td>
+            </tr>
+        }
+        <tr>
+            <th>擁有者</th>
+            <td>
+                @{
+                    var owners = detail?.SharedUsers ?? new List<string>();
+                    if ((owners?.Count ?? 0) == 0 && !string.IsNullOrWhiteSpace(detail?.PrimaryOwner))
+                    {
+                        owners = new List<string> { detail!.PrimaryOwner };
+                    }
+                }
+                @if ((owners?.Count ?? 0) > 0)
+                {
+                    foreach (var user in owners)
+                    {
+                        <span class="badge bg-primary me-1">@user</span>
+                    }
+                }
+                else
+                {
+                    <span class="text-muted">未設定</span>
+                }
+            </td>
+        </tr>
+        <tr>
+            <th>共享對象</th>
+            <td>
+                @if (isOwner)
+                {
+                    <div class="d-flex align-items-start gap-2">
+                        <div class="flex-grow-1">
+                            <div id="shareSelected" class="d-flex flex-wrap gap-1">
+                                @if (detail?.SharedUsers != null && detail.SharedUsers.Count > 0)
+                                {
+                                    foreach (var u in detail.SharedUsers)
+                                    {
+                                        var isPrimary = u == detail?.PrimaryOwner;
+                                        <span class="badge bg-primary share-badge" data-user="@u" data-is-primary="@(isPrimary ? "true" : "false")">
+                                            @u 
+                                            @if (!isPrimary)
+                                            {
+                                                <button type="button" class="btn btn-sm btn-link text-white p-0 ms-1 remove-share" data-user="@u" style="font-size:1.2em; line-height:1;">×</button>
+                                            }
+                                        </span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">尚未設定</span>
+                                }
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-success align-self-start" id="btnSaveShare" data-item-name="@(detail?.Name ?? "")" data-current-path="@(ViewBag.CurrentPath as string ?? "/")" title="儲存變更">
+                            <i data-lucide="check" style="width:1rem;height:1rem;"></i>
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <span>@sharedStatus</span>
+                }
+            </td>
+        </tr>
+        <tr>
+            <th>建立時間</th>
+            <td>@(detail?.CreatedAt?.ToString("yyyy/MM/dd HH:mm:ss") ?? "—")</td>
+        </tr>
+        <tr>
+            <th>修改時間</th>
+            <td>@(detail?.UpdatedAt?.ToString("yyyy/MM/dd HH:mm:ss") ?? "—")</td>
+        </tr>
+    </tbody>
+</table>
+

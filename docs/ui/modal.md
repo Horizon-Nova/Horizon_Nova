@@ -1,5 +1,25 @@
 # Modal 完整使用指南
 
+> 快速速覽（必讀）
+> - 所有 Modal 集中於單一檔：`_{PageName}Modal.cshtml`
+> - 動態資料：以 `showModal('xxx', { url: 'LoadDetail', data })` 呼叫；Controller 回傳同一份 Partial（`_{PageName}Modal`）
+> - 不需要也不應該提供額外 container（例如 `<div id="X"></div>`）
+> - 只使用 `showModal()` / `closeModal()` API；前端一律用 jQuery API
+> - 尺寸規範：表單=`modal-lg`、詳情=預設、說明=`modal-xl`
+> - FileManager（無資料庫）屬特殊情況，也遵守以上規則
+>
+> 禁止事項（JS 不得組裝 HTML）：
+> ```javascript
+> // 錯誤：以 JS 拼接 Modal HTML
+> const html = '<div class="modal">...'+ dynamic +'</div>'; 
+> $('#container').html(html);
+> showModal('temp');
+> 
+> // 正確：Razor 產出 Modal；JS 只觸發與傳參
+> @await Html.PartialAsync("_UsersModal")
+> showModal('userDetailModal', { url: '@Url.Action("LoadDetail")', data: { id: 1, type: 'user' } });
+> ```
+
 ## 目錄
 - [快速規範](#快速規範)
 - [Modal.js API](#modaljs-api)

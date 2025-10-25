@@ -1,5 +1,25 @@
 # ViewBag 與 Model 規範
 
+> 避免混淆（重要）
+> - 本文件是「資料傳遞規範」，不是方法或類別。請不要與 `Service.ViewBagModel(viewBag, ...)` 方法混淆。
+> - `ViewBagModel(...)`：是 Service 層的「資料彙整方法名稱」，負責將多個來源的資料放入 `ViewBag` 供 View/Modal 使用；它遵守本文件規範，不代表「全部都用 ViewBag」。
+> - 列表/可迴圈/需分區資料 → 使用 `@model`；單一值/統計數字/當前狀態 → 使用 `ViewBag`；Modal 動態載入（特殊情況）允許 `ViewBag` 同時夾帶多種資料。
+> - Modal（關鍵規則）：主頁面先包含 `@await Html.PartialAsync("_{PageName}Modal")`；需要資料時呼叫 `LoadDetail` 回傳「同一份 Partial」，前端不需要額外 container。
+>
+> 可攜性（跨專案適用）
+> - 本文件中的範例採用中立命名（例如 `UserDto`、`OrganizationStatDto`），不依賴任何專案特定實體或資料庫結構；請在各專案中映射到實際的型別與欄位即可。
+>
+> 常見錯誤 vs 正確作法：
+> ```cshtml
+> <!-- 錯誤：主頁先放空容器，AJAX 再把 HTML 塞進去，導致 ViewBag 不一致與重複 id -->
+> <div id="fileManagerModalContainer"></div>
+> <button onclick="showModal('detailModal', { url: '...', data: {...}, container: 'fileManagerModalContainer' })">詳情</button>
+>
+> <!-- 正確：主頁先引用所有 Modal；動態時只呼叫 LoadDetail，由伺服端填好 ViewBag 並回傳同一 Partial -->
+> @await Html.PartialAsync("_FileManagerModal")
+> <button onclick="showModal('detailModal', { url: '@Url.Action("LoadDetail")', data: {...} })">詳情</button>
+> ```
+
 ## 核心規則
 
 ### 嚴格使用規範
@@ -58,7 +78,7 @@ public IActionResult Users()
 
 ```cshtml
 <!-- View -->
-@model List<vw_permission_user>
+@model List<UserDto>
 
 @foreach (var user in Model)
 {
@@ -101,7 +121,7 @@ public IActionResult Statistics()
 
 ```cshtml
 <!-- View -->
-@model List<OrganizationStatistics>
+@model List<OrganizationStatDto>
 
 @foreach (var stat in Model)
 {
@@ -121,7 +141,7 @@ public IActionResult Statistics()
 // Controller
 public IActionResult LoadDetail(int? id)
 {
-    ViewBag.User = sev.LoadUser(id);              // 單一實體
+    ViewBag.User = sev.LoadUser(id);              // 單一實體（UserDto）
     ViewBag.Organizations = sev.LoadOrganizationList();  // 列表（下拉選單）
     ViewBag.Roles = sev.LoadRoleList();           // 列表（多選）
     return PartialView("_UsersModal");
@@ -130,12 +150,12 @@ public IActionResult LoadDetail(int? id)
 
 ```cshtml
 <!-- Modal Partial View -->
-<input type="text" value="@(ViewBag.User?.full_name ?? "")" />
+<input type="text" value="@(ViewBag.User?.FullName ?? "")" />
 
 <select>
     @foreach (var org in ViewBag.Organizations)
     {
-        <option value="@org.id">@org.name</option>
+        <option value="@org.Id">@org.Name</option>
     }
 </select>
 ```
@@ -240,11 +260,11 @@ public IActionResult Dashboard()
 ---
 
 **相關文檔：**
-- [ARCHITECTURE.md](../../ARCHITECTURE.md)
 - [Service 層規範](./service.md)
 - [Controller 層規範](./controller.md)
+- [Modal 完整使用指南](../ui/modal.md)
 
 ---
 
-最後更新：2025-10-22
+最後更新：2025-10-24
 

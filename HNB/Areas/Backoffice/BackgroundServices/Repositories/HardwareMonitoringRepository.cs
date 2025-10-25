@@ -81,4 +81,5 @@ public class HardwareMonitoringRepository(HnbHnbBackofficeDbContext db)
     }
 
     #endregion
+
 }

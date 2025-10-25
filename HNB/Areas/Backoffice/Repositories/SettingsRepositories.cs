@@ -73,7 +73,7 @@ public class SettingsRepositories(HnbHnbBackofficeDbContext db, HnbdataDbContext
     #endregion
 
     #region 基本 CRUD 操作
-    
+        
     /// <summary>
     /// 刪除錯誤日誌
     /// </summary>
@@ -110,4 +110,5 @@ public class SettingsRepositories(HnbHnbBackofficeDbContext db, HnbdataDbContext
     }
 
     #endregion
+    
 }

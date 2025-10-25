@@ -29,16 +29,15 @@
     <!-- Dropzone.js -->
     <link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" type="text/css" />
     <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <!-- DataTable Bootstrap -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
-    
+
     <!-- HNB DataTable 模組 -->
     <link rel="stylesheet" href="~/lib/datatable/hnb-datatable.css">
     <script src="~/lib/datatable/hnb-datatable.js"></script>
@@ -48,10 +47,20 @@
     <link rel="stylesheet" href="~/Backoffice/css/DatabaseManagement.css" />
     <link rel="stylesheet" href="~/Backoffice/css/Wardrobe.css" />
     
-    <script src="~/Backoffice/js/Layout.js"></script>
     <script src="~/Backoffice/js/Modal.js"></script>
+    <script src="~/Backoffice/js/Layout.js"></script>
     <script src="~/Backoffice/js/DatabaseManagement.js"></script>
     <script src="~/Backoffice/js/Wardrobe.js"></script>
+    
+    <!-- 全域 Lucide 初始化 -->
+    <script>
+        window.addEventListener('load', function() {
+            if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
+                lucide.createIcons();
+            }
+        });
+    </script>
+
 </head>
 <body class="h-100">
 
@@ -194,5 +203,7 @@
     </div>
 
     @RenderSection("Scripts", required: false)
+    <link rel="stylesheet" href="~/lib/file-preview/FilePreview.css">
+    <script src="~/lib/file-preview/FilePreview.js"></script>
 </body>
 </html>

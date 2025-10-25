@@ -1,131 +1,104 @@
 @{
     Layout = null;
+    var currentPath = ViewBag.CurrentPath as string ?? "/";
 }
+<script>
+    window.__AF = window.__AF || function(){ return $('input[name="__RequestVerificationToken"]').val(); };
+</script>
 
-<!-- 資料夾操作 Modal -->
-<div id="folder-action-modal" class="modal fade" tabindex="-1" aria-labelledby="folderActionModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-sm">
+<!-- 新增資料夾 Modal -->
+<div id="createFolderModal" class="modal fade" tabindex="-1" aria-labelledby="createFolderModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="folderActionModalLabel">資料夾操作</h5>
+                <h5 class="modal-title" id="createFolderModalLabel">新增資料夾</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
             </div>
             <div class="modal-body">
-                <div class="d-grid gap-2">
-                    <button type="button" class="btn btn-outline-primary" onclick="showModal('folder-rename-modal', {url: '@Url.Action("LoadFolderRename", "FileManager")', method: 'GET', data: {name: '@ViewBag.FolderName', currentPath: '@ViewBag.CurrentPath'}, container: 'file-manager-modal-host'})">
-                        <i data-lucide="edit-3" style="width:1rem;height:1rem;"></i> 重新命名
-                    </button>
-                    <button type="button" class="btn btn-outline-danger" onclick="showModal('folder-delete-modal', {url: '@Url.Action("LoadFolderDelete", "FileManager")', method: 'GET', data: {name: '@ViewBag.FolderName', currentPath: '@ViewBag.CurrentPath'}, container: 'file-manager-modal-host'})">
-                        <i data-lucide="trash-2" style="width:1rem;height:1rem;"></i> 刪除
-                    </button>
-                </div>
+                <form id="createFolderForm">
+                    <div class="mb-3">
+                        <label for="folderName" class="form-label">資料夾名稱 <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="folderName" name="Name" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="submitCreateFolder()">建立</button>
             </div>
         </div>
     </div>
 </div>
 
 <!-- 檔案預覽 Modal -->
-<div id="file-preview-modal" class="modal fade" tabindex="-1" aria-labelledby="filePreviewModalLabel" aria-hidden="true">
+<div id="previewModal" class="modal fade" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="filePreviewModalLabel">檔案預覽</h5>
-                <div class="d-flex gap-2">
-                    <button type="button" onclick="showModal('file-preview-help-modal')" class="btn btn-sm btn-outline-secondary">
-                        <i data-lucide="help-circle" style="width: 1rem; height: 1rem;"></i>
-                    </button>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
-                </div>
+                <h5 class="modal-title" id="previewModalLabel">檔案預覽</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
             </div>
-            <div class="modal-body">
-                <!-- 檔案預覽內容將由 AJAX 載入 -->
-                <div class="text-center py-5">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">載入中...</span>
+            <div class="modal-body p-0" style="min-height:70vh;">
+                <div id="filePreviewContainer" class="p-3">
+                    <div class="text-center py-5 text-muted">載入中...</div>
+                </div>
+
+                <!-- 圖片預覽（Discord 風格：可縮放/拖移） -->
+                <div id="pvImageContainer" class="d-none position-relative" style="height:70vh; background:#111;">
+                    <div id="pvImageWrapper" class="w-100 h-100 overflow-hidden position-relative" style="cursor:grab;">
+                        <img id="pvImage" alt="preview" style="user-select:none; -webkit-user-drag:none; transform-origin: 0 0;" />
                     </div>
-                    <p class="mt-2 text-muted">正在載入檔案預覽...</p>
+                    <div class="position-absolute end-0 bottom-0 m-3 d-flex gap-2">
+                        <button type="button" class="btn btn-sm btn-light" onclick="pvFit()" title="適合視窗"><i data-lucide="maximize"></i></button>
+                        <button type="button" class="btn btn-sm btn-light" onclick="pvZoomOut()" title="縮小"><i data-lucide="zoom-out"></i></button>
+                        <button type="button" class="btn btn-sm btn-light" onclick="pvZoomIn()" title="放大"><i data-lucide="zoom-in"></i></button>
+                    </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
-                <button type="button" class="btn btn-primary" onclick="showModal('file-edit-modal', {url: '@Url.Action("LoadFileEdit", "FileManager")', method: 'GET', data: {name: '@ViewBag.FileName', currentPath: '@ViewBag.CurrentPath'}, container: 'file-manager-modal-host'})">編輯</button>
+
+                <!-- 文字編輯器 -->
+                <div id="pvTextContainer" class="d-none" style="height:70vh;">
+                    <div class="d-flex align-items-center justify-content-between border-bottom px-3 py-2">
+                        <div class="small text-muted" id="pvTextMeta"></div>
+                        <button type="button" class="btn btn-link btn-sm p-0" id="pvSaveTextBtn" title="儲存"><i data-lucide="save"></i></button>
+                    </div>
+                    <textarea id="pvTextArea" class="form-control border-0" style="height:calc(70vh - 42px); resize:none; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;"></textarea>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- 檔案詳細資訊 Modal -->
-<div id="file-detail-modal" class="modal fade" tabindex="-1" aria-labelledby="fileDetailModalLabel" aria-hidden="true">
+<!-- 新增檔案 Modal -->
+<div id="createFileModal" class="modal fade" tabindex="-1" aria-labelledby="createFileModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="fileDetailModalLabel">檔案詳細資訊</h5>
+                <h5 class="modal-title" id="createFileModalLabel">新增檔案</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
             </div>
             <div class="modal-body">
-                <!-- 檔案詳細資訊內容將由 AJAX 載入 -->
-                <div class="text-center py-3">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">載入中...</span>
+                <form id="createFileForm">
+                    <div class="mb-3">
+                        <label for="fileName" class="form-label">檔案名稱 <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="fileName" name="Name" required>
+                        <div class="form-text">請包含副檔名，例如：note.txt</div>
                     </div>
-                    <p class="mt-2 text-muted">正在載入檔案資訊...</p>
-                </div>
+                </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="submitCreateFile()">建立</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- 檔案重新命名 Modal -->
-<div id="file-rename-modal" class="modal fade" tabindex="-1" aria-labelledby="fileRenameModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="fileRenameModalLabel">重新命名檔案</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
-            </div>
-            <div class="modal-body">
-                <!-- 重新命名表單內容將由 AJAX 載入 -->
-                <div class="text-center py-3">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">載入中...</span>
-                    </div>
-                    <p class="mt-2 text-muted">正在載入重新命名表單...</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 檔案下載 Modal -->
-<div id="file-download-modal" class="modal fade" tabindex="-1" aria-labelledby="fileDownloadModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="fileDownloadModalLabel">檔案下載</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
-            </div>
-            <div class="modal-body">
-                <!-- 下載選項內容將由 AJAX 載入 -->
-                <div class="text-center py-3">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">載入中...</span>
-                    </div>
-                    <p class="mt-2 text-muted">正在準備下載...</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 檔案預覽說明 Modal -->
-<div id="file-preview-help-modal" class="modal fade" tabindex="-1" aria-labelledby="filePreviewHelpModalLabel" aria-hidden="true">
+<!-- 檔案總管操作說明視窗 -->
+<div id="fileManagerHelpModal" class="modal fade" tabindex="-1" aria-labelledby="fileManagerHelpModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="filePreviewHelpModalLabel">檔案預覽說明</h5>
+                <h5 class="modal-title" id="fileManagerHelpModalLabel">檔案總管操作說明</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
             </div>
             <div class="modal-body">
@@ -133,30 +106,73 @@
                     <!-- 左側：說明內容 -->
                     <div class="col-md-6">
                         <div class="vstack gap-3">
-                            <!-- 1. 基本操作流程 -->
+                            <!-- 基本操作流程 -->
                             <div>
                                 <h6 class="fw-bold mb-2 pb-2 border-bottom">基本操作流程</h6>
                                 <ol class="small mb-0">
-                                    <li>點擊檔案名稱或「開啟」按鈕進入預覽模式</li>
-                                    <li>支援多種檔案格式：圖片、文件、程式碼等</li>
-                                    <li>使用工具列進行編輯、下載等操作</li>
-                                    <li>按 ESC 或點擊關閉按鈕退出預覽</li>
+                                    <li>點擊左側目錄樹切換資料夾</li>
+                                    <li>拖曳檔案或資料夾到上傳區域</li>
+                                    <li>點擊上傳區域選擇多個檔案</li>
+                                    <li>使用右側操作選單管理檔案</li>
                                 </ol>
                             </div>
-                            
-                            <!-- 2. 支援的檔案類型 -->
+
+                            <!-- 權限控制說明 -->
                             <div>
-                                <h6 class="fw-bold mb-2 pb-2 border-bottom">支援的檔案類型</h6>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">權限控制說明</h6>
                                 <div class="small">
-                                    <p><strong>圖片檔案：</strong> JPG, PNG, GIF, SVG, WebP</p>
-                                    <p><strong>文件檔案：</strong> PDF, TXT, MD, DOC, DOCX</p>
-                                    <p><strong>程式碼檔案：</strong> JS, CSS, HTML, C#, Python</p>
-                                    <p><strong>其他檔案：</strong> 將提供下載連結</p>
+                                    <p class="mb-2"><strong>你可以管理的範圍：</strong></p>
+                                    <ul class="mb-2">
+                                        <li>只能看到<strong>你有權限</strong>的檔案和資料夾</li>
+                                        <li>上傳的檔案自動設定<strong>你為擁有者</strong></li>
+                                        <li>擁有者可以重新命名、刪除、下載檔案</li>
+                                    </ul>
+                                    <p class="mb-2"><strong>共享狀態說明：</strong></p>
+                                    <ul class="mb-0">
+                                        <li><strong>私有：</strong>只有一個擁有者</li>
+                                        <li><strong>共享 (N人)：</strong>多個擁有者共同管理</li>
+                                        <li><strong>未設定：</strong>尚未指定擁有者（僅上傳者可見）</li>
+                                    </ul>
                                 </div>
+                            </div>
+
+                            <!-- 功能說明 -->
+                            <div>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">功能說明</h6>
+                                <table class="table table-sm table-bordered small mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 90px;">功能</th>
+                                            <th>說明</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>上傳</strong></td>
+                                            <td>支援拖放檔案和資料夾，保留完整資料夾結構</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>下載</strong></td>
+                                            <td>下載單一檔案或整個資料夾（ZIP格式）</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>重新命名</strong></td>
+                                            <td>修改檔案或資料夾名稱</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>刪除</strong></td>
+                                            <td>刪除檔案或資料夾（包含所有子項目）</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>預覽</strong></td>
+                                            <td>支援圖片、文件、程式碼等多種格式</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- 右側：常見問題 -->
                     <div class="col-md-6">
                         <div class="vstack gap-3">
@@ -164,24 +180,31 @@
                             <div>
                                 <h6 class="fw-bold mb-2 pb-2 border-bottom">常見問題 (Q&A)</h6>
                                 <div class="small">
-                                    <p><strong>Q1：為什麼某些檔案無法預覽？</strong></p>
-                                    <p class="ms-3">A：不支援的檔案類型會顯示下載選項，您可以下載到本地查看。</p>
-                                    
-                                    <p><strong>Q2：如何編輯檔案內容？</strong></p>
-                                    <p class="ms-3">A：在預覽模式下點擊「編輯」按鈕，支援文字檔案的線上編輯。</p>
-                                    
-                                    <p><strong>Q3：預覽模式支援哪些快捷鍵？</strong></p>
-                                    <p class="ms-3">A：ESC 關閉預覽，Ctrl+S 儲存編輯，Ctrl+Z 復原操作。</p>
+                                    <p class="mb-2"><strong>Q1：如何上傳整個資料夾？</strong></p>
+                                    <p class="ms-3 mb-3">A：直接將資料夾<strong>拖曳到上傳區域</strong>即可。系統會自動保留完整的資料夾結構，包含所有子資料夾和檔案。</p>
+
+                                    <p class="mb-2"><strong>Q2：為什麼我看不到某些檔案？</strong></p>
+                                    <p class="ms-3 mb-3">A：系統使用<strong>權限控制</strong>，你只能看到你有權限的檔案。如果檔案沒有設定擁有者，只有上傳者可見。</p>
+
+                                    <p class="mb-2"><strong>Q3：上傳後的檔案擁有者如何設定？</strong></p>
+                                    <p class="ms-3 mb-3">A：上傳時<strong>自動設定你為擁有者</strong>。目前版本暫不支援手動設定多個擁有者，未來版本會加入共享功能。</p>
+
+                                    <p class="mb-2"><strong>Q4：上傳失敗怎麼辦？</strong></p>
+                                    <p class="ms-3 mb-3">A：檢查檔案大小（單一檔案最大4GB）和檔名是否包含特殊字元。如果進度 Modal 卡住，可以點擊「手動重新載入」按鈕。</p>
+
+                                    <p class="mb-2"><strong>Q5：刪除資料夾會發生什麼？</strong></p>
+                                    <p class="ms-3 mb-0">A：刪除資料夾會<strong>永久刪除該資料夾及其所有內容</strong>（包含子資料夾和檔案），且無法復原。刪除前系統會要求確認。</p>
                                 </div>
                             </div>
-                            
+
                             <!-- 注意事項 -->
                             <div class="alert alert-warning small mb-0">
                                 <h6 class="fw-bold mb-2">重要提醒</h6>
                                 <ul class="mb-0">
-                                    <li>編輯檔案前請確認有寫入權限</li>
-                                    <li>大型檔案可能載入較慢，請耐心等待</li>
-                                    <li>編輯後請記得儲存變更</li>
+                                    <li>刪除操作<strong>無法復原</strong>，請謹慎操作</li>
+                                    <li>上傳大量檔案時請保持網路穩定</li>
+                                    <li>資料夾結構會完整保留，無需手動建立</li>
+                                    <li>檔案名稱請避免使用特殊字元</li>
                                 </ul>
                             </div>
                         </div>
@@ -194,3 +217,469 @@
         </div>
     </div>
 </div>
+
+<!-- 詳細資料 Modal -->
+<div id="detailModal" class="modal fade" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detailModalLabel">詳細資料</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+            </div>
+            <div class="modal-body" id="detailModalBody">
+                <table class="table table-bordered mb-0">
+                    <tbody>
+                        <tr>
+                            <th style="width: 150px;">類型</th>
+                            <td>
+                                <i data-lucide="folder" style="width:1rem;height:1rem;"></i> 資料夾
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>名稱</th>
+                            <td>—</td>
+                        </tr>
+                        <tr>
+                            <th>位置</th>
+                            <td class="small text-break">—</td>
+                        </tr>
+                        <tr>
+                            <th>完整路徑</th>
+                            <td class="small text-break">—</td>
+                        </tr>
+                        <tr>
+                            <th>大小</th>
+                            <td>—</td>
+                        </tr>
+                        <tr>
+                            <th>包含</th>
+                            <td>—</td>
+                        </tr>
+                        <tr>
+                            <th>擁有者</th>
+                            <td><span class="text-muted">未設定</span></td>
+                        </tr>
+                        <tr>
+                            <th>共享對象</th>
+                            <td>未設定</td>
+                        </tr>
+                        <tr>
+                            <th>建立時間</th>
+                            <td>—</td>
+                        </tr>
+                        <tr>
+                            <th>修改時間</th>
+                            <td>—</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 重新命名檔案 Modal -->
+<div id="renameFileModal" class="modal fade" tabindex="-1" aria-labelledby="renameFileModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="renameFileModalLabel">重新命名檔案</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+            </div>
+            <div class="modal-body">
+                <form id="renameFileForm">
+                    <div class="mb-3">
+                        <label for="newFileName" class="form-label">新名稱</label>
+                        <input type="text" class="form-control" id="newFileName" name="NewName" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="submitRenameFile()">重新命名</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 重新命名資料夾 Modal -->
+<div id="renameFolderModal" class="modal fade" tabindex="-1" aria-labelledby="renameFolderModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="renameFolderModalLabel">重新命名資料夾</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+            </div>
+            <div class="modal-body">
+                <form id="renameFolderForm">
+                    <div class="mb-3">
+                        <label for="newFolderName" class="form-label">新名稱</label>
+                        <input type="text" class="form-control" id="newFolderName" name="NewName" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="submitRenameFolder()">重新命名</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    if (typeof window.currentFolderName === 'undefined') window.currentFolderName = '';
+    if (typeof window.currentFileName === 'undefined') window.currentFileName = '';
+    if (typeof window.currentItemPath === 'undefined') window.currentItemPath = '/';
+    if (typeof window.currentItemType === 'undefined') window.currentItemType = 'file';
+    function openItem(name, type, path){
+        if(type === 'folder'){
+            const folderPath = path === '/' ? '/' + name : path + '/' + name;
+            location.href = '@Url.Action("FileManager", "FileManager", new { area = "Backoffice" })' + '?path=' + encodeURIComponent(folderPath);
+        } else {
+            openPreview(path, name);
+        }
+    }
+
+    function downloadItem(name, type, path){
+        if(type === 'folder'){
+            alert('目前未提供資料夾下載');
+        } else {
+            location.href = '@Url.Action("Download", "FileManager", new { area = "Backoffice" })' + `?path=${encodeURIComponent(path)}&name=${encodeURIComponent(name)}`;
+        }
+    }
+
+    let __pv = { path: '', name: '', image: { scale: 1, fit: 1, x: 0, y: 0, dragging: false, sx: 0, sy: 0 } };
+
+    function openPreview(path, name){
+        const previewUrl = '@Url.Action("Preview", "FileManager", new { area = "Backoffice" })' + `?path=${encodeURIComponent(path)}&name=${encodeURIComponent(name)}`;
+        const downloadUrl = '@Url.Action("Download", "FileManager", new { area = "Backoffice" })' + `?path=${encodeURIComponent(path)}&name=${encodeURIComponent(name)}`;
+        const $container = $('#filePreviewContainer');
+        const $imgWrap = $('#pvImageContainer');
+        const $txtWrap = $('#pvTextContainer');
+        $container.removeClass('d-none').html('<div class="text-center py-5 text-muted">載入中...</div>');
+        $imgWrap.addClass('d-none');
+        $txtWrap.addClass('d-none');
+        showModal('previewModal');
+
+        const ext = (name.split('.').pop()||'').toLowerCase();
+        const officeExts = ['doc','docx','xls','xlsx','ppt','pptx'];
+        const textExts = ['txt','md','json','xml','csv','log','js','ts','css','html','cs','sql','yml','yaml','ini','conf','cfg','py','sh','bat','ps1','properties','toml'];
+        const imageExts = ['png','jpg','jpeg','gif','svg','webp','bmp'];
+        __pv.path = path; __pv.name = name;
+
+        // 1) Office 線上閱讀
+        if (officeExts.includes(ext)){
+            const fullUrl = window.location.origin + downloadUrl;
+            const officeViewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fullUrl)}`;
+            $container.html(`<iframe src="${officeViewerUrl}" style="width:100%;height:70vh;border:0;"></iframe>`);
+            return;
+        }
+
+        // 2) PDF 直接內嵌
+        if (ext === 'pdf'){
+            $container.html(`<iframe src="${previewUrl}" style="width:100%;height:70vh;border:0;"></iframe>`);
+            return;
+        }
+
+        // 3) 圖片閱讀器（可縮放/拖移）
+        if (imageExts.includes(ext)){
+            $container.addClass('d-none');
+            const $img = $('#pvImage');
+            const wrap = document.getElementById('pvImageWrapper');
+            $imgWrap.removeClass('d-none');
+            $img.attr('src', previewUrl);
+            // 初始化狀態
+            __pv.image.scale = 1; __pv.image.x = 0; __pv.image.y = 0; __pv.image.fit = 1; __pv.image.dragging = false;
+            $img.off('load').on('load', function(){
+                const rect = wrap.getBoundingClientRect();
+                const iw = this.naturalWidth, ih = this.naturalHeight;
+                const sx = rect.width / iw, sy = rect.height / ih;
+                __pv.image.fit = Math.min(sx, sy, 1);
+                __pv.image.scale = __pv.image.fit;
+                __pv.image.x = Math.round((rect.width - iw * __pv.image.scale)/2);
+                __pv.image.y = Math.round((rect.height - ih * __pv.image.scale)/2);
+                pvApply();
+                window.lucide?.createIcons?.();
+            });
+
+            // 事件綁定（一次性）
+            $('#pvImageWrapper').off('wheel').on('wheel', function(e){
+                e.preventDefault();
+                const delta = (e.originalEvent.deltaY < 0) ? 1.1 : 0.9;
+                const rect = this.getBoundingClientRect();
+                const mx = rect.width/2, my = rect.height/2;
+                const img = document.getElementById('pvImage');
+                const iw = img.naturalWidth, ih = img.naturalHeight;
+                const preX = (mx - __pv.image.x) / __pv.image.scale;
+                const preY = (my - __pv.image.y) / __pv.image.scale;
+                __pv.image.scale = Math.max(0.1, Math.min(5, __pv.image.scale * delta));
+                __pv.image.x = Math.round(mx - preX * __pv.image.scale);
+                __pv.image.y = Math.round(my - preY * __pv.image.scale);
+                pvApply();
+            });
+            $('#pvImageWrapper').off('mousedown').on('mousedown', function(e){ if(e.button!==0) return; __pv.image.dragging=true; __pv.image.sx = e.clientX - __pv.image.x; __pv.image.sy = e.clientY - __pv.image.y; this.style.cursor='grabbing'; });
+            $(window).off('mouseup.pv').on('mouseup.pv', function(){ __pv.image.dragging=false; document.getElementById('pvImageWrapper').style.cursor='grab'; });
+            $(window).off('mousemove.pv').on('mousemove.pv', function(e){ if(!__pv.image.dragging) return; __pv.image.x = Math.round(e.clientX - __pv.image.sx); __pv.image.y = Math.round(e.clientY - __pv.image.sy); pvApply(); });
+            return;
+        }
+
+        // 4) 純文字閱讀器（可編輯）
+        if (textExts.includes(ext)){
+            $container.addClass('d-none');
+            $('#pvTextMeta').text(`${name}`);
+            const $ta = $('#pvTextArea');
+            $('#pvTextContainer').removeClass('d-none');
+            $.ajax({ url: previewUrl, method: 'GET', dataType: 'text' })
+              .done((text)=>{ $ta.val(text||''); window.lucide?.createIcons?.(); })
+              .fail(()=>{ $ta.val(''); alert('讀取檔案失敗'); });
+            return;
+        }
+
+        // 5) 其餘不支援：顯示無法閱讀
+        $container.html(`<div class="text-center py-5 text-muted">此檔案不支援線上閱讀，請下載後查看。<div class="mt-2"><a class="btn btn-sm btn-outline-secondary" href="${downloadUrl}">下載檔案</a></div></div>`);
+    }
+
+    function pvApply(){
+        const img = document.getElementById('pvImage');
+        img.style.transform = `translate(${__pv.image.x}px, ${__pv.image.y}px) scale(${__pv.image.scale})`;
+    }
+    function pvFit(){ __pv.image.scale = __pv.image.fit || 1; __pv.image.x = 0; __pv.image.y = 0; pvApply(); }
+    function pvZoomIn(){ __pv.image.scale = Math.min(5, __pv.image.scale * 1.2); pvApply(); }
+    function pvZoomOut(){ __pv.image.scale = Math.max(0.1, __pv.image.scale / 1.2); pvApply(); }
+
+    $(document).off('click', '#pvSaveTextBtn').on('click', '#pvSaveTextBtn', function(){
+        const token = $('input[name="__RequestVerificationToken"]').val();
+        const payload = { Path: __pv.path, Name: __pv.name, Content: $('#pvTextArea').val(), Encoding: 'utf-8', __RequestVerificationToken: token };
+        $.ajax({
+            type: 'POST',
+            url: '/Backoffice/FileManager/SubmitTextFile',
+            contentType: 'application/json',
+            data: JSON.stringify(payload),
+            headers: { 'RequestVerificationToken': token },
+            success: (res)=>{ if(res.success){ alert('已儲存'); } else { alert(res.message||'儲存失敗'); } },
+            error: ()=> alert('系統發生錯誤')
+        });
+    });
+    function renameItem(name, type, path){
+        if(type === 'folder'){
+            openRenameFolderModal(name, path);
+        } else {
+            openRenameFileModal(name, path);
+        }
+    }
+
+    function deleteItem(name, type, path){
+        if(type === 'folder'){
+            deleteFolder(name, path);
+        } else {
+            deleteFile(name, path);
+        }
+    }
+
+    function submitCreateFolder() {
+        const $form = $('#createFolderForm');
+        const formElement = $form[0];
+
+        if (!formElement.checkValidity()) {
+            formElement.reportValidity();
+            return;
+        }
+
+        const token = __AF();
+        const data = {
+            Path: '@currentPath',
+            Name: $('#folderName').val(),
+            __RequestVerificationToken: token
+        };
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SubmitFolder", "FileManager", new { area = "Backoffice" })',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            headers: { 'RequestVerificationToken': token },
+            success: (response) => {
+                if (response.success) {
+                    alert('資料夾已建立');
+                    location.reload();
+                } else {
+                    alert(response.message || '建立失敗');
+                }
+            },
+            error: () => alert('系統發生錯誤')
+        });
+    }
+
+    function submitCreateFile() {
+        const $form = $('#createFileForm');
+        const formElement = $form[0];
+
+        if (!formElement.checkValidity()) {
+            formElement.reportValidity();
+            return;
+        }
+
+        const token = __AF();
+        const data = {
+            Path: '@currentPath',
+            Name: $('#fileName').val(),
+            __RequestVerificationToken: token
+        };
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SubmitFile", "FileManager", new { area = "Backoffice" })',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            headers: { 'RequestVerificationToken': token },
+            success: (response) => {
+                if (response.success) {
+                    alert('檔案已建立');
+                    location.reload();
+                } else {
+                    alert(response.message || '建立失敗');
+                }
+            },
+            error: () => alert('系統發生錯誤')
+        });
+    }
+
+    function openRenameFileModal(name, path) {
+        currentFileName = name;
+        currentItemPath = path;
+        $('#newFileName').val(name);
+        showModal('renameFileModal');
+    }
+
+    function openRenameFolderModal(name, path) {
+        currentFolderName = name;
+        currentItemPath = path;
+        $('#newFolderName').val(name);
+        showModal('renameFolderModal');
+    }
+
+    function submitRenameFile() {
+        const $form = $('#renameFileForm');
+        const formElement = $form[0];
+
+        if (!formElement.checkValidity()) {
+            formElement.reportValidity();
+            return;
+        }
+
+        const data = {
+            Path: currentItemPath,
+            OldName: currentFileName,
+            NewName: $('#newFileName').val(),
+            __RequestVerificationToken: __AF()
+        };
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SubmitRenameFile", "FileManager")',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            success: (response) => {
+                if (response.success) {
+                    alert('檔案已重新命名');
+                    location.reload();
+                } else {
+                    alert(response.message || '重新命名失敗');
+                }
+            },
+            error: () => alert('系統發生錯誤')
+        });
+    }
+
+    function submitRenameFolder() {
+        const $form = $('#renameFolderForm');
+        const formElement = $form[0];
+
+        if (!formElement.checkValidity()) {
+            formElement.reportValidity();
+            return;
+        }
+
+        const data = {
+            Path: currentItemPath,
+            OldName: currentFolderName,
+            NewName: $('#newFolderName').val(),
+            __RequestVerificationToken: __AF()
+        };
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SubmitRename", "FileManager")',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            success: (response) => {
+                if (response.success) {
+                    alert('資料夾已重新命名');
+                    location.reload();
+                } else {
+                    alert(response.message || '重新命名失敗');
+                }
+            },
+            error: () => alert('系統發生錯誤')
+        });
+    }
+
+    function deleteFile(name, path) {
+        if (!confirm(`確定要刪除檔案「${name}」嗎？此操作無法復原。`)) {
+            return;
+        }
+
+        const data = {
+            Path: path,
+            Name: name,
+            __RequestVerificationToken: __AF()
+        };
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("DeleteFile", "FileManager")',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            success: (response) => {
+                if (response.success) {
+                    alert('檔案已刪除');
+                    location.reload();
+                } else {
+                    alert(response.message || '刪除失敗');
+                }
+            },
+            error: () => alert('系統發生錯誤')
+        });
+    }
+
+    function deleteFolder(name, path) {
+        if (!confirm(`確定要刪除資料夾「${name}」及其所有內容嗎？此操作無法復原。`)) {
+            return;
+        }
+
+        const data = {
+            Path: path,
+            Name: name,
+            __RequestVerificationToken: __AF()
+        };
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("Delete", "FileManager")',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            success: (response) => {
+                if (response.success) {
+                    alert('資料夾已刪除');
+                    location.reload();
+                } else {
+                    alert(response.message || '刪除失敗');
+                }
+            },
+            error: () => alert('系統發生錯誤')
+        });
+    }
+</script>

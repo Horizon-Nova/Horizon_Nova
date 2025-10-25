@@ -6,129 +6,185 @@
     Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
 }
 
-<div class="database-management-container space-y-6">
+<div class="database-management-container">
 
     <!-- 主要操作區塊 -->
-    <div class="bg-white rounded-xl border border-slate-200 p-6">
-        <div class="flex items-center mb-6">
-            <div class="p-2 bg-blue-100 rounded-lg mr-3">
-                <i data-lucide="plus-circle" class="w-5 h-5 text-blue-600"></i>
-            </div>
-            <h3 class="text-lg font-semibold text-slate-900">建立資料庫連線</h3>
-            <button type="button" class="ml-2 p-1 text-slate-400 hover:text-slate-600" 
-                    onclick="showModal('helpModal')">
-                <i data-lucide="help-circle" class="w-4 h-4"></i>
-            </button>
-        </div>
-        
-        <form id="FormData">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- 連線設定 -->
-            <div class="space-y-4">
-                <div>
-                    <label for="databaseType" class="block text-sm font-medium text-slate-700 mb-2">
-                        資料庫類型
-                        <span class="text-slate-500 text-xs">(選擇您使用的資料庫)</span>
-                    </label>
-                    <select id="databaseType" name="Provider" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">請選擇資料庫類型...</option>
-                        <option value="sqlserver">SQL Server</option>
-                        <option value="postgresql">PostgreSQL</option>
-                    </select>
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="d-flex align-items-center mb-4">
+                <div class="p-2 bg-primary bg-opacity-10 rounded me-3">
+                    <i data-lucide="plus-circle" class="text-primary" style="width: 1.25rem; height: 1.25rem;"></i>
                 </div>
-                
-                <div>
-                    <label for="connectionString" class="block text-sm font-medium text-slate-700 mb-2">
-                        連線字串
-                        <span class="text-slate-500 text-xs">(資料庫的連線資訊)</span>
-                    </label>
-                    <textarea id="connectionString" name="ConnectionString" rows="3"
-                              class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                              placeholder="例如: Server=localhost;Database=MyDB;User Id=sa;Password=123456;"></textarea>
-                </div>
-                
-                <div>
-                    <label for="outputPath" class="block text-sm font-medium text-slate-700 mb-2">
-                        輸出位置
-                        <span class="text-slate-500 text-xs">(程式碼要放在哪個資料夾)</span>
-                    </label>
-                    <input type="text" id="outputPath" 
-                           class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
-                           value="Models/Generated" />
-                </div>
+                <h3 class="h5 mb-0">建立資料庫連線</h3>
+                <button type="button" class="btn btn-sm btn-link ms-2 p-1" onclick="showModal('helpModal')">
+                    <i data-lucide="help-circle" class="text-muted" style="width: 1rem; height: 1rem;"></i>
+                </button>
             </div>
             
-            <!-- 操作按鈕 -->
-            <div class="space-y-4">
-                <div class="bg-slate-50 rounded-lg p-4">
-                    <h4 class="font-medium text-slate-900 mb-3">操作步驟</h4>
-                    <div class="space-y-2 text-sm text-slate-600">
-                        <div class="flex items-center">
-                            <span class="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-medium mr-2">1</span>
-                            選擇資料庫類型
+            <form id="FormData">
+                <div class="row g-4">
+                    <!-- 連線設定 -->
+                    <div class="col-lg-6">
+                        <div class="mb-3">
+                            <label for="databaseType" class="form-label">
+                                資料庫類型
+                                <small class="text-muted">(選擇您使用的資料庫)</small>
+                            </label>
+                            <select id="databaseType" name="Provider" class="form-select">
+                                <option value="">請選擇資料庫類型...</option>
+                                <option value="sqlserver">SQL Server</option>
+                                <option value="postgresql">PostgreSQL</option>
+                            </select>
                         </div>
-                        <div class="flex items-center">
-                            <span class="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-medium mr-2">2</span>
-                            填入連線字串
+                        
+                        <div class="mb-3">
+                            <label for="connectionString" class="form-label">
+                                連線字串
+                                <small class="text-muted">(資料庫的連線資訊)</small>
+                            </label>
+                            <textarea id="connectionString" name="ConnectionString" rows="3" class="form-control"
+                                      placeholder="例如: Server=localhost;Database=MyDB;User Id=sa;Password=123456;"></textarea>
                         </div>
-                        <div class="flex items-center">
-                            <span class="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-medium mr-2">3</span>
-                            測試連線
-                        </div>
-                        <div class="flex items-center">
-                            <span class="w-6 h-6 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center text-xs font-medium mr-2">4</span>
-                            備份資料表 <span class="text-slate-400 text-xs ml-1">(需先測試連線)</span>
+                        
+                        <div class="mb-3">
+                            <label for="outputPath" class="form-label">
+                                輸出位置
+                                <small class="text-muted">(程式碼要放在哪個資料夾)</small>
+                            </label>
+                            <input type="text" id="outputPath" class="form-control" value="Models/Generated" />
                         </div>
                     </div>
-                </div>
-                
-                <div class="space-y-3">
-                    <button type="submit" onclick="testConnection(event)" 
-                            class="btn-database w-full flex items-center justify-center px-4 py-2 text-white rounded-lg transition-colors">
-                        <i data-lucide="wifi" class="w-4 h-4 mr-2"></i>
-                        測試連線
-                    </button>
                     
-                    <button type="submit" onclick="backupTables(event)" 
-                            class="btn-database w-full flex items-center justify-center px-4 py-2 text-white rounded-lg transition-colors opacity-50 cursor-not-allowed" 
-                            disabled>
-                        <i data-lucide="download" class="w-4 h-4 mr-2"></i>
-                        備份資料表
-                    </button>
+                    <!-- 操作步驟與按鈕 -->
+                    <div class="col-lg-6">
+                        <div class="bg-light rounded p-4 mb-3">
+                            <h4 class="h6 mb-3">操作步驟</h4>
+                            <div class="vstack gap-2">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-primary rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 1.5rem; height: 1.5rem;">1</span>
+                                    <span class="small">選擇資料庫類型</span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-primary rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 1.5rem; height: 1.5rem;">2</span>
+                                    <span class="small">填入連線字串</span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-primary rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 1.5rem; height: 1.5rem;">3</span>
+                                    <span class="small">測試連線</span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-secondary rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 1.5rem; height: 1.5rem;">4</span>
+                                    <span class="small">備份資料表 <small class="text-muted">(需先測試連線)</small></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" onclick="testConnection(event)" class="btn btn-primary">
+                                <i data-lucide="wifi" class="me-2" style="width: 1rem; height: 1rem;"></i>
+                                測試連線
+                            </button>
+                            
+                            <button type="submit" onclick="backupTables(event)" class="btn btn-primary" disabled id="btnBackup">
+                                <i data-lucide="download" class="me-2" style="width: 1rem; height: 1rem;"></i>
+                                備份資料表
+                            </button>
+                        </div>
+                        
+                        <div id="operationResult" class="mt-3"></div>
+                    </div>
                 </div>
-                
-                <div id="operationResult" class="operation-result mt-4"></div>
-            </div>
+            </form>
         </div>
-        </form>
     </div>
 
     <!-- 資料表管理 -->
-    <div id="tableManagement" class="bg-white rounded-xl border border-slate-200 p-6" style="display: none;">
-        <div class="flex items-center mb-6">
-            <div class="flex items-center">
-                <div class="p-2 bg-orange-100 rounded-lg mr-3">
-                    <i data-lucide="table" class="w-5 h-5 text-orange-600"></i>
+    <div id="tableManagement" class="card" style="display: none;">
+        <div class="card-body">
+            <div class="d-flex align-items-center mb-4">
+                <div class="p-2 bg-warning bg-opacity-10 rounded me-3">
+                    <i data-lucide="table" class="text-warning" style="width: 1.25rem; height: 1.25rem;"></i>
                 </div>
-                <h3 class="text-lg font-semibold text-slate-900">資料表管理</h3>
+                <h3 class="h5 mb-0">資料表管理</h3>
             </div>
-        </div>
-        
-        <!-- 動態資料表容器 -->
-        <div id="databaseTablesContainer">
-            <div class="text-center py-12">
-                <div class="p-4 bg-slate-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                    <i data-lucide="database" class="w-8 h-8 text-slate-400"></i>
+            
+            <!-- 動態資料表容器 -->
+            <div id="databaseTablesContainer">
+                <div class="text-center py-5">
+                    <div class="p-4 bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 4rem; height: 4rem;">
+                        <i data-lucide="database" class="text-muted" style="width: 2rem; height: 2rem;"></i>
+                    </div>
+                    <h4 class="h5 mb-2">請先建立資料庫連線</h4>
+                    <p class="text-muted">連線成功後將顯示資料庫中的資料表</p>
                 </div>
-                <h4 class="text-lg font-medium text-slate-900 mb-2">請先建立資料庫連線</h4>
-                <p class="text-slate-500">連線成功後將顯示資料庫中的資料表</p>
             </div>
         </div>
     </div>
 </div>
 
-@await Html.PartialAsync("_DatabaseManagementModal")
+<!-- 說明 Modal (靜態) -->
+<div id="helpModal" class="modal fade" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="helpModalLabel">資料庫管理說明</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="vstack gap-3">
+                            <div>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">什麼是資料庫管理？</h6>
+                                <p class="small">這個工具可以幫您從現有的資料庫自動備份資料表結構和資料，讓您可以輕鬆管理和遷移資料庫。</p>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">操作步驟</h6>
+                                <ol class="small mb-0">
+                                    <li>選擇您使用的資料庫類型（SQL Server、PostgreSQL）</li>
+                                    <li>填入連線字串（就像在 DBeaver 中連線資料庫一樣）</li>
+                                    <li>測試連線確保可以正常連接</li>
+                                    <li>點擊備份資料表，系統會自動建立結構和資料檔案</li>
+                                </ol>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">連線字串範例</h6>
+                                <div class="small">
+                                    <p><strong>SQL Server:</strong></p>
+                                    <code class="d-block bg-light p-2 rounded mb-2">Server=localhost;Database=MyDB;User Id=sa;Password=123456;</code>
+                                    <p><strong>PostgreSQL:</strong></p>
+                                    <code class="d-block bg-light p-2 rounded">Host=localhost;Database=MyDB;Username=postgres;Password=123456;</code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="vstack gap-3">
+                            <div>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">備份說明</h6>
+                                <div class="alert alert-warning small mb-0">
+                                    <strong>重要提醒</strong>
+                                    <ul class="mb-0 mt-2">
+                                        <li>備份會建立帶時間戳記的資料夾</li>
+                                        <li>每次備份都是獨立的，避免資料累積</li>
+                                        <li>請確保有足夠的磁碟空間</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">我知道了</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 空容器（用於動態載入資料表詳情） -->
+<div id="databaseModal"></div>
 
 @section Scripts {
-
+    <script src="~/Backoffice/js/DatabaseManagement.js"></script>
 }

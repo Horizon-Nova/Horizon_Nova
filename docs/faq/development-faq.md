@@ -1,5 +1,30 @@
 # 開發常見問題 (FAQ)
 
+## 快速排錯（多層次分診）
+1. 重現步驟：能穩定重現嗎？輸入、路徑、環境一致嗎？
+2. 錯誤來源定位：
+   - 前端：瀏覽器 Console / Network（請求是否發出？回應 HTTP/JSON？）
+   - 後端：中介軟體/全域例外、Controller 入口是否被打到？
+   - 資料：Service/Repository 的輸入參數、回傳是否為 null？
+3. 規範對齊：
+   - Modal 是否走 `LoadDetail` 並回傳同一 Partial？
+   - 有無在 JS 組裝 HTML？（禁止）
+   - 列表是否用 `@model`？單值是否用 `ViewBag`？
+4. 界面/流程：
+   - 是否先畫面→Controller→Service→Repository 自上而下檢查？
+   - 是否有遺漏 Anti-Forgery Token？
+5. 記錄：貼上最小重現、請求/回應片段、相關日誌，避免單點猜測。
+
+### 範例：匯入失敗時的檢查清單
+- [ ] 檔案是否正確傳到後端（Network → Request payload / Content-Type）
+- [ ] 後端 Controller 是否有對應 Action，方法是否標註 [HttpPost] / 參數匹配
+- [ ] Service 層是否驗證檔案格式/欄位，錯誤是否回傳 message
+- [ ] Repository 是否有資料庫層驗證/交易控制（如需要）
+- [ ] 前端是否誤用 JS 組裝 HTML 顯示錯誤（應顯示 `response.message`）
+- [ ] 規範遵守：AJAX + 表單合規、Modal 流程正確
+
+---
+
 ## 目錄
 - [架構相關](#架構相關)
 - [Modal 開發](#modal-開發)
@@ -316,5 +341,5 @@ function showMyModal() { showModal('myModal', {...}); }
 
 ---
 
-最後更新：2025-10-22
+最後更新：2025-10-24
 

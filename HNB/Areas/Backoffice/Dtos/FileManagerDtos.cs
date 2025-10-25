@@ -75,12 +75,22 @@ public class UploadResponse
 }
 
 /// <summary>
-/// 更新資料夾權限請求
+/// 更新資料夾權限請求（舊）
 /// </summary>
 public class UpdateFolderPermissionsRequest
 {
     public string Path { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public string[] Owners { get; set; } = Array.Empty<string>();
+}
+
+/// <summary>
+/// 更新檔案/資料夾擁有者請求（分享）
+/// </summary>
+public class UpdateOwnersRequest
+{
+    public string Path { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public List<string>? Owners { get; set; }
 }
 

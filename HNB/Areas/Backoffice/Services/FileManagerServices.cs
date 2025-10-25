@@ -1,16 +1,17 @@
 ﻿using HNB.Areas.Backoffice.Utilities;
 using HNB.Areas.Backoffice.Dtos;
 using Microsoft.AspNetCore.Http;
+using HNB.Areas.Backoffice.Services; // for PermissionManagementService
 
 namespace HNB.Areas.Backoffice.Services;
 
 /// <summary>
 /// 檔案管理服務層，負責處理檔案和資料夾的業務邏輯
 /// </summary>
-public class FileManagerServices(DirectoryManagerUtilities DM, IHttpContextAccessor httpContextAccessor)
+public class FileManagerServices(DirectoryManagerUtilities DM, IHttpContextAccessor httpContextAccessor, PermissionManagementService permissionService)
 {
     #region 查詢方法
-    
+
     /// <summary>
     /// 載入文字檔案內容
     /// </summary>
@@ -21,14 +22,15 @@ public class FileManagerServices(DirectoryManagerUtilities DM, IHttpContextAcces
     /// <summary>
     /// 載入用戶有權限的檔案系統項目
     /// </summary>
-    public List<FileSystemItem> LoadUserFileSystemItems(string virtualPath, string currentUser)
+    public List<FileSystemEntry> LoadUserFileSystemItems(string virtualPath, string currentUser)
         => DM.LoadUserFileSystemItems(virtualPath, currentUser);
 
     /// <summary>
     /// 載入檔案詳細資訊
     /// </summary>
-    public FileSystemDetail LoadFileSystemDetail(string virtualPath, string name, string currentUser)
+    public FileSystemEntry LoadFileSystemDetail(string virtualPath, string name, string currentUser)
         => DM.LoadFileSystemDetail(virtualPath, name, currentUser);
+
 
     /// <summary>
     /// 載入用戶有權限的目錄樹
@@ -36,18 +38,18 @@ public class FileManagerServices(DirectoryManagerUtilities DM, IHttpContextAcces
     public List<object> LoadUserTree(string currentUser)
     {
         var tree = new List<object>();
-        
+
         void BuildTree(string virtualPath, int depth = 0)
         {
             if (depth > 5) return;
-            
+
             var items = LoadUserFileSystemItems(virtualPath, currentUser);
             var folders = items.Where(f => f.Type == "folder").ToList();
-            
+
             foreach (var folder in folders)
             {
                 var folderPath = virtualPath == "/" ? $"/{folder.Name}" : $"{virtualPath}/{folder.Name}";
-                
+
                 tree.Add(new
                 {
                     name = folder.Name,
@@ -56,11 +58,11 @@ public class FileManagerServices(DirectoryManagerUtilities DM, IHttpContextAcces
                     depth = depth,
                     hasChildren = true
                 });
-                
+
                 BuildTree(folderPath, depth + 1);
             }
         }
-        
+
         BuildTree("/");
         return tree;
     }
@@ -70,124 +72,100 @@ public class FileManagerServices(DirectoryManagerUtilities DM, IHttpContextAcces
     /// </summary>
     public static bool IsEditable(string fileName)
         => DirectoryManagerUtilities.IsEditable(fileName);
-        
+
     #endregion
 
     #region 基本 CRUD 操作
-    
+
     /// <summary>
     /// 建立資料夾
     /// </summary>
-    public void CreateFolder(string virtualPath, string folderName)
-        => DM.InsertFolder(virtualPath, folderName);
-    
+    public void CreateFolder(FileSystemEntry entry)
+        => DM.InsertFolder(entry);
+
     /// <summary>
     /// 刪除資料夾
     /// </summary>
-    public void DeleteFolder(string virtualPath, string folderName)
-        => DM.DeleteFolder(virtualPath, folderName);
-    
+    public void DeleteFolder(FileSystemEntry entry)
+        => DM.DeleteFolder(entry);
+
     /// <summary>
     /// 重新命名資料夾
     /// </summary>
-    public void RenameFolder(string virtualPath, string oldName, string newName)
-        => DM.UpdateFolder(virtualPath, oldName, newName);
-    
+    public void RenameFolder(FileSystemEntry entry, string newName)
+        => DM.UpdateFolder(entry, newName);
+
     /// <summary>
     /// 建立空檔案
     /// </summary>
-    public void CreateFile(string virtualPath, string fileName)
-        => DM.InsertFile(virtualPath, fileName);
-    
+    public void CreateFile(FileSystemEntry entry)
+        => DM.InsertFile(entry);
+
     /// <summary>
     /// 刪除檔案
     /// </summary>
-    public void DeleteFile(string virtualPath, string fileName)
-        => DM.DeleteFile(virtualPath, fileName);
-    
+    public void DeleteFile(FileSystemEntry entry)
+        => DM.DeleteFile(entry);
+
     /// <summary>
     /// 重新命名檔案
     /// </summary>
-    public void RenameFile(string virtualPath, string oldName, string newName)
-        => DM.UpdateFile(virtualPath, oldName, newName);
-    
+    public void RenameFile(FileSystemEntry entry, string newName)
+        => DM.UpdateFile(entry, newName);
+
     /// <summary>
     /// 儲存文字檔案
     /// </summary>
-    public void SaveTextFile(string virtualPath, string fileName, string content, string? encodingName = "utf-8")
-        => DM.UpdateTextFile(virtualPath, fileName, content, encodingName);
+    public void SaveTextFile(FileSystemEntry entry, string content, string? encodingName = "utf-8")
+        => DM.UpdateTextFile(entry, content, encodingName);
 
     /// <summary>
     /// 更新資料夾擁有者
     /// </summary>
-    public void UpdateFolderOwners(string virtualPath, string folderName, string[] owners)
-        => DM.UpdateFolderOwners(virtualPath, folderName, owners);
-    
+    public void UpdateFolderOwners(FileSystemEntry entry, string[] owners)
+        => DM.UpdateFolderOwners(entry, owners);
+
+    /// <summary>
+    /// 更新項目擁有者
+    /// </summary>
+    public void UpdateItemOwners(FileSystemEntry entry, string[] owners)
+        => DM.UpdateItemOwners(entry, owners);
+
     #endregion
 
     #region 上傳和下載
-    
-    /// <summary>
-    /// 上傳單一檔案
-    /// </summary>
-    public (bool success, string message, string? safeFileName) UploadSingleFile(string virtualPath, IFormFile file)
-    {
-        var (absPath, safeName) = DM.PrepareSingleUploadTarget(virtualPath, file.FileName);
-        
-        using (var stream = new FileStream(absPath, FileMode.Create))
-        {
-            file.CopyTo(stream);
-        }
-        
-        var uploader = httpContextAccessor?.HttpContext?.User?.Identity?.Name;
-        if (!string.IsNullOrWhiteSpace(uploader))
-        {
-            DirectoryManagerUtilities.SetAppOwners(absPath, new[] { uploader });
-        }
-        
-        return (true, "檔案已上傳", safeName);
-    }
 
     /// <summary>
-    /// 批次上傳檔案
+    /// 上傳檔案（支援單個或批量上傳）
     /// </summary>
+    /// <param name="virtualPath">表單欄位：virtualPath（目標虛擬路徑）</param>
+    /// <param name="files">表單欄位：files（檔案清單）</param>
+    /// <param name="relativePaths">表單欄位：relativePaths（可選；每個檔案的相對路徑，用於保留資料夾結構）</param>
+    /// <remarks>
+    /// 如果未提供 relativePaths 或數量不符，會自動使用檔案名稱（不保留資料夾結構）
+    /// </remarks>
     public (bool success, int savedCount, int failedCount, List<string> errors) UploadBatchFiles(string virtualPath, List<IFormFile> files, List<string>? relativePaths = null)
     {
-        var saved = 0;
-        var errors = new List<string>();
         var uploader = httpContextAccessor?.HttpContext?.User?.Identity?.Name;
         
-        relativePaths ??= files.Select(f => f.FileName).ToList();
-        
-        if (relativePaths.Count != files.Count)
-            return (false, 0, 0, new List<string> { "檔案數量與路徑數量不符" });
+        if (relativePaths == null || relativePaths.Count != files.Count)
+            relativePaths = files.Select(f => f.FileName).ToList();
         
         for (int i = 0; i < files.Count; i++)
         {
-            try
+            var (absPath, _, _) = DM.PrepareBatchUploadTarget(virtualPath, relativePaths[i]);
+            
+            using (var stream = new FileStream(absPath, FileMode.Create))
             {
-                var (absPath, _, _) = DM.PrepareBatchUploadTarget(virtualPath, relativePaths[i]);
-                
-                using (var stream = new FileStream(absPath, FileMode.Create))
-                {
-                    files[i].CopyTo(stream);
-                }
-                
-                if (!string.IsNullOrWhiteSpace(uploader))
-                {
-                    DirectoryManagerUtilities.SetAppOwners(absPath, new[] { uploader });
-                }
-                
-                saved++;
+                files[i].CopyTo(stream);
             }
-            catch (Exception ex)
-            {
-                errors.Add($"{relativePaths[i]}: {ex.Message}");
-            }
+            
+            // 添加擁有者
+            if (!string.IsNullOrWhiteSpace(uploader))
+                DirectoryManagerUtilities.SetAppOwners(absPath, new[] { uploader });
         }
         
-        var failed = errors.Count;
-        return (failed == 0, saved, failed, errors);
+        return (true, files.Count, 0, new List<string>());
     }
     
     /// <summary>

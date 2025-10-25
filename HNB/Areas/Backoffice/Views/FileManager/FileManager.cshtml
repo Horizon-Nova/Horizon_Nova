@@ -1,4 +1,4 @@
-@model List<HNB.Areas.Backoffice.Dtos.FileSystemItem>
+@model List<HNB.Areas.Backoffice.Dtos.FileSystemEntry>
 @{
     ViewData["Title"] = "檔案總管";
     ViewData["PageTitle"] = "檔案總管";
@@ -12,8 +12,8 @@
     var allItems = Model ?? new();
 
     var itemsByType = allItems.GroupBy(item => item.Type).ToDictionary(g => g.Key, g => g.ToList());
-    var folders = itemsByType.GetValueOrDefault("folder", new List<HNB.Areas.Backoffice.Dtos.FileSystemItem>());
-    var files = itemsByType.GetValueOrDefault("file", new List<HNB.Areas.Backoffice.Dtos.FileSystemItem>());
+    var folders = itemsByType.GetValueOrDefault("folder", new List<HNB.Areas.Backoffice.Dtos.FileSystemEntry>());
+    var files = itemsByType.GetValueOrDefault("file", new List<HNB.Areas.Backoffice.Dtos.FileSystemEntry>());
 
     var (folderCount, fileCount, totalSize) = (
         ViewBag.FolderCount as int? ?? folders.Count,
@@ -41,7 +41,7 @@
                 <div class="d-flex align-items-center justify-content-between border-bottom p-3" style="min-height: 54px;">
                     <span class="small fw-semibold">檔案總管</span>
                     <div class="d-flex align-items-center gap-1">
-                        <button type="button" onclick="showModal('file-preview-help-modal')" class="btn btn-link btn-sm p-0" title="操作說明">
+                        <button type="button" onclick="showModal('fileManagerHelpModal')" class="btn btn-link btn-sm p-0" title="操作說明">
                             <i data-lucide="help-circle" class="text-muted" style="width:1rem;height:1rem;"></i>
                         </button>
                         <button type="button" onclick="showModal('createFileModal')" class="btn btn-link btn-sm p-0" title="新增檔案">
@@ -124,24 +124,23 @@
                     <h6 class="mb-0 fw-semibold">檔案上傳</h6>
                     <div class="small text-muted">
                         <i data-lucide="info" style="width:1rem;height:1rem;"></i>
-                        支援拖放或點擊上傳
+                        支援拖放檔案或資料夾
                     </div>
                 </div>
-                
+
                 <form id="FormDataFileUpload" autocomplete="off">
                     @Html.AntiForgeryToken()
-                    <div id="fileUploadDropZone" class="dropzone">
-                        <div class="dz-message">
-                            <i data-lucide="upload-cloud" class="text-muted d-block mx-auto mb-2" style="width:2rem;height:2rem;"></i>
-                            <p class="small fw-semibold text-muted mb-1">拖曳檔案到這裡上傳</p>
-                            <p class="small text-muted">或點擊選擇檔案</p>
-                        </div>
+
+                    <div id="fileUploadDropZone" class="border border-2 border-dashed rounded p-4 text-center" style="cursor:pointer;">
+                        <i data-lucide="upload-cloud" class="text-muted d-block mx-auto mb-2" style="width:2rem;height:2rem;"></i>
+                        <p class="small fw-semibold text-muted mb-1">拖曳檔案或資料夾到這裡上傳</p>
+                        <p class="small text-muted mb-0">或點擊選擇多個檔案</p>
                     </div>
                 </form>
             </div>
 
             <!-- 檔案列表 -->
-            <div class="p-3">
+            <div class="p-3 h-100" style="overflow-x:auto;">
                 <table id="filesTable" class="table table-hover align-middle">
                     <thead>
                         <tr>
@@ -149,40 +148,55 @@
                             <th>名稱</th>
                             <th>大小</th>
                             <th>擁有者</th>
-                            <th>共享狀態</th>
+                            <th>共享對象</th>
                             <th>修改時間</th>
                             <th>操作</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var folder in folders)
+                        @foreach (var item in folders.Concat(files))
                         {
-                            var name = folder.Name;
-                            var owner = folder.Owner;
-                            var sharedUsers = folder.SharedUsers;
-                            var modified = folder.UpdatedAt;
-                            var folderPath = currentPath == "/" ? "/" + name : currentPath + "/" + name;
-                            var isOwner = owner == currentUser;
+                            var isFile = item.Type == "file";
+                            var name = item.Name;
+                            var size = item.Size ?? 0L;
+                            var sharedUsers = item.SharedUsers;
+                            var modified = item.UpdatedAt;
                             var sharedCount = sharedUsers?.Count ?? 0;
-                            var modifiedTimestamp = modified.ToString("yyyy-MM-dd HH:mm:ss");
+                            var modifiedTimestamp = (modified?.ToString("yyyy-MM-dd HH:mm:ss")) ?? "";
+                            var icon = isFile ? "file" : "folder";
+                            var iconClass = isFile ? "text-muted" : "text-warning";
+                            var folderPath = currentPath == "/" ? "/" + name : currentPath + "/" + name;
 
-                            <tr onclick="window.location.href='@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = folderPath })'">
-                                <td data-order="0">
-                                    <i data-lucide="folder" class="text-warning" style="width:1rem;height:1rem;"></i>
-                                </td>
-                                <td class="fw-semibold">@name</td>
-                                <td data-order="0">—</td>
-                                <td>
-                                    @if (sharedUsers != null && sharedUsers.Count > 0)
+                            <tr>
+                                <td data-order="@(isFile ? 1 : 0)">
+                                    @if (isFile)
                                     {
-                                        foreach (var sharedOwner in sharedUsers)
-                                        {
-                                            <span class="badge bg-primary me-1">@sharedOwner</span>
-                                        }
+                                        <a href="javascript:void(0)" class="text-decoration-none" onclick="openPreview('@currentPath', '@(name?.Replace("'", "\\'").Replace("\"", "&quot;") ?? "")')">
+                                            <i data-lucide="@icon" class="@iconClass" style="width:1rem;height:1rem;"></i>
+                                        </a>
                                     }
                                     else
                                     {
+                                        <a href="@Url.Action("FileManager", "FileManager", new { area = "Backoffice", path = folderPath })" class="text-decoration-none">
+                                            <i data-lucide="@icon" class="@iconClass" style="width:1rem;height:1rem;"></i>
+                                        </a>
+                                    }
+                                </td>
+                                <td>@name</td>
+                                <td data-order="@size">@(isFile ? FormatSize(size) : "—")</td>
+                                <td>
+                                    @{
+                                        var ownerToShow = !string.IsNullOrWhiteSpace(item.PrimaryOwner)
+                                            ? item.PrimaryOwner
+                                            : (sharedUsers?.FirstOrDefault() ?? "");
+                                    }
+                                    @if (string.IsNullOrWhiteSpace(ownerToShow))
+                                    {
                                         <span class="text-muted">未設定</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-primary me-1">@ownerToShow</span>
                                     }
                                 </td>
                                 <td>
@@ -194,94 +208,38 @@
                                         <i data-lucide="@sharedIcon" class="@(sharedCount > 0 ? "" : "d-none")" style="width:0.8rem;height:0.8rem;"></i> @sharedText
                                     </span>
                                 </td>
-                                <td data-order="@modifiedTimestamp">@(modified.ToString("yyyy/MM/dd HH:mm"))</td>
+                                <td data-order="@modifiedTimestamp">@((modified?.ToString("yyyy/MM/dd HH:mm")) ?? "—")</td>
                                 <td class="text-end">
-                                    <button onclick="showModal('folder-action-modal', {url: '@Url.Action("LoadFolderAction", "FileManager")', method: 'GET', data: {name: '@(name?.Replace("'", "\\'").Replace("\"", "&quot;") ?? "")', currentPath: '@currentPath'}, container: 'file-manager-modal-host'})"
-                                            class="btn btn-light btn-sm" title="更多">
-                                        <i data-lucide="more-vertical" class="text-muted" style="width:1rem;height:1rem;"></i>
+                                    <button class="btn btn-light btn-sm" type="button" title="更多"
+                                            onclick="openItemPanel('@(name?.Replace("'", "\\'").Replace("\"", "&quot;") ?? "")', '@(isFile ? "file" : "folder")', '@currentPath')">
+                                        <i data-lucide="ellipsis-vertical" class="text-muted" style="width:1rem;height:1rem;"></i>
                                     </button>
                                 </td>
                             </tr>
                         }
 
-                        @foreach (var file in files)
-                        {
-                            var name = file.Name;
-                            var size = file.Size ?? 0L;
-                            var mimeType = file.MimeType;
-                            var owner = file.Owner;
-                            var sharedUsers = file.SharedUsers;
-                            var modified = file.UpdatedAt;
-                            var isOwner = owner == currentUser;
-                            var sharedCount = sharedUsers?.Count ?? 0;
-                            var modifiedTimestamp = modified.ToString("yyyy-MM-dd HH:mm:ss");
-
-                            <tr>
-                                <td data-order="1">
-                                    <i data-lucide="file" class="text-muted" style="width:1rem;height:1rem;"></i>
-                                </td>
-                                <td>@name</td>
-                                <td data-order="@size">@FormatSize(size)</td>
-                                <td>
-                                    @if (sharedUsers != null && sharedUsers.Count > 0)
-                                    {
-                                        foreach (var sharedOwner in sharedUsers)
-                                        {
-                                            <span class="badge bg-primary me-1">@sharedOwner</span>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted">未設定</span>
-                                    }
-                                </td>
-                                <td>
-                                    @{
-                                        var sharedIconF = sharedCount > 1 ? "users" : (sharedCount == 1 ? "lock" : "");
-                                        var sharedTextF = sharedCount > 1 ? $"共享 ({sharedCount}人)" : (sharedCount == 1 ? "私有" : "—");
-                                    }
-                                    <span class="badge rounded-pill bg-light text-muted @(sharedCount > 0 ? "" : "opacity-75")">
-                                        <i data-lucide="@sharedIconF" class="@(sharedCount > 0 ? "" : "d-none")" style="width:0.8rem;height:0.8rem;"></i> @sharedTextF
-                                    </span>
-                                </td>
-                                <td data-order="@modifiedTimestamp">@(modified.ToString("yyyy/MM/dd HH:mm"))</td>
-                                <td class="text-end">
-                                    <div class="dropdown">
-                                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" 
-                                                data-bs-toggle="dropdown" aria-expanded="false" title="更多">
-                                            <i data-lucide="more-vertical" class="text-muted" style="width:1rem;height:1rem;"></i>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end">
-                                            <li>
-                                                <a class="dropdown-item" href="#" onclick="openFile('@(name?.Replace("'", "\\'").Replace("\"", "&quot;") ?? "")', '@currentPath', '@mimeType')">
-                                                    <i data-lucide="corner-down-right" style="width:1rem;height:1rem;"></i> 開啟
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item" href="#" onclick="showModal('file-detail-modal', {url: '@Url.Action("LoadFileDetail", "FileManager")', method: 'GET', data: {name: '@(name?.Replace("'", "\\'").Replace("\"", "&quot;") ?? "")', currentPath: '@currentPath'}, container: 'file-manager-modal-host'})">
-                                                    <i data-lucide="eye" style="width:1rem;height:1rem;"></i> 詳細資訊
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item" href="#" onclick="showModal('file-rename-modal', {url: '@Url.Action("LoadFileRename", "FileManager")', method: 'GET', data: {name: '@(name?.Replace("'", "\\'").Replace("\"", "&quot;") ?? "")', currentPath: '@currentPath'}, container: 'file-manager-modal-host'})">
-                                                    <i data-lucide="edit-3" style="width:1rem;height:1rem;"></i> 重新命名
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item" href="#" onclick="showModal('file-download-modal', {url: '@Url.Action("LoadFileDownload", "FileManager")', method: 'GET', data: {name: '@(name?.Replace("'", "\\'").Replace("\"", "&quot;") ?? "")', currentPath: '@currentPath'}, container: 'file-manager-modal-host'})">
-                                                    <i data-lucide="download" style="width:1rem;height:1rem;"></i> 下載
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
                     </tbody>
                 </table>
             </div>
+
         </div>
     </div>
+</div>
+
+<!-- 右側欄 Offcanvas -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="itemSidePanel" aria-labelledby="itemSidePanelLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="itemSidePanelLabel">詳細資訊</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="關閉"></button>
+    </div>
+    <div class="offcanvas-body" id="itemSidePanelBody">
+        <div class="text-center py-3">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">載入中...</span>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 @functions {
@@ -302,22 +260,15 @@
 <!-- 引入所有 Modal 視圖 -->
 @await Html.PartialAsync("_FileManagerModal")
 
-<div id="file-manager-modal-host"></div>
-
 <!-- 上傳進度 Modal -->
-<div id="uploadProgress" class="modal fade" tabindex="-1" aria-labelledby="uploadProgressLabel" aria-hidden="true">
+<div id="uploadProgress" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="uploadProgressLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="uploadProgressLabel">正在上傳檔案</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
             </div>
-            <div class="modal-body" style="max-height:300px; overflow:auto;">
-                <div id="uploadItems" class="vstack gap-2"></div>
-            </div>
-            <div class="modal-footer justify-content-between small text-muted">
-                <span id="uploadSpeed">0 KB/s</span>
-                <span id="uploadEta">計算中...</span>
+            <div class="modal-body" style="max-height:400px; overflow-y:auto;">
+                <div id="uploadItems" class="vstack gap-3"></div>
             </div>
         </div>
     </div>
@@ -328,10 +279,21 @@
 
 <script>
     $(function(){
+        // 確保 Lucide 載入完成
+        if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
+            lucide.createIcons();
+        }
+
+        // 初始化 DataTable
         if ($('#filesTable').length) {
             HNBDataTable.init('#filesTable', {
                 initComplete: function() {
                     $('.dataTables_length').hide();
+
+                    // DataTable 初始化完成後再次初始化 icons
+                    if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
+                        lucide.createIcons();
+                    }
                 }
             });
         }

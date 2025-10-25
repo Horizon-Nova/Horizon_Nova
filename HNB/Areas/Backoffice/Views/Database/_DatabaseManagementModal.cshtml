@@ -1,279 +1,136 @@
-@model List<HNB.Areas.Backoffice.Dtos.TableColumnDto>
-
-<!-- 資料庫管理說明視窗 -->
-<div id="helpModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
-        <!-- Modal Header -->
-        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-8 py-6 border-b border-slate-200">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="bg-blue-100 p-2 rounded-lg">
-                        <i data-lucide="help-circle" class="w-6 h-6 text-blue-600"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-slate-800">資料庫管理說明</h3>
-                        <p class="text-sm text-slate-500 mt-1">了解如何使用資料庫管理功能</p>
-                    </div>
-                </div>
-                <button type="button" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-lg transition-all duration-200" onclick="closeModal('helpModal')">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- Modal Body -->
-        <div class="p-8 overflow-y-auto max-h-[calc(95vh-160px)] bg-slate-50">
-            <div class="space-y-6">
-                <div>
-                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
-                        <i data-lucide="database" class="w-4 h-4 mr-2 text-blue-600"></i>
-                        什麼是資料庫管理？
-                    </h6>
-                    <p class="text-slate-600 text-sm leading-relaxed">這個工具可以幫您從現有的資料庫自動備份資料表結構和資料，讓您可以輕鬆管理和遷移資料庫。</p>
-                </div>
-                
-                <div>
-                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
-                        <i data-lucide="list-ordered" class="w-4 h-4 mr-2 text-green-600"></i>
-                        如何使用？
-                    </h6>
-                    <ol class="text-slate-600 text-sm space-y-2 leading-relaxed">
-                        <li class="flex items-start">
-                            <span class="bg-blue-100 text-blue-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">1</span>
-                            選擇您使用的資料庫類型（SQL Server、PostgreSQL）
-                        </li>
-                        <li class="flex items-start">
-                            <span class="bg-blue-100 text-blue-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">2</span>
-                            填入連線字串（就像在 DBeaver 中連線資料庫一樣）
-                        </li>
-                        <li class="flex items-start">
-                            <span class="bg-blue-100 text-blue-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">3</span>
-                            測試連線確保可以正常連接
-                        </li>
-                        <li class="flex items-start">
-                            <span class="bg-blue-100 text-blue-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">4</span>
-                            點擊備份資料表，系統會自動建立結構和資料檔案
-                        </li>
-                    </ol>
-                </div>
-                
-                <div>
-                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
-                        <i data-lucide="code" class="w-4 h-4 mr-2 text-purple-600"></i>
-                        連線字串範例
-                    </h6>
-                    <div class="bg-slate-100 p-4 rounded-lg">
-                        <div class="space-y-3">
-                            <div>
-                                <p class="text-xs font-semibold text-slate-700 mb-1">SQL Server:</p>
-                                <code class="text-xs text-slate-800 font-mono bg-white px-2 py-1 rounded border">Server=localhost;Database=MyDB;User Id=sa;Password=123456;</code>
-                            </div>
-                            <div>
-                                <p class="text-xs font-semibold text-slate-700 mb-1">PostgreSQL:</p>
-                                <code class="text-xs text-slate-800 font-mono bg-white px-2 py-1 rounded border">Host=localhost;Database=MyDB;Username=postgres;Password=123456;</code>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <h6 class="font-semibold text-slate-900 mb-3 flex items-center">
-                        <i data-lucide="info" class="w-4 h-4 mr-2 text-orange-600"></i>
-                        備份說明
-                    </h6>
-                    <div class="bg-amber-50 border border-amber-200 p-4 rounded-lg">
-                        <p class="text-sm text-amber-800">
-                            <i data-lucide="alert-triangle" class="w-4 h-4 inline mr-1"></i>
-                            備份會建立帶時間戳記的資料夾，每次備份都是獨立的，避免資料累積。
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal Footer -->
-        <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
-            <div class="flex items-center justify-end">
-                <button type="button" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200" onclick="closeModal('helpModal')">
-                    我知道了
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+@using HNB.Areas.Backoffice.Dtos
+@{
+    Layout = null;
+    var tableName = ViewBag.TableName as string;
+    var tableColumns = ViewBag.TableColumns as List<TableColumnDto> ?? new List<TableColumnDto>();
+}
 
 <!-- 資料表詳情視窗 -->
-<div id="tableDetailsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-2 lg:p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-6xl w-full mx-4 max-h-[95vh] overflow-hidden transform transition-all duration-300 ease-out">
-        <!-- Modal Header -->
-        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-8 py-6 border-b border-slate-200">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="bg-blue-100 p-2 rounded-lg">
-                        <i data-lucide="database" class="w-6 h-6 text-blue-600"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-slate-800" id="tableDetailsModalTitle">資料表詳情</h3>
-                        <p class="text-sm text-slate-500 mt-1">查看資料表的完整結構資訊</p>
-                    </div>
-                </div>
-                <button type="button" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-lg transition-all duration-200" onclick="closeModal('tableDetailsModal')">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
+<div id="tableDetailsModal" class="modal fade" tabindex="-1" aria-labelledby="tableDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h5 class="modal-title" id="tableDetailsModalLabel">
+                    資料表詳情 @(!string.IsNullOrEmpty(tableName) ? $"- {tableName}" : "")
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
             </div>
-        </div>
 
-        <!-- Modal Body -->
-        <div class="p-8 overflow-y-auto max-h-[calc(95vh-160px)] bg-slate-50">
-            @if (Model != null && Model.Any())
-            {
-                <!-- 統計資訊 -->
-                <div class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-slate-200">
-                        <div class="flex items-center">
-                            <div class="bg-blue-100 p-2 rounded-lg">
-                                <i data-lucide="columns" class="w-5 h-5 text-blue-600"></i>
+            <!-- Modal Body -->
+            <div class="modal-body">
+                @if (tableColumns != null && tableColumns.Any())
+                {
+                    <!-- 統計資訊 -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-shrink-0">
+                                            <i data-lucide="columns" class="text-primary" style="width: 2rem; height: 2rem;"></i>
+                                        </div>
+                                        <div class="flex-grow-1 ms-3">
+                                            <p class="text-muted small mb-0">總欄位數</p>
+                                            <h5 class="mb-0">@tableColumns.Count</h5>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="ml-3">
-                                <p class="text-sm font-medium text-slate-500">總欄位數</p>
-                                <p class="text-2xl font-bold text-slate-900">@Model.Count</p>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-shrink-0">
+                                            <i data-lucide="key" class="text-success" style="width: 2rem; height: 2rem;"></i>
+                                        </div>
+                                        <div class="flex-grow-1 ms-3">
+                                            <p class="text-muted small mb-0">主鍵欄位</p>
+                                            <h5 class="mb-0">@tableColumns.Count(c => c.IsPrimaryKey)</h5>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-shrink-0">
+                                            <i data-lucide="shield-check" class="text-warning" style="width: 2rem; height: 2rem;"></i>
+                                        </div>
+                                        <div class="flex-grow-1 ms-3">
+                                            <p class="text-muted small mb-0">必填欄位</p>
+                                            <h5 class="mb-0">@tableColumns.Count(c => !c.IsNullable)</h5>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-slate-200">
-                        <div class="flex items-center">
-                            <div class="bg-green-100 p-2 rounded-lg">
-                                <i data-lucide="key" class="w-5 h-5 text-green-600"></i>
-                            </div>
-                            <div class="ml-3">
-                                <p class="text-sm font-medium text-slate-500">主鍵欄位</p>
-                                <p class="text-2xl font-bold text-slate-900">@Model.Count(c => c.IsPrimaryKey)</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-slate-200">
-                        <div class="flex items-center">
-                            <div class="bg-orange-100 p-2 rounded-lg">
-                                <i data-lucide="shield-check" class="w-5 h-5 text-orange-600"></i>
-                            </div>
-                            <div class="ml-3">
-                                <p class="text-sm font-medium text-slate-500">必填欄位</p>
-                                <p class="text-2xl font-bold text-slate-900">@Model.Count(c => !c.IsNullable)</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- 表格 -->
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full">
-                            <thead class="bg-slate-50 border-b border-slate-200">
+                    <!-- 表格 -->
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered">
+                            <thead class="table-light">
                                 <tr>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                                        <div class="flex items-center space-x-2">
-                                            <i data-lucide="tag" class="w-4 h-4"></i>
-                                            <span>欄位名稱</span>
-                                        </div>
-                                    </th>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                                        <div class="flex items-center space-x-2">
-                                            <i data-lucide="type" class="w-4 h-4"></i>
-                                            <span>資料型別</span>
-                                        </div>
-                                    </th>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                                        <div class="flex items-center space-x-2">
-                                            <i data-lucide="ruler" class="w-4 h-4"></i>
-                                            <span>長度</span>
-                                        </div>
-                                    </th>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                                        <div class="flex items-center space-x-2">
-                                            <i data-lucide="help-circle" class="w-4 h-4"></i>
-                                            <span>允許空值</span>
-                                        </div>
-                                    </th>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                                        <div class="flex items-center space-x-2">
-                                            <i data-lucide="settings" class="w-4 h-4"></i>
-                                            <span>預設值</span>
-                                        </div>
-                                    </th>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                                        <div class="flex items-center space-x-2">
-                                            <i data-lucide="key" class="w-4 h-4"></i>
-                                            <span>主鍵</span>
-                                        </div>
-                                    </th>
+                                    <th>欄位名稱</th>
+                                    <th>資料型別</th>
+                                    <th>長度</th>
+                                    <th>允許空值</th>
+                                    <th>預設值</th>
+                                    <th>主鍵</th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white divide-y divide-slate-200">
-                                @foreach (var column in Model)
+                            <tbody>
+                                @foreach (var column in tableColumns)
                                 {
-                                    <tr class="hover:bg-slate-50 transition-colors duration-150">
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="flex items-center">
-                                                <div class="bg-slate-100 p-1.5 rounded-md">
-                                                    <i data-lucide="database" class="w-4 h-4 text-slate-600"></i>
-                                                </div>
-                                                <div class="ml-3">
-                                                    <div class="text-sm font-semibold text-slate-900">@column.ColumnName</div>
-                                                </div>
-                                            </div>
+                                    <tr>
+                                        <td>
+                                            <strong>@column.ColumnName</strong>
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                                @column.DataType
-                                            </span>
+                                        <td>
+                                            <span class="badge bg-primary">@column.DataType</span>
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                                        <td>
                                             @if (!string.IsNullOrEmpty(column.Length))
                                             {
-                                                <span class="bg-slate-100 px-2 py-1 rounded-md text-xs font-mono">@column.Length</span>
+                                                <code>@column.Length</code>
                                             }
                                             else
                                             {
-                                                <span class="text-slate-400 italic">無限制</span>
+                                                <span class="text-muted">無限制</span>
                                             }
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
+                                        <td>
                                             @if (column.IsNullable)
                                             {
-                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                    <i data-lucide="check-circle" class="w-3 h-3 mr-1"></i>
-                                                    允許
-                                                </span>
+                                                <span class="badge bg-success">允許</span>
                                             }
                                             else
                                             {
-                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                                    <i data-lucide="x-circle" class="w-3 h-3 mr-1"></i>
-                                                    必填
-                                                </span>
+                                                <span class="badge bg-danger">必填</span>
                                             }
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                                        <td>
                                             @if (!string.IsNullOrEmpty(column.DefaultValue))
                                             {
-                                                <code class="bg-slate-100 text-slate-800 px-2 py-1 rounded-md text-xs font-mono">@column.DefaultValue</code>
+                                                <code>@column.DefaultValue</code>
                                             }
                                             else
                                             {
-                                                <span class="text-slate-400 italic">無</span>
+                                                <span class="text-muted">無</span>
                                             }
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
+                                        <td>
                                             @if (column.IsPrimaryKey)
                                             {
-                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                                    <i data-lucide="key" class="w-3 h-3 mr-1"></i>
-                                                    主鍵
-                                                </span>
+                                                <span class="badge bg-warning text-dark">主鍵</span>
                                             }
                                             else
                                             {
-                                                <span class="text-slate-400">-</span>
+                                                <span class="text-muted">-</span>
                                             }
                                         </td>
                                     </tr>
@@ -281,43 +138,24 @@
                             </tbody>
                         </table>
                     </div>
-                </div>
-            }
-            else
-            {
-                <div class="text-center py-16">
-                    <div class="bg-slate-100 p-4 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
-                        <i data-lucide="database-x" class="w-10 h-10 text-slate-400"></i>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <i data-lucide="database-x" class="text-muted" style="width: 3rem; height: 3rem;"></i>
+                        <h5 class="mt-3">沒有找到資料表欄位資訊</h5>
+                        <p class="text-muted">請檢查資料表名稱是否正確，或資料表是否包含任何欄位。</p>
                     </div>
-                    <h3 class="text-lg font-medium text-slate-900 mb-2">沒有找到資料表欄位資訊</h3>
-                    <p class="text-slate-500">請檢查資料表名稱是否正確，或資料表是否包含任何欄位。</p>
-                </div>
-            }
-        </div>
+                }
+            </div>
 
-        <!-- Modal Footer -->
-        <div class="bg-slate-50 px-8 py-4 border-t border-slate-200">
-            <div class="flex items-center justify-between">
-                <div class="text-sm text-slate-500">
-                    <span class="flex items-center">
-                        <i data-lucide="info" class="w-4 h-4 mr-1"></i>
-                        共 @(Model?.Count ?? 0) 個欄位
-                    </span>
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+                <div class="text-muted small me-auto">
+                    共 @tableColumns.Count 個欄位
                 </div>
-                <div class="flex space-x-3">
-                    <button type="button" class="px-4 py-2 text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-all duration-200" onclick="closeModal('tableDetailsModal')">
-                        關閉
-                    </button>
-                </div>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
             </div>
         </div>
     </div>
 </div>
-
-<script>
-    // 初始化 Lucide 圖示
-    document.addEventListener('DOMContentLoaded', function() {
-        lucide.createIcons();
-    });
-</script>
-
