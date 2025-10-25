@@ -84,7 +84,7 @@ public sealed class DirectoryManagerUtilities
             if (string.IsNullOrWhiteSpace(currentUser) || !HasUserPermission(dir, currentUser))
                 continue;
 
-            var primaryOwner = owners.Length > 0 ? owners[0] : (currentUser ?? "");
+            var primaryOwner = owners.Length > 0 ? owners[0] : "";
             var dirInfo = new DirectoryInfo(dir);
 
             items.Add(new FileSystemEntry
@@ -113,7 +113,7 @@ public sealed class DirectoryManagerUtilities
             if (string.IsNullOrWhiteSpace(currentUser) || !HasUserPermission(file, currentUser))
                 continue;
 
-            var primaryOwner = owners.Length > 0 ? owners[0] : (currentUser ?? "");
+            var primaryOwner = owners.Length > 0 ? owners[0] : "";
             var fileInfo = new FileInfo(file);
 
             items.Add(new FileSystemEntry
@@ -816,7 +816,7 @@ public sealed class DirectoryManagerUtilities
                 "user.AppOwner",
                 bytes,
                 (ulong)bytes.Length,
-                Mono.Unix.Native.XattrFlags.XATTR_CREATE | Mono.Unix.Native.XattrFlags.XATTR_REPLACE
+                0 // 0 = create or replace; avoid invalid combination of CREATE|REPLACE
             );
 
             if (result != 0)
