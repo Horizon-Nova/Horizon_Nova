@@ -976,13 +976,8 @@ public sealed class DirectoryManagerUtilities
             if (IsProtected(virtualPath, folderName)) continue;
 
             var owners = GetAppOwners(dir);
-            if (owners.Length == 0 && !string.IsNullOrWhiteSpace(currentUser))
-            {
-                try { SetAppOwners(dir, new[] { currentUser }); owners = new[] { currentUser }; }
-                catch { /* 忽略回填失敗，不影響列表 */ }
-            }
 
-            // 統一權限檢查（經過回填後再判斷）
+            // 統一權限檢查
             if (!HasUserPermission(dir, currentUser)) continue;
             var primaryOwner = owners.Length > 0 ? owners[0] : currentUser;
             var dirInfo = new DirectoryInfo(dir);
@@ -1010,11 +1005,6 @@ public sealed class DirectoryManagerUtilities
             if (IsProtected(virtualPath, fileName)) continue;
 
             var owners = GetAppOwners(file);
-            if (owners.Length == 0 && !string.IsNullOrWhiteSpace(currentUser))
-            {
-                try { SetAppOwners(file, new[] { currentUser }); owners = new[] { currentUser }; }
-                catch { /* 忽略回填失敗 */ }
-            }
 
             // 統一權限檢查
             if (!HasUserPermission(file, currentUser)) continue;
@@ -1167,14 +1157,7 @@ public sealed class DirectoryManagerUtilities
         if (Directory.Exists(fullPath))
         {
             // 將資料夾的共享設定遞迴套用至其所有子資料夾與檔案
-            try
-            {
-                SetOwnersRecursive(fullPath, newOwners);
-            }
-            catch
-            {
-                // 遞迴設定失敗時不中斷流程（盡力而為）
-            }
+            SetOwnersRecursive(fullPath, newOwners);
         }
         else
         {
@@ -1192,13 +1175,13 @@ public sealed class DirectoryManagerUtilities
         // 子資料夾
         foreach (var dir in Directory.EnumerateDirectories(directoryPath))
         {
-            try { SetOwnersRecursive(dir, owners); } catch { }
+            SetOwnersRecursive(dir, owners);
         }
 
         // 檔案
         foreach (var file in Directory.EnumerateFiles(directoryPath))
         {
-            try { SetAppOwners(file, owners); } catch { }
+            SetAppOwners(file, owners);
         }
     }
 
