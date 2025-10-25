@@ -3,155 +3,76 @@
  * Database Management JS - Basic Functions Only
  */
 
-// 顯示說明視窗
-function showHelpModal() {
-    const modal = document.getElementById('helpModal');
-    if (modal) {
-        modal.style.display = 'flex';
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
-        }
-    }
-}
-
-// 通用的 Modal 顯示函數
-function showGenericModal(title, url, data, saveCallback) {
-    const modal = document.getElementById('edModal');
-    const modalEl = new bootstrap.Modal(modal);
-
-    document.getElementById('edTitle').textContent = title;
-
-    const modalBody = modal.querySelector('.modal-body');
-    modalBody.innerHTML = `
-        <div class="text-center py-4">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">載入中...</span>
-            </div>
-            <p class="mt-2 text-muted">載入中...</p>
-                </div>
-    `;
-
-    const saveBtn = document.getElementById('btnEdSave');
-    if (saveCallback) {
-        saveBtn.style.display = 'block';
-        saveBtn.onclick = saveCallback;
-    } else {
-        saveBtn.style.display = 'none';
-    }
-
-    modalEl.show();
-
-    if (url) {
-        loadModalContent(url, data);
-    }
-}
-
-// 載入 Modal 內容
-function loadModalContent(url, data) {
-    const modalBody = document.querySelector('#edModal .modal-body');
-
-    $.ajax({
-        url: url,
-        type: data ? 'POST' : 'GET',
-        contentType: data ? 'application/json' : undefined,
-        data: data ? JSON.stringify(data) : undefined,
-        success: (response) => {
-            modalBody.innerHTML = response;
-            if (window.lucide) {
-                window.lucide.createIcons();
-            }
-        },
-        error: (xhr, status, error) => {
-            console.error('載入內容失敗:', error);
-            modalBody.innerHTML = `
-                <div class="alert alert-danger">
-                    <i data-lucide="alert-circle" class="w-4 h-4 me-2"></i>
-                    載入失敗: ${error}
-                </div>
-            `;
-            if (window.lucide) {
-                window.lucide.createIcons();
-            }
-        }
-    });
-}
 
 // 顯示操作結果
 function showResult(message, type = 'info') {
-    const resultDiv = document.getElementById('operationResult');
-    if (!resultDiv) return;
+    const $resultDiv = $('#operationResult');
+    if ($resultDiv.length === 0) return;
 
     let icon = '';
-    let bgColor = '';
-    let textColor = '';
+    let alertClass = '';
 
     switch (type) {
         case 'success':
             icon = 'check-circle';
-            bgColor = 'bg-green-100';
-            textColor = 'text-green-800';
+            alertClass = 'alert-success';
             break;
         case 'error':
             icon = 'x-circle';
-            bgColor = 'bg-red-100';
-            textColor = 'text-red-800';
+            alertClass = 'alert-danger';
             break;
         case 'warning':
             icon = 'alert-triangle';
-            bgColor = 'bg-yellow-100';
-            textColor = 'text-yellow-800';
+            alertClass = 'alert-warning';
             break;
         case 'loading':
             icon = 'loader-2';
-            bgColor = 'bg-blue-100';
-            textColor = 'text-blue-800';
+            alertClass = 'alert-info';
             break;
         default:
             icon = 'info';
-            bgColor = 'bg-blue-100';
-            textColor = 'text-blue-800';
+            alertClass = 'alert-info';
             break;
     }
 
-    resultDiv.innerHTML = `
-        <div class="flex items-center p-3 rounded-lg ${bgColor} ${textColor}">
-            <i data-lucide="${icon}" class="w-5 h-5 mr-3 ${type === 'loading' ? 'animate-spin' : ''}"></i>
-            <span>${message}</span>
-        </div>
-    `;
+    const spinnerClass = type === 'loading' ? 'spinner-border spinner-border-sm' : '';
+    const iconHtml = type === 'loading' 
+        ? `<div class="${spinnerClass}" role="status"><span class="visually-hidden">載入中...</span></div>`
+        : `<i data-lucide="${icon}" style="width: 1.25rem; height: 1.25rem;"></i>`;
 
-    if (window.lucide) {
+    $resultDiv.html(`
+        <div class="alert ${alertClass} d-flex align-items-center" role="alert">
+            ${iconHtml}
+            <span class="ms-2">${message}</span>
+        </div>
+    `);
+
+    if (window.lucide && type !== 'loading') {
         window.lucide.createIcons();
     }
 }
 
 // 啟用備份按鈕
 function enableGenerateButton() {
-    const generateBtn = $('button[onclick="backupTables(event)"]');
-    generateBtn.prop('disabled', false);
-    generateBtn.removeClass('opacity-50 cursor-not-allowed');
-    generateBtn.addClass('hover:bg-blue-600');
-
+    const $generateBtn = $('#btnBackup');
+    $generateBtn.prop('disabled', false);
     updateStepStatus(4, true);
 }
 
 // 禁用備份按鈕
 function disableGenerateButton() {
-    const generateBtn = $('button[onclick="backupTables(event)"]');
-    generateBtn.prop('disabled', true);
-    generateBtn.addClass('opacity-50 cursor-not-allowed');
-    generateBtn.removeClass('hover:bg-blue-600');
-
+    const $generateBtn = $('#btnBackup');
+    $generateBtn.prop('disabled', true);
     updateStepStatus(4, false);
 }
 
 // 更新步驟狀態
 function updateStepStatus(stepNumber, isActive) {
-    const stepElement = $(`.space-y-2 .flex:nth-child(${stepNumber}) span:first-child`);
+    const $stepElement = $(`.vstack .d-flex:nth-child(${stepNumber}) .badge`);
     if (isActive) {
-        stepElement.removeClass('bg-slate-100 text-slate-400').addClass('bg-blue-100 text-blue-600');
+        $stepElement.removeClass('bg-secondary').addClass('bg-primary');
     } else {
-        stepElement.removeClass('bg-blue-100 text-blue-600').addClass('bg-slate-100 text-slate-400');
+        $stepElement.removeClass('bg-primary').addClass('bg-secondary');
     }
 }
 
@@ -228,19 +149,19 @@ function backupTables(event) {
     }
 
     showResult('正在備份資料表...', 'loading');
-    const form = $('#FormData');
-    form.append(`<input type="hidden" name="ContextName" value="${contextName}">`);
-    form.append(`<input type="hidden" name="OutputDirectory" value="${outputPath}">`);
+    const $form = $('#FormData');
+    $form.append(`<input type="hidden" name="ContextName" value="${contextName}">`);
+    $form.append(`<input type="hidden" name="OutputDirectory" value="${outputPath}">`);
 
     $.ajax({
         type: 'POST',
-        url: '/Backoffice/Database/BackupTables',
-        data: form.serialize(),
+        url: '/Backoffice/Database/SubmitBackup',
+        data: $form.serialize(),
         success: (response) => {
             if (response && response.success) {
                 showResult('資料表備份成功！', 'success');
             } else {
-                const message = response && response.Message ? response.Message : '未知錯誤';
+                const message = response && response.message ? response.message : '未知錯誤';
                 showResult(`備份失敗: ${message}`, 'error');
             }
         },
@@ -248,8 +169,8 @@ function backupTables(event) {
             showResult('備份失敗，請稍後再試。', 'error');
         },
         complete: () => {
-            form.find('input[name="ContextName"]').remove();
-            form.find('input[name="OutputDirectory"]').remove();
+            $form.find('input[name="ContextName"]').remove();
+            $form.find('input[name="OutputDirectory"]').remove();
         }
     });
 }
@@ -288,43 +209,48 @@ function loadDatabaseTables() {
 
 // 顯示資料表列表
 function displayDatabaseTables(tables) {
-    const container = document.getElementById('databaseTablesContainer');
+    const $container = $('#databaseTablesContainer');
 
     if (!tables || tables.length === 0) {
-        container.innerHTML = `
-            <div class="text-center py-12">
-                <div class="p-4 bg-slate-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                    <i data-lucide="database" class="w-8 h-8 text-slate-400"></i>
+        $container.html(`
+            <div class="text-center py-5">
+                <div class="p-4 bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 4rem; height: 4rem;">
+                    <i data-lucide="database" class="text-muted" style="width: 2rem; height: 2rem;"></i>
                 </div>
-                <h4 class="text-lg font-medium text-slate-900 mb-2">沒有找到資料表</h4>
-                <p class="text-slate-500">此資料庫中沒有可用的資料表</p>
+                <h4 class="h5 mb-2">沒有找到資料表</h4>
+                <p class="text-muted">此資料庫中沒有可用的資料表</p>
             </div>
-        `;
+        `);
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
         return;
     }
 
-    let html = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">';
+    let html = '<div class="row g-3">';
 
     tables.forEach(table => {
         html += `
-            <div class="bg-slate-50 rounded-lg p-4 border border-slate-200 hover:border-slate-300 transition-colors">
-                <div class="flex items-center justify-between mb-2">
-                    <h5 class="font-medium text-slate-900">${table}</h5>
-                    <div class="flex space-x-1">
-                        <button type="button" onclick="showTableDetails('${table}')" 
-                                class="p-1 text-slate-400 hover:text-blue-600 transition-colors" 
-                                title="查看詳情">
-                            <i data-lucide="eye" class="w-4 h-4"></i>
-                        </button>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <h5 class="card-title h6 mb-0">${table}</h5>
+                            <button type="button" onclick="showTableDetails('${table}')" 
+                                    class="btn btn-sm btn-outline-primary" 
+                                    title="查看詳情">
+                                <i data-lucide="eye" style="width: 1rem; height: 1rem;"></i>
+                            </button>
+                        </div>
+                        <p class="card-text text-muted small mb-0">資料表</p>
                     </div>
                 </div>
-                <p class="text-sm text-slate-500">資料表</p>
             </div>
         `;
     });
 
     html += '</div>';
-    container.innerHTML = html;
+    $container.html(html);
 
     if (window.lucide) {
         window.lucide.createIcons();
@@ -333,24 +259,18 @@ function displayDatabaseTables(tables) {
 
 // 顯示資料表管理區域
 function showTableManagement() {
-    const tableManagement = document.getElementById('tableManagement');
-    if (tableManagement) {
-        tableManagement.style.display = 'block';
-    }
+    $('#tableManagement').show();
 }
 
 // 隱藏資料表管理區域
 function hideTableManagement() {
-    const tableManagement = document.getElementById('tableManagement');
-    if (tableManagement) {
-        tableManagement.style.display = 'none';
-    }
+    $('#tableManagement').hide();
 }
 
 // 顯示資料表詳情
 function showTableDetails(tableName) {
-    const provider = document.getElementById('databaseType').value;
-    const connectionString = document.getElementById('connectionString').value;
+    const provider = $('#databaseType').val();
+    const connectionString = $('#connectionString').val();
 
     if (!provider || !connectionString) {
         showResult('請先測試連線以獲取資料表詳情', 'warning');
@@ -358,38 +278,16 @@ function showTableDetails(tableName) {
     }
 
     showResult(`正在載入資料表 "${tableName}" 的詳情...`, 'info');
-    displayTableDetailsModal(tableName, null);
-}
-
-// 顯示資料表詳情彈出視窗
-function displayTableDetailsModal(tableName, columns) {
-    $.ajax({
-        url: '/Backoffice/Database/LoadTableDetailsPartial',
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify({
-            Provider: document.getElementById('databaseType').value,
-            ConnectionString: document.getElementById('connectionString').value,
-            TableName: tableName
-        }),
-        success: (response) => {
-            if (response) {
-                $('#tableDetailsModalContainer').html(response);
-
-                const modal = document.getElementById('tableDetailsModal');
-                if (modal) {
-                    modal.style.display = 'flex';
-                    if (typeof lucide !== 'undefined') {
-                        lucide.createIcons();
-                    }
-                }
-            } else {
-                showResult('載入資料表詳情失敗', 'error');
-            }
+    
+    showModal('tableDetailsModal', {
+        url: '/Backoffice/Database/LoadDetail',
+        method: 'GET',
+        data: { 
+            tableName: tableName,
+            provider: provider,
+            connectionString: connectionString
         },
-        error: () => {
-            showResult('載入資料表詳情失敗，請稍後再試。', 'error');
-        }
+        container: 'databaseModal'
     });
 }
 

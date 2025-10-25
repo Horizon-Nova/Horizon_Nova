@@ -1,15 +1,6 @@
 ﻿// Layout.js - Bootstrap 專用腳本
 
 document.addEventListener('DOMContentLoaded', function () {
-    // Initialize Lucide icons
-    try { 
-        if (window.lucide && lucide.createIcons) { 
-            lucide.createIcons(); 
-        } 
-    } catch (e) {
-        console.warn('Lucide icons initialization failed:', e);
-    }
-
     const sidebar = document.getElementById('sidebar');
     const btnToggleSidebar = document.getElementById('btnToggleSidebar');
     const iconChevron = document.getElementById('iconChevron');
@@ -179,7 +170,7 @@ function initNavigationToggle() {
             saveNavigationState(navigationState);
             
             // 重新初始化 Lucide icons
-            if (window.lucide && lucide.createIcons) {
+            if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
                 lucide.createIcons();
             }
         });

@@ -30,8 +30,13 @@ window.HNBDataTable = (function () {
                 }
             },
             drawCallback: function () {
-                if (typeof lucide !== 'undefined' && lucide.createIcons) {
-                    lucide.createIcons();
+                // 安全調用 Lucide icons（使用可選鏈）
+                try {
+                    if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
+                        lucide.createIcons();
+                    }
+                } catch (e) {
+                    // 忽略 Lucide 錯誤，不影響 DataTable 功能
                 }
             }
         };
