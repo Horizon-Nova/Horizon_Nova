@@ -206,7 +206,10 @@ $(document).on('click', '#btnSaveShare', function(){
                 alert(res.message||'更新失敗'); 
             } 
         },
-        error: ()=> alert('系統發生錯誤')
+        error: (xhr)=> {
+            const msg = xhr && xhr.responseText ? xhr.responseText : '系統發生錯誤';
+            alert(msg);
+        }
     });
 });
 
@@ -259,3 +262,36 @@ window.openItemPanel = function(name, type, path){
 
     panel.show();
 }
+
+// 刪除處理
+window.deleteItem = function(name, type, path) {
+    const isOwner = (($('#sidePanelRoot').data('is-owner')+"") === 'true');
+    if(!isOwner) {
+        alert('您沒有權限刪除此項目');
+        return;
+    }
+    if(!confirm('確定要刪除「' + name + '」嗎？')) return;
+    
+    const token = $('input[name="__RequestVerificationToken"]').val();
+    const payload = { Path: path, Name: name };
+    
+    $.ajax({
+        type: 'POST',
+        url: type === 'file' ? '/Backoffice/FileManager/DeleteFile' : '/Backoffice/FileManager/Delete',
+        contentType: 'application/json',
+        data: JSON.stringify(payload),
+        headers: { 'RequestVerificationToken': token },
+        success: (res) => {
+            if(res.success) {
+                alert('刪除成功');
+                location.href = location.pathname + '?path=' + encodeURIComponent(path);
+            } else {
+                alert(res.message || '刪除失敗');
+            }
+        },
+        error: (xhr) => {
+            console.error('刪除錯誤:', xhr);
+            alert('系統發生錯誤: ' + (xhr.responseText || xhr.statusText || '未知錯誤'));
+        }
+    });
+};
