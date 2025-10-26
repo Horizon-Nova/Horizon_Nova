@@ -143,7 +143,23 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     {
         if (string.IsNullOrWhiteSpace(User.Identity?.Name)) return Unauthorized();
         var entry = new FileSystemEntry { VirtualPath = request.Path, Name = request.Name };
-        svc.UpdateItemOwners(entry, request.Owners?.ToArray() ?? Array.Empty<string>());
+        var currentUser = User.Identity!.Name!;
+        var detail = svc.LoadFileSystemDetail(request.Path, request.Name, currentUser);
+        var primary = detail.PrimaryOwner;
+
+        var incoming = request.Owners ?? new List<string>();
+        var normalized = new List<string>();
+        if (!string.IsNullOrWhiteSpace(primary)) normalized.Add(primary);
+        foreach (var u in incoming)
+        {
+            if (!string.IsNullOrWhiteSpace(u) && !u.Equals(primary, StringComparison.OrdinalIgnoreCase))
+                normalized.Add(u);
+        }
+
+        if (normalized.Count == 0)
+            return BadRequest("擁有者列表不可為空，且不得移除原擁有者。");
+
+        svc.UpdateItemOwners(entry, normalized.ToArray());
         return Json(new FileManagerResponse { Success = true, Message = "分享設定已更新" });
     }
     #endregion

@@ -1150,8 +1150,8 @@ public sealed class DirectoryManagerUtilities
 
         if (Directory.Exists(fullPath))
         {
-            // 將資料夾的共享設定遞迴套用至其所有子資料夾與檔案
-            SetOwnersRecursive(fullPath, newOwners);
+            // 將資料夾的共享設定遞迴套用至其所有子資料夾與檔案，保留各子項目的原始 PrimaryOwner
+            SetOwnersRecursivePreservePrimary(fullPath, newOwners);
         }
         else
         {
@@ -1162,20 +1162,47 @@ public sealed class DirectoryManagerUtilities
     /// <summary>
     /// 遞迴設定資料夾及其所有子項目的應用程式擁有者
     /// </summary>
-    private void SetOwnersRecursive(string directoryPath, string[] owners)
+    private void SetOwnersRecursivePreservePrimary(string directoryPath, string[] folderOwners)
     {
-        SetAppOwners(directoryPath, owners);
+        var folderPrimary = (folderOwners != null && folderOwners.Length > 0) ? folderOwners[0] : null;
+
+        // 目錄本身：保留其原有 PrimaryOwner（如不存在則使用資料夾的 Primary）
+        var dirOwners = GetAppOwners(directoryPath);
+        var dirPrimary = dirOwners.Length > 0 ? dirOwners[0] : folderPrimary;
+        var newDirOwners = new List<string>();
+        if (!string.IsNullOrWhiteSpace(dirPrimary)) newDirOwners.Add(dirPrimary);
+        if (folderOwners != null)
+        {
+            foreach (var u in folderOwners)
+            {
+                if (!string.Equals(u, dirPrimary, StringComparison.OrdinalIgnoreCase) && !newDirOwners.Contains(u, StringComparer.OrdinalIgnoreCase))
+                    newDirOwners.Add(u);
+            }
+        }
+        SetAppOwners(directoryPath, newDirOwners.ToArray());
 
         // 子資料夾
         foreach (var dir in Directory.EnumerateDirectories(directoryPath))
         {
-            SetOwnersRecursive(dir, owners);
+            SetOwnersRecursivePreservePrimary(dir, folderOwners);
         }
 
-        // 檔案
+        // 檔案：同樣保留原始 PrimaryOwner
         foreach (var file in Directory.EnumerateFiles(directoryPath))
         {
-            SetAppOwners(file, owners);
+            var fileOwners = GetAppOwners(file);
+            var filePrimary = fileOwners.Length > 0 ? fileOwners[0] : folderPrimary;
+            var newFileOwners = new List<string>();
+            if (!string.IsNullOrWhiteSpace(filePrimary)) newFileOwners.Add(filePrimary);
+            if (folderOwners != null)
+            {
+                foreach (var u in folderOwners)
+                {
+                    if (!string.Equals(u, filePrimary, StringComparison.OrdinalIgnoreCase) && !newFileOwners.Contains(u, StringComparer.OrdinalIgnoreCase))
+                        newFileOwners.Add(u);
+                }
+            }
+            SetAppOwners(file, newFileOwners.ToArray());
         }
     }
 

@@ -1,34 +1,6 @@
-## Backoffice Authentication/Authorization and File Permission Flow
-
-```mermaid
-flowchart TD
-    A[Request to Backoffice] --> B[Cookie Auth middleware]
-    B -->|Unauthenticated| C[Redirect -> /Backoffice/Authorize/Login]
-    B -->|Authenticated| D[Routing -> Controller Action]
-
-    D --> E{PermissionAttribute on action/class?}
-    E -- Yes --> F[Check IsAuthenticated + SidebarNavigationService for URL allowlist]
-    F -- Deny --> G[Redirect -> /Backoffice/Authorize/AccessDenied]
-    F -- Allow --> H[Proceed to action]
-    E -- No --> H[Proceed to action]
-
-    H --> I{FileManager action?}
-    I -- Yes --> J[Controller inline check: User.Identity?.Name null -> 401]
-    J --> K[DirectoryManagerUtilities.HasUserPermission(path, user)]
-    K -- false --> L[401/403 (Unauthorized/Forbidden)]
-    K -- true --> M[Execute operation (Load/List/CRUD/Share/Detail)]
-
-    I -- No --> N[Other controllers handle their logic]
-
-    %% File operations detail
-    M --> P[List: Enumerate filesystem and filter by HasUserPermission]
-    M --> Q[Detail: GetAppOwners for item; PrimaryOwner derived from owners]
-    M --> R[Share: UpdateItemOwners → SetOwnersRecursive(folder) / SetAppOwners(file)]
-```
-
-### 補充：帳號/角色/組織（依你提供）
-- **帳號**: 以部門/組織有領導者為假設，建立 `horizon-nova`、`horizon-nova-pg` 兩個組織。
-- **角色**: 控制可見範圍與後續權限（例如活動、集體功能）。
-- **組織**: 管理角色與帳號，也可作為功能集合。
-
-
+問題
+1.上層無法看到下層人員
+2.部門/組織需有主管(已解決:建立主管角色、員工)
+3.全新帳號(目前解決方案 : 組織 > 角色 > 帳號) 待討論
+4."檔案總管"-"擁有者" : A使用者、B使用者，B使用者在A使用者的資料夾匯入資料，A使用者透過"共享對象"刪掉B使用者導致原有使用者被刪除並被掛載到A使用者身上，處理方式嚴禁刪除第一個擁有者
+5."檔案總管"-"下載/刪除" : 當前下載只會出現在檔案沒有出現在資料夾，需要修正為檔案、資料夾都要提供下載，刪除按鈕要放到詳細資料底部 | 刪除icon*無背景灰色邊框* |
