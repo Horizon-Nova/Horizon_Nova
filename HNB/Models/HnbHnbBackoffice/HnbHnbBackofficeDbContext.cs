@@ -43,6 +43,12 @@ public partial class HnbHnbBackofficeDbContext : DbContext
 
     public virtual DbSet<vw_hardware_monitoring> vw_hardware_monitorings { get; set; }
 
+    public virtual DbSet<vw_permission_organization> vw_permission_organizations { get; set; }
+
+    public virtual DbSet<vw_permission_role> vw_permission_roles { get; set; }
+
+    public virtual DbSet<vw_permission_user> vw_permission_users { get; set; }
+
     public virtual DbSet<vw_sidebar_navigation> vw_sidebar_navigations { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -411,6 +417,120 @@ public partial class HnbHnbBackofficeDbContext : DbContext
             entity.Property(e => e.system_users).HasComment("系統使用者數");
             entity.Property(e => e.updated_at).HasComment("更新時間");
             entity.Property(e => e.uptime).HasComment("系統運行時間");
+        });
+
+        modelBuilder.Entity<vw_permission_organization>(entity =>
+        {
+            entity.ToView("vw_permission_organization", "dbo");
+        });
+
+        modelBuilder.Entity<vw_permission_role>(entity =>
+        {
+            entity.ToView("vw_permission_role", "dbo");
+
+            entity.Property(e => e.created_at).HasComment("建立時間");
+            entity.Property(e => e.created_by).HasComment("建立者ID");
+            entity.Property(e => e.description).HasComment("角色描述");
+            entity.Property(e => e.id).HasComment("主鍵ID");
+            entity.Property(e => e.internal_notes).HasComment("內部備註");
+            entity.Property(e => e.is_active).HasComment("是否啟用");
+            entity.Property(e => e.is_system_role).HasComment("是否為系統角色");
+            entity.Property(e => e.level).HasComment("角色層級");
+            entity.Property(e => e.name).HasComment("角色名稱");
+            entity.Property(e => e.navigation_permissions).HasComment("導航權限陣列");
+            entity.Property(e => e.notes).HasComment("備註");
+            entity.Property(e => e.organization_id).HasComment("所屬組織ID");
+            entity.Property(e => e.organization_name).HasComment("所屬組織名稱");
+            entity.Property(e => e.parent_id).HasComment("所屬組織ID");
+            entity.Property(e => e.permission_count).HasComment("權限數量");
+            entity.Property(e => e.permission_names).HasComment("權限名稱陣列");
+            entity.Property(e => e.permissions).HasComment("權限陣列");
+            entity.Property(e => e.role_type).HasComment("角色類型：system/custom");
+            entity.Property(e => e.sort_order).HasComment("排序順序");
+            entity.Property(e => e.status).HasComment("狀態");
+            entity.Property(e => e.tags).HasComment("標籤陣列");
+            entity.Property(e => e.type).HasComment("資料類型：role");
+            entity.Property(e => e.updated_at).HasComment("更新時間");
+            entity.Property(e => e.updated_by).HasComment("更新者ID");
+            entity.Property(e => e.user_count).HasComment("擁有此角色的用戶數量");
+            entity.Property(e => e.user_names).HasComment("擁有此角色的用戶名稱陣列");
+        });
+
+        modelBuilder.Entity<vw_permission_user>(entity =>
+        {
+            entity.ToView("vw_permission_user", "dbo");
+
+            entity.Property(e => e.assigned_roles_count).HasComment("分配的角色數量：從roles陣列長度計算");
+            entity.Property(e => e.auto_renew).HasComment("自動續費");
+            entity.Property(e => e.avatar_url).HasComment("頭像網址");
+            entity.Property(e => e.billing_cycle).HasComment("計費週期");
+            entity.Property(e => e.bio).HasComment("個人簡介");
+            entity.Property(e => e.birthday).HasComment("生日");
+            entity.Property(e => e.child_organizations_count).HasComment("管理的子組織數量：該用戶管理的子組織數量");
+            entity.Property(e => e.color_scheme).HasComment("色彩主題");
+            entity.Property(e => e.created_at).HasComment("建立時間");
+            entity.Property(e => e.created_by).HasComment("建立者ID");
+            entity.Property(e => e.email).HasComment("電子郵件");
+            entity.Property(e => e.favorite_color).HasComment("喜愛的顏色");
+            entity.Property(e => e.full_name).HasComment("完整名稱");
+            entity.Property(e => e.gender).HasComment("性別");
+            entity.Property(e => e.id).HasComment("主鍵ID");
+            entity.Property(e => e.internal_notes).HasComment("內部備註");
+            entity.Property(e => e.is_active).HasComment("是否啟用");
+            entity.Property(e => e.is_email_verified).HasComment("郵箱是否驗證");
+            entity.Property(e => e.is_online).HasComment("是否在線");
+            entity.Property(e => e.is_phone_verified).HasComment("電話是否驗證");
+            entity.Property(e => e.language).HasComment("語言設定");
+            entity.Property(e => e.last_activity_at).HasComment("最後活動時間");
+            entity.Property(e => e.last_device_info).HasComment("最後設備資訊");
+            entity.Property(e => e.last_login_at).HasComment("最後登入時間");
+            entity.Property(e => e.last_login_days_ago).HasComment("距離上次登入天數：計算欄位");
+            entity.Property(e => e.last_login_ip).HasComment("最後登入IP");
+            entity.Property(e => e.last_login_user_agent).HasComment("最後登入用戶代理");
+            entity.Property(e => e.last_password_change_at).HasComment("最後密碼變更時間");
+            entity.Property(e => e.level).HasComment("用戶層級");
+            entity.Property(e => e.location).HasComment("所在地");
+            entity.Property(e => e.login_count).HasComment("登入次數");
+            entity.Property(e => e.login_method).HasComment("登入方式");
+            entity.Property(e => e.name).HasComment("用戶名稱：從name欄位取得");
+            entity.Property(e => e.nickname).HasComment("暱稱");
+            entity.Property(e => e.notes).HasComment("備註");
+            entity.Property(e => e.notification_settings).HasComment("通知設定");
+            entity.Property(e => e.organization_id).HasComment("所屬組織ID：從parent_id取得");
+            entity.Property(e => e.organization_name).HasComment("所屬組織名稱：從parent_id關聯取得");
+            entity.Property(e => e.parent_id).HasComment("所屬組織ID");
+            entity.Property(e => e.password_expires_at).HasComment("密碼到期時間");
+            entity.Property(e => e.password_hash).HasComment("密碼雜湊值");
+            entity.Property(e => e.payment_methods).HasComment("付款方式");
+            entity.Property(e => e.permissions).HasComment("權限陣列");
+            entity.Property(e => e.phone).HasComment("電話號碼");
+            entity.Property(e => e.preferences).HasComment("用戶偏好");
+            entity.Property(e => e.privacy_settings).HasComment("隱私設定");
+            entity.Property(e => e.profile_completion_percentage).HasComment("資料完成度");
+            entity.Property(e => e.role_ids).HasComment("角色ID陣列：從roles欄位解析");
+            entity.Property(e => e.role_name).HasComment("主要角色名稱：從roles陣列取得第一個角色名稱");
+            entity.Property(e => e.roles).HasComment("角色ID陣列");
+            entity.Property(e => e.salt).HasComment("密碼鹽值");
+            entity.Property(e => e.sort_order).HasComment("排序順序");
+            entity.Property(e => e.status).HasComment("狀態");
+            entity.Property(e => e.status_reason).HasComment("狀態原因");
+            entity.Property(e => e.subscription_expires_at).HasComment("訂閱到期時間");
+            entity.Property(e => e.subscription_products).HasComment("訂閱產品");
+            entity.Property(e => e.subscription_status).HasComment("訂閱狀態");
+            entity.Property(e => e.tags).HasComment("標籤陣列");
+            entity.Property(e => e.theme).HasComment("主題設定");
+            entity.Property(e => e.third_party_avatar).HasComment("第三方頭像");
+            entity.Property(e => e.third_party_id).HasComment("第三方ID");
+            entity.Property(e => e.timezone).HasComment("時區");
+            entity.Property(e => e.total_session_time).HasComment("總會話時間");
+            entity.Property(e => e.trial_ends_at).HasComment("試用期結束時間");
+            entity.Property(e => e.trusted_devices).HasComment("信任設備陣列");
+            entity.Property(e => e.trusted_ips).HasComment("信任IP陣列");
+            entity.Property(e => e.two_factor_enabled).HasComment("是否啟用雙因子認證");
+            entity.Property(e => e.type).HasComment("資料類型：user");
+            entity.Property(e => e.updated_at).HasComment("更新時間");
+            entity.Property(e => e.updated_by).HasComment("更新者ID");
+            entity.Property(e => e.zodiac_sign).HasComment("星座");
         });
 
         modelBuilder.Entity<vw_sidebar_navigation>(entity =>
