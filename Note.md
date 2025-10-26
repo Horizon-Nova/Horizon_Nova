@@ -1,73 +1,34 @@
-# Feature-oriented Design: File/Folder Search
+## Backoffice Authentication/Authorization and File Permission Flow
 
-## Goals
-- Composable features (spec-driven), not layer-led branching
-- Single pipeline, re-entrant, testable, no JS-generated HTML
+```mermaid
+flowchart TD
+    A[Request to Backoffice] --> B[Cookie Auth middleware]
+    B -->|Unauthenticated| C[Redirect -> /Backoffice/Authorize/Login]
+    B -->|Authenticated| D[Routing -> Controller Action]
 
-## SearchSpec (特性集合)
-- rootVirtualPath: string (required)
-- query:
-  - nameContains?: string
-  - pattern?: string (glob-like, optional)
-  - type?: 'file' | 'folder' | 'both' (default: both)
-- traversal:
-  - recursiveMaxDepth?: int (default: 3)
-- filters:
-  - sizeRange?: (minBytes?: long, maxBytes?: long)
-  - mimeTypes?: string[]
-  - updatedRangeUtc?: (from?: DateTime, to?: DateTime)
-- security:
-  - currentUser: string (required)
-  - ignoreProtectedPaths: bool (default: true)
-  - requireOwnershipIfOwnersPresent: bool (default: true)
-- result:
-  - sortBy?: 'name' | 'lastWriteUtc' | 'size'
-  - direction?: 'asc' | 'desc' (default: asc)
-  - offset?: int (default: 0)
-  - limit?: int (default: 200)
+    D --> E{PermissionAttribute on action/class?}
+    E -- Yes --> F[Check IsAuthenticated + SidebarNavigationService for URL allowlist]
+    F -- Deny --> G[Redirect -> /Backoffice/Authorize/AccessDenied]
+    F -- Allow --> H[Proceed to action]
+    E -- No --> H[Proceed to action]
 
-## Pipeline（單一路徑）
-1) Normalize rootVirtualPath → absolute path (safety-checked)
-2) Enumerate directories/files (bounded by recursiveMaxDepth)
-3) Apply protection ignores (protected regex/patterns)
-4) Permission filter (owners + currentUser rule)
-5) Map → FileSystemItem (Name, Type, Size, MimeType, CreatedAt, UpdatedAt, VirtualPath, Owners, PrimaryOwner)
-6) Apply spec filters (type/name/size/mime/time)
-7) Sort + page (sortBy/direction/offset/limit)
-8) Return strong-typed list (no HTML)
+    H --> I{FileManager action?}
+    I -- Yes --> J[Controller inline check: User.Identity?.Name null -> 401]
+    J --> K[DirectoryManagerUtilities.HasUserPermission(path, user)]
+    K -- false --> L[401/403 (Unauthorized/Forbidden)]
+    K -- true --> M[Execute operation (Load/List/CRUD/Share/Detail)]
 
-## Invariants（不變量）
-- No JS-generated HTML; Razor renders, JS triggers
-- Permissions enforced before projection
-- Spec defaults are safe & bounded (depth/limit)
-- Idempotent read (same spec → same result set when FS stable)
-- Errors bubble to middleware; no try/catch in pipeline
+    I -- No --> N[Other controllers handle their logic]
 
-## Interfaces（建議）
-```csharp
-public sealed class SearchSpec { /* fields above */ }
-public sealed class FileSystemItem {
-  public string Name; public string Type; public long? Size; public string? MimeType;
-  public DateTime CreatedAt; public DateTime UpdatedAt; public string VirtualPath;
-  public string[] Owners; public string PrimaryOwner;
-}
-
-// Service — pure function of (spec, user)
-public List<FileSystemItem> SearchFileSystem(SearchSpec spec);
-
-// Controller — pass-through (no branching)
-public IActionResult Search(SearchSpec spec)
-  => Json(new { success = true, items = svc.SearchFileSystem(spec) });
+    %% File operations detail
+    M --> P[List: Enumerate filesystem and filter by HasUserPermission]
+    M --> Q[Detail: GetAppOwners for item; PrimaryOwner derived from owners]
+    M --> R[Share: UpdateItemOwners → SetOwnersRecursive(folder) / SetAppOwners(file)]
 ```
 
-## Usage（View）
-- DataTable 消費 JSON（items），不組裝 HTML
-- 詳細/預覽等仍走 `showModal + LoadDetail`（同一 Partial）
+### 補充：帳號/角色/組織（依你提供）
+- **帳號**: 以部門/組織有領導者為假設，建立 `horizon-nova`、`horizon-nova-pg` 兩個組織。
+- **角色**: 控制可見範圍與後續權限（例如活動、集體功能）。
+- **組織**: 管理角色與帳號，也可作為功能集合。
 
-## Extensibility
-- 新增特性 = 擴充 SearchSpec + 過濾步驟，不改 Controller/View
-- 可替換排序/比對器（大小寫、自然排序）
 
-## Non-goals
-- 不建立目錄樹快取（以安全與一致性優先）
-- 不在 Controller/JS 做條件分支（全部用 spec 驅動）
