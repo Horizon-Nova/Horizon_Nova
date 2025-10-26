@@ -422,6 +422,36 @@ public partial class HnbHnbBackofficeDbContext : DbContext
         modelBuilder.Entity<vw_permission_organization>(entity =>
         {
             entity.ToView("vw_permission_organization", "dbo");
+
+            entity.Property(e => e.created_at).HasComment("建立時間");
+            entity.Property(e => e.created_by).HasComment("建立者ID");
+            entity.Property(e => e.id).HasComment("主鍵ID");
+            entity.Property(e => e.internal_notes).HasComment("內部備註");
+            entity.Property(e => e.is_active).HasComment("是否啟用");
+            entity.Property(e => e.is_root_organization).HasComment("是否為根組織");
+            entity.Property(e => e.organization_description).HasComment("組織描述");
+            entity.Property(e => e.organization_level).HasComment("組織層級");
+            entity.Property(e => e.organization_name).HasComment("組織名稱");
+            entity.Property(e => e.organization_role_ids).HasComment("組織角色ID陣列");
+            entity.Property(e => e.organization_role_names).HasComment("組織角色名稱陣列");
+            entity.Property(e => e.organization_user_full_names).HasComment("組織用戶完整名稱陣列");
+            entity.Property(e => e.organization_user_ids).HasComment("組織用戶ID陣列");
+            entity.Property(e => e.organization_user_names).HasComment("組織用戶名稱陣列");
+            entity.Property(e => e.parent_id).HasComment("上級組織ID");
+            entity.Property(e => e.parent_organization_id).HasComment("上級組織ID");
+            entity.Property(e => e.parent_organization_name).HasComment("上級組織名稱");
+            entity.Property(e => e.public_notes).HasComment("公開備註");
+            entity.Property(e => e.sort_order).HasComment("排序順序");
+            entity.Property(e => e.status).HasComment("狀態");
+            entity.Property(e => e.sub_organization_ids).HasComment("子組織ID陣列");
+            entity.Property(e => e.sub_organization_names).HasComment("子組織名稱陣列");
+            entity.Property(e => e.total_organization_members_count).HasComment("組織成員總數");
+            entity.Property(e => e.total_roles_count).HasComment("總角色數量");
+            entity.Property(e => e.total_sub_organizations_count).HasComment("總子組織數量");
+            entity.Property(e => e.total_users_count).HasComment("總用戶數量");
+            entity.Property(e => e.type).HasComment("資料類型：organization");
+            entity.Property(e => e.updated_at).HasComment("更新時間");
+            entity.Property(e => e.updated_by).HasComment("更新者ID");
         });
 
         modelBuilder.Entity<vw_permission_role>(entity =>

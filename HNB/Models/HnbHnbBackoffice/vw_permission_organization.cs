@@ -21,72 +21,159 @@ namespace Models.HnbHnbBackoffice;
 [Keyless]
 public partial class vw_permission_organization
 {
+    /// <summary>
+    /// 主鍵ID
+    /// </summary>
     public int? id { get; set; }
 
+    /// <summary>
+    /// 資料類型：organization
+    /// </summary>
     [StringLength(50)]
     public string? type { get; set; }
 
+    /// <summary>
+    /// 組織名稱
+    /// </summary>
     [StringLength(100)]
     public string? organization_name { get; set; }
 
+    /// <summary>
+    /// 組織描述
+    /// </summary>
     [StringLength(500)]
     public string? organization_description { get; set; }
 
+    /// <summary>
+    /// 組織層級
+    /// </summary>
     public int? organization_level { get; set; }
 
+    /// <summary>
+    /// 排序順序
+    /// </summary>
     public int? sort_order { get; set; }
 
+    /// <summary>
+    /// 是否啟用
+    /// </summary>
     public bool? is_active { get; set; }
 
+    /// <summary>
+    /// 狀態
+    /// </summary>
     [StringLength(50)]
     public string? status { get; set; }
 
+    /// <summary>
+    /// 建立時間
+    /// </summary>
     [Column(TypeName = "timestamp without time zone")]
     public DateTime? created_at { get; set; }
 
+    /// <summary>
+    /// 更新時間
+    /// </summary>
     [Column(TypeName = "timestamp without time zone")]
     public DateTime? updated_at { get; set; }
 
+    /// <summary>
+    /// 公開備註
+    /// </summary>
     public string? public_notes { get; set; }
 
+    /// <summary>
+    /// 內部備註
+    /// </summary>
     public string? internal_notes { get; set; }
 
+    /// <summary>
+    /// 上級組織ID
+    /// </summary>
     public int? parent_id { get; set; }
 
+    /// <summary>
+    /// 建立者ID
+    /// </summary>
     public int? created_by { get; set; }
 
+    /// <summary>
+    /// 更新者ID
+    /// </summary>
     public int? updated_by { get; set; }
 
+    /// <summary>
+    /// 總角色數量
+    /// </summary>
     public int? total_roles_count { get; set; }
 
+    /// <summary>
+    /// 總用戶數量
+    /// </summary>
     public long? total_users_count { get; set; }
 
+    /// <summary>
+    /// 總子組織數量
+    /// </summary>
     public long? total_sub_organizations_count { get; set; }
 
+    /// <summary>
+    /// 組織角色ID陣列
+    /// </summary>
     public List<string>? organization_role_ids { get; set; }
 
+    /// <summary>
+    /// 組織角色名稱陣列
+    /// </summary>
     [Column(TypeName = "character varying[]")]
     public List<string>? organization_role_names { get; set; }
 
+    /// <summary>
+    /// 組織用戶ID陣列
+    /// </summary>
     public List<string>? organization_user_ids { get; set; }
 
+    /// <summary>
+    /// 組織用戶名稱陣列
+    /// </summary>
     [Column(TypeName = "character varying[]")]
     public List<string>? organization_user_names { get; set; }
 
+    /// <summary>
+    /// 組織用戶完整名稱陣列
+    /// </summary>
     [Column(TypeName = "character varying[]")]
     public List<string>? organization_user_full_names { get; set; }
 
+    /// <summary>
+    /// 上級組織名稱
+    /// </summary>
     [StringLength(100)]
     public string? parent_organization_name { get; set; }
 
+    /// <summary>
+    /// 上級組織ID
+    /// </summary>
     public int? parent_organization_id { get; set; }
 
+    /// <summary>
+    /// 子組織名稱陣列
+    /// </summary>
     [Column(TypeName = "character varying[]")]
     public List<string>? sub_organization_names { get; set; }
 
+    /// <summary>
+    /// 子組織ID陣列
+    /// </summary>
     public List<string>? sub_organization_ids { get; set; }
 
+    /// <summary>
+    /// 是否為根組織
+    /// </summary>
     public bool? is_root_organization { get; set; }
 
+    /// <summary>
+    /// 組織成員總數
+    /// </summary>
     public int? total_organization_members_count { get; set; }
 }

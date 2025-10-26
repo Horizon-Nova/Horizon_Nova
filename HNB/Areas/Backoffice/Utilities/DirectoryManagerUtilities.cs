@@ -940,9 +940,6 @@ public sealed class DirectoryManagerUtilities
         }
     }
 
-
-
-
     /// <summary>
     /// 取得擁有者顯示字串（用逗號分隔）
     /// </summary>
@@ -953,8 +950,6 @@ public sealed class DirectoryManagerUtilities
         var owners = GetAppOwners(path);
         return owners.Length > 0 ? string.Join(", ", owners) : "未設定";
     }
-
-
 
     /// <summary>
     /// 統一的檔案系統查詢方法 - 查詢用戶有權限的檔案/資料夾
@@ -1117,7 +1112,6 @@ public sealed class DirectoryManagerUtilities
         // 檢查是否為擁有者
         return owners.Any(o => o.Equals(currentUser, StringComparison.OrdinalIgnoreCase));
     }
-
 
     /// <summary>
     /// 更新資料夾擁有者
