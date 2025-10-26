@@ -27,10 +27,26 @@
                             <div>
                         <h6 class="fw-bold mb-3 pb-2 border-bottom">角色基本資訊</h6>
                         <div class="row g-2 align-items-center">
-                            <div class="col-auto" style="width: 90px;"><label for="name" class="col-form-label col-form-label-sm mb-0">角色名稱<span class="text-danger">*</span></label></div>
+                            <div class="col-3 col-md-2 col-lg-2"><label for="name" class="col-form-label col-form-label-sm mb-0">角色名稱<span class="text-danger">*</span></label></div>
                             <div class="col"><input type="text" id="name" name="name" value="@(ViewBag.Role?.name ?? "")" class="form-control form-control-sm" placeholder="請輸入角色名稱" required></div>
-                            <div class="col-auto" style="width: 90px;"><label for="status" class="col-form-label col-form-label-sm mb-0">權限類型</label></div>
+                            <div class="col-3 col-md-2 col-lg-2"><label for="status" class="col-form-label col-form-label-sm mb-0">權限類型</label></div>
                             <div class="col"><input type="text" id="status" name="status" value="@(ViewBag.Role?.status ?? "")" class="form-control form-control-sm" placeholder="請輸入權限類型"></div>
+                        </div>
+                        <div class="row g-2 align-items-center mt-2">
+                            <div class="col-3 col-md-2 col-lg-2"><label for="parent_id" class="col-form-label col-form-label-sm mb-0">所屬組織<span class="text-danger">*</span></label></div>
+                            <div class="col">
+                                <select id="parent_id" name="parent_id" class="form-select form-select-sm" required>
+                                    <option value="">請選擇組織</option>
+                                    @if (ViewBag.Organizations != null)
+                                    {
+                                        @foreach (var org in ViewBag.Organizations)
+                                        {
+                                            var isSelected = ViewBag.Role?.organization_id == org.id;
+                                            <option value="@org.id" @(isSelected ? "selected" : "")>@org.organization_name</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
                         </div>
                     </div>
 
@@ -38,11 +54,11 @@
                             <div>
                         <h6 class="fw-bold mb-3 pb-2 border-bottom">角色描述</h6>
                         <div class="row g-2 align-items-start">
-                            <div class="col-auto" style="width: 90px;"><label for="description" class="col-form-label col-form-label-sm mb-0">角色描述</label></div>
+                            <div class="col-3 col-md-2 col-lg-2"><label for="description" class="col-form-label col-form-label-sm mb-0">角色描述</label></div>
                             <div class="col"><textarea id="description" name="description" rows="2" class="form-control form-control-sm" placeholder="請輸入角色描述和職責說明">@(ViewBag.Role?.description ?? "")</textarea></div>
                             </div>
                         <div class="row g-2 align-items-start mt-2">
-                            <div class="col-auto" style="width: 90px;"><label for="notes" class="col-form-label col-form-label-sm mb-0">備註</label></div>
+                            <div class="col-3 col-md-2 col-lg-2"><label for="notes" class="col-form-label col-form-label-sm mb-0">備註</label></div>
                             <div class="col"><textarea id="notes" name="notes" rows="2" class="form-control form-control-sm" placeholder="請輸入相關備註或特殊說明">@(ViewBag.Role?.notes ?? "")</textarea></div>
                         </div>
                     </div>
@@ -51,25 +67,60 @@
                     <div>
                         <h6 class="fw-bold mb-3 pb-2 border-bottom">導航權限</h6>
                         <div class="row g-2 align-items-start">
-                            <div class="col-auto" style="width: 90px;"><label class="col-form-label col-form-label-sm mb-0">導航項目</label></div>
+                            <div class="col-3 col-md-2 col-lg-2"><label class="col-form-label col-form-label-sm mb-0">導航項目</label></div>
                             <div class="col">
-                                <div class="d-flex flex-wrap gap-2">
                                 @if (ViewBag.Navigations != null)
                                 {
-                                    @foreach (var nav in ViewBag.Navigations)
-                                    {
-                                        var isChecked = false;
-                                        if (ViewBag.RoleNavigationPermissions != null)
+                                    var navList = ((IEnumerable<dynamic>)ViewBag.Navigations).ToList();
+                                    var parents = navList.Where(n => string.IsNullOrEmpty((string)n.parent_code)).OrderBy(n => (int?)(n.sort_order ?? 0)).ToList();
+                                    var childrenMap = navList.Where(n => !string.IsNullOrEmpty((string)n.parent_code))
+                                        .GroupBy(n => (string)n.parent_code)
+                                        .ToDictionary(g => g.Key, g => g.OrderBy(n => (int?)(n.sort_order ?? 0)).ToList());
+                                    var selectedPerms = ViewBag.RoleNavigationPermissions as IEnumerable<string> ?? new List<string>();
+
+                                    <div class="border rounded p-2 bg-white mb-2">
+                                        <div id="selectedNavList" class="d-flex flex-wrap gap-2">
+                                            @foreach (var code in selectedPerms)
+                                            {
+                                                var nav = navList.FirstOrDefault(n => (string)n.code == code);
+                                                if (nav != null)
+                                                {
+                                                    var title = (string)(nav.title ?? "");
+                                                    <span class="badge bg-secondary d-inline-flex align-items-center gap-1">
+                                                        <span>@title</span>
+                                                        <input type="hidden" name="navigation_permissions" value="@code">
+                                                        <button type="button" class="btn-close btn-close-white btn-close-sm" data-code="@code"></button>
+                                                    </span>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <select id="navSelect" class="form-select form-select-sm" style="height: auto;" size="8">
+                                        @foreach (var parent in parents)
                                         {
-                                            isChecked = ViewBag.RoleNavigationPermissions.Contains(nav.code);
+                                            var parentCode = (string)parent.code;
+                                            var parentTitle = (string)(parent.title ?? "");
+                                            var hasChildren = childrenMap.ContainsKey(parentCode);
+                                            
+                                            if (hasChildren)
+                                            {
+                                                <optgroup label="@parentTitle">
+                                                    @foreach (var child in childrenMap[parentCode])
+                                                    {
+                                                        var childCode = (string)child.code;
+                                                        var childTitle = (string)(child.title ?? "");
+                                                        <option value="@childCode">@childTitle</option>
+                                                    }
+                                                </optgroup>
+                                            }
+                                            else
+                                            {
+                                                <option value="@parentCode">@parentTitle</option>
+                                            }
                                         }
-                                            <div>
-                                                <input type="checkbox" name="navigation_permissions" value="@nav.code" @(isChecked ? "checked" : "") class="btn-check" id="nav_@nav.code" autocomplete="off">
-                                                <label class="btn btn-outline-success btn-sm" for="nav_@nav.code">@nav.title</label>
-                                            </div>
-                                        }
-                                    }
-                                </div>
+                                    </select>
+                                }
                             </div>
                         </div>
                     </div>
@@ -78,7 +129,7 @@
                         <div>
                         <h6 class="fw-bold mb-3 pb-2 border-bottom">狀態設定</h6>
                         <div class="row g-2 align-items-center">
-                            <div class="col-auto" style="width: 90px;"><label for="is_active" class="col-form-label col-form-label-sm mb-0">角色狀態</label></div>
+                            <div class="col-3 col-md-2 col-lg-2"><label for="is_active" class="col-form-label col-form-label-sm mb-0">角色狀態</label></div>
                             <div class="col">
                                 <select id="is_active" name="is_active" class="form-select form-select-sm">
                                     <option value="true" @(ViewBag.Role?.is_active == true ? "selected" : "")>啟用</option>
@@ -231,6 +282,63 @@ function submitRoleForm() {
         }
     });
 }
+
+// 導航下拉選單操作（立即執行）
+(function () {
+    // 等待 DOM 就緒（如果還沒）或立即執行
+    const initNavSelect = function() {
+        const navSelect = document.getElementById('navSelect');
+        const selectedNavList = document.getElementById('selectedNavList');
+        
+        if (!navSelect || !selectedNavList) {
+            // 如果元素還沒載入，稍後再試
+            setTimeout(initNavSelect, 100);
+            return;
+        }
+
+        // 下拉選單改變時自動新增
+        navSelect.addEventListener('change', function () {
+            const code = this.value;
+            const title = this.options[this.selectedIndex]?.text;
+            
+            if (code && title && !isNavAdded(code)) {
+                addNavBadge(code, title);
+            }
+            
+            // 重置下拉選單
+            this.value = '';
+        });
+
+        // 移除徽章
+        selectedNavList.addEventListener('click', function (e) {
+            if (e.target.classList.contains('btn-close')) {
+                e.target.closest('.badge').remove();
+            }
+        });
+
+        function isNavAdded(code) {
+            return selectedNavList.querySelector(`input[value="${code}"]`) !== null;
+        }
+
+        function addNavBadge(code, title) {
+            const badge = document.createElement('span');
+            badge.className = 'badge bg-secondary d-inline-flex align-items-center gap-1';
+            badge.innerHTML = `
+                <span>${title}</span>
+                <input type="hidden" name="navigation_permissions" value="${code}">
+                <button type="button" class="btn-close btn-close-white btn-close-sm" data-code="${code}"></button>
+            `;
+            selectedNavList.appendChild(badge);
+        }
+    };
+
+    // 立即嘗試初始化
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initNavSelect);
+    } else {
+        initNavSelect();
+    }
+})();
 
 </script>
 

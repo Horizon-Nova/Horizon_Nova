@@ -66,29 +66,6 @@
                         </div>
                     </div>
 
-                        <!-- 角色分配 -->
-                        <div>
-                            <h6 class="fw-semibold pb-2 border-bottom mb-3">角色分配</h6>
-                            <p class="small text-muted mb-2">選擇要分配給此組織的角色（每個角色僅能分配給一個組織）</p>
-                            <div class="d-flex flex-wrap gap-2" style="max-height: 240px; overflow-y: auto;">
-                                @if (ViewBag.Roles != null)
-                                {
-                                    @foreach (var role in ViewBag.Roles)
-                                    {
-                                        var isChecked = ViewBag.OrganizationRoles != null && ViewBag.OrganizationRoles.Contains(role.id.ToString());
-                                        var isOccupied = ViewBag.OccupiedRoleIds != null && ViewBag.OccupiedRoleIds.Contains(role.id.ToString()) && !isChecked;
-                                        
-                                        <div>
-                                            <input type="checkbox" name="assigned_roles" value="@role.id" @(isChecked ? "checked" : "") @(isOccupied ? "disabled" : "") class="btn-check" id="role_@role.id" autocomplete="off">
-                                            <label class="btn btn-outline-@(isOccupied ? "danger" : "success") btn-sm @(isOccupied ? "opacity-50" : "")" for="role_@role.id">
-                                                @role.name @(isOccupied ? "(已被占用)" : "")
-                                        </label>
-                                        </div>
-                                    }
-                                }
-                        </div>
-                    </div>
-
                         <!-- 狀態設定 -->
                         <div>
                             <h6 class="fw-semibold pb-2 border-bottom mb-3">狀態設定</h6>
@@ -203,7 +180,6 @@
                                     <li>填寫組織名稱與層級（必填）</li>
                                     <li>選擇上級組織（可選，不選擇則為根組織）</li>
                                     <li>輸入組織描述與備註</li>
-                                    <li>分配角色給組織（每個角色僅能分配給一個組織）</li>
                                     <li>設定組織狀態（啟用/停用）</li>
                                     <li>點擊儲存完成新增或編輯</li>
                                 </ol>
@@ -213,10 +189,10 @@
                             <div>
                                 <h6 class="fw-bold mb-2 pb-2 border-bottom">權限控制說明</h6>
                                 <div class="small">
-                                    <p><strong>組織與角色關係：</strong></p>
-                                    <p>組織 → 角色 → 使用者：組織擁有角色，角色控制權限，使用者被分配角色。</p>
-                                    <p class="mt-2"><strong>角色唯一性：</strong></p>
-                                    <p>每個角色僅能分配給一個組織，避免權限衝突。已被其他組織使用的角色會顯示為紅色且無法選擇。</p>
+                                    <p><strong>組織管理說明：</strong></p>
+                                    <p>組織是權限系統的基礎架構，用於管理使用者與角色的歸屬關係。</p>
+                                    <p class="mt-2"><strong>組織階層：</strong></p>
+                                    <p>組織可以建立階層關係，上層組織可以管理下層組織的所有資源。</p>
             </div>
                 </div>
                 
@@ -233,7 +209,6 @@
                                         <tr><td>上級組織</td><td>所屬的上級組織，不選則為根組織</td></tr>
                                         <tr><td>組織描述</td><td>詳細說明組織的職責和業務範圍</td></tr>
                                         <tr><td>備註</td><td>額外的說明或特殊注意事項</td></tr>
-                                        <tr><td>角色分配</td><td>分配給此組織的角色清單</td></tr>
                                         <tr><td>組織狀態</td><td>控制組織是否可用</td></tr>
                                     </tbody>
                                 </table>
@@ -248,19 +223,16 @@
                 <div>
                                 <h6 class="fw-bold mb-2 pb-2 border-bottom">常見問題 (Q&A)</h6>
                                 <div class="small">
-                                    <p><strong>Q1：為什麼有些角色無法選擇？</strong></p>
-                                    <p class="ms-3 mb-2">A：該角色已被其他組織使用。每個角色僅能分配給一個組織，避免權限衝突。</p>
-                                    
-                                    <p><strong>Q2：組織層級有什麼作用？</strong></p>
+                                    <p><strong>Q1：組織層級有什麼作用？</strong></p>
                                     <p class="ms-3 mb-2">A：層級定義組織在架構中的位置，數字越小層級越高（1為最高層級）。</p>
                                     
-                                    <p><strong>Q3：停用組織會發生什麼事？</strong></p>
+                                    <p><strong>Q2：停用組織會發生什麼事？</strong></p>
                                     <p class="ms-3 mb-2">A：停用後，該組織將不會出現在選單中，但資料仍會保留。</p>
                                     
-                                    <p><strong>Q4：如何建立子組織？</strong></p>
+                                    <p><strong>Q3：如何建立子組織？</strong></p>
                                     <p class="ms-3 mb-2">A：在「上級組織」欄位選擇父組織，並設定適當的層級數字。</p>
                                     
-                                    <p><strong>Q5：為什麼建立組織後沒有出現在清單中？</strong></p>
+                                    <p><strong>Q4：為什麼建立組織後沒有出現在清單中？</strong></p>
                                     <p class="ms-3 mb-2">A：請檢查組織狀態是否為「啟用」，以及是否符合當前的篩選條件。</p>
                     </div>
                 </div>
@@ -271,8 +243,8 @@
                                 <ul class="mb-0">
                                     <li>組織名稱應具唯一性，避免混淆</li>
                                     <li>組織層級應符合實際架構（建議1-5層）</li>
-                                    <li>角色分配後，組織內使用者可使用該角色</li>
-                                    <li>停用組織不會影響已分配的角色</li>
+                                    <li>上層組織可以管理下層組織的所有資源</li>
+                                    <li>停用組織不會影響已存在的使用者與角色</li>
                                     <li>刪除組織前請先移除子組織與使用者</li>
                                 </ul>
                             </div>

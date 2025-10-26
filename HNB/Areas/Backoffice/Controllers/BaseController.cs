@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Security.Claims;
 using Models.HnbHnbBackoffice;
+using Microsoft.Extensions.DependencyInjection;
 
 
 namespace HNB.Areas.Backoffice.Controllers;
@@ -25,17 +26,9 @@ public abstract class BaseController : Controller
     {
         if (User.Identity?.IsAuthenticated == true)
         {
-            var sidebarService = HttpContext.RequestServices.GetService<SidebarNavigationService>();
-            if (sidebarService != null)
-            {
-                var currentUserName = User.Identity.Name ?? "";
-                var navigationList = sidebarService.LoadUserNavigationList(currentUserName);
-                ViewBag.SidebarNavigation = navigationList;
-            }
-            else
-            {
-                ViewBag.SidebarNavigation = new List<vw_sidebar_navigation>();
-            }
+            var sidebarService = HttpContext.RequestServices.GetRequiredService<SidebarNavigationService>();
+            var currentUserName = User.Identity?.Name ?? string.Empty;
+            ViewBag.SidebarNavigation = sidebarService.LoadUserNavigationList(currentUserName);
         }
         else
         {

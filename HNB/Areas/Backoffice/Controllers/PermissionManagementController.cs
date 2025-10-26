@@ -107,10 +107,10 @@ public class PermissionManagementController(PermissionManagementService sev, Aut
     }
 
     [HttpPost]
-    public IActionResult SubmitOrganization(permission_management form, int[] assigned_roles) 
+    public IActionResult SubmitOrganization(permission_management form) 
     {
         form.type = "organization";
-        form.roles = assigned_roles?.Select(id => id.ToString()).ToList() ?? [];
+        form.roles = new List<string>(); // 不再分配角色給組織
         
         var result = sev.CreateOrganization(form);
         return Json(new { success = result.success, message = result.message });

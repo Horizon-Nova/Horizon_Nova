@@ -77,7 +77,6 @@ app.UseHsts();
 
 app.UseMiddleware<ExceptionLoggingMiddleware>();
 app.UseMiddleware<IpSecurityMiddleware>();
-//app.UseMiddleware<HardwareMonitoringMiddleware>();
 
 app.UseForwardedHeaders();
 app.UseHttpsRedirection();
@@ -102,12 +101,6 @@ app.MapControllerRoute(
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller= }/{action= }/{id?}");
-
-//using (var scope = app.Services.CreateScope())
-//{
-//    var dirUtil = scope.ServiceProvider.GetRequiredService<HNB.Areas.Backoffice.Utilities.DirectoryManagerUtilities>();
-//    dirUtil.SyncAllFilesToDatabase();
-//}
 
 // ⚠️ 防止意外部署到正式環境 - 開發中請勿移除此錯誤 ⚠️
 //#error "開發中：重構尚未完成測試，禁止部署到正式環境！"

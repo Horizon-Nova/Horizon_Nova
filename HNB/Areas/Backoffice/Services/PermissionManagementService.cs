@@ -1,47 +1,118 @@
 using HNB.Areas.Backoffice.Repositories;
 using Models.HnbHnbBackoffice;
+using HNB.Areas.Backoffice.Core;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace HNB.Areas.Backoffice.Services;
 
-public class PermissionManagementService(PermissionManagementRepository repo, SidebarNavigationService sidebarService)
+public class PermissionManagementService(HnbHnbBackofficeDbContext db, PermissionManagementRepository repo, SidebarNavigationService sidebarService)
 {
+    #region 私有輔助方法
+
+    private static List<vw_permission_user> FilterUsers(IEnumerable<vw_permission_user> source, string? searchTerm, string? organization, string? role, bool? isActive)
+        => source
+            .Where(u => string.IsNullOrWhiteSpace(searchTerm)
+                || (u.full_name?.Contains(searchTerm) ?? false)
+                || (u.name?.Contains(searchTerm) ?? false)
+                || (u.email?.Contains(searchTerm) ?? false))
+            .Where(u => string.IsNullOrWhiteSpace(organization) || u.organization_name == organization)
+            .Where(u => string.IsNullOrWhiteSpace(role) || u.role_name == role)
+            .Where(u => !isActive.HasValue || u.is_active == isActive.Value)
+            .ToList();
+
+    private List<vw_permission_user> ResolveUsersScoped(int? organizationId, string? searchTerm, string? organization, string? role, bool? isActive)
+        => OrganizationScope.ResolveUsers(
+            db,
+            organizationId.HasValue ? new permission_management { parent_id = new List<string> { organizationId.Value.ToString() } } : null,
+            null,
+            searchTerm,
+            organization,
+            role,
+            isActive,
+            includeAllWhenNoScope: !organizationId.HasValue
+        );
+
+    private static List<vw_permission_role> FilterRoles(IEnumerable<vw_permission_role> source, string? searchTerm, string? organization, bool? isActive)
+        => source
+            .Where(r => string.IsNullOrWhiteSpace(searchTerm)
+                || (r.name?.Contains(searchTerm) ?? false)
+                || (r.description?.Contains(searchTerm) ?? false))
+            .Where(r => string.IsNullOrWhiteSpace(organization) || r.organization_name == organization)
+            .Where(r => !isActive.HasValue || r.is_active == isActive.Value)
+            .ToList();
+
+    private List<vw_permission_role> ResolveRolesScoped(int? organizationId, string? searchTerm, string? organization, bool? isActive)
+        => OrganizationScope.ResolveRoles(
+            db,
+            organizationId.HasValue ? new permission_management { parent_id = new List<string> { organizationId.Value.ToString() } } : null,
+            null,
+            searchTerm,
+            organization,
+            isActive,
+            includeAllWhenNoScope: !organizationId.HasValue
+        );
+
+    private static List<vw_permission_organization> FilterOrganizations(IEnumerable<vw_permission_organization> source, string? searchTerm, int? level, bool? isActive)
+        => source
+            .Where(o => string.IsNullOrWhiteSpace(searchTerm)
+                || (o.organization_name?.Contains(searchTerm) ?? false)
+                || (o.organization_description?.Contains(searchTerm) ?? false))
+            .Where(o => !level.HasValue || o.organization_level == level.Value)
+            .Where(o => !isActive.HasValue || o.is_active == isActive.Value)
+            .OrderBy(o => o.organization_name)
+            .ToList();
+
+    private List<vw_permission_organization> ResolveOrganizationsScoped(int? organizationId, string? searchTerm, int? level, bool? isActive)
+        => OrganizationScope.ResolveOrganizations(
+            db,
+            organizationId.HasValue ? new permission_management { parent_id = new List<string> { organizationId.Value.ToString() } } : null,
+            null,
+            searchTerm,
+            level,
+            isActive,
+            includeAllWhenNoScope: !organizationId.HasValue
+        );
+
+    #endregion
+
     #region 統一的查詢方法
 
     /// <summary>
     /// 載入用戶列表
     /// </summary>
     public List<vw_permission_user> LoadUserList(string? searchTerm = null, string? organization = null, string? role = null, bool? isActive = null, int? organizationId = null)
-        => repo.QueryUserList(null, searchTerm, organization, role, isActive, organizationId);
+        => ResolveUsersScoped(organizationId, searchTerm, organization, role, isActive);
 
     /// <summary>
     /// 載入用戶
     /// </summary>
     public vw_permission_user? LoadUser(int id)
-        => repo.QueryUser(id);
+        => OrganizationScope.ResolveUsers(db, new permission_management { type = "user", id = id }).FirstOrDefault();
 
     /// <summary>
     /// 載入角色列表
     /// </summary>
     public List<vw_permission_role> LoadRoleList(string? searchTerm = null, string? organization = null, bool? isActive = null, int? organizationId = null)
-        => repo.QueryRoleList(searchTerm, organization, isActive, organizationId);
+        => ResolveRolesScoped(organizationId, searchTerm, organization, isActive);
 
     /// <summary>
     /// 載入角色
     /// </summary>
     public vw_permission_role? LoadRole(int id)
-        => repo.QueryRole(id);
+        => OrganizationScope.ResolveRole(db, id);
 
     /// <summary>
     /// 載入組織列表
     /// </summary>
     public List<vw_permission_organization> LoadOrganizationList(string? searchTerm = null, int? level = null, bool? isActive = null, int? organizationId = null)
-        => repo.QueryOrganizationList(searchTerm, level, isActive, organizationId);
+        => ResolveOrganizationsScoped(organizationId, searchTerm, level, isActive);
 
     /// <summary>
     /// 載入組織
     /// </summary>
     public vw_permission_organization? LoadOrganization(int id)
-        => repo.QueryOrganization(id);
+        => OrganizationScope.ResolveOrganization(db, id);
 
     /// <summary>
     /// 載入權限管理列表
@@ -71,7 +142,7 @@ public class PermissionManagementService(PermissionManagementRepository repo, Si
             {
                 var errorMessages = occupiedRoles.Select(kvp => 
                 {
-                    var roleName = repo.QueryRole(int.Parse(kvp.Key))?.name ?? kvp.Key;
+                    var roleName = OrganizationScope.ResolveRole(db, int.Parse(kvp.Key))?.name ?? kvp.Key;
                     return $"「{roleName}」已被「{kvp.Value}」組織使用";
                 });
                 return (false, $"角色分配失敗：{string.Join("、", errorMessages)}", null);
@@ -135,9 +206,11 @@ public class PermissionManagementService(PermissionManagementRepository repo, Si
     /// <returns>組織ID，如果找不到則返回null</returns>
     public int? LoadUserOrganizationId(string username)
     {
-        var user = repo.QueryUserByName(username);
+        var user = OrganizationScope.ResolveUsers(db, new permission_management { type = "user", name = username }).FirstOrDefault();
         return user?.organization_id;
     }
+
+    
 
     /// <summary>
     /// 根據用戶名獲取用戶資訊
@@ -145,7 +218,7 @@ public class PermissionManagementService(PermissionManagementRepository repo, Si
     /// <param name="username">用戶名</param>
     /// <returns>用戶資訊或null</returns>
     public vw_permission_user? LoadUserByName(string username)
-        => repo.QueryUserByName(username);
+        => OrganizationScope.ResolveUsers(db, new permission_management { type = "user", name = username }).FirstOrDefault();
 
     #endregion
 
@@ -160,8 +233,6 @@ public class PermissionManagementService(PermissionManagementRepository repo, Si
     public void ViewBagModel(dynamic viewBag, int? id = null, int? currentUserOrganizationId = null)
     {
         viewBag.Id = id;
-
-        // 根據權限過濾：只顯示當前用戶組織的數據
         viewBag.Organizations = LoadOrganizationList(organizationId: currentUserOrganizationId);
         viewBag.Organization = id.HasValue ? LoadOrganization(id.Value) : null;
 
