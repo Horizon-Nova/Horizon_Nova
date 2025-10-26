@@ -320,7 +320,7 @@ public partial class permission_management
     /// <summary>
     /// 上級ID：用戶=所屬組織ID, 角色=所屬組織ID, 組織=上級組織ID
     /// </summary>
-    public int? parent_id { get; set; }
+    public List<string>? parent_id { get; set; }
 
     /// <summary>
     /// 排序順序：顯示順序編號
@@ -441,11 +441,4 @@ public partial class permission_management
     /// 用戶名稱陣列：組織=所屬用戶名稱列表, 角色=擁有此角色的用戶名稱列表
     /// </summary>
     public List<string>? user_names { get; set; }
-
-    [InverseProperty("parent")]
-    public virtual ICollection<permission_management> Inverseparent { get; set; } = new List<permission_management>();
-
-    [ForeignKey("parent_id")]
-    [InverseProperty("Inverseparent")]
-    public virtual permission_management? parent { get; set; }
 }
