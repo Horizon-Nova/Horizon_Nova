@@ -9,29 +9,59 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: Deploy
-          fetch-depth: 0
-          clean: true
-
-      - run: |
-          mkdir -p DeployFile
-          rm -rf DeployFile/* DeployFile/.* 2>/dev/null || true
-
-      - uses: actions/checkout@v4
+      # Step 1: Checkout main branch to get source code
+      - name: Checkout main branch
+        uses: actions/checkout@v4
         with:
           ref: main
-          path: main
 
-      - working-directory: ./main/HNB
+      # Step 2: Setup .NET SDK
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      # Step 3: Cache NuGet packages for faster builds
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      # Step 4: Restore dependencies
+      - name: Restore dependencies
+        working-directory: ./HNB
+        run: dotnet restore
+
+      # Step 5: Build and publish to temporary location
+      - name: Build and Publish
+        working-directory: ./HNB
+        run: dotnet publish -c Release -o ../_publish_output --no-restore
+
+      # Step 6: Checkout Deploy branch and prepare it
+      - name: Checkout Deploy branch
+        uses: actions/checkout@v4
+        with:
+          ref: Deploy
+          path: deploy-repo
+
+      # Step 7: Copy build output to DeployFile in Deploy branch
+      - name: Copy build output to DeployFile
         run: |
-          dotnet restore
-          dotnet publish -c Release -o "$GITHUB_WORKSPACE/DeployFile"
+          cd deploy-repo
+          # Clean old DeployFile
+          rm -rf DeployFile/* DeployFile/.* 2>/dev/null || true
+          # Copy new build output
+          cp -r ../_publish_output/* DeployFile/ || true
 
-      - run: |
+      # Step 8: Configure Git and commit
+      - name: Configure Git and Push
+        working-directory: deploy-repo
+        run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add DeployFile
-          git commit -m "Update DeployFile from HNB"
+          git diff --staged --quiet || git commit -m "Update DeployFile from HNB [skip ci]"
           git push origin Deploy
