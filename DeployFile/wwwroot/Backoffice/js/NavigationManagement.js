@@ -5,7 +5,29 @@ $(document).ready(() => {
     $('#searchInput').on('input', applyFilters);
     $('#statusFilter').on('change', applyFilters);
     $('#levelFilter').on('change', applyFilters);
+    
+    // 初始化拖放功能
+    initializeDragAndDrop();
+
+    // 載入上層目錄選項（在 Modal 開啟時載入）
+    $(document).on('shown.bs.modal', '#nav-add-modal, #nav-edit-modal', function () {
+        loadParentOptions($(this).attr('id'));
+    });
 });
+// 載入上層目錄選項
+const loadParentOptions = (modalId) => {
+    $.ajax({
+        type: 'GET',
+        url: '/Backoffice/SidebarNavigation/LoadParentOptions',
+        success: (html) => {
+            const $select = modalId === 'nav-add-modal' ? $('#navAddParent') : $('#navEditParent');
+            const current = $select.data('current') || '';
+            $select.html(html);
+            if (current) $select.val(current);
+        },
+        error: () => console.warn('無法載入上層目錄選項')
+    });
+};
 
 // 便捷函數：顯示編輯 Modal
 const showEditModal = (id) => showModal('nav-edit-modal', {
@@ -55,12 +77,27 @@ const applyFilters = () => {
         const $codeElement = $card.find('[data-lucide="hash"]').parent();
         const code = $codeElement.text()?.toLowerCase() || '';
         
-        const $statusBadge = $card.find('.badge');
+        const $statusBadge = $card.find('.badge').filter(function() {
+            const text = $(this).text()?.trim();
+            return text === '啟用' || text === '停用';
+        }).first();
         const isActive = $statusBadge.text()?.trim() === '啟用';
         
-        const level = $item.closest('.nav-children').length > 0
-            ? ($item.closest('.nav-children').closest('.nav-children').length > 0 ? 3 : 2)
-            : 1;
+        // 計算層級：根據父層數量
+        const parentCode = $item.data('parent-code') || '';
+        let level = 1;
+        if (parentCode !== '') {
+            // 有 parent_code 表示至少是第二層
+            level = 2;
+            // 檢查父項目的父項目是否存在
+            const $parent = $(`.nav-tree-item[data-nav-id]`).filter(function() {
+                const $codeSpan = $(this).find('[data-lucide="hash"]').parent();
+                return $codeSpan.text() === parentCode;
+            });
+            if ($parent.length > 0 && $parent.data('parent-code')) {
+                level = 3;
+            }
+        }
         
         const matchesSearch = searchKeyword === '' || title.includes(searchKeyword) || code.includes(searchKeyword);
         const matchesStatus = statusFilter === '' || 
@@ -102,10 +139,23 @@ const toggleChildren = (btn) => {
 // 儲存導航（新增或編輯）
 const saveNavigation = (type) => {
     const formId = type === 'add' ? '#navAddForm' : '#navEditForm';
+    const checkboxId = type === 'add' ? '#navAddIsActive' : '#navEditIsActive';
+    
+    // 將表單序列化為物件
+    const formData = $(formId).serializeArray();
+    const dataObject = {};
+    
+    formData.forEach(field => {
+        dataObject[field.name] = field.value;
+    });
+    
+    // 手動處理 checkbox 的值（確保 is_active 欄位總是被提交）
+    dataObject['is_active'] = $(checkboxId).is(':checked');
+    
     $.ajax({
         type: 'POST',
         url: '/Backoffice/SidebarNavigation/SubmitNavigation',
-        data: $(formId).serialize(),
+        data: dataObject,
         success: (response) => {
             response?.success
                 ? (alert('儲存成功'), closeModal(`nav-${type}-modal`), location.reload())
@@ -245,4 +295,153 @@ const selectIcon = () => {
     $(`${previewId} i`).attr('data-lucide', selectedIcon).removeClass('text-muted').addClass('text-primary');
     window.lucide?.createIcons?.();
     closeModal('icon-picker-modal');
+};
+
+// ===== 拖放排序功能 =====
+let draggedElement = null;
+let draggedId = null;
+let draggedParentCode = null;
+
+const initializeDragAndDrop = () => {
+    const $treeContainer = $('#navigationTreeContent');
+    if ($treeContainer.length === 0) return;
+    
+    // 使用事件委派處理動態元素
+    $treeContainer.on('dragstart', '.nav-tree-item', handleDragStart);
+    $treeContainer.on('dragend', '.nav-tree-item', handleDragEnd);
+    $treeContainer.on('dragover', '.nav-tree-item', handleDragOver);
+    $treeContainer.on('dragleave', '.nav-tree-item', handleDragLeave);
+    $treeContainer.on('drop', '.nav-tree-item', handleDrop);
+};
+
+const handleDragStart = function(e) {
+    draggedElement = this;
+    draggedId = $(this).data('nav-id');
+    draggedParentCode = $(this).data('parent-code') || '';
+    
+    $(this).addClass('dragging');
+    e.originalEvent.dataTransfer.effectAllowed = 'move';
+    e.originalEvent.dataTransfer.setData('text/html', this.innerHTML);
+};
+
+const handleDragEnd = function(e) {
+    $(this).removeClass('dragging');
+    $('.nav-tree-item').removeClass('drag-over');
+    
+    draggedElement = null;
+    draggedId = null;
+    draggedParentCode = null;
+};
+
+const handleDragOver = function(e) {
+    if (e.preventDefault) {
+        e.preventDefault();
+    }
+    
+    // 不能拖到自己身上
+    if (this === draggedElement) {
+        return false;
+    }
+    
+    // 只能在同一層級內拖放（相同的 parent_code）
+    const targetParentCode = $(this).data('parent-code') || '';
+    if (draggedParentCode !== targetParentCode) {
+        return false;
+    }
+    
+    $(this).addClass('drag-over');
+    e.originalEvent.dataTransfer.dropEffect = 'move';
+    
+    return false;
+};
+
+const handleDragLeave = function(e) {
+    $(this).removeClass('drag-over');
+};
+
+const handleDrop = function(e) {
+    if (e.stopPropagation) {
+        e.stopPropagation();
+    }
+    
+    // 不能拖到自己身上
+    if (this === draggedElement) {
+        return false;
+    }
+    
+    // 只能在同一層級內拖放
+    const targetParentCode = $(this).data('parent-code') || '';
+    if (draggedParentCode !== targetParentCode) {
+        alert('只能在同一層級內調整順序');
+        return false;
+    }
+    
+    const targetId = $(this).data('nav-id');
+    
+    // 收集同層級所有項目
+    const parentCode = draggedParentCode;
+    const $siblings = parentCode === ''
+        ? $('.nav-tree-item[data-parent-code=""]')
+        : $(`.nav-tree-item[data-parent-code="${parentCode}"]`);
+    
+    // 建立 ID 陣列（排除被拖動的項目）
+    const ids = [];
+    $siblings.each(function() {
+        const id = $(this).data('nav-id');
+        if (id !== draggedId) {
+            ids.push(id);
+        }
+    });
+    
+    // 找到目標位置並插入被拖動的項目
+    const targetIndex = ids.indexOf(targetId);
+    const draggedIndex = $siblings.index(draggedElement);
+    const dropIndex = $siblings.index(this);
+    
+    if (draggedIndex < dropIndex) {
+        // 向下拖動：插入到目標之後
+        ids.splice(targetIndex + 1, 0, draggedId);
+    } else {
+        // 向上拖動：插入到目標之前
+        ids.splice(targetIndex, 0, draggedId);
+    }
+    
+    // 建立新的排序物件陣列（排序號使用連續整數 0, 1, 2, 3...）
+    const newOrder = ids.map((id, index) => ({
+        id: id,
+        sort_order: index
+    }));
+    
+    // 發送批量更新請求
+    updateNavigationOrder(newOrder);
+    
+    return false;
+};
+
+const updateNavigationOrder = (orderList) => {
+    // 構建完整的導航物件陣列（只更新 sort_order，其他欄位從 DOM 讀取）
+    const updates = orderList.map(item => {
+        const $item = $(`.nav-tree-item[data-nav-id="${item.id}"]`);
+        return {
+            id: item.id,
+            sort_order: item.sort_order,
+            // 其他欄位保持不變，前端不需要傳遞
+        };
+    });
+    
+    $.ajax({
+        type: 'POST',
+        url: '/Backoffice/SidebarNavigation/UpdateSortOrder',
+        contentType: 'application/json',
+        data: JSON.stringify(updates),
+        success: (response) => {
+            if (response?.success) {
+                // 成功後重新載入頁面以顯示新順序
+                location.reload();
+            } else {
+                alert(response?.message || '更新排序失敗');
+            }
+        },
+        error: () => alert('更新排序失敗，系統發生錯誤。')
+    });
 };
