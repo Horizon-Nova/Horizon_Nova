@@ -1,0 +1,12 @@
+:root { --bg-color: #d4ceb9; --brand-orange: #E07A34; }
+
+body { background-color: var(--bg-color); font-family: 'Lato', sans-serif; }
+
+.brand-italic { font-family: 'Bodoni Moda', serif; font-style: italic; }
+
+.btn-brand { background-color: var(--brand-orange); color: #fff; border: none; }
+.btn-brand:hover { background-color: #cf6c28; color: #fff; }
+
+.bg-true-black { background-color: #000 !important; }
+
+
