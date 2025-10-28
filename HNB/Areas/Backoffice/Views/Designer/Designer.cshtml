@@ -1,0 +1,291 @@
+﻿@{
+    Layout = "~/Areas/Backoffice/Views/Shared/_DesignerLayout.cshtml";
+}
+
+<div id="vvveb-builder">
+    <!-- 頂部工具列 -->
+    <div id="top-panel" class="d-flex align-items-center justify-content-between border-bottom bg-body px-2" style="height: 35px;">
+        <!-- 左區：面板切換 -->
+        <div class="d-flex align-items-center gap-2">
+            <div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-secondary" onclick="toggleLeftPanel()">
+                    <i data-lucide="panel-left"></i>
+                </button>
+                <button class="btn btn-outline-secondary" onclick="toggleRightPanel()">
+                    <i data-lucide="panel-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- 中區：主要工具 -->
+        <div class="d-flex align-items-center gap-2">
+            <div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-secondary" onclick="undo()">
+                    <i data-lucide="undo-2"></i>
+                </button>
+                <button class="btn btn-outline-secondary" onclick="redo()">
+                    <i data-lucide="redo-2"></i>
+                </button>
+            </div>
+
+        </div>
+
+        <!-- 右區：設定與操作 -->
+        <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-outline-secondary btn-sm" id="btn-dark-mode" onclick="toggleDarkMode()">
+                <i data-lucide="sun"></i>
+            </button>
+
+            <div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-secondary" onclick="setViewport('mobile', this)">
+                    <i data-lucide="smartphone"></i>
+                </button>
+                <button class="btn btn-outline-secondary" onclick="setViewport('tablet', this)">
+                    <i data-lucide="tablet"></i>
+                </button>
+                <button class="btn btn-outline-secondary active" onclick="setViewport('desktop', this)">
+                    <i data-lucide="laptop"></i>
+                </button>
+            </div>
+
+            <button class="btn btn-success btn-sm" onclick="exportHTML()">
+                <i data-lucide="code"></i> 匯出
+            </button>
+
+            <button class="btn btn-primary btn-sm" onclick="savePage()">
+                <i data-lucide="save"></i> Save
+            </button>
+        </div>
+    </div>
+
+    <!-- 主要內容區 -->
+    <div class="d-flex" style="height: calc(100vh - 35px);">
+        <!-- 左側面板 -->
+        <div id="left-panel" class="border-end bg-body-secondary" style="width: 280px; display: flex; flex-direction: column;">
+            <!-- Pages -->
+            <div id="filemanager" class="border-bottom bg-body-tertiary" style="height: 200px; flex-shrink: 0;">
+                <div class="p-2 border-bottom bg-body d-flex justify-content-between align-items-center">
+                    <span class="text-secondary"><i data-lucide="file"></i> Pages</span>
+                    <button class="btn btn-outline-primary btn-sm" onclick="createNewPage()">
+                        <i data-lucide="plus"></i>
+                    </button>
+                </div>
+                <div class="p-2 pages-list-container" style="overflow-y: auto; height: calc(100% - 45px);">
+                    <!-- 頁面列表將動態載入 -->
+                </div>
+            </div>
+
+            <!-- Tabs 工具列 -->
+            <div class="flex-fill overflow-hidden d-flex flex-column">
+                <!-- Tab 標籤 -->
+                <ul class="nav nav-tabs nav-fill border-bottom" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#tab-layers" role="tab">
+                            <i data-lucide="layers"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#tab-components" role="tab">
+                            <i data-lucide="box"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#tab-configuration" role="tab">
+                            <i data-lucide="settings"></i>
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- Tab 內容 -->
+                <div class="tab-content flex-fill overflow-auto">
+                    <!-- 圖層 Tab - GrapesJS Layer Manager -->
+                    <div class="tab-pane fade show active" id="tab-layers" role="tabpanel">
+                        <!-- GrapesJS Layer Manager 會自動渲染在這裡 -->
+                    </div>
+
+                    <!-- 元件 Tab - GrapesJS Block Manager -->
+                    <div class="tab-pane fade" id="tab-components" role="tabpanel">
+                        <!-- GrapesJS Block Manager 會自動渲染在這裡 -->
+                    </div>
+
+                    <!-- 配置 Tab -->
+                    <div class="tab-pane fade p-3" id="tab-configuration" role="tabpanel">
+                        <h6 class="mb-3">全域設定</h6>
+
+                        <!-- 字體設定 -->
+                        <div class="mb-3">
+                            <label class="form-label small">字體</label>
+                            <select class="form-select form-select-sm" id="global-font-family">
+                                <option value="system-ui">系統字體</option>
+                                <option value="Arial, sans-serif">Arial</option>
+                                <option value="'Microsoft JhengHei', sans-serif">微軟正黑體</option>
+                            </select>
+                        </div>
+
+                        <!-- 字體大小 -->
+                        <div class="mb-3">
+                            <label class="form-label small">字體大小</label>
+                            <div class="input-group input-group-sm">
+                                <input type="number" class="form-control" id="global-font-size" value="16" min="12" max="24">
+                                <span class="input-group-text">px</span>
+                            </div>
+                        </div>
+
+                        <!-- 背景顏色 -->
+                        <div class="mb-3">
+                            <label class="form-label small">畫布背景顏色</label>
+                            <input type="color" class="form-control form-control-color w-100" id="global-bg-color" value="#ffffff">
+                        </div>
+
+                        <!-- 主題顏色 -->
+                        <div class="mb-3">
+                            <label class="form-label small">主要顏色</label>
+                            <input type="color" class="form-control form-control-color w-100" id="global-primary-color" value="#0d6efd">
+                        </div>
+
+                        <!-- 容器寬度 -->
+                        <div class="mb-3">
+                            <label class="form-label small">容器最大寬度</label>
+                            <select class="form-select form-select-sm" id="global-container-width">
+                                <option value="960px">Large (960px)</option>
+                                <option value="1140px" selected>XL (1140px)</option>
+                                <option value="1320px">XXL (1320px)</option>
+                                <option value="100%">Full Width</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 畫布區域 -->
+        <div class="flex-fill d-flex flex-column">
+            <!-- 頁面標籤導覽（水平捲軸） -->
+            <div id="page-tabs-bar" class="border-bottom bg-body" style="overflow-x: auto; white-space: nowrap; padding: 8px 12px;">
+                <!-- 頁面標籤將動態載入 -->
+            </div>
+            
+            <!-- 畫布 -->
+            <div id="canvas-container" class="flex-fill bg-body-tertiary overflow-auto">
+                <div id="canvas" class="bg-white m-3 shadow-sm" style="min-height: calc(100vh - 100px);">
+                    <div class="text-center text-muted py-5">
+                        <i data-lucide="mouse-pointer-click" style="width: 64px; height: 64px;"></i>
+                        <p class="mt-3">從左側拖曳元素開始設計</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右側屬性面板 -->
+        <div id="properties-panel" class="border-start bg-body-secondary" style="width: 320px; overflow-y: auto;">
+            <div class="p-3">
+                <div id="no-selection" class="text-center text-muted py-5">
+                    <i data-lucide="mouse-pointer-2" style="width: 48px; height: 48px;"></i>
+                    <p class="mt-3">請選擇一個元素</p>
+                </div>
+
+                <div id="element-properties" class="d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0">元素屬性</h6>
+                        <button class="btn btn-sm btn-outline-danger" onclick="if(editor && editor.getSelected()) editor.getSelected().remove()">
+                            <i data-lucide="trash-2"></i>
+                        </button>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small">元素類型</label>
+                        <input type="text" class="form-control form-control-sm" id="element-type" readonly>
+                    </div>
+
+                    <!-- GrapesJS 動態屬性容器 -->
+                    <div id="grapesjs-traits-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- GrapesJS 隱藏容器 -->
+<div id="fake-blocks" style="display: none;"></div>
+<div id="fake-style-manager" style="display: none;"></div>
+<div id="fake-layer-manager" style="display: none;"></div>
+
+<!-- 元件模板 -->
+<div id="component-templates" class="d-none">
+    <template id="tpl-heading">
+        <h2 class="mb-3">標題文字</h2>
+    </template>
+    <template id="tpl-text">
+        <p class="mb-0">這是一段文字</p>
+    </template>
+    <template id="tpl-button">
+        <button class="btn btn-primary">按鈕</button>
+    </template>
+    <template id="tpl-image">
+        <img src="https://via.placeholder.com/300x200" class="img-fluid" alt="圖片" />
+    </template>
+    <template id="tpl-container">
+        <div class="container-fluid py-4">
+            <p class="text-muted text-center mb-0">容器</p>
+        </div>
+    </template>
+    <template id="tpl-row">
+        <div class="row g-3">
+            <div class="col-12">
+                <p class="text-muted text-center mb-0">Row</p>
+            </div>
+        </div>
+    </template>
+    <template id="tpl-column">
+        <div class="col-md-6">
+            <p class="text-muted text-center p-3 border mb-0">Column</p>
+        </div>
+    </template>
+</div>
+
+<!-- Toast 錯誤提示 -->
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+    <div id="errorToast" class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <strong>Error:</strong> <span id="errorToastMessage"></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+    <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <span id="successToastMessage"></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+
+<!-- 匯出 HTML Modal -->
+<div class="modal fade" id="htmlPreviewModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">生成的 HTML 代碼</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <textarea id="html-output" class="form-control" rows="20" readonly style="font-family: 'Courier New', monospace;"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                <button type="button" class="btn btn-primary" onclick="copyHTMLToClipboard()">
+                    <i data-lucide="copy"></i> 複製
+                </button>
+                <button type="button" class="btn btn-success" onclick="downloadHTML()">
+                    <i data-lucide="download"></i> 下載
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

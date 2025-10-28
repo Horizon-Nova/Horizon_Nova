@@ -1,0 +1,507 @@
+/* Designer Global CSS Variables */
+:root {
+  /* 全域字體與顏色 */
+  --designer-font-size: 12px;
+  --designer-line-height: 28px;
+  --designer-text-color: #000;
+  --designer-icon-color: #000;
+  --designer-white: #fff;
+  --designer-gray: #adb5bd;
+  --designer-black: #000;
+  
+  /* Icon 尺寸 */
+  --designer-icon-size: 16px;
+  
+  /* GrapesJS 主題顏色 */
+  --gjs-primary-color: #0d6efd;
+  --gjs-primary-shadow: rgba(13, 110, 253, 0.25);
+  --gjs-border-color: var(--bs-border-color);
+  --gjs-hover-bg: var(--bs-secondary-bg);
+  --gjs-selected-bg: var(--bs-tertiary-bg);
+  --gjs-text-color: var(--bs-body-color);
+  
+  /* Tooltip 顏色 */
+  --tooltip-bg-dark: rgba(0, 0, 0, 0.9);
+  --tooltip-bg-light: rgba(255, 255, 255, 0.95);
+  --tooltip-text-dark: #fff;
+  --tooltip-text-light: #000;
+}
+
+/* 隱藏 GrapesJS 預設 UI，只保留畫布 */
+.gjs-cv-canvas {
+  width: 100% !important;
+  height: 100% !important;
+  top: 0 !important;
+}
+
+.gjs-frame {
+  height: 100% !important;
+  width: 100% !important;
+}
+
+#fake-blocks,
+#fake-style-manager,
+#fake-layer-manager {
+  display: none !important;
+}
+
+/* GrapesJS 元素選中樣式 */
+.gjs-selected {
+  outline: 2px solid var(--gjs-primary-color) !important;
+  outline-offset: 2px !important;
+}
+
+.gjs-comp-selected {
+  outline: 2px dashed var(--gjs-primary-color) !important;
+}
+
+/* 調整大小手柄 */
+.gjs-resizer-h,
+.gjs-resizer-v {
+  background-color: var(--gjs-primary-color) !important;
+}
+
+/* 隱藏 GrapesJS toolbar（使用我們自己的） */
+.gjs-toolbar {
+  display: none !important;
+}
+
+
+/* GrapesJS Block Manager 客製化 */
+#tab-components .gjs-blocks-c {
+  padding: 8px !important;
+}
+
+#tab-components .gjs-block-category {
+  margin-bottom: 16px !important;
+}
+
+#tab-components .gjs-block-category .gjs-title {
+  color: var(--bs-secondary-color) !important;
+  padding: 4px 0 !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  border: none !important;
+  margin-bottom: 8px !important;
+}
+
+#tab-components .gjs-block {
+  width: 100% !important;
+  min-height: 48px !important;
+  padding: 10px 12px !important;
+  margin: 0 0 6px 0 !important;
+  border: 1px solid var(--gjs-border-color) !important;
+  border-radius: var(--bs-border-radius) !important;
+  display: flex !important;
+  align-items: center !important;
+  cursor: pointer !important;
+}
+
+#tab-components .gjs-block:hover {
+  background: var(--gjs-hover-bg) !important;
+  transition: all 0.2s ease !important;
+}
+
+#tab-components .gjs-block svg,
+#tab-components .gjs-block i {
+  margin-right: 8px !important;
+}
+
+#tab-components .gjs-block-label {
+  font-size: 0.875rem !important;
+}
+
+/* GrapesJS Layer Manager 客製化 */
+#tab-layers .gjs-layers {
+  padding: 8px !important;
+}
+
+#tab-layers .gjs-layer {
+  border: 1px solid var(--gjs-border-color) !important;
+  margin-bottom: 2px !important;
+  padding: 6px 8px !important;
+  border-radius: var(--bs-border-radius-sm) !important;
+}
+
+#tab-layers .gjs-layer:hover {
+  background: var(--gjs-hover-bg) !important;
+  transition: all 0.2s ease !important;
+}
+
+#tab-layers .gjs-layer.gjs-selected {
+  background: var(--gjs-selected-bg) !important;
+  border-color: var(--gjs-border-color) !important;
+}
+
+#tab-layers .gjs-layer-name {
+  font-size: 0.875rem !important;
+}
+
+#tab-layers .gjs-layer__icon {
+  margin-right: 6px !important;
+}
+
+/* GrapesJS Style Manager - 使用預設樣式，僅調整字體繼承 */
+
+body, html {
+  font-size: var(--designer-font-size);
+  line-height: var(--designer-line-height);
+}
+
+/* Light mode */
+body, html {
+  color: var(--designer-text-color);
+}
+
+/* GrapesJS 元素繼承 body, html 的字體樣式 */
+.gjs-block,
+.gjs-block-category,
+.gjs-layer,
+.gjs-layer-item,
+#tab-components,
+#tab-layers {
+  font-family: inherit !important;
+  font-size: var(--designer-font-size) !important;
+  line-height: var(--designer-line-height) !important;
+  color: inherit !important;
+}
+
+/* Dark mode */
+[data-bs-theme="dark"] body,
+[data-bs-theme="dark"] html {
+  color: var(--designer-white);
+}
+
+[data-bs-theme="dark"] .text-secondary {
+  color: var(--designer-gray) !important;
+}
+
+/* Lucide Icon 統一控制 */
+#vvveb-builder svg {
+  width: var(--designer-icon-size);
+  height: var(--designer-icon-size);
+  stroke: var(--designer-icon-color);
+}
+
+/* Dark mode icons */
+[data-bs-theme="dark"] #vvveb-builder svg {
+  stroke: var(--designer-white);
+}
+
+/* Primary 按鈕的 icon 保持白色 */
+#vvveb-builder .btn-primary svg {
+  stroke: var(--designer-white);
+}
+
+/* 工具列按鈕 active 狀態：灰色背景，白色 icon */
+#top-panel .btn-outline-secondary.active {
+  background-color: var(--designer-gray) !important;
+  border-color: var(--designer-gray) !important;
+}
+
+#top-panel .btn-outline-secondary.active svg {
+  stroke: var(--designer-white) !important;
+}
+
+/* Dark mode 工具列按鈕 active 狀態 */
+[data-bs-theme="dark"] #top-panel .btn-outline-secondary.active {
+  background-color: var(--designer-gray) !important;
+  border-color: var(--designer-gray) !important;
+}
+
+[data-bs-theme="dark"] #top-panel .btn-outline-secondary.active svg {
+  stroke: var(--designer-white) !important;
+}
+
+/* Panel Resizer (Visual Studio Style) */
+#panel-resizer {
+  transition: background-color 0.2s ease;
+  background: var(--bs-border-color) !important;
+}
+
+#panel-resizer:hover {
+  background-color: var(--gjs-primary-color) !important;
+}
+
+/* Dark Mode Support */
+[data-bs-theme="dark"] #panel-resizer {
+  background: var(--bs-border-color) !important;
+}
+
+[data-bs-theme="dark"] .border-bottom,
+[data-bs-theme="dark"] .border-end {
+  border-color: var(--bs-border-color) !important;
+}
+
+/* 左側 File item (Pages list) 樣式 */
+.file-item {
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.file-item:hover {
+  background-color: var(--gjs-hover-bg);
+}
+
+.file-item.active {
+  background-color: var(--gjs-selected-bg);
+  border-left: 3px solid var(--gjs-primary-color);
+}
+
+/* 按鈕預設隱藏，hover 時顯示 */
+.file-item .btn-group {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.file-item:hover .btn-group,
+.file-item.active .btn-group {
+  opacity: 1;
+}
+
+/* 上方 Page Tabs - 水平捲軸導覽 */
+.page-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  margin-right: 4px;
+  border-radius: var(--bs-border-radius);
+  background-color: var(--bs-body-bg);
+  border: 1px solid var(--gjs-border-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.page-tab:hover {
+  background-color: var(--gjs-hover-bg);
+  border-color: var(--gjs-primary-color);
+}
+
+.page-tab.active {
+  background-color: var(--gjs-primary-color);
+  color: var(--designer-white);
+  border-color: var(--gjs-primary-color);
+}
+
+.page-tab-title {
+  font-size: 0.875rem;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.page-tab-close {
+  display: none;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.page-tab:hover .page-tab-close {
+  display: inline-flex;
+}
+
+.page-tab-close:hover {
+  opacity: 1;
+}
+
+.page-tab.active .page-tab-close {
+  display: inline-flex;
+  color: var(--designer-white);
+}
+
+/* 上方標籤導覽捲軸樣式 */
+#page-tabs-bar::-webkit-scrollbar {
+  height: 6px;
+}
+
+#page-tabs-bar::-webkit-scrollbar-track {
+  background: var(--bs-body-bg);
+  border-radius: 3px;
+}
+
+#page-tabs-bar::-webkit-scrollbar-thumb {
+  background: var(--gjs-border-color);
+  border-radius: 3px;
+}
+
+#page-tabs-bar::-webkit-scrollbar-thumb:hover {
+  background: var(--designer-gray);
+}
+
+/* Component Items - Draggable */
+.component-item {
+  cursor: move;
+  transition: all 0.2s ease;
+}
+
+.component-item:hover {
+  background-color: var(--gjs-hover-bg) !important;
+  transform: translateX(4px);
+}
+
+.component-item.dragging {
+  opacity: 0.5;
+}
+
+/* Canvas Styles */
+#canvas {
+  transition: background-color 0.2s ease;
+  overflow: visible; /* 允許 resize handles 顯示 */
+  min-height: 500px;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin: 0 auto;
+}
+
+#canvas.drag-over {
+  background-color: var(--gjs-hover-bg) !important;
+  border: 2px dashed var(--gjs-primary-color);
+}
+
+/* 畫布容器，防止溢出 */
+#canvas-container {
+  overflow: auto;
+  height: 100%;
+  position: relative;
+  padding: 20px;
+}
+
+
+/* Context Menu */
+#context-menu {
+  animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#context-menu .list-group-item {
+  cursor: pointer;
+  font-size: 12px;
+}
+
+#context-menu .list-group-item:hover {
+  background-color: var(--gjs-hover-bg);
+}
+
+/* Layers Panel */
+#layers-list {
+  padding: 0;
+  margin: 0;
+}
+
+.layer-item {
+  padding: 8px 12px;
+  margin-bottom: 4px;
+  background: var(--bs-body-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.layer-item:hover {
+  background-color: var(--gjs-hover-bg);
+  border-color: var(--gjs-primary-color);
+}
+
+.layer-item.active {
+  background-color: var(--gjs-selected-bg);
+  border-color: var(--gjs-primary-color);
+  font-weight: 500;
+}
+
+.layer-item-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.layer-item-type {
+  font-size: 11px;
+  color: var(--bs-secondary);
+  background: var(--bs-secondary-bg);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.layer-item-actions {
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.layer-item:hover .layer-item-actions {
+  opacity: 1;
+}
+
+.layer-item-actions button {
+  padding: 2px 4px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: background 0.2s ease;
+}
+
+.layer-item-actions button:hover {
+  background: var(--gjs-hover-bg);
+}
+
+/* Custom Tooltip */
+[data-tooltip] {
+  position: relative;
+}
+
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: fixed;
+  top: var(--tooltip-top, -9999px);
+  left: var(--tooltip-left, -9999px);
+  background: var(--tooltip-bg-dark);
+  color: var(--tooltip-text-dark);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 9999;
+  max-width: 200px;
+}
+
+[data-tooltip]:hover::after {
+  opacity: 1;
+}
+
+/* Dark mode tooltip */
+[data-bs-theme="dark"] [data-tooltip]::after {
+  background: var(--tooltip-bg-light);
+  color: var(--tooltip-text-light);
+}
+
+
