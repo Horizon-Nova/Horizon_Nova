@@ -115,6 +115,8 @@ public class SidebarNavigationRepository(HnbHnbBackofficeDbContext db)
         
         if (existingEntity == null)
         {
+            form.created_at = DateTime.UtcNow;
+            form.updated_at = DateTime.UtcNow;
             db.sidebar_navigations.Add(form);
             db.SaveChanges();
             return form;
@@ -127,6 +129,7 @@ public class SidebarNavigationRepository(HnbHnbBackofficeDbContext db)
         existingEntity.sort_order = form.sort_order;
         existingEntity.parent_code = form.parent_code;
         existingEntity.is_active = form.is_active;
+        existingEntity.updated_at = DateTime.UtcNow;
       
         db.SaveChanges();
         return existingEntity;

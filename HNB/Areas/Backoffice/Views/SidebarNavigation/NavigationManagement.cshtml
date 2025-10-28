@@ -81,6 +81,7 @@
                             <ul class="small">
                                 <li class="mb-2"><strong>新增目錄：</strong>點擊「新增目錄」按鈕，填寫必填欄位（目錄名稱、目錄代碼），選擇性填寫圖標、上層目錄、排序順序、路徑 URL。</li>
                                 <li class="mb-2"><strong>編輯目錄：</strong>點擊目錄卡片上的「編輯」按鈕，修改資料後儲存。</li>
+                                <li class="mb-2"><strong>拖曳排序：</strong>按住目錄卡片左側的拖曳手柄圖標，拖動到目標位置釋放，即可調整同層級內的順序。系統會自動重新編號（0, 1, 2, 3...）。</li>
                                 <li class="mb-2"><strong>查看詳情：</strong>點擊目錄卡片上的「查看」按鈕，檢視完整資訊（包含建立時間、更新時間等）。</li>
                                 <li class="mb-2"><strong>刪除目錄：</strong>點擊「刪除」按鈕，輸入目錄代碼確認後刪除。<span class="text-danger">刪除操作無法復原，請謹慎操作。</span></li>
                                 <li class="mb-2"><strong>搜尋篩選：</strong>使用搜尋框輸入關鍵字（目錄名稱、路徑），或使用狀態/層級篩選器快速定位。</li>
@@ -165,7 +166,7 @@
                                 <li class="mb-2">導航結構建議保持簡潔，避免層級過深（建議不超過 3 層），以提升使用者體驗。</li>
                                 <li class="mb-2">刪除操作無法復原，刪除前請確認該目錄不再使用，且沒有其他目錄依賴此代碼。</li>
                                 <li class="mb-2">修改目錄的「啟用狀態」或「目錄代碼」後，建議通知相關用戶重新登入，以確保變更生效。</li>
-                                <li class="mb-2">排序順序建議使用 10、20、30... 等間隔數字，方便日後插入新目錄而不需大量調整。</li>
+                                <li class="mb-2">排序順序使用連續整數（0, 1, 2, 3...），透過拖曳調整順序時系統會自動重新編號。</li>
                     </ul>
                         </div>
                     </div>
@@ -212,9 +213,9 @@
             <div class="col-6 col-lg-3">
                 <select id="levelFilter" class="form-select form-select-sm">
                     <option value="">所有層級</option>
-                    <option value="0">第一層</option>
-                    <option value="1">第二層</option>
-                    <option value="2">第三層</option>
+                    <option value="1">第一層</option>
+                    <option value="2">第二層</option>
+                    <option value="3">第三層</option>
                 </select>
             </div>
 

@@ -8,9 +8,14 @@
          Model.url.StartsWith("https://", StringComparison.OrdinalIgnoreCase));
 }
 
-<div class="nav-tree-item">
+<div class="nav-tree-item" draggable="true" data-nav-id="@Model.id" data-sort-order="@(Model.sort_order ?? 0)" data-parent-code="@(Model.parent_code ?? "")">
     <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between p-3 bg-light rounded border nav-item-card gap-3">
         <div class="d-flex align-items-start align-items-lg-center gap-2 gap-lg-3 flex-grow-1" style="min-width: 0;">
+            <!-- 拖曳手柄 -->
+            <div class="drag-handle text-muted flex-shrink-0" style="cursor: move;" title="拖曳以調整順序">
+                <i data-lucide="grip-vertical" style="width: 1rem; height: 1rem;"></i>
+            </div>
+            
             @if (hasChildren)
             {
                 <button type="button" onclick="toggleChildren(this)" class="btn btn-link btn-sm p-0 text-muted flex-shrink-0">
@@ -30,6 +35,7 @@
             <div class="flex-grow-1" style="min-width: 0;">
                 <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
                     <h6 class="mb-0 fw-semibold text-truncate">@Model.title</h6>
+                    <span class="badge bg-secondary small">排序: @(Model.sort_order ?? 0)</span>
                     <span class="badge @(Model.is_active == true ? "bg-success" : "bg-danger") small">
                         @(Model.is_active == true ? "啟用" : "停用")
                     </span>
