@@ -1,176 +1,93 @@
-﻿/* 衣櫃管理樣式 */
+﻿/**
+ * 衣櫃管理樣式
+ * Wardrobe Management CSS
+ */
 
-/* 衣櫃統計卡片 */
-.wardrobe-stats-card {
-    @apply bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow;
+/* 上傳區域拖曳效果 */
+.border-dashed:hover {
+    border-color: #0d6efd !important;
+    background-color: #f0f8ff !important;
+    transition: all 0.2s ease;
 }
 
-.wardrobe-stats-icon {
-    @apply w-12 h-12 rounded-full flex items-center justify-center text-white text-xl;
+/* 衣櫃項目卡片 */
+.wardrobe-item .card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.wardrobe-stats-number {
-    @apply text-2xl font-bold text-gray-800;
+.wardrobe-item .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
 }
 
-.wardrobe-stats-label {
-    @apply text-sm text-gray-600;
+/* 統計卡片 */
+.card-body .h4 {
+    font-size: 1.75rem;
 }
 
-/* 上傳區域 */
-.upload-area {
-    @apply border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 hover:bg-blue-50 transition-colors;
+/* 聊天容器 */
+#chatContainer {
+    scrollbar-width: thin;
+    scrollbar-color: #dee2e6 transparent;
 }
 
-.upload-area.dragover {
-    @apply border-blue-500 bg-blue-50;
+#chatContainer::-webkit-scrollbar {
+    width: 6px;
 }
 
-/* 預覽區域 */
-.image-preview {
-    @apply grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4;
+#chatContainer::-webkit-scrollbar-track {
+    background: transparent;
 }
 
-.preview-item {
-    @apply relative group;
+#chatContainer::-webkit-scrollbar-thumb {
+    background-color: #dee2e6;
+    border-radius: 3px;
 }
 
-.preview-image {
-    @apply w-full h-24 object-cover rounded-lg;
+#chatContainer::-webkit-scrollbar-thumb:hover {
+    background-color: #adb5bd;
 }
 
-.remove-button {
-    @apply absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity;
+/* 快速建議按鈕 */
+.quick-suggestion {
+    transition: all 0.2s ease;
 }
 
-/* 衣櫃項目 */
-.wardrobe-item {
-    @apply bg-white border rounded-lg p-3 hover:shadow-md transition-shadow;
+.quick-suggestion:hover {
+    transform: translateX(4px);
 }
 
-.wardrobe-item.selected {
-    @apply ring-2 ring-blue-500;
+/* 上傳區域互動 */
+.border-dashed {
+    cursor: pointer;
+    user-select: none;
 }
 
-.wardrobe-image {
-    @apply w-full h-32 object-cover rounded-lg mb-3;
+.border-dashed:active {
+    transform: scale(0.98);
 }
 
-.wardrobe-info {
-    @apply space-y-1;
+/* 推薦記錄卡片 */
+.border-success, .border-warning {
+    transition: all 0.2s ease;
 }
 
-.wardrobe-name {
-    @apply font-medium text-gray-800 truncate;
+.border-success:hover, .border-warning:hover {
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
 }
 
-.wardrobe-style {
-    @apply text-sm text-gray-600;
-}
-
-.wardrobe-actions {
-    @apply flex justify-between items-center mt-3;
-}
-
-.action-button {
-    @apply p-2 text-gray-400 hover:text-gray-600 transition-colors;
-}
-
-/* 篩選區域 */
-.filter-section {
-    @apply bg-white border rounded-lg p-4 mb-4;
-}
-
-.filter-grid {
-    @apply grid grid-cols-1 md:grid-cols-3 gap-4;
-}
-
-.filter-group {
-    @apply space-y-2;
-}
-
-.filter-label {
-    @apply text-sm font-medium text-gray-700;
-}
-
-.filter-input {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500;
-}
-
-/* 批量操作 */
-.batch-actions {
-    @apply bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4;
-}
-
-.batch-info {
-    @apply text-sm text-blue-700 mb-3;
-}
-
-.batch-buttons {
-    @apply flex space-x-2;
-}
-
-.batch-button {
-    @apply px-3 py-1 text-sm rounded-md transition-colors;
-}
-
-.batch-button.primary {
-    @apply bg-blue-500 text-white hover:bg-blue-600;
-}
-
-.batch-button.secondary {
-    @apply bg-gray-200 text-gray-700 hover:bg-gray-300;
-}
-
-.batch-button.danger {
-    @apply bg-red-500 text-white hover:bg-red-600;
-}
-
-/* 空狀態 */
-.empty-state {
-    @apply text-center py-12;
-}
-
-.empty-icon {
-    @apply w-16 h-16 mx-auto text-gray-400 mb-4;
-}
-
-.empty-title {
-    @apply text-lg font-medium text-gray-600 mb-2;
-}
-
-.empty-description {
-    @apply text-gray-500;
-}
-
-/* 載入狀態 */
-.loading-spinner {
-    @apply animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500;
-}
-
-/* 響應式設計 */
+/* 響應式調整 */
 @media (max-width: 768px) {
-    .wardrobe-stats-card {
-        @apply p-3;
+    #chatContainer {
+        height: 300px !important;
     }
     
-    .wardrobe-stats-number {
-        @apply text-xl;
+    .card-body .h4 {
+        font-size: 1.5rem;
     }
     
-    .upload-area {
-        @apply p-6;
-    }
-    
-    .wardrobe-item {
-        @apply p-2;
-    }
-    
-    .wardrobe-image {
-        @apply h-24;
-    }
-    
-    .filter-grid {
-        @apply grid-cols-1;
+    .wardrobe-item .card-img-top {
+        height: 120px !important;
     }
 }

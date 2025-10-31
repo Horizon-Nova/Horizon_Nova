@@ -26,7 +26,9 @@ public static class ServiceRegistrationExtensions
         services.AddScoped<AuthService>();
         services.AddScoped<SidebarNavigationService>();
         services.AddScoped<DatabaseService>();
-        services.AddScoped<AIModelServices>();
+        services.AddSingleton<ObjectDetectionService>();
+        services.AddScoped<DallE3Service>();
+        services.AddScoped<ClothingAIService>();
         return services;
     }
     /// <summary> DI注入管理 Repositories 功能 </summary>
@@ -39,7 +41,6 @@ public static class ServiceRegistrationExtensions
         services.AddScoped<SidebarNavigationRepository>();
         services.AddScoped<HardwareMonitoringRepository>();
         services.AddScoped<BlockedIpRepository>();
-        services.AddScoped<AIModelRepositories>();
         return services;
     }
     /// <summary> DI注入管理 Utilities 功能 </summary>

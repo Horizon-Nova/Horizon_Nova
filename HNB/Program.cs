@@ -81,6 +81,15 @@ app.UseMiddleware<IpSecurityMiddleware>();
 app.UseForwardedHeaders();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+// 添加 storage 靜態檔案服務
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "Areas", "Backoffice", "storage")),
+    RequestPath = "/storage"
+});
+
 app.UseSession();
 
 app.Use(async (context, next) =>
