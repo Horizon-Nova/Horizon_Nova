@@ -45,7 +45,6 @@ packages/**/restore.lock.json
 !packages/**/*.exe
 !packages/**/*.pdb
 
-
 # 排除所有 ONNX 模型
 *.onnx
 
@@ -58,3 +57,5 @@ special_tokens_map.json
 
 # 排除資料夾
 HNB/Areas/Backoffice/storage/
+
+Sites/
