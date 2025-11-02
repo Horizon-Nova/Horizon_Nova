@@ -1,4 +1,4 @@
-using HNB.IIS.Core.Models;
+using HNB.IIS.Core.Models.Hnbdata;
 
 namespace HNB.IIS.Core.Repositories;
 

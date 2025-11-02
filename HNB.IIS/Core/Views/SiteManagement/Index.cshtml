@@ -1,0 +1,284 @@
+@{
+    ViewData["Title"] = "SITE MANAGEMENT";
+}
+
+<!-- 統計區域 - 更流暢的設計 -->
+<div class="mb-8">
+    <div class="flex items-baseline gap-4 mb-6">
+        <h3 class="text-xl font-bold text-white tracking-wide">系統概覽</h3>
+        <div class="h-px flex-1 bg-gradient-to-r from-white via-white to-transparent opacity-10"></div>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <!-- 統計卡片 - 簡化設計 -->
+        <div class="group relative">
+            <div class="absolute inset-0 bg-gradient-to-br from-white to-transparent opacity-5 group-hover:opacity-10 transition"></div>
+            <div class="relative p-5 border-l-2 border-white border-opacity-30">
+                <p class="text-xs text-gray-500 mb-1 tracking-widest">TOTAL</p>
+                <p class="text-3xl font-bold text-white mb-1">@ViewBag.Sites.Count</p>
+                <p class="text-xs text-gray-600">站台總數</p>
+            </div>
+        </div>
+
+        <div class="group relative">
+            <div class="absolute inset-0 bg-gradient-to-br from-green-500 to-transparent opacity-5 group-hover:opacity-10 transition"></div>
+            <div class="relative p-5 border-l-2 border-green-500 border-opacity-50">
+                <p class="text-xs text-gray-500 mb-1 tracking-widest">ACTIVE</p>
+                <p class="text-3xl font-bold text-green-400 mb-1">0</p>
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 bg-green-500 rounded-full status-pulse"></div>
+                    <p class="text-xs text-gray-600">運行中</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="group relative">
+            <div class="absolute inset-0 bg-gradient-to-br from-gray-500 to-transparent opacity-5 group-hover:opacity-10 transition"></div>
+            <div class="relative p-5 border-l-2 border-gray-600">
+                <p class="text-xs text-gray-500 mb-1 tracking-widest">STOPPED</p>
+                <p class="text-3xl font-bold text-gray-400 mb-1">@ViewBag.Sites.Count</p>
+                <p class="text-xs text-gray-600">已停止</p>
+            </div>
+        </div>
+
+        <div class="group relative">
+            <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-transparent opacity-5 group-hover:opacity-10 transition"></div>
+            <div class="relative p-5 border-l-2 border-blue-500 border-opacity-50">
+                <p class="text-xs text-gray-500 mb-1 tracking-widest">STORAGE</p>
+                <p class="text-3xl font-bold text-white mb-1">0<span class="text-base text-gray-500">MB</span></p>
+                <p class="text-xs text-gray-600">儲存空間</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 站台列表 - 表格式布局 -->
+<div class="mb-6">
+    <div class="flex items-center justify-between mb-4">
+        <div class="flex items-baseline gap-4">
+            <h3 class="text-xl font-bold text-white tracking-wide">站台列表</h3>
+            <span class="text-sm text-gray-500">共 @ViewBag.Sites.Count 個站台</span>
+        </div>
+        <button class="px-5 py-2.5 border border-white border-opacity-30 text-white hover:border-opacity-50 transition flex items-center gap-2 text-sm font-semibold tracking-wide">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            新增站台
+        </button>
+    </div>
+</div>
+
+<!-- 站台列表 -->
+<div class="space-y-3">
+    @foreach (var site in ViewBag.Sites)
+    {
+        <div class="group relative border-l-2 border-white border-opacity-20 hover:border-opacity-50 transition-all duration-300">
+            <div class="absolute inset-0 bg-gradient-to-r from-white to-transparent opacity-0 group-hover:opacity-5 transition-opacity"></div>
+            
+            <div class="relative p-5 flex items-center justify-between">
+                <!-- 左側：站台資訊 -->
+                <div class="flex items-center gap-6 flex-1">
+                    <!-- 站台名稱 -->
+                    <div class="w-48">
+                        <div class="flex items-center gap-3">
+                            <div class="w-2 h-2 bg-gray-500 rounded-full"></div>
+                            <div>
+                                <p class="text-white font-semibold tracking-wide">@site.Name</p>
+                                <p class="text-xs text-gray-600 font-mono">@site.AppPool</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 路徑 -->
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs text-gray-500 mb-1">PATH</p>
+                        <p class="text-sm text-gray-400 font-mono truncate">@site.Path</p>
+                    </div>
+
+                    <!-- 端口 -->
+                    <div class="w-24">
+                        <p class="text-xs text-gray-500 mb-1">PORT</p>
+                        <p class="text-white font-mono">:@site.Port</p>
+                    </div>
+
+                    <!-- 狀態 -->
+                    <div class="w-28">
+                        <p class="text-xs text-gray-500 mb-1">STATUS</p>
+                        <div class="flex items-center gap-2">
+                            <div class="w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
+                            <span class="text-sm text-gray-400">@site.Status</span>
+                        </div>
+                    </div>
+
+                    <!-- 更新時間 -->
+                    <div class="w-36">
+                        <p class="text-xs text-gray-500 mb-1">UPDATED</p>
+                        <p class="text-sm text-gray-400 font-mono">@site.LastPublish?.ToString("yyyy/MM/dd HH:mm")</p>
+                    </div>
+
+                    <!-- 大小 -->
+                    <div class="w-24">
+                        <p class="text-xs text-gray-500 mb-1">SIZE</p>
+                        <p class="text-sm text-gray-400 font-mono">@((site.FileSize / 1024.0).ToString("F2")) KB</p>
+                    </div>
+                </div>
+
+                <!-- 右側：操作按鈕 -->
+                <div class="flex items-center gap-2 ml-6">
+                    <button 
+                        onclick="stopSite('@site.Name')" 
+                        class="px-4 py-2 text-orange-400 hover:text-orange-300 border-l border-white border-opacity-10 hover:bg-white hover:bg-opacity-5 transition text-sm"
+                        title="停止站台"
+                    >
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+                            </svg>
+                            <span class="font-mono text-xs">STOP</span>
+                        </div>
+                    </button>
+                    <button 
+                        onclick="deleteSite('@site.Name')" 
+                        class="px-4 py-2 text-red-400 hover:text-red-300 border-l border-white border-opacity-10 hover:bg-white hover:bg-opacity-5 transition text-sm"
+                        title="刪除站台"
+                    >
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            <span class="font-mono text-xs">DELETE</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 底部邊框 -->
+            <div class="h-px bg-gradient-to-r from-white via-transparent to-white opacity-5"></div>
+        </div>
+    }
+</div>
+
+@if (ViewBag.Sites.Count == 0)
+{
+    <div class="text-center py-20">
+        <div class="inline-block p-6 border border-white border-opacity-10 rounded-lg">
+            <svg class="w-16 h-16 text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+            </svg>
+            <p class="text-gray-400 tracking-wide">目前沒有任何站台</p>
+            <p class="text-xs text-gray-600 mt-2">點擊上方「新增站台」開始部署</p>
+        </div>
+    </div>
+}
+
+@section Scripts {
+<script>
+    function stopSite(siteName) {
+            if (!confirm('⚠️ 確定要停止站台 "' + siteName + '" 嗎？\n\n這將立即中斷該站台的服務。')) {
+                return;
+            }
+
+            const button = event.target.closest('button');
+            button.disabled = true;
+            button.innerHTML = '<svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+
+            fetch('/SiteManagement/Stop', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ siteName: siteName })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('成功', data.message, 'success');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showNotification('錯誤', data.message, 'error');
+                    button.disabled = false;
+                }
+            })
+            .catch(err => {
+                showNotification('錯誤', '操作失敗：' + err.message, 'error');
+                button.disabled = false;
+            });
+        }
+
+        function deleteSite(siteName) {
+            if (!confirm('🗑️ 確定要刪除站台 "' + siteName + '" 嗎？\n\n⚠️ 此操作無法復原！所有資料將被永久刪除！')) {
+                return;
+            }
+
+            const button = event.target.closest('button');
+            button.disabled = true;
+            button.innerHTML = '<svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+
+            fetch('/SiteManagement/Delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ siteName: siteName })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('成功', data.message, 'success');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showNotification('錯誤', data.message, 'error');
+                    button.disabled = false;
+                }
+            })
+            .catch(err => {
+                showNotification('錯誤', '操作失敗：' + err.message, 'error');
+                button.disabled = false;
+            });
+        }
+
+        function showNotification(title, message, type) {
+            const colors = {
+                success: 'bg-black border-green-500 text-green-400',
+                error: 'bg-black border-red-500 text-red-400',
+                warning: 'bg-black border-yellow-500 text-yellow-400'
+            };
+
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 ${colors[type]} border-2 shadow-2xl p-4 max-w-md z-50 animate-slide-in`;
+            notification.style.cssText = 'box-shadow: 0 0 20px rgba(0,0,0,0.5), 0 0 40px rgba(255,255,255,0.1);';
+            notification.innerHTML = `
+                <div class="flex items-start gap-3">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        ${type === 'success' ? '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>' : '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>'}
+                    </svg>
+                    <div>
+                        <p class="font-bold font-mono tracking-wide">${title}</p>
+                        <p class="text-sm text-gray-400 font-mono">${message}</p>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(400px)';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+</script>
+
+    <style>
+        @@keyframes slide-in {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        .animate-slide-in {
+            animation: slide-in 0.3s ease-out;
+        }
+    </style>
+}
+

@@ -1,34 +1,77 @@
 @{
-    ViewData["Title"] = "404 Not Found";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "ACCESS DENIED";
+    Layout = null;
 }
-<div class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50 p-6 text-center">
-    <div class="space-y-6 max-w-lg">
-        <div class="space-y-4">
-            <div class="text-8xl font-bold text-blue-600">404</div>
-            <h2 class="text-3xl font-semibold text-gray-800">Access Denied</h2>
-            <div class="space-y-3">
-                <p class="text-lg text-gray-600">您沒有權限訪問此頁面</p>
-                <p class="text-sm text-gray-500">This page is not available or you don't have permission to view it.</p>
-                <p class="text-xs text-gray-400">如有疑問，請聯繫系統管理員</p>
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>404 - HNB.IIS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #0a0a0a;
+            background-image: 
+                linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen flex flex-col items-center justify-center p-6 text-center">
+        <div class="space-y-8 max-w-2xl">
+            <!-- 404 大字 -->
+            <div class="relative">
+                <div class="text-9xl font-bold text-white font-mono tracking-wider relative z-10">
+                    <span class="inline-block" style="text-shadow: 0 0 20px rgba(255,255,255,0.3);">404</span>
+                </div>
+                <div class="absolute inset-0 text-9xl font-bold text-white opacity-5 blur-xl font-mono">404</div>
             </div>
-        </div>
-        
-        <!-- Security Notice -->
-        <div class="mt-8 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-r-lg">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-                    </svg>
+
+            <!-- 標題區 -->
+            <div class="space-y-4">
+                <h2 class="text-3xl font-bold text-white tracking-widest font-mono border-y border-white border-opacity-20 py-4">
+                    ACCESS DENIED
+                </h2>
+                <div class="space-y-2">
+                    <p class="text-lg text-gray-300 tracking-wide">您沒有權限訪問此頁面</p>
+                    <p class="text-sm text-gray-500 font-mono">UNAUTHORIZED ACCESS ATTEMPT</p>
                 </div>
-                <div class="ml-3">
-                    <p class="text-sm text-yellow-700">
-                        <strong>安全提醒：</strong> 未授權的訪問嘗試已被記錄
-                    </p>
+            </div>
+            
+            <!-- 安全警告 -->
+            <div class="border-2 border-red-500 border-opacity-50 bg-red-500 bg-opacity-5 p-6">
+                <div class="flex items-start gap-4">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 border-2 border-red-500 flex items-center justify-center">
+                            <svg class="h-6 w-6 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="text-left">
+                        <p class="text-red-400 font-bold tracking-wide font-mono mb-2">
+                            SECURITY WARNING
+                        </p>
+                        <p class="text-sm text-red-300">
+                            未授權的訪問嘗試已被記錄並通知系統管理員
+                        </p>
+                        <p class="text-xs text-gray-500 mt-2 font-mono">
+                            LOG ID: @DateTime.UtcNow.ToString("yyyyMMddHHmmss")
+                        </p>
+                    </div>
                 </div>
+            </div>
+
+            <!-- 底部裝飾 -->
+            <div class="space-y-2 pt-8">
+                <div class="h-px bg-gradient-to-r from-transparent via-white to-transparent opacity-20"></div>
+                <p class="text-xs text-gray-600 tracking-widest font-mono">HNB.IIS SECURITY SYSTEM</p>
             </div>
         </div>
     </div>
-</div>
+</body>
+</html>
 

@@ -14,7 +14,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
-namespace HNB.IIS.Core.Models;
+namespace HNB.IIS.Core.Models.Hnbdata;
 
 public partial class HnbdataDbContext : DbContext
 {

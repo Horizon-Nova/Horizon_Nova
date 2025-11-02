@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using Web.Filters;
-using Web.Services;
+using HNB.IIS.Core.Filters;
+using HNB.IIS.Core.Services;
 
-namespace Web.Controllers;
+namespace HNB.IIS.Core.Controllers;
 
 [RequireMing]
 public class SiteManagementController(SiteManagementService service) : Controller

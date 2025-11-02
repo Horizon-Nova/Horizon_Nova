@@ -1,7 +1,7 @@
 using System.Diagnostics;
-using Web.Models;
+using HNB.IIS.Core.Dtos;
 
-namespace Web.Services;
+namespace HNB.IIS.Core.Services;
 
 public class SiteManagementService
 {

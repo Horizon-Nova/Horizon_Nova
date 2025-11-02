@@ -1,0 +1,152 @@
+@{
+    ViewData["Title"] = "系統登入";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - HNB.IIS 管理系統</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #0a0a0a;
+            background-image: 
+                linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
+            background-size: 50px 50px;
+            background-position: 0 0, 0 0;
+            animation: grid-move 20s linear infinite;
+        }
+        @@keyframes grid-move {
+            0% { background-position: 0 0, 0 0; }
+            100% { background-position: 50px 50px, 50px 50px; }
+        }
+        .glow-border {
+            box-shadow: 0 0 20px rgba(255,255,255,0.1), inset 0 0 20px rgba(255,255,255,0.05);
+        }
+        .cyber-line {
+            position: relative;
+            overflow: hidden;
+        }
+        .cyber-line::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ffffff, transparent);
+            animation: scan 3s linear infinite;
+        }
+        @@keyframes scan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen flex items-center justify-center p-8">
+        <div class="max-w-md w-full">
+            <!-- Logo 區域 -->
+            <div class="text-center mb-8 cyber-line">
+                <div class="inline-flex items-center gap-3 mb-4">
+                    <div class="w-12 h-12 border-2 border-white flex items-center justify-center relative">
+                        <div class="absolute inset-0 bg-white opacity-10"></div>
+                        <svg class="w-7 h-7 text-white relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+                        </svg>
+                    </div>
+                    <div class="text-left">
+                        <h1 class="text-3xl font-bold text-white tracking-wider">HNB.IIS</h1>
+                        <p class="text-xs text-gray-400 tracking-widest">MANAGEMENT SYSTEM</p>
+                    </div>
+                </div>
+                <div class="h-px w-full bg-gradient-to-r from-transparent via-white to-transparent opacity-20"></div>
+            </div>
+
+            <!-- 登入卡片 -->
+            <div class="bg-black border border-white border-opacity-20 glow-border backdrop-blur-sm p-8">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-white mb-2 tracking-wide">ACCESS CONTROL</h2>
+                    <p class="text-gray-400 text-sm">Authorization Required</p>
+                </div>
+
+                @if (ViewData["Error"] != null)
+                {
+                    <div class="mb-6 p-4 bg-red-900 bg-opacity-20 border border-red-500 border-opacity-50">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                            </svg>
+                            <p class="text-red-400 font-medium text-sm">ACCESS DENIED: @ViewData["Error"]</p>
+                        </div>
+                    </div>
+                }
+
+                <form method="post" class="space-y-5">
+                    <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+                    
+                    <div>
+                        <label for="username" class="block text-xs font-semibold text-gray-400 mb-2 tracking-wider uppercase">
+                            Username
+                        </label>
+                        <div class="relative group">
+                            <input 
+                                type="text" 
+                                id="username" 
+                                name="username" 
+                                required 
+                                autofocus
+                                class="w-full px-4 py-3 bg-black border border-white border-opacity-20 text-white placeholder-gray-600 focus:border-white focus:border-opacity-50 transition duration-200 font-mono"
+                                placeholder="Enter username"
+                            />
+                            <div class="absolute inset-0 border border-white opacity-0 group-focus-within:opacity-20 pointer-events-none"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="password" class="block text-xs font-semibold text-gray-400 mb-2 tracking-wider uppercase">
+                            Password
+                        </label>
+                        <div class="relative group">
+                            <input 
+                                type="password" 
+                                id="password" 
+                                name="password" 
+                                required
+                                class="w-full px-4 py-3 bg-black border border-white border-opacity-20 text-white placeholder-gray-600 focus:border-white focus:border-opacity-50 transition duration-200 font-mono"
+                                placeholder="Enter password"
+                            />
+                            <div class="absolute inset-0 border border-white opacity-0 group-focus-within:opacity-20 pointer-events-none"></div>
+                        </div>
+                    </div>
+
+                    <button 
+                        type="submit" 
+                        class="w-full bg-white text-black font-bold py-3.5 hover:bg-gray-200 transition duration-200 relative overflow-hidden group tracking-wider"
+                    >
+                        <span class="relative z-10">AUTHENTICATE</span>
+                        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-gray-300 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                    </button>
+                </form>
+
+                <div class="mt-8 pt-6 border-t border-white border-opacity-10">
+                    <div class="flex items-center justify-between text-xs text-gray-500">
+                        <span>© 2025 HORIZON NOVA</span>
+                        <span class="font-mono">v1.0.0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部裝飾線 -->
+            <div class="mt-8 space-y-2">
+                <div class="h-px bg-gradient-to-r from-transparent via-white to-transparent opacity-10"></div>
+                <div class="h-px bg-gradient-to-r from-transparent via-white to-transparent opacity-5"></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

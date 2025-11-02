@@ -16,7 +16,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace HNB.IIS.Core.Models;
+namespace HNB.IIS.Core.Models.Hnbdata;
 
 [Table("error_logs", Schema = "dbo")]
 public partial class error_log

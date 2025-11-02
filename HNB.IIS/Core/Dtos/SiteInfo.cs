@@ -1,4 +1,4 @@
-namespace Web.Models;
+namespace HNB.IIS.Core.Dtos;
 
 public class SiteInfo
 {

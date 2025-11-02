@@ -17,7 +17,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Net;
 using Microsoft.EntityFrameworkCore;
 
-namespace HNB.IIS.Core.Models;
+namespace HNB.IIS.Core.Models.HnbHnbBackoffice;
 
 /// <summary>
 /// 權限管理統一資料表 - 用於統一管理用戶、角色、組織三種類型的資料，透過 type 欄位區分資料類型

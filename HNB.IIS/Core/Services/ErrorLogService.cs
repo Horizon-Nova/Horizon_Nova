@@ -1,5 +1,5 @@
 using HNB.IIS.Core.Helpers;
-using HNB.IIS.Core.Models;
+using HNB.IIS.Core.Models.Hnbdata;
 using HNB.IIS.Core.Repositories;
 using Microsoft.AspNetCore.Http;
 

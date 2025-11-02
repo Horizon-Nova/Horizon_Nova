@@ -1,4 +1,4 @@
-using HNB.IIS.Core.Models;
+using HNB.IIS.Core.Models.Hnbdata;
 using HNB.IIS.Core.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
