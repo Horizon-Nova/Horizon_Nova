@@ -20,6 +20,16 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.SlidingExpiration = true;
     });
 
+builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 1073741824;
+});
+
+builder.Services.Configure<Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerOptions>(options =>
+{
+    options.Limits.MaxRequestBodySize = 1073741824;
+});
+
 // MVC
 builder.Services.AddControllersWithViews(options =>
 {
@@ -34,12 +44,10 @@ builder.Services.AddDbContext<HnbHnbBackofficeDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("HnbHnbBackoffice")));
 
 // 倉儲
-builder.Services.AddScoped<ErrorLogRepository>();
 builder.Services.AddScoped<BlockedIpRepository>();
 builder.Services.AddScoped<PermissionRepository>();
 
 // 服務
-builder.Services.AddScoped<ErrorLogService>();
 builder.Services.AddScoped<IpMiddlewareServices>();
 builder.Services.AddScoped<SiteManagementService>();
 
@@ -58,8 +66,6 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-// Core 中間件（安全保護層）
-app.UseMiddleware<ExceptionLoggingMiddleware>();
 app.UseMiddleware<IpSecurityMiddleware>();
 
 // 標準中間件

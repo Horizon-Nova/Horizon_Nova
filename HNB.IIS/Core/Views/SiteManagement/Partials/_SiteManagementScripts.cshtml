@@ -1,0 +1,271 @@
+@* 站台管理 JavaScript *@
+@{
+    var sites = (List<SiteInfo>)ViewBag.Sites;
+    var activeSites = sites.Count(s => s.Status == "運行中");
+    var stoppedSites = sites.Count(s => s.Status == "已停止");
+}
+
+<script>
+    function startSite(siteName) {
+        if (!confirm('確定要啟動站台 "' + siteName + '" 嗎？')) {
+            return;
+        }
+
+        const $btn = $(window.event.target).closest('button');
+        const $originalHTML = $btn.html();
+        $btn.prop('disabled', true).html('<svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>');
+
+        const data = { SiteName: siteName };
+        $.ajax({
+            type: 'POST',
+            url: '/SiteManagement/Start',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            success: (response) => {
+                if (response.success) {
+                    showNotification('成功', response.message, 'success');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showNotification('錯誤', response.message || '啟動失敗', 'error');
+                    $btn.prop('disabled', false).html($originalHTML);
+                }
+            },
+            error: () => {
+                showNotification('錯誤', '操作失敗：系統發生錯誤', 'error');
+                $btn.prop('disabled', false).html($originalHTML);
+            }
+        });
+    }
+
+    function stopSite(siteName) {
+        if (!confirm('確定要停止站台 "' + siteName + '" 嗎？\n\n這將立即中斷該站台的服務。')) {
+            return;
+        }
+
+        const $btn = $(window.event.target).closest('button');
+        const $originalHTML = $btn.html();
+        $btn.prop('disabled', true).html('<svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>');
+
+        const data = { SiteName: siteName };
+        $.ajax({
+            type: 'POST',
+            url: '/SiteManagement/Stop',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            success: (response) => {
+                if (response.success) {
+                    showNotification('成功', response.message, 'success');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showNotification('錯誤', response.message || '停止失敗', 'error');
+                    $btn.prop('disabled', false).html($originalHTML);
+                }
+            },
+            error: () => {
+                showNotification('錯誤', '操作失敗：系統發生錯誤', 'error');
+                $btn.prop('disabled', false).html($originalHTML);
+            }
+        });
+    }
+
+    function deleteSite(siteName) {
+        if (!confirm('確定要刪除站台 "' + siteName + '" 嗎？\n\n此操作無法復原！所有資料將被永久刪除！')) {
+            return;
+        }
+
+        const $btn = $(window.event.target).closest('button');
+        const $originalHTML = $btn.html();
+        $btn.prop('disabled', true).html('<svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>');
+
+        const data = { SiteName: siteName };
+        $.ajax({
+            type: 'POST',
+            url: '/SiteManagement/Delete',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            success: (response) => {
+                if (response.success) {
+                    showNotification('成功', response.message, 'success');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showNotification('錯誤', response.message || '刪除失敗', 'error');
+                    $btn.prop('disabled', false).html($originalHTML);
+                }
+            },
+            error: () => {
+                showNotification('錯誤', '操作失敗：系統發生錯誤', 'error');
+                $btn.prop('disabled', false).html($originalHTML);
+            }
+        });
+    }
+
+    function refreshStatus() {
+        const $btn = $(window.event.target).closest('button');
+        $btn.prop('disabled', true).html('<svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>');
+        setTimeout(() => location.reload(), 500);
+    }
+
+    // 篩選變數
+    let currentSearch = '';
+    let currentStatus = 'all';
+
+    // 篩選站台
+    function filterSites() {
+        currentSearch = $('#searchInput').val().toLowerCase();
+        applyFilters();
+    }
+
+    // 依狀態篩選
+    function filterByStatus(status) {
+        currentStatus = status;
+        
+        // 更新按鈕樣式
+        $('.filter-status-btn').removeClass('bg-white bg-opacity-10');
+        $(`.filter-status-btn[data-status="${status}"]`).addClass('bg-white bg-opacity-10');
+        
+        applyFilters();
+    }
+
+    // 應用篩選
+    function applyFilters() {
+        let visibleCount = 0;
+
+        $('.site-card').each(function() {
+            const $card = $(this);
+            const name = $card.data('name').toLowerCase();
+            const path = $card.data('path').toLowerCase();
+            const status = $card.data('status');
+            
+            const matchSearch = currentSearch === '' || name.includes(currentSearch) || path.includes(currentSearch);
+            const matchStatus = currentStatus === 'all' || status === currentStatus;
+            
+            if (matchSearch && matchStatus) {
+                $card.show();
+                visibleCount++;
+            } else {
+                $card.hide();
+            }
+        });
+
+        $('#filteredCount').text(visibleCount);
+    }
+
+    $(document).ready(function() {
+        // 狀態分佈圖
+        const statusCtx = document.getElementById('statusChart');
+        if (statusCtx) {
+            new Chart(statusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['運行中', '已停止'],
+                    datasets: [{
+                        data: [@activeSites, @stoppedSites],
+                        backgroundColor: [
+                            'rgba(34, 197, 94, 0.8)',
+                            'rgba(107, 114, 128, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(34, 197, 94, 1)',
+                            'rgba(107, 114, 128, 1)'
+                        ],
+                        borderWidth: 2,
+                        cutout: '70%'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                            borderColor: 'rgba(255, 255, 255, 0.2)',
+                            borderWidth: 1,
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            padding: 12
+                        }
+                    }
+                }
+            });
+        }
+    });
+
+    function showNotification(title, message, type) {
+        alert(title + ': ' + message);
+    }
+
+    function openCreateSiteModal() {
+        $('#createSiteModal').removeClass('hidden');
+    }
+
+    function closeCreateSiteModal() {
+        $('#createSiteModal').addClass('hidden');
+        $('#createSiteForm')[0].reset();
+    }
+
+    function submitCreateSite() {
+        const $form = $('#createSiteForm')[0];
+        if (!$form.checkValidity()) {
+            $form.reportValidity();
+            return;
+        }
+
+        const $submitBtn = $(window.event.target).closest('button');
+        const $originalHTML = $submitBtn.html();
+        
+        $submitBtn.prop('disabled', true).html('<div class="flex items-center gap-2"><svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>處理中...</div>');
+
+        const siteName = $('#siteNameInput').val();
+        const zipFile = $('#siteZipInput')[0].files[0];
+
+        if (!siteName || !zipFile) {
+            alert('請填寫所有必填欄位');
+            $submitBtn.prop('disabled', false).html($originalHTML);
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('SiteName', siteName);
+        formData.append('ZipFile', zipFile);
+
+        $.ajax({
+            type: 'POST',
+            url: '/SiteManagement/Create',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: (response) => {
+                if (response.success) {
+                    showNotification('成功', response.message, 'success');
+                    closeCreateSiteModal();
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showNotification('錯誤', response.message || '建立失敗', 'error');
+                    $submitBtn.prop('disabled', false).html($originalHTML);
+                }
+            },
+            error: () => {
+                showNotification('錯誤', '操作失敗：系統發生錯誤', 'error');
+                $submitBtn.prop('disabled', false).html($originalHTML);
+            }
+        });
+    }
+</script>
+
+<style>
+    @@keyframes status-pulse {
+        0%, 100% {
+            opacity: 1;
+            box-shadow: 0 0 0 0 currentColor;
+        }
+        50% {
+            opacity: 0.8;
+            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0);
+        }
+    }
+    
+    .status-pulse {
+        animation: status-pulse 2s infinite;
+    }
+</style>

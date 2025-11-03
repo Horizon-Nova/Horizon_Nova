@@ -15,6 +15,14 @@ public class RequestResponseLoggerFilter : IAsyncResourceFilter
     {
         var http = context.HttpContext;
         
+        var isMultipartFormData = http.Request.ContentType?.StartsWith("multipart/form-data") ?? false;
+        
+        if (isMultipartFormData)
+        {
+            await next();
+            return;
+        }
+        
         http.Request.EnableBuffering();
         string reqBody = await ReadRequestBodyAsync(http.Request);
         

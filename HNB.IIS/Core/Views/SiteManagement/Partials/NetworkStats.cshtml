@@ -1,0 +1,72 @@
+@* 網路流量統計區塊 *@
+@{
+    var sites = (List<SiteInfo>)ViewBag.Sites;
+    var activeSites = sites.Where(s => s.Status == "運行中").ToList();
+}
+
+<div class="mb-6">
+    <div class="flex items-center gap-4 mb-4">
+        <h2 class="text-lg font-bold text-white tracking-wide font-mono">網路流量統計</h2>
+        <div class="flex-1 h-px bg-gradient-to-r from-white via-white to-transparent opacity-10"></div>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <!-- 今日總流量 -->
+        <div class="border border-white border-opacity-10 bg-black bg-opacity-50">
+            <div class="p-4">
+                <div class="flex items-center gap-3 mb-3">
+                    <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                    </svg>
+                    <h3 class="text-xs text-gray-500 font-mono tracking-wider">今日總流量</h3>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-3xl font-bold text-white font-mono">N/A</span>
+                    <span class="text-lg text-gray-400 font-mono">TB</span>
+                </div>
+                <div class="mt-2 text-xs text-gray-600 font-mono">
+                    暫無統計資料
+                </div>
+            </div>
+        </div>
+
+        <!-- 即時連線數 -->
+        <div class="border border-white border-opacity-10 bg-black bg-opacity-50">
+            <div class="p-4">
+                <div class="flex items-center gap-3 mb-3">
+                    <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    <h3 class="text-xs text-gray-500 font-mono tracking-wider">即時連線數</h3>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-3xl font-bold text-white font-mono" id="activeConnections">0</span>
+                    <span class="text-lg text-gray-400 font-mono">CONN</span>
+                </div>
+                <div class="mt-2 text-xs text-gray-600 font-mono">
+                    運行中站台數: <span class="text-blue-400">@activeSites.Count</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 峰值流量 -->
+        <div class="border border-white border-opacity-10 bg-black bg-opacity-50">
+            <div class="p-4">
+                <div class="flex items-center gap-3 mb-3">
+                    <svg class="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                    </svg>
+                    <h3 class="text-xs text-gray-500 font-mono tracking-wider">峰值流量</h3>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-3xl font-bold text-white font-mono">N/A</span>
+                    <span class="text-lg text-gray-400 font-mono">GB/s</span>
+                </div>
+                <div class="mt-2 text-xs text-gray-600 font-mono">
+                    暫無統計資料
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
