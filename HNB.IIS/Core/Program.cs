@@ -46,10 +46,12 @@ builder.Services.AddDbContext<HnbHnbBackofficeDbContext>(options =>
 // 倉儲
 builder.Services.AddScoped<BlockedIpRepository>();
 builder.Services.AddScoped<PermissionRepository>();
+builder.Services.AddScoped<ErrorLogRepository>();
 
 // 服務
 builder.Services.AddScoped<IpMiddlewareServices>();
 builder.Services.AddScoped<SiteManagementService>();
+builder.Services.AddScoped<ErrorLogService>();
 
 // 其他
 builder.Services.AddHttpContextAccessor();
@@ -58,10 +60,13 @@ builder.Services.AddSession();
 
 var app = builder.Build();
 
+// 全局異常捕捉中間件（必須放在最前面）
+app.UseMiddleware<ExceptionLoggingMiddleware>();
+
 // 錯誤處理
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error/NotFound");
+    // ExceptionLoggingMiddleware 已經處理異常，但仍保留狀態碼頁面
     app.UseStatusCodePagesWithReExecute("/Error/NotFound");
     app.UseHsts();
 }
