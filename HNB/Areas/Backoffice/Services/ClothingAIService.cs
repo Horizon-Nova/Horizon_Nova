@@ -1,12 +1,13 @@
 using HNB.Areas.Backoffice.Dtos;
 using HNB.Areas.Backoffice.Services;
 using HNB.IntelligentSystems.ObjectDetection.Models;
+using HNB.IntelligentSystems.ObjectDetection.Module;
 using HNB.IntelligentSystems.ObjectDetection.Utils;
 using OpenCvSharp;
 
 namespace HNB.Areas.Backoffice.Services;
 
-public class ClothingAIService(IWebHostEnvironment env, ObjectDetectionService detectionService, DallE3Service dallE3Service)
+public class ClothingAIService(IWebHostEnvironment env, ObjectDetectionModule detectionModule, DallE3Service dallE3Service)
 {
     private const string StorageRoot = "Areas/Backoffice/storage/ObjectDetection";
     
@@ -128,7 +129,7 @@ public class ClothingAIService(IWebHostEnvironment env, ObjectDetectionService d
         
         await System.IO.File.WriteAllBytesAsync(originalFilePath, imgData);
 
-        var (detectionSuccess, detections, detectionError) = detectionService.DetectObjectsFromBytes(imgData);
+        var (detectionSuccess, detections, detectionError) = detectionModule.DetectObjectsFromBytes(imgData);
         
         if (!detectionSuccess)
         {
