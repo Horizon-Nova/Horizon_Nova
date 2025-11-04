@@ -128,8 +128,34 @@ public class ClothingAIService(IWebHostEnvironment env, ObjectDetectionService d
         
         await System.IO.File.WriteAllBytesAsync(originalFilePath, imgData);
 
-        var detections = detectionService.DetectObjectsFromBytes(imgData);
+        var (detectionSuccess, detections, detectionError) = detectionService.DetectObjectsFromBytes(imgData);
         
+        if (!detectionSuccess)
+        {
+            // 即使辨識失敗，原圖已保存，返回成功但標記錯誤
+            return (true, new List<UploadedClothingInfo> { new UploadedClothingInfo
+            {
+                FileName = originalFileName,
+                Label = "辨識失敗",
+                Confidence = 0,
+                Path = $"/storage/ObjectDetection/原圖/{dateStr}/{originalFileName}",
+                Error = detectionError ?? "物件辨識失敗"
+            }});
+        }
+
+        if (detections.Count == 0)
+        {
+            // 辨識成功但沒有檢測到物件，返回原圖
+            return (true, new List<UploadedClothingInfo> { new UploadedClothingInfo
+            {
+                FileName = originalFileName,
+                Label = "未檢測到物件",
+                Confidence = 0,
+                Path = $"/storage/ObjectDetection/原圖/{dateStr}/{originalFileName}",
+                Error = null
+            }});
+        }
+
         using var originalImage = Cv2.ImDecode(imgData, ImreadModes.Color);
         var processedFiles = new List<UploadedClothingInfo>();
 
