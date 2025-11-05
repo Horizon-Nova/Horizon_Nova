@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using HNB.IntelligentSystems.ObjectDetection.Models;
 using OpenCvSharp;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace HNB.IntelligentSystems.ObjectDetection.Utils;
 
@@ -92,8 +94,51 @@ public static class ImageUtils
         if (imageBytes == null || imageBytes.Length == 0)
             return null;
 
-        var image = Cv2.ImDecode(imageBytes, ImreadModes.Color);
-        return image.Empty() ? null : image;
+        try
+        {
+            // 嘗試使用 OpenCvSharp 解碼
+            var image = Cv2.ImDecode(imageBytes, ImreadModes.Color);
+            return image.Empty() ? null : image;
+        }
+        catch (Exception ex)
+        {
+            // OpenCvSharp 失敗時，使用 ImageSharp 作為備用方案
+            try
+            {
+                using var imgSharp = SixLabors.ImageSharp.Image.Load<Rgb24>(imageBytes);
+                
+                // 轉換 ImageSharp 到 OpenCV Mat
+                var mat = new Mat(imgSharp.Height, imgSharp.Width, MatType.CV_8UC3);
+                
+                imgSharp.ProcessPixelRows(accessor =>
+                {
+                    for (int y = 0; y < accessor.Height; y++)
+                    {
+                        var pixelRow = accessor.GetRowSpan(y);
+                        unsafe
+                        {
+                            byte* matPtr = (byte*)mat.DataPointer + y * mat.Step();
+                            for (int x = 0; x < accessor.Width; x++)
+                            {
+                                var pixel = pixelRow[x];
+                                // ImageSharp 是 RGB，OpenCV 是 BGR，需要轉換
+                                matPtr[x * 3 + 0] = pixel.B;
+                                matPtr[x * 3 + 1] = pixel.G;
+                                matPtr[x * 3 + 2] = pixel.R;
+                            }
+                        }
+                    }
+                });
+                
+                return mat;
+            }
+            catch (Exception fallbackEx)
+            {
+                // 兩種方法都失敗，記錄錯誤
+                Console.WriteLine($"[錯誤] 圖片解碼失敗 - OpenCvSharp: {ex.Message}, ImageSharp: {fallbackEx.Message}");
+                return null;
+            }
+        }
     }
 
     /// <summary>
@@ -104,7 +149,7 @@ public static class ImageUtils
         foreach (var detection in detections)
         {
             Cv2.Rectangle(image, detection.Box, new Scalar(0, 0, 255), 2);
-            Point labelPos = new Point(detection.Box.X, detection.Box.Y - 5);
+            OpenCvSharp.Point labelPos = new OpenCvSharp.Point(detection.Box.X, detection.Box.Y - 5);
             Cv2.PutText(image, detection.Label, labelPos,
                 HersheyFonts.HersheySimplex, 0.7, new Scalar(0, 255, 0), 2);
         }
@@ -184,7 +229,7 @@ public static class ImageUtils
         resized.Dispose();
 
         Mat finalImg = new Mat();
-        Cv2.Resize(rgbImg, finalImg, new Size(TargetSize[0], TargetSize[1]));
+        Cv2.Resize(rgbImg, finalImg, new OpenCvSharp.Size(TargetSize[0], TargetSize[1]));
         rgbImg.Dispose();
 
         Mat normalized = new Mat();
@@ -225,7 +270,7 @@ public static class ImageUtils
         Mat[] labChannels = Cv2.Split(lab);
         Mat lChannel = labChannels[0];
         Mat enhancedL = new Mat();
-        Cv2.CreateCLAHE(clipLimit: 2.0, tileGridSize: new Size(8, 8)).Apply(lChannel, enhancedL);
+        Cv2.CreateCLAHE(clipLimit: 2.0, tileGridSize: new OpenCvSharp.Size(8, 8)).Apply(lChannel, enhancedL);
         Mat[] enhancedLabChannels = { enhancedL, labChannels[1], labChannels[2] };
         Cv2.Merge(enhancedLabChannels, lab);
         Cv2.CvtColor(lab, enhanced, ColorConversionCodes.Lab2BGR);
@@ -269,7 +314,7 @@ public static class ImageUtils
         int newW = (int)(srcW * scale);
         int newH = (int)(srcH * scale);
         Mat resized = new Mat();
-        Cv2.Resize(srcImg, resized, new Size(newW, newH), 0, 0, InterpolationFlags.Linear);
+        Cv2.Resize(srcImg, resized, new OpenCvSharp.Size(newW, newH), 0, 0, InterpolationFlags.Linear);
         return resized;
     }
 
