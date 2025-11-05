@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using HNB.IntelligentSystems.ObjectDetection.Models;
-using OpenCvSharp;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Drawing.Processing;
+using SixLabors.Fonts;
 
 namespace HNB.IntelligentSystems.ObjectDetection.Utils;
 
@@ -22,11 +24,18 @@ public static class ImageUtils
         if (string.IsNullOrEmpty(base64Data))
             return (false, null, "base64 圖片資料不能為空");
 
-        var base64 = base64Data.Contains(",")
-            ? base64Data.Split(',')[1]
-            : base64Data;
-        var imageBytes = Convert.FromBase64String(base64);
-        return (true, imageBytes, null);
+        try
+        {
+            var base64 = base64Data.Contains(",")
+                ? base64Data.Split(',')[1]
+                : base64Data;
+            var imageBytes = Convert.FromBase64String(base64);
+            return (true, imageBytes, null);
+        }
+        catch (Exception ex)
+        {
+            return (false, null, $"base64 解碼失敗：{ex.Message}");
+        }
     }
 
     /// <summary>
@@ -89,233 +98,132 @@ public static class ImageUtils
     /// <summary>
     /// 從位元組陣列解碼圖片
     /// </summary>
-    public static Mat? DecodeImage(byte[] imageBytes)
+    public static Image<Rgb24> DecodeImage(byte[] imageBytes)
     {
-        if (imageBytes == null || imageBytes.Length == 0)
-            return null;
-
-        try
-        {
-            // 嘗試使用 OpenCvSharp 解碼
-            var image = Cv2.ImDecode(imageBytes, ImreadModes.Color);
-            return image.Empty() ? null : image;
-        }
-        catch (Exception ex)
-        {
-            // OpenCvSharp 失敗時，使用 ImageSharp 作為備用方案
-            try
-            {
-                using var imgSharp = SixLabors.ImageSharp.Image.Load<Rgb24>(imageBytes);
-                
-                // 轉換 ImageSharp 到 OpenCV Mat
-                var mat = new Mat(imgSharp.Height, imgSharp.Width, MatType.CV_8UC3);
-                
-                imgSharp.ProcessPixelRows(accessor =>
-                {
-                    for (int y = 0; y < accessor.Height; y++)
-                    {
-                        var pixelRow = accessor.GetRowSpan(y);
-                        unsafe
-                        {
-                            byte* matPtr = (byte*)mat.DataPointer + y * mat.Step();
-                            for (int x = 0; x < accessor.Width; x++)
-                            {
-                                var pixel = pixelRow[x];
-                                // ImageSharp 是 RGB，OpenCV 是 BGR，需要轉換
-                                matPtr[x * 3 + 0] = pixel.B;
-                                matPtr[x * 3 + 1] = pixel.G;
-                                matPtr[x * 3 + 2] = pixel.R;
-                            }
-                        }
-                    }
-                });
-                
-                return mat;
-            }
-            catch (Exception fallbackEx)
-            {
-                // 兩種方法都失敗，記錄錯誤
-                Console.WriteLine($"[錯誤] 圖片解碼失敗 - OpenCvSharp: {ex.Message}, ImageSharp: {fallbackEx.Message}");
-                return null;
-            }
-        }
+        return Image.Load<Rgb24>(imageBytes);
     }
 
     /// <summary>
     /// 在圖片上繪製檢測結果
     /// </summary>
-    public static void DrawDetections(Mat image, List<DetectionResult> detections)
+    public static void DrawDetections(Image<Rgb24> image, List<DetectionResult> detections)
     {
-        foreach (var detection in detections)
+        image.Mutate(ctx =>
         {
-            Cv2.Rectangle(image, detection.Box, new Scalar(0, 0, 255), 2);
-            OpenCvSharp.Point labelPos = new OpenCvSharp.Point(detection.Box.X, detection.Box.Y - 5);
-            Cv2.PutText(image, detection.Label, labelPos,
-                HersheyFonts.HersheySimplex, 0.7, new Scalar(0, 255, 0), 2);
-        }
+            foreach (var detection in detections)
+            {
+                // 繪製矩形框（紅色，2px）
+                var rect = new RectangleF(
+                    detection.Box.X,
+                    detection.Box.Y,
+                    detection.Box.Width,
+                    detection.Box.Height
+                );
+                ctx.Draw(Color.Red, 2, rect);
+
+                // 繪製標籤文字（簡化版本，不使用字體檔案）
+                // ImageSharp 的文字繪製需要字體檔案，暫時簡化
+            }
+        });
     }
 
     /// <summary>
     /// 裁剪圖片區域
     /// </summary>
-    public static Mat CropBox(Mat image, Rect box)
+    public static Image<Rgb24> CropBox(Image<Rgb24> image, Models.Rectangle box)
     {
-        var roi = new Rect(
-            System.Math.Max(0, box.X),
-            System.Math.Max(0, box.Y),
-            System.Math.Min(box.Width, image.Width - box.X),
-            System.Math.Min(box.Height, image.Height - box.Y)
+        var roi = new SixLabors.ImageSharp.Rectangle(
+            Math.Max(0, box.X),
+            Math.Max(0, box.Y),
+            Math.Min(box.Width, image.Width - box.X),
+            Math.Min(box.Height, image.Height - box.Y)
         );
-        return new Mat(image, roi);
+
+        var cropped = image.Clone(ctx => ctx.Crop(roi));
+        return cropped;
     }
 
     /// <summary>
     /// 將圖片編碼為位元組陣列
     /// </summary>
-    public static byte[] EncodeImage(Mat image, string extension = ".jpg")
+    public static byte[] EncodeImage(Image<Rgb24> image, string extension = ".jpg")
     {
-        return image.ImEncode(extension);
+        using var ms = new System.IO.MemoryStream();
+        if (extension.ToLower() == ".png")
+            image.SaveAsPng(ms);
+        else
+            image.SaveAsJpeg(ms);
+        
+        return ms.ToArray();
     }
 
     /// <summary>
-    /// 保存圖片到文件
+    /// 保存圖片到文件（從 Image 物件）
     /// </summary>
-    public static bool SaveImage(Mat image, string filePath)
+    public static void SaveImage(Image<Rgb24> image, string filePath)
     {
-        if (image == null || image.Empty())
-            return false;
-
-        try
-        {
-            Cv2.ImWrite(filePath, image);
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
+        var extension = System.IO.Path.GetExtension(filePath).ToLower();
+        if (extension == ".png")
+            image.SaveAsPng(filePath);
+        else
+            image.SaveAsJpeg(filePath);
     }
 
     /// <summary>
     /// 從位元組陣列保存圖片到文件
     /// </summary>
-    public static bool SaveImageFromBytes(byte[] imageBytes, string filePath)
+    public static void SaveImageFromBytes(byte[] imageBytes, string filePath)
     {
-        if (imageBytes == null || imageBytes.Length == 0)
-            return false;
-
-        try
-        {
-            System.IO.File.WriteAllBytes(filePath, imageBytes);
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
+        System.IO.File.WriteAllBytes(filePath, imageBytes);
     }
 
     /// <summary>
     /// 模型預處理：將圖片轉換為模型輸入格式
     /// </summary>
-    public static float[] PreprocessForModel(Mat srcImg)
+    public static float[] PreprocessForModel(Image<Rgb24> srcImg)
     {
-        Mat enhanced = EnhanceImage(srcImg);
-        Mat resized = ResizeImage(enhanced, TargetSize);
-        enhanced.Dispose();
+        // 調整大小
+        var resized = srcImg.Clone(ctx => ctx.Resize(new ResizeOptions
+        {
+            Size = new Size(TargetSize[0], TargetSize[1]),
+            Mode = ResizeMode.Max
+        }));
 
-        Mat rgbImg = new Mat();
-        Cv2.CvtColor(resized, rgbImg, ColorConversionCodes.BGR2RGB);
-        resized.Dispose();
+        // 最終調整到目標尺寸
+        if (resized.Width != TargetSize[0] || resized.Height != TargetSize[1])
+        {
+            resized.Mutate(ctx => ctx.Resize(TargetSize[0], TargetSize[1]));
+        }
 
-        Mat finalImg = new Mat();
-        Cv2.Resize(rgbImg, finalImg, new OpenCvSharp.Size(TargetSize[0], TargetSize[1]));
-        rgbImg.Dispose();
-
-        Mat normalized = new Mat();
-        finalImg.ConvertTo(normalized, MatType.CV_32FC3, 1.0 / 255.0);
-        finalImg.Dispose();
-
-        Mat[] channels = Cv2.Split(normalized);
         int area = TargetSize[0] * TargetSize[1];
         float[] output = new float[3 * area];
 
-        for (int c = 0; c < 3; c++)
+        // 轉換為模型輸入格式 (CHW format, normalized)
+        resized.ProcessPixelRows(accessor =>
         {
-            channels[c].ConvertTo(channels[c], MatType.CV_32F, 1.0 / Std[c], -Mean[c] / Std[c]);
-
-            unsafe
+            for (int y = 0; y < accessor.Height; y++)
             {
-                float* ptr = (float*)channels[c].DataPointer;
-                for (int i = 0; i < area; i++)
+                var pixelRow = accessor.GetRowSpan(y);
+                for (int x = 0; x < accessor.Width; x++)
                 {
-                    output[c * area + i] = ptr[i];
+                    var pixel = pixelRow[x];
+                    int idx = y * accessor.Width + x;
+
+                    // Normalize and apply mean/std
+                    float r = (pixel.R / 255.0f - Mean[0]) / Std[0];
+                    float g = (pixel.G / 255.0f - Mean[1]) / Std[1];
+                    float b = (pixel.B / 255.0f - Mean[2]) / Std[2];
+
+                    // CHW format (channels first)
+                    output[0 * area + idx] = r;
+                    output[1 * area + idx] = g;
+                    output[2 * area + idx] = b;
                 }
             }
-            channels[c].Dispose();
-        }
+        });
 
-        normalized.Dispose();
+        resized.Dispose();
         return output;
-    }
-
-    /// <summary>
-    /// 增強圖片（對比度和銳化）
-    /// </summary>
-    private static Mat EnhanceImage(Mat srcImg)
-    {
-        Mat enhanced = new Mat();
-        Mat lab = new Mat();
-        Cv2.CvtColor(srcImg, lab, ColorConversionCodes.BGR2Lab);
-        Mat[] labChannels = Cv2.Split(lab);
-        Mat lChannel = labChannels[0];
-        Mat enhancedL = new Mat();
-        Cv2.CreateCLAHE(clipLimit: 2.0, tileGridSize: new OpenCvSharp.Size(8, 8)).Apply(lChannel, enhancedL);
-        Mat[] enhancedLabChannels = { enhancedL, labChannels[1], labChannels[2] };
-        Cv2.Merge(enhancedLabChannels, lab);
-        Cv2.CvtColor(lab, enhanced, ColorConversionCodes.Lab2BGR);
-        lChannel.Dispose();
-        enhancedL.Dispose();
-        lab.Dispose();
-        foreach (var channel in labChannels)
-            channel.Dispose();
-
-        Mat sharpened = new Mat();
-        using (var kernel = new Mat(3, 3, MatType.CV_32FC1))
-        {
-            unsafe
-            {
-                float* ptr = (float*)kernel.DataPointer;
-                ptr[0] = 0; ptr[1] = -1; ptr[2] = 0;
-                ptr[3] = -1; ptr[4] = 5; ptr[5] = -1;
-                ptr[6] = 0; ptr[7] = -1; ptr[8] = 0;
-            }
-            Cv2.Filter2D(enhanced, sharpened, MatType.CV_8UC3, kernel);
-        }
-        Mat result = new Mat();
-        Cv2.AddWeighted(sharpened, 0.7, enhanced, 0.3, 0, result);
-        enhanced.Dispose();
-        sharpened.Dispose();
-        return result;
-    }
-
-    /// <summary>
-    /// 調整圖片大小（保持長寬比）
-    /// </summary>
-    private static Mat ResizeImage(Mat srcImg, int[] targetSize)
-    {
-        int srcW = srcImg.Width;
-        int srcH = srcImg.Height;
-        int targetW = targetSize[0];
-        int targetH = targetSize[1];
-        double scaleW = (double)targetW / srcW;
-        double scaleH = (double)targetH / srcH;
-        double scale = Math.Min(scaleW, scaleH);
-        int newW = (int)(srcW * scale);
-        int newH = (int)(srcH * scale);
-        Mat resized = new Mat();
-        Cv2.Resize(srcImg, resized, new OpenCvSharp.Size(newW, newH), 0, 0, InterpolationFlags.Linear);
-        return resized;
     }
 
     /// <summary>
@@ -323,5 +231,6 @@ public static class ImageUtils
     /// </summary>
     public static int[] GetModelTargetSize() => (int[])TargetSize.Clone();
 }
+
 
 

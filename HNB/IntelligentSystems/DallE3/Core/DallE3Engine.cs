@@ -36,17 +36,17 @@ public class DallE3Engine(DallE3Config config, HttpClient httpClient)
     /// <summary>
     /// 編輯/組合圖片（使用多張參考圖片）
     /// </summary>
-    public async Task<(bool success, DallE3Result? result, string? error)> EditImage(
+    public async Task<DallE3Result> EditImage(
         string prompt,
         List<byte[]> referenceImages,
         string? model = null,
         CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(prompt))
-            return (false, null, "提示詞不能為空");
+            throw new ArgumentException("提示詞不能為空");
 
         if (referenceImages == null || referenceImages.Count == 0)
-            return (false, null, "至少需要提供一張參考圖片");
+            throw new ArgumentException("至少需要提供一張參考圖片");
 
         EnsureHeadersInitialized();
 
@@ -120,7 +120,7 @@ public class DallE3Engine(DallE3Config config, HttpClient httpClient)
                 errorMessage = $"API 錯誤 ({response.StatusCode}): {responseContent}";
             }
             
-            return (false, null, errorMessage);
+            throw new Exception(errorMessage);
         }
 
         var result = JsonSerializer.Deserialize<DallE3Result>(responseContent, new JsonSerializerOptions
@@ -129,11 +129,9 @@ public class DallE3Engine(DallE3Config config, HttpClient httpClient)
         });
 
         if (result == null || result.Data == null || result.Data.Count == 0)
-        {
-            return (false, null, "API 回應格式錯誤");
-        }
+            throw new Exception("API 回應格式錯誤");
 
-        return (true, result, null);
+        return result;
     }
 
     public DallE3Config GetConfig() => _config;

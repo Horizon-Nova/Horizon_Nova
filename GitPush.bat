@@ -45,7 +45,7 @@ set "backup_path=%backup_root%\%project_name%_backup_%bk_stamp%"
 if not exist "%backup_root%" mkdir "%backup_root%"
 echo [備份] 複製專案資料夾到 %backup_path%
 
-robocopy "%script_dir%" "%backup_path%" /MIR /XD .git node_modules .vs /NFL /NDL /NJH /NJS
+robocopy "%script_dir%" "%backup_path%" /MIR /XD .git node_modules .vs bin obj packages HNB\Areas\Backoffice\storage /NFL /NDL /NJH /NJS
 if %errorlevel% GEQ 8 (
     echo [錯誤] 備份失敗：robocopy 發生錯誤（等級 %errorlevel%）
     exit /b 1

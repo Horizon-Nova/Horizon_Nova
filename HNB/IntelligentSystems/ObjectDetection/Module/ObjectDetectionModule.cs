@@ -2,7 +2,8 @@ using HNB.IntelligentSystems.ObjectDetection.Configuration;
 using HNB.IntelligentSystems.ObjectDetection.Core;
 using HNB.IntelligentSystems.ObjectDetection.Models;
 using HNB.IntelligentSystems.ObjectDetection.Utils;
-using OpenCvSharp;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace HNB.IntelligentSystems.ObjectDetection.Module;
 
@@ -65,9 +66,9 @@ public class ObjectDetectionModule(ObjectDetectionConfig config, ModelHealthChec
     #region 核心檢測方法
 
     /// <summary>
-    /// 檢測圖片中的物件（從 Mat）
+    /// 檢測圖片中的物件（從 Image）
     /// </summary>
-    public List<DetectionResult> DetectObjects(Mat image, string? textPrompt = null)
+    public List<DetectionResult> DetectObjects(Image<Rgb24> image, string? textPrompt = null)
     {
         var engine = _healthChecker.GetEngine();
         if (engine == null)
@@ -75,9 +76,6 @@ public class ObjectDetectionModule(ObjectDetectionConfig config, ModelHealthChec
             var (_, message) = LoadModelStatus();
             throw new Exception(message);
         }
-
-        if (image == null || image.Empty())
-            throw new ArgumentException("圖片資料無效");
 
         try
         {
@@ -98,14 +96,8 @@ public class ObjectDetectionModule(ObjectDetectionConfig config, ModelHealthChec
     /// </summary>
     public List<DetectionResult> DetectObjectsFromBytes(byte[] imageBytes, string? textPrompt = null)
     {
-        if (imageBytes == null || imageBytes.Length == 0)
-            throw new ArgumentException("圖片資料為空");
-
-        using var mat = Utils.ImageUtils.DecodeImage(imageBytes);
-        if (mat == null)
-            throw new Exception("無法解碼圖片資料");
-
-        return DetectObjects(mat, textPrompt);
+        using var image = Utils.ImageUtils.DecodeImage(imageBytes);
+        return DetectObjects(image, textPrompt);
     }
 
     /// <summary>
@@ -113,13 +105,10 @@ public class ObjectDetectionModule(ObjectDetectionConfig config, ModelHealthChec
     /// </summary>
     public List<DetectionOutput> ProcessDetections(byte[] imageBytes, List<DetectionResult> detections, string imageId)
     {
-        if (imageBytes == null || detections == null || detections.Count == 0)
+        if (detections == null || detections.Count == 0)
             return new List<DetectionOutput>();
 
         using var originalImage = ImageUtils.DecodeImage(imageBytes);
-        if (originalImage == null)
-            return new List<DetectionOutput>();
-
         var processedResults = new List<DetectionOutput>();
 
         for (int i = 0; i < detections.Count; i++)

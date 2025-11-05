@@ -32,28 +32,9 @@ public class DallE3ApiController(DallE3Module module, IWebHostEnvironment env) :
         var (referenceImages, parseErrors) = ImageUtils.ParseBase64Images(request.ImagesBase64);
 
         if (referenceImages.Count == 0)
-        {
             return BadRequest(new { success = false, error = "無法解析任何參考圖片", errors = parseErrors });
-        }
 
-        var (success, outputs, error) = await module.EditImage(
-            request.Prompt,
-            referenceImages,
-            request.Model);
-
-        if (!success || outputs == null || outputs.Count == 0)
-        {
-            return Ok(BuildResponse(new List<ImageEditOutput>
-            {
-                new ImageEditOutput
-                {
-                    ImageId = $"img_{Guid.NewGuid():N}",
-                    Success = false,
-                    Error = error ?? "圖片編輯失敗",
-                    Prompt = request.Prompt
-                }
-            }, new List<string> { error ?? "圖片編輯失敗" }));
-        }
+        var outputs = await module.EditImage(request.Prompt, referenceImages, request.Model);
 
         var imageResults = outputs.Select(output => new ImageEditOutput
         {
@@ -82,53 +63,25 @@ public class DallE3ApiController(DallE3Module module, IWebHostEnvironment env) :
         var (referenceImages, readErrors) = await ImageUtils.ReadFormFileImages(images);
 
         if (referenceImages.Count == 0)
-        {
             return BadRequest(new { success = false, error = "無法讀取任何參考圖片", errors = readErrors });
-        }
 
         var prompt = prompts[0];
         const string fixedModel = "gpt-image-1";
 
-        var (success, outputs, error) = await module.EditImage(prompt, referenceImages, fixedModel);
-
-        if (!success || outputs == null || outputs.Count == 0)
-        {
-            return Ok(BuildResponse(new List<ImageEditOutput>
-            {
-                new ImageEditOutput
-                {
-                    ImageId = $"img_{Guid.NewGuid():N}",
-                    Success = false,
-                    Error = error ?? "圖片編輯失敗",
-                    Prompt = prompt
-                }
-            }, new List<string> { error ?? "圖片編輯失敗" }));
-        }
+        var outputs = await module.EditImage(prompt, referenceImages, fixedModel);
 
         var dateStr = DateTime.Now.ToString("yyyy_MM_dd");
         var savePath = Path.Combine(env.ContentRootPath, StorageRoot, dateStr);
         Directory.CreateDirectory(savePath);
 
         var imageResults = new List<ImageEditOutput>();
-        var saveErrors = new List<string>();
 
         foreach (var output in outputs)
         {
             var fileName = $"{output.ImageId}.png";
             var filePath = Path.Combine(savePath, fileName);
 
-            if (!ImageUtils.SaveImageFromBytes(output.ImageBytes, filePath))
-            {
-                saveErrors.Add($"圖片 {output.ImageId} 保存失敗");
-                imageResults.Add(new ImageEditOutput
-                {
-                    ImageId = output.ImageId,
-                    Success = false,
-                    Error = "圖片保存失敗",
-                    Prompt = output.Prompt
-                });
-                continue;
-            }
+            ImageUtils.SaveImageFromBytes(output.ImageBytes, filePath);
 
             var imageUrl = $"/storage/DallE3/{dateStr}/{fileName}";
             imageResults.Add(new ImageEditOutput
@@ -140,7 +93,7 @@ public class DallE3ApiController(DallE3Module module, IWebHostEnvironment env) :
             });
         }
 
-        return Ok(BuildResponse(imageResults, saveErrors));
+        return Ok(BuildResponse(imageResults, new List<string>()));
     }
 
     /// <summary>

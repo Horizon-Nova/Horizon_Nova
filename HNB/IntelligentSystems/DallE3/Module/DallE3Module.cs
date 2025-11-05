@@ -20,51 +20,42 @@ public class DallE3Module(DallE3Config config, IHttpClientFactory httpClientFact
     /// <summary>
     /// 編輯/組合圖片（使用多張參考圖片）
     /// </summary>
-    public async Task<(bool success, List<DallE3Output> outputs, string? error)> EditImage(
+    public async Task<List<DallE3Output>> EditImage(
         string prompt,
         List<byte[]> referenceImages,
         string? model = null,
         CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(prompt))
-            return (false, new List<DallE3Output>(), "提示詞不能為空");
+            throw new ArgumentException("提示詞不能為空");
 
         if (referenceImages == null || referenceImages.Count == 0)
-            return (false, new List<DallE3Output>(), "至少需要提供一張參考圖片");
+            throw new ArgumentException("至少需要提供一張參考圖片");
 
         var engine = GetOrCreateEngine();
+        var result = await engine.EditImage(prompt, referenceImages, model, cancellationToken);
 
-        var (success, result, error) = await engine.EditImage(prompt, referenceImages, model, cancellationToken);
+        if (result == null || result.Data.Count == 0)
+            throw new Exception("圖片編輯失敗：API 回應無資料");
 
-        if (!success || result == null || result.Data.Count == 0)
-        {
-            return (false, new List<DallE3Output>(), error ?? "圖片編輯失敗");
-        }
-
-        var outputs = new List<DallE3Output>();
-        
         var firstImage = result.Data.FirstOrDefault(d => !string.IsNullOrEmpty(d.B64Json));
-        if (firstImage != null)
+        if (firstImage == null)
+            throw new Exception("API 回應無 base64 圖片資料");
+
+        var imageBytes = engine.ConvertBase64ToBytes(firstImage.B64Json);
+        if (imageBytes == null)
+            throw new Exception("無法轉換 base64 圖片資料");
+
+        var imageId = $"img_{Guid.NewGuid():N}";
+        return new List<DallE3Output>
         {
-            var imageBytes = engine.ConvertBase64ToBytes(firstImage.B64Json);
-            if (imageBytes != null)
+            new DallE3Output
             {
-                var imageId = $"img_{Guid.NewGuid():N}";
-                outputs.Add(new DallE3Output
-                {
-                    ImageId = imageId,
-                    Prompt = prompt,
-                    ImageBytes = imageBytes
-                });
+                ImageId = imageId,
+                Prompt = prompt,
+                ImageBytes = imageBytes
             }
-        }
-
-        if (outputs.Count == 0)
-        {
-            return (false, new List<DallE3Output>(), "無法轉換任何 base64 圖片資料");
-        }
-
-        return (true, outputs, null);
+        };
     }
 
     #endregion

@@ -2,7 +2,8 @@ using HNB.IntelligentSystems.ObjectDetection.Models;
 using HNB.IntelligentSystems.ObjectDetection.Module;
 using HNB.IntelligentSystems.ObjectDetection.Utils;
 using Microsoft.AspNetCore.Mvc;
-using OpenCvSharp;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using System.Linq;
 
 namespace HNB.IntelligentSystems.ObjectDetection.Api;
@@ -129,18 +130,17 @@ public class ObjectDetectionApiController(ObjectDetectionModule module, IWebHost
                 var croppedFileName = $"{detection.Id}.jpg";
                 var croppedFilePath = Path.Combine(croppedPath, croppedFileName);
                 
-                if (ImageUtils.SaveImageFromBytes(detection.CroppedImageBytes, croppedFilePath))
+                ImageUtils.SaveImageFromBytes(detection.CroppedImageBytes, croppedFilePath);
+                
+                var croppedImageUrl = $"/storage/ObjectDetection/裁剪/{dateStr}/{croppedFileName}";
+                detectionsOutput.Add(new
                 {
-                    var croppedImageUrl = $"/storage/ObjectDetection/裁剪/{dateStr}/{croppedFileName}";
-                    detectionsOutput.Add(new
-                    {
-                        id = detection.Id,
-                        box = detection.Box,
-                        label = detection.Label,
-                        score = detection.Score,
-                        croppedImageUrl = croppedImageUrl
-                    });
-                }
+                    id = detection.Id,
+                    box = detection.Box,
+                    label = detection.Label,
+                    score = detection.Score,
+                    croppedImageUrl = croppedImageUrl
+                });
             }
 
             using var annotatedImage = RenderDetections(imageBytes, detections);
@@ -152,8 +152,7 @@ public class ObjectDetectionApiController(ObjectDetectionModule module, IWebHost
 
                 var fileName = $"{imageId}.jpg";
                 var filePath = Path.Combine(savePath, fileName);
-                if (!ImageUtils.SaveImage(annotatedImage, filePath))
-                    throw new IOException($"圖片保存失敗：{filePath}");
+                ImageUtils.SaveImage(annotatedImage, filePath);
 
                 var annotatedImageUrl = $"/storage/ObjectDetection/渲染/{annotatedDateStr}/{fileName}";
                 imageResults.Add(new { imageId, success = true, detections = detectionsOutput, count = detectionsOutput.Count, annotatedImageUrl });
@@ -166,12 +165,9 @@ public class ObjectDetectionApiController(ObjectDetectionModule module, IWebHost
     /// <summary>
     /// 簡介：渲染檢測結果到圖片
     /// </summary>
-    private Mat RenderDetections(byte[] imageBytes, List<DetectionResult> detections)
+    private Image<Rgb24> RenderDetections(byte[] imageBytes, List<DetectionResult> detections)
     {
         using var originalImage = ImageUtils.DecodeImage(imageBytes);
-        if (originalImage == null)
-            throw new Exception("無法解碼圖片資料");
-
         var annotatedImage = originalImage.Clone();
         ImageUtils.DrawDetections(annotatedImage, detections);
         return annotatedImage;

@@ -7,7 +7,8 @@ using Microsoft.ML.OnnxRuntime.Tensors;
 using HNB.IntelligentSystems.ObjectDetection.Configuration;
 using HNB.IntelligentSystems.ObjectDetection.Models;
 using HNB.IntelligentSystems.ObjectDetection.Utils;
-using OpenCvSharp;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace HNB.IntelligentSystems.ObjectDetection.Core
 {
@@ -55,80 +56,77 @@ namespace HNB.IntelligentSystems.ObjectDetection.Core
         /// <param name="image">Input image.</param>
         /// <param name="textPrompt">Text prompt describing objects to detect.</param>
         /// <returns>List of detection results.</returns>
-        public List<DetectionResult> Detect(Mat image, string textPrompt)
+    public List<DetectionResult> Detect(Image<Rgb24> image, string textPrompt)
+    {
+        if (string.IsNullOrWhiteSpace(textPrompt))
+            throw new ArgumentException("Text prompt cannot be null or empty.", nameof(textPrompt));
+
+        int srcW = image.Width;
+        int srcH = image.Height;
+
+        float[] imgData = ImageUtils.PreprocessForModel(image);
+        var imgTensor = new DenseTensor<float>(imgData, new[] { 1, 3, targetSize[1], targetSize[0] });
+
+        string caption = textPrompt.Trim().ToLower();
+        if (!caption.EndsWith("."))
+            caption += " .";
+
+        var (inputIds, tokenTypeIds, attentionMask, specialTokens) = tokenizer.TokenizeText(caption, MaxTextLen);
+        var (textSelfAttentionMasks, positionIds) = tokenizer.GenerateMasksWithSpecialTokens(inputIds, specialTokens);
+
+        int seqLen = inputIds.Length;
+
+        if (seqLen > MaxTextLen)
         {
-            if (image == null || image.Empty())
-                throw new ArgumentException("Image cannot be null or empty.", nameof(image));
+            Array.Resize(ref inputIds, MaxTextLen);
+            Array.Resize(ref tokenTypeIds, MaxTextLen);
+            Array.Resize(ref attentionMask, MaxTextLen);
+            Array.Resize(ref positionIds, MaxTextLen);
 
-            if (string.IsNullOrWhiteSpace(textPrompt))
-                throw new ArgumentException("Text prompt cannot be null or empty.", nameof(textPrompt));
-
-            int srcW = image.Width;
-            int srcH = image.Height;
-
-            float[] imgData = ImageUtils.PreprocessForModel(image);
-            var imgTensor = new DenseTensor<float>(imgData, new[] { 1, 3, targetSize[1], targetSize[0] });
-
-            string caption = textPrompt.Trim().ToLower();
-            if (!caption.EndsWith("."))
-                caption += " .";
-
-            var (inputIds, tokenTypeIds, attentionMask, specialTokens) = tokenizer.TokenizeText(caption, MaxTextLen);
-            var (textSelfAttentionMasks, positionIds) = tokenizer.GenerateMasksWithSpecialTokens(inputIds, specialTokens);
-
-            int seqLen = inputIds.Length;
-
-            if (seqLen > MaxTextLen)
+            bool[,,] trimmedMasks = new bool[1, MaxTextLen, MaxTextLen];
+            for (int i = 0; i < MaxTextLen; i++)
             {
-                Array.Resize(ref inputIds, MaxTextLen);
-                Array.Resize(ref tokenTypeIds, MaxTextLen);
-                Array.Resize(ref attentionMask, MaxTextLen);
-                Array.Resize(ref positionIds, MaxTextLen);
-
-                bool[,,] trimmedMasks = new bool[1, MaxTextLen, MaxTextLen];
-                for (int i = 0; i < MaxTextLen; i++)
+                for (int j = 0; j < MaxTextLen; j++)
                 {
-                    for (int j = 0; j < MaxTextLen; j++)
-                    {
-                        trimmedMasks[0, i, j] = textSelfAttentionMasks[0, i, j];
-                    }
-                }
-                textSelfAttentionMasks = trimmedMasks;
-                seqLen = MaxTextLen;
-            }
-
-            bool[] textMaskFlat = new bool[seqLen * seqLen];
-            for (int i = 0; i < seqLen; i++)
-            {
-                for (int j = 0; j < seqLen; j++)
-                {
-                    textMaskFlat[i * seqLen + j] = textSelfAttentionMasks[0, i, j];
+                    trimmedMasks[0, i, j] = textSelfAttentionMasks[0, i, j];
                 }
             }
+            textSelfAttentionMasks = trimmedMasks;
+            seqLen = MaxTextLen;
+        }
 
-            var inputs = new List<NamedOnnxValue>
+        bool[] textMaskFlat = new bool[seqLen * seqLen];
+        for (int i = 0; i < seqLen; i++)
+        {
+            for (int j = 0; j < seqLen; j++)
             {
-                NamedOnnxValue.CreateFromTensor("img", imgTensor),
-                NamedOnnxValue.CreateFromTensor("input_ids", new DenseTensor<long>(inputIds, new[] { 1, seqLen })),
-                NamedOnnxValue.CreateFromTensor("attention_mask", new DenseTensor<bool>(attentionMask, new[] { 1, seqLen })),
-                NamedOnnxValue.CreateFromTensor("position_ids", new DenseTensor<long>(positionIds, new[] { 1, seqLen })),
-                NamedOnnxValue.CreateFromTensor("token_type_ids", new DenseTensor<long>(tokenTypeIds, new[] { 1, seqLen })),
-                NamedOnnxValue.CreateFromTensor("text_token_mask", new DenseTensor<bool>(textMaskFlat, new[] { 1, seqLen, seqLen }))
-            };
-
-            // ONNX Runtime InferenceSession.Run() is thread-safe and can be called concurrently
-            // No lock needed - multiple threads can call Run() simultaneously
-            using (var results = session.Run(inputs))
-            {
-                var logitsTensor = results.FirstOrDefault(r => r.Name == "logits")?.Value as DenseTensor<float>;
-                var boxesTensor = results.FirstOrDefault(r => r.Name == "boxes")?.Value as DenseTensor<float>;
-
-                if (logitsTensor == null || boxesTensor == null)
-                    return new List<DetectionResult>();
-
-                return PostProcess(logitsTensor, boxesTensor, inputIds, srcW, srcH);
+                textMaskFlat[i * seqLen + j] = textSelfAttentionMasks[0, i, j];
             }
         }
+
+        var inputs = new List<NamedOnnxValue>
+        {
+            NamedOnnxValue.CreateFromTensor("img", imgTensor),
+            NamedOnnxValue.CreateFromTensor("input_ids", new DenseTensor<long>(inputIds, new[] { 1, seqLen })),
+            NamedOnnxValue.CreateFromTensor("attention_mask", new DenseTensor<bool>(attentionMask, new[] { 1, seqLen })),
+            NamedOnnxValue.CreateFromTensor("position_ids", new DenseTensor<long>(positionIds, new[] { 1, seqLen })),
+            NamedOnnxValue.CreateFromTensor("token_type_ids", new DenseTensor<long>(tokenTypeIds, new[] { 1, seqLen })),
+            NamedOnnxValue.CreateFromTensor("text_token_mask", new DenseTensor<bool>(textMaskFlat, new[] { 1, seqLen, seqLen }))
+        };
+
+        // ONNX Runtime InferenceSession.Run() is thread-safe and can be called concurrently
+        // No lock needed - multiple threads can call Run() simultaneously
+        using (var results = session.Run(inputs))
+        {
+            var logitsTensor = results.FirstOrDefault(r => r.Name == "logits")?.Value as DenseTensor<float>;
+            var boxesTensor = results.FirstOrDefault(r => r.Name == "boxes")?.Value as DenseTensor<float>;
+
+            if (logitsTensor == null || boxesTensor == null)
+                throw new Exception("模型輸出無效：缺少 logits 或 boxes");
+
+            return PostProcess(logitsTensor, boxesTensor, inputIds, srcW, srcH);
+        }
+    }
 
         private List<DetectionResult> PostProcess(DenseTensor<float> logitsTensor, DenseTensor<float> boxesTensor,
             long[] inputIds, int srcW, int srcH)
@@ -202,7 +200,7 @@ namespace HNB.IntelligentSystems.ObjectDetection.Core
 
                 results.Add(new DetectionResult
                 {
-                    Box = new Rect(xmin, ymin, boxW, boxH),
+                    Box = new Models.Rectangle(xmin, ymin, boxW, boxH),
                     Label = config.IncludeLogits ? $"{cleanLabel}({maxScore:F2})" : cleanLabel,
                     Score = maxScore
                 });
@@ -274,7 +272,7 @@ namespace HNB.IntelligentSystems.ObjectDetection.Core
                     float cy1 = boxesTensor[0, current.queryIndex, 1];
                     float w1 = boxesTensor[0, current.queryIndex, 2];
                     float h1 = boxesTensor[0, current.queryIndex, 3];
-                    Rect box1 = new Rect(
+                    Models.Rectangle box1 = new Models.Rectangle(
                         (int)((cx1 - w1 * 0.5f) * srcW),
                         (int)((cy1 - h1 * 0.5f) * srcH),
                         (int)(w1 * srcW),
@@ -288,7 +286,7 @@ namespace HNB.IntelligentSystems.ObjectDetection.Core
                         float cy2 = boxesTensor[0, keptDet.Item1, 1];
                         float w2 = boxesTensor[0, keptDet.Item1, 2];
                         float h2 = boxesTensor[0, keptDet.Item1, 3];
-                        Rect box2 = new Rect(
+                        Models.Rectangle box2 = new Models.Rectangle(
                             (int)((cx2 - w2 * 0.5f) * srcW),
                             (int)((cy2 - h2 * 0.5f) * srcH),
                             (int)(w2 * srcW),
@@ -331,7 +329,7 @@ namespace HNB.IntelligentSystems.ObjectDetection.Core
                     float cy1 = boxesTensor[0, jacketDet.Item1, 1];
                     float w1 = boxesTensor[0, jacketDet.Item1, 2];
                     float h1 = boxesTensor[0, jacketDet.Item1, 3];
-                    Rect jacketBox = new Rect(
+                    Models.Rectangle jacketBox = new Models.Rectangle(
                         (int)((cx1 - w1 * 0.5f) * srcW),
                         (int)((cy1 - h1 * 0.5f) * srcH),
                         (int)(w1 * srcW),
@@ -344,7 +342,7 @@ namespace HNB.IntelligentSystems.ObjectDetection.Core
                         float cy2 = boxesTensor[0, clothesDet.Item1, 1];
                         float w2 = boxesTensor[0, clothesDet.Item1, 2];
                         float h2 = boxesTensor[0, clothesDet.Item1, 3];
-                        Rect clothesBox = new Rect(
+                        Models.Rectangle clothesBox = new Models.Rectangle(
                             (int)((cx2 - w2 * 0.5f) * srcW),
                             (int)((cy2 - h2 * 0.5f) * srcH),
                             (int)(w2 * srcW),
@@ -362,10 +360,10 @@ namespace HNB.IntelligentSystems.ObjectDetection.Core
             return finalFiltered;
         }
 
-        /// <summary>
-        /// Calculates Intersection over Union (IoU) between two bounding boxes.
-        /// </summary>
-        private static float CalculateIoU(Rect box1, Rect box2)
+    /// <summary>
+    /// Calculates Intersection over Union (IoU) between two bounding boxes.
+    /// </summary>
+    private static float CalculateIoU(Models.Rectangle box1, Models.Rectangle box2)
         {
             int x1 = Math.Max(box1.X, box2.X);
             int y1 = Math.Max(box1.Y, box2.Y);
