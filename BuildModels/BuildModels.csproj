@@ -19,7 +19,7 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-		<None Include="..\HNB.IIS\Core\appsettings.json">
+		<None Include="..\HNB\appsettings.json">
 			<Link>appsettings.json</Link>
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
