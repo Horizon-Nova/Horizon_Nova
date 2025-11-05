@@ -14,6 +14,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxrender1 \
     fonts-noto-cjk \
     locales \
+    libopencv-dev \
+    libgdiplus \
+    libgtk2.0-0 \
+    libgtk-3-0 \
  && locale-gen zh_TW.UTF-8 \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
