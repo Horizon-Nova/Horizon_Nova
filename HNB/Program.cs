@@ -6,6 +6,8 @@ using HNB.Areas.Backoffice.BackgroundServices.Middleware;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.FileProviders;
 using Models.Hnbdata;
 using Models.HnbHnbBackoffice;
 
@@ -87,12 +89,12 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 // 添加 storage 靜態檔案服務
-var contentTypeProvider = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
+var contentTypeProvider = new FileExtensionContentTypeProvider();
 contentTypeProvider.Mappings[".onnx"] = "application/octet-stream"; // 註冊 .onnx 文件類型
 
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(
+    FileProvider = new PhysicalFileProvider(
         Path.Combine(builder.Environment.ContentRootPath, "Areas", "Backoffice", "storage")),
     RequestPath = "/storage",
     ContentTypeProvider = contentTypeProvider,
