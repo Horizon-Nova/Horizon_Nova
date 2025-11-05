@@ -87,11 +87,16 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 // 添加 storage 靜態檔案服務
+var contentTypeProvider = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
+contentTypeProvider.Mappings[".onnx"] = "application/octet-stream"; // 註冊 .onnx 文件類型
+
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(
         Path.Combine(builder.Environment.ContentRootPath, "Areas", "Backoffice", "storage")),
-    RequestPath = "/storage"
+    RequestPath = "/storage",
+    ContentTypeProvider = contentTypeProvider,
+    ServeUnknownFileTypes = true // 允許提供未知文件類型的文件
 });
 
 app.UseSession();
