@@ -1,0 +1,14 @@
+@{
+    ViewData["Title"] = "ERROR LOG";
+    var statistics = ViewBag.Statistics as ErrorLogStatistics;
+    var days = ViewBag.Days as int? ?? 7;
+}
+
+@await Html.PartialAsync("Partials/ErrorStatistics")
+@await Html.PartialAsync("Partials/ErrorCharts")
+@await Html.PartialAsync("Partials/ErrorList")
+
+@section Scripts {
+    @await Html.PartialAsync("Partials/_ErrorLogScripts")
+}
+

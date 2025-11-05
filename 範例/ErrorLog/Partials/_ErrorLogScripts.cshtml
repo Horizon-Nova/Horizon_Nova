@@ -1,0 +1,591 @@
+@{
+    var statistics = ViewBag.Statistics as ErrorLogStatistics;
+}
+
+<script>
+    let currentPage = 1;
+    let currentPageSize = 20;
+    let currentLayer = '';
+    let currentStatusCode = '';
+    let charts = {};
+    let errorDetailModal = null;
+
+    function loadStatistics() {
+        const days = document.getElementById('daysFilter')?.value || 7;
+        window.location.href = `/ErrorLog?days=${days}`;
+    }
+
+    function loadErrorLogs(page = 1) {
+        currentPage = page;
+        currentLayer = document.getElementById('filterLayer')?.value || '';
+        currentStatusCode = document.getElementById('filterStatusCode')?.value || '';
+
+        const $tbody = $('#errorLogsTableBody');
+        $tbody.html(`
+            <tr>
+                <td colspan="8" class="px-4 py-4 text-center text-muted-custom">
+                    <svg class="mx-auto mb-2" style="width: calc(32px * var(--scale-factor)); height: calc(32px * var(--scale-factor)); animation: spin 1s linear infinite;" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <div class="fs-sm">載入中...</div>
+                </td>
+            </tr>
+        `);
+
+        const params = new URLSearchParams({
+            page: currentPage,
+            pageSize: currentPageSize,
+            ...(currentLayer && { layer: currentLayer }),
+            ...(currentStatusCode && { statusCode: currentStatusCode })
+        });
+
+        $.ajax({
+            type: 'GET',
+            url: `/ErrorLog/GetErrorLogs?${params.toString()}`,
+            success: (response) => {
+                if (response.success) {
+                    renderErrorLogsTable(response.data, response.pagination);
+                } else {
+                    showNotification('錯誤', '載入錯誤日誌失敗', 'error');
+                }
+            },
+            error: () => {
+                showNotification('錯誤', '載入錯誤日誌失敗', 'error');
+            }
+        });
+    }
+
+    function renderErrorLogsTable(errors, pagination) {
+        const $tbody = $('#errorLogsTableBody');
+
+        if (errors.length === 0) {
+            $tbody.html(`
+                <tr>
+                    <td colspan="8" class="px-4 py-4 text-center text-muted-custom">沒有錯誤日誌</td>
+                </tr>
+            `);
+            return;
+        }
+
+        $tbody.html(errors.map(error => `
+            <tr style="transition: background-color 0.3s;">
+                <td class="px-3 py-2 text-primary-custom">#${error.id}</td>
+                <td class="px-3 py-2 text-secondary-custom">${formatDateTime(error.created_at)}</td>
+                <td class="px-3 py-2">
+                    <span class="px-2 py-1 fs-sm border ${getLayerColor(error.layer)}">${escapeHtml(error.layer || 'N/A')}</span>
+                </td>
+                <td class="px-3 py-2 text-primary-custom">${escapeHtml(error.function || 'N/A')}</td>
+                <td class="px-3 py-2 text-secondary-custom font-monospace fs-sm">${escapeHtml(error.path || 'N/A')}</td>
+                <td class="px-3 py-2">
+                    ${error.status_code ? `<span class="px-2 py-1 fs-sm border ${getStatusCodeColor(error.status_code)}">${error.status_code}</span>` : '<span class="text-muted-custom">-</span>'}
+                </td>
+                <td class="px-3 py-2 text-secondary-custom fs-sm" style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(error.message || '')}">
+                    ${escapeHtml(error.message?.substring(0, 60) || 'N/A')}${error.message && error.message.length > 60 ? '...' : ''}
+                </td>
+                <td class="px-3 py-2 text-center">
+                    <button onclick="showErrorDetail(${error.id})" class="btn btn-link p-0 text-decoration-none" style="color: #60a5fa; transition: color 0.3s;" onmouseover="this.style.color='#93c5fd';" onmouseout="this.style.color='#60a5fa';">
+                        <svg style="width: calc(16px * var(--scale-factor)); height: calc(16px * var(--scale-factor));" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>
+                    </button>
+                </td>
+            </tr>
+        `).join(''));
+
+        renderPagination(pagination);
+    }
+
+    function renderPagination(pagination) {
+        const $pagination = $('#pagination');
+        if (pagination.totalPages <= 1) {
+            $pagination.html(`<div class="fs-sm text-muted-custom font-monospace">共 ${pagination.totalCount} 筆</div>`);
+            return;
+        }
+
+        const pages = [];
+        const maxPages = 7;
+        let startPage = Math.max(1, pagination.page - Math.floor(maxPages / 2));
+        let endPage = Math.min(pagination.totalPages, startPage + maxPages - 1);
+
+        if (endPage - startPage < maxPages - 1) {
+            startPage = Math.max(1, endPage - maxPages + 1);
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            pages.push(i);
+        }
+
+        $pagination.html(`
+            <div class="fs-sm text-muted-custom font-monospace">
+                顯示 ${(pagination.page - 1) * pagination.pageSize + 1} - ${Math.min(pagination.page * pagination.pageSize, pagination.totalCount)} / ${pagination.totalCount} 筆
+            </div>
+            <div class="d-flex align-items-center gap-sm">
+                <button onclick="loadErrorLogs(1)" class="btn btn-sm border-custom text-primary-custom fs-sm px-2 py-1 font-monospace" style="border-color: var(--color-border); color: var(--color-text-primary); background-color: transparent; transition: all 0.3s;" ${pagination.page === 1 ? 'disabled' : ''} onmouseover="if(!this.disabled) {this.style.borderColor='var(--color-border-hover)'; this.style.backgroundColor='var(--color-hover)';}" onmouseout="this.style.borderColor='var(--color-border)'; this.style.backgroundColor='transparent';">
+                    首頁
+                </button>
+                <button onclick="loadErrorLogs(${pagination.page - 1})" class="btn btn-sm border-custom text-primary-custom fs-sm px-2 py-1 font-monospace" style="border-color: var(--color-border); color: var(--color-text-primary); background-color: transparent; transition: all 0.3s;" ${pagination.page === 1 ? 'disabled' : ''} onmouseover="if(!this.disabled) {this.style.borderColor='var(--color-border-hover)'; this.style.backgroundColor='var(--color-hover)';}" onmouseout="this.style.borderColor='var(--color-border)'; this.style.backgroundColor='transparent';">
+                    上一頁
+                </button>
+                ${pages.map(p => `
+                    <button onclick="loadErrorLogs(${p})" class="btn btn-sm border-custom text-primary-custom fs-sm px-2 py-1 font-monospace ${p === pagination.page ? '' : ''}" style="border-color: var(--color-border); color: var(--color-text-primary); background-color: ${p === pagination.page ? 'var(--color-hover)' : 'transparent'}; transition: all 0.3s;" onmouseover="this.style.borderColor='var(--color-border-hover)'; this.style.backgroundColor='var(--color-hover)';" onmouseout="this.style.borderColor='var(--color-border)'; this.style.backgroundColor='${p === pagination.page ? 'var(--color-hover)' : 'transparent'}';">
+                        ${p}
+                    </button>
+                `).join('')}
+                <button onclick="loadErrorLogs(${pagination.page + 1})" class="btn btn-sm border-custom text-primary-custom fs-sm px-2 py-1 font-monospace" style="border-color: var(--color-border); color: var(--color-text-primary); background-color: transparent; transition: all 0.3s;" ${pagination.page === pagination.totalPages ? 'disabled' : ''} onmouseover="if(!this.disabled) {this.style.borderColor='var(--color-border-hover)'; this.style.backgroundColor='var(--color-hover)';}" onmouseout="this.style.borderColor='var(--color-border)'; this.style.backgroundColor='transparent';">
+                    下一頁
+                </button>
+                <button onclick="loadErrorLogs(${pagination.totalPages})" class="btn btn-sm border-custom text-primary-custom fs-sm px-2 py-1 font-monospace" style="border-color: var(--color-border); color: var(--color-text-primary); background-color: transparent; transition: all 0.3s;" ${pagination.page === pagination.totalPages ? 'disabled' : ''} onmouseover="if(!this.disabled) {this.style.borderColor='var(--color-border-hover)'; this.style.backgroundColor='var(--color-hover)';}" onmouseout="this.style.borderColor='var(--color-border)'; this.style.backgroundColor='transparent';">
+                    末頁
+                </button>
+            </div>
+        `);
+    }
+
+    function showErrorDetail(id) {
+        $.ajax({
+            type: 'GET',
+            url: `/ErrorLog/GetErrorLogDetail?id=${id}`,
+            success: (response) => {
+                if (response.success) {
+                    renderErrorDetail(response.data);
+                    if (!errorDetailModal) {
+                        errorDetailModal = new bootstrap.Modal(document.getElementById('errorDetailModal'));
+                    }
+                    errorDetailModal.show();
+                } else {
+                    showNotification('錯誤', response.message || '載入錯誤詳情失敗', 'error');
+                }
+            },
+            error: () => {
+                showNotification('錯誤', '載入錯誤詳情失敗', 'error');
+            }
+        });
+    }
+
+    function renderErrorDetail(error) {
+        const $content = $('#errorDetailContent');
+        const extra = error.extra ? JSON.parse(error.extra) : {};
+
+        $content.html(`
+            <div class="d-flex flex-column gap-3">
+                <div class="row g-3">
+                     <div class="col-12 col-md-6">
+                         <label class="fs-sm text-secondary-custom font-monospace d-block mb-1" style="letter-spacing: 0.05em;">ID</label>
+                         <div class="text-primary-custom font-monospace">#${error.id}</div>
+                     </div>
+                     <div class="col-12 col-md-6">
+                         <label class="fs-sm text-secondary-custom font-monospace d-block mb-1" style="letter-spacing: 0.05em;">時間</label>
+                         <div class="text-primary-custom font-monospace">${formatDateTime(error.created_at)}</div>
+                     </div>
+                     <div class="col-12 col-md-6">
+                         <label class="fs-sm text-secondary-custom font-monospace d-block mb-1" style="letter-spacing: 0.05em;">層級</label>
+                         <div class="text-primary-custom">${escapeHtml(error.layer || 'N/A')}</div>
+                     </div>
+                     <div class="col-12 col-md-6">
+                         <label class="fs-sm text-secondary-custom font-monospace d-block mb-1" style="letter-spacing: 0.05em;">函數</label>
+                         <div class="text-primary-custom font-monospace fs-sm">${escapeHtml(error.function || 'N/A')}</div>
+                     </div>
+                     <div class="col-12 col-md-6">
+                         <label class="fs-sm text-secondary-custom font-monospace d-block mb-1" style="letter-spacing: 0.05em;">路徑</label>
+                         <div class="text-primary-custom font-monospace fs-sm">${escapeHtml(error.path || 'N/A')}</div>
+                     </div>
+                     <div class="col-12 col-md-6">
+                         <label class="fs-sm text-secondary-custom font-monospace d-block mb-1" style="letter-spacing: 0.05em;">HTTP 方法</label>
+                         <div class="text-primary-custom font-monospace">${escapeHtml(error.http_method || 'N/A')}</div>
+                     </div>
+                     <div class="col-12 col-md-6">
+                         <label class="fs-sm text-secondary-custom font-monospace d-block mb-1" style="letter-spacing: 0.05em;">狀態碼</label>
+                         <div class="text-primary-custom">${error.status_code || 'N/A'}</div>
+                     </div>
+                     <div class="col-12 col-md-6">
+                         <label class="fs-sm text-secondary-custom font-monospace d-block mb-1" style="letter-spacing: 0.05em;">使用者</label>
+                         <div class="text-primary-custom">${escapeHtml(error.user_id || 'N/A')}</div>
+                     </div>
+                     <div class="col-12 col-md-6">
+                         <label class="fs-sm text-secondary-custom font-monospace d-block mb-1" style="letter-spacing: 0.05em;">Trace ID</label>
+                         <div class="text-primary-custom font-monospace fs-sm">${escapeHtml(error.trace_id || 'N/A')}</div>
+                     </div>
+                </div>
+
+                 <div>
+                     <label class="fs-sm text-secondary-custom font-monospace d-block mb-1" style="letter-spacing: 0.05em;">錯誤訊息</label>
+                     <div class="bg-secondary-custom border border-custom p-3 fs-sm text-primary-custom font-monospace" style="white-space: pre-wrap; max-height: 160px; overflow-y: auto; background-color: var(--color-bg-secondary-custom) !important; border-color: var(--color-border) !important;">
+                         ${escapeHtml(error.message || 'N/A')}
+                     </div>
+                 </div>
+
+                 ${error.stack_trace ? `
+                     <div>
+                         <label class="fs-sm text-secondary-custom font-monospace d-block mb-1" style="letter-spacing: 0.05em;">堆疊追蹤</label>
+                         <div class="bg-secondary-custom border border-custom p-3 fs-sm text-secondary-custom font-monospace" style="white-space: pre-wrap; max-height: 240px; overflow-y: auto; background-color: var(--color-bg-secondary-custom) !important; border-color: var(--color-border) !important;">
+                             ${escapeHtml(error.stack_trace)}
+                         </div>
+                     </div>
+                 ` : ''}
+
+                 ${Object.keys(extra).length > 0 ? `
+                     <div>
+                         <label class="fs-sm text-secondary-custom font-monospace d-block mb-1" style="letter-spacing: 0.05em;">附加資料</label>
+                         <div class="bg-secondary-custom border border-custom p-3 fs-sm text-secondary-custom font-monospace" style="white-space: pre-wrap; max-height: 160px; overflow-y: auto; background-color: var(--color-bg-secondary-custom) !important; border-color: var(--color-border) !important;">
+                             ${escapeHtml(JSON.stringify(extra, null, 2))}
+                         </div>
+                     </div>
+                 ` : ''}
+            </div>
+        `);
+    }
+
+    function closeErrorDetailModal() {
+        if (errorDetailModal) {
+            errorDetailModal.hide();
+        }
+    }
+
+    function formatDateTime(dateTimeStr) {
+        if (!dateTimeStr) return 'N/A';
+        const date = new Date(dateTimeStr);
+        return date.toLocaleString('zh-TW', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+    }
+
+    function getLayerColor(layer) {
+        const colors = {
+            'Middleware': 'border border-info border-opacity-30 text-info bg-info bg-opacity-10',
+            'Filter': 'border border-warning border-opacity-30 text-warning bg-warning bg-opacity-10',
+            'ExceptionHandler': 'border border-danger border-opacity-30 text-danger bg-danger bg-opacity-10',
+            'Background': 'border border-secondary border-opacity-30 text-secondary bg-secondary-custom bg-opacity-10'
+        };
+        if (!colors[layer]) {
+            return 'border border-custom text-secondary-custom bg-secondary-custom';
+        }
+        return colors[layer];
+    }
+
+    function getStatusCodeColor(statusCode) {
+        if (statusCode >= 500) return 'border border-danger border-opacity-30 text-danger bg-danger bg-opacity-10';
+        if (statusCode >= 400) return 'border border-warning border-opacity-30 text-warning bg-warning bg-opacity-10';
+        return 'border border-custom text-secondary-custom bg-secondary-custom';
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    $(document).ready(function() {
+        initializeCharts();
+        loadErrorLogs();
+
+        // 初始化 Bootstrap Modal
+        const modalElement = document.getElementById('errorDetailModal');
+        if (modalElement) {
+            errorDetailModal = new bootstrap.Modal(modalElement);
+        }
+    });
+
+    function initializeCharts() {
+        const stats = @Html.Raw(Json.Serialize(statistics));
+
+        // 時間趨勢圖
+        const timeSeriesCtx = document.getElementById('timeSeriesChart');
+        if (timeSeriesCtx) {
+            charts.timeSeries = new Chart(timeSeriesCtx, {
+                type: 'line',
+                data: {
+                    labels: stats.timeSeries.map(t => t.timeLabel),
+                    datasets: [{
+                        label: '錯誤數量',
+                        data: stats.timeSeries.map(t => t.count),
+                        borderColor: 'rgb(239, 68, 68)',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                            borderColor: 'rgba(255, 255, 255, 0.2)',
+                            borderWidth: 1,
+                            titleColor: '#fff',
+                            bodyColor: '#fff'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#9ca3af' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        },
+                        x: {
+                            ticks: { color: '#9ca3af' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 層級分布圖
+        const layerCtx = document.getElementById('layerChart');
+        if (layerCtx) {
+            const layerData = Object.entries(stats.byLayer);
+            charts.layer = new Chart(layerCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: layerData.map(([k]) => k),
+                    datasets: [{
+                        data: layerData.map(([, v]) => v),
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.8)',
+                            'rgba(234, 179, 8, 0.8)',
+                            'rgba(239, 68, 68, 0.8)',
+                            'rgba(168, 85, 247, 0.8)',
+                            'rgba(107, 114, 128, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(59, 130, 246, 1)',
+                            'rgba(234, 179, 8, 1)',
+                            'rgba(239, 68, 68, 1)',
+                            'rgba(168, 85, 247, 1)',
+                            'rgba(107, 114, 128, 1)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#9ca3af', font: { family: 'monospace', size: 11 } }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                            borderColor: 'rgba(255, 255, 255, 0.2)',
+                            borderWidth: 1,
+                            titleColor: '#fff',
+                            bodyColor: '#fff'
+                        }
+                    }
+                }
+            });
+        }
+
+        // 狀態碼分布圖
+        const statusCodeCtx = document.getElementById('statusCodeChart');
+        if (statusCodeCtx) {
+            const statusData = Object.entries(stats.byStatusCode).sort(([a], [b]) => a.localeCompare(b));
+            charts.statusCode = new Chart(statusCodeCtx, {
+                type: 'bar',
+                data: {
+                    labels: statusData.map(([k]) => k),
+                    datasets: [{
+                        label: '錯誤數量',
+                        data: statusData.map(([, v]) => v),
+                        backgroundColor: statusData.map(([k]) =>
+                            parseInt(k) >= 500 ? 'rgba(239, 68, 68, 0.8)' :
+                            parseInt(k) >= 400 ? 'rgba(234, 179, 8, 0.8)' :
+                            'rgba(107, 114, 128, 0.8)'
+                        ),
+                        borderColor: statusData.map(([k]) =>
+                            parseInt(k) >= 500 ? 'rgba(239, 68, 68, 1)' :
+                            parseInt(k) >= 400 ? 'rgba(234, 179, 8, 1)' :
+                            'rgba(107, 114, 128, 1)'
+                        ),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                            borderColor: 'rgba(255, 255, 255, 0.2)',
+                            borderWidth: 1,
+                            titleColor: '#fff',
+                            bodyColor: '#fff'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#9ca3af' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        },
+                        x: {
+                            ticks: { color: '#9ca3af' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // HTTP 方法分布圖
+        const httpMethodCtx = document.getElementById('httpMethodChart');
+        if (httpMethodCtx) {
+            const methodData = Object.entries(stats.byHttpMethod);
+            charts.httpMethod = new Chart(httpMethodCtx, {
+                type: 'pie',
+                data: {
+                    labels: methodData.map(([k]) => k),
+                    datasets: [{
+                        data: methodData.map(([, v]) => v),
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.8)',
+                            'rgba(34, 197, 94, 0.8)',
+                            'rgba(234, 179, 8, 0.8)',
+                            'rgba(239, 68, 68, 0.8)',
+                            'rgba(168, 85, 247, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(59, 130, 246, 1)',
+                            'rgba(34, 197, 94, 1)',
+                            'rgba(234, 179, 8, 1)',
+                            'rgba(239, 68, 68, 1)',
+                            'rgba(168, 85, 247, 1)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#9ca3af', font: { family: 'monospace', size: 11 } }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                            borderColor: 'rgba(255, 255, 255, 0.2)',
+                            borderWidth: 1,
+                            titleColor: '#fff',
+                            bodyColor: '#fff'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Top 路徑錯誤圖
+        const topPathsCtx = document.getElementById('topPathsChart');
+        if (topPathsCtx && stats.topPaths.length > 0) {
+            charts.topPaths = new Chart(topPathsCtx, {
+                type: 'bar',
+                data: {
+                    labels: stats.topPaths.map(p => p.path.length > 30 ? p.path.substring(0, 30) + '...' : p.path),
+                    datasets: [{
+                        label: '錯誤數量',
+                        data: stats.topPaths.map(p => p.count),
+                        backgroundColor: 'rgba(239, 68, 68, 0.8)',
+                        borderColor: 'rgba(239, 68, 68, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                            borderColor: 'rgba(255, 255, 255, 0.2)',
+                            borderWidth: 1,
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            callbacks: {
+                                afterLabel: (context) => {
+                                    const path = stats.topPaths[context.dataIndex];
+                                    return `完整路徑: ${path.path}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: { color: '#9ca3af' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        },
+                        y: {
+                            ticks: { color: '#9ca3af', font: { size: 10 } },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Top 函數錯誤圖
+        const topFunctionsCtx = document.getElementById('topFunctionsChart');
+        if (topFunctionsCtx && stats.topFunctions.length > 0) {
+            charts.topFunctions = new Chart(topFunctionsCtx, {
+                type: 'bar',
+                data: {
+                    labels: stats.topFunctions.map(f => f.function.length > 25 ? f.function.substring(0, 25) + '...' : f.function),
+                    datasets: [{
+                        label: '錯誤數量',
+                        data: stats.topFunctions.map(f => f.count),
+                        backgroundColor: 'rgba(234, 179, 8, 0.8)',
+                        borderColor: 'rgba(234, 179, 8, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                            borderColor: 'rgba(255, 255, 255, 0.2)',
+                            borderWidth: 1,
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            callbacks: {
+                                afterLabel: (context) => {
+                                    const func = stats.topFunctions[context.dataIndex];
+                                    return `層級: ${func.layer}\n完整函數: ${func.function}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: { color: '#9ca3af' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        },
+                        y: {
+                            ticks: { color: '#9ca3af', font: { size: 10 } },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        }
+                    }
+                }
+            });
+        }
+    }
+</script>
+

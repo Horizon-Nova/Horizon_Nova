@@ -6,6 +6,7 @@ using Microsoft.ML.OnnxRuntime;
 using Microsoft.ML.OnnxRuntime.Tensors;
 using HNB.IntelligentSystems.ObjectDetection.Configuration;
 using HNB.IntelligentSystems.ObjectDetection.Models;
+using HNB.IntelligentSystems.ObjectDetection.Utils;
 using OpenCvSharp;
 
 namespace HNB.IntelligentSystems.ObjectDetection.Core
@@ -33,7 +34,7 @@ namespace HNB.IntelligentSystems.ObjectDetection.Core
 
             var sessionOptions = new Microsoft.ML.OnnxRuntime.SessionOptions();
             sessionOptions.GraphOptimizationLevel = GraphOptimizationLevel.ORT_ENABLE_BASIC;
-            
+
             string modelPath = config.ModelPath;
             if (!System.IO.File.Exists(modelPath))
                 throw new System.IO.FileNotFoundException($"Model file not found: {modelPath}");
@@ -45,7 +46,7 @@ namespace HNB.IntelligentSystems.ObjectDetection.Core
             if (!tokenizer.LoadVocab(vocabPath))
                 throw new Exception($"Failed to load vocabulary file: {vocabPath}");
 
-            targetSize = ImageProcessor.GetTargetSize();
+            targetSize = ImageUtils.GetModelTargetSize();
         }
 
         /// <summary>
@@ -65,7 +66,7 @@ namespace HNB.IntelligentSystems.ObjectDetection.Core
             int srcW = image.Width;
             int srcH = image.Height;
 
-            float[] imgData = ImageProcessor.Preprocess(image);
+            float[] imgData = ImageUtils.PreprocessForModel(image);
             var imgTensor = new DenseTensor<float>(imgData, new[] { 1, 3, targetSize[1], targetSize[0] });
 
             string caption = textPrompt.Trim().ToLower();
@@ -241,7 +242,7 @@ namespace HNB.IntelligentSystems.ObjectDetection.Core
                 var categoryDetections = group.OrderByDescending(c => c.maxScore).ToList();
                 string categoryName = tokenizer.ConvertIdToToken(group.Key).ToLower();
                 long currentTokenId = group.Key;
-                
+
                 // Different NMS thresholds for different categories
                 float nmsThreshold;
                 if (categoryName.Contains("shoe") || categoryName == "shoes")
@@ -262,7 +263,7 @@ namespace HNB.IntelligentSystems.ObjectDetection.Core
 
                 // Apply NMS within this category
                 var kept = new List<(int, float, int, float, long)>();
-                
+
                 for (int i = 0; i < categoryDetections.Count; i++)
                 {
                     bool shouldKeep = true;

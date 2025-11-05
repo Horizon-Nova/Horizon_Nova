@@ -1,0 +1,97 @@
+@{
+    var wardrobeItems = ViewBag.WardrobeItems as List<HNB.Areas.Backoffice.Dtos.WardrobeItem> ?? new List<HNB.Areas.Backoffice.Dtos.WardrobeItem>();
+    var itemsByCategory = wardrobeItems.GroupBy(i => i.Category).OrderBy(g => g.Key).ToList();
+}
+
+@if (wardrobeItems.Any())
+{
+    <div class="wardrobe-section">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div class="d-flex align-items-baseline gap-2">
+                <h2 class="h4 fw-bold mb-0">我的衣櫃</h2>
+                <span class="text-muted small">共 @wardrobeItems.Count 件服裝</span>
+            </div>
+            <div class="d-flex gap-2">
+                <select class="form-select form-select-sm" style="width: auto;" id="categoryFilter">
+                    <option value="">全部類別</option>
+                    @foreach (var category in itemsByCategory.Select(g => g.Key))
+                    {
+                        <option value="@category">@category</option>
+                    }
+                </select>
+                <div class="position-relative">
+                    <input type="text" class="form-control form-control-sm" style="width: 200px;" id="searchInput" placeholder="搜尋服裝...">
+                    <i data-lucide="search" class="position-absolute top-50 translate-middle-y text-muted" style="right: 0.5rem; width: 1rem; height: 1rem; pointer-events: none;"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="batch-actions-bar card border-warning bg-warning bg-opacity-10 mb-3 d-none" id="batchActionsBar">
+            <div class="card-body py-2 d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <input type="checkbox" class="form-check-input" id="selectAllCheckbox">
+                    <label class="form-check-label mb-0 fw-semibold" for="selectAllCheckbox">
+                        已選擇 <span id="selectedCount">0</span> 件
+                    </label>
+                </div>
+                <button type="button" class="btn btn-danger btn-sm" id="batchDeleteBtn">
+                    <i data-lucide="trash-2" style="width: 1rem; height: 1rem;"></i>
+                    <span>批量刪除</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="wardrobe-categories">
+            @foreach (var categoryGroup in itemsByCategory)
+            {
+                <div class="category-section mb-4" data-category="@categoryGroup.Key">
+                    <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                        <h3 class="h5 fw-bold mb-0">@categoryGroup.Key</h3>
+                        <span class="badge bg-secondary">@categoryGroup.Count() 件</span>
+                    </div>
+                    <div class="row g-2">
+                        @foreach (var item in categoryGroup.OrderByDescending(i => i.UploadDate))
+                        {
+                            <div class="col-6 col-sm-4 col-md-3 col-lg-2 wardrobe-item-card" 
+                                 data-category="@item.Category"
+                                 data-filename="@item.FileName"
+                                 data-date="@item.UploadDate.ToString("yyyy-MM-dd")">
+                                <div class="card border-0 shadow-sm position-relative">
+                                    <div class="position-absolute top-0 start-0 m-2 z-1">
+                                        <input type="checkbox" class="form-check-input item-checkbox" 
+                                               data-filename="@item.FileName" 
+                                               data-category="@item.Category"
+                                               style="width: 1.25rem; height: 1.25rem; background-color: white; border: 2px solid #dee2e6;">
+                                    </div>
+                                    <div class="position-relative" style="aspect-ratio: 1; overflow: hidden;">
+                                        <img src="@item.WebPath" alt="@item.Category" class="card-img-top h-100 w-100 object-fit-cover" loading="lazy">
+                                        <div class="position-absolute top-0 start-0 end-0 bottom-0 bg-dark bg-opacity-50 d-flex align-items-center justify-content-center gap-2 opacity-0 transition-opacity" style="transition: opacity 0.3s;">
+                                            <button type="button" class="btn btn-sm btn-light rounded-circle" onclick="viewClothing('@item.WebPath')" title="查看大圖" style="width: 2.5rem; height: 2.5rem;">
+                                                <i data-lucide="maximize-2" style="width: 1rem; height: 1rem;"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-danger rounded-circle" onclick="deleteClothing('@item.FileName', '@item.Category')" title="刪除" style="width: 2.5rem; height: 2.5rem;">
+                                                <i data-lucide="trash-2" style="width: 1rem; height: 1rem;"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="card-body p-2 text-center">
+                                        <small class="text-muted">@item.UploadDate.ToString("yyyy/MM/dd")</small>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <div class="text-center py-5">
+        <i data-lucide="shirt" class="text-muted" style="width: 4rem; height: 4rem;"></i>
+        <h3 class="h5 fw-semibold mt-3 mb-2">衣櫃是空的</h3>
+        <p class="text-muted mb-3">使用 AI 提取功能開始建立您的服裝收藏</p>
+    </div>
+}
+

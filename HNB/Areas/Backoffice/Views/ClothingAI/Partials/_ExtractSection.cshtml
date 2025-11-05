@@ -1,0 +1,60 @@
+<div class="extract-section mb-4">
+    <div class="text-center mb-3">
+        <h2 class="h3 fw-bold mb-2">AI 服裝組合</h2>
+        <p class="text-muted small">上傳圖片，AI 將自動偵測服裝並轉換為商品展示圖</p>
+    </div>
+
+    <div class="card border-2 border-dashed upload-zone" id="uploadZone">
+        <div class="card-body text-center py-4">
+            <div class="mb-3">
+                <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-gradient rounded-3 p-3 mb-3">
+                    <i data-lucide="sparkles" class="text-white" style="width: 1.75rem; height: 1.75rem;"></i>
+                </div>
+                <div class="mb-2">
+                    <div class="fw-semibold mb-2">上傳參考圖片進行 AI 組合</div>
+                    <div class="text-muted small mb-2">拖曳圖片到這裡或點擊選擇檔案</div>
+                    <div class="text-muted" style="font-size: 0.75rem;">支援 JPG、PNG 格式，可一次上傳多張圖片</div>
+                </div>
+            </div>
+            <input type="file" id="fileInput" multiple accept="image/*" class="d-none">
+            <button type="button" class="btn btn-primary btn-sm" onclick="document.getElementById('fileInput').click()">
+                <i data-lucide="folder-open" style="width: 1rem; height: 1rem;"></i>
+                <span>選擇檔案</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="card border-0 bg-light processing-state d-none" id="processingState">
+        <div class="card-body text-center py-5">
+            <div class="spinner-border text-primary mb-3" role="status">
+                <span class="visually-hidden">處理中...</span>
+            </div>
+            <div class="fw-semibold mb-1">AI 正在分析圖片...</div>
+            <div class="text-muted small">請稍候，這可能需要幾秒鐘</div>
+        </div>
+    </div>
+
+    <div class="card preview-container d-none" id="previewContainer">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+                <h5 class="mb-0 fw-bold">識別結果</h5>
+                <span class="badge bg-secondary" id="previewCount">0 件服裝</span>
+            </div>
+            <button type="button" class="btn-close" id="closePreviewBtn"></button>
+        </div>
+        <div class="card-body">
+            <div class="row g-3 mb-3" id="previewItemsGrid"></div>
+            <div class="d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-outline-secondary btn-sm" id="cancelBtn">
+                    <i data-lucide="x" style="width: 1rem; height: 1rem;"></i>
+                    <span>取消</span>
+                </button>
+                <button type="button" class="btn btn-primary btn-sm" id="confirmBtn">
+                    <i data-lucide="check" style="width: 1rem; height: 1rem;"></i>
+                    <span>確認提取</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+

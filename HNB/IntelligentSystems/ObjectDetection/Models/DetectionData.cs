@@ -25,3 +25,11 @@ public class DetectionSessionData
     public List<ImageDetectionData> Images { get; set; } = new List<ImageDetectionData>();
 }
 
+/// <summary>
+/// 物件檢測請求模型（統一使用列表格式）
+/// </summary>
+public class ObjectDetectionRequest
+{
+    public List<string> ImagesBase64 { get; set; } = new();
+    public string? TextPrompt { get; set; }
+}

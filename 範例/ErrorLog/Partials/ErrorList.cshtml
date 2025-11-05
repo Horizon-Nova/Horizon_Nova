@@ -1,0 +1,112 @@
+<div class="mb-4">
+    <div class="d-flex align-items-center gap-md mb-3">
+        <h2 class="fs-lg fw-bold text-primary-custom mb-0" style="letter-spacing: 0.05em;">錯誤日誌列表</h2>
+        <div class="flex-grow-1" style="height: 1px; background: linear-gradient(to right, var(--color-border), transparent); opacity: 0.1;"></div>
+        <div class="d-flex align-items-center gap-sm">
+            <select id="filterLayer" onchange="loadErrorLogs()" class="form-select form-select-sm bg-primary-custom border-custom text-primary-custom fs-sm px-2 py-1 font-monospace" style="background-color: var(--color-bg-primary) !important; border-color: var(--color-border) !important; color: var(--color-text-primary) !important; font-size: var(--font-size-sm);">
+                <option value="">所有層級</option>
+                <option value="Middleware">Middleware</option>
+                <option value="Filter">Filter</option>
+                <option value="ExceptionHandler">ExceptionHandler</option>
+                <option value="Background">Background</option>
+            </select>
+            <select id="filterStatusCode" onchange="loadErrorLogs()" class="form-select form-select-sm bg-primary-custom border-custom text-primary-custom fs-sm px-2 py-1 font-monospace" style="background-color: var(--color-bg-primary) !important; border-color: var(--color-border) !important; color: var(--color-text-primary) !important; font-size: var(--font-size-sm);">
+                <option value="">所有狀態碼</option>
+                <option value="404">404</option>
+                <option value="500">500</option>
+                <option value="400">400</option>
+                <option value="401">401</option>
+                <option value="403">403</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="border border-custom bg-secondary-custom">
+        <div class="table-responsive">
+            <table class="table table-sm mb-0 fs-sm font-monospace" style="background-color: transparent !important;">
+                <thead class="bg-primary-custom border-bottom border-custom">
+                    <tr>
+                        <th class="px-3 py-2 text-start text-secondary-custom fw-semibold" style="letter-spacing: 0.05em; background-color: var(--color-bg-primary) !important;">ID</th>
+                        <th class="px-3 py-2 text-start text-secondary-custom fw-semibold" style="letter-spacing: 0.05em; background-color: var(--color-bg-primary) !important;">時間</th>
+                        <th class="px-3 py-2 text-start text-secondary-custom fw-semibold" style="letter-spacing: 0.05em; background-color: var(--color-bg-primary) !important;">層級</th>
+                        <th class="px-3 py-2 text-start text-secondary-custom fw-semibold" style="letter-spacing: 0.05em; background-color: var(--color-bg-primary) !important;">函數</th>
+                        <th class="px-3 py-2 text-start text-secondary-custom fw-semibold" style="letter-spacing: 0.05em; background-color: var(--color-bg-primary) !important;">路徑</th>
+                        <th class="px-3 py-2 text-start text-secondary-custom fw-semibold" style="letter-spacing: 0.05em; background-color: var(--color-bg-primary) !important;">狀態碼</th>
+                        <th class="px-3 py-2 text-start text-secondary-custom fw-semibold" style="letter-spacing: 0.05em; background-color: var(--color-bg-primary) !important;">錯誤訊息</th>
+                        <th class="px-3 py-2 text-center text-secondary-custom fw-semibold" style="letter-spacing: 0.05em; background-color: var(--color-bg-primary) !important;">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="errorLogsTableBody" class="border-top-0" style="background-color: transparent !important;">
+                    <tr>
+                        <td colspan="8" class="px-4 py-4 text-center text-muted-custom">
+                            <svg class="mx-auto mb-2" style="width: calc(32px * var(--scale-factor)); height: calc(32px * var(--scale-factor)); animation: spin 1s linear infinite;" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <div class="fs-sm">載入中...</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="pagination" class="border-top border-custom p-3 d-flex align-items-center justify-content-between flex-wrap gap-sm">
+            <!-- 分頁控制將由 JavaScript 生成 -->
+        </div>
+    </div>
+</div>
+
+<!-- 錯誤詳情 Modal -->
+<div id="errorDetailModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="errorDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
+        <div class="modal-content bg-primary-custom border border-custom">
+            <div class="modal-header border-bottom border-custom bg-primary-custom">
+                <h5 class="modal-title text-lg fw-bold text-primary-custom font-monospace" style="letter-spacing: 0.05em;" id="errorDetailModalLabel">錯誤詳情</h5>
+                <button type="button" class="btn-close btn-close-white" onclick="closeErrorDetailModal()" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div id="errorDetailContent">
+                    <!-- 詳情內容將由 JavaScript 生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @@keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .table {
+        background-color: transparent !important;
+    }
+
+        .table tbody tr {
+            border-color: var(--color-border);
+            transition: background-color 0.3s;
+            background-color: transparent !important;
+        }
+
+            .table tbody tr:hover {
+                background-color: var(--color-hover) !important;
+            }
+
+        .table th,
+        .table td {
+            border-color: var(--color-border);
+            color: var(--color-text-primary);
+            background-color: transparent !important;
+        }
+
+        .table thead th {
+            background-color: var(--color-bg-primary) !important;
+        }
+</style>
+

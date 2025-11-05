@@ -1,0 +1,73 @@
+@{
+    var statistics = ViewBag.Statistics as ErrorLogStatistics;
+}
+
+<div class="mb-4">
+    <div class="d-flex align-items-center gap-md mb-3">
+        <h2 class="fs-lg fw-bold text-primary-custom mb-0" style="letter-spacing: 0.05em;">錯誤分析圖表</h2>
+        <div class="flex-grow-1" style="height: 1px; background: linear-gradient(to right, var(--color-border), transparent); opacity: 0.1;"></div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <!-- 時間趨勢圖 -->
+        <div class="col-12 col-md-6 col-xl-4">
+            <div class="border border-custom bg-secondary-custom p-3">
+                <h3 class="fs-sm fw-bold text-primary-custom mb-2 font-monospace" style="letter-spacing: 0.05em;">時間趨勢（最近 24 小時）</h3>
+                <div style="height: calc(192px * var(--scale-factor));">
+                    <canvas id="timeSeriesChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- 層級分布圖 -->
+        <div class="col-12 col-md-6 col-xl-4">
+            <div class="border border-custom bg-secondary-custom p-3">
+                <h3 class="fs-sm fw-bold text-primary-custom mb-2 font-monospace" style="letter-spacing: 0.05em;">層級分布</h3>
+                <div style="height: calc(192px * var(--scale-factor));">
+                    <canvas id="layerChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- 狀態碼分布圖 -->
+        <div class="col-12 col-md-6 col-xl-4">
+            <div class="border border-custom bg-secondary-custom p-3">
+                <h3 class="fs-sm fw-bold text-primary-custom mb-2 font-monospace" style="letter-spacing: 0.05em;">HTTP 狀態碼分布</h3>
+                <div style="height: calc(192px * var(--scale-factor));">
+                    <canvas id="statusCodeChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- HTTP 方法分布圖 -->
+        <div class="col-12 col-md-6 col-xl-4">
+            <div class="border border-custom bg-secondary-custom p-3">
+                <h3 class="fs-sm fw-bold text-primary-custom mb-2 font-monospace" style="letter-spacing: 0.05em;">HTTP 方法分布</h3>
+                <div style="height: calc(192px * var(--scale-factor));">
+                    <canvas id="httpMethodChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top 路徑錯誤 -->
+        <div class="col-12 col-md-6 col-xl-4">
+            <div class="border border-custom bg-secondary-custom p-3">
+                <h3 class="fs-sm fw-bold text-primary-custom mb-2 font-monospace" style="letter-spacing: 0.05em;">Top 10 錯誤路徑</h3>
+                <div style="height: calc(192px * var(--scale-factor));">
+                    <canvas id="topPathsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top 函數錯誤 -->
+        <div class="col-12 col-md-6 col-xl-4">
+            <div class="border border-custom bg-secondary-custom p-3">
+                <h3 class="fs-sm fw-bold text-primary-custom mb-2 font-monospace" style="letter-spacing: 0.05em;">Top 10 錯誤函數</h3>
+                <div style="height: calc(192px * var(--scale-factor));">
+                    <canvas id="topFunctionsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

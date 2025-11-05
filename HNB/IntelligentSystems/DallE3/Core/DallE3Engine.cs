@@ -1,55 +1,25 @@
 using System.Text;
 using System.Text.Json;
 using HNB.IntelligentSystems.DallE3.Configuration;
+using HNB.IntelligentSystems.DallE3.Models;
 
 namespace HNB.IntelligentSystems.DallE3.Core;
 
-public class DallE3Engine
+public class DallE3Engine(DallE3Config config, HttpClient httpClient)
 {
-    private readonly HttpClient _httpClient;
-    private readonly DallE3Config _config;
+    private readonly DallE3Config _config = config ?? throw new ArgumentNullException(nameof(config));
+    private readonly HttpClient _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
 
-    public DallE3Engine(DallE3Config config, HttpClient httpClient)
+    private void EnsureHeadersInitialized()
     {
-        _config = config ?? throw new ArgumentNullException(nameof(config));
-        _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-        
-        _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_config.ApiKey}");
-        if (!string.IsNullOrEmpty(_config.Organization))
+        if (!_httpClient.DefaultRequestHeaders.Contains("Authorization"))
         {
-            _httpClient.DefaultRequestHeaders.Add("OpenAI-Organization", _config.Organization);
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_config.ApiKey}");
+            if (!string.IsNullOrEmpty(_config.Organization))
+            {
+                _httpClient.DefaultRequestHeaders.Add("OpenAI-Organization", _config.Organization);
+            }
         }
-    }
-
-    public async Task<(bool success, string? imageBase64, string? error)> GenerateImage(
-        string prompt,
-        CancellationToken cancellationToken = default)
-    {
-        var requestBody = new
-        {
-            model = _config.ImageModel,
-            prompt = prompt,
-            size = _config.Size,
-            quality = _config.Quality,
-            style = _config.Style,
-            response_format = "b64_json"  // 要求返回 base64 格式，避免 HTTP 下載問題
-        };
-
-        var jsonContent = JsonSerializer.Serialize(requestBody);
-        var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-
-        var response = await _httpClient.PostAsync($"{_config.BaseUrl}/images/generations", content, cancellationToken);
-        var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            return (false, null, $"API Error: {response.StatusCode} - {responseContent}");
-        }
-
-        var jsonDoc = JsonDocument.Parse(responseContent);
-        var imageBase64 = jsonDoc.RootElement.GetProperty("data")[0].GetProperty("b64_json").GetString();
-
-        return (true, imageBase64, null);
     }
 
     /// <summary>
@@ -60,33 +30,110 @@ public class DallE3Engine
         if (string.IsNullOrEmpty(base64String))
             return null;
 
-        try
-        {
-            return Convert.FromBase64String(base64String);
-        }
-        catch
-        {
-            return null;
-        }
+        return Convert.FromBase64String(base64String);
     }
 
-    public async Task<(bool success, byte[]? imageBytes, string? error)> GenerateAndDownload(
+    /// <summary>
+    /// 編輯/組合圖片（使用多張參考圖片）
+    /// </summary>
+    public async Task<(bool success, DallE3Result? result, string? error)> EditImage(
         string prompt,
+        List<byte[]> referenceImages,
+        string? model = null,
         CancellationToken cancellationToken = default)
     {
-        var (success, imageBase64, error) = await GenerateImage(prompt, cancellationToken);
-        if (!success || string.IsNullOrEmpty(imageBase64))
+        if (string.IsNullOrWhiteSpace(prompt))
+            return (false, null, "提示詞不能為空");
+
+        if (referenceImages == null || referenceImages.Count == 0)
+            return (false, null, "至少需要提供一張參考圖片");
+
+        EnsureHeadersInitialized();
+
+        var modelName = model ?? "gpt-image-1";
+
+        using var formContent = new MultipartFormDataContent();
+
+        formContent.Add(new StringContent(modelName), "model");
+        formContent.Add(new StringContent(prompt), "prompt");
+        formContent.Add(new StringContent("1"), "n");
+        
+        if (!string.IsNullOrEmpty(_config.Size))
         {
-            return (false, null, error ?? "Failed to generate image");
+            formContent.Add(new StringContent(_config.Size), "size");
+        }
+        
+        if (!string.IsNullOrEmpty(_config.Quality))
+        {
+            formContent.Add(new StringContent(_config.Quality), "quality");
         }
 
-        var imageBytes = ConvertBase64ToBytes(imageBase64);
-        if (imageBytes == null)
+        for (int i = 0; i < referenceImages.Count; i++)
         {
-            return (false, null, "Failed to convert base64 to bytes");
+            var imageBytes = referenceImages[i];
+            var imageContent = new ByteArrayContent(imageBytes);
+            imageContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/png");
+            formContent.Add(imageContent, "image[]", $"image_{i}.png");
         }
 
-        return (true, imageBytes, null);
+        var response = await _httpClient.PostAsync($"{_config.BaseUrl}/images/edits", formContent, cancellationToken);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            string errorMessage = $"API 錯誤 ({response.StatusCode})";
+            
+            try
+            {
+                var errorObj = JsonSerializer.Deserialize<JsonElement>(responseContent, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+                
+                if (errorObj.TryGetProperty("error", out var errorProp))
+                {
+                    if (errorProp.TryGetProperty("message", out var messageProp))
+                    {
+                        var message = messageProp.GetString();
+                        if (!string.IsNullOrEmpty(message))
+                        {
+                            errorMessage = message;
+                            
+                            if (errorProp.TryGetProperty("code", out var codeProp))
+                            {
+                                var code = codeProp.GetString();
+                                if (code == "billing_hard_limit_reached")
+                                {
+                                    errorMessage = "已達到計費上限，無法生成圖片。請檢查您的 OpenAI 帳戶計費設定。";
+                                }
+                                else if (code == "rate_limit_exceeded")
+                                {
+                                    errorMessage = "請求頻率過高，請稍後再試。";
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                errorMessage = $"API 錯誤 ({response.StatusCode}): {responseContent}";
+            }
+            
+            return (false, null, errorMessage);
+        }
+
+        var result = JsonSerializer.Deserialize<DallE3Result>(responseContent, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        });
+
+        if (result == null || result.Data == null || result.Data.Count == 0)
+        {
+            return (false, null, "API 回應格式錯誤");
+        }
+
+        return (true, result, null);
     }
 
     public DallE3Config GetConfig() => _config;

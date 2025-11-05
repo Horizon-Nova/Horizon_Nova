@@ -116,3 +116,41 @@ public class GenerateProductImagesRequest
     public List<string> DetectedFileNames { get; set; } = new();
 }
 
+/// <summary>
+/// 批量刪除請求
+/// </summary>
+public class BatchDeleteRequest
+{
+    public List<BatchDeleteItem> Items { get; set; } = new();
+}
+
+/// <summary>
+/// 批量刪除項目
+/// </summary>
+public class BatchDeleteItem
+{
+    public string FileName { get; set; } = string.Empty;
+    public string Category { get; set; } = string.Empty;
+}
+
+/// <summary>
+/// 批量刪除響應
+/// </summary>
+public class BatchDeleteResponse
+{
+    public bool Success { get; set; }
+    public List<BatchDeleteItemResult> Results { get; set; } = new();
+    public int SuccessCount { get; set; }
+    public int FailureCount { get; set; }
+    public string? Error { get; set; }
+}
+
+/// <summary>
+/// 批量刪除項目結果
+/// </summary>
+public class BatchDeleteItemResult
+{
+    public string FileName { get; set; } = string.Empty;
+    public bool Success { get; set; }
+}
+

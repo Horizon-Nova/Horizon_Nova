@@ -99,10 +99,10 @@ namespace HNB.IntelligentSystems.ObjectDetection.Core
 
                 while (start < end)
                 {
-                    string candidate = start > 0 
-                        ? "##" + word.Substring(start, end - start) 
+                    string candidate = start > 0
+                        ? "##" + word.Substring(start, end - start)
                         : word.Substring(start, end - start);
-                    
+
                     if (vocab.ContainsKey(candidate))
                     {
                         subWord = candidate;

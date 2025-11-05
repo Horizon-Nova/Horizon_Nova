@@ -2,7 +2,6 @@ using HNB.Extensions;
 using HNB.Filters;
 using HNB.Middleware;
 using HNB.Utilities;
-using HNB.Areas.Backoffice.BackgroundServices.Middleware;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -73,9 +72,9 @@ builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(optio
 
 var app = builder.Build();
 
-// 立即初始化 ObjectDetectionModule（Singleton），觸發模型檢查和自動下載
-var objectDetectionModule = app.Services.GetRequiredService<HNB.IntelligentSystems.ObjectDetection.Module.ObjectDetectionModule>();
-_ = objectDetectionModule; // 確保實例被創建
+// 立即初始化 ModelHealthChecker（Singleton），觸發模型檢查、下載和健康檢查
+var modelHealthChecker = app.Services.GetRequiredService<HNB.IntelligentSystems.ObjectDetection.Core.ModelHealthChecker>();
+_ = modelHealthChecker; // 確保實例被創建，觸發自動初始化
 
 app.UseExceptionHandler("/Error/NotFound");
 app.UseStatusCodePagesWithReExecute("/Error/NotFound");
@@ -88,9 +87,8 @@ app.UseForwardedHeaders();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-// 添加 storage 靜態檔案服務
 var contentTypeProvider = new FileExtensionContentTypeProvider();
-contentTypeProvider.Mappings[".onnx"] = "application/octet-stream"; // 註冊 .onnx 文件類型
+contentTypeProvider.Mappings[".onnx"] = "application/octet-stream";
 
 app.UseStaticFiles(new StaticFileOptions
 {
@@ -98,7 +96,7 @@ app.UseStaticFiles(new StaticFileOptions
         Path.Combine(builder.Environment.ContentRootPath, "Areas", "Backoffice", "storage")),
     RequestPath = "/storage",
     ContentTypeProvider = contentTypeProvider,
-    ServeUnknownFileTypes = true // 允許提供未知文件類型的文件
+    ServeUnknownFileTypes = true
 });
 
 app.UseSession();
@@ -122,7 +120,6 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller= }/{action= }/{id?}");
 
-// 支援 API Controllers (用於 /api/* 路由)
 app.MapControllers();
 
 // ⚠️ 防止意外部署到正式環境 - 開發中請勿移除此錯誤 ⚠️

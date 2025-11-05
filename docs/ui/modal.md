@@ -1,12 +1,13 @@
 # Modal 完整使用指南
 
 > 快速速覽（必讀）
-> - 所有 Modal 集中於單一檔：`_{PageName}Modal.cshtml`
-> - 動態資料：以 `showModal('xxx', { url: 'LoadDetail', data })` 呼叫；Controller 回傳同一份 Partial（`_{PageName}Modal`）
+> - 所有 Modal 集中於單一檔：`Partials/_{PageName}Modal.cshtml`（必須放在 `Partials/` 資料夾中）
+> - 動態資料：以 `showModal('xxx', { url: 'LoadDetail', data })` 呼叫；Controller 回傳同一份 Partial（`Partials/_{PageName}Modal`）
 > - 不需要也不應該提供額外 container（例如 `<div id="X"></div>`）
 > - 只使用 `showModal()` / `closeModal()` API；前端一律用 jQuery API
 > - 尺寸規範：表單=`modal-lg`、詳情=預設、說明=`modal-xl`
 > - FileManager（無資料庫）屬特殊情況，也遵守以上規則
+> - **重要**：Modal 必須放在 `Partials/` 資料夾中，與其他部分視圖保持一致
 >
 > 禁止事項（JS 不得組裝 HTML）：
 > ```javascript
@@ -16,7 +17,7 @@
 > showModal('temp');
 > 
 > // 正確：Razor 產出 Modal；JS 只觸發與傳參
-> @await Html.PartialAsync("_UsersModal")
+> @await Html.PartialAsync("Partials/_UsersModal")
 > showModal('userDetailModal', { url: '@Url.Action("LoadDetail")', data: { id: 1, type: 'user' } });
 > ```
 
@@ -39,8 +40,9 @@
 |------|------|
 | **API** | 只使用 `showModal()` 和 `closeModal()` |
 | **HTML 結構** | 必須使用 Bootstrap Modal 標準結構 |
-| **檔案命名** | `_{PageName}Modal.cshtml`（所有 Modal 集中一個文件） |
+| **檔案命名** | `Partials/_{PageName}Modal.cshtml`（所有 Modal 集中一個文件，必須放在 `Partials/` 資料夾中） |
 | **大小規範** | 表單=`modal-lg`、詳情=預設、說明=`modal-xl` |
+| **檔案位置** | 必須放在對應頁面的 `Partials/` 資料夾中 |
 
 ### Modal 大小規範（強制）
 
@@ -239,20 +241,31 @@ closeModal('userFormModal');
 
 **主頁面：**
 ```html
-<!-- Modal 容器在頁面底部 -->
-<div id="helpModal"></div>
-
 <!-- 觸發按鈕 -->
 <button onclick="showModal('helpModal')">說明</button>
+```
+
+**部分視圖（Partials/_HelpModal.cshtml）：**
+```html
+<!-- Modal 容器 -->
+<div id="helpModal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- Modal 內容 -->
+        </div>
+    </div>
+</div>
+```
+
+**主頁面引用：**
+```html
+@await Html.PartialAsync("Partials/_HelpModal")
 ```
 
 ### 場景 2：動態 Modal（AJAX 載入數據）
 
 **主頁面：**
 ```html
-<!-- Modal 空容器 -->
-<div id="entityModal"></div>
-
 <!-- 觸發按鈕（直接在 onclick 中調用）-->
 <button onclick="showModal('entityFormModal', {url: '@Url.Action("LoadDetail")', method: 'GET', data: {id: null, type: 'entity'}, container: 'entityModal'})">
     新增項目
@@ -264,6 +277,11 @@ closeModal('userFormModal');
 </tr>
 ```
 
+**主頁面引用 Modal（在頁面底部）：**
+```html
+@await Html.PartialAsync("Partials/_EntityModal")
+```
+
 **Controller：**
 ```csharp
 public IActionResult LoadDetail(int? id = null, string? type = null)
@@ -273,13 +291,13 @@ public IActionResult LoadDetail(int? id = null, string? type = null)
 
     return type switch
     {
-        "entity" => PartialView("_EntityModal"),
-        _ => PartialView("_EntityModal")
+        "entity" => PartialView("Partials/_EntityModal"),
+        _ => PartialView("Partials/_EntityModal")
     };
 }
 ```
 
-**Modal Partial View (_EntityModal.cshtml)：**
+**Modal Partial View (Partials/_EntityModal.cshtml)：**
 ```cshtml
 @{
     Layout = null;
@@ -428,24 +446,33 @@ showModal('userFormModal', {...});
 
 ```
 Views/Feature/
-├── Index.cshtml              ← 主頁面（列表）
-└── _EntityModal.cshtml       ← 所有 Modal 集中（4個）
-    ├── entityFormModal       ← 表單 Modal (modal-lg)
-    ├── entityDetailModal     ← 詳情 Modal (預設)
-    ├── entityFormHelpModal   ← 表單說明 (modal-xl)
-    └── entityDetailHelpModal ← 詳情說明 (modal-xl)
+├── Index.cshtml                     ← 主頁面（列表）
+└── Partials/
+    ├── _EntityModal.cshtml          ← 所有 Modal 集中（4個）
+    │   ├── entityFormModal          ← 表單 Modal (modal-lg)
+    │   ├── entityDetailModal        ← 詳情 Modal (預設)
+    │   ├── entityFormHelpModal      ← 表單說明 (modal-xl)
+    │   └── entityDetailHelpModal    ← 詳情說明 (modal-xl)
+    ├── _EntitySection.cshtml        ← 其他部分視圖（可選）
+    └── _EntityScripts.cshtml        ← JavaScript 代碼（可選）
 ```
 
-**主頁面（Users.cshtml）：**
+**主頁面（Index.cshtml）：**
 ```cshtml
 @model List<vw_permission_user>
 
 <!-- 頁面內容 -->
 <table>...</table>
 
-<!-- Modal 空容器 -->
-<div id="userModal"></div>
+<!-- 引用 Modal（在頁面底部或適當位置）-->
+@await Html.PartialAsync("Partials/_EntityModal")
 ```
+
+**重要提醒：**
+- Modal 文件必須放在 `Partials/` 資料夾中
+- 所有 Modal 集中於單一文件 `Partials/_{PageName}Modal.cshtml`
+- 主頁面通過 `@await Html.PartialAsync("Partials/_EntityModal")` 引用
+- Controller 回傳 Partial 時使用 `PartialView("Partials/_EntityModal")`
 
 ---
 
@@ -524,5 +551,40 @@ function showUserAdd() {
 
 ---
 
-最後更新：2025-10-22
+## 檔案位置規範（重要）
+
+### ✅ 正確的檔案結構
+
+```
+Views/Feature/
+├── Index.cshtml
+└── Partials/
+    ├── _FeatureModal.cshtml      ← Modal 放在 Partials/ 資料夾
+    ├── _FeatureSection.cshtml    ← 其他部分視圖
+    └── _FeatureScripts.cshtml    ← JavaScript 代碼
+```
+
+### ❌ 錯誤的檔案結構
+
+```
+Views/Feature/
+├── Index.cshtml
+└── _FeatureModal.cshtml          ← 錯誤：不應該放在根目錄
+```
+
+### 引用方式
+
+**主頁面引用：**
+```cshtml
+@await Html.PartialAsync("Partials/_FeatureModal")
+```
+
+**Controller 回傳：**
+```csharp
+return PartialView("Partials/_FeatureModal");
+```
+
+---
+
+最後更新：2025-01-XX
 
