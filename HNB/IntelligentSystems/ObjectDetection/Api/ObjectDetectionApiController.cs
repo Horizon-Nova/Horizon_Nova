@@ -74,14 +74,7 @@ public class ObjectDetectionApiController(ObjectDetectionModule module, IWebHost
 
         foreach (var imageBytes in validImages)
         {
-            var (detectSuccess, detections, detectError) = module.DetectObjectsFromBytes(imageBytes, request.TextPrompt);
-
-            if (!detectSuccess)
-            {
-                // 檢測失敗一定是系統錯誤，直接拋出異常讓 error_logs 捕獲
-                throw new Exception($"物件偵測系統錯誤：{detectError ?? "未知錯誤"}");
-            }
-
+            var detections = module.DetectObjectsFromBytes(imageBytes, request.TextPrompt);
             var imageId = $"img_{Guid.NewGuid():N}";
             var processedDetections = module.ProcessDetections(imageBytes, detections, imageId);
             var detectionsOutput = processedDetections.Select(d => new
@@ -122,15 +115,8 @@ public class ObjectDetectionApiController(ObjectDetectionModule module, IWebHost
 
         foreach (var imageBytes in validImages)
         {
-            var (detectSuccess, detections, detectError) = module.DetectObjectsFromBytes(imageBytes, textPrompt);
-            if (!detectSuccess)
-            {
-                // 檢測失敗一定是系統錯誤，直接拋出異常讓 error_logs 捕獲
-                throw new Exception($"物件偵測系統錯誤：{detectError ?? "未知錯誤"}");
-            }
-
+            var detections = module.DetectObjectsFromBytes(imageBytes, textPrompt);
             var imageId = $"img_{Guid.NewGuid():N}";
-
             var processedDetections = module.ProcessDetections(imageBytes, detections, imageId);
             
             var dateStr = DateTime.Now.ToString("yyyy_MM_dd");
@@ -157,13 +143,7 @@ public class ObjectDetectionApiController(ObjectDetectionModule module, IWebHost
                 }
             }
 
-            var (renderSuccess, annotatedImage, renderError) = RenderDetections(imageBytes, detections);
-            if (!renderSuccess || annotatedImage == null)
-            {
-                // 圖片渲染失敗是系統錯誤，拋出異常讓 error_logs 捕獲
-                throw new Exception($"圖片渲染失敗：{renderError ?? "無法解碼圖片資料"}");
-            }
-
+            using var annotatedImage = RenderDetections(imageBytes, detections);
             using (annotatedImage)
             {
                 var annotatedDateStr = DateTime.Now.ToString("yyyy_MM_dd");
@@ -173,10 +153,7 @@ public class ObjectDetectionApiController(ObjectDetectionModule module, IWebHost
                 var fileName = $"{imageId}.jpg";
                 var filePath = Path.Combine(savePath, fileName);
                 if (!ImageUtils.SaveImage(annotatedImage, filePath))
-                {
-                    // 圖片保存失敗是系統錯誤（檔案系統/權限問題），拋出異常讓 error_logs 捕獲
-                    throw new Exception($"圖片保存失敗：無法寫入檔案 {filePath}");
-                }
+                    throw new IOException($"圖片保存失敗：{filePath}");
 
                 var annotatedImageUrl = $"/storage/ObjectDetection/渲染/{annotatedDateStr}/{fileName}";
                 imageResults.Add(new { imageId, success = true, detections = detectionsOutput, count = detectionsOutput.Count, annotatedImageUrl });
@@ -189,15 +166,15 @@ public class ObjectDetectionApiController(ObjectDetectionModule module, IWebHost
     /// <summary>
     /// 簡介：渲染檢測結果到圖片
     /// </summary>
-    private (bool success, Mat? annotatedImage, string? error) RenderDetections(byte[] imageBytes, List<DetectionResult> detections)
+    private Mat RenderDetections(byte[] imageBytes, List<DetectionResult> detections)
     {
         using var originalImage = ImageUtils.DecodeImage(imageBytes);
         if (originalImage == null)
-            return (false, null, "無法解碼圖片資料");
+            throw new Exception("無法解碼圖片資料");
 
         var annotatedImage = originalImage.Clone();
         ImageUtils.DrawDetections(annotatedImage, detections);
-        return (true, annotatedImage, null);
+        return annotatedImage;
     }
 
     /// <summary>

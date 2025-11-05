@@ -67,47 +67,43 @@ public class ObjectDetectionModule(ObjectDetectionConfig config, ModelHealthChec
     /// <summary>
     /// 檢測圖片中的物件（從 Mat）
     /// </summary>
-    public (bool success, List<DetectionResult> results, string? error) DetectObjects(Mat image, string? textPrompt = null)
+    public List<DetectionResult> DetectObjects(Mat image, string? textPrompt = null)
     {
-        // 從健康檢查服務獲取引擎
         var engine = _healthChecker.GetEngine();
-
         if (engine == null)
         {
             var (_, message) = LoadModelStatus();
-            return (false, new List<DetectionResult>(), message);
+            throw new Exception(message);
         }
 
         if (image == null || image.Empty())
-            return (false, new List<DetectionResult>(), "圖片資料無效");
+            throw new ArgumentException("圖片資料無效");
 
         try
         {
             string prompt = textPrompt ?? _config.TextPrompt;
             var results = engine.Detect(image, prompt);
-            _healthChecker.ResetFailureCount(); // 檢測成功，重置失敗計數
-            return (true, results, null);
+            _healthChecker.ResetFailureCount();
+            return results;
         }
-        catch (Exception ex)
+        catch
         {
-            // 檢測失敗，通知健康檢查服務嘗試修復
             _healthChecker.NotifyDetectionFailure();
-
-            return (false, new List<DetectionResult>(), $"檢測失敗：{ex.Message}。系統已啟動自動修復，請稍後再試。");
+            throw;
         }
     }
 
     /// <summary>
     /// 從位元組陣列檢測物件
     /// </summary>
-    public (bool success, List<DetectionResult> results, string? error) DetectObjectsFromBytes(byte[] imageBytes, string? textPrompt = null)
+    public List<DetectionResult> DetectObjectsFromBytes(byte[] imageBytes, string? textPrompt = null)
     {
         if (imageBytes == null || imageBytes.Length == 0)
-            return (false, new List<DetectionResult>(), "圖片資料為空");
+            throw new ArgumentException("圖片資料為空");
 
         using var mat = Utils.ImageUtils.DecodeImage(imageBytes);
         if (mat == null)
-            return (false, new List<DetectionResult>(), "無法解碼圖片資料");
+            throw new Exception("無法解碼圖片資料");
 
         return DetectObjects(mat, textPrompt);
     }
