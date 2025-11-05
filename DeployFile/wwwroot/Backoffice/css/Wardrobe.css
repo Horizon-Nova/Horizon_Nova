@@ -1,93 +1,44 @@
-﻿/**
- * 衣櫃管理樣式
- * Wardrobe Management CSS
- */
+﻿/* 服裝 AI 提取 - 使用 Bootstrap 為主，僅補充必要樣式 */
+
+.wardrobe-container {
+    max-width: 1200px;
+}
 
 /* 上傳區域拖曳效果 */
-.border-dashed:hover {
-    border-color: #0d6efd !important;
-    background-color: #f0f8ff !important;
-    transition: all 0.2s ease;
-}
-
-/* 衣櫃項目卡片 */
-.wardrobe-item .card {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.wardrobe-item .card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
-}
-
-/* 統計卡片 */
-.card-body .h4 {
-    font-size: 1.75rem;
-}
-
-/* 聊天容器 */
-#chatContainer {
-    scrollbar-width: thin;
-    scrollbar-color: #dee2e6 transparent;
-}
-
-#chatContainer::-webkit-scrollbar {
-    width: 6px;
-}
-
-#chatContainer::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-#chatContainer::-webkit-scrollbar-thumb {
-    background-color: #dee2e6;
-    border-radius: 3px;
-}
-
-#chatContainer::-webkit-scrollbar-thumb:hover {
-    background-color: #adb5bd;
-}
-
-/* 快速建議按鈕 */
-.quick-suggestion {
-    transition: all 0.2s ease;
-}
-
-.quick-suggestion:hover {
-    transform: translateX(4px);
-}
-
-/* 上傳區域互動 */
-.border-dashed {
+.upload-zone {
     cursor: pointer;
-    user-select: none;
+    transition: all 0.3s ease;
 }
 
-.border-dashed:active {
-    transform: scale(0.98);
+.upload-zone:hover {
+    background-color: #f8f9fa !important;
+    border-color: #0d6efd !important;
 }
 
-/* 推薦記錄卡片 */
-.border-success, .border-warning {
-    transition: all 0.2s ease;
+/* 圖片覆蓋層懸停效果 */
+.wardrobe-item-card:hover .opacity-0 {
+    opacity: 1 !important;
 }
 
-.border-success:hover, .border-warning:hover {
-    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
-    transform: translateY(-2px);
+/* 圖片覆蓋層過渡效果 */
+.transition-opacity {
+    transition: opacity 0.3s ease;
+}
+
+/* 複選框樣式 */
+.item-checkbox {
+    cursor: pointer;
+    z-index: 10;
+}
+
+.wardrobe-item-card:hover .item-checkbox {
+    background-color: white !important;
 }
 
 /* 響應式調整 */
 @media (max-width: 768px) {
-    #chatContainer {
-        height: 300px !important;
-    }
-    
-    .card-body .h4 {
-        font-size: 1.5rem;
-    }
-    
-    .wardrobe-item .card-img-top {
-        height: 120px !important;
+    .wardrobe-container {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
     }
 }
