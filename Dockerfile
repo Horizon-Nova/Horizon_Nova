@@ -3,7 +3,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
 EXPOSE 8080
 
-# 安裝繁體字體與必要依賴
+# 安裝繁體字體、OpenCV 與必要依賴
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libfontconfig1 \
     libfreetype6 \
@@ -14,11 +14,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxrender1 \
     fonts-noto-cjk \
     locales \
-    libopencv-dev \
     libgdiplus \
-    libgtk2.0-0 \
-    libgtk-3-0 \
+    libopencv-dev \
  && locale-gen zh_TW.UTF-8 \
+ && ldconfig \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
