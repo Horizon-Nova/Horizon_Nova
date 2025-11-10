@@ -37,7 +37,10 @@
                     </select>
                 </div>
                 <div class="col-12 col-lg-4">
-                    <button onclick="showModal('organizationFormModal', {url: '@Url.Action("LoadDetail", "PermissionManagement")', method: 'GET', data: {id: null, type: 'organization'}, container: 'organizationModal'})" class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2">
+                    <button type="button"
+                            class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 js-open-organization-form"
+                            data-url="@Url.Action("LoadDetail", "PermissionManagement")"
+                            data-type="organization">
                         <i data-lucide="plus" style="width: 1rem; height: 1rem;"></i>
                         新增組織
                     </button>
@@ -63,7 +66,12 @@
         <tbody>
             @foreach (var org in Model ?? new List<Models.HnbHnbBackoffice.vw_permission_organization>())
             {
-                <tr style="cursor: pointer;" onclick="showModal('organizationDetailModal', {url: '@Url.Action("LoadDetail", "PermissionManagement")', method: 'GET', data: {id: @org.id, type: 'organization'}, container: 'organizationModal'})">
+                <tr style="cursor: pointer;"
+                    class="js-organization-detail-row"
+                    data-organization-id="@org.id"
+                    data-url="@Url.Action("LoadDetail", "PermissionManagement")"
+                    data-container="organizationModal"
+                    data-type="organization">
                     <td>
                         <div class="d-flex align-items-center gap-2">
                             <div class="flex-shrink-0" style="width: 2.5rem; height: 2.5rem;">
@@ -88,7 +96,9 @@
                     <td class="d-none d-lg-table-cell">@(org.total_roles_count ?? 0)</td>
                     <td class="small text-muted d-none d-lg-table-cell">@(org.created_at?.ToString("yyyy/MM/dd HH:mm") ?? "-")</td>
                     <td class="text-end">
-                        <button class="btn btn-sm btn-outline-danger" onclick="event.stopPropagation(); if(confirm('確定要刪除這個組織嗎？')) deleteItem(@org.id);">
+                        <button type="button"
+                                class="btn btn-sm btn-outline-danger js-delete-organization"
+                                data-organization-id="@org.id">
                             <i data-lucide="trash-2" style="width: 1rem; height: 1rem;"></i>
                         </button>
                     </td>
@@ -114,6 +124,46 @@
             $('#levelFilter, #statusFilter').on('change', function() {
                 applyFilters();
             });
+
+            $(document)
+                .off('click.organizationsPage', '.js-open-organization-form')
+                .on('click.organizationsPage', '.js-open-organization-form', function (e) {
+                    e.preventDefault();
+                    const $button = $(this);
+                    const url = $button.data('url');
+                    const type = $button.data('type');
+
+                    showModal('organizationFormModal', {
+                        url: url,
+                        method: 'GET',
+                        data: { id: null, type: type }
+                    });
+                })
+                .off('click.organizationsPage', '.js-organization-detail-row')
+                .on('click.organizationsPage', '.js-organization-detail-row', function () {
+                    const $row = $(this);
+                    const url = $row.data('url');
+                    const type = $row.data('type');
+                    const organizationId = $row.data('organizationId');
+
+                    showModal('organizationDetailModal', {
+                        url: url,
+                        method: 'GET',
+                        data: { id: organizationId, type: type }
+                    });
+                })
+                .off('click.organizationsPage', '.js-delete-organization')
+                .on('click.organizationsPage', '.js-delete-organization', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const organizationId = $(this).data('organizationId');
+
+                    if (!confirm('確定要刪除這個組織嗎？')) {
+                        return;
+                    }
+
+                    deleteItem(organizationId);
+                });
         });
 
         function initializeDataTable() {
@@ -171,5 +221,5 @@
     </script>
 }
 
-<!-- Modal 容器 -->
-<div id="organizationModal"></div>
+@await Html.PartialAsync("Partials/_OrganizationsModal")
+@await Html.PartialAsync("Partials/_OrganizationChartModal")

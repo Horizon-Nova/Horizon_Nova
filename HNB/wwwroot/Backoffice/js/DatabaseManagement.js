@@ -77,9 +77,7 @@ function updateStepStatus(stepNumber, isActive) {
 }
 
 // 測試連線 (使用 jQuery 序列化)
-function testConnection(event) {
-    event.preventDefault();
-
+function testConnection() {
     const provider = $('#databaseType').val();
     const connectionString = $('#connectionString').val();
 
@@ -121,9 +119,7 @@ function testConnection(event) {
 }
 
 // 備份資料表
-function backupTables(event) {
-    event.preventDefault();
-
+function backupTables() {
     const provider = $('#databaseType').val();
     const connectionString = $('#connectionString').val();
     const outputPath = $('#outputPath').val();
@@ -236,8 +232,9 @@ function displayDatabaseTables(tables) {
                     <div class="card-body">
                         <div class="d-flex align-items-center justify-content-between mb-2">
                             <h5 class="card-title h6 mb-0">${table}</h5>
-                            <button type="button" onclick="showTableDetails('${table}')" 
-                                    class="btn btn-sm btn-outline-primary" 
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-primary js-db-table-detail"
+                                    data-table="${table}"
                                     title="查看詳情">
                                 <i data-lucide="eye" style="width: 1rem; height: 1rem;"></i>
                             </button>
@@ -286,8 +283,7 @@ function showTableDetails(tableName) {
             tableName: tableName,
             provider: provider,
             connectionString: connectionString
-        },
-        container: 'databaseModal'
+        }
     });
 }
 
@@ -308,4 +304,25 @@ $(document).ready(function () {
     $('#databaseType, #connectionString').on('change input', function () {
         disableGenerateButton();
     });
+
+    $(document)
+        .off('click.db', '.js-db-open-help')
+        .on('click.db', '.js-db-open-help', function () {
+            showModal('helpModal');
+        })
+        .off('click.db', '.js-db-test-connection')
+        .on('click.db', '.js-db-test-connection', function (e) {
+            e.preventDefault();
+            testConnection();
+        })
+        .off('click.db', '.js-db-backup')
+        .on('click.db', '.js-db-backup', function (e) {
+            e.preventDefault();
+            backupTables();
+        })
+        .off('click.db', '.js-db-table-detail')
+        .on('click.db', '.js-db-table-detail', function () {
+            const table = $(this).data('table');
+            showTableDetails(table);
+        });
 });

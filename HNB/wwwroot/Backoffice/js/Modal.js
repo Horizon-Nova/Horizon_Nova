@@ -36,8 +36,11 @@ const showModal = (modalId, options = null) => {
         return;
     }
     
-    // 場景 2：AJAX 載入後顯示
+    // 場景 2：先顯示外殼，再 AJAX 置換內容（可驗證樣式/顯示問題）
     const { url, method = 'GET', data = {}, container = null } = options;
+
+    // 先顯示 Modal 外殼（即使資料未到也先顯示，以排除「資料不存在」因素）
+    displayModal(modalId);
     
     $.ajax({
         type: method,
@@ -47,11 +50,12 @@ const showModal = (modalId, options = null) => {
             // 替換容器內容
             const targetContainer = container || modalId;
             $(`#${targetContainer}`).html(html);
-            
-            // 顯示 Modal（Lucide 圖標會在 Modal 完全顯示後初始化）
-            displayModal(modalId);
+            // 此處不再重複呼叫 displayModal，避免閃爍與多次初始化
         },
-        error: () => alert('載入失敗，系統發生錯誤。')
+        error: () => {
+            // 保持已顯示的外殼，僅提示錯誤，方便驗證樣式
+            alert('載入失敗，系統發生錯誤。');
+        }
     });
 };
 

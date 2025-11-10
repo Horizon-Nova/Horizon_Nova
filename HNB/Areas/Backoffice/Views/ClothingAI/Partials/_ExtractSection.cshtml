@@ -17,7 +17,7 @@
                 </div>
             </div>
             <input type="file" id="fileInput" multiple accept="image/*" class="d-none">
-            <button type="button" class="btn btn-primary btn-sm" onclick="document.getElementById('fileInput').click()">
+            <button type="button" id="btnSelectFile" class="btn btn-primary btn-sm">
                 <i data-lucide="folder-open" style="width: 1rem; height: 1rem;"></i>
                 <span>選擇檔案</span>
             </button>
@@ -50,8 +50,9 @@
                     <span>取消</span>
                 </button>
                 <button type="button" class="btn btn-primary btn-sm" id="confirmBtn">
-                    <i data-lucide="check" style="width: 1rem; height: 1rem;"></i>
-                    <span>確認提取</span>
+                    <span class="spinner-border spinner-border-sm me-2 d-none" role="status" aria-hidden="true" id="confirmBtnSpinner"></span>
+                    <i data-lucide="check" class="me-1" style="width: 1rem; height: 1rem;" id="confirmBtnIcon"></i>
+                    <span id="confirmBtnText">確認提取</span>
                 </button>
             </div>
         </div>

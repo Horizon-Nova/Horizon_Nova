@@ -1,0 +1,121 @@
+@{
+    Layout = null;
+}
+
+<div id="userHelpModal" class="modal fade" tabindex="-1" aria-labelledby="userHelpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userHelpModalLabel">帳號管理說明</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="vstack gap-3">
+                            <div>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">基本操作流程（新增/編輯）</h6>
+                                <ol class="small mb-0">
+                                    <li>填寫必填欄位（標示紅色星號 *）</li>
+                                    <li>選擇至少一個角色（可多選）</li>
+                                    <li>選擇使用者所屬組織</li>
+                                    <li>點擊「儲存變更」或「新增帳號」完成</li>
+                                </ol>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">權限控制說明</h6>
+                                <div class="small">
+                                    <p class="mb-2"><strong>你可以管理的範圍：</strong></p>
+                                    <ul class="mb-2">
+                                        <li>只能新增/編輯<strong>自己組織</strong>內的使用者</li>
+                                        <li>只能指派<strong>自己組織</strong>內的角色</li>
+                                        <li>無法跨組織管理或查看其他組織的資料</li>
+                                    </ul>
+                                    <p class="mb-2"><strong>角色與權限關係：</strong></p>
+                                    <ul class="mb-0">
+                                        <li><strong>單一角色：</strong>使用者繼承該角色的所有導航權限</li>
+                                        <li><strong>多個角色：</strong>使用者擁有所有角色的權限（權限取聯集）</li>
+                                        <li><strong>權限變更：</strong>修改角色權限後，所有擁有該角色的使用者會立即生效</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">欄位說明</h6>
+                                <table class="table table-sm table-bordered small mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 100px;">欄位名稱</th>
+                                            <th>說明</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>姓名 *</strong></td>
+                                            <td>使用者的完整姓名</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>電子郵件 *</strong></td>
+                                            <td>聯絡信箱，系統通知會發送至此</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>使用者名稱 *</strong></td>
+                                            <td>登入帳號（建立後無法修改）</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>密碼</strong></td>
+                                            <td>新增時必填；編輯時留空表示不變更</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>角色 *</strong></td>
+                                            <td>可多選，權限會自動合併</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>組織 *</strong></td>
+                                            <td>使用者所屬組織，決定資料可見範圍</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="vstack gap-3">
+                            <div>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">帳號詳情（唯讀）</h6>
+                                <ul class="small mb-0">
+                                    <li>顯示使用者完整資訊（基本資料、帳號資訊、所屬組織、角色）</li>
+                                    <li>可透過「編輯」按鈕切換至編輯模式</li>
+                                    <li>點擊「關閉」或右上角 X 關閉視窗</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">常見問題 (Q&A)</h6>
+                                <div class="small">
+                                    <p class="mb-2"><strong>Q：建立後列表看不到？</strong></p>
+                                    <p class="ms-3 mb-3">A：請確認是否選對<strong>你的組織</strong>；你只能看到自己組織的資料。</p>
+                                    <p class="mb-2"><strong>Q：看不到某些組織/角色選項？</strong></p>
+                                    <p class="ms-3 mb-3">A：下拉選單僅顯示你有權限管理的組織與角色。</p>
+                                    <p class="mb-2"><strong>Q：使用者有哪些權限？</strong></p>
+                                    <p class="ms-3 mb-0">A：請查看「角色列表」。欲檢視角色詳細權限，請至角色管理頁面。</p>
+                                </div>
+                            </div>
+                            <div class="alert alert-info small mb-0">
+                                <h6 class="fw-bold mb-2">重要提醒</h6>
+                                <ul class="mb-0">
+                                    <li>建立前請確認組織選擇正確，否則會造成權限錯誤</li>
+                                    <li>角色/組織變更會立即生效；使用者重新登入後完整套用</li>
+                                    <li>停用帳號不會刪除資料，僅禁止登入</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">我知道了</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+

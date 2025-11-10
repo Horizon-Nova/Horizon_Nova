@@ -41,16 +41,16 @@
                 <div class="d-flex align-items-center justify-content-between border-bottom p-3" style="min-height: 54px;">
                     <span class="small fw-semibold">檔案總管</span>
                     <div class="d-flex align-items-center gap-1">
-                        <button type="button" onclick="showModal('fileManagerHelpModal')" class="btn btn-link btn-sm p-0" title="操作說明">
+                        <button type="button" class="btn btn-link btn-sm p-0 js-fm-help" title="操作說明">
                             <i data-lucide="help-circle" class="text-muted" style="width:1rem;height:1rem;"></i>
                         </button>
-                        <button type="button" onclick="showModal('createFileModal')" class="btn btn-link btn-sm p-0" title="新增檔案">
+                        <button type="button" class="btn btn-link btn-sm p-0 js-fm-open-create-file" title="新增檔案">
                             <i data-lucide="file-plus" class="text-muted" style="width:1rem;height:1rem;"></i>
                         </button>
-                        <button type="button" onclick="showModal('createFolderModal')" class="btn btn-link btn-sm p-0" title="新增資料夾">
+                        <button type="button" class="btn btn-link btn-sm p-0 js-fm-open-create-folder" title="新增資料夾">
                             <i data-lucide="folder-plus" class="text-muted" style="width:1rem;height:1rem;"></i>
                         </button>
-                        <button type="button" onclick="location.reload()" class="btn btn-link btn-sm p-0" title="重新整理">
+                        <button type="button" class="btn btn-link btn-sm p-0 js-fm-reload" title="重新整理">
                             <i data-lucide="refresh-cw" class="text-muted" style="width:1rem;height:1rem;"></i>
                         </button>
                     </div>
@@ -65,7 +65,7 @@
                     </div>
 
                     <!-- 目錄樹 -->
-                    @await Html.PartialAsync("_TreeNodes", tree)
+                    @await Html.PartialAsync("Partials/_TreeNodes", tree)
                 </div>
             </div>
         </aside>
@@ -114,7 +114,7 @@
                     </div>
 
                     <!-- 目錄樹 -->
-                    @await Html.PartialAsync("_TreeNodes", tree)
+                    @await Html.PartialAsync("Partials/_TreeNodes", tree)
                 </div>
             </div>
 
@@ -171,7 +171,7 @@
                                 <td data-order="@(isFile ? 1 : 0)">
                                     @if (isFile)
                                     {
-                                        <a href="javascript:void(0)" class="text-decoration-none" onclick="openPreview('@currentPath', '@(name?.Replace("'", "\\'").Replace("\"", "&quot;") ?? "")')">
+                                        <a href="javascript:void(0)" class="text-decoration-none js-open-preview" data-path="@currentPath" data-name="@(name ?? "")">
                                             <i data-lucide="@icon" class="@iconClass" style="width:1rem;height:1rem;"></i>
                                         </a>
                                     }
@@ -210,8 +210,8 @@
                                 </td>
                                 <td data-order="@modifiedTimestamp">@((modified?.ToString("yyyy/MM/dd HH:mm")) ?? "—")</td>
                                 <td class="text-end">
-                                    <button class="btn btn-light btn-sm" type="button" title="更多"
-                                            onclick="openItemPanel('@(name?.Replace("'", "\\'").Replace("\"", "&quot;") ?? "")', '@(isFile ? "file" : "folder")', '@currentPath')">
+                                    <button class="btn btn-light btn-sm js-open-item-panel" type="button" title="更多"
+                                            data-name="@(name ?? "")" data-type="@(isFile ? "file" : "folder")" data-path="@currentPath">
                                         <i data-lucide="ellipsis-vertical" class="text-muted" style="width:1rem;height:1rem;"></i>
                                     </button>
                                 </td>
@@ -258,7 +258,7 @@
 }
 
 <!-- 引入所有 Modal 視圖 -->
-@await Html.PartialAsync("_FileManagerModal")
+@await Html.PartialAsync("Partials/_FileManagerModal")
 
 <!-- 上傳進度 Modal -->
 <div id="uploadProgress" class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="uploadProgressLabel" aria-hidden="true">
@@ -297,5 +297,37 @@
                 }
             });
         }
+
+        // FileManager 工具列與行為（委派）
+        $(document)
+            .off('click.fmPage', '.js-tree-toggle')
+            .on('click.fmPage', '.js-tree-toggle', function(e){ toggleTreeNode(e, this); })
+            .off('click.fmPage', '.js-fm-help')
+            .on('click.fmPage', '.js-fm-help', function(){ showModal('fileManagerHelpModal'); })
+
+            .off('click.fmPage', '.js-fm-open-create-file')
+            .on('click.fmPage', '.js-fm-open-create-file', function(){ showModal('createFileModal'); })
+
+            .off('click.fmPage', '.js-fm-open-create-folder')
+            .on('click.fmPage', '.js-fm-open-create-folder', function(){ showModal('createFolderModal'); })
+
+            .off('click.fmPage', '.js-fm-reload')
+            .on('click.fmPage', '.js-fm-reload', function(){ location.reload(); })
+
+            .off('click.fmPage', '.js-open-preview')
+            .on('click.fmPage', '.js-open-preview', function(e){
+                e.preventDefault();
+                const path = $(this).data('path');
+                const name = $(this).data('name');
+                openPreview(path, name);
+            })
+
+            .off('click.fmPage', '.js-open-item-panel')
+            .on('click.fmPage', '.js-open-item-panel', function(){
+                const name = $(this).data('name');
+                const type = $(this).data('type');
+                const path = $(this).data('path');
+                openItemPanel(name, type, path);
+            });
     });
 </script>

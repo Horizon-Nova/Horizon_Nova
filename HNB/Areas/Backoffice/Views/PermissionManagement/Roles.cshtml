@@ -39,7 +39,10 @@
                     </select>
                 </div>
                 <div class="col-12 col-lg-4">
-                    <button onclick="showModal('roleFormModal', {url: '@Url.Action("LoadDetail", "PermissionManagement")', method: 'GET', data: {id: null, type: 'role'}, container: 'roleModal'})" class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2">
+                    <button type="button"
+                            class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 js-open-role-form"
+                            data-url="@Url.Action("LoadDetail", "PermissionManagement")"
+                            data-type="role">
                         <i data-lucide="plus" style="width: 1rem; height: 1rem;"></i>
                         新增角色
                     </button>
@@ -64,7 +67,12 @@
         <tbody>
             @foreach (var role in Model ?? new List<Models.HnbHnbBackoffice.vw_permission_role>())
             {
-                    <tr style="cursor: pointer;" onclick="showModal('roleDetailModal', {url: '@Url.Action("LoadDetail", "PermissionManagement")', method: 'GET', data: {id: @role.id, type: 'role'}, container: 'roleModal'})">
+                    <tr style="cursor: pointer;"
+                        class="js-role-detail-row"
+                        data-role-id="@role.id"
+                        data-url="@Url.Action("LoadDetail", "PermissionManagement")"
+                        data-container="roleModal"
+                        data-type="role">
                     <td>
                         <div class="d-flex align-items-center gap-2">
                             <div class="flex-shrink-0" style="width: 2.5rem; height: 2.5rem;">
@@ -88,7 +96,9 @@
                     <td class="d-none d-lg-table-cell">@(role.user_count ?? 0)</td>
                     <td class="small text-muted d-none d-lg-table-cell">@(role.created_at?.ToString("yyyy/MM/dd HH:mm") ?? "-")</td>
                     <td class="text-end">
-                        <button class="btn btn-sm btn-outline-danger" onclick="event.stopPropagation(); if(confirm('確定要刪除這個角色嗎？')) deleteItem(@role.id);">
+                        <button type="button"
+                                class="btn btn-sm btn-outline-danger js-delete-role"
+                                data-role-id="@role.id">
                             <i data-lucide="trash-2" style="width: 1rem; height: 1rem;"></i>
                         </button>
                     </td>
@@ -118,6 +128,46 @@
             $('#organizationFilter, #statusFilter').on('change', function() {
                 applyFilters();
             });
+
+            $(document)
+                .off('click.rolesPage', '.js-open-role-form')
+                .on('click.rolesPage', '.js-open-role-form', function (e) {
+                    e.preventDefault();
+                    const $button = $(this);
+                    const url = $button.data('url');
+                    const type = $button.data('type');
+
+                    showModal('roleFormModal', {
+                        url: url,
+                        method: 'GET',
+                        data: { id: null, type: type }
+                    });
+                })
+                .off('click.rolesPage', '.js-role-detail-row')
+                .on('click.rolesPage', '.js-role-detail-row', function () {
+                    const $row = $(this);
+                    const url = $row.data('url');
+                    const type = $row.data('type');
+                    const roleId = $row.data('roleId');
+
+                    showModal('roleDetailModal', {
+                        url: url,
+                        method: 'GET',
+                        data: { id: roleId, type: type }
+                    });
+                })
+                .off('click.rolesPage', '.js-delete-role')
+                .on('click.rolesPage', '.js-delete-role', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const roleId = $(this).data('roleId');
+
+                    if (!confirm('確定要刪除這個角色嗎？')) {
+                        return;
+                    }
+
+                    deleteItem(roleId);
+                });
 
         });
 
@@ -180,5 +230,4 @@
     </script>
 }
 
-<!-- Modal 容器 -->
-<div id="roleModal"></div>
+@await Html.PartialAsync("Partials/_RolesModal")

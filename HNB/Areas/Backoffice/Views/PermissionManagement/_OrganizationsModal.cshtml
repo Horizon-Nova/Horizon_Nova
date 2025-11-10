@@ -9,7 +9,7 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="organizationFormModalLabel">@(ViewBag.Organization?.id > 0 ? "編輯組織" : "新增組織")</h5>
                 <div class="d-flex gap-2">
-                    <button type="button" onclick="showModal('organizationFormHelpModal')" class="btn btn-sm btn-outline-secondary">
+                    <button type="button" class="btn btn-sm btn-outline-secondary js-open-organization-form-help">
                         <i data-lucide="help-circle" style="width: 1rem; height: 1rem;"></i>
                     </button>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -84,7 +84,7 @@
         </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-primary btn-sm" onclick="submitOrganizationForm()">儲存</button>
+                <button type="button" class="btn btn-primary btn-sm js-submit-organization-form">儲存</button>
             </div>
         </div>
     </div>
@@ -97,7 +97,7 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="organizationDetailModalLabel">組織詳細資訊</h5>
                 <div class="d-flex gap-2">
-                    <button type="button" onclick="showModal('organizationDetailHelpModal')" class="btn btn-sm btn-outline-secondary">
+                    <button type="button" class="btn btn-sm btn-outline-secondary js-open-organization-detail-help">
                         <i data-lucide="help-circle" style="width: 1rem; height: 1rem;"></i>
                 </button>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -153,7 +153,7 @@
                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">關閉</button>
             @if (ViewBag.Organization != null)
             {
-                    <button type="button" class="btn btn-primary btn-sm" onclick="closeModal('organizationDetailModal'); showModal('organizationFormModal', {url: '@Url.Action("LoadDetail", "PermissionManagement")', data: {id: @ViewBag.Organization?.id, type: 'organization'}, container: 'organizationModal'})">編輯</button>
+                    <button type="button" class="btn btn-primary btn-sm js-edit-organization-from-detail" data-organization-id="@ViewBag.Organization?.id">編輯</button>
             }
             </div>
         </div>
@@ -330,6 +330,41 @@
 </div>
 
 <script>
+(() => {
+    const bindOrganizationModalHandlers = () => {
+        $(document).off('click.organizationModal', '.js-open-organization-form-help')
+            .on('click.organizationModal', '.js-open-organization-form-help', function (e) {
+                e.preventDefault();
+                showModal('organizationFormHelpModal');
+            });
+
+        $(document).off('click.organizationModal', '.js-open-organization-detail-help')
+            .on('click.organizationModal', '.js-open-organization-detail-help', function (e) {
+                e.preventDefault();
+                showModal('organizationDetailHelpModal');
+            });
+
+        $(document).off('click.organizationModal', '.js-submit-organization-form')
+            .on('click.organizationModal', '.js-submit-organization-form', function () {
+                submitOrganizationForm();
+            });
+
+        $(document).off('click.organizationModal', '.js-edit-organization-from-detail')
+            .on('click.organizationModal', '.js-edit-organization-from-detail', function () {
+                const organizationId = $(this).data('organizationId');
+                closeModal('organizationDetailModal');
+                showModal('organizationFormModal', {
+                    url: '@Url.Action("LoadDetail", "PermissionManagement")',
+                    data: { id: organizationId, type: 'organization' },
+                    
+                });
+            });
+    };
+
+    window.bindOrganizationModalHandlers = bindOrganizationModalHandlers;
+    $(bindOrganizationModalHandlers);
+})();
+
 // 提交組織表單
 function submitOrganizationForm() {
     const formData = $("#FormDataOrganization").serialize();

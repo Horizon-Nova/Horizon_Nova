@@ -33,7 +33,7 @@
         <div class="tree-content" style="padding-left: @(node.Depth * 1.5)rem;">
             @if (node.HasChildren)
             {
-                <button type="button" class="tree-toggle" onclick="toggleTreeNode(event, this)" title="展開/收合">
+                <button type="button" class="tree-toggle js-tree-toggle" title="展開/收合">
                     <i data-lucide="chevron-right" class="tree-chevron"></i>
                 </button>
             }

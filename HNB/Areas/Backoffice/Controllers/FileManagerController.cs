@@ -29,7 +29,7 @@ public class FileManagerController(FileManagerServices svc) : BaseController
         var detail = svc.LoadFileSystemDetail(currentPath ?? "/", name ?? "", currentUser);
         ViewBag.CurrentPath = currentPath ?? "/";
         ViewBag.CurrentUser = currentUser;
-        return PartialView("_FileManagerSidePanelBody", detail);
+        return PartialView("Partials/_FileManagerSidePanelBody", detail);
     }
 
     #endregion

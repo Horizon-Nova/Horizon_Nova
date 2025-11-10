@@ -7,6 +7,7 @@
 <main class="min-h-screen flex items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
     <div class="w-full max-w-sm sm:max-w-md lg:max-w-lg">
         <div class="relative rounded-2xl bg-white shadow-xl ring-1 ring-slate-200 p-5 sm:p-7 lg:p-10">
+            <div id="loginNotification" class="notification fixed top-4 right-4 z-50 px-4 py-2 rounded-lg shadow-lg text-white text-sm font-medium hidden"></div>
             <header class="mb-6 sm:mb-8 text-center space-y-2">
                 <i data-lucide="log-in" class="w-9 h-9 sm:w-10 sm:h-10 text-indigo-600 mx-auto animate-bounce"></i>
                 <h1 class="text-xl sm:text-2xl font-bold text-slate-800">歡迎登入</h1>
@@ -69,7 +70,7 @@
                     </label>
                 </div>
 
-                <button id="btnSubmit" type="button" onclick="SubmitForm()"
+                <button id="btnSubmit" type="button"
                         class="w-full flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-white font-medium shadow-md hover:scale-[1.02] hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-white transition-transform duration-200">
                     <i data-lucide="log-in" class="w-5 h-5"></i>
                     <span class="text-sm sm:text-base">登入</span>
@@ -89,115 +90,93 @@
 
 @section Scripts {
     <script>
-        // 密碼顯示/隱藏切換
-        document.getElementById('togglePwdBtn').addEventListener('click', function() {
-            const passwordInput = document.getElementById('Password');
-            const eyeIcon = document.getElementById('eyeIcon');
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                eyeIcon.setAttribute('data-lucide', 'eye-off');
-            } else {
-                passwordInput.type = 'password';
-                eyeIcon.setAttribute('data-lucide', 'eye');
-            }
-            
-            // 重新初始化圖示
-            lucide.createIcons();
-        });
-
-        // 表單提交
-        function SubmitForm() {
-            const form = document.getElementById('FormData');
-            const submitBtn = document.getElementById('btnSubmit');
-            const spinner = document.getElementById('btnSpinner');
-            const submitText = submitBtn.querySelector('span');
-            const submitIcon = submitBtn.querySelector('i[data-lucide="log-in"]');
-            
-            // 驗證表單
-            const username = document.getElementById('Username').value.trim();
-            const password = document.getElementById('Password').value.trim();
-            
-            if (!username || !password) {
-                showNotification('請輸入帳號和密碼', 'error');
-                return;
-            }
-            
-            // 顯示載入狀態
-            submitBtn.disabled = true;
-            submitText.textContent = '登入中...';
-            if (submitIcon) {
-                submitIcon.style.display = 'none';
-            }
-            spinner.classList.remove('hidden');
-            
-            // 提交表單
-            form.submit();
-        }
-
-
-        // 顯示通知
-        function showNotification(message, type = 'info') {
-            // 移除現有通知
-            const existingNotification = document.querySelector('.notification');
-            if (existingNotification) {
-                existingNotification.remove();
-            }
-            
-            // 創建新通知
-            const notification = document.createElement('div');
-            notification.className = `notification fixed top-4 right-4 z-50 px-4 py-2 rounded-lg shadow-lg text-white text-sm font-medium transition-all duration-300 transform translate-x-full`;
-            
-            // 根據類型設定樣式
-            switch (type) {
-                case 'error':
-                    notification.classList.add('bg-red-500');
-                    break;
-                case 'success':
-                    notification.classList.add('bg-green-500');
-                    break;
-                case 'warning':
-                    notification.classList.add('bg-yellow-500');
-                    break;
-                default:
-                    notification.classList.add('bg-blue-500');
-            }
-            
-            notification.textContent = message;
-            document.body.appendChild(notification);
-            
-            // 顯示動畫
-            setTimeout(() => {
-                notification.classList.remove('translate-x-full');
-            }, 100);
-            
-            // 自動隱藏
-            setTimeout(() => {
-                notification.classList.add('translate-x-full');
-                setTimeout(() => {
-                    notification.remove();
-                }, 300);
-            }, 3000);
-        }
-
         // 頁面載入完成後的初始化
-        document.addEventListener('DOMContentLoaded', function() {
+        $(function () {
+            // 密碼顯示/隱藏切換（jQuery）
+            $('#togglePwdBtn').on('click', function () {
+                const $passwordInput = $('#Password');
+                const $eyeIcon = $('#eyeIcon');
+
+                if ($passwordInput.attr('type') === 'password') {
+                    $passwordInput.attr('type', 'text');
+                    $eyeIcon.attr('data-lucide', 'eye-off');
+                } else {
+                    $passwordInput.attr('type', 'password');
+                    $eyeIcon.attr('data-lucide', 'eye');
+                }
+
+                if (window.lucide?.createIcons) {
+                    window.lucide.createIcons();
+                }
+            });
+
+            $('#btnSubmit').on('click', SubmitForm);
+
             // 自動聚焦到用戶名輸入框
-            const usernameInput = document.getElementById('Username');
-            if (usernameInput) {
-                usernameInput.focus();
+            const $usernameInput = $('#Username');
+            if ($usernameInput.length) {
+                $usernameInput.trigger('focus');
             }
-            
+
             // 處理 Enter 鍵提交
-            document.addEventListener('keypress', function(e) {
+            $(document).on('keypress', function (e) {
                 if (e.key === 'Enter') {
-                    const activeElement = document.activeElement;
-                    if (activeElement && (activeElement.id === 'Username' || activeElement.id === 'Password')) {
+                    const $active = $(document.activeElement);
+                    if ($active && ($active.attr('id') === 'Username' || $active.attr('id') === 'Password')) {
                         e.preventDefault();
                         SubmitForm();
                     }
                 }
             });
         });
+
+        // 表單提交
+        function SubmitForm() {
+            const $form = $('#FormData');
+            const $submitBtn = $('#btnSubmit');
+            const $spinner = $('#btnSpinner');
+            const $submitText = $submitBtn.find('span');
+            const $submitIcon = $submitBtn.find('i[data-lucide="log-in"]');
+
+            // 驗證表單
+            const username = $('#Username').val().trim();
+            const password = $('#Password').val().trim();
+
+            if (!username || !password) {
+                showNotification('請輸入帳號和密碼', 'error');
+                return;
+            }
+
+            // 顯示載入狀態
+            $submitBtn.prop('disabled', true);
+            $submitText.text('登入中...');
+            if ($submitIcon.length) {
+                $submitIcon.hide();
+            }
+            $spinner.removeClass('hidden');
+
+            // 提交表單
+            $form.trigger('submit');
+        }
+
+        // 顯示通知（使用 Razor 預先產生的容器，不動態組裝 HTML）
+        function showNotification(message, type = 'info') {
+            const $notification = $('#loginNotification');
+            if ($notification.length === 0) return;
+
+            $notification
+                .removeClass('hidden bg-red-500 bg-green-500 bg-yellow-500 bg-blue-500')
+                .addClass(
+                    type === 'error' ? 'bg-red-500' :
+                    type === 'success' ? 'bg-green-500' :
+                    type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500'
+                )
+                .text(message)
+                .fadeIn(150);
+
+            setTimeout(() => {
+                $notification.fadeOut(200);
+            }, 3000);
+        }
     </script>
 }

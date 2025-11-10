@@ -8,6 +8,7 @@ namespace HNB.Areas.Backoffice.Controllers;
 [Area("Backoffice")]
 public class PermissionManagementController(PermissionManagementService sev, AuthService authService) : BaseController
 {
+	#region Utilities
     /// <summary>
     /// 獲取當前用戶的組織ID（從 Claims）
     /// </summary>
@@ -16,17 +17,23 @@ public class PermissionManagementController(PermissionManagementService sev, Aut
         var organizationIdClaim = User.FindFirst("OrganizationId")?.Value;
         return int.TryParse(organizationIdClaim, out var orgId) ? orgId : null;
     }
+	#endregion
 
+	#region Users
     public IActionResult Users()
+        => View();
+
+    public IActionResult UserSearch()
     {
         var currentUserOrganizationId = GetCurrentUserOrganizationId();
-        
-        sev.ViewBagModel(ViewBag, currentUserOrganizationId: currentUserOrganizationId);
-        
+
         var model = sev.LoadUserList(organizationId: currentUserOrganizationId);
-        return View(model);
+        return PartialView("Partials/Users/_UserResults", model);
     }
 
+    #endregion
+
+    #region Roles
     public IActionResult Roles()
     {
         var currentUserOrganizationId = GetCurrentUserOrganizationId();
@@ -36,7 +43,9 @@ public class PermissionManagementController(PermissionManagementService sev, Aut
         var model = sev.LoadRoleList(organizationId: currentUserOrganizationId);
         return View(model);
     }
+	#endregion
 
+	#region Organizations
     public IActionResult Organizations()
     {
         var currentUserOrganizationId = GetCurrentUserOrganizationId();
@@ -54,23 +63,9 @@ public class PermissionManagementController(PermissionManagementService sev, Aut
         var model = sev.LoadOrganizationList(organizationId: currentUserOrganizationId);
         return View(model);
     }
+	#endregion
 
-    public IActionResult LoadDetail(int? id = null, string? type = null)
-    {
-        var currentUserOrganizationId = GetCurrentUserOrganizationId();
-        
-        sev.ViewBagModel(ViewBag, id, currentUserOrganizationId);
-        
-        // 根據類型返回對應的 Modal Partial View
-        return type switch
-        {
-            "user" => PartialView("_UsersModal"),
-            "role" => PartialView("_RolesModal"),
-            "organization" => PartialView("_OrganizationsModal"),
-            "chart" => PartialView("_OrganizationChartModal"),
-            _ => PartialView("_UsersModal") // 預設返回 Users Modal
-        };
-    }
+	#region Shared / Partials (AJAX)
 
     [HttpPost]
     public IActionResult Delete(int id)
@@ -79,6 +74,9 @@ public class PermissionManagementController(PermissionManagementService sev, Aut
         return Json(new { success = result, message = result ? "刪除成功" : "刪除失敗" });
     }
 
+	#endregion
+
+	#region Submit (Create/Update)
     [HttpPost]
     public IActionResult SubmitUser(permission_management form, int[] role_ids) 
     {
@@ -115,6 +113,7 @@ public class PermissionManagementController(PermissionManagementService sev, Aut
         var result = sev.CreateOrganization(form);
         return Json(new { success = result.success, message = result.message });
     }
+	#endregion
 
 
 }

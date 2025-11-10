@@ -24,7 +24,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-primary" onclick="submitCreateFolder()">建立</button>
+                <button type="button" class="btn btn-primary js-submit-create-folder">建立</button>
             </div>
         </div>
     </div>
@@ -40,7 +40,21 @@
             </div>
             <div class="modal-body p-0" style="min-height:70vh;">
                 <div id="filePreviewContainer" class="p-3">
-                    <div class="text-center py-5 text-muted">載入中...</div>
+                    <div id="fpLoading" class="fp-section text-center py-5 text-muted">載入中...</div>
+                    <div id="fpOffice" class="fp-section d-none">
+                        <iframe id="fpOfficeFrame" src="" style="width:100%;height:70vh;border:0;"></iframe>
+                    </div>
+                    <div id="fpPdf" class="fp-section d-none">
+                        <iframe id="fpPdfFrame" src="" style="width:100%;height:70vh;border:0;"></iframe>
+                    </div>
+                    <div id="fpUnsupported" class="fp-section d-none">
+                        <div class="text-center py-5 text-muted">
+                            此檔案不支援線上閱讀，請下載後查看。
+                            <div class="mt-2">
+                                <a id="fpDownloadLink" class="btn btn-sm btn-outline-secondary" href="#" target="_blank">下載檔案</a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- 圖片預覽（Discord 風格：可縮放/拖移） -->
@@ -49,9 +63,9 @@
                         <img id="pvImage" alt="preview" style="user-select:none; -webkit-user-drag:none; transform-origin: 0 0;" />
                     </div>
                     <div class="position-absolute end-0 bottom-0 m-3 d-flex gap-2">
-                        <button type="button" class="btn btn-sm btn-light" onclick="pvFit()" title="適合視窗"><i data-lucide="maximize"></i></button>
-                        <button type="button" class="btn btn-sm btn-light" onclick="pvZoomOut()" title="縮小"><i data-lucide="zoom-out"></i></button>
-                        <button type="button" class="btn btn-sm btn-light" onclick="pvZoomIn()" title="放大"><i data-lucide="zoom-in"></i></button>
+                        <button type="button" class="btn btn-sm btn-light js-pv-fit" title="適合視窗"><i data-lucide="maximize"></i></button>
+                        <button type="button" class="btn btn-sm btn-light js-pv-zoom-out" title="縮小"><i data-lucide="zoom-out"></i></button>
+                        <button type="button" class="btn btn-sm btn-light js-pv-zoom-in" title="放大"><i data-lucide="zoom-in"></i></button>
                     </div>
                 </div>
 
@@ -87,7 +101,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-primary" onclick="submitCreateFile()">建立</button>
+                <button type="button" class="btn btn-primary js-submit-create-file">建立</button>
             </div>
         </div>
     </div>
@@ -299,7 +313,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-primary" onclick="submitRenameFile()">重新命名</button>
+                <button type="button" class="btn btn-primary js-submit-rename-file">重新命名</button>
             </div>
         </div>
     </div>
@@ -323,7 +337,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-primary" onclick="submitRenameFolder()">重新命名</button>
+                <button type="button" class="btn btn-primary js-submit-rename-folder">重新命名</button>
             </div>
         </div>
     </div>
@@ -357,9 +371,18 @@
         const previewUrl = '@Url.Action("Preview", "FileManager", new { area = "Backoffice" })' + `?path=${encodeURIComponent(path)}&name=${encodeURIComponent(name)}`;
         const downloadUrl = '@Url.Action("Download", "FileManager", new { area = "Backoffice" })' + `?path=${encodeURIComponent(path)}&name=${encodeURIComponent(name)}`;
         const $container = $('#filePreviewContainer');
+        const $fpLoading = $('#fpLoading');
+        const $fpOffice = $('#fpOffice');
+        const $fpPdf = $('#fpPdf');
+        const $fpUnsupported = $('#fpUnsupported');
+        const $fpOfficeFrame = $('#fpOfficeFrame');
+        const $fpPdfFrame = $('#fpPdfFrame');
+        const $fpDownloadLink = $('#fpDownloadLink');
         const $imgWrap = $('#pvImageContainer');
         const $txtWrap = $('#pvTextContainer');
-        $container.removeClass('d-none').html('<div class="text-center py-5 text-muted">載入中...</div>');
+        $container.removeClass('d-none');
+        $('.fp-section').addClass('d-none');
+        $fpLoading.removeClass('d-none');
         $imgWrap.addClass('d-none');
         $txtWrap.addClass('d-none');
         showModal('previewModal');
@@ -374,13 +397,17 @@
         if (officeExts.includes(ext)){
             const fullUrl = window.location.origin + downloadUrl;
             const officeViewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fullUrl)}`;
-            $container.html(`<iframe src="${officeViewerUrl}" style="width:100%;height:70vh;border:0;"></iframe>`);
+            $fpOfficeFrame.attr('src', officeViewerUrl);
+            $('.fp-section').addClass('d-none');
+            $fpOffice.removeClass('d-none');
             return;
         }
 
         // 2) PDF 直接內嵌
         if (ext === 'pdf'){
-            $container.html(`<iframe src="${previewUrl}" style="width:100%;height:70vh;border:0;"></iframe>`);
+            $fpPdfFrame.attr('src', previewUrl);
+            $('.fp-section').addClass('d-none');
+            $fpPdf.removeClass('d-none');
             return;
         }
 
@@ -388,7 +415,7 @@
         if (imageExts.includes(ext)){
             $container.addClass('d-none');
             const $img = $('#pvImage');
-            const wrap = document.getElementById('pvImageWrapper');
+            const wrap = $('#pvImageWrapper')[0];
             $imgWrap.removeClass('d-none');
             $img.attr('src', previewUrl);
             // 初始化狀態
@@ -411,7 +438,7 @@
                 const delta = (e.originalEvent.deltaY < 0) ? 1.1 : 0.9;
                 const rect = this.getBoundingClientRect();
                 const mx = rect.width/2, my = rect.height/2;
-                const img = document.getElementById('pvImage');
+                const img = $('#pvImage')[0];
                 const iw = img.naturalWidth, ih = img.naturalHeight;
                 const preX = (mx - __pv.image.x) / __pv.image.scale;
                 const preY = (my - __pv.image.y) / __pv.image.scale;
@@ -421,7 +448,7 @@
                 pvApply();
             });
             $('#pvImageWrapper').off('mousedown').on('mousedown', function(e){ if(e.button!==0) return; __pv.image.dragging=true; __pv.image.sx = e.clientX - __pv.image.x; __pv.image.sy = e.clientY - __pv.image.y; this.style.cursor='grabbing'; });
-            $(window).off('mouseup.pv').on('mouseup.pv', function(){ __pv.image.dragging=false; document.getElementById('pvImageWrapper').style.cursor='grab'; });
+            $(window).off('mouseup.pv').on('mouseup.pv', function(){ __pv.image.dragging=false; $('#pvImageWrapper').css('cursor','grab'); });
             $(window).off('mousemove.pv').on('mousemove.pv', function(e){ if(!__pv.image.dragging) return; __pv.image.x = Math.round(e.clientX - __pv.image.sx); __pv.image.y = Math.round(e.clientY - __pv.image.sy); pvApply(); });
             return;
         }
@@ -439,16 +466,23 @@
         }
 
         // 5) 其餘不支援：顯示無法閱讀
-        $container.html(`<div class="text-center py-5 text-muted">此檔案不支援線上閱讀，請下載後查看。<div class="mt-2"><a class="btn btn-sm btn-outline-secondary" href="${downloadUrl}">下載檔案</a></div></div>`);
+        $fpDownloadLink.attr('href', downloadUrl);
+        $('.fp-section').addClass('d-none');
+        $fpUnsupported.removeClass('d-none');
     }
 
     function pvApply(){
-        const img = document.getElementById('pvImage');
+        const img = $('#pvImage')[0];
         img.style.transform = `translate(${__pv.image.x}px, ${__pv.image.y}px) scale(${__pv.image.scale})`;
     }
     function pvFit(){ __pv.image.scale = __pv.image.fit || 1; __pv.image.x = 0; __pv.image.y = 0; pvApply(); }
     function pvZoomIn(){ __pv.image.scale = Math.min(5, __pv.image.scale * 1.2); pvApply(); }
     function pvZoomOut(){ __pv.image.scale = Math.max(0.1, __pv.image.scale / 1.2); pvApply(); }
+
+    // 圖片工具列按鈕綁定
+    $(document).off('click.fm', '.js-pv-fit').on('click.fm', '.js-pv-fit', function(){ pvFit(); });
+    $(document).off('click.fm', '.js-pv-zoom-in').on('click.fm', '.js-pv-zoom-in', function(){ pvZoomIn(); });
+    $(document).off('click.fm', '.js-pv-zoom-out').on('click.fm', '.js-pv-zoom-out', function(){ pvZoomOut(); });
 
     $(document).off('click', '#pvSaveTextBtn').on('click', '#pvSaveTextBtn', function(){
         const token = $('input[name="__RequestVerificationToken"]').val();
@@ -471,6 +505,12 @@
         }
     }
 
+    // 建立/重新命名事件綁定
+    $(document).off('click.fm', '.js-submit-create-folder').on('click.fm', '.js-submit-create-folder', function(){ submitCreateFolder(); });
+    $(document).off('click.fm', '.js-submit-create-file').on('click.fm', '.js-submit-create-file', function(){ submitCreateFile(); });
+    $(document).off('click.fm', '.js-submit-rename-file').on('click.fm', '.js-submit-rename-file', function(){ submitRenameFile(); });
+    $(document).off('click.fm', '.js-submit-rename-folder').on('click.fm', '.js-submit-rename-folder', function(){ submitRenameFolder(); });
+
     function deleteItem(name, type, path){
         if(type === 'folder'){
             deleteFolder(name, path);
@@ -478,6 +518,14 @@
             deleteFile(name, path);
         }
     }
+
+    // 側欄刪除按鈕（委派）
+    $(document).off('click.fm', '.js-fm-delete-item').on('click.fm', '.js-fm-delete-item', function(){
+        const name = $(this).data('itemName');
+        const type = $(this).data('itemType');
+        const path = $(this).data('itemPath');
+        deleteItem(name, type, path);
+    });
 
     function submitCreateFolder() {
         const $form = $('#createFolderForm');

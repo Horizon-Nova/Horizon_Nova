@@ -16,7 +16,7 @@
                     <i data-lucide="plus-circle" class="text-primary" style="width: 1.25rem; height: 1.25rem;"></i>
                 </div>
                 <h3 class="h5 mb-0">建立資料庫連線</h3>
-                <button type="button" class="btn btn-sm btn-link ms-2 p-1" onclick="showModal('helpModal')">
+                <button type="button" class="btn btn-sm btn-link ms-2 p-1 js-db-open-help">
                     <i data-lucide="help-circle" class="text-muted" style="width: 1rem; height: 1rem;"></i>
                 </button>
             </div>
@@ -80,12 +80,12 @@
                         </div>
                         
                         <div class="d-grid gap-2">
-                            <button type="submit" onclick="testConnection(event)" class="btn btn-primary">
+                            <button type="button" class="btn btn-primary js-db-test-connection">
                                 <i data-lucide="wifi" class="me-2" style="width: 1rem; height: 1rem;"></i>
                                 測試連線
                             </button>
                             
-                            <button type="submit" onclick="backupTables(event)" class="btn btn-primary" disabled id="btnBackup">
+                            <button type="button" class="btn btn-primary js-db-backup" disabled id="btnBackup">
                                 <i data-lucide="download" class="me-2" style="width: 1rem; height: 1rem;"></i>
                                 備份資料表
                             </button>
@@ -182,8 +182,23 @@
     </div>
 </div>
 
-<!-- Modal 空容器（用於動態載入資料表詳情） -->
-<div id="databaseModal"></div>
+<!-- 資料表詳情 Modal（預先掛載，動態載入內容） -->
+<div id="tableDetailsModal" class="modal fade" tabindex="-1" aria-labelledby="tableDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="tableDetailsModalLabel">資料表詳情</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- 伺服端 Partial 將載入內容至此 -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">關閉</button>
+            </div>
+        </div>
+    </div>
+ </div>
 
 @section Scripts {
     <script src="~/Backoffice/js/DatabaseManagement.js"></script>

@@ -52,7 +52,7 @@ public class DatabaseController(DatabaseService databaseService) : BaseControlle
             ViewBag.Success = false;
         }
         
-        return PartialView("_DatabaseManagementModal");
+        return PartialView("Partials/_DatabaseManagementModal");
     }
 
 }

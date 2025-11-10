@@ -54,7 +54,7 @@
     
     <!-- 全域 Lucide 初始化 -->
     <script>
-        window.addEventListener('load', function() {
+        $(window).on('load', function() {
             if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
                 lucide.createIcons();
             }

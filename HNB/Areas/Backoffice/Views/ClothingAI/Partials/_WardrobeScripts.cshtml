@@ -44,6 +44,7 @@ $(document).ready(function() {
     confirmBtn.on('click', saveDetectedItems);
     cancelBtn.on('click', resetUpload);
     closePreviewBtn.on('click', resetUpload);
+    $('#btnSelectFile').on('click', function() { $('#fileInput').click(); });
     
     $('#categoryFilter').on('change', filterWardrobe);
     $('#searchInput').on('input', filterWardrobe);
@@ -68,9 +69,7 @@ $(document).ready(function() {
         updateBatchActions();
     });
     
-    batchDeleteBtn.on('click', function() {
-        batchDelete();
-    });
+    batchDeleteBtn.on('click', function() { batchDelete(); });
     
     function updateBatchActions() {
         const checkedBoxes = $('.item-checkbox:checked:visible');
@@ -103,7 +102,13 @@ $(document).ready(function() {
             });
         });
         
-        batchDeleteBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>刪除中...');
+        const $bdSpinner = $('#batchDeleteSpinner');
+        const $bdIcon = $('#batchDeleteIcon');
+        const $bdText = $('#batchDeleteText');
+        batchDeleteBtn.prop('disabled', true);
+        $bdSpinner.removeClass('d-none');
+        $bdIcon.addClass('d-none');
+        $bdText.text('刪除中...');
         
         const requestData = {
             items: itemsToDelete
@@ -130,7 +135,10 @@ $(document).ready(function() {
             },
             error: function() {
                 alert('刪除失敗');
-                batchDeleteBtn.prop('disabled', false).html('<i data-lucide="trash-2" style="width: 1rem; height: 1rem;"></i><span>批量刪除</span>');
+                batchDeleteBtn.prop('disabled', false);
+                $bdSpinner.addClass('d-none');
+                $bdIcon.removeClass('d-none');
+                $bdText.text('批量刪除');
                 window.lucide?.createIcons?.();
             }
         });
@@ -334,19 +342,14 @@ $(document).ready(function() {
         previewCount.text(`${detectedItems.length} 件服裝`);
         
         detectedItems.forEach((item, index) => {
-            const previewCard = $(`
-                <div class="col-12 col-md-6 col-lg-4">
-                    <div class="card border-0 shadow-sm">
-                        <div class="position-relative" style="aspect-ratio: 1; overflow: hidden;">
-                            <img src="${item.imageBase64}" alt="${item.label || 'AI 組合服裝'}" class="card-img-top h-100 w-100 object-fit-cover">
-                        </div>
-                        <div class="card-body p-2">
-                            <div class="small text-muted">${item.label || 'AI 組合服裝'}</div>
-                        </div>
-                    </div>
-                </div>
-            `);
-            previewItemsGrid.append(previewCard);
+            const $col = $('<div class="col-12 col-md-6 col-lg-4"></div>');
+            const $card = $('<div class="card border-0 shadow-sm"></div>');
+            const $imgWrap = $('<div class="position-relative" style="aspect-ratio: 1; overflow: hidden;"></div>');
+            const $img = $(`<img class="card-img-top h-100 w-100 object-fit-cover" alt="${item.label || 'AI 組合服裝'}">`).attr('src', item.imageBase64);
+            const $body = $('<div class="card-body p-2"></div>');
+            const $label = $(`<div class="small text-muted"></div>`).text(item.label || 'AI 組合服裝');
+            $imgWrap.append($img); $body.append($label); $card.append($imgWrap).append($body); $col.append($card);
+            previewItemsGrid.append($col);
         });
         
         previewContainer.removeClass('d-none');
@@ -356,7 +359,13 @@ $(document).ready(function() {
     function saveDetectedItems() {
         if (detectedItems.length === 0) return;
         
-        confirmBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>處理中...');
+        const $cSpinner = $('#confirmBtnSpinner');
+        const $cIcon = $('#confirmBtnIcon');
+        const $cText = $('#confirmBtnText');
+        confirmBtn.prop('disabled', true);
+        $cSpinner.removeClass('d-none');
+        $cIcon.addClass('d-none');
+        $cText.text('處理中...');
         
         const formData = new FormData();
         formData.append('__RequestVerificationToken', $('input[name="__RequestVerificationToken"]').val());
@@ -377,13 +386,19 @@ $(document).ready(function() {
                     location.reload();
                 } else {
                     alert(response?.error || '上傳失敗');
-                    confirmBtn.prop('disabled', false).html('<i data-lucide="check" style="width: 1rem; height: 1rem;"></i><span>確認提取</span>');
+                    confirmBtn.prop('disabled', false);
+                    $cSpinner.addClass('d-none');
+                    $cIcon.removeClass('d-none');
+                    $cText.text('確認提取');
                     window.lucide?.createIcons?.();
                 }
             },
             error: function() {
                 alert('上傳失敗');
-                confirmBtn.prop('disabled', false).html('<i data-lucide="check" style="width: 1rem; height: 1rem;"></i><span>確認提取</span>');
+                confirmBtn.prop('disabled', false);
+                $cSpinner.addClass('d-none');
+                $cIcon.removeClass('d-none');
+                $cText.text('確認提取');
                 window.lucide?.createIcons?.();
             }
         });
@@ -453,13 +468,13 @@ $(document).ready(function() {
 });
 
 function viewClothing(webPath) {
-    const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+    const modal = new bootstrap.Modal($('#imageModal')[0]);
     $('#modalImage').attr('src', webPath);
     modal.show();
 }
 
 function closeImageModal() {
-    const modal = bootstrap.Modal.getInstance(document.getElementById('imageModal'));
+    const modal = bootstrap.Modal.getInstance($('#imageModal')[0]);
     if (modal) modal.hide();
 }
 
@@ -481,5 +496,23 @@ function deleteClothing(fileName, category) {
         }
     });
 }
+
+// 事件委派：圖片預覽與刪除、關閉 Modal
+$(document)
+    .off('click.wardrobe', '.js-view-clothing')
+    .on('click.wardrobe', '.js-view-clothing', function(){
+        const webPath = $(this).data('webpath');
+        viewClothing(webPath);
+    })
+    .off('click.wardrobe', '.js-delete-clothing')
+    .on('click.wardrobe', '.js-delete-clothing', function(){
+        const fileName = $(this).data('filename');
+        const category = $(this).data('category');
+        deleteClothing(fileName, category);
+    })
+    .off('click.wardrobe', '.js-close-image-modal')
+    .on('click.wardrobe', '.js-close-image-modal', function(){
+        closeImageModal();
+    });
 </script>
 

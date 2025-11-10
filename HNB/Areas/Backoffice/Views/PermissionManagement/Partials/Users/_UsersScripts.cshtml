@@ -1,0 +1,104 @@
+@{
+    Layout = null;
+}
+
+<script>
+    let usersTable;
+
+    $(document).ready(function() {
+        window.lucide?.createIcons?.();
+        loadUserResults();
+    });
+
+    function loadUserResults() {
+        $.ajax({
+            url: '@Url.Action("UserSearch", "PermissionManagement")',
+            type: 'GET',
+            success: function (html) {
+                $('#userResultsContainer').replaceWith(html);
+                window.lucide?.createIcons?.();
+                initializeDataTable();
+                bindSearchAndFilterEvents();
+            },
+            error: function () {
+                alert('載入使用者列表失敗，請稍後再試');
+            }
+        });
+    }
+
+    function bindSearchAndFilterEvents() {
+        $('#searchInput')
+            .off('input.usersPage')
+            .on('input.usersPage', function() {
+                usersTable.search(this.value).draw();
+            });
+
+        $('#organizationFilter, #roleFilter, #statusFilter')
+            .off('change.usersPage')
+            .on('change.usersPage', function() {
+                applyFilters();
+            });
+    }
+
+    function initializeDataTable() {
+        usersTable = HNBDataTable.init('#usersTable', {
+            order: [[5, 'desc']],
+            columnDefs: [
+                { orderable: false, targets: [6] }
+            ],
+            initComplete: function() {
+                $('.dataTables_filter').hide();
+                $('.dataTables_length').hide();
+            }
+        });
+    }
+
+    function applyFilters() {
+        const organizationFilter = $('#organizationFilter').val();
+        const roleFilter = $('#roleFilter').val();
+        const statusFilter = $('#statusFilter').val();
+
+        $.fn.dataTable.ext.search.pop();
+
+        if (organizationFilter || roleFilter || statusFilter) {
+            $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+                const organization = data[1];
+                const role = data[2];
+                const status = data[3];
+
+                const matchesOrganization = !organizationFilter || organization.includes(organizationFilter);
+                const matchesRole = !roleFilter || role.includes(roleFilter);
+                const matchesStatus = !statusFilter ||
+                    (statusFilter === 'true' && status.includes('啟用')) ||
+                    (statusFilter === 'false' && status.includes('停用'));
+
+                return matchesOrganization && matchesRole && matchesStatus;
+            });
+        }
+
+        usersTable.draw();
+    }
+
+    function deleteItem(id) {
+        if (!confirm('確定要刪除這個使用者嗎？')) {
+            return;
+        }
+
+        $.ajax({
+            url: '@Url.Action("Delete", "PermissionManagement")',
+            type: 'POST',
+            data: { id: id },
+            success: function(response) {
+                if (response.success) {
+                    alert('刪除成功');
+                    loadUserResults();
+                } else {
+                    alert('刪除失敗：' + response.message);
+                }
+            },
+            error: function() {
+                alert('刪除失敗，請稍後再試');
+            }
+        });
+    }
+</script>

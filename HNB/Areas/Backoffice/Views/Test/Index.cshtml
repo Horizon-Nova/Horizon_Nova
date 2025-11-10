@@ -41,7 +41,7 @@
                     <p><strong>套件版本：</strong> FilePreview v1.0</p>
                     <p><strong>測試檔案數量：</strong> @ViewBag.Files.Count</p>
                     <p><strong>支援格式：</strong> 圖片、PDF、Office、文字、影片、音訊</p>
-                    <button type="button" class="btn btn-secondary" onclick="location.reload()">
+                    <button type="button" class="btn btn-secondary" id="btnReload">
                         <i class="fas fa-sync"></i> 重新整理
                     </button>
                 </div>
@@ -138,21 +138,13 @@
                 const fileName = $(this).data('filename');
                 const fileUrl = '@Url.Action("GetFile", "Test", new { Area = "Backoffice" })' + '?fileName=' + encodeURIComponent(fileName);
                 
-                // 創建臨時元素來觸發 FilePreview
-                const tempElement = document.createElement('div');
-                tempElement.className = 'file-preview';
-                tempElement.dataset.fileUrl = fileUrl;
-                tempElement.dataset.fileName = fileName;
-                tempElement.style.display = 'none';
-                document.body.appendChild(tempElement);
-                
-                // 觸發點擊事件
-                tempElement.click();
-                
-                // 清理臨時元素
-                setTimeout(() => {
-                    document.body.removeChild(tempElement);
-                }, 100);
+                // 使用 jQuery 建立臨時元素（符合規範：不直接使用 createElement）
+                const $temp = $('<div class="file-preview" style="display:none;"></div>');
+                $temp.attr('data-file-url', fileUrl);
+                $temp.attr('data-file-name', fileName);
+                $('body').append($temp);
+                $temp.trigger('click');
+                setTimeout(() => { $temp.remove(); }, 100);
             });
             
             // 上傳檔案
@@ -215,6 +207,10 @@
                         alert('刪除失敗，請稍後再試');
                     }
                 });
+            });
+            // 重新整理列表
+            $('#btnReload').on('click', function () {
+                location.reload();
             });
         });
     </script>

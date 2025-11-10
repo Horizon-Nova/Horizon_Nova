@@ -11,6 +11,8 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <style>
@@ -39,20 +41,22 @@
 
     <!-- 全域 JavaScript -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            lucide.createIcons();
-            
-            const mainContent = document.querySelector('main');
-            if (mainContent) {
-                mainContent.classList.add('fade-in-up');
+        $(function() {
+            if (window.lucide?.createIcons) {
+                window.lucide.createIcons();
+            }
+
+            const $main = $('main');
+            if ($main.length) {
+                $main.addClass('fade-in-up');
             }
         });
 
-        window.addEventListener('error', function(e) {
+        $(window).on('error', function(e) {
             console.error('JavaScript 錯誤:', e.error);
         });
 
-        window.addEventListener('unhandledrejection', function(e) {
+        $(window).on('unhandledrejection', function(e) {
             console.error('未處理的 Promise 拒絕:', e.reason);
         });
     </script>

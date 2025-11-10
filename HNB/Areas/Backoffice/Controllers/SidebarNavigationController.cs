@@ -22,7 +22,7 @@ public class SidebarNavigationController(SidebarNavigationService sev) : BaseCon
     public IActionResult LoadDetail(int id)
     {
         var result = sev.LoadNavigationById(id);
-        return PartialView("_NavigationManagementModal", result);
+        return PartialView("Partials/_NavigationManagementModal", result);
     }
 
     /// <summary>
@@ -33,7 +33,7 @@ public class SidebarNavigationController(SidebarNavigationService sev) : BaseCon
         var navigations = sev.LoadAllNavigations()
             .OrderBy(n => n.full_path)
             .ToList();
-        return PartialView("_ParentOptions", navigations);
+        return PartialView("Partials/_ParentOptions", navigations);
     }
 
     #region 基本 CRUD 操作

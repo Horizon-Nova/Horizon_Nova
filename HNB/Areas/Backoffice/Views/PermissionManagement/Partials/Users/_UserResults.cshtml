@@ -1,0 +1,84 @@
+@model List<Models.HnbHnbBackoffice.vw_permission_user>
+@{
+    Layout = null;
+}
+
+<!-- 人員列表 -->
+<div id="userResultsContainer">
+<table id="usersTable" class="table table-hover align-middle mb-0">
+    <thead class="table-light">
+        <tr>
+            <th>帳號</th>
+            <th>組織</th>
+            <th>角色</th>
+            <th>狀態</th>
+            <th class="d-none d-lg-table-cell">最後登入</th>
+            <th class="d-none d-lg-table-cell">建立時間</th>
+            <th class="text-end">操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model ?? new List<Models.HnbHnbBackoffice.vw_permission_user>())
+        {
+            <tr style="cursor: pointer;"
+                class="js-user-detail-row"
+                data-user-id="@user.id">
+                <td>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="flex-shrink-0" style="width: 2.5rem; height: 2.5rem;">
+                            @if (!string.IsNullOrEmpty(user.avatar_url))
+                            {
+                                <img class="rounded-circle" style="width: 2.5rem; height: 2.5rem; object-fit: cover;" src="@user.avatar_url" alt="@user.full_name">
+                            }
+                            else
+                            {
+                                <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 2.5rem; height: 2.5rem;">
+                                    <span class="text-secondary fw-medium small">@(user.full_name?.Substring(0, 1).ToUpper() ?? "?")</span>
+                                </div>
+                            }
+                        </div>
+                        <div class="overflow-hidden">
+                            <div class="fw-medium text-truncate">@user.full_name</div>
+                            <div class="small text-muted text-truncate">@user.email</div>
+                        </div>
+                    </div>
+                </td>
+                <td>@(user.organization_name ?? "未分配")</td>
+                <td>
+                    @if (string.IsNullOrEmpty(user.role_name))
+                    {
+                        <span class="text-muted">未分配</span>
+                    }
+                    else if (user.role_name.Contains(","))
+                    {
+                        <div class="d-flex flex-wrap gap-1">
+                            @foreach (var role in user.role_name.Split(','))
+                            {
+                                <span class="badge bg-primary bg-opacity-10 text-primary text-nowrap">@role.Trim()</span>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <span class="badge bg-primary bg-opacity-10 text-primary text-nowrap">@user.role_name</span>
+                    }
+                </td>
+                <td>
+                    <span class="badge rounded-pill @(user.is_active == true ? "bg-success" : "bg-danger")">
+                        @(user.is_active == true ? "啟用" : "停用")
+                    </span>
+                </td>
+                <td class="small text-muted d-none d-lg-table-cell">@(user.last_login_at?.ToString("yyyy/MM/dd HH:mm") ?? "從未登入")</td>
+                <td class="small text-muted d-none d-lg-table-cell">@(user.created_at?.ToString("yyyy/MM/dd HH:mm") ?? "-")</td>
+                <td class="text-end">
+                    <button type="button"
+                            class="btn btn-sm btn-outline-danger"
+                            onclick="deleteItem(@user.id)">
+                        <i data-lucide="trash-2" style="width: 1rem; height: 1rem;"></i>
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+</div>

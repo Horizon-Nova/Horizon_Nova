@@ -1,22 +1,29 @@
 # Horizon Nova 開發文檔導覽
 
 ## 核心規則（重點）
-- 規則優先順序：Core Rules（本段） > architecture > ui > 頁面內明確說明 > 程式碼不可違反約束 > 其它
+- 規則優先順序：Core Rules（本段） > architecture > frontend > 頁面內明確說明 > 程式碼不可違反約束 > 其它
 - 資料傳遞：列表/需迴圈/需分區 → `@model`；單一值/統計數 → `ViewBag`；Modal 特殊情況允許 `ViewBag` 同時帶多種資料
-- Modal：所有 Modal 集中於 `_{PageName}Modal.cshtml`；動態資料由 Controller 回傳同一 Partial；不需要額外 container；只用 `showModal`/`closeModal`
-- FileManager 特例：無資料庫；`LoadDetail` 回傳 `PartialView("_FileManagerModal")`；`detailModal` 依 `ViewBag.Detail` 渲染
+- Modal 模式（二選一，依規模與複用度決策）：
+  - 中央式：所有 Modal 集中 `Partials/_{PageName}Modal.cshtml`
+  - 模組式：依功能拆分 `Partials/_UsersModal.cshtml`、`_RolesModal.cshtml`…（推薦於大型模組）
+  - 不得以 JS 組裝 HTML；只用 `showModal`/`closeModal`；Controller 回傳 Partial
 - 嚴禁在 JS 中組裝 HTML（包含彈窗、警告、表單、卡片）。統一：由 Razor 產出 HTML，JS 僅觸發與綁定事件。
 
 ## 詞彙表（簡）
 - Modal：Bootstrap 模態視窗（靜態/動態）
-- Partial View：可重用視圖片段；本專案將所有 Modal 集中在單一檔
+- Partial View：可重用視圖片段；Modal 可採中央式或模組式，置於 `Partials/`
 - ViewBag：動態資料容器，適用單一值與 Modal 特殊情況
 - `@model`：強型別資料來源，適用列表/迴圈/條件分區
 - Virtual Path：以 `/` 開頭的路徑（如 `/`, `/Folder/Sub`）
 
-## 文檔結構
-
-本專案的開發文檔為**通用規範**，適用於所有專案開發，而非特定模組的使用說明。
+## 文檔結構與責任邊界
+本文件（README）僅提供「導覽、核心規則與入口索引」。詳細規範與範例請見對應子文檔：
+- 架構規範：`docs/architecture/*`
+- 前端規範：`docs/frontend/*`
+- FAQ 與故障排除：`docs/faq/*`
+文檔角色分工：
+- README：導覽與核心規則，不放長篇章節與重複內容
+- 子文檔：規則本體、範例與 FAQ
 
 ### 全域規範（強制）
 - 語言：統一使用繁體中文（zh-TW）
@@ -33,7 +40,7 @@
 3. [Service 規範](./architecture/service.md)
 4. [Controller 規範](./architecture/controller.md)
 
-### 後端開發規範
+### 後端開發規範（索引）
 | 文檔 | 說明 |
 |------|------|
 | [ViewBag vs Model 決策](./architecture/viewbag-model.md) | 數據傳遞規範與決策流程 |
@@ -41,36 +48,36 @@
 | [Service 層規範](./architecture/service.md) | 業務邏輯層規範 |
 | [Controller 層規範](./architecture/controller.md) | 控制器層規範 |
 
-### 前端開發規範
+### 前端開發規範（索引）
 | 文檔 | 說明 |
 |------|------|
-| [Bootstrap 使用規範](./ui/bootstrap.md) | Bootstrap 5 使用規則 |
-| [Modal 完整指南](./ui/modal.md) | 彈出視窗開發規範 |
-| [AJAX 規範（含表單提交）](./ui/ajax.md#表單與提交合併指南) | AJAX 與表單提交規範 |
-| [表單設計規範（佈局建議）](./ui/forms.md) | 表單 UI/佈局建議（提交規範已整合至 AJAX） |
-| [DataTable 規範](./ui/datatable.md) | HNBDataTable 使用 |
+| [Bootstrap 使用規範](./frontend/bootstrap.md) | Bootstrap 5 使用規則 |
+| [Modal 原則與決策](./frontend/modal.md) | 中央式/模組式決策與規則 |
+| [AJAX 規範（含表單提交）](./frontend/ajax.md#表單與提交合併指南) | AJAX 與表單提交規範 |
+| [表單設計規範（佈局建議）](./frontend/forms.md) | 表單 UI/佈局建議（提交規範已整合至 AJAX） |
+| [DataTable 規範](./frontend/datatable.md) | HNBDataTable 使用 |
 
-### FAQ 與故障排除
+### 故障診斷
 | 文檔 | 說明 |
 |------|------|
-| [開發常見問題](./faq/development-faq.md) | 通用開發問題與解決方案（含分診流程、匯入檢查） |
-| [Modal 常見問題](./ui/modal.md#常見問題) | Modal 開發疑難排解 |
+| [故障診斷（Diagnostics）](./troubleshooting/development-diagnostics.md) | 通用診斷流程與常見問題 |
+| [Modal 常見問題](./frontend/modal.md#常見問題) | Modal 開發疑難排解 |
 
 ---
 
 ## 開發工作流程（必守）
 1. 先讀規範（architecture/ui）→ 明確資料傳遞方式
 2. 設計流程自上而下：頁面 → Controller → Service → Repository
-3. Modal：先掛 Partial，再用 `LoadDetail` 回同一 Partial
+3. Modal：先掛 Partial；中央式或模組式擇一；用 `LoadDetail` 回同一 Partial
 4. 表單：HTML5 驗證，AJAX 提交，禁止 JS 組裝 HTML
 5. 任何錯誤：依 FAQ 分診流程檢查，不做單點猜測
 
-## PR 檢查清單
+## PR 檢查清單（一致性）
 - [ ] 符合資料傳遞規範（列表=`@model`，單值=`ViewBag`，Modal特例）
 - [ ] 沒有在 JS 組裝 HTML（彈窗/表單/卡片）
 - [ ] Controller 命名與責任（`LoadDetail`、`Submit*`、單一 `Delete`）
 - [ ] Service/Repository 命名與責任（`Load*`/`Query*`），無業務混入 Repository
-- [ ] Modal 集中於單檔，動態由 Controller 回傳同一 Partial
+- [ ] Modal 架構模式選用一致（中央式或模組式），動態由 Controller 回傳對應 Partial
 - [ ] 表單驗證使用 HTML5；AJAX 以標準範本實作
 - [ ] 具備最小重現與日誌/請求片段（如修 bug）
 

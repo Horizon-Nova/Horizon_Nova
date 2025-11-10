@@ -6,7 +6,7 @@
     Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
 }
 
-@await Html.PartialAsync("_SettingsModal")
+@await Html.PartialAsync("Partials/_SettingsModal")
 
     <!-- 系統狀態卡片 -->
 <div class="row g-3 mb-3">
@@ -80,7 +80,7 @@
                         <i data-lucide="file-text" style="width: 1.25rem; height: 1.25rem;"></i>
                         日誌管理
                     </h5>
-                    <button type="button" class="btn btn-link btn-sm p-0 text-primary" onclick="refreshLogStats()">
+                    <button type="button" class="btn btn-link btn-sm p-0 text-primary js-refresh-logs">
                         <i data-lucide="refresh-cw" style="width: 1rem; height: 1rem;" class="me-1"></i>刷新
                 </button>
             </div>
@@ -91,15 +91,15 @@
                         <div class="flex-grow-1">
                             <div class="d-flex align-items-center gap-2 mb-1">
                                 <p class="mb-0 fw-medium">錯誤日誌</p>
-                                <button type="button" class="btn btn-link btn-sm p-0 text-muted" onclick="event.stopPropagation(); showModal('error-help')">
+                                <button type="button" class="btn btn-link btn-sm p-0 text-muted js-open-help" data-target="error-help">
                                     <i data-lucide="help-circle" style="width: 1rem; height: 1rem;"></i>
                              </button>
                          </div>
                             <p class="small text-muted mb-0" id="errorLogCount">@(ViewBag.ErrorLogsCount ?? 0) 條記錄</p>
                      </div>
                         <div class="d-flex gap-2 ms-lg-auto">
-                            <button type="button" class="btn btn-danger btn-sm" onclick="clearLogs('error', false, $(this))">全部清理</button>
-                            <button type="button" class="btn btn-warning btn-sm" onclick="clearLogs('error', true, $(this))">30天清理</button>
+                            <button type="button" class="btn btn-danger btn-sm js-clear-logs" data-type="error" data-days="all">全部清理</button>
+                            <button type="button" class="btn btn-warning btn-sm js-clear-logs" data-type="error" data-days="30">30天清理</button>
                      </div>
                  </div>
                     
@@ -108,15 +108,15 @@
                         <div class="flex-grow-1">
                             <div class="d-flex align-items-center gap-2 mb-1">
                                 <p class="mb-0 fw-medium">系統日誌</p>
-                                <button type="button" class="btn btn-link btn-sm p-0 text-muted" onclick="event.stopPropagation(); showModal('system-help')">
+                                <button type="button" class="btn btn-link btn-sm p-0 text-muted js-open-help" data-target="system-help">
                                     <i data-lucide="help-circle" style="width: 1rem; height: 1rem;"></i>
                              </button>
                          </div>
                             <p class="small text-muted mb-0" id="systemLogCount">@(ViewBag.AccessLogsCount ?? 0) 條記錄</p>
                      </div>
                         <div class="d-flex gap-2 ms-lg-auto">
-                            <button type="button" class="btn btn-primary btn-sm" onclick="clearLogs('system', false, $(this))">全部清理</button>
-                            <button type="button" class="btn btn-info btn-sm" onclick="clearLogs('system', true, $(this))">30天清理</button>
+                            <button type="button" class="btn btn-primary btn-sm js-clear-logs" data-type="system" data-days="all">全部清理</button>
+                            <button type="button" class="btn btn-info btn-sm js-clear-logs" data-type="system" data-days="30">30天清理</button>
                      </div>
                  </div>
                     
@@ -125,15 +125,15 @@
                         <div class="flex-grow-1">
                             <div class="d-flex align-items-center gap-2 mb-1">
                                 <p class="mb-0 fw-medium">存取日誌</p>
-                                <button type="button" class="btn btn-link btn-sm p-0 text-muted" onclick="event.stopPropagation(); showModal('access-help')">
+                                <button type="button" class="btn btn-link btn-sm p-0 text-muted js-open-help" data-target="access-help">
                                     <i data-lucide="help-circle" style="width: 1rem; height: 1rem;"></i>
                              </button>
                          </div>
                             <p class="small text-muted mb-0" id="accessLogCount">@(ViewBag.AccessLogsCount ?? 0) 條記錄</p>
                      </div>
                         <div class="d-flex gap-2 ms-lg-auto">
-                            <button type="button" class="btn btn-success btn-sm" onclick="clearLogs('access', false, $(this))">全部清理</button>
-                            <button type="button" class="btn btn-outline-success btn-sm" onclick="clearLogs('access', true, $(this))">30天清理</button>
+                            <button type="button" class="btn btn-success btn-sm js-clear-logs" data-type="access" data-days="all">全部清理</button>
+                            <button type="button" class="btn btn-outline-success btn-sm js-clear-logs" data-type="access" data-days="30">30天清理</button>
                         </div>
                     </div>
                      </div>
@@ -150,7 +150,7 @@
                         <i data-lucide="database" style="width: 1.25rem; height: 1.25rem;"></i>
                         快取管理
                     </h5>
-                    <button type="button" class="btn btn-link btn-sm p-0 text-primary" onclick="refreshCacheStats()">
+                    <button type="button" class="btn btn-link btn-sm p-0 text-primary js-refresh-cache">
                         <i data-lucide="refresh-cw" style="width: 1rem; height: 1rem;" class="me-1"></i>刷新
                 </button>
             </div>
@@ -161,15 +161,15 @@
                         <div class="flex-grow-1">
                             <div class="d-flex align-items-center gap-2 mb-1">
                                 <p class="mb-0 fw-medium">記憶體快取</p>
-                                <button type="button" class="btn btn-link btn-sm p-0 text-muted" onclick="event.stopPropagation(); showModal('memory-help')">
+                                <button type="button" class="btn btn-link btn-sm p-0 text-muted js-open-help" data-target="memory-help">
                                     <i data-lucide="help-circle" style="width: 1rem; height: 1rem;"></i>
                              </button>
                          </div>
                             <p class="small text-muted mb-0" id="memoryCacheSize">@(ViewBag.MemoryCacheSize != null ? $"{ViewBag.MemoryCacheSize / (1024 * 1024):F1} MB" : "--")</p>
                      </div>
                         <div class="d-flex gap-2 ms-lg-auto">
-                            <button type="button" class="btn btn-primary btn-sm" onclick="clearCache('memory', false, $(this))">全部清理</button>
-                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="clearCache('memory', true, $(this))">30天清理</button>
+                            <button type="button" class="btn btn-primary btn-sm js-clear-cache" data-type="memory" data-days="all">全部清理</button>
+                            <button type="button" class="btn btn-outline-primary btn-sm js-clear-cache" data-type="memory" data-days="30">30天清理</button>
                      </div>
                  </div>
                     
@@ -178,15 +178,15 @@
                         <div class="flex-grow-1">
                             <div class="d-flex align-items-center gap-2 mb-1">
                                 <p class="mb-0 fw-medium">資料庫快取</p>
-                                <button type="button" class="btn btn-link btn-sm p-0 text-muted" onclick="event.stopPropagation(); showModal('database-help')">
+                                <button type="button" class="btn btn-link btn-sm p-0 text-muted js-open-help" data-target="database-help">
                                     <i data-lucide="help-circle" style="width: 1rem; height: 1rem;"></i>
                              </button>
                          </div>
                             <p class="small text-muted mb-0" id="databaseCacheSize">@(ViewBag.CacheEntries ?? 0) 個條目</p>
                      </div>
                         <div class="d-flex gap-2 ms-lg-auto">
-                            <button type="button" class="btn btn-info btn-sm" onclick="clearCache('database', false, $(this))">全部清理</button>
-                            <button type="button" class="btn btn-outline-info btn-sm" onclick="clearCache('database', true, $(this))">30天清理</button>
+                            <button type="button" class="btn btn-info btn-sm js-clear-cache" data-type="database" data-days="all">全部清理</button>
+                            <button type="button" class="btn btn-outline-info btn-sm js-clear-cache" data-type="database" data-days="30">30天清理</button>
                      </div>
                  </div>
                     
@@ -195,15 +195,15 @@
                         <div class="flex-grow-1">
                             <div class="d-flex align-items-center gap-2 mb-1">
                                 <p class="mb-0 fw-medium">檔案快取</p>
-                                <button type="button" class="btn btn-link btn-sm p-0 text-muted" onclick="event.stopPropagation(); showModal('file-help')">
+                                <button type="button" class="btn btn-link btn-sm p-0 text-muted js-open-help" data-target="file-help">
                                     <i data-lucide="help-circle" style="width: 1rem; height: 1rem;"></i>
                              </button>
                          </div>
                             <p class="small text-muted mb-0" id="fileCacheSize">最後清理：@(ViewBag.LastCacheCleared?.ToString("yyyy-MM-dd HH:mm") ?? "未知")</p>
                      </div>
                         <div class="d-flex gap-2 ms-lg-auto">
-                            <button type="button" class="btn btn-success btn-sm" onclick="clearCache('file', false, $(this))">全部清理</button>
-                            <button type="button" class="btn btn-outline-success btn-sm" onclick="clearCache('file', true, $(this))">30天清理</button>
+                            <button type="button" class="btn btn-success btn-sm js-clear-cache" data-type="file" data-days="all">全部清理</button>
+                            <button type="button" class="btn btn-outline-success btn-sm js-clear-cache" data-type="file" data-days="30">30天清理</button>
                         </div>
                     </div>
                      </div>
@@ -227,7 +227,7 @@
                         <p class="small text-muted mb-0">暫時關閉網站進行維護</p>
                     </div>
                     <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" role="switch" id="maintenanceMode" onchange="toggleMaintenanceMode()" style="width: 3rem; height: 1.5rem; cursor: pointer;">
+                        <input class="form-check-input" type="checkbox" role="switch" id="maintenanceMode" style="width: 3rem; height: 1.5rem; cursor: pointer;">
                     </div>
                 </div>
             </div>
@@ -237,7 +237,7 @@
                         <p class="fw-medium mb-1">資料庫優化</p>
                         <p class="small text-muted mb-0">清理和優化資料庫</p>
                 </div>
-                    <button type="button" id="btnOptimizeDatabase" class="btn btn-primary btn-sm" onclick="optimizeDatabase()">
+                    <button type="button" id="btnOptimizeDatabase" class="btn btn-primary btn-sm js-optimize-database">
                     執行優化
                 </button>
             </div>
@@ -248,7 +248,7 @@
                         <p class="fw-medium mb-1">系統重啟</p>
                         <p class="small text-muted mb-0">重新啟動應用程式</p>
                 </div>
-                    <button type="button" id="btnRestartSystem" class="btn btn-danger btn-sm" onclick="restartApplication()">
+                    <button type="button" id="btnRestartSystem" class="btn btn-danger btn-sm js-restart-system">
                     重啟系統
                 </button>
             </div>
@@ -413,6 +413,36 @@
         // 初始化 Lucide 圖示
         $(document).ready(() => {
             window.lucide?.createIcons?.();
+
+            // 委派：開啟說明視窗
+            $(document).off('click.settings', '.js-open-help').on('click.settings', '.js-open-help', function(e){
+                e.preventDefault(); e.stopPropagation();
+                const target = $(this).data('target');
+                if (target) showModal(target);
+            });
+
+            // 委派：刷新統計
+            $(document).off('click.settings', '.js-refresh-logs').on('click.settings', '.js-refresh-logs', function(){ refreshLogStats(); });
+            $(document).off('click.settings', '.js-refresh-cache').on('click.settings', '.js-refresh-cache', function(){ refreshCacheStats(); });
+
+            // 委派：清理日誌與快取
+            $(document).off('click.settings', '.js-clear-logs').on('click.settings', '.js-clear-logs', function(){
+                const type = $(this).data('type');
+                const days = $(this).data('days');
+                const is30 = days === '30';
+                clearLogs(type, is30, $(this));
+            });
+            $(document).off('click.settings', '.js-clear-cache').on('click.settings', '.js-clear-cache', function(){
+                const type = $(this).data('type');
+                const days = $(this).data('days');
+                const is30 = days === '30';
+                clearCache(type, is30, $(this));
+            });
+
+            // 委派：維運工具
+            $(document).off('click.settings', '.js-optimize-database').on('click.settings', '.js-optimize-database', function(){ optimizeDatabase(); });
+            $(document).off('click.settings', '.js-restart-system').on('click.settings', '.js-restart-system', function(){ restartApplication(); });
+            $(document).off('change.settings', '#maintenanceMode').on('change.settings', '#maintenanceMode', function(){ toggleMaintenanceMode(); });
         });
         
         // 清理日誌

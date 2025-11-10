@@ -5,6 +5,31 @@ $(document).ready(() => {
     $('#searchInput').on('input', applyFilters);
     $('#statusFilter').on('change', applyFilters);
     $('#levelFilter').on('change', applyFilters);
+
+    // 委派：開啟說明/新增 Modal
+    $(document)
+        .off('click.nav', '.js-open-navigation-help')
+        .on('click.nav', '.js-open-navigation-help', function(e){ e.preventDefault(); showModal('navigation-help'); })
+        .off('click.nav', '.js-open-nav-add')
+        .on('click.nav', '.js-open-nav-add', function(){ showModal('nav-add-modal'); })
+        .off('click.nav', '.js-icon-picker-confirm')
+        .on('click.nav', '.js-icon-picker-confirm', function(){ selectIcon(); })
+        .off('click.nav', '.js-nav-toggle-children')
+        .on('click.nav', '.js-nav-toggle-children', function(e){ e.preventDefault(); toggleChildren(this); })
+        .off('click.nav', '.js-nav-show-detail')
+        .on('click.nav', '.js-nav-show-detail', function(){ const id=$(this).data('id'); showDetailModal(id); })
+        .off('click.nav', '.js-nav-show-edit')
+        .on('click.nav', '.js-nav-show-edit', function(){ const id=$(this).data('id'); showEditModal(id); })
+        .off('click.nav', '.js-nav-show-delete')
+        .on('click.nav', '.js-nav-show-delete', function(){ const id=$(this).data('id'); showDeleteModal(id); })
+        .off('click.nav', '.js-open-icon-picker')
+        .on('click.nav', '.js-open-icon-picker', function(){ openIconPicker(); })
+        .off('click.nav', '.js-save-navigation')
+        .on('click.nav', '.js-save-navigation', function(){ const action=$(this).data('action'); saveNavigation(action); })
+        .off('input.nav', '.js-delete-confirm-input')
+        .on('input.nav', '.js-delete-confirm-input', validateDeleteInput)
+        .off('click.nav', '.js-confirm-delete')
+        .on('click.nav', '.js-confirm-delete', confirmDelete);
     
     // 初始化拖放功能
     initializeDragAndDrop();
@@ -33,24 +58,21 @@ const loadParentOptions = (modalId) => {
 const showEditModal = (id) => showModal('nav-edit-modal', {
     url: '/Backoffice/SidebarNavigation/LoadDetail',
     method: 'GET',
-    data: { id: id },
-    container: 'navigationModals'
+    data: { id: id }
 });
 
 // 便捷函數：顯示詳情 Modal
 const showDetailModal = (id) => showModal('nav-detail-modal', {
     url: '/Backoffice/SidebarNavigation/LoadDetail',
     method: 'GET',
-    data: { id: id },
-    container: 'navigationModals'
+    data: { id: id }
 });
 
 // 便捷函數：顯示刪除確認 Modal
 const showDeleteModal = (id) => showModal('nav-delete-modal', {
     url: '/Backoffice/SidebarNavigation/LoadDetail',
     method: 'GET',
-    data: { id: id },
-    container: 'navigationModals'
+    data: { id: id }
 });
 
 // 篩選功能

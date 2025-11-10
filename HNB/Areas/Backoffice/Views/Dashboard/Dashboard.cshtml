@@ -237,9 +237,9 @@
 @section Scripts {
     <script>
         // 初始化 Lucide 圖示
-        document.addEventListener('DOMContentLoaded', function() {
-            if (window.lucide && lucide.createIcons) {
-                lucide.createIcons();
+        $(function () {
+            if (window.lucide?.createIcons) {
+                window.lucide.createIcons();
             }
         });
     </script>
