@@ -1,0 +1,48 @@
+@{
+    Layout = null;
+}
+
+<div class="bg-white border rounded-3 p-3 p-lg-4 mb-3 mb-lg-4">
+    <div class="d-flex flex-column gap-3">
+        <div class="w-100">
+            <div class="position-relative">
+                <input type="text"
+                       id="searchInput"
+                       placeholder="搜尋角色名稱..."
+                       class="form-control form-control-sm ps-5">
+                <i data-lucide="search"
+                   class="position-absolute top-50 translate-middle-y text-muted"
+                   style="left: 0.75rem; width: 1rem; height: 1rem;"></i>
+            </div>
+        </div>
+        <div class="row g-2 g-lg-3 align-items-stretch">
+            <div class="col-6 col-lg-4">
+                <select id="organizationFilter" class="form-select form-select-sm">
+                    <option value="">所有組織</option>
+                    @if (ViewBag.Organizations != null)
+                    {
+                        foreach (var org in ViewBag.Organizations)
+                        {
+                            <option value="@org.organization_name">@org.organization_name</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-6 col-lg-4">
+                <select id="statusFilter" class="form-select form-select-sm">
+                    <option value="">所有狀態</option>
+                    <option value="true">啟用</option>
+                    <option value="false">停用</option>
+                </select>
+            </div>
+            <div class="col-12 col-lg-4">
+                <button type="button"
+                        class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2"
+                        onclick="showModal('roleFormModal', { url: '@Url.Action("LoadRoleForm", "PermissionManagement")', method: 'GET', data: { id: null }, container: 'roleFormModalContent' })">
+                    <i data-lucide="plus" style="width: 1rem; height: 1rem;"></i>
+                    新增角色
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

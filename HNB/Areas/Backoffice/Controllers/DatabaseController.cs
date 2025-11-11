@@ -9,10 +9,8 @@ namespace HNB.Areas.Backoffice.Controllers;
 [Area("Backoffice")]
 public class DatabaseController(DatabaseService databaseService) : BaseController
 {
-    public IActionResult DatabaseManagement()
-    {
-        return View("DatabaseManagement");
-    }
+    public IActionResult Index()
+        => View();
 
     [HttpPost]
     public IActionResult TestConnection(TestConnectionRequestDto request)
@@ -35,24 +33,19 @@ public class DatabaseController(DatabaseService databaseService) : BaseControlle
         return Json(new { success = result.Success, message = result.Message });
     }
 
-    [HttpGet]
     public IActionResult LoadDetail(string? tableName = null, string? provider = null, string? connectionString = null)
     {
-        ViewBag.TableName = tableName;
-        
-        if (!string.IsNullOrEmpty(tableName) && !string.IsNullOrEmpty(provider) && !string.IsNullOrEmpty(connectionString))
-        {
-            var result = databaseService.LoadTableDetails(provider, connectionString, tableName);
-            ViewBag.TableColumns = result.Columns ?? new List<TableColumnDto>();
-            ViewBag.Success = result.Success;
-        }
-        else
-        {
-            ViewBag.TableColumns = new List<TableColumnDto>();
-            ViewBag.Success = false;
-        }
-        
-        return PartialView("Partials/_DatabaseManagementModal");
+        var currentTableName = tableName ?? string.Empty;
+        var currentProvider = provider ?? string.Empty;
+        var currentConnectionString = connectionString ?? string.Empty;
+
+        var result = databaseService.LoadTableDetails(currentProvider, currentConnectionString, currentTableName);
+
+        ViewBag.TableName = currentTableName;
+        ViewBag.TableColumns = result.Columns ?? new List<TableColumnDto>();
+        ViewBag.Success = result.Success;
+
+        return PartialView("Partials/Modal/_TableDetail");
     }
 
 }

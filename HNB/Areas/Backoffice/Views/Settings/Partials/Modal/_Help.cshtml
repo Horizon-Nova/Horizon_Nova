@@ -1,0 +1,133 @@
+@{
+    Layout = null;
+}
+
+<div id="settingsHelpModal" class="modal fade" tabindex="-1" aria-labelledby="settingsHelpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="settingsHelpModalLabel">系統設定操作說明</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="vstack gap-3">
+                            <section>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">功能說明</h6>
+                                <p class="small mb-0">
+                                    系統設定頁涵蓋硬體監控、日誌與快取維運工具，是維持服務穩定的日常巡檢中心。
+                                    建議值班人員每日確認一次，遇到異常立即記錄與處置。
+                                </p>
+                            </section>
+
+                            <section>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">巡檢流程</h6>
+                                <ol class="small mb-0">
+                                    <li>確認上方即時指標，CPU/GPU 溫度與使用率應維持在安全範圍內。</li>
+                                    <li>於「日誌管理」點擊刷新，察看錯誤日誌與存取日誌變動。</li>
+                                    <li>檢查快取佔用情況，如佔用偏高或剛完成部署，執行全部清理。</li>
+                                    <li>必要時啟用維護模式進行處置，完成後記得關閉並通知團隊。</li>
+                                </ol>
+                            </section>
+
+                            <section>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">工具與用途</h6>
+                                <table class="table table-sm table-bordered small mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 120px;">項目</th>
+                                            <th>說明</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>錯誤日誌</strong></td>
+                                            <td>紀錄例外與系統崩潰，建議保留 30 天，重大異常需立即導出備份。</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>存取日誌</strong></td>
+                                            <td>追蹤登入與動作，協助安全稽核與事件追查。</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>快取清理</strong></td>
+                                            <td>包含記憶體、資料庫及檔案快取；部署或資料異動後需要清除。</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>維護模式</strong></td>
+                                            <td>切換為維護頁面，僅管理員可登入，適用於更新或緊急處理。</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </section>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="vstack gap-3">
+                            <section>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">指標參考值</h6>
+                                <table class="table table-sm table-bordered small mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 140px;">指標</th>
+                                            <th>建議門檻</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>CPU / GPU 溫度</strong></td>
+                                            <td>低於 80°C；連續超標請檢查散熱或降載。</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>記憶體使用率</strong></td>
+                                            <td>常態低於 85%；如長期偏高需檢討快取或程序。</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>電源效率</strong></td>
+                                            <td>顯示「正常」以外時須檢查電源供應或電池。</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>運行時間</strong></td>
+                                            <td>重啟後請確認背景服務與排程均已恢復。</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </section>
+
+                            <section>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">常見問題</h6>
+                                <div class="small">
+                                    <p class="mb-2"><strong>Q1：清理快取後資料仍是舊的？</strong></p>
+                                    <p class="ms-3 mb-3">A：請同步通知前端清除瀏覽器快取，並確認是否有 CDN 緩存。</p>
+
+                                    <p class="mb-2"><strong>Q2：維護模式無法關閉？</strong></p>
+                                    <p class="ms-3 mb-3">A：重新整理後仍維持維護頁，可能有多台節點尚未更新，請逐一檢查。</p>
+
+                                    <p class="mb-2"><strong>Q3：系統重啟後使用者無法登入？</strong></p>
+                                    <p class="ms-3 mb-3">A：確認資料庫、快取服務與身分驗證服務皆已啟動。</p>
+
+                                    <p class="mb-2"><strong>Q4：硬體資訊沒有更新？</strong></p>
+                                    <p class="ms-3 mb-0">A：請檢查監控排程或 Agent 是否中斷，並查看錯誤日誌。</p>
+                                </div>
+                            </section>
+
+                            <section class="alert alert-warning small mb-0">
+                                <h6 class="fw-bold mb-2">操作提醒</h6>
+                                <ul class="mb-0 ps-3">
+                                    <li>重大操作前務必確認備份狀態與恢復方案。</li>
+                                    <li>啟用維護模式或重啟系統前，請先通知使用者與相關人員。</li>
+                                    <li>Toast 只提供結果摘要，詳細錯誤需至日誌查閱。</li>
+                                    <li>處理異常時記錄指標截圖與時間點，方便後續追蹤。</li>
+                                </ul>
+                            </section>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">我知道了</button>
+            </div>
+        </div>
+    </div>
+</div>
+

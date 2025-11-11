@@ -1,0 +1,134 @@
+@{
+    Layout = null;
+}
+
+<script>
+    let organizationsTable;
+
+    $(document).ready(() => {
+        window.lucide?.createIcons?.();
+        searchOrganizations();
+    });
+
+    function searchOrganizations() {
+        const $container = $('#organizationResultsContainer');
+        $container.html(`
+            <div class="py-5 text-center text-muted">
+                <div class="spinner-border text-primary" role="status"></div>
+                <div class="small mt-3">載入組織資料中...</div>
+            </div>
+        `);
+
+        $.ajax({
+            url: '@Url.Action("SearchOrganizations", "PermissionManagement")',
+            type: 'GET',
+            success: (html) => {
+                $container.html(html);
+                window.lucide?.createIcons?.();
+                HNBDataTable.autoInit($container);
+                organizationsTable = $('#organizationsTable').DataTable();
+                bindOrganizationFilters();
+                applyOrganizationFilters();
+            },
+            error: () => {
+                $container.html(`
+                    <div class="alert alert-danger mb-0" role="alert">
+                        [失敗] 無法載入組織資料，請稍後再試
+                    </div>
+                `);
+                showToast('[失敗] 無法載入組織資料，請稍後再試', 'error');
+            }
+        });
+    }
+
+    function bindOrganizationFilters() {
+        $('#searchInput')
+            .off('input.organizationsPage')
+            .on('input.organizationsPage', function () {
+                organizationsTable?.search(this.value).draw();
+            });
+
+        $('#levelFilter, #statusFilter')
+            .off('change.organizationsPage')
+            .on('change.organizationsPage', () => applyOrganizationFilters());
+    }
+
+    function applyOrganizationFilters() {
+        const levelFilter = $('#levelFilter').val();
+        const statusFilter = $('#statusFilter').val();
+
+        $.fn.dataTable.ext.search = [];
+        $.fn.dataTable.ext.search.push((settings, data) => {
+            if (settings.nTable?.id !== 'organizationsTable') {
+                return true;
+            }
+
+            const level = data[2] ?? '';
+            const status = data[3] ?? '';
+
+            const matchesLevel = !levelFilter || level.includes(levelFilter);
+            const matchesStatus =
+                statusFilter === 'true'
+                    ? status.includes('啟用')
+                    : statusFilter === 'false'
+                        ? status.includes('停用')
+                        : true;
+
+            return matchesLevel && matchesStatus;
+        });
+
+        organizationsTable?.draw();
+    }
+
+    function deleteOrganization(id) {
+        if (!confirm('確定要刪除這個組織嗎？')) {
+            return;
+        }
+
+        $.ajax({
+            url: '@Url.Action("Delete", "PermissionManagement")',
+            type: 'POST',
+            data: { id },
+            success: (response) => {
+                const message = response?.message ?? '[成功] 組織已刪除';
+                showToast(message, resolveToastType(message));
+                searchOrganizations();
+            },
+            error: () => {
+                showToast('[失敗] 無法刪除組織，請稍後再試', 'error');
+            }
+        });
+    }
+
+    function submitOrganizationFormData() {
+        const $form = $('#FormDataOrganization');
+        const formElement = $form[0];
+
+        if (!formElement.checkValidity()) {
+            formElement.reportValidity();
+            return;
+        }
+
+        const formData = $form.serialize();
+
+        $.ajax({
+            url: '@Url.Action("SubmitOrganization", "PermissionManagement")',
+            type: 'POST',
+            data: formData,
+            success: (response) => {
+                const message = response?.message ?? '[成功] 組織已儲存';
+                showToast(message, resolveToastType(message));
+                closeModal('organizationFormModal');
+                searchOrganizations();
+            },
+            error: () => {
+                showToast('[失敗] 提交失敗，請聯絡系統管理員', 'error');
+            }
+        });
+    }
+
+    function resolveToastType(message) {
+        return (message ?? '').includes('[失敗]') ? 'error' : 'success';
+    }
+</script>
+

@@ -1,0 +1,121 @@
+@{
+    Layout = null;
+}
+
+<div id="roleHelpModal" class="modal fade" tabindex="-1" aria-labelledby="roleHelpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="roleHelpModalLabel">角色管理操作說明</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="vstack gap-3">
+                            <section>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">功能說明</h6>
+                                <p class="small mb-0">
+                                    角色管理負責定義系統中角色的資訊與導航權限。角色與組織綁定，
+                                    使用者擁有角色後會繼承角色設定的所有導航項目與操作權限。
+                                </p>
+                            </section>
+
+                            <section>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">基本操作流程</h6>
+                                <ol class="small mb-0">
+                                    <li>於控制台設定查詢條件並點擊「查詢」載入角色列表</li>
+                                    <li>點擊列表中的「查看」可檢視角色詳細資訊與導航權限</li>
+                                    <li>點擊「新增角色」或列表內的「編輯」進入角色表單</li>
+                                    <li>勾選需要的導航項目後儲存，相關使用者權限會立即更新</li>
+                                    <li>若需刪除角色，請先確認沒有使用者正在使用該角色</li>
+                                </ol>
+                            </section>
+
+                            <section>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">重要欄位說明</h6>
+                                <table class="table table-sm table-bordered small mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 110px;">欄位</th>
+                                            <th>說明</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>角色名稱</strong></td>
+                                            <td>必填；建議以職能或功能命名，方便辨識</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>所屬組織</strong></td>
+                                            <td>決定可指派的範圍；可僅操作自己組織底下的使用者</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>權限類型</strong></td>
+                                            <td>可記錄角色用途或分類（例如：管理者、審核者）</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>導航權限</strong></td>
+                                            <td>勾選後，角色所屬使用者即可看到並操作對應功能</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>備註</strong></td>
+                                            <td>建議記錄角色用途、指派對象或特殊限制，方便追蹤</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </section>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="vstack gap-3">
+                            <section>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">導航權限說明</h6>
+                                <ul class="small mb-2 ps-3">
+                                    <li>導航以模組分組呈現，展開後可勾選對應頁面</li>
+                                    <li>勾選後該角色即可看到並使用對應功能</li>
+                                    <li>取消勾選會即時收回權限，下次登入後生效</li>
+                                    <li>若未看到目標項目，請先至「導航管理」新增或啟用</li>
+                                </ul>
+                                <div class="alert alert-info small mb-0">
+                                    <strong>建議：</strong>先建立組織 → 設定角色 → 再指派給使用者，
+                                    確保權限繼承流程清晰。
+                                </div>
+                            </section>
+
+                            <section>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">常見問題</h6>
+                                <div class="small">
+                                    <p class="mb-2"><strong>Q1：為什麼角色不能刪除？</strong></p>
+                                    <p class="ms-3 mb-3">A：請確認沒有使用者仍指派此角色，移除後即可刪除。</p>
+
+                                    <p class="mb-2"><strong>Q2：修改導航後，使用者何時生效？</strong></p>
+                                    <p class="ms-3 mb-3">A：權限立即更新；已登入的使用者需重新整理或重新登入。</p>
+
+                                    <p class="mb-2"><strong>Q3：角色可以在多個組織共用嗎？</strong></p>
+                                    <p class="ms-3 mb-3">A：角色與組織一對一，若需跨組織請複製角色設定。</p>
+
+                                    <p class="mb-2"><strong>Q4：如何快速建立新角色？</strong></p>
+                                    <p class="ms-3 mb-0">A：可複製既有角色設定（後續可考慮提供「另存新角色」功能）。</p>
+                                </div>
+                            </section>
+
+                            <section class="alert alert-warning small mb-0">
+                                <h6 class="fw-bold mb-2">操作提醒</h6>
+                                <ul class="mb-0 ps-3">
+                                    <li>角色權限影響範圍大，建議更新前先確認影響對象</li>
+                                    <li>導航勾選請與資訊安全政策一致，避免過度授權</li>
+                                    <li>備註欄可記錄建立原因與適用範圍，方便後續稽核</li>
+                                    <li>若使用者反映無法操作功能，請先確認是否已指派正確角色</li>
+                                </ul>
+                            </section>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">我了解了</button>
+            </div>
+        </div>
+    </div>
+</div>

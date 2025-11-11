@@ -1,0 +1,75 @@
+@model List<Models.HnbHnbBackoffice.vw_permission_organization>
+@{
+    Layout = null;
+}
+
+<div id="organizationResultsContainer">
+    <table id="organizationsTable"
+           class="table table-hover align-middle mb-0"
+           data-hnb-datatable="true"
+           data-hnb-options='{"order":[[6,"desc"]],"columnDefs":[{"orderable":false,"targets":[7]}]}'>
+        <thead class="table-light">
+            <tr>
+                <th>組織</th>
+                <th>上級組織</th>
+                <th class="d-none d-lg-table-cell">層級</th>
+                <th>狀態</th>
+                <th class="d-none d-lg-table-cell">人員數</th>
+                <th class="d-none d-lg-table-cell">角色數</th>
+                <th class="d-none d-lg-table-cell">建立時間</th>
+                <th class="text-end">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var org in Model ?? new List<Models.HnbHnbBackoffice.vw_permission_organization>())
+            {
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="flex-shrink-0">
+                                <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center"
+                                     style="width: 2.5rem; height: 2.5rem;">
+                                    <i data-lucide="building" class="text-primary" style="width: 1.25rem; height: 1.25rem;"></i>
+                                </div>
+                            </div>
+                            <div class="overflow-hidden">
+                                <div class="fw-medium text-truncate">@org.organization_name</div>
+                                <div class="small text-muted text-truncate">@org.organization_description</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>@(org.parent_organization_name ?? "根組織")</td>
+                    <td class="d-none d-lg-table-cell">@((org.organization_level ?? 0) == 0 ? "-" : org.organization_level)</td>
+                    <td>
+                        <span class="badge rounded-pill @(org.is_active == true ? "bg-success" : "bg-danger")">
+                            @(org.is_active == true ? "啟用" : "停用")
+                        </span>
+                    </td>
+                    <td class="d-none d-lg-table-cell">@(org.total_users_count ?? 0)</td>
+                    <td class="d-none d-lg-table-cell">@(org.total_roles_count ?? 0)</td>
+                    <td class="small text-muted d-none d-lg-table-cell">@(org.created_at?.ToString("yyyy/MM/dd HH:mm") ?? "-")</td>
+                    <td class="text-end">
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-secondary"
+                                    onclick="showModal('organizationDetailModal', { url: '@Url.Action("LoadOrganizationDetail", "PermissionManagement")', method: 'GET', data: { id: @org.id }, container: 'organizationDetailModalContent' })">
+                                <i data-lucide="eye" style="width: 1rem; height: 1rem;"></i>
+                            </button>
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-primary"
+                                    onclick="showModal('organizationFormModal', { url: '@Url.Action("LoadOrganizationForm", "PermissionManagement")', method: 'GET', data: { id: @org.id }, container: 'organizationFormModalContent' })">
+                                <i data-lucide="edit" style="width: 1rem; height: 1rem;"></i>
+                            </button>
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-danger"
+                                    onclick="deleteOrganization(@org.id)">
+                                <i data-lucide="trash-2" style="width: 1rem; height: 1rem;"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+

@@ -1,0 +1,135 @@
+@model Models.HnbHnbBackoffice.vw_permission_user?
+@{
+    Layout = null;
+}
+
+<div id="userFormDataModal" class="modal fade" tabindex="-1" aria-labelledby="userFormDataModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+        <div class="modal-content" id="userFormDataModalContent">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userFormDataModalLabel">@(ViewBag.User?.id > 0 ? "編輯帳號" : "新增帳號")</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+            </div>
+
+            <div class="modal-body p-4">
+                <form id="FormDataUser" autocomplete="off">
+                    <input type="hidden" name="id" value="@(Model?.id ?? 0)" />
+
+                    <div class="vstack gap-3">
+                        <div>
+                            <h6 class="fw-bold mb-3 pb-2 border-bottom">基本資訊</h6>
+                            <div class="row g-2 align-items-center">
+                                <div class="col-auto" style="width: 90px;"><label for="full_name" class="col-form-label col-form-label-sm mb-0">姓名<span class="text-danger">*</span></label></div>
+                                <div class="col"><input type="text" id="full_name" name="full_name" value="@(Model?.full_name ?? "")" class="form-control form-control-sm" placeholder="請輸入完整姓名" required></div>
+                                <div class="col-auto" style="width: 90px;"><label for="email" class="col-form-label col-form-label-sm mb-0">電子郵件<span class="text-danger">*</span></label></div>
+                                <div class="col"><input type="email" id="email" name="email" value="@(Model?.email ?? "")" class="form-control form-control-sm" placeholder="example@email.com" required></div>
+                            </div>
+                            <div class="row g-2 align-items-center mt-2">
+                                <div class="col-auto" style="width: 90px;"><label for="phone" class="col-form-label col-form-label-sm mb-0">電話</label></div>
+                                <div class="col"><input type="text" id="phone" name="phone" value="@(Model?.phone ?? "")" class="form-control form-control-sm" placeholder="請輸入聯絡電話"></div>
+                                <div class="col-auto" style="width: 90px;"><label for="gender" class="col-form-label col-form-label-sm mb-0">性別<span class="text-danger">*</span></label></div>
+                                <div class="col">
+                                    <select id="gender" name="gender" class="form-select form-select-sm">
+                                        <option value="">請選擇性別</option>
+                                        <option value="male" @(Model?.gender == "male" ? "selected" : "")>男性</option>
+                                        <option value="female" @(Model?.gender == "female" ? "selected" : "")>女性</option>
+                                        <option value="other" @(Model?.gender == "other" ? "selected" : "")>其他</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h6 class="fw-bold mb-3 pb-2 border-bottom">帳號資訊</h6>
+                            <div class="row g-2 align-items-center">
+                                <div class="col-auto" style="width: 90px;"><label for="name" class="col-form-label col-form-label-sm mb-0">使用者名稱<span class="text-danger">*</span></label></div>
+                                <div class="col"><input type="text" id="name" name="name" value="@(Model?.name ?? "")" class="form-control form-control-sm @(Model?.id > 0 ? "bg-light" : "")" placeholder="請輸入使用者名稱" @(Model?.id > 0 ? "readonly" : "required")></div>
+                                <div class="col-auto" style="width: 90px;"><label for="password_hash" class="col-form-label col-form-label-sm mb-0">密碼@(Model?.id > 0 ? "" : Html.Raw("<span class=\"text-danger\">*</span>"))</label></div>
+                                <div class="col">
+                                    <input type="password" id="password_hash" name="password_hash" class="form-control form-control-sm @(Model?.id > 0 ? "bg-light" : "")" placeholder="@(Model?.id > 0 ? "**********" : "請輸入密碼")" @(Model?.id > 0 ? "readonly" : "required")>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h6 class="fw-bold mb-3 pb-2 border-bottom">個人資訊</h6>
+                            <div class="row g-2 align-items-center">
+                                <div class="col-auto" style="width: 90px;"><label for="nickname" class="col-form-label col-form-label-sm mb-0">暱稱</label></div>
+                                <div class="col"><input type="text" id="nickname" name="nickname" value="@(Model?.nickname ?? "")" class="form-control form-control-sm" placeholder="請輸入暱稱"></div>
+                                <div class="col-auto" style="width: 90px;"><label for="zodiac_sign" class="col-form-label col-form-label-sm mb-0">星座</label></div>
+                                <div class="col"><input type="text" id="zodiac_sign" name="zodiac_sign" value="@(Model?.zodiac_sign ?? "")" class="form-control form-control-sm" placeholder="請輸入星座"></div>
+                            </div>
+                            <div class="row g-2 align-items-center mt-2">
+                                <div class="col-auto" style="width: 90px;"><label for="favorite_color" class="col-form-label col-form-label-sm mb-0">喜歡顏色</label></div>
+                                <div class="col"><input type="text" id="favorite_color" name="favorite_color" value="@(Model?.favorite_color ?? "")" class="form-control form-control-sm" placeholder="請輸入喜歡的顏色"></div>
+                                <div class="col-auto" style="width: 90px;"><label for="location" class="col-form-label col-form-label-sm mb-0">常駐地點</label></div>
+                                <div class="col"><input type="text" id="location" name="location" value="@(Model?.location ?? "")" class="form-control form-control-sm" placeholder="請輸入常駐地點"></div>
+                            </div>
+                            <div class="row g-2 align-items-start mt-2">
+                                <div class="col-auto" style="width: 90px;"><label for="bio" class="col-form-label col-form-label-sm mb-0">個人簡介</label></div>
+                                <div class="col"><textarea id="bio" name="bio" rows="2" class="form-control form-control-sm" placeholder="請輸入個人簡介或工作描述">@(Model?.bio ?? "")</textarea></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h6 class="fw-bold mb-3 pb-2 border-bottom">權限設定</h6>
+                            <div class="vstack gap-3">
+                                <div class="row g-2 align-items-start">
+                                    <div class="col-auto" style="width: 90px;"><label class="col-form-label col-form-label-sm mb-0">角色<span class="text-danger">*</span></label></div>
+                                    <div class="col">
+                                        <div class="d-flex flex-wrap gap-2">
+                                            @if (ViewBag.Roles != null)
+                                            {
+                                                @foreach (var role in ViewBag.Roles)
+                                                {
+                                                    var isChecked = Model?.roles != null && Model.roles.Contains(role.id.ToString());
+                                                    <div>
+                                                        <input type="checkbox" name="role_ids" value="@role.id" @(isChecked ? "checked" : "") class="btn-check" id="role_@role.id" autocomplete="off">
+                                                        <label class="btn btn-outline-primary btn-sm" for="role_@role.id">@role.name</label>
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row g-2 align-items-center">
+                                    <div class="col-auto" style="width: 90px;"><label for="parent_id" class="col-form-label col-form-label-sm mb-0">組織<span class="text-danger">*</span></label></div>
+                                    <div class="col">
+                                        <select id="parent_id" name="parent_id" required class="form-select form-select-sm">
+                                            <option value="">請選擇組織</option>
+                                            @if (ViewBag.Organizations != null)
+                                            {
+                                                @foreach (var org in ViewBag.Organizations)
+                                                {
+                                                    <option value="@org.id" @(Model?.parent_id == org.id ? "selected" : "")>@org.organization_name</option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h6 class="fw-bold mb-3 pb-2 border-bottom">狀態設定</h6>
+                            <div class="row g-2 align-items-center">
+                                <div class="col-auto" style="width: 90px;"><label for="is_active" class="col-form-label col-form-label-sm mb-0">帳號狀態</label></div>
+                                <div class="col">
+                                    <select id="is_active" name="is_active" class="form-select form-select-sm">
+                                        <option value="true" @(Model?.is_active == true ? "selected" : "")>啟用</option>
+                                        <option value="false" @(Model?.is_active == false ? "selected" : "")>停用</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="submitUserFormData()">@(Model?.id > 0 ? "儲存變更" : "新增帳號")</button>
+            </div>
+        </div>
+    </div>
+</div>

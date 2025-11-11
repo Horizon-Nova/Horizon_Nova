@@ -7,7 +7,7 @@ namespace HNB.Areas.Backoffice.Controllers;
 [Area("Backoffice")]
 public class SettingsController(SettingsServices svc) : BaseController
 {
-    public IActionResult Settings()
+    public IActionResult Index()
     {
         svc.ViewBagModel(ViewBag);
         return View();

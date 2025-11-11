@@ -1,0 +1,124 @@
+@{
+    Layout = null;
+}
+
+<div id="userHelpModal" class="modal fade" tabindex="-1" aria-labelledby="userHelpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userHelpModalLabel">帳號管理操作說明</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="vstack gap-3">
+                            <section>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">功能說明</h6>
+                                <p class="small mb-0">
+                                    帳號管理負責維護系統使用者的基本資料、登入資訊與所屬權限。
+                                    透過控制台篩選可快速找到特定使用者，並支援新增、編輯、停用等操作。
+                                </p>
+                            </section>
+
+                            <section>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">操作流程</h6>
+                                <ol class="small mb-0">
+                                    <li>設定查詢條件（姓名、組織、角色、狀態）後點擊搜尋欄即時篩選</li>
+                                    <li>點擊列表中的帳號，可開啟詳細資訊視窗</li>
+                                    <li>按下「新增人員」可建立新帳號；列表中的筆筒與筆按鈕則提供刪除與編輯</li>
+                                    <li>編輯完成後儲存，系統會立即更新帳號資訊與角色權限</li>
+                                </ol>
+                            </section>
+
+                            <section>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">表單欄位說明</h6>
+                                <table class="table table-sm table-bordered small mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 110px;">欄位</th>
+                                            <th>說明</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>姓名/電子郵件</strong></td>
+                                            <td>必填，作為聯絡與識別使用；電子郵件需唯一</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>使用者名稱</strong></td>
+                                            <td>系統登入帳號；建立後不可修改</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>密碼</strong></td>
+                                            <td>新增帳號必填；編輯帳號時可透過重設流程處理</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>角色</strong></td>
+                                            <td>至少勾選一個，決定可使用的功能與導航</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>組織</strong></td>
+                                            <td>決定資料可見範圍與預設權限繼承來源</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>帳號狀態</strong></td>
+                                            <td>停用後使用者無法登入，但資料仍保留以供備查</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </section>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="vstack gap-3">
+                            <section>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">角色與權限</h6>
+                                <ul class="small mb-2 ps-3">
+                                    <li>使用者可同時擁有多個角色，權限會合併計算</li>
+                                    <li>角色權限調整後，使用者需重新登入才會載入最新設定</li>
+                                    <li>若使用者看不到某功能，請確認角色是否已指派對應導航權限</li>
+                                </ul>
+                                <div class="alert alert-info small mb-0">
+                                    <strong>建議：</strong>建立帳號前先確認角色設定是否正確，
+                                    以免授予過多或過少的權限。
+                                </div>
+                            </section>
+
+                            <section>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">常見問題</h6>
+                                <div class="small">
+                                    <p class="mb-2"><strong>Q1：為什麼無法刪除使用者？</strong></p>
+                                    <p class="ms-3 mb-3">A：請確認該使用者是否為必要帳號；通常建議改為停用，保留操作紀錄。</p>
+
+                                    <p class="mb-2"><strong>Q2：如何重設使用者密碼？</strong></p>
+                                    <p class="ms-3 mb-3">A：在編輯視窗中輸入新密碼即可，系統會自動重新雜湊儲存。</p>
+
+                                    <p class="mb-2"><strong>Q3：使用者登入後看不到指定資料？</strong></p>
+                                    <p class="ms-3 mb-3">A：請確認組織設定是否正確，或是否已勾選必要角色。</p>
+
+                                    <p class="mb-2"><strong>Q4：可以批次匯入使用者嗎？</strong></p>
+                                    <p class="ms-3 mb-0">A：目前未提供批次匯入；若有需求，請向系統管理員提出需求評估。</p>
+                                </div>
+                            </section>
+
+                            <section class="alert alert-warning small mb-0">
+                                <h6 class="fw-bold mb-2">操作提醒</h6>
+                                <ul class="mb-0 ps-3">
+                                    <li>新增帳號後請立即指派角色並通知帳號資訊</li>
+                                    <li>停用帳號前建議先確認該使用者的資料交接狀況</li>
+                                    <li>角色變更會影響使用者權限，請提前告知相關人員</li>
+                                    <li>若使用者因密碼輸入錯誤被鎖定，可透過編輯表單重設密碼</li>
+                                </ul>
+                            </section>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">我了解了</button>
+            </div>
+        </div>
+    </div>
+</div>
+

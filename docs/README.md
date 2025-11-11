@@ -8,6 +8,7 @@
   - 模組式：依功能拆分 `Partials/_UsersModal.cshtml`、`_RolesModal.cshtml`…（推薦於大型模組）
   - 不得以 JS 組裝 HTML；只用 `showModal`/`closeModal`；Controller 回傳 Partial
 - 嚴禁在 JS 中組裝 HTML（包含彈窗、警告、表單、卡片）。統一：由 Razor 產出 HTML，JS 僅觸發與綁定事件。
+- 低階程式防制（強制）：Razor 避免 `@if` 控制顯示，統一使用就地運算與 `?? ""`；觸發行為以 HTML inline `onclick` 直接呼叫 `showModal(...)` 或提交函式，不再包裝代理函式；AJAX 採最小必要參數與一致回應處理，不增加多餘防呆與暫存變數。
 
 ## 詞彙表（簡）
 - Modal：Bootstrap 模態視窗（靜態/動態）

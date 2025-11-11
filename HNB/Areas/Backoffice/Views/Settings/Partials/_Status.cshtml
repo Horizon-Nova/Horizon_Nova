@@ -1,0 +1,92 @@
+@{
+    Layout = null;
+    var hardware = ViewBag.HardwareInfo;
+
+    Func<object?, string> formatPercent = value =>
+    {
+        if (value is null)
+        {
+            return string.Empty;
+        }
+
+        return value is IFormattable formattable
+            ? $"{formattable.ToString("F1", null)}%"
+            : value.ToString() ?? string.Empty;
+    };
+
+    string FormatStatus(bool condition, string positive, string negative)
+        => condition ? positive : negative;
+
+    var isSystemActive = hardware?.is_active == true;
+}
+
+<div class="row g-3 mb-3">
+    <div class="col-6 col-lg-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="flex-grow-1" style="min-width: 0;">
+                        <p class="text-muted small mb-1 text-truncate">系統狀態</p>
+                        <p id="systemStatus"
+                           class="fs-5 fw-bold mb-0 text-truncate @(isSystemActive ? "text-success" : "text-danger")">
+                            @FormatStatus(isSystemActive, "運行中", "停止")
+                        </p>
+                    </div>
+                    <i id="systemStatusIcon"
+                       data-lucide="activity"
+                       class="flex-shrink-0 @(isSystemActive ? "text-success" : "text-danger")"
+                       style="width: 2rem; height: 2rem;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6 col-lg-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="flex-grow-1" style="min-width: 0;">
+                        <p class="text-muted small mb-1">CPU 使用率</p>
+                        <p id="cpuUsage" class="fs-5 fw-bold mb-0">
+                            @formatPercent(hardware?.cpu_usage_percent)
+                        </p>
+                    </div>
+                    <i data-lucide="cpu" class="text-primary flex-shrink-0" style="width: 2rem; height: 2rem;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6 col-lg-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="flex-grow-1" style="min-width: 0;">
+                        <p class="text-muted small mb-1">記憶體使用率</p>
+                        <p id="memoryUsage" class="fs-5 fw-bold mb-0">
+                            @formatPercent(hardware?.memory_usage_percent)
+                        </p>
+                    </div>
+                    <i data-lucide="memory-stick" class="text-purple flex-shrink-0" style="width: 2rem; height: 2rem; color: #9333ea;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6 col-lg-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="flex-grow-1" style="min-width: 0;">
+                        <p class="text-muted small mb-1">GPU 使用率</p>
+                        <p id="gpuUsage" class="fs-5 fw-bold mb-0">
+                            @formatPercent(hardware?.gpu_usage_percent)
+                        </p>
+                    </div>
+                    <i data-lucide="monitor" class="text-warning flex-shrink-0" style="width: 2rem; height: 2rem;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

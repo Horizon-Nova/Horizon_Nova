@@ -1,0 +1,119 @@
+@model Models.HnbHnbBackoffice.vw_permission_user?
+
+@{
+    Layout = null;
+}
+
+<div id="userDetailModal" class="modal fade" tabindex="-1" aria-labelledby="userDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" id="userDetailModalContent">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userDetailModalLabel">帳號詳細資訊</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="vstack gap-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="flex-shrink-0" style="width: 5rem; height: 5rem;">
+                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 5rem; height: 5rem;">
+                                <span class="text-secondary fw-medium fs-3">
+                                    @(string.IsNullOrEmpty(Model?.full_name)? "?": Model.full_name.Substring(0, 1).ToUpper())
+                                </span>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="fs-5 fw-semibold mb-1">@((Model?.full_name) ?? string.Empty)</h4>
+                            <p class="text-muted mb-0">@((Model?.email) ?? string.Empty)</p>
+                            <p class="small text-muted mb-0">@((Model?.phone) ?? string.Empty)</p>
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <h6 class="fw-medium mb-2">基本資訊</h6>
+                            <div class="vstack gap-2">
+                                <div class="d-flex justify-content-between">
+                                    <span class="small text-muted">使用者名稱</span>
+                                    <span class="small">@((Model?.name) ?? string.Empty)</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span class="small text-muted">暱稱</span>
+                                    <span class="small">@((Model?.nickname) ?? string.Empty)</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span class="small text-muted">性別</span>
+                                    <span class="small">@((Model?.gender) ?? string.Empty)</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span class="small text-muted">狀態</span>
+                                    <span class="small">
+                                        <span class="badge rounded-pill @(Model?.is_active == true ? "bg-success bg-opacity-10 text-success" : Model?.is_active == false ? "bg-danger bg-opacity-10 text-danger" : "bg-secondary bg-opacity-10 text-secondary")">
+                                            @(Model?.is_active == true ? "啟用" : Model?.is_active == false ? "停用" : "未載入")
+                                        </span>
+                                    </span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span class="small text-muted">建立時間</span>
+                                    <span class="small">
+                                        @(Model?.created_at?.ToString("yyyy/MM/dd HH:mm") ?? "-")
+                                    </span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span class="small text-muted">最後登入</span>
+                                    <span class="small">
+                                        @(Model?.last_login_at?.ToString("yyyy/MM/dd HH:mm") ?? "從未登入")
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="fw-medium mb-2">組織資訊</h6>
+                            <div class="vstack gap-2">
+                                <div class="d-flex justify-content-between">
+                                    <span class="small text-muted">組織</span>
+                                    <span class="small">@((Model?.organization_name) ?? string.Empty)</span>
+                                </div>
+                                <div>
+                                    <span class="small text-muted d-block mb-1">角色</span>
+                                    @{
+                                        var roleNames = (Model?.role_name ?? string.Empty)
+                                            .Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+                                            .Distinct(StringComparer.OrdinalIgnoreCase)
+                                            .ToList();
+                                    }
+                                    @if (roleNames.Any())
+                                    {
+                                        <div class="d-flex flex-wrap gap-1 small mb-0">
+                                            @foreach (var roleName in roleNames)
+                                            {
+                                                <span class="badge bg-primary bg-opacity-10 text-primary text-nowrap">@roleName</span>
+                                            }
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="small text-muted">未分配</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <h6 class="fw-medium mb-2">個人簡介</h6>
+                            <p class="small text-muted mb-0">@((Model?.bio) ?? string.Empty)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                <button type="button"
+                        class="btn btn-primary"
+                        onclick="closeModal('userDetailModal'); showModal('userFormDataModal', { url: '@Url.Action("LoadUserForm", "PermissionManagement")', method: 'GET', data: { id: @(Model?.id ?? 0) }, container: 'userFormDataModalContent' })">
+                    編輯
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

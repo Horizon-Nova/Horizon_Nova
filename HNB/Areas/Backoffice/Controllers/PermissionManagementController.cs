@@ -8,7 +8,7 @@ namespace HNB.Areas.Backoffice.Controllers;
 [Area("Backoffice")]
 public class PermissionManagementController(PermissionManagementService sev, AuthService authService) : BaseController
 {
-	#region Utilities
+    #region 共用工具
     /// <summary>
     /// 獲取當前用戶的組織ID（從 Claims）
     /// </summary>
@@ -19,21 +19,39 @@ public class PermissionManagementController(PermissionManagementService sev, Aut
     }
 	#endregion
 
-	#region Users
+    #region 使用者管理
     public IActionResult Users()
         => View();
 
-    public IActionResult UserSearch()
+    public IActionResult SearchUsers()
     {
         var currentUserOrganizationId = GetCurrentUserOrganizationId();
 
         var model = sev.LoadUserList(organizationId: currentUserOrganizationId);
-        return PartialView("Partials/Users/_UserResults", model);
+        return PartialView("Partials/Users/_SearchResults", model);
+    }
+
+    [HttpGet]
+    public IActionResult LoadUserDetail(int id)
+    {
+        var currentUserOrganizationId = GetCurrentUserOrganizationId();
+        sev.ViewBagModel(ViewBag, id: id, currentUserOrganizationId: currentUserOrganizationId);
+        var model = ViewBag.User as vw_permission_user;
+        return PartialView("Partials/Users/Modal/_Permissions", model);
+    }
+
+    [HttpGet]
+    public IActionResult LoadUserForm(int? id = null)
+    {
+        var currentUserOrganizationId = GetCurrentUserOrganizationId();
+        sev.ViewBagModel(ViewBag, id: id, currentUserOrganizationId: currentUserOrganizationId);
+        var model = ViewBag.User as vw_permission_user;
+        return PartialView("Partials/Users/Modal/_FormData", model);
     }
 
     #endregion
 
-    #region Roles
+    #region 角色管理
     public IActionResult Roles()
     {
         var currentUserOrganizationId = GetCurrentUserOrganizationId();
@@ -43,9 +61,37 @@ public class PermissionManagementController(PermissionManagementService sev, Aut
         var model = sev.LoadRoleList(organizationId: currentUserOrganizationId);
         return View(model);
     }
+
+    [HttpGet]
+    public IActionResult SearchRoles()
+    {
+        var currentUserOrganizationId = GetCurrentUserOrganizationId();
+
+        var model = sev.LoadRoleList(organizationId: currentUserOrganizationId);
+        return PartialView("Partials/Roles/_SearchResults", model);
+    }
+
+    [HttpGet]
+    public IActionResult LoadRoleDetail(int id)
+    {
+        var currentUserOrganizationId = GetCurrentUserOrganizationId();
+        sev.ViewBagModel(ViewBag, id: id, currentUserOrganizationId: currentUserOrganizationId);
+        var model = ViewBag.Role as vw_permission_role;
+        return PartialView("Partials/Roles/Modal/_Permissions", model);
+    }
+
+    [HttpGet]
+    public IActionResult LoadRoleForm(int? id = null)
+    {
+        var currentUserOrganizationId = GetCurrentUserOrganizationId();
+        sev.ViewBagModel(ViewBag, id: id, currentUserOrganizationId: currentUserOrganizationId);
+        var model = ViewBag.Role as vw_permission_role;
+        return PartialView("Partials/Roles/Modal/_FormData", model);
+    }
+
 	#endregion
 
-	#region Organizations
+    #region 組織管理
     public IActionResult Organizations()
     {
         var currentUserOrganizationId = GetCurrentUserOrganizationId();
@@ -56,16 +102,42 @@ public class PermissionManagementController(PermissionManagementService sev, Aut
         return View(model);
     }
 
+    public IActionResult SearchOrganizations()
+    {
+        var currentUserOrganizationId = GetCurrentUserOrganizationId();
+
+        var model = sev.LoadOrganizationList(organizationId: currentUserOrganizationId);
+        return PartialView("Partials/Organizations/_SearchResults", model);
+    }
+
+    public IActionResult LoadOrganizationDetail(int id)
+    {
+        var currentUserOrganizationId = GetCurrentUserOrganizationId();
+        sev.ViewBagModel(ViewBag, id: id, currentUserOrganizationId: currentUserOrganizationId);
+        var model = ViewBag.Organization as vw_permission_organization;
+        return PartialView("Partials/Organizations/Modal/_Detail", model);
+    }
+
+    public IActionResult LoadOrganizationForm(int? id = null)
+    {
+        var currentUserOrganizationId = GetCurrentUserOrganizationId();
+        sev.ViewBagModel(ViewBag, id: id, currentUserOrganizationId: currentUserOrganizationId);
+        var model = ViewBag.Organization as vw_permission_organization;
+        return PartialView("Partials/Organizations/Modal/_FormData", model);
+    }
+
     public IActionResult OrganizationChart()
     {
         var currentUserOrganizationId = GetCurrentUserOrganizationId();
+
+        sev.ViewBagModel(ViewBag, currentUserOrganizationId: currentUserOrganizationId);
         
         var model = sev.LoadOrganizationList(organizationId: currentUserOrganizationId);
         return View(model);
     }
 	#endregion
 
-	#region Shared / Partials (AJAX)
+	#region 基本 CRUD 操作
 
     [HttpPost]
     public IActionResult Delete(int id)
@@ -74,9 +146,6 @@ public class PermissionManagementController(PermissionManagementService sev, Aut
         return Json(new { success = result, message = result ? "刪除成功" : "刪除失敗" });
     }
 
-	#endregion
-
-	#region Submit (Create/Update)
     [HttpPost]
     public IActionResult SubmitUser(permission_management form, int[] role_ids) 
     {
@@ -114,6 +183,5 @@ public class PermissionManagementController(PermissionManagementService sev, Aut
         return Json(new { success = result.success, message = result.message });
     }
 	#endregion
-
 
 }

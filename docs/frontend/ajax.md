@@ -5,7 +5,7 @@
 - HTML 結構由 Razor/Partial 產生；JS 僅觸發事件與傳遞資料，嚴禁用 JS 組裝任何 HTML
 - POST/PUT/DELETE 需攜帶 Anti-Forgery Token（全域已啟用；請確保表單含有 Token 元素）
 - 錯誤處理必須一致、簡潔且可觀測
-- 選取與事件一律使用 jQuery API，禁止 `document.getElementById`、`addEventListener`
+- 選取與事件一律禁止 `document.getElementById`、`addEventListener`
 
 ### 選取與事件（強制）
 正確（HTML）：
@@ -112,7 +112,7 @@ return Json(new { success = false, message = "操作失敗：原因說明" });
 - 不要省略錯誤處理
 - 不要將 Token 放在 headers（應在 body）
 - 不要在 JS 中組裝任何 HTML（含彈窗、提示、表單、卡片）
-
+- 不要多於判斷保持整潔
 ---
 
 最後更新：2025-11-10

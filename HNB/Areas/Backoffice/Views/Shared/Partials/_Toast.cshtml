@@ -1,0 +1,21 @@
+<div id="toast-container"
+     class="toast-stack"
+     aria-live="polite"
+     aria-atomic="true">
+</div>
+
+<div id="toast-template"
+     class="toast d-none"
+     data-toast-template="true">
+    <div class="toast-icon">
+        <i data-lucide="info" data-toast-role="icon" style="width: 1.25rem; height: 1.25rem;"></i>
+    </div>
+    <div class="toast-message" data-toast-role="message"></div>
+    <button type="button"
+            class="toast-close"
+            aria-label="關閉通知"
+            onclick="closeToast(this)">
+        <i data-lucide="x" style="width: 1rem; height: 1rem;"></i>
+    </button>
+</div>
+

@@ -9,6 +9,7 @@
 - 位置：一律放於對應頁面的 `Partials/` 目錄
 - 尺寸：表單=`modal-lg`、詳情=預設、說明=`modal-xl`
 - Controller 回傳 Partial，前端以 `showModal('id', { url, method, data })` 載入（不需要額外 container）
+- 低階防制：觸發以 HTML inline `onclick` 直接呼叫 `showModal(...)`；Partial 內避免 `@if` 控制顯示，統一用 `?? ""` 與樣式處理占位或空值；不建立多餘暫存變數或代理函式
 
 ### 模式決策表
 | 場景 | 建議模式 | 理由 |

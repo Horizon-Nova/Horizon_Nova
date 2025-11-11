@@ -1,0 +1,133 @@
+@{
+    Layout = null;
+}
+
+<script>
+    let rolesTable;
+
+    $(document).ready(() => {
+        window.lucide?.createIcons?.();
+        searchRoles();
+    });
+
+    function searchRoles() {
+        const $container = $('#roleResultsContainer');
+        $container.html(`
+            <div class="py-5 text-center text-muted">
+                <div class="spinner-border text-primary" role="status"></div>
+                <div class="small mt-3">載入角色資料中...</div>
+            </div>
+        `);
+
+        $.ajax({
+            url: '@Url.Action("SearchRoles", "PermissionManagement")',
+            type: 'GET',
+            success: (html) => {
+                $container.html(html);
+                window.lucide?.createIcons?.();
+                HNBDataTable.autoInit($container);
+                rolesTable = $('#rolesTable').DataTable();
+                bindRoleFilters();
+                applyRoleFilters();
+            },
+            error: () => {
+                $container.html(`
+                    <div class="alert alert-danger mb-0" role="alert">
+                        [失敗] 無法載入角色資料，請稍後再試
+                    </div>
+                `);
+                showToast('[失敗] 無法載入角色資料，請稍後再試', 'error');
+            }
+        });
+    }
+
+    function bindRoleFilters() {
+        $('#searchInput')
+            .off('input.rolesPage')
+            .on('input.rolesPage', function () {
+                rolesTable?.search(this.value).draw();
+            });
+
+        $('#organizationFilter, #statusFilter')
+            .off('change.rolesPage')
+            .on('change.rolesPage', () => applyRoleFilters());
+    }
+
+    function applyRoleFilters() {
+        const organizationFilter = $('#organizationFilter').val();
+        const statusFilter = $('#statusFilter').val();
+
+        $.fn.dataTable.ext.search = [];
+        $.fn.dataTable.ext.search.push((settings, data) => {
+            if (settings.nTable?.id !== 'rolesTable') {
+                return true;
+            }
+
+            const organization = data[1] ?? '';
+            const status = data[3] ?? '';
+
+            const matchesOrganization = !organizationFilter || organization.includes(organizationFilter);
+            const matchesStatus =
+                statusFilter === 'true'
+                    ? status.includes('啟用')
+                    : statusFilter === 'false'
+                        ? status.includes('停用')
+                        : true;
+
+            return matchesOrganization && matchesStatus;
+        });
+
+        rolesTable?.draw();
+    }
+
+    function deleteRole(id) {
+        if (!confirm('確定要刪除這個角色嗎？')) {
+            return;
+        }
+
+        $.ajax({
+            url: '@Url.Action("Delete", "PermissionManagement")',
+            type: 'POST',
+            data: { id },
+            success: (response) => {
+                const message = response?.message ?? '[成功] 角色已刪除';
+                showToast(message, resolveToastType(message));
+                searchRoles();
+            },
+            error: () => {
+                showToast('[失敗] 無法刪除角色，請稍後再試', 'error');
+            }
+        });
+    }
+
+    function submitRoleFormData() {
+        const $form = $('#FormDataRole');
+        const formElement = $form[0];
+
+        if (!formElement.checkValidity()) {
+            formElement.reportValidity();
+            return;
+        }
+
+        const formData = $form.serialize();
+
+        $.ajax({
+            url: '@Url.Action("SubmitRole", "PermissionManagement")',
+            type: 'POST',
+            data: formData,
+            success: (response) => {
+                const message = response?.message ?? '[成功] 角色已儲存';
+                showToast(message, resolveToastType(message));
+                closeModal('roleFormModal');
+                searchRoles();
+            },
+            error: () => {
+                showToast('[失敗] 提交失敗，請聯絡系統管理員', 'error');
+            }
+        });
+    }
+
+    function resolveToastType(message) {
+        return (message ?? '').includes('[失敗]') ? 'error' : 'success';
+    }
+</script>

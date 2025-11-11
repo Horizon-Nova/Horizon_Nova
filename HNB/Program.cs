@@ -72,9 +72,8 @@ builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(optio
 
 var app = builder.Build();
 
-// 立即初始化 ModelHealthChecker（Singleton），觸發模型檢查、下載和健康檢查
 var modelHealthChecker = app.Services.GetRequiredService<HNB.IntelligentSystems.ObjectDetection.Core.ModelHealthChecker>();
-_ = modelHealthChecker; // 確保實例被創建，觸發自動初始化
+_ = modelHealthChecker;
 
 app.UseExceptionHandler("/Error/NotFound");
 app.UseStatusCodePagesWithReExecute("/Error/NotFound");

@@ -1,0 +1,270 @@
+@{
+    Layout = null;
+}
+
+<script>
+(() => {
+    const prefixMap = {
+        success: '[成功]',
+        error: '[失敗]',
+        info: '[資訊]',
+        warning: '[提醒]'
+    };
+
+    const formatMessage = (message, type = 'info') => {
+        const prefix = prefixMap[type] ?? prefixMap.info;
+        const detail = (message ?? '').toString().trim();
+        return detail.length > 0 ? `${prefix} ${detail}` : prefix;
+    };
+
+    const updateButtonState = ($button, isLoading, loadingText) => {
+        if (!$button || $button.length === 0) {
+            return;
+        }
+
+        const originalText = $button.data('original-text');
+
+        if (isLoading) {
+            if (!originalText) {
+                $button.data('original-text', $button.html());
+            }
+            $button.prop('disabled', true).html(loadingText ?? '處理中...');
+        } else {
+            $button.prop('disabled', false).html(originalText ?? $button.html());
+        }
+    };
+
+    const refreshLogStats = () => {
+        return $.ajax({
+            type: 'GET',
+            url: '/Backoffice/Settings/RefreshLogStats'
+        }).done(response => {
+            if (!response?.success) {
+                showToast(formatMessage(response?.message ?? '刷新日誌統計失敗'), 'error');
+                return;
+            }
+
+            const errorLogs = response.errorLogs ?? 0;
+            const accessLogs = response.accessLogs ?? 0;
+            const systemLogs = response.systemLogs ?? accessLogs;
+
+            $('#errorLogCount').text(`${errorLogs} 條記錄`);
+            $('#accessLogCount').text(`${accessLogs} 條記錄`);
+            $('#systemLogCount').text(`${systemLogs} 條記錄`);
+        }).fail(() => {
+            showToast(formatMessage('刷新日誌統計失敗，請稍後再試'), 'error');
+        });
+    };
+
+    const refreshCacheStats = () => {
+        return $.ajax({
+            type: 'GET',
+            url: '/Backoffice/Settings/RefreshCacheStats'
+        }).done(response => {
+            if (!response?.success) {
+                showToast(formatMessage(response?.message ?? '刷新快取統計失敗'), 'error');
+                return;
+            }
+
+            const memorySize = response.memoryCacheSize ?? 0;
+            const cacheEntries = response.cacheEntries ?? 0;
+            const lastCleared = (response.lastCleared ?? '').toString().trim();
+
+            const memoryText = memorySize > 0
+                ? `${(memorySize / (1024 * 1024)).toFixed(1)} MB`
+                : '';
+
+            $('#memoryCacheSize').text(memoryText);
+            $('#databaseCacheSize').text(`${cacheEntries} 個條目`);
+            $('#fileCacheSize').text(lastCleared ? `最後清理：${lastCleared}` : '');
+        }).fail(() => {
+            showToast(formatMessage('刷新快取統計失敗，請稍後再試'), 'error');
+        });
+    };
+
+    const clearLogs = (logType, isThirtyDays, $button) => {
+        const scope = isThirtyDays ? '30天前的' : '所有';
+        const name = getLogTypeName(logType);
+
+        if (!window.confirm(`確定要清理${scope}${name}嗎？`)) {
+            return;
+        }
+
+        updateButtonState($button, true, '清理中...');
+
+        $.ajax({
+            type: 'POST',
+            url: '/Backoffice/Settings/ClearLogs',
+            data: { logType, is30Days: isThirtyDays }
+        }).done(response => {
+            const type = response?.success ? 'success' : 'error';
+            const message = response?.message ?? `${name}清理失敗`;
+            showToast(formatMessage(message, type), type);
+
+            if (response?.success) {
+                refreshLogStats();
+            }
+        }).fail(() => {
+            showToast(formatMessage(`${name}清理失敗，請稍後再試`, 'error'), 'error');
+        }).always(() => {
+            updateButtonState($button, false);
+        });
+    };
+
+    const clearCache = (cacheType, isThirtyDays, $button) => {
+        const scope = isThirtyDays ? '30天前的' : '所有';
+        const name = getCacheTypeName(cacheType);
+
+        if (!window.confirm(`確定要清理${scope}${name}嗎？`)) {
+            return;
+        }
+
+        updateButtonState($button, true, '清理中...');
+
+        $.ajax({
+            type: 'POST',
+            url: '/Backoffice/Settings/ClearCache',
+            data: { cacheType, is30Days: isThirtyDays }
+        }).done(response => {
+            const type = response?.success ? 'success' : 'error';
+            const message = response?.message ?? `${name}清理失敗`;
+            showToast(formatMessage(message, type), type);
+
+            if (response?.success) {
+                refreshCacheStats();
+            }
+        }).fail(() => {
+            showToast(formatMessage(`${name}清理失敗，請稍後再試`, 'error'), 'error');
+        }).always(() => {
+            updateButtonState($button, false);
+        });
+    };
+
+    const toggleMaintenanceMode = () => {
+        const $checkbox = $('#maintenanceMode');
+        const enabled = $checkbox.prop('checked');
+
+        const message = enabled
+            ? '確定要啟用維護模式嗎？這將暫時關閉網站。'
+            : '確定要停用維護模式嗎？';
+
+        if (!window.confirm(message)) {
+            $checkbox.prop('checked', !enabled);
+            return;
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '/Backoffice/Settings/ToggleMaintenanceMode',
+            data: { enabled }
+        }).done(response => {
+            const type = response?.success ? 'success' : 'error';
+            const toastMessage = response?.message ?? (response?.success ? '維護模式已更新' : '維護模式更新失敗');
+            showToast(formatMessage(toastMessage, type), type);
+
+            if (!response?.success) {
+                $checkbox.prop('checked', !enabled);
+            }
+        }).fail(() => {
+            showToast(formatMessage('維護模式更新失敗，請稍後再試', 'error'), 'error');
+            $checkbox.prop('checked', !enabled);
+        });
+    };
+
+    const optimizeDatabase = () => {
+        if (!window.confirm('確定要優化資料庫嗎？這可能需要幾分鐘時間。')) {
+            return;
+        }
+
+        const $button = $('#btnOptimizeDatabase');
+        updateButtonState($button, true, '優化中...');
+
+        $.ajax({
+            type: 'POST',
+            url: '/Backoffice/Settings/OptimizeDatabase'
+        }).done(response => {
+            const type = response?.success ? 'success' : 'error';
+            const message = response?.message ?? (response?.success ? '資料庫優化完成' : '資料庫優化失敗');
+            showToast(formatMessage(message, type), type);
+
+            if (response?.success && response?.details) {
+                console.info('優化詳情：', response.details);
+            }
+        }).fail(() => {
+            showToast(formatMessage('資料庫優化失敗，請稍後再試', 'error'), 'error');
+        }).always(() => {
+            updateButtonState($button, false);
+        });
+    };
+
+    const restartApplication = () => {
+        if (!window.confirm('確定要重啟系統嗎？這將中斷所有用戶的連接。')) {
+            return;
+        }
+
+        const $button = $('#btnRestartSystem');
+        updateButtonState($button, true, '重啟中...');
+
+        $.ajax({
+            type: 'POST',
+            url: '/Backoffice/Settings/RestartSystem'
+        }).done(response => {
+            const type = response?.success ? 'success' : 'error';
+            const message = response?.message ?? (response?.success ? '系統已重新啟動' : '系統重啟失敗');
+            showToast(formatMessage(message, type), type);
+        }).fail(() => {
+            showToast(formatMessage('系統重啟失敗，請稍後再試', 'error'), 'error');
+        }).always(() => {
+            updateButtonState($button, false);
+        });
+    };
+
+    const getLogTypeName = (key) => ({
+        error: '錯誤日誌',
+        access: '存取記錄',
+        system: '系統日誌'
+    }[key] ?? key ?? '');
+
+    const getCacheTypeName = (key) => ({
+        memory: '記憶體快取',
+        database: '資料庫快取',
+        file: '檔案快取',
+        all: '所有快取'
+    }[key] ?? key ?? '');
+
+    $(document).ready(() => {
+        window.lucide?.createIcons?.();
+
+        $(document)
+            .off('click.settings', '.js-refresh-logs')
+            .on('click.settings', '.js-refresh-logs', () => {
+                refreshLogStats();
+            })
+            .off('click.settings', '.js-refresh-cache')
+            .on('click.settings', '.js-refresh-cache', () => {
+                refreshCacheStats();
+            })
+            .off('click.settings', '.js-clear-logs')
+            .on('click.settings', '.js-clear-logs', function () {
+                const $button = $(this);
+                const type = ($button.data('type') ?? '').toString();
+                const isThirtyDays = ($button.data('days') ?? '').toString() === '30';
+                clearLogs(type, isThirtyDays, $button);
+            })
+            .off('click.settings', '.js-clear-cache')
+            .on('click.settings', '.js-clear-cache', function () {
+                const $button = $(this);
+                const type = ($button.data('type') ?? '').toString();
+                const isThirtyDays = ($button.data('days') ?? '').toString() === '30';
+                clearCache(type, isThirtyDays, $button);
+            })
+            .off('click.settings', '.js-optimize-database')
+            .on('click.settings', '.js-optimize-database', optimizeDatabase)
+            .off('click.settings', '.js-restart-system')
+            .on('click.settings', '.js-restart-system', restartApplication)
+            .off('change.settings', '#maintenanceMode')
+            .on('change.settings', '#maintenanceMode', toggleMaintenanceMode);
+    });
+})();
+</script>
+

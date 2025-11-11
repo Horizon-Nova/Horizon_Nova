@@ -1,0 +1,120 @@
+@{
+    Layout = null;
+}
+
+<div id="organizationHelpModal" class="modal fade" tabindex="-1" aria-labelledby="organizationHelpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="organizationHelpModalLabel">組織管理操作說明</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="vstack gap-3">
+                            <section>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">功能說明</h6>
+                                <p class="small mb-0">
+                                    組織管理用於維護公司或團隊的階層架構，並作為權限繼承的基礎。
+                                    透過組織，可管理人員歸屬、角色派發與資料可視範圍。
+                                </p>
+                            </section>
+
+                            <section>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">操作流程</h6>
+                                <ol class="small mb-0">
+                                    <li>使用搜尋與篩選快速定位目標組織。</li>
+                                    <li>點擊「新增組織」建立新節點，或在列表中選取「查看」、「編輯」。</li>
+                                    <li>設定組織層級與上級組織，建立清晰的階層關係。</li>
+                                    <li>啟用 / 停用組織會影響其下所有人員與角色。</li>
+                                    <li>儲存後系統會立即更新組織結構與相關統計。</li>
+                                </ol>
+                            </section>
+
+                            <section>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">欄位說明</h6>
+                                <table class="table table-sm table-bordered small mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 110px;">欄位</th>
+                                            <th>說明</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>組織名稱</strong></td>
+                                            <td>必填，用於顯示於列表與組織圖中。</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>組織層級</strong></td>
+                                            <td>層級數字越小代表越接近根節點，用於排序與顯示。</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>上級組織</strong></td>
+                                            <td>建立父子關係；若留空則為根組織。</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>組織描述 / 備註</strong></td>
+                                            <td>建議記錄職責範圍、負責人或使用注意事項。</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>組織狀態</strong></td>
+                                            <td>停用組織會同步限制其下人員與角色的權限。</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </section>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="vstack gap-3">
+                            <section>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">權限與繼承</h6>
+                                <ul class="small mb-2 ps-3">
+                                    <li>角色與使用者會繼承所在組織的權限與數據範圍。</li>
+                                    <li>上級組織可檢視與管理下層組織的資料。</li>
+                                    <li>調整組織階層時，請確認是否需要同步更新角色配置。</li>
+                                </ul>
+                                <div class="alert alert-info small mb-0">
+                                    <strong>建議：</strong>可以先規劃組織層級與命名規則，
+                                    再逐步建立，以免後續頻繁調整造成管理負擔。
+                                </div>
+                            </section>
+
+                            <section>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">常見問題</h6>
+                                <div class="small">
+                                    <p class="mb-2"><strong>Q1：可以刪除組織嗎？</strong></p>
+                                    <p class="ms-3 mb-3">A：建議改為停用；若要刪除，請先確認沒有子組織與人員。</p>
+
+                                    <p class="mb-2"><strong>Q2：組織層級可以重覆嗎？</strong></p>
+                                    <p class="ms-3 mb-3">A：層級數字可重覆，但應確保同一層級的命名與職責清楚。</p>
+
+                                    <p class="mb-2"><strong>Q3：調整層級會影響權限嗎？</strong></p>
+                                    <p class="ms-3 mb-3">A：權限繼承遵循階層關係，調整後可能改變可管理範圍。</p>
+
+                                    <p class="mb-2"><strong>Q4：如何查看完整架構？</strong></p>
+                                    <p class="ms-3 mb-0">A：可切換至「組織圖」頁面，以視覺化方式檢視。</p>
+                                </div>
+                            </section>
+
+                            <section class="alert alert-warning small mb-0">
+                                <h6 class="fw-bold mb-2">操作提醒</h6>
+                                <ul class="mb-0 ps-3">
+                                    <li>停用組織前請確認相關人員與角色是否需要重新指派。</li>
+                                    <li>調整階層可能影響報表與權限判斷，操作前建議先備份設定。</li>
+                                    <li>若需要大幅度調整，可先使用組織圖確認目標結構。</li>
+                                </ul>
+                            </section>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">我了解了</button>
+            </div>
+        </div>
+    </div>
+</div>
+

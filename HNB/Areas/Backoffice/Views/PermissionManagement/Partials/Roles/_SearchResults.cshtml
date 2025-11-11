@@ -1,0 +1,72 @@
+@model List<Models.HnbHnbBackoffice.vw_permission_role>
+@{
+    Layout = null;
+}
+
+<div id="roleResultsContainer">
+    <table id="rolesTable"
+           class="table table-hover align-middle mb-0"
+           data-hnb-datatable="true"
+           data-hnb-options='{"order":[[5,"desc"]],"columnDefs":[{"orderable":false,"targets":[6]}]}'>
+        <thead class="table-light">
+            <tr>
+                <th>角色</th>
+                <th>組織</th>
+                <th class="d-none d-lg-table-cell">等級</th>
+                <th>狀態</th>
+                <th class="d-none d-lg-table-cell">人員數量</th>
+                <th class="d-none d-lg-table-cell">建立時間</th>
+                <th class="text-end">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var role in Model ?? new List<Models.HnbHnbBackoffice.vw_permission_role>())
+            {
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="flex-shrink-0">
+                                <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center"
+                                     style="width: 2.5rem; height: 2.5rem;">
+                                    <i data-lucide="shield" class="text-primary" style="width: 1.25rem; height: 1.25rem;"></i>
+                                </div>
+                            </div>
+                            <div class="overflow-hidden">
+                                <div class="fw-medium text-truncate">@role.name</div>
+                                <div class="small text-muted text-truncate">@role.description</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>@(role.organization_name ?? "未分配")</td>
+                    <td class="d-none d-lg-table-cell">@((role.level ?? 0) == 0 ? "-" : role.level)</td>
+                    <td>
+                        <span class="badge rounded-pill @(role.is_active == true ? "bg-success" : "bg-danger")">
+                            @(role.is_active == true ? "啟用" : "停用")
+                        </span>
+                    </td>
+                    <td class="d-none d-lg-table-cell">@(role.user_count ?? 0)</td>
+                    <td class="small text-muted d-none d-lg-table-cell">@(role.created_at?.ToString("yyyy/MM/dd HH:mm") ?? "-")</td>
+                    <td class="text-end">
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-secondary"
+                                    onclick="showModal('roleDetailModal', { url: '@Url.Action("LoadRoleDetail", "PermissionManagement")', method: 'GET', data: { id: @role.id }, container: 'roleDetailModalContent' })">
+                                <i data-lucide="eye" style="width: 1rem; height: 1rem;"></i>
+                            </button>
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-primary"
+                                    onclick="showModal('roleFormModal', { url: '@Url.Action("LoadRoleForm", "PermissionManagement")', method: 'GET', data: { id: @role.id }, container: 'roleFormModalContent' })">
+                                <i data-lucide="edit" style="width: 1rem; height: 1rem;"></i>
+                            </button>
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-danger"
+                                    onclick="deleteRole(@role.id)">
+                                <i data-lucide="trash-2" style="width: 1rem; height: 1rem;"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

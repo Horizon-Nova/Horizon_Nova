@@ -1,0 +1,147 @@
+@{
+    Layout = null;
+}
+
+<script>
+    let usersTable;
+
+    $(document).ready(function() {
+        window.lucide?.createIcons?.();
+        searchUsers();
+    });
+
+    function searchUsers() {
+        const $container = $('#userResultsContainer');
+        $container.html(`
+            <div class="py-5 text-center text-muted">
+                <div class="spinner-border text-primary" role="status"></div>
+                <div class="small mt-3">載入使用者資料中...</div>
+            </div>
+        `);
+
+        $.ajax({
+            url: '@Url.Action("SearchUsers", "PermissionManagement")',
+            type: 'GET',
+            success: (html) => {
+                $container.html(html);
+                window.lucide?.createIcons?.();
+                HNBDataTable.autoInit($container);
+                usersTable = $('#usersTable').DataTable();
+                bindSearchAndFilterEvents();
+            },
+            error: () => {
+                $container.html(`
+                    <div class="alert alert-danger mb-0" role="alert">
+                        [失敗] 無法載入使用者資料，請稍後再試
+                    </div>
+                `);
+                showToast('[失敗] 無法載入使用者資料，請稍後再試', 'error');
+            }
+        });
+    }
+
+    function bindSearchAndFilterEvents() {
+        $('#searchInput')
+            .off('input.usersPage')
+            .on('input.usersPage', function() {
+                usersTable?.search(this.value).draw();
+            });
+
+        $('#organizationFilter, #roleFilter, #statusFilter')
+            .off('change.usersPage')
+            .on('change.usersPage', function() {
+                applyFilters();
+            });
+    }
+
+    function applyFilters() {
+        const organizationFilter = $('#organizationFilter').val();
+        const roleFilter = $('#roleFilter').val();
+        const statusFilter = $('#statusFilter').val();
+
+        $.fn.dataTable.ext.search = [];
+        $.fn.dataTable.ext.search.push((settings, data) => {
+            if (settings.nTable?.id !== 'usersTable') {
+                return true;
+            }
+
+            const organization = data[1] ?? '';
+            const role = data[2] ?? '';
+            const status = data[3] ?? '';
+
+            const matchesOrganization = !organizationFilter || organization.includes(organizationFilter);
+            const matchesRole = !roleFilter || role.includes(roleFilter);
+            const matchesStatus =
+                statusFilter === 'true'
+                    ? status.includes('啟用')
+                    : statusFilter === 'false'
+                        ? status.includes('停用')
+                        : true;
+
+            return matchesOrganization && matchesRole && matchesStatus;
+        });
+
+        usersTable?.draw();
+    }
+
+    function deleteItem(id) {
+        if (!confirm('確定要刪除這位使用者嗎？')) {
+            return;
+        }
+
+        $.ajax({
+            url: '@Url.Action("Delete", "PermissionManagement")',
+            type: 'POST',
+            data: { id },
+            success: (response) => {
+                const message = response?.message ?? '[成功] 使用者已刪除';
+                showToast(message, 'success');
+                searchUsers();
+            },
+            error: () => {
+                showToast('[失敗] 無法刪除使用者，請稍後再試', 'error');
+            }
+        });
+    }
+
+    function togglePassword() {
+        const $passwordInput = $('#password_hash');
+        const $eyeIcon = $('#password-eye');
+
+        if ($passwordInput.attr('type') === 'password') {
+            $passwordInput.attr('type', 'text');
+            $eyeIcon.attr('data-lucide', 'eye-off');
+        } else {
+            $passwordInput.attr('type', 'password');
+            $eyeIcon.attr('data-lucide', 'eye');
+        }
+
+        lucide.createIcons();
+    }
+
+    function submitUserFormData() {
+        const formElement = $('#FormDataUser')[0];
+
+        if (!formElement.checkValidity()) {
+            formElement.reportValidity();
+            return;
+        }
+
+        const formData = $('#FormDataUser').serialize();
+
+        $.ajax({
+            url: '@Url.Action("SubmitUser", "PermissionManagement")',
+            type: 'POST',
+            data: formData,
+            success: (response) => {
+                const message = response?.message ?? '[成功] 操作已完成';
+                showToast(message, 'success');
+                location.reload();
+            },
+            error: () => {
+                showToast('[失敗] 提交失敗，請聯絡系統管理員', 'error');
+            }
+        });
+    }
+
+</script>

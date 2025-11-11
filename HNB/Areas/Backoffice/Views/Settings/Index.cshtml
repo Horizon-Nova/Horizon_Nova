@@ -1,0 +1,19 @@
+@{
+    ViewData["Title"] = "系統設定";
+    ViewData["PageTitle"] = "系統設定";
+    ViewData["PageDescription"] = "系統監控、日誌管理、快取清理和維護工具";
+    ViewData["PageIcon"] = "settings";
+    ViewData["HelpModalId"] = "settingsHelpModal";
+    Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
+}
+
+@await Html.PartialAsync("Partials/_Status")
+@await Html.PartialAsync("Partials/_Management")
+@await Html.PartialAsync("Partials/_Maintenance")
+@await Html.PartialAsync("Partials/_Hardware")
+@await Html.PartialAsync("Partials/Modal/_Help")
+
+@section Scripts {
+    @await Html.PartialAsync("Partials/_Scripts")
+}
+
