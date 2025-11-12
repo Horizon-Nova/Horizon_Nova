@@ -1,0 +1,48 @@
+@{
+    Layout = null;
+}
+
+<!-- 靜態 Modal：圖標選擇器（不會被 AJAX 重新載入）-->
+<div id="icon-picker-modal" class="modal fade" tabindex="-1" aria-labelledby="iconPickerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">選擇圖標</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+            </div>
+            
+            <div class="modal-body p-4">
+                <!-- 搜尋框 -->
+                <div class="mb-4">
+                    <div class="position-relative">
+                        <input type="text" id="iconSearchInput" class="form-control ps-5" 
+                               placeholder="搜尋圖標名稱或標籤（例如：home, arrow, user）...">
+                        <i data-lucide="search" class="position-absolute text-muted" 
+                           style="width: 1rem; height: 1rem; left: 0.75rem; top: 50%; transform: translateY(-50%);"></i>
+                    </div>
+                    <div class="text-muted small mt-2">
+                        已載入 <span id="iconCount">0</span> 個圖標
+                    </div>
+                </div>
+                
+                <!-- 圖標網格 -->
+                <div class="row g-3" id="iconGrid" style="max-height: 60vh; overflow-y: auto;">
+                    <!-- 圖標將通過 JavaScript 動態載入 -->
+                </div>
+                
+                <!-- 無結果提示 -->
+                <div id="iconNoResults" class="text-center py-5 text-muted" style="display: none;">
+                    <i data-lucide="search-x" style="width: 3rem; height: 3rem;" class="mb-3"></i>
+                    <p class="mb-0">找不到符合的圖標</p>
+                    <p class="small">請嘗試其他關鍵字</p>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary js-icon-picker-confirm">選擇</button>
+            </div>
+        </div>
+    </div>
+</div>
+

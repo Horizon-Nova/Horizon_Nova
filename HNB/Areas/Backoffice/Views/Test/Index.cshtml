@@ -155,7 +155,7 @@
                 const fileInput = $('#fileInput')[0];
                 
                 if (fileInput.files.length === 0) {
-                    alert('請選擇檔案');
+                    showToast('請選擇檔案', 'warning');
                     return;
                 }
                 
@@ -171,14 +171,14 @@
                     contentType: false,
                     success: function(response) {
                         if (response.success) {
-                            alert('上傳成功：' + response.message);
+                            showToast('上傳成功：' + response.message, 'success');
                             location.reload();
                         } else {
-                            alert('上傳失敗：' + response.message);
+                            showToast('上傳失敗：' + response.message, 'error');
                         }
                     },
                     error: function(xhr, status, error) {
-                        alert('上傳失敗：' + error);
+                        showToast('上傳失敗：' + error, 'error');
                     }
                 });
             });
@@ -197,14 +197,14 @@
                     data: { fileName: fileName },
                     success: function(response) {
                         if (response.success) {
-                            alert(response.message);
+                            showToast(response.message, 'success');
                             location.reload();
                         } else {
-                            alert('刪除失敗：' + response.message);
+                            showToast('刪除失敗：' + response.message, 'error');
                         }
                     },
                     error: function() {
-                        alert('刪除失敗，請稍後再試');
+                        showToast('刪除失敗，請稍後再試', 'error');
                     }
                 });
             });

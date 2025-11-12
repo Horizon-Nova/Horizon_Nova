@@ -2,19 +2,20 @@
 
 ## 函式命名
 - 動詞開頭，小駝峰：`showModal`, `applyFilters`, `submitForm`
-- 事件處理：`onSearchInput`, `onStatusChange`
-- 能在元素上直接呼叫 API 就直接用，避免多餘包裝
-- 選取與元素操作使用 jQuery；「點擊行為」以 HTML inline `onclick` 觸發，不使用 `addEventListener`
-
-```html
-<!-- 正確（HTML）：inline onclick 觸發 -->
-<button id="saveBtn" type="button" onclick="submitForm()">儲存</button>
-```
+- 事件處理命名：`onSearchInput`, `onStatusChange`（處理器命名）
+- 點擊行為預設使用按鈕 `onclick` 直接呼叫函式；需要動態載入才使用委派事件
 
 ```javascript
-// 錯誤
-$('#saveBtn').on('click', submitForm);
-document.getElementById('saveBtn').addEventListener('click', submitForm);
+// 正確：委派與命名空間
+function submitForm(){ /* ... */ }
+$(document)
+  .off('click.form', '.js-save')
+  .on('click.form',  '.js-save', submitForm);
+```
+
+```html
+<!-- 預設：按鈕 onclick 觸發 -->
+<button type="button" class="btn btn-primary" onclick="submitForm()">儲存</button>
 ```
 
 ## 按鈕文案
@@ -24,12 +25,13 @@ document.getElementById('saveBtn').addEventListener('click', submitForm);
 
 ## ID 命名
 - 使用 kebab-case：`user-form-modal`, `role-detail-modal`, `search-input`
-- Modal 集中於 `_{Feature}Modal.cshtml` 檔內：`{feature}-modals` 可作為容器 ID
+- Modal 應放於 `Partials/{Feature}/Modal/_Xxx.cshtml`；容器 ID 以 `{feature}-modals` 或具語意命名
 
 ## 檔名與 Partial 命名
-- 主頁：`{Feature}.cshtml`
-- Modal 部分視圖：`_{Feature}Modal.cshtml`（可中央式或模組式，均置於 `Partials/`）
-- JavaScript：頁面內 `<script>` 放頁面專屬邏輯；通用工具放獨立檔案
+- 主頁：`{Feature}/Index.cshtml`（主畫面一律使用 `Index`）
+- Partial 規則：`Partials/{Feature}/_Component.cshtml`
+- Modal 規則：`Partials/{Feature}/Modal/_Name.cshtml`
+- Scripts Partial：`Partials/{Feature}/_Scripts.cshtml`（頁面專屬腳本集中於此）
 
 ---
 

@@ -1,0 +1,81 @@
+@{
+    Layout = null;
+}
+
+<!-- 快速操作 -->
+<div class="row g-3 mb-3">
+    <div class="col-12">
+        <h5 class="fw-bold mb-3">
+            <i data-lucide="zap" style="width: 1.25rem; height: 1.25rem;"></i>
+            快速操作
+        </h5>
+    </div>
+    <div class="col-12 col-sm-6 col-lg-3">
+        <a href="@Url.Action("Index", "Settings", new { area = "Backoffice" })" 
+           class="card border-0 shadow-sm text-decoration-none h-100 hover-lift">
+            <div class="card-body">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="p-3 bg-primary bg-opacity-10 rounded">
+                        <i data-lucide="settings" class="text-primary" style="width: 1.5rem; height: 1.5rem;"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0 fw-semibold text-dark">系統設定</h6>
+                        <p class="small text-muted mb-0">管理系統配置</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+        <a href="@Url.Action("Users", "PermissionManagement", new { area = "Backoffice" })" 
+           class="card border-0 shadow-sm text-decoration-none h-100 hover-lift">
+            <div class="card-body">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="p-3 bg-success bg-opacity-10 rounded">
+                        <i data-lucide="users" class="text-success" style="width: 1.5rem; height: 1.5rem;"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0 fw-semibold text-dark">人員管理</h6>
+                        <p class="small text-muted mb-0">管理用戶帳號</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+        <a href="@Url.Action("Roles", "PermissionManagement", new { area = "Backoffice" })" 
+           class="card border-0 shadow-sm text-decoration-none h-100 hover-lift">
+            <div class="card-body">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="p-3 bg-danger bg-opacity-10 rounded">
+                        <i data-lucide="shield" class="text-danger" style="width: 1.5rem; height: 1.5rem;"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0 fw-semibold text-dark">角色管理</h6>
+                        <p class="small text-muted mb-0">管理權限角色</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-12 col-sm-6 col-lg-3">
+        <a href="@Url.Action("Organizations", "PermissionManagement", new { area = "Backoffice" })" 
+           class="card border-0 shadow-sm text-decoration-none h-100 hover-lift">
+            <div class="card-body">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="p-3 bg-warning bg-opacity-10 rounded">
+                        <i data-lucide="building" class="text-warning" style="width: 1.5rem; height: 1.5rem;"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0 fw-semibold text-dark">組織管理</h6>
+                        <p class="small text-muted mb-0">管理組織架構</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+

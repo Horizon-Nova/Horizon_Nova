@@ -1,0 +1,57 @@
+@{
+    Layout = null;
+}
+<script src="~/Backoffice/js/FileManager.js"></script>
+<script>
+    $(function(){
+        // 確保 Lucide 載入完成
+        if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
+            lucide.createIcons();
+        }
+
+        // 初始化 DataTable
+        if ($('#filesTable').length) {
+            HNBDataTable.init('#filesTable', {
+                initComplete: function() {
+                    $('.dataTables_length').hide();
+
+                    // DataTable 初始化完成後再次初始化 icons
+                    if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
+                        lucide.createIcons();
+                    }
+                }
+            });
+        }
+
+        // FileManager 工具列與行為（委派）
+        $(document)
+            .off('click.fmPage', '.js-tree-toggle')
+            .on('click.fmPage', '.js-tree-toggle', function(e){ toggleTreeNode(e, this); })
+
+            .off('click.fmPage', '.js-fm-open-create-file')
+            .on('click.fmPage', '.js-fm-open-create-file', function(){ showModal('createFileModal'); })
+
+            .off('click.fmPage', '.js-fm-open-create-folder')
+            .on('click.fmPage', '.js-fm-open-create-folder', function(){ showModal('createFolderModal'); })
+
+            .off('click.fmPage', '.js-fm-reload')
+            .on('click.fmPage', '.js-fm-reload', function(){ location.reload(); })
+
+            .off('click.fmPage', '.js-open-preview')
+            .on('click.fmPage', '.js-open-preview', function(e){
+                e.preventDefault();
+                const path = $(this).data('path');
+                const name = $(this).data('name');
+                openPreview(path, name);
+            })
+
+            .off('click.fmPage', '.js-open-item-panel')
+            .on('click.fmPage', '.js-open-item-panel', function(){
+                const name = $(this).data('name');
+                const type = $(this).data('type');
+                const path = $(this).data('path');
+                openItemPanel(name, type, path);
+            });
+    });
+</script>
+

@@ -1,0 +1,62 @@
+@{
+    Layout = null;
+    var currentPath = ViewBag.CurrentPath as string ?? "/";
+    var breadcrumb = currentPath == "/"
+        ? new List<(string Name, string VirtualPath)> { ("根目錄", "/") }
+        : new[] { ("根目錄", "/") }
+            .Concat(currentPath.Split('/', StringSplitOptions.RemoveEmptyEntries)
+                .Aggregate(new List<(string, string)>(), (acc, part) =>
+                {
+                    var path = acc.LastOrDefault().Item2 + "/" + part;
+                    acc.Add((part, path));
+                    return acc;
+                }))
+            .ToList();
+}
+
+<!-- 頂部導航列 -->
+<div class="d-flex align-items-center justify-content-between border-bottom p-3" style="min-height: 54px;">
+    <!-- 麵包屑 -->
+    <nav class="d-flex align-items-center gap-1 small">
+        <button type="button" class="btn btn-outline-secondary btn-sm d-md-none me-2" data-bs-toggle="offcanvas" data-bs-target="#mobileTree">
+            <i data-lucide="panel-left" style="width:1rem;height:1rem;"></i>
+            <span class="ms-1">目錄</span>
+        </button>
+        @for (int i = 0; i < breadcrumb.Count; i++)
+        {
+            var (name, path) = breadcrumb[i];
+            var isLast = i == breadcrumb.Count - 1;
+
+            if (i > 0)
+            {
+                <i data-lucide="chevron-right" class="text-muted" style="width:1rem;height:1rem;"></i>
+            }
+
+            <a href="@Url.Action("Index", "FileManager", new { area = "Backoffice", path = path })" class="text-decoration-none px-2 py-1 rounded @(isLast ? "fw-semibold text-dark" : "text-muted")">@name</a>
+        }
+    </nav>
+
+    <!-- 統計資訊 -->
+    @{
+        var folderCount = ViewBag.FolderCount as int? ?? 0;
+        var fileCount = ViewBag.FileCount as int? ?? 0;
+        var totalSize = ViewBag.TotalSize as long? ?? 0L;
+    }
+    <div class="text-muted small">@folderCount 個資料夾 · @fileCount 個檔案 · @FormatSize(totalSize)</div>
+</div>
+
+@functions {
+    string FormatSize(long bytes)
+    {
+        string[] sizes = { "B", "KB", "MB", "GB", "TB" };
+        double len = bytes;
+        int order = 0;
+        while (len >= 1024 && order < sizes.Length - 1)
+        {
+            order++;
+            len = len / 1024;
+        }
+        return $"{len:0.##} {sizes[order]}";
+    }
+}
+

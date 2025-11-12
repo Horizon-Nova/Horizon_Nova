@@ -14,12 +14,11 @@ public class AuthorizeController(AuthService authService, PermissionManagementSe
     /// <summary>
     /// 顯示登入頁面
     /// </summary>
-    [HttpGet]
     public IActionResult Login(string? returnUrl = null)
     {
         if (User.Identity?.IsAuthenticated == true)
         {
-            return RedirectToAction("Dashboard", "Dashboard", new { area = "Backoffice" });
+            return RedirectToAction("Index", "Dashboard", new { area = "Backoffice" });
         }
 
         ViewBag.ReturnUrl = returnUrl ?? "/Backoffice/";
@@ -98,7 +97,7 @@ public class AuthorizeController(AuthService authService, PermissionManagementSe
 
         return !string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl) 
             ? Redirect(returnUrl) 
-            : RedirectToAction("Dashboard", "Dashboard", new { area = "Backoffice" });
+            : RedirectToAction("Index", "Dashboard", new { area = "Backoffice" });
     }
 
     /// <summary>

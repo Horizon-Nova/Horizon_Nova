@@ -10,7 +10,7 @@ public class SidebarNavigationController(SidebarNavigationService sev) : BaseCon
     /// <summary>
     /// 目錄管理頁面（新版UI）
     /// </summary>
-    public IActionResult NavigationManagement()
+    public IActionResult Index()
     {
         sev.ViewBagModel(ViewBag);
         return View();
@@ -22,7 +22,7 @@ public class SidebarNavigationController(SidebarNavigationService sev) : BaseCon
     public IActionResult LoadDetail(int id)
     {
         var result = sev.LoadNavigationById(id);
-        return PartialView("Partials/_NavigationManagementModal", result);
+        return PartialView("Partials/SidebarNavigation/Modal/_FormData", result);
     }
 
     /// <summary>
@@ -33,7 +33,7 @@ public class SidebarNavigationController(SidebarNavigationService sev) : BaseCon
         var navigations = sev.LoadAllNavigations()
             .OrderBy(n => n.full_path)
             .ToList();
-        return PartialView("Partials/_ParentOptions", navigations);
+        return PartialView("Partials/SidebarNavigation/_ParentOptions", navigations);
     }
 
     #region 基本 CRUD 操作

@@ -1,0 +1,107 @@
+@model List<HNB.Areas.Backoffice.Dtos.FileSystemEntry>
+@{
+    Layout = null;
+    var currentPath = ViewBag.CurrentPath as string ?? "/";
+    var itemsByType = Model?.GroupBy(item => item.Type).ToDictionary(g => g.Key, g => g.ToList()) ?? new Dictionary<string, List<HNB.Areas.Backoffice.Dtos.FileSystemEntry>>();
+    var folders = itemsByType.GetValueOrDefault("folder", new List<HNB.Areas.Backoffice.Dtos.FileSystemEntry>());
+    var files = itemsByType.GetValueOrDefault("file", new List<HNB.Areas.Backoffice.Dtos.FileSystemEntry>());
+}
+
+<!-- 檔案列表 -->
+<div class="p-3 h-100" style="overflow-x:auto;">
+    <table id="filesTable" class="table table-hover align-middle">
+        <thead>
+            <tr>
+                <th>類型</th>
+                <th>名稱</th>
+                <th>大小</th>
+                <th>擁有者</th>
+                <th>共享對象</th>
+                <th>修改時間</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in folders.Concat(files))
+            {
+                var isFile = item.Type == "file";
+                var name = item.Name;
+                var size = item.Size ?? 0L;
+                var sharedUsers = item.SharedUsers;
+                var modified = item.UpdatedAt;
+                var sharedCount = sharedUsers?.Count ?? 0;
+                var modifiedTimestamp = (modified?.ToString("yyyy-MM-dd HH:mm:ss")) ?? "";
+                var icon = isFile ? "file" : "folder";
+                var iconClass = isFile ? "text-muted" : "text-warning";
+                var folderPath = currentPath == "/" ? "/" + name : currentPath + "/" + name;
+
+                <tr>
+                    <td data-order="@(isFile ? 1 : 0)">
+                        @if (isFile)
+                        {
+                            <a href="javascript:void(0)" class="text-decoration-none js-open-preview" data-path="@currentPath" data-name="@(name ?? "")">
+                                <i data-lucide="@icon" class="@iconClass" style="width:1rem;height:1rem;"></i>
+                            </a>
+                        }
+                        else
+                        {
+                            <a href="@Url.Action("Index", "FileManager", new { area = "Backoffice", path = folderPath })" class="text-decoration-none">
+                                <i data-lucide="@icon" class="@iconClass" style="width:1rem;height:1rem;"></i>
+                            </a>
+                        }
+                    </td>
+                    <td>@name</td>
+                    <td data-order="@size">@(isFile ? FormatSize(size) : "—")</td>
+                    <td>
+                        @{
+                            var ownerToShow = !string.IsNullOrWhiteSpace(item.PrimaryOwner)
+                                ? item.PrimaryOwner
+                                : (sharedUsers?.FirstOrDefault() ?? "");
+                        }
+                        @if (string.IsNullOrWhiteSpace(ownerToShow))
+                        {
+                            <span class="text-muted">未設定</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-primary me-1">@ownerToShow</span>
+                        }
+                    </td>
+                    <td>
+                        @{
+                            var sharedIcon = sharedCount > 1 ? "users" : (sharedCount == 1 ? "lock" : "");
+                            var sharedText = sharedCount > 1 ? $"共享 ({sharedCount}人)" : (sharedCount == 1 ? "私有" : "—");
+                        }
+                        <span class="badge rounded-pill bg-light text-muted @(sharedCount > 0 ? "" : "opacity-75")">
+                            <i data-lucide="@sharedIcon" class="@(sharedCount > 0 ? "" : "d-none")" style="width:0.8rem;height:0.8rem;"></i> @sharedText
+                        </span>
+                    </td>
+                    <td data-order="@modifiedTimestamp">@((modified?.ToString("yyyy/MM/dd HH:mm")) ?? "—")</td>
+                    <td class="text-end">
+                        <button class="btn btn-light btn-sm js-open-item-panel" type="button" title="更多"
+                                data-name="@(name ?? "")" data-type="@(isFile ? "file" : "folder")" data-path="@currentPath">
+                            <i data-lucide="ellipsis-vertical" class="text-muted" style="width:1rem;height:1rem;"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+</div>
+
+@functions {
+    string FormatSize(long bytes)
+    {
+        string[] sizes = { "B", "KB", "MB", "GB", "TB" };
+        double len = bytes;
+        int order = 0;
+        while (len >= 1024 && order < sizes.Length - 1)
+        {
+            order++;
+            len = len / 1024;
+        }
+        return $"{len:0.##} {sizes[order]}";
+    }
+}
+

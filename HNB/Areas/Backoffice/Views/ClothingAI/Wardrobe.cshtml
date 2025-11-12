@@ -13,12 +13,13 @@
 
 <link rel="stylesheet" href="~/Backoffice/css/Wardrobe.css" />
 
-<section class="container-fluid px-3 px-md-4 py-3">
-    @await Html.PartialAsync("Partials/_ExtractSection")
-    @await Html.PartialAsync("Partials/_WardrobeSection")
-    @await Html.PartialAsync("Partials/_ImageModal")
+<section class="mb-3 mb-lg-4">
+    @await Html.PartialAsync("Partials/Wardrobe/_ExtractSection")
+    @await Html.PartialAsync("Partials/Wardrobe/_WardrobeSection")
 </section>
 
+@await Html.PartialAsync("Partials/Wardrobe/Modal/_ImageModal")
+
 @section Scripts {
-    @await Html.PartialAsync("Partials/_WardrobeScripts")
+    @await Html.PartialAsync("Partials/Wardrobe/_Scripts")
 }

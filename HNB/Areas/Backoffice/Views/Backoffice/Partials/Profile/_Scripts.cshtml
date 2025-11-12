@@ -1,0 +1,52 @@
+@{
+    Layout = null;
+}
+
+<script>
+    $(document).ready(function() {
+        window.lucide?.createIcons?.();
+
+        // 個人資料表單提交
+        $('#profileForm').on('submit', function(e) {
+            e.preventDefault();
+            const formData = $(this).serialize();
+            
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("UpdateProfile", "Backoffice")',
+                data: formData,
+                success: function(response) {
+                    if (response.success) {
+                        showToast('個人資料更新成功', 'success');
+                        location.reload();
+                    } else {
+                        showToast('更新失敗：' + response.message, 'error');
+                    }
+                },
+                error: () => showToast('更新失敗，請稍後再試', 'error')
+            });
+        });
+
+        // 密碼變更表單提交
+        $('#passwordForm').on('submit', function(e) {
+            e.preventDefault();
+            const formData = $(this).serialize();
+            
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("ChangePassword", "Backoffice")',
+                data: formData,
+                success: function(response) {
+                    if (response.success) {
+                        showToast('密碼更新成功', 'success');
+                        $('#passwordForm')[0].reset();
+                    } else {
+                        showToast('密碼更新失敗：' + response.message, 'error');
+                    }
+                },
+                error: () => showToast('密碼更新失敗，請稍後再試', 'error')
+            });
+        });
+    });
+</script>
+

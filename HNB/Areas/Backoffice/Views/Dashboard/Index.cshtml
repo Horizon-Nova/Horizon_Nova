@@ -1,0 +1,20 @@
+@{
+    ViewData["Title"] = "儀表板";
+    ViewData["PageTitle"] = "儀表板";
+    ViewData["PageDescription"] = "歡迎使用 Horizon Nova 後台管理系統";
+    ViewData["PageIcon"] = "home";
+    Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
+}
+
+@await Html.PartialAsync("Partials/Dashboard/_Styles")
+
+<section class="mb-3 mb-lg-4">
+    @await Html.PartialAsync("Partials/Dashboard/_Welcome")
+    @await Html.PartialAsync("Partials/Dashboard/_QuickActions")
+    @await Html.PartialAsync("Partials/Dashboard/_SystemStatus")
+    @await Html.PartialAsync("Partials/Dashboard/_RecentActivities")
+</section>
+
+@section Scripts {
+    @await Html.PartialAsync("Partials/Dashboard/_Scripts")
+}

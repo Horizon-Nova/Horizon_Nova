@@ -71,7 +71,7 @@
 範例（不需要額外 container）：
 ```cshtml
 @await Html.PartialAsync("Partials/_EntityModal")
-<button onclick="showModal('entityFormModal', { url: '...' })">開啟</button>
+<button type="button" class="js-open-entity-form">開啟</button>
 ```
 
 ---

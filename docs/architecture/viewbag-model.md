@@ -4,7 +4,7 @@
 > - 本文件是「資料傳遞規範」，不是方法或類別。請不要與 `Service.ViewBagModel(viewBag, ...)` 方法混淆。
 > - `ViewBagModel(...)`：是 Service 層的「資料彙整方法名稱」，負責將多個來源的資料放入 `ViewBag` 供 View/Modal 使用；它遵守本文件規範，不代表「全部都用 ViewBag」。
 > - 列表/可迴圈/需分區資料 → 使用 `@model`；單一值/統計數字/當前狀態 → 使用 `ViewBag`；Modal 動態載入（特殊情況）允許 `ViewBag` 同時夾帶多種資料。
-- Modal（關鍵規則）：主頁面先包含 `@await Html.PartialAsync("Partials/_{PageName}Modal")`；需要資料時呼叫 `LoadDetail` 回傳「同一份 Partial」，前端不需要額外 container。點擊行為以 HTML inline `onclick` 觸發 `showModal`/`closeModal`，其餘非點擊事件可用 jQuery 綁定。
+- Modal（關鍵規則）：主頁面先包含 `@await Html.PartialAsync("Partials/_{PageName}Modal")`；需要資料時呼叫 `LoadDetail` 回傳「同一份 Partial」，前端不需要額外 container。點擊行為預設由按鈕 `onclick` 直接觸發 `showModal`/`closeModal`（需要動態時再用委派）。
 >
 > 可攜性（跨專案適用）
 > - 本文件中的範例採用中立命名（例如 `UserDto`、`OrganizationStatDto`），不依賴任何專案特定實體或資料庫結構；請在各專案中映射到實際的型別與欄位即可。
@@ -13,11 +13,11 @@
 > ```cshtml
 > <!-- 錯誤：主頁先放空容器，AJAX 再把 HTML 塞進去，導致 ViewBag 不一致與重複 id -->
 > <div id="entityModalContainer"></div>
-> <button onclick=\"showModal('entityDetailModal', { url: '...', data: {...}, container: 'entityModalContainer' })\">詳情</button>
+> <button type="button" class="js-open-entity-detail">詳情</button>
 >
-> <!-- 正確：主頁先引用所有 Modal；動態時只呼叫 LoadDetail，由伺服端填好 ViewBag 並回傳同一 Partial；點擊以 inline onclick 觸發 -->
+> <!-- 正確：主頁先引用所有 Modal；動態時只呼叫 LoadDetail，由伺服端填好 ViewBag 並回傳同一 Partial；點擊以按鈕 onclick 觸發 showModal -->
 > @await Html.PartialAsync("Partials/_EntityModal")
-> <button type="button" onclick="showModal('entityDetailModal', { url: '@Url.Action(\"LoadDetail\")', data: {/*...*/} })">詳情</button>
+> <button type="button" onclick="showModal('entityDetailModal', { url: '@Url.Action(\"LoadDetail\")' })">詳情</button>
 > ```
 
 ## 核心規則

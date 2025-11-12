@@ -6,10 +6,8 @@ $(document).ready(() => {
     $('#statusFilter').on('change', applyFilters);
     $('#levelFilter').on('change', applyFilters);
 
-    // 委派：開啟說明/新增 Modal
+    // 委派：開啟新增 Modal
     $(document)
-        .off('click.nav', '.js-open-navigation-help')
-        .on('click.nav', '.js-open-navigation-help', function(e){ e.preventDefault(); showModal('navigation-help'); })
         .off('click.nav', '.js-open-nav-add')
         .on('click.nav', '.js-open-nav-add', function(){ showModal('nav-add-modal'); })
         .off('click.nav', '.js-icon-picker-confirm')
@@ -180,10 +178,10 @@ const saveNavigation = (type) => {
         data: dataObject,
         success: (response) => {
             response?.success
-                ? (alert('儲存成功'), closeModal(`nav-${type}-modal`), location.reload())
-                : alert(response?.message || '儲存失敗');
+                ? (showToast('儲存成功', 'success'), closeModal(`nav-${type}-modal`), location.reload())
+                : showToast(response?.message || '儲存失敗', 'error');
         },
-        error: () => alert('失敗，系統發生錯誤。')
+        error: () => showToast('失敗，系統發生錯誤。', 'error')
     });
 };
 
@@ -198,7 +196,7 @@ const validateDeleteInput = () => {
 const confirmDelete = () => {
     const id = $('#deleteNavId').val();
     if (!id) {
-        alert('無法取得目錄 ID');
+        showToast('無法取得目錄 ID', 'error');
         return;
     }
     
@@ -208,10 +206,10 @@ const confirmDelete = () => {
         data: { id: id },
         success: (response) => {
             response?.success
-                ? (alert('刪除成功'), closeModal('nav-delete-modal'), location.reload())
-                : alert(response?.message || '刪除失敗');
+                ? (showToast('刪除成功', 'success'), closeModal('nav-delete-modal'), location.reload())
+                : showToast(response?.message || '刪除失敗', 'error');
         },
-        error: () => alert('失敗，系統發生錯誤。')
+        error: () => showToast('失敗，系統發生錯誤。', 'error')
     });
 };
 
@@ -237,7 +235,7 @@ const loadIconsFromAPI = () => {
             // 綁定搜尋事件
             $('#iconSearchInput').off('input').on('input', filterIcons);
         },
-        error: () => alert('載入圖標失敗，請檢查網路連線。')
+        error: () => showToast('載入圖標失敗，請檢查網路連線。', 'error')
     });
 };
 
@@ -304,7 +302,7 @@ const renderIcons = (iconNames) => {
 const selectIcon = () => {
     const selectedIcon = $('.icon-option.active').data('icon');
     if (!selectedIcon) {
-        alert('請選擇一個圖標');
+        showToast('請選擇一個圖標', 'warning');
         return;
     }
     
@@ -394,7 +392,7 @@ const handleDrop = function(e) {
     // 只能在同一層級內拖放
     const targetParentCode = $(this).data('parent-code') || '';
     if (draggedParentCode !== targetParentCode) {
-        alert('只能在同一層級內調整順序');
+        showToast('只能在同一層級內調整順序', 'warning');
         return false;
     }
     
@@ -461,9 +459,9 @@ const updateNavigationOrder = (orderList) => {
                 // 成功後重新載入頁面以顯示新順序
                 location.reload();
             } else {
-                alert(response?.message || '更新排序失敗');
+                showToast(response?.message || '更新排序失敗', 'error');
             }
         },
-        error: () => alert('更新排序失敗，系統發生錯誤。')
+        error: () => showToast('更新排序失敗，系統發生錯誤。', 'error')
     });
 };

@@ -3,19 +3,26 @@
 ## 核心原則（強制）
 - 一律使用 jQuery `$.ajax()`（下載檔案等特例除外）
 - HTML 結構由 Razor/Partial 產生；JS 僅觸發事件與傳遞資料，嚴禁用 JS 組裝任何 HTML
-- POST/PUT/DELETE 需攜帶 Anti-Forgery Token（全域已啟用；請確保表單含有 Token 元素）
+- POST/PUT/DELETE 需攜帶 Anti-Forgery Token（全域已啟用；表單隱藏欄位或 Header 均可）
 - 錯誤處理必須一致、簡潔且可觀測
-- 選取與事件一律禁止 `document.getElementById`、`addEventListener`
+- 事件綁定預設採「按鈕 onclick」：於元素上直接呼叫對應函式（必要時再採委派）
 
-### 選取與事件（強制）
-正確（HTML）：
+### 事件綁定（預設：按鈕 onclick）
 ```html
-<button id="submitBtn" type="button" onclick="submitForm()">送出</button>
+<button type="button" onclick="submitEntity()">送出</button>
 ```
 
-錯誤（JavaScript）：
 ```javascript
-document.getElementById('submitBtn').addEventListener('click', submitForm);
+function submitEntity(){
+  // 提交邏輯...
+}
+```
+
+### 事件綁定（例外：需要動態內容時使用委派）
+```javascript
+$(document)
+  .off('click.form', '.js-submit-entity')
+  .on('click.form',  '.js-submit-entity', submitEntity);
 ```
 
 ---
@@ -25,14 +32,14 @@ document.getElementById('submitBtn').addEventListener('click', submitForm);
 - 不在 JS 手動驗證；以 HTML5 `required` 為主，直接序列化提交
 - Modal 表單一律 `modal-lg`；欄位採 `-sm` 尺寸
 
-建議：將 Anti-Forgery Token 放在「各自的 form」內，確保每個表單各自擁有獨立的 Token。
+建議：將 Anti-Forgery Token 放在「各自的 form」內，或以 Header 方式傳遞（擇一，保持一致）。
 
 ```cshtml
 <!-- 一般表單 -->
 <form id="FormDataEntity" method="post">
   @Html.AntiForgeryToken()
   <!-- 欄位們 -->
-  <button id="submitBtn" type="button">送出</button>
+  <button type="button" class="js-submit-entity">送出</button>
 </form>
 
 <!-- 上傳表單 -->
@@ -61,12 +68,13 @@ function submitEntity() {
 function submitJson() {
   const $form = $('#FormDataEntity');
   const token = $form.find('input[name="__RequestVerificationToken"]').val();
-  const payload = { id: 1, name: '測試', __RequestVerificationToken: token };
+  const payload = { id: 1, name: '測試' };
   $.ajax({
     type: 'POST',
     url: '/entity/submit-json',
     contentType: 'application/json',
     data: JSON.stringify(payload),
+    headers: { 'RequestVerificationToken': token }, // 或將 token 放入 body（擇一）
     success: (res) => res.success ? location.reload() : alert(res.message || '操作失敗'),
     error: () => alert('系統發生錯誤')
   });
@@ -110,7 +118,6 @@ return Json(new { success = false, message = "操作失敗：原因說明" });
 - 不要在 JS 中手動驗證必填（請用 HTML5）
 - 不要混用多種 AJAX 風格（例如與 fetch 混用）
 - 不要省略錯誤處理
-- 不要將 Token 放在 headers（應在 body）
 - 不要在 JS 中組裝任何 HTML（含彈窗、提示、表單、卡片）
 - 不要多於判斷保持整潔
 ---

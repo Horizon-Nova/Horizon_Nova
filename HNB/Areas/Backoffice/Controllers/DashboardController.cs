@@ -9,8 +9,5 @@ public class DashboardController : BaseController
     /// <summary>
     /// 後台儀表板首頁
     /// </summary>
-    public IActionResult Dashboard()
-    {
-        return View();
-    }
+    public IActionResult Index() => View();
 }

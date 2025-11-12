@@ -4,236 +4,40 @@
     ViewData["PageTitle"] = "個人資料";
     ViewData["PageDescription"] = "管理您的個人資料和帳號設定";
     ViewData["PageIcon"] = "user";
+    ViewData["HelpModalId"] = "profileHelpModal";
     Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
 }
 
 <section class="mb-3 mb-lg-4">
-    <!-- 個人資料卡片 -->
     <div class="bg-white border rounded-3">
-        <!-- 頭部區域 -->
-        <div class="bg-primary text-white p-4 p-lg-5">
-            <div class="d-flex align-items-center justify-content-between mb-3">
-                <h2 class="fs-5 fw-semibold mb-0">個人資料</h2>
-                <button type="button" class="btn btn-sm btn-outline-light js-profile-help">
-                    <i data-lucide="help-circle" style="width: 1rem; height: 1rem;"></i>
-                </button>
-            </div>
-            <div class="d-flex align-items-center gap-4">
-                <div class="position-relative">
-                    @if (!string.IsNullOrEmpty(Model?.avatar_url))
-                    {
-                        <img class="rounded-circle border border-4 border-white" style="width: 5rem; height: 5rem; object-fit: cover;" src="@Model.avatar_url" alt="@Model.full_name">
-                    }
-                    else
-                    {
-                        <div class="rounded-circle border border-4 border-white bg-white d-flex align-items-center justify-content-center" style="width: 5rem; height: 5rem;">
-                            <span class="fs-3 fw-bold text-primary">@((Model?.full_name ?? Model?.name ?? "U").Substring(0, 1).ToUpper())</span>
-                        </div>
-                    }
-                </div>
-                <div>
-                    <h2 class="fs-4 fw-bold mb-1">@(Model?.full_name ?? Model?.name ?? "未設定")</h2>
-                    <p class="text-white-50 mb-2">@(Model?.email ?? "未設定")</p>
-                    <div class="d-flex gap-2">
-                        <span class="badge bg-white bg-opacity-25 text-white">
-                            <i data-lucide="shield" style="width: 0.75rem; height: 0.75rem;"></i>
-                            @(Model?.role_name ?? "一般用戶")
-                        </span>
-                        <span class="badge bg-white bg-opacity-25 text-white">
-                            <i data-lucide="building" style="width: 0.75rem; height: 0.75rem;"></i>
-                            @(Model?.organization_name ?? "未分配")
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+        @await Html.PartialAsync("Partials/Profile/_Header", Model)
+        
         <!-- 標籤導航 -->
         <div class="border-bottom">
             <ul class="nav nav-tabs border-0 px-3 px-lg-4" role="tablist">
                 <li class="nav-item">
                     <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#basicTab" type="button">
                         <i data-lucide="user" style="width: 1rem; height: 1rem;"></i> 基本資料
-                </button>
+                    </button>
                 </li>
                 <li class="nav-item">
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#securityTab" type="button">
                         <i data-lucide="shield" style="width: 1rem; height: 1rem;"></i> 安全設定
-                </button>
+                    </button>
                 </li>
             </ul>
         </div>
 
         <!-- 標籤內容 -->
         <div class="tab-content p-3 p-lg-4">
-            <!-- 基本資料標籤 -->
-            <div class="tab-pane fade show active" id="basicTab">
-                <form id="profileForm">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="id" value="@(Model?.id ?? 0)" />
-                    
-                    <div class="vstack gap-3">
-                        <div class="row g-2 align-items-center">
-                            <div class="col-auto" style="width: 90px;"><label for="full_name" class="col-form-label col-form-label-sm mb-0">完整姓名</label></div>
-                            <div class="col"><input type="text" id="full_name" name="name" value="@(Model?.name ?? "")" class="form-control form-control-sm" placeholder="請輸入完整姓名"></div>
-                            <div class="col-auto" style="width: 90px;"><label for="username" class="col-form-label col-form-label-sm mb-0">使用者名稱</label></div>
-                            <div class="col"><input type="text" id="username" value="@(Model?.full_name ?? "")" class="form-control form-control-sm bg-light" readonly></div>
-                        </div>
-                        <div class="row g-2 align-items-center">
-                            <div class="col-auto" style="width: 90px;"><label for="email" class="col-form-label col-form-label-sm mb-0">電子郵件</label></div>
-                            <div class="col"><input type="email" id="email" name="email" value="@(Model?.email ?? "")" class="form-control form-control-sm" placeholder="example@email.com"></div>
-                            <div class="col-auto" style="width: 90px;"><label for="phone" class="col-form-label col-form-label-sm mb-0">聯絡電話</label></div>
-                            <div class="col"><input type="text" id="phone" name="phone" value="@(Model?.phone ?? "")" class="form-control form-control-sm" placeholder="請輸入聯絡電話"></div>
-                        </div>
-                        <div class="row g-2 align-items-center">
-                            <div class="col-auto" style="width: 90px;"><label for="gender" class="col-form-label col-form-label-sm mb-0">性別</label></div>
-                            <div class="col">
-                                <select id="gender" name="gender" class="form-select form-select-sm">
-                                <option value="">請選擇性別</option>
-                                <option value="male" @(Model?.gender == "male" ? "selected" : "")>男性</option>
-                                <option value="female" @(Model?.gender == "female" ? "selected" : "")>女性</option>
-                                <option value="other" @(Model?.gender == "other" ? "selected" : "")>其他</option>
-                            </select>
-                        </div>
-                            <div class="col-auto" style="width: 90px;"><label for="nickname" class="col-form-label col-form-label-sm mb-0">暱稱</label></div>
-                            <div class="col"><input type="text" id="nickname" name="nickname" value="@(Model?.nickname ?? "")" class="form-control form-control-sm" placeholder="請輸入暱稱"></div>
-                        </div>
-                        <div class="row g-2 align-items-center">
-                            <div class="col-auto" style="width: 90px;"><label for="location" class="col-form-label col-form-label-sm mb-0">常駐地點</label></div>
-                            <div class="col"><input type="text" id="location" name="location" value="@(Model?.location ?? "")" class="form-control form-control-sm" placeholder="請輸入常駐地點"></div>
-                            <div class="col-auto" style="width: 90px;"><label for="zodiac_sign" class="col-form-label col-form-label-sm mb-0">星座</label></div>
-                            <div class="col"><input type="text" id="zodiac_sign" name="zodiac_sign" value="@(Model?.zodiac_sign ?? "")" class="form-control form-control-sm" placeholder="請輸入星座"></div>
-                        </div>
-                        <div class="row g-2 align-items-center">
-                            <div class="col-auto" style="width: 90px;"><label for="favorite_color" class="col-form-label col-form-label-sm mb-0">喜歡顏色</label></div>
-                            <div class="col"><input type="text" id="favorite_color" name="favorite_color" value="@(Model?.favorite_color ?? "")" class="form-control form-control-sm" placeholder="請輸入喜歡的顏色"></div>
-                        </div>
-                        <div class="row g-2">
-                            <div class="col-auto" style="width: 90px;"><label for="bio" class="col-form-label col-form-label-sm mb-0">個人簡介</label></div>
-                            <div class="col"><textarea id="bio" name="bio" rows="3" class="form-control form-control-sm" placeholder="請輸入個人簡介或工作描述">@(Model?.bio ?? "")</textarea></div>
-                        </div>
-                    </div>
-
-                    <!-- 儲存按鈕 -->
-                    <div class="d-flex justify-content-end mt-4">
-                        <button type="submit" class="btn btn-primary btn-sm">
-                            <i data-lucide="save" style="width: 1rem; height: 1rem;"></i> 儲存變更
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- 安全設定標籤 -->
-            <div class="tab-pane fade" id="securityTab">
-                <div class="vstack gap-4">
-                    <!-- 變更密碼 -->
-                    <div class="bg-light rounded-3 p-3 p-lg-4">
-                        <h3 class="fs-6 fw-semibold mb-3">
-                            <i data-lucide="lock" style="width: 1.25rem; height: 1.25rem;"></i> 變更密碼
-                        </h3>
-                        <form id="passwordForm">
-                            @Html.AntiForgeryToken()
-                            <div class="vstack gap-3">
-                                <div class="row g-2 align-items-center">
-                                    <div class="col-auto" style="width: 110px;"><label for="currentPassword" class="col-form-label col-form-label-sm mb-0">目前密碼<span class="text-danger">*</span></label></div>
-                                    <div class="col"><input type="password" id="currentPassword" name="currentPassword" class="form-control form-control-sm" placeholder="請輸入目前密碼" required></div>
-                                </div>
-                                <div class="row g-2 align-items-center">
-                                    <div class="col-auto" style="width: 110px;"><label for="newPassword" class="col-form-label col-form-label-sm mb-0">新密碼<span class="text-danger">*</span></label></div>
-                                    <div class="col"><input type="password" id="newPassword" name="newPassword" class="form-control form-control-sm" placeholder="至少6個字元" required minlength="6"></div>
-                            </div>
-                                <div class="row g-2 align-items-center">
-                                    <div class="col-auto" style="width: 110px;"><label for="confirmPassword" class="col-form-label col-form-label-sm mb-0">確認新密碼<span class="text-danger">*</span></label></div>
-                                    <div class="col"><input type="password" id="confirmPassword" name="confirmPassword" class="form-control form-control-sm" placeholder="請再次輸入新密碼" required minlength="6"></div>
-                            </div>
-                            </div>
-                            <div class="d-flex justify-content-end mt-3">
-                                <button type="submit" class="btn btn-danger btn-sm">
-                                    <i data-lucide="key" style="width: 1rem; height: 1rem;"></i> 更新密碼
-                            </button>
-                            </div>
-                        </form>
-                    </div>
-
-                    <!-- 登入記錄 -->
-                    <div class="bg-light rounded-3 p-3 p-lg-4">
-                        <h3 class="fs-6 fw-semibold mb-3">
-                            <i data-lucide="activity" style="width: 1.25rem; height: 1.25rem;"></i> 登入記錄
-                        </h3>
-                        <div class="vstack gap-2">
-                            <div class="d-flex justify-content-between py-2 border-bottom">
-                                <span class="text-muted">最後登入時間</span>
-                                <span class="fw-medium">@(Model?.last_login_at?.ToString("yyyy/MM/dd HH:mm") ?? "未記錄")</span>
-                            </div>
-                            <div class="d-flex justify-content-between py-2 border-bottom">
-                                <span class="text-muted">登入次數</span>
-                                <span class="fw-medium">@(Model?.login_count ?? 0) 次</span>
-                            </div>
-                            <div class="d-flex justify-content-between py-2">
-                                <span class="text-muted">最後登入IP</span>
-                                <span class="fw-medium">@(Model?.last_login_ip?.ToString() ?? "未記錄")</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-                            </div>
-                        </div>
+            @await Html.PartialAsync("Partials/Profile/_BasicInfo", Model)
+            @await Html.PartialAsync("Partials/Profile/_SecuritySettings", Model)
+        </div>
+    </div>
 </section>
 
-@await Html.PartialAsync("Partials/_ProfileModal")
+@await Html.PartialAsync("Partials/Profile/Modal/_Help")
 
 @section Scripts {
-    <script>
-        $(document).ready(function() {
-            window.lucide?.createIcons?.();
-
-            $('.js-profile-help').on('click', function() {
-                showModal('profileHelpModal');
-            });
-
-            // 個人資料表單提交
-            $('#profileForm').on('submit', function(e) {
-                e.preventDefault();
-                const formData = $(this).serialize();
-                
-                $.ajax({
-                    type: 'POST',
-                    url: '@Url.Action("UpdateProfile", "Backoffice")',
-                    data: formData,
-                    success: function(response) {
-                        if (response.success) {
-                            alert('個人資料更新成功');
-                            location.reload();
-                        } else {
-                            alert('更新失敗：' + response.message);
-                        }
-                    },
-                    error: () => alert('更新失敗，請稍後再試')
-                });
-            });
-
-            // 密碼變更表單提交
-            $('#passwordForm').on('submit', function(e) {
-                e.preventDefault();
-                const formData = $(this).serialize();
-                
-                $.ajax({
-                    type: 'POST',
-                    url: '@Url.Action("ChangePassword", "Backoffice")',
-                    data: formData,
-                    success: function(response) {
-                        if (response.success) {
-                            alert('密碼更新成功');
-                            $('#passwordForm')[0].reset();
-                        } else {
-                            alert('密碼更新失敗：' + response.message);
-                        }
-                    },
-                    error: () => alert('密碼更新失敗，請稍後再試')
-                });
-            });
-        });
-    </script>
+    @await Html.PartialAsync("Partials/Profile/_Scripts")
 }

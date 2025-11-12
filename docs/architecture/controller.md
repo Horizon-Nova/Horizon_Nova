@@ -8,23 +8,18 @@
 
 ## 結構與命名
 
-### 查詢與載入
+### 主畫面（Index）
 ```csharp
-[HttpGet]
-public IActionResult Page()
-{
-    var model = service.LoadXxxList();
-    return View(model);
-}
+// 主頁一律使用 Index；簡單頁面可用表達式成員
+public IActionResult Index() => View();
 ```
 
 ### 載入 Modal（統一）
 ```csharp
-[HttpGet]
 public IActionResult LoadDetail(int? id = null)
 {
     service.ViewBagModel(ViewBag, id);
-    return PartialView("_XxxModal");
+    return PartialView("Partials/{Feature}/Modal/_Xxx");
 }
 ```
 
@@ -52,7 +47,9 @@ public IActionResult Delete(int id)
 
 ## 規範
 1. 不使用 `Get*` 命名；查詢頁面使用 `Page()` 或具體頁名
-2. Modal 載入統一使用 `LoadDetail`
+2. 主畫面動作使用 `Index()`；必要時保留其他頁名（例如 `Login`）
+3. Modal 載入統一使用 `LoadDetail`，回傳對應 `Partials/{Feature}/Modal/_Name`
+4. 簡單回傳頁面可使用表達式成員：`public IActionResult Index() => View();`
 3. 提交動作統一 `Submit*`，由 Service/Repository 判斷新增或更新
 4. 每個 Controller 僅允許一個 `Delete`
 5. 不使用 `async/await`、不使用 `try...catch`

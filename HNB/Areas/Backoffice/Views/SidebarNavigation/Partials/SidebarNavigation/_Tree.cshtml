@@ -1,0 +1,38 @@
+@{
+    Layout = null;
+    var allNavigations = ViewBag.Navigations as List<Models.HnbHnbBackoffice.vw_sidebar_navigation> ?? new List<Models.HnbHnbBackoffice.vw_sidebar_navigation>();
+    var rootItems = allNavigations.Where(n => string.IsNullOrEmpty(n.parent_code)).OrderBy(n => n.sort_order).ToList();
+    Func<string, List<Models.HnbHnbBackoffice.vw_sidebar_navigation>> getChildren = (parentCode) =>
+        allNavigations.Where(n => n.parent_code == parentCode).OrderBy(n => n.sort_order).ToList();
+    ViewData["GetChildren"] = getChildren;
+}
+
+<!-- 目錄樹狀結構 -->
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-bottom p-3">
+        <div class="d-flex align-items-center gap-2">
+            <i data-lucide="folder-tree" class="text-primary" style="width: 1.25rem; height: 1.25rem;"></i>
+            <h5 class="mb-0 fw-semibold">目錄結構</h5>
+        </div>
+    </div>
+
+    <div id="navigationTreeContent" class="card-body p-3">
+        @if (rootItems?.Any() == true)
+        {
+            <div class="d-flex flex-column gap-2">
+                @foreach (var item in rootItems)
+                {
+                    @await Html.PartialAsync("Partials/SidebarNavigation/_TreeItem", item, ViewData)
+                }
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5 text-muted">
+                <i data-lucide="folder-x" class="mx-auto mb-2 text-muted" style="width: 3rem; height: 3rem;"></i>
+                <p class="mb-0">尚未建立任何導航項目</p>
+            </div>
+        }
+    </div>
+</div>
+

@@ -1,0 +1,38 @@
+@{
+    Layout = null;
+    var currentPath = ViewBag.CurrentPath as string ?? "/";
+    var tree = ViewBag.Tree as List<object> ?? new();
+}
+
+<!-- 左側：目錄樹 -->
+<aside class="col-md-3 d-none d-md-block border-end">
+    <div class="d-flex flex-column">
+        <div class="d-flex align-items-center justify-content-between border-bottom p-3" style="min-height: 54px;">
+            <span class="small fw-semibold">檔案總管</span>
+            <div class="d-flex align-items-center gap-1">
+                <button type="button" class="btn btn-link btn-sm p-0 js-fm-open-create-file" title="新增檔案">
+                    <i data-lucide="file-plus" class="text-muted" style="width:1rem;height:1rem;"></i>
+                </button>
+                <button type="button" class="btn btn-link btn-sm p-0 js-fm-open-create-folder" title="新增資料夾">
+                    <i data-lucide="folder-plus" class="text-muted" style="width:1rem;height:1rem;"></i>
+                </button>
+                <button type="button" class="btn btn-link btn-sm p-0 js-fm-reload" title="重新整理">
+                    <i data-lucide="refresh-cw" class="text-muted" style="width:1rem;height:1rem;"></i>
+                </button>
+            </div>
+        </div>
+        <div class="flex-grow-1 overflow-auto p-2">
+            <!-- 根目錄 -->
+            <div class="tree-item @(currentPath == "/" ? "active" : "")" data-level="0">
+                <a href="@Url.Action("Index", "FileManager", new { area = "Backoffice", path = "/" })" class="tree-link">
+                    <i data-lucide="@(currentPath == "/" ? "folder-open" : "folder")" class="tree-icon"></i>
+                    <span class="tree-text">根目錄</span>
+                </a>
+            </div>
+
+            <!-- 目錄樹 -->
+            @await Html.PartialAsync("Partials/FileManager/_TreeNodes", tree)
+        </div>
+    </div>
+</aside>
+

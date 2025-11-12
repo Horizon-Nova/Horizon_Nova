@@ -1,7 +1,6 @@
 @{
     ViewData["Title"] = "系統登入 - 後台管理系統";
     Layout = "~/Areas/Backoffice/Views/Shared/_LayoutLogin.cshtml";
-    var returnUrl = Context?.Request?.Query["returnUrl"].ToString() ?? "/Backoffice/";
 }
 
 <main class="min-h-screen flex items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
@@ -14,74 +13,8 @@
                 <p class="text-xs sm:text-sm text-slate-500">請輸入帳號與密碼</p>
             </header>
 
-            @if (ViewBag.ErrorMessage is string err && !string.IsNullOrWhiteSpace(err))
-            {
-                <div class="mb-4 rounded-lg bg-red-50 text-red-700 px-3 py-2 text-sm flex items-center gap-2">
-                    <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0"></i>
-                    <span>@err</span>
-                </div>
-            }
-
-            @if (ViewBag.SuccessMessage is string success && !string.IsNullOrWhiteSpace(success))
-            {
-                <div class="mb-4 rounded-lg bg-green-50 text-green-700 px-3 py-2 text-sm flex items-center gap-2">
-                    <i data-lucide="check-circle" class="w-4 h-4 flex-shrink-0"></i>
-                    <span>@success</span>
-                </div>
-            }
-
-            <form id="FormData"
-                  action="@Url.Action("LoginFuntion", "Authorize", new { area = "Backoffice" })"
-                  method="post"
-                  class="space-y-4 sm:space-y-5">
-                @Html.AntiForgeryToken()
-                <input type="hidden" id="returnUrl" name="returnUrl" value="@returnUrl" />
-
-                <div>
-                    <label for="Username" class="block text-sm font-medium text-slate-700">帳號</label>
-                    <div class="relative mt-1">
-                        <i data-lucide="user" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        <input id="Username" name="username" type="text" autocomplete="username" required
-                               class="w-full rounded-xl border border-slate-300 pl-10 pr-3 py-2 sm:py-2.5 text-slate-900 placeholder-slate-400 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 transition"
-                               placeholder="your.name@example.com" />
-                    </div>
-                </div>
-
-                <div>
-                    <label for="Password" class="block text-sm font-medium text-slate-700">密碼</label>
-                    <div class="relative mt-1">
-                        <i data-lucide="lock" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        <input id="Password" name="password" type="password" autocomplete="current-password" required
-                               class="w-full rounded-xl border border-slate-300 pl-10 pr-10 py-2 sm:py-2.5 text-slate-900 placeholder-slate-400 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 transition"
-                               placeholder="••••••••" />
-                        <button type="button" id="togglePwdBtn"
-                                class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
-                                aria-label="顯示/隱藏密碼" title="顯示/隱藏密碼">
-                            <i id="eyeIcon" data-lucide="eye" class="w-5 h-5"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="flex items-center justify-between">
-                    <label for="rememberMe" class="inline-flex items-center gap-2 text-sm text-slate-600 select-none">
-                        <input id="rememberMe" name="rememberMe" type="checkbox"
-                               class="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
-                        記住我
-                    </label>
-                </div>
-
-                <button id="btnSubmit" type="button"
-                        class="w-full flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-white font-medium shadow-md hover:scale-[1.02] hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-white transition-transform duration-200">
-                    <i data-lucide="log-in" class="w-5 h-5"></i>
-                    <span class="text-sm sm:text-base">登入</span>
-                    <svg id="btnSpinner" class="animate-spin h-5 w-5 ml-1 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
-                    </svg>
-                </button>
-
-            </form>
-
+            @await Html.PartialAsync("Partials/Login/_Messages")
+            @await Html.PartialAsync("Partials/Login/_Form")
         </div>
 
         <p class="mt-6 text-center text-xs text-white/80">&copy; @DateTime.Now.Year Horizon-Nova</p>
@@ -89,94 +22,5 @@
 </main>
 
 @section Scripts {
-    <script>
-        // 頁面載入完成後的初始化
-        $(function () {
-            // 密碼顯示/隱藏切換（jQuery）
-            $('#togglePwdBtn').on('click', function () {
-                const $passwordInput = $('#Password');
-                const $eyeIcon = $('#eyeIcon');
-
-                if ($passwordInput.attr('type') === 'password') {
-                    $passwordInput.attr('type', 'text');
-                    $eyeIcon.attr('data-lucide', 'eye-off');
-                } else {
-                    $passwordInput.attr('type', 'password');
-                    $eyeIcon.attr('data-lucide', 'eye');
-                }
-
-                if (window.lucide?.createIcons) {
-                    window.lucide.createIcons();
-                }
-            });
-
-            $('#btnSubmit').on('click', SubmitForm);
-
-            // 自動聚焦到用戶名輸入框
-            const $usernameInput = $('#Username');
-            if ($usernameInput.length) {
-                $usernameInput.trigger('focus');
-            }
-
-            // 處理 Enter 鍵提交
-            $(document).on('keypress', function (e) {
-                if (e.key === 'Enter') {
-                    const $active = $(document.activeElement);
-                    if ($active && ($active.attr('id') === 'Username' || $active.attr('id') === 'Password')) {
-                        e.preventDefault();
-                        SubmitForm();
-                    }
-                }
-            });
-        });
-
-        // 表單提交
-        function SubmitForm() {
-            const $form = $('#FormData');
-            const $submitBtn = $('#btnSubmit');
-            const $spinner = $('#btnSpinner');
-            const $submitText = $submitBtn.find('span');
-            const $submitIcon = $submitBtn.find('i[data-lucide="log-in"]');
-
-            // 驗證表單
-            const username = $('#Username').val().trim();
-            const password = $('#Password').val().trim();
-
-            if (!username || !password) {
-                showNotification('請輸入帳號和密碼', 'error');
-                return;
-            }
-
-            // 顯示載入狀態
-            $submitBtn.prop('disabled', true);
-            $submitText.text('登入中...');
-            if ($submitIcon.length) {
-                $submitIcon.hide();
-            }
-            $spinner.removeClass('hidden');
-
-            // 提交表單
-            $form.trigger('submit');
-        }
-
-        // 顯示通知（使用 Razor 預先產生的容器，不動態組裝 HTML）
-        function showNotification(message, type = 'info') {
-            const $notification = $('#loginNotification');
-            if ($notification.length === 0) return;
-
-            $notification
-                .removeClass('hidden bg-red-500 bg-green-500 bg-yellow-500 bg-blue-500')
-                .addClass(
-                    type === 'error' ? 'bg-red-500' :
-                    type === 'success' ? 'bg-green-500' :
-                    type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500'
-                )
-                .text(message)
-                .fadeIn(150);
-
-            setTimeout(() => {
-                $notification.fadeOut(200);
-            }, 3000);
-        }
-    </script>
+    @await Html.PartialAsync("Partials/Login/_Scripts")
 }

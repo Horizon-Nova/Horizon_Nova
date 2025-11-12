@@ -1,0 +1,60 @@
+@model Models.HnbHnbBackoffice.vw_permission_user
+@{
+    Layout = null;
+}
+
+<!-- 安全設定標籤 -->
+<div class="tab-pane fade" id="securityTab">
+    <div class="vstack gap-4">
+        <!-- 變更密碼 -->
+        <div class="bg-light rounded-3 p-3 p-lg-4">
+            <h3 class="fs-6 fw-semibold mb-3">
+                <i data-lucide="lock" style="width: 1.25rem; height: 1.25rem;"></i> 變更密碼
+            </h3>
+            <form id="passwordForm">
+                @Html.AntiForgeryToken()
+                <div class="vstack gap-3">
+                    <div class="row g-2 align-items-center">
+                        <div class="col-auto" style="width: 110px;"><label for="currentPassword" class="col-form-label col-form-label-sm mb-0">目前密碼<span class="text-danger">*</span></label></div>
+                        <div class="col"><input type="password" id="currentPassword" name="currentPassword" class="form-control form-control-sm" placeholder="請輸入目前密碼" required></div>
+                    </div>
+                    <div class="row g-2 align-items-center">
+                        <div class="col-auto" style="width: 110px;"><label for="newPassword" class="col-form-label col-form-label-sm mb-0">新密碼<span class="text-danger">*</span></label></div>
+                        <div class="col"><input type="password" id="newPassword" name="newPassword" class="form-control form-control-sm" placeholder="至少6個字元" required minlength="6"></div>
+                    </div>
+                    <div class="row g-2 align-items-center">
+                        <div class="col-auto" style="width: 110px;"><label for="confirmPassword" class="col-form-label col-form-label-sm mb-0">確認新密碼<span class="text-danger">*</span></label></div>
+                        <div class="col"><input type="password" id="confirmPassword" name="confirmPassword" class="form-control form-control-sm" placeholder="請再次輸入新密碼" required minlength="6"></div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end mt-3">
+                    <button type="submit" class="btn btn-danger btn-sm">
+                        <i data-lucide="key" style="width: 1rem; height: 1rem;"></i> 更新密碼
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- 登入記錄 -->
+        <div class="bg-light rounded-3 p-3 p-lg-4">
+            <h3 class="fs-6 fw-semibold mb-3">
+                <i data-lucide="activity" style="width: 1.25rem; height: 1.25rem;"></i> 登入記錄
+            </h3>
+            <div class="vstack gap-2">
+                <div class="d-flex justify-content-between py-2 border-bottom">
+                    <span class="text-muted">最後登入時間</span>
+                    <span class="fw-medium">@(Model?.last_login_at?.ToString("yyyy/MM/dd HH:mm") ?? "未記錄")</span>
+                </div>
+                <div class="d-flex justify-content-between py-2 border-bottom">
+                    <span class="text-muted">登入次數</span>
+                    <span class="fw-medium">@(Model?.login_count ?? 0) 次</span>
+                </div>
+                <div class="d-flex justify-content-between py-2">
+                    <span class="text-muted">最後登入IP</span>
+                    <span class="fw-medium">@(Model?.last_login_ip?.ToString() ?? "未記錄")</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

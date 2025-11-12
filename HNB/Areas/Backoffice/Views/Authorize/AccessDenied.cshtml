@@ -26,7 +26,7 @@
                 </div>
 
                 <div class="space-y-3">
-                    <a href="@Url.Action("Dashboard", "Dashboard", new { area = "Backoffice" })"
+                    <a href="@Url.Action("Index", "Dashboard", new { area = "Backoffice" })"
                        class="w-full flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-white font-medium shadow-md hover:scale-[1.02] hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-white transition-transform duration-200">
                         <i data-lucide="home" class="w-5 h-5"></i>
                         <span class="text-sm sm:text-base">返回首頁</span>
@@ -53,11 +53,5 @@
 </main>
 
 @section Scripts {
-    <script>
-        $(function () {
-            if (window.lucide?.createIcons) {
-                window.lucide.createIcons();
-            }
-        });
-    </script>
+    @await Html.PartialAsync("Partials/AccessDenied/_Scripts")
 }

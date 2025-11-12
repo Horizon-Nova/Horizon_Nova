@@ -45,7 +45,7 @@ public class DatabaseController(DatabaseService databaseService) : BaseControlle
         ViewBag.TableColumns = result.Columns ?? new List<TableColumnDto>();
         ViewBag.Success = result.Success;
 
-        return PartialView("Partials/Modal/_TableDetail");
+        return PartialView("Partials/Database/Modal/_TableDetail");
     }
 
 }

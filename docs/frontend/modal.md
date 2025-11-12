@@ -7,9 +7,10 @@
 - 模式（二擇一）：中央式或模組式（見決策表）
 - 只用 `showModal()` / `closeModal()`；禁止以 JS 組裝 HTML
 - 位置：一律放於對應頁面的 `Partials/` 目錄
-- 尺寸：表單=`modal-lg`、詳情=預設、說明=`modal-xl`
+- 尺寸：詳情=預設、說明=`modal-xl`；表單尺寸見 `frontend/forms.md`
 - Controller 回傳 Partial，前端以 `showModal('id', { url, method, data })` 載入（不需要額外 container）
-- 低階防制：觸發以 HTML inline `onclick` 直接呼叫 `showModal(...)`；Partial 內避免 `@if` 控制顯示，統一用 `?? ""` 與樣式處理占位或空值；不建立多餘暫存變數或代理函式
+- 事件綁定：預設由按鈕 `onclick` 觸發；需要動態內容時，再使用 jQuery 委派事件
+- Partial 內避免 `@if` 切換整塊結構；以 `?? ""` 與樣式處理占位或空值；不建立多餘暫存變數或代理函式
 
 ### 模式決策表
 | 場景 | 建議模式 | 理由 |
@@ -29,13 +30,27 @@ closeModal('modalId')
 
 ## 範例（中性化）
 
-### 主頁面（擷取；點擊以 inline onclick 觸發，無容器）
+### 主頁面（擷取；按鈕 onclick 觸發）
 ```html
-<!-- 觸發按鈕（inline onclick） -->
-<button type="button" onclick="showModal('entityFormModal', { url: '/api/entity/form', data: { id: null } })">新增</button>
+<button type="button" onclick="openEntityForm()">新增</button>
 
-<!-- 引用 Partial（預先放在頁面底部） -->
+<!-- 引用 Partial（預先放在頁面底部或專屬 Scripts 區塊） -->
 @await Html.PartialAsync("Partials/_EntityModal")
+```
+
+```javascript
+function openEntityForm(){
+  showModal('entityFormModal', { url: '/api/entity/form', method: 'GET', data: { id: null } });
+}
+```
+
+### 動態內容（例外：委派事件觸發）
+```javascript
+$(document)
+  .off('click.entity', '.js-open-entity-form')
+  .on('click.entity', '.js-open-entity-form', function () {
+    showModal('entityFormModal', { url: '/api/entity/form', method: 'GET', data: { id: null } });
+  });
 ```
 
 ### Controller（擷取）

@@ -1,0 +1,10 @@
+@model List<Models.HnbHnbBackoffice.vw_sidebar_navigation>
+@{
+    Layout = null;
+}
+
+@foreach (var nav in Model)
+{
+    <option value="@(nav.code ?? "")">@(nav.full_path ?? nav.title ?? "")</option>
+}
+

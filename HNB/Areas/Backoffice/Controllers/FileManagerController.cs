@@ -11,7 +11,7 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// <summary>
     /// 檔案管理主頁面
     /// </summary>
-    public IActionResult FileManager(string path = "/")
+    public IActionResult Index(string path = "/")
     {
         var currentUser = User.Identity?.Name;
         if (string.IsNullOrWhiteSpace(currentUser)) return Unauthorized();
@@ -29,7 +29,7 @@ public class FileManagerController(FileManagerServices svc) : BaseController
         var detail = svc.LoadFileSystemDetail(currentPath ?? "/", name ?? "", currentUser);
         ViewBag.CurrentPath = currentPath ?? "/";
         ViewBag.CurrentUser = currentUser;
-        return PartialView("Partials/_FileManagerSidePanelBody", detail);
+        return PartialView("Partials/FileManager/_SidePanelBody", detail);
     }
 
     #endregion

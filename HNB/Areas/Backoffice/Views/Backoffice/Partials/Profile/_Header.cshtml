@@ -1,0 +1,40 @@
+@model Models.HnbHnbBackoffice.vw_permission_user
+@{
+    Layout = null;
+}
+
+<!-- 頭部區域 -->
+<div class="bg-primary text-white p-4 p-lg-5">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h2 class="fs-5 fw-semibold mb-0">個人資料</h2>
+    </div>
+        <div class="d-flex align-items-center gap-4">
+            <div class="position-relative">
+                @if (!string.IsNullOrEmpty(Model?.avatar_url))
+                {
+                    <img class="rounded-circle border border-4 border-white" style="width: 5rem; height: 5rem; object-fit: cover;" src="@Model.avatar_url" alt="@Model.full_name">
+                }
+                else
+                {
+                    <div class="rounded-circle border border-4 border-white bg-white d-flex align-items-center justify-content-center" style="width: 5rem; height: 5rem;">
+                        <span class="fs-3 fw-bold text-primary">@((Model?.full_name ?? Model?.name ?? "U").Substring(0, 1).ToUpper())</span>
+                    </div>
+                }
+            </div>
+            <div>
+                <h2 class="fs-4 fw-bold mb-1">@(Model?.full_name ?? Model?.name ?? "未設定")</h2>
+                <p class="text-white-50 mb-2">@(Model?.email ?? "未設定")</p>
+                <div class="d-flex gap-2">
+                    <span class="badge bg-white bg-opacity-25 text-white">
+                        <i data-lucide="shield" style="width: 0.75rem; height: 0.75rem;"></i>
+                        @(Model?.role_name ?? "一般用戶")
+                    </span>
+                    <span class="badge bg-white bg-opacity-25 text-white">
+                        <i data-lucide="building" style="width: 0.75rem; height: 0.75rem;"></i>
+                        @(Model?.organization_name ?? "未分配")
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+

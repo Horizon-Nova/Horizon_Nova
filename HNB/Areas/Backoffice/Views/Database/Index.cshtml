@@ -7,10 +7,13 @@
     Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
 }
 
-@await Html.PartialAsync("Partials/_Control")
-@await Html.PartialAsync("Partials/Modal/_Help")
-@await Html.PartialAsync("Partials/Modal/_TableDetail")
+<section class="mb-3 mb-lg-4">
+    @await Html.PartialAsync("Partials/Database/_Control")
+</section>
+
+@await Html.PartialAsync("Partials/Database/Modal/_Help")
+@await Html.PartialAsync("Partials/Database/Modal/_TableDetail")
 
 @section Scripts {
-    <script src="~/Backoffice/js/Database.js"></script>
+    @await Html.PartialAsync("Partials/Database/_Scripts")
 }
