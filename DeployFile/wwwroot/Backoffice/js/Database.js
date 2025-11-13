@@ -4,54 +4,6 @@
  */
 
 
-// 顯示操作結果
-function showResult(message, type = 'info') {
-    const $resultDiv = $('#operationResult');
-    if ($resultDiv.length === 0) return;
-
-    let icon = '';
-    let alertClass = '';
-
-    switch (type) {
-        case 'success':
-            icon = 'check-circle';
-            alertClass = 'alert-success';
-            break;
-        case 'error':
-            icon = 'x-circle';
-            alertClass = 'alert-danger';
-            break;
-        case 'warning':
-            icon = 'alert-triangle';
-            alertClass = 'alert-warning';
-            break;
-        case 'loading':
-            icon = 'loader-2';
-            alertClass = 'alert-info';
-            break;
-        default:
-            icon = 'info';
-            alertClass = 'alert-info';
-            break;
-    }
-
-    const spinnerClass = type === 'loading' ? 'spinner-border spinner-border-sm' : '';
-    const iconHtml = type === 'loading' 
-        ? `<div class="${spinnerClass}" role="status"><span class="visually-hidden">載入中...</span></div>`
-        : `<i data-lucide="${icon}" style="width: 1.25rem; height: 1.25rem;"></i>`;
-
-    $resultDiv.html(`
-        <div class="alert ${alertClass} d-flex align-items-center" role="alert">
-            ${iconHtml}
-            <span class="ms-2">${message}</span>
-        </div>
-    `);
-
-    if (window.lucide && type !== 'loading') {
-        window.lucide.createIcons();
-    }
-}
-
 // 啟用備份按鈕
 function enableGenerateButton() {
     const $generateBtn = $('#btnBackup');
@@ -77,25 +29,23 @@ function updateStepStatus(stepNumber, isActive) {
 }
 
 // 測試連線 (使用 jQuery 序列化)
-function testConnection(event) {
-    event.preventDefault();
-
+function testConnection() {
     const provider = $('#databaseType').val();
     const connectionString = $('#connectionString').val();
 
     if (!provider) {
-        showResult('請選擇資料庫類型', 'error');
+        showToast('[失敗] 請選擇資料庫類型', 'error');
         disableGenerateButton();
         return;
     }
 
     if (!connectionString.trim()) {
-        showResult('請填寫連線字串', 'error');
+        showToast('[失敗] 請填寫連線字串', 'error');
         disableGenerateButton();
         return;
     }
 
-    showResult('測試連線中...', 'loading');
+    showToast('[資訊] 測試連線中...', 'info');
     disableGenerateButton();
 
     $.ajax({
@@ -103,43 +53,41 @@ function testConnection(event) {
         url: '/Backoffice/Database/TestConnection',
         data: $('#FormData').serialize(),
         success: (response) => {
-            if (response && response.success) {
-                showResult('連線成功！正在獲取資料表...', 'success');
+            if (response?.success) {
+                showToast('[成功] 連線成功，正在載入資料表', 'success');
                 enableGenerateButton();
                 loadDatabaseTables();
             } else {
-                const message = response && response.Message ? response.Message : '未知錯誤';
-                showResult(`連線失敗: ${message}`, 'error');
+                const message = response?.message ?? response?.Message ?? '未知錯誤';
+                showToast(`[失敗] 連線失敗：${message}`, 'error');
                 disableGenerateButton();
             }
         },
         error: () => {
-            showResult('連線失敗，請稍後再試。', 'error');
+            showToast('[失敗] 連線失敗，請稍後再試', 'error');
             disableGenerateButton();
         }
     });
 }
 
 // 備份資料表
-function backupTables(event) {
-    event.preventDefault();
-
+function backupTables() {
     const provider = $('#databaseType').val();
     const connectionString = $('#connectionString').val();
     const outputPath = $('#outputPath').val();
 
     if (!provider) {
-        showResult('請選擇資料庫類型', 'error');
+        showToast('[失敗] 請選擇資料庫類型', 'error');
         return;
     }
 
     if (!connectionString.trim()) {
-        showResult('請填寫連線字串', 'error');
+        showToast('[失敗] 請填寫連線字串', 'error');
         return;
     }
 
     if (!outputPath.trim()) {
-        showResult('請填寫輸出位置', 'error');
+        showToast('[失敗] 請填寫輸出位置', 'error');
         return;
     }
     let contextName = '';
@@ -148,7 +96,7 @@ function backupTables(event) {
         contextName = databaseMatch[1] + 'DbContext';
     }
 
-    showResult('正在備份資料表...', 'loading');
+    showToast('[資訊] 正在備份資料表...', 'info');
     const $form = $('#FormData');
     $form.append(`<input type="hidden" name="ContextName" value="${contextName}">`);
     $form.append(`<input type="hidden" name="OutputDirectory" value="${outputPath}">`);
@@ -158,15 +106,15 @@ function backupTables(event) {
         url: '/Backoffice/Database/SubmitBackup',
         data: $form.serialize(),
         success: (response) => {
-            if (response && response.success) {
-                showResult('資料表備份成功！', 'success');
+            if (response?.success) {
+                showToast('[成功] 資料表備份完成', 'success');
             } else {
-                const message = response && response.message ? response.message : '未知錯誤';
-                showResult(`備份失敗: ${message}`, 'error');
+                const message = response?.message ?? '未知錯誤';
+                showToast(`[失敗] 備份失敗：${message}`, 'error');
             }
         },
         error: () => {
-            showResult('備份失敗，請稍後再試。', 'error');
+            showToast('[失敗] 備份失敗，請稍後再試', 'error');
         },
         complete: () => {
             $form.find('input[name="ContextName"]').remove();
@@ -181,28 +129,29 @@ function loadDatabaseTables() {
     const connectionString = $('#connectionString').val();
 
     if (!provider || !connectionString.trim()) {
-        showResult('請先填寫連線資訊', 'error');
+        showToast('[失敗] 請先填寫連線資訊', 'error');
         return;
     }
 
-    showResult('正在獲取資料表...', 'loading');
+    showToast('[資訊] 正在載入資料表...', 'info');
 
     $.ajax({
         type: 'POST',
         url: '/Backoffice/Database/LoadDatabaseTables',
         data: $('#FormData').serialize(),
         success: (response) => {
-            if (response && response.success) {
+            if (response?.success) {
                 displayDatabaseTables(response.tables);
                 showTableManagement();
-                showResult(`成功獲取 ${response.tables.length} 個資料表`, 'success');
+                const tableCount = response.tables?.length ?? 0;
+                showToast(`[成功] 成功載入 ${tableCount} 個資料表`, 'success');
             } else {
-                const message = response && response.message ? response.message : '獲取資料表失敗';
-                showResult(`獲取資料表失敗: ${message}`, 'error');
+                const message = response?.message ?? '獲取資料表失敗';
+                showToast(`[失敗] 獲取資料表失敗：${message}`, 'error');
             }
         },
         error: () => {
-            showResult('獲取資料表失敗，請稍後再試。', 'error');
+            showToast('[失敗] 獲取資料表失敗，請稍後再試', 'error');
         }
     });
 }
@@ -236,8 +185,9 @@ function displayDatabaseTables(tables) {
                     <div class="card-body">
                         <div class="d-flex align-items-center justify-content-between mb-2">
                             <h5 class="card-title h6 mb-0">${table}</h5>
-                            <button type="button" onclick="showTableDetails('${table}')" 
-                                    class="btn btn-sm btn-outline-primary" 
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-primary js-db-table-detail"
+                                    data-table="${table}"
                                     title="查看詳情">
                                 <i data-lucide="eye" style="width: 1rem; height: 1rem;"></i>
                             </button>
@@ -273,11 +223,11 @@ function showTableDetails(tableName) {
     const connectionString = $('#connectionString').val();
 
     if (!provider || !connectionString) {
-        showResult('請先測試連線以獲取資料表詳情', 'warning');
+        showToast('[失敗] 請先測試連線以獲取資料表詳情', 'error');
         return;
     }
 
-    showResult(`正在載入資料表 "${tableName}" 的詳情...`, 'info');
+    showToast(`[資訊] 正在載入資料表 ${tableName} 的詳情`, 'info');
     
     showModal('tableDetailsModal', {
         url: '/Backoffice/Database/LoadDetail',
@@ -286,8 +236,7 @@ function showTableDetails(tableName) {
             tableName: tableName,
             provider: provider,
             connectionString: connectionString
-        },
-        container: 'databaseModal'
+        }
     });
 }
 
@@ -308,4 +257,25 @@ $(document).ready(function () {
     $('#databaseType, #connectionString').on('change input', function () {
         disableGenerateButton();
     });
+
+    $(document)
+        .off('click.db', '.js-db-open-help')
+        .on('click.db', '.js-db-open-help', function () {
+            showModal('helpModal');
+        })
+        .off('click.db', '.js-db-test-connection')
+        .on('click.db', '.js-db-test-connection', function (e) {
+            e.preventDefault();
+            testConnection();
+        })
+        .off('click.db', '.js-db-backup')
+        .on('click.db', '.js-db-backup', function (e) {
+            e.preventDefault();
+            backupTables();
+        })
+        .off('click.db', '.js-db-table-detail')
+        .on('click.db', '.js-db-table-detail', function () {
+            const table = $(this).data('table');
+            showTableDetails(table);
+        });
 });

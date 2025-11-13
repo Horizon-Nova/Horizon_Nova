@@ -1,0 +1,87 @@
+/* SettingsScreen 專用樣式 */
+.settings-header {
+	margin-bottom: 12px;
+	flex-shrink: 0;
+	position: relative;
+	z-index: 1;
+}
+.settings-title {
+	color: #ffffff;
+	font-size: 18px;
+	font-weight: 600;
+	margin: 0 0 4px 0;
+}
+.settings-subtitle {
+	color: rgba(255, 255, 255, 0.7);
+	font-size: 11px;
+	margin: 0;
+}
+
+.settings-section {
+	margin-bottom: 12px;
+}
+.settings-item {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	background: rgba(255, 255, 255, 0.05);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 10px;
+	padding: 14px;
+}
+.settings-item-icon {
+	width: 36px;
+	height: 36px;
+	border-radius: 8px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: rgba(255,255,255,0.06);
+	border: 1px solid rgba(255,255,255,0.12);
+	color: rgba(255,255,255,0.9);
+	flex-shrink: 0;
+}
+.settings-item-content {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	min-width: 0;
+}
+.settings-item-label {
+	color: rgba(255,255,255,0.65);
+	font-size: 11px;
+}
+.settings-item-value {
+	color: #ffffff;
+	font-size: 15px;
+	font-weight: 700;
+	line-height: 1.3;
+	word-break: break-word;
+}
+
+.settings-actions-row {
+	display: flex;
+	justify-content: flex-end;
+	margin-top: 10px;
+	padding-top: 10px;
+	border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+.btn-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	background: rgba(255,255,255,0.06);
+	border: 1px solid rgba(255,255,255,0.12);
+	border-radius: 8px;
+	color: rgba(255,255,255,0.9);
+	padding: 8px 10px;
+	font-size: 12px;
+	text-decoration: none;
+}
+.btn-link:hover {
+	background: rgba(255,255,255,0.1);
+	border-color: rgba(255,255,255,0.18);
+}
+
+

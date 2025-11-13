@@ -1,0 +1,336 @@
+/* RegisterScreen 專用樣式（縮小比例以符合手機） */
+.register-brand {
+	margin-bottom: 12px;
+	flex-shrink: 0;
+	position: relative;
+	z-index: 1;
+}
+
+.register-form {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	position: relative;
+	z-index: 1;
+}
+
+.register-logo {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 12px;
+}
+
+.register-logo-box {
+	width: 28px;
+	height: 28px;
+	background: #1DE9B6;
+	border-radius: 6px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #0B172A;
+	font-weight: 700;
+	font-size: 11px;
+	flex-shrink: 0;
+}
+
+.register-brand-title {
+	color: #ffffff;
+	font-size: 16px;
+	font-weight: 600;
+	margin: 0;
+}
+
+.register-heading {
+	color: #ffffff;
+	font-size: 18px;
+	font-weight: 600;
+	margin: 0 0 4px 0;
+}
+
+.register-subtitle {
+	color: rgba(255, 255, 255, 0.7);
+	font-size: 11px;
+	margin: 0;
+}
+
+.register-form-group {
+	position: relative;
+}
+
+.register-form-label {
+	display: block;
+	color: rgba(255, 255, 255, 0.8);
+	font-size: 11px;
+	margin-bottom: 4px;
+	font-weight: 500;
+}
+
+.register-form-input {
+	width: 100%;
+	background: rgba(255, 255, 255, 0.95);
+	border: 1px solid rgba(226, 232, 240, 1);
+	border-radius: 8px;
+	padding: 8px 10px 8px 32px;
+	font-size: 12px;
+	color: #12223F;
+	transition: all 0.2s;
+}
+
+.register-form-input:focus {
+	outline: none;
+	border-color: #1DE9B6;
+	border-width: 2px;
+	box-shadow: 0 0 0 3px rgba(29, 233, 182, 0.1);
+}
+
+.register-form-input::placeholder {
+	color: rgba(136, 147, 167, 0.8);
+}
+
+.register-input-icon {
+	position: absolute;
+	left: 8px;
+	top: 50%;
+	transform: translateY(-50%);
+	color: rgba(79, 91, 112, 0.6);
+	width: 14px;
+	height: 14px;
+}
+
+/* 註冊錶盤不需要密碼切換按鈕，移除相關樣式 */
+
+/* 同意條款區塊已移除 */
+
+.btn-register {
+	width: 100%;
+	background: #1DE9B6;
+	color: #0B172A;
+	border: none;
+	border-radius: 8px;
+	padding: 10px 16px;
+	font-size: 12px;
+	font-weight: 600;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 5px;
+	margin-top: 10px;
+	transition: all 0.2s;
+}
+
+.btn-register:hover {
+	background: #1bd4a3;
+	transform: translateY(-1px);
+	box-shadow: 0 4px 12px rgba(29, 233, 182, 0.3);
+}
+
+.btn-to-login {
+	width: 100%;
+	background: transparent;
+	color: white;
+	border: 1px solid rgba(18, 34, 63, 0.2);
+	border-radius: 8px;
+	padding: 10px 16px;
+	font-size: 11px;
+	font-weight: 600;
+	cursor: pointer;
+	margin-top: 8px;
+	transition: all 0.2s;
+}
+
+.btn-to-login:hover {
+	background: rgba(255, 255, 255, 0.1);
+	border-color: rgba(18, 34, 63, 0.3);
+}
+
+/* 24 小時制時間選擇（小時/分鐘） */
+.time-select-group {
+	display: flex;
+	gap: 8px;
+}
+.time-select {
+	font-size: 12px;
+	padding: 8px 10px;
+	height: auto;
+}
+.time-select-group .register-input-icon {
+	left: 8px;
+}
+
+/* 快速預設 */
+.preset-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+.preset-chip {
+	background: rgba(255, 255, 255, 0.06);
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	color: rgba(255, 255, 255, 0.9);
+	padding: 6px 10px;
+	border-radius: 9999px;
+	font-size: 11px;
+	cursor: pointer;
+	transition: all 0.2s;
+}
+.preset-chip:hover {
+	background: rgba(255, 255, 255, 0.1);
+	border-color: rgba(255, 255, 255, 0.2);
+}
+.preset-chip:active {
+	transform: translateY(1px);
+}
+
+.btn-toggle-advanced {
+	background: transparent;
+	border: 1px dashed rgba(255, 255, 255, 0.25);
+	color: rgba(255, 255, 255, 0.85);
+	padding: 6px 10px;
+	border-radius: 8px;
+	font-size: 11px;
+	cursor: pointer;
+}
+.btn-toggle-advanced:hover {
+	border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* 每週選擇徽章 */
+.weekday-badge {
+	background: rgba(255, 255, 255, 0.06);
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	color: rgba(255, 255, 255, 0.85);
+	padding: 6px 8px;
+	border-radius: 8px;
+	font-size: 11px;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	user-select: none;
+	cursor: pointer;
+}
+.weekday-badge input[type="checkbox"] {
+	accent-color: #1DE9B6;
+	width: 14px;
+	height: 14px;
+}
+
+/* iPhone 風格滾輪 */
+.wheel {
+	position: relative;
+	display: flex;
+	gap: 8px;
+	align-items: stretch;
+	height: 120px; /* 降低高度，顯示約 3-4 行 */
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	border-radius: 10px;
+	background: rgba(255, 255, 255, 0.04);
+	overflow: hidden;
+	width: 100%;
+	max-width: 100%;
+	box-sizing: border-box;
+}
+.wheel-ymd { height: 180px; }
+.wheel-column {
+	flex: 1;
+	overflow-y: auto;
+	scroll-snap-type: y mandatory;
+	-webkit-overflow-scrolling: touch;
+	padding: 0 6px;
+}
+.wheel-item {
+	height: 32px;
+	line-height: 32px;
+	text-align: center;
+	scroll-snap-align: center;
+	color: rgba(255, 255, 255, 0.85);
+	font-size: 14px;
+	cursor: pointer;
+	transition: all 0.2s;
+}
+
+.wheel-item:hover {
+	background: rgba(255, 255, 255, 0.05);
+}
+
+.wheel-item.selected {
+	color: #1DE9B6;
+	font-weight: 600;
+	background: rgba(29, 233, 182, 0.1);
+}
+.wheel-indicator {
+	position: absolute;
+	top: 50%;
+	left: 0;
+	right: 0;
+	height: 32px;
+	margin-top: -16px;
+	border-top: 1px solid rgba(255, 255, 255, 0.2);
+	border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+	pointer-events: none;
+}
+.wheel-mask {
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(to bottom, rgba(10,10,10,0.8), rgba(10,10,10,0.2) 30%, rgba(10,10,10,0.2) 70%, rgba(10,10,10,0.8));
+	pointer-events: none;
+}
+.wheel-column::-webkit-scrollbar { display: none; }
+
+/* 簡易月曆 */
+.scheduler .calendar {
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	border-radius: 10px;
+	padding: 8px;
+	background: rgba(255, 255, 255, 0.04);
+	width: 100%;
+	max-width: 100%;
+	box-sizing: border-box;
+}
+.cal-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 6px;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.cal-header button {
+	font-size: 12px;
+	padding: 4px 8px;
+}
+
+.cal-header .text-muted {
+	font-size: 12px;
+}
+.cal-grid {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	gap: 4px;
+	width: 100%;
+	box-sizing: border-box;
+}
+.cal-cell {
+	text-align: center;
+	padding: 6px 2px;
+	border-radius: 6px;
+	color: rgba(255,255,255,0.85);
+	user-select: none;
+	cursor: pointer;
+	font-size: 11px;
+	box-sizing: border-box;
+}
+.cal-cell.weekname {
+	color: rgba(255,255,255,0.6);
+	font-size: 12px;
+	cursor: default;
+}
+.cal-cell.muted { color: rgba(255,255,255,0.35); }
+.cal-cell.selected { background: rgba(29, 233, 182, 0.15); border: 1px solid rgba(29,233,182,0.3); }
+.cal-cell:hover { background: rgba(255,255,255,0.08); }
+
+

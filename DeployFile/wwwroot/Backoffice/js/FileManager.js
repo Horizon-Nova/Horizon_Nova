@@ -145,7 +145,7 @@ function uploadFiles(filesWithPaths) {
                     $(this).find('.badge').removeClass('bg-secondary').addClass('bg-danger').text('失敗');
                     $(this).find('.progress-bar').removeClass('progress-bar-animated').addClass('bg-danger');
                 });
-                alert(response.message || '上傳失敗');
+                showToast(response.message || '上傳失敗', 'error');
             }
         },
         error: () => {
@@ -153,7 +153,7 @@ function uploadFiles(filesWithPaths) {
                 $(this).find('.badge').removeClass('bg-secondary').addClass('bg-danger').text('錯誤');
                 $(this).find('.progress-bar').removeClass('progress-bar-animated').addClass('bg-danger');
             });
-            alert('上傳發生錯誤');
+            showToast('上傳發生錯誤', 'error');
             
             setTimeout(() => {
                 closeModal('uploadProgress');
@@ -168,7 +168,7 @@ $(document).on('click', '.remove-share', function(){
     const isPrimary = $badge.data('is-primary') === 'true' || $badge.data('is-primary') === true;
     
     if(isPrimary){
-        alert('無法移除原擁有者');
+        showToast('無法移除原擁有者', 'warning');
         return;
     }
     
@@ -200,15 +200,15 @@ $(document).on('click', '#btnSaveShare', function(){
         headers: { 'RequestVerificationToken': token },
         success: (res)=>{ 
             if(res.success){ 
-                alert('分享設定已更新'); 
+                showToast('分享設定已更新', 'success'); 
                 location.reload(); 
             } else { 
-                alert(res.message||'更新失敗'); 
+                showToast(res.message||'更新失敗', 'error'); 
             } 
         },
         error: (xhr)=> {
             const msg = xhr && xhr.responseText ? xhr.responseText : '系統發生錯誤';
-            alert(msg);
+            showToast(msg, 'error');
         }
     });
 });
@@ -231,8 +231,8 @@ $(document).on('click', '#btnSaveName', function(){
         contentType: 'application/json',
         data: JSON.stringify(payload),
         headers: { 'RequestVerificationToken': token },
-        success: (res)=>{ if(res.success){ location.href = location.pathname + '?path=' + encodeURIComponent(path); } else { alert(res.message||'重新命名失敗'); } },
-        error: ()=> alert('系統發生錯誤')
+        success: (res)=>{ if(res.success){ location.href = location.pathname + '?path=' + encodeURIComponent(path); } else { showToast(res.message||'重新命名失敗', 'error'); } },
+        error: ()=> showToast('系統發生錯誤', 'error')
     });
 });
 
@@ -267,7 +267,7 @@ window.openItemPanel = function(name, type, path){
 window.deleteItem = function(name, type, path) {
     const isOwner = (($('#sidePanelRoot').data('is-owner')+"") === 'true');
     if(!isOwner) {
-        alert('您沒有權限刪除此項目');
+        showToast('您沒有權限刪除此項目', 'warning');
         return;
     }
     if(!confirm('確定要刪除「' + name + '」嗎？')) return;
@@ -283,15 +283,15 @@ window.deleteItem = function(name, type, path) {
         headers: { 'RequestVerificationToken': token },
         success: (res) => {
             if(res.success) {
-                alert('刪除成功');
+                showToast('刪除成功', 'success');
                 location.href = location.pathname + '?path=' + encodeURIComponent(path);
             } else {
-                alert(res.message || '刪除失敗');
+                showToast(res.message || '刪除失敗', 'error');
             }
         },
         error: (xhr) => {
             console.error('刪除錯誤:', xhr);
-            alert('系統發生錯誤: ' + (xhr.responseText || xhr.statusText || '未知錯誤'));
+            showToast('系統發生錯誤: ' + (xhr.responseText || xhr.statusText || '未知錯誤'), 'error');
         }
     });
 };
