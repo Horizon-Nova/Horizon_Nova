@@ -1,0 +1,85 @@
+@model Models.HnbHnbBackoffice.vw_sidebar_navigation?
+@{
+    Layout = null;
+}
+
+<!-- 表單Modal -->
+<div id="NavModal" class="modal fade" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@((Model?.id ?? 0) > 0 ? "編輯目錄" : "新增目錄")</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="NavFormData">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@(Model?.id ?? 0)" />
+
+                    <div class="form-group row mt-2">
+                        <label class="col-lg-2 col-form-label" for="title">目錄名稱<span class="text-danger">*</span></label>
+                        <div class="col-lg-10">
+                            <input type="text" class="form-control" id="title" name="title" value="@(Model?.title ?? "")" placeholder="請輸入目錄名稱" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-2">
+                        <label class="col-lg-2 col-form-label" for="code">目錄代碼<span class="text-danger">*</span></label>
+                        <div class="col-lg-10">
+                            <input type="text" class="form-control" id="code" name="code" value="@(Model?.code ?? "")" placeholder="請輸入目錄代碼（英文小寫、數字、底線）" required pattern="[a-z0-9_]+">
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-2">
+                        <label class="col-lg-2 col-form-label" for="icon">圖標</label>
+                        <div class="col-lg-10">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="icon" name="icon" value="@(Model?.icon ?? "")" placeholder="請選擇圖標">
+                                <button type="button" class="btn btn-outline-secondary" onclick="openIconPicker(this)">
+                                    <i data-lucide="search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-2">
+                        <label class="col-lg-2 col-form-label" for="parent_code">上層目錄</label>
+                        <div class="col-lg-10">
+                            <select class="form-select" id="parent_code" name="parent_code" data-current="@(Model?.parent_code ?? "")">
+                                <option value="">根目錄（第一層）</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-2">
+                        <label class="col-lg-2 col-form-label" for="sort_order">排序順序</label>
+                        <div class="col-lg-10">
+                            <input type="number" class="form-control" id="sort_order" name="sort_order" value="@(Model?.sort_order ?? 0)" min="0">
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-2">
+                        <label class="col-lg-2 col-form-label" for="url">路徑 URL</label>
+                        <div class="col-lg-10">
+                            <input type="text" class="form-control" id="url" name="url" value="@(Model?.url ?? "")" placeholder="/Backoffice/Controller/Action 或 https://...">
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-2">
+                        <label class="col-lg-2 col-form-label">啟用狀態</label>
+                        <div class="col-lg-10">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="is_active" name="is_active" @((Model?.is_active ?? false) ? "checked" : "")>
+                                <label class="form-check-label" for="is_active">啟用此目錄</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary btn-sm" onclick="SubmitFormData()">儲存</button>
+            </div>
+        </div>
+    </div>
+</div>

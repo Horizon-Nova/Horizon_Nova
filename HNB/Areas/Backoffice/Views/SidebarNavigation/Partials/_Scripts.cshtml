@@ -1,0 +1,34 @@
+@{
+    Layout = null;
+}
+<script src="~/Backoffice/js/NavigationManagement.js"></script>
+<script>
+    function SubmitFormData() {
+        const formData = $('#NavFormData').serializeArray();
+        const dataObject = {};
+        
+        formData.forEach(field => {
+            dataObject[field.name] = field.value;
+        });
+        
+        dataObject['is_active'] = $('#is_active').is(':checked');
+        
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SubmitNavigation", "SidebarNavigation")',
+            data: dataObject,
+            success: function(response) {
+                if (response?.success) {
+                    showToast(response?.message || '儲存成功', 'success');
+                    closeModal('NavModal');
+                    location.reload();
+                } else {
+                    showToast(response?.message || '儲存失敗', 'error');
+                }
+            },
+            error: function() {
+                showToast('儲存失敗，系統發生錯誤。', 'error');
+            }
+        });
+    }
+</script>

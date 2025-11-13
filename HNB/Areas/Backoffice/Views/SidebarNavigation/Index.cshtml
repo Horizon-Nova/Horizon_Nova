@@ -5,25 +5,16 @@
     ViewData["PageIcon"] = "folder-tree";
     ViewData["HelpModalId"] = "navigation-help";
     Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
-
-    var allNavigations = ViewBag.Navigations as List<Models.HnbHnbBackoffice.vw_sidebar_navigation> ?? new List<Models.HnbHnbBackoffice.vw_sidebar_navigation>();
-    var rootItems = allNavigations.Where(n => string.IsNullOrEmpty(n.parent_code)).OrderBy(n => n.sort_order).ToList();
-    Func<string, List<Models.HnbHnbBackoffice.vw_sidebar_navigation>> getChildren = (parentCode) =>
-        allNavigations.Where(n => n.parent_code == parentCode).OrderBy(n => n.sort_order).ToList();
-    ViewData["GetChildren"] = getChildren;
 }
 
-@await Html.PartialAsync("Partials/SidebarNavigation/_Styles")
+@await Html.PartialAsync("Partials/_Styles")
 
 <section class="mb-3 mb-lg-4">
-    @await Html.PartialAsync("Partials/SidebarNavigation/_Control")
-    @await Html.PartialAsync("Partials/SidebarNavigation/_Tree")
+    @await Html.PartialAsync("Partials/_Control")
 </section>
-
-@await Html.PartialAsync("Partials/SidebarNavigation/Modal/_FormData")
-@await Html.PartialAsync("Partials/SidebarNavigation/Modal/_IconPicker")
-@await Html.PartialAsync("Partials/SidebarNavigation/Modal/_Help")
+@await Html.PartialAsync("Partials/_TreeItem")
+@await Html.PartialAsync("Partials/Modal/_FormData")
 
 @section Scripts {
-    @await Html.PartialAsync("Partials/SidebarNavigation/_Scripts")
+    @await Html.PartialAsync("Partials/_Scripts")
 }

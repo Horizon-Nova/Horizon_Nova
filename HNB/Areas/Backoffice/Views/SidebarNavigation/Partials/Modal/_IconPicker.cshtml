@@ -16,7 +16,7 @@
                 <div class="mb-4">
                     <div class="position-relative">
                         <input type="text" id="iconSearchInput" class="form-control ps-5" 
-                               placeholder="搜尋圖標名稱或標籤（例如：home, arrow, user）...">
+                               placeholder="搜尋圖標名稱或標籤（例如：home, arrow, user）..." oninput="filterIcons()">
                         <i data-lucide="search" class="position-absolute text-muted" 
                            style="width: 1rem; height: 1rem; left: 0.75rem; top: 50%; transform: translateY(-50%);"></i>
                     </div>
@@ -40,7 +40,7 @@
             
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-primary js-icon-picker-confirm">選擇</button>
+                <button type="button" class="btn btn-primary" onclick="selectIcon()">選擇</button>
             </div>
         </div>
     </div>
