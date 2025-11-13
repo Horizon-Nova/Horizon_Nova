@@ -1,0 +1,142 @@
+@{
+    Layout = null;
+    var title = ViewData["Title"] as string ?? "APP 展示";
+}
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@title</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="~/HNB_WEB/image/Horizon Nova Icon.png">
+    <link rel="shortcut icon" type="image/png" href="~/HNB_WEB/image/Horizon Nova Icon.png">
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            --dark-bg: #0a0a0a;
+            --dark-surface: #1a1a1a;
+            --dark-surface-light: #2a2a2a;
+            --dark-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --grid-color: rgba(255, 255, 255, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            position: relative;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .header-nova {
+            background: rgba(26, 26, 26, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--dark-border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 100;
+        }
+
+        .logo-nova {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--dark-surface-light);
+            border: 1px solid var(--dark-border);
+        }
+
+        .logo-nova img {
+            width: 100%;
+            height: 100%;
+            border-radius: 0.5rem;
+            object-fit: cover;
+        }
+
+        .text-gradient-nova {
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+        main {
+            padding-top: 2rem;
+            padding-bottom: 4rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .text-muted {
+            color: var(--text-secondary) !important;
+        }
+    </style>
+
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <header class="header-nova sticky-top">
+        <div class="container-fluid">
+            <div class="d-flex align-items-center justify-content-between py-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="logo-nova">
+                        <img src="~/HNB_WEB/image/Horizon Nova Icon.png" alt="Horizon Nova" />
+                    </div>
+                    <span class="text-gradient-nova fs-4">Horizon Nova</span>
+                </div>
+                <nav class="d-none d-md-flex align-items-center gap-4">
+                    <span class="text-muted small">APP 展示系統</span>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        @RenderBody()
+    </main>
+
+    <script>
+        $(document).ready(function() {
+            if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
+                lucide.createIcons();
+            }
+        });
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

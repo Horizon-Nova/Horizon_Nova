@@ -1,10 +1,5 @@
-1.在開發前需閱讀docs資料夾來了解開發規範/開發規則
-2.勿違反開發規則
-3.開發撰寫模式（全域基線；若與任一專案/領域 docs 不一致，docs 優先）
- - 三原則：可讀、可維護、可擴充；嚴禁「能動即可」
- - 技術中立：遵循使用中框架/語言的原生最佳實踐，避免硬套單一技術習慣
- - 表達式優先：使用語言/框架原生的空值預設/安全訪問；就地運算；避免多餘變數與多層判斷
- - 行為簡潔：避免無意義代理函式（如僅包同一呼叫）；函式單一責任、命名語意清晰
- - 可觀測性/資安/效能：僅提供基線原則，不壓過專案指引（結構化日誌、最小權限、避免 N+1、必要時快取/批次/非同步/限流）
- - 變更管控：重大變更先更新 docs 並於 PR 附動機與影響範圍
- - 語系與訊息：嚴用繁體中文與 [成功]/[失敗]，禁止 emoji
+<td colspan="3" class="element-input elementTdClassCommon" id="datetime_input">
+                                            
+                              <span class="k-widget k-datetimepicker k-header bg-fm-row_static_date k-input" style="width: 100%;"><span class="k-picker-wrap k-state-default"><input id="fm_datetime" name="datetime" type="text" class="bg-fm-row_static_date k-input" maxlength="19" data-area="main" data-isdatetime="true" data-bg-val="{ required:true, date:true, messages:{ required:'日期/時間不能為空',date:'日期格式不正確' } 
+                              }" style="width: 100%;" data-role="datetimepicker" role="combobox" aria-expanded="false" aria-disabled="false" readonly="readonly"><span unselectable="on" class="k-select"><span class="k-link k-link-date" aria-label="Open the date view"><span unselectable="on" class="k-icon k-i-calendar" aria-controls="fm_datetime_dateview"></span></span><span class="k-link k-link-time" aria-label="Open the time view"><span unselectable="on" class="k-icon k-i-clock" aria-controls="fm_datetime_timeview"></span></span></span></span></span>
+                          </td>

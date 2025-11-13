@@ -1,0 +1,114 @@
+@{
+	Layout = null;
+}
+
+<link rel="stylesheet" href="~/NovaAPP/DialVision/css/register-screen.css" />
+
+<div class="register-brand">
+	<div class="register-logo">
+		<div class="register-logo-box">NX</div>
+		<h2 class="register-brand-title">NovaMatrixX</h2>
+	</div>
+	<h1 class="register-heading">註冊新的錶盤</h1>
+	<p class="register-subtitle">請填寫地點、場域與檢測設定以建立錶盤。</p>
+	</div>
+
+<form class="register-form">
+	<div class="register-form-group">
+		<label class="register-form-label">地點</label>
+		<div style="position: relative;">
+			<i data-lucide="map-pin" class="register-input-icon"></i>
+			<input type="text" class="register-form-input" id="meterLocation" placeholder="例如：中國科技大學" />
+		</div>
+	</div>
+
+	<div class="register-form-group">
+		<label class="register-form-label">場域</label>
+		<div style="position: relative;">
+			<i data-lucide="building-2" class="register-input-icon"></i>
+			<input type="text" class="register-form-input" id="meterArea" placeholder="例如：光605實驗室" />
+		</div>
+	</div>
+
+	<div class="register-form-group">
+		<label class="register-form-label">錶盤類型</label>
+		<div style="position: relative;">
+			<i data-lucide="gauge" class="register-input-icon"></i>
+			<select class="register-form-input" id="meterType">
+				<option value="" selected disabled>請選擇</option>
+				<option value="wall">牆壁電表</option>
+				<option value="smart">智慧電表</option>
+				<option value="water">水表</option>
+				<option value="gas">氣表</option>
+			</select>
+		</div>
+	</div>
+
+	<div class="register-form-group">
+		<label class="register-form-label">檢測週期</label>
+		<div style="position: relative;">
+			<i data-lucide="calendar" class="register-input-icon"></i>
+			<select class="register-form-input" id="checkCycle">
+				<option value="" selected disabled>請選擇</option>
+				<option value="weekly">每周</option>
+				<option value="monthly">每月</option>
+				<option value="yearly">每年</option>
+				<option value="specific">特定日期</option>
+			</select>
+		</div>
+	</div>
+
+	<div class="register-form-group">
+		<label class="register-form-label">建立時間</label>
+		<div style="position: relative;">
+			<i data-lucide="clock" class="register-input-icon"></i>
+			<input type="text" class="register-form-input" id="createdAt" disabled />
+		</div>
+	</div>
+
+	<div class="register-form-group">
+		<label class="register-form-label">距離下次檢測時間</label>
+		<div style="position: relative;">
+			<i data-lucide="timer" class="register-input-icon"></i>
+			<input type="text" class="register-form-input" id="nextCheck" placeholder="點擊選擇日期和時間" readonly style="cursor: pointer;" />
+		</div>
+		<!-- 日曆和時間轉盤（點擊後顯示） -->
+		<div class="scheduler-picker d-none d-flex flex-column mt-2" id="schedulerPicker" style="gap:12px;">
+			<div class="calendar w-100" id="schedCalendar">
+				@{ ViewBag.Year = DateTime.Now.Year; ViewBag.Month = DateTime.Now.Month; }
+				@await Html.PartialAsync("Partials/DialVision/_Calendar")
+			</div>
+			<div class="wheel w-100" id="timeWheel" aria-label="time-wheel">
+				<div class="wheel-column" id="wheelTimes" role="listbox" aria-label="times">
+					@{ ViewBag.SelectedTime = "00:00"; }
+					@await Html.PartialAsync("Partials/DialVision/_TimeWheel")
+				</div>
+				<div class="wheel-indicator"></div>
+				<div class="wheel-mask"></div>
+			</div>
+			<div class="d-flex justify-content-end gap-2">
+				<button type="button" class="btn btn-sm btn-outline-light" id="btnCancelPicker" onclick="cancelPicker()">取消</button>
+				<button type="button" class="btn btn-sm" id="btnConfirmPicker" onclick="confirmPicker()" style="background: #1DE9B6; color: #0B172A; border: none;">確認</button>
+			</div>
+		</div>
+	</div>
+
+	<button type="button" class="btn-register" id="btnCreateMeter">
+		<span>建立錶盤</span>
+		<i data-lucide="arrow-right" style="width: 14px; height: 14px;"></i>
+	</button>
+</form>
+<div class="dashboard-bottom-nav">
+	<button type="button" class="dashboard-nav-btn active" onclick="switchScreen && switchScreen('dashboard')">
+		<i data-lucide="layout-dashboard" style="width: 18px; height: 18px;"></i>
+	</button>
+	<button type="button" class="dashboard-nav-btn" id="btnClose" onclick="switchScreen && switchScreen('register')">
+		<i data-lucide="x" style="width: 18px; height: 18px;" class="close-icon"></i>
+	</button>
+	<button type="button" class="dashboard-nav-btn" onclick="switchScreen && switchScreen('settings')">
+		<i data-lucide="settings" style="width: 18px; height: 18px;"></i>
+	</button>
+</div>
+<script src="~/NovaAPP/DialVision/js/register-screen.js"></script>
+
+

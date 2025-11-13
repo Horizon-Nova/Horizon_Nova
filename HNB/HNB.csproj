@@ -23,6 +23,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Areas\Backoffice\storage\" />
+    <Folder Include="Areas\NovaAPP\Data\" />
+    <Folder Include="Areas\NovaAPP\Models\" />
+    <Folder Include="Areas\NovaAPP\Views\" />
     <Folder Include="Models\" />
   </ItemGroup>
 </Project>

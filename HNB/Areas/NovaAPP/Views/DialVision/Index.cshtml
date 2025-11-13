@@ -1,0 +1,15 @@
+@{
+    ViewData["Title"] = "APP 展示";
+    Layout = "~/Areas/NovaAPP/Views/Shared/_Layout.cshtml";
+}
+
+@await Html.PartialAsync("Partials/DialVision/_Styles")
+
+<section class="mb-3 mb-lg-4">
+    @await Html.PartialAsync("Partials/DialVision/_RealtimeInteractive")
+    @await Html.PartialAsync("Partials/DialVision/_Screenshots")
+</section>
+
+@section Scripts {
+    @await Html.PartialAsync("Partials/DialVision/_Scripts")
+}

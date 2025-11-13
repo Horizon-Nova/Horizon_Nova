@@ -1,0 +1,37 @@
+@{
+    Layout = null;
+    var year = ViewBag.Year ?? DateTime.Now.Year;
+    var month = ViewBag.Month ?? DateTime.Now.Month;
+    var selectedDate = ViewBag.SelectedDate as string;
+    
+    var first = new DateTime(year, month, 1);
+    var start = first.AddDays(-(int)first.DayOfWeek);
+    var weekNames = new[] { "日", "一", "二", "三", "四", "五", "六" };
+}
+
+@{
+    var prevMonth = month == 1 ? 12 : month - 1;
+    var prevYear = month == 1 ? year - 1 : year;
+    var nextMonth = month == 12 ? 1 : month + 1;
+    var nextYear = month == 12 ? year + 1 : year;
+}
+<div class="cal-header">
+    <button type="button" class="btn btn-sm btn-outline-light" onclick="loadCalendarMonth(@prevYear, @prevMonth)">&lt;</button>
+    <div class="text-muted">@year-@month.ToString("00")</div>
+    <button type="button" class="btn btn-sm btn-outline-light" onclick="loadCalendarMonth(@nextYear, @nextMonth)">&gt;</button>
+</div>
+<div class="cal-grid">
+    @for (int i = 0; i < 7; i++)
+    {
+        <div class="cal-cell weekname">@weekNames[i]</div>
+    }
+    @for (int i = 0; i < 42; i++)
+    {
+        var d = start.AddDays(i);
+        var dateStr = $"{d.Year}-{d.Month:00}-{d.Day:00}";
+        var muted = d.Month != month ? "muted" : "";
+        var selected = selectedDate == dateStr ? "selected" : "";
+        <div class="cal-cell @muted @selected" data-date="@dateStr" onclick="selectDate('@dateStr')">@d.Day</div>
+    }
+</div>
+
