@@ -1,6 +1,7 @@
 ﻿using HNB.Areas.Backoffice.BackgroundServices;
 using HNB.Areas.Backoffice.BackgroundServices.Middleware;
 using HNB.Areas.Backoffice.BackgroundServices.Repositories;
+using HNB.Areas.Backoffice.Core;
 using HNB.Areas.Backoffice.Repositories;
 using HNB.Areas.Backoffice.Services;
 using HNB.Areas.Backoffice.Utilities;
@@ -26,6 +27,7 @@ public static class ServiceExtensions
         services.AddScoped<AuthService>();
         services.AddScoped<SidebarNavigationService>();
         services.AddScoped<DatabaseService>();
+        services.AddScoped<OrganizationScope>();
         
         // 物件辨識配置建立方法（共用）
         ObjectDetectionConfig CreateObjectDetectionConfig(IConfiguration configuration, IWebHostEnvironment environment)

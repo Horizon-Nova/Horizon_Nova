@@ -1,4 +1,3 @@
-@model List<Models.HnbHnbBackoffice.vw_permission_organization>
 @{
     ViewData["Title"] = "組織圖 - 權限管理系統";
     ViewData["PageTitle"] = "組織圖";
@@ -11,10 +10,7 @@
 @await Html.PartialAsync("Partials/OrganizationChart/_Control")
 @await Html.PartialAsync("Partials/OrganizationChart/_Canvas")
 @await Html.PartialAsync("Partials/OrganizationChart/_Legend")
-@await Html.PartialAsync("Partials/OrganizationChart/Modal/_Help")
-@await Html.PartialAsync("Partials/Organizations/Modal/_FormData")
-@await Html.PartialAsync("Partials/Organizations/Modal/_Detail")
 
 @section Scripts {
-    @await Html.PartialAsync("Partials/OrganizationChart/_Scripts", Model)
+    @await Html.PartialAsync("Partials/OrganizationChart/_Scripts")
 }

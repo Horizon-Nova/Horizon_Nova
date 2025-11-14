@@ -16,7 +16,7 @@ public class SidebarNavigationService(
     /// <param name="parentCode">父項目篩選</param>
     /// <param name="isActive">啟用狀態篩選</param>
     /// <returns>導航項目列表</returns>
-    public List<vw_sidebar_navigation> LoadNavigations(string? searchTerm = null, string? parentCode = null, bool? isActive = null)
+    public List<vw_sidebar_navigation> LoadNavigationList(string? searchTerm = null, string? parentCode = null, bool? isActive = null)
         => rep.QueryNavigationList(searchTerm, parentCode, isActive);
 
     /// <summary>
@@ -24,15 +24,8 @@ public class SidebarNavigationService(
     /// </summary>
     /// <param name="id">導航項目ID</param>
     /// <returns>導航項目或null</returns>
-    public vw_sidebar_navigation? LoadNavigationById(int id)
+    public vw_sidebar_navigation? LoadNavigation(int? id)
         => rep.QueryNavigation(id);
-
-    /// <summary>
-    /// 載入所有導航項目（用於下拉選單等）
-    /// </summary>
-    /// <returns>所有導航項目列表</returns>
-    public List<vw_sidebar_navigation> LoadAllNavigations()
-        => rep.QueryNavigationList(searchTerm: null, parentCode: null, isActive: true);
 
     #endregion
 
@@ -45,9 +38,8 @@ public class SidebarNavigationService(
     /// <param name="id">導航項目ID</param>
     public void ViewBagModel(dynamic viewBag, int? id = null)
     {
-        viewBag.Id = id;
-        viewBag.Navigations = LoadNavigations();
-        viewBag.Navigation = id.HasValue ? LoadNavigationById(id.Value) : null;
+        viewBag.Navigations = LoadNavigationList();
+        viewBag.Navigation = LoadNavigation(id);
     }
 
     #endregion
@@ -73,54 +65,34 @@ public class SidebarNavigationService(
     /// <summary>
     /// 載入用戶的側欄導航列表（根據用戶角色權限）
     /// </summary>
+    /// <param name="userName">用戶名稱</param>
+    /// <returns>用戶有權限查看的導航項目列表</returns>
     public List<vw_sidebar_navigation> LoadUserNavigationList(string userName)
     {
-        var permissions = new List<string>();
+        // 收集用戶的導航權限代碼
+        var permissionCodes = CollectUserPermissionCodes(userName);
         
-        permissions.AddRange(new[] { "dashboard", "profile" });
+        // 取得所有啟用的導航項目
+        var allNavigations = rep.QueryNavigationList(searchTerm: null, parentCode: null, isActive: true);
         
-        var user = permRep.QueryPermissionManagement(name: userName, type: "user");
+        // 建立導航代碼對應表（提升查詢效率）
+        var navigationByCode = allNavigations
+            .Where(n => !string.IsNullOrEmpty(n.code))
+            .ToDictionary(n => n.code!, n => n);
         
-        if (user?.roles != null && user.roles.Any())
+        // 找出用戶直接有權限的導航項目
+        var allowedCodes = new HashSet<string>(permissionCodes);
+        
+        // 遞迴添加父項目（如果子項目有權限，父項目也必須顯示）
+        foreach (var code in permissionCodes)
         {
-            foreach (var roleIdStr in user.roles)
+            if (navigationByCode.TryGetValue(code, out var nav) && !string.IsNullOrEmpty(nav.parent_code))
             {
-                if (int.TryParse(roleIdStr, out var roleId))
-                {
-                    var role = permRep.QueryPermissionManagement(id: roleId, type: "role");
-                    if (role?.navigation_permissions != null && role.navigation_permissions.Any())
-                    {
-                        permissions.AddRange(role.navigation_permissions);
-                    }
-                }
+                AddParentCodesRecursively(navigationByCode, nav.parent_code, allowedCodes);
             }
         }
         
-        if (user?.navigation_permissions != null && user.navigation_permissions.Any())
-        {
-            permissions.AddRange(user.navigation_permissions);
-        }
-        
-        var userPermissionCodes = permissions.Distinct().ToList();
-        
-        var allNavigations = rep.QueryNavigationList(searchTerm: null, parentCode: null, isActive: true);
-        
-        var allowedNavigations = allNavigations
-            .Where(n => !string.IsNullOrEmpty(n.code) && userPermissionCodes.Contains(n.code))
-            .ToList();
-        
-        var allowedCodes = new HashSet<string>(userPermissionCodes);
-        
-        foreach (var nav in allowedNavigations.ToList())
-        {
-            AddParentNavigationCodes(allNavigations, nav.parent_code, allowedCodes);
-        }
-        
-        foreach (var nav in allowedNavigations.ToList())
-        {
-            AddChildNavigationCodes(allNavigations, nav.code, allowedCodes);
-        }
-        
+        // 過濾並排序：只返回允許的導航項目
         return allNavigations
             .Where(n => !string.IsNullOrEmpty(n.code) && allowedCodes.Contains(n.code))
             .OrderBy(n => n.sort_order)
@@ -128,40 +100,62 @@ public class SidebarNavigationService(
     }
 
     /// <summary>
-    /// 遞迴新增父項目導航代碼
+    /// 收集用戶的導航權限代碼（從預設、角色、用戶本身）
     /// </summary>
-    private void AddParentNavigationCodes(List<vw_sidebar_navigation> allNavigations, string? parentCode, HashSet<string> allowedCodes)
+    private HashSet<string> CollectUserPermissionCodes(string userName)
     {
-        if (string.IsNullOrEmpty(parentCode) || allowedCodes.Contains(parentCode))
-            return;
-            
-        allowedCodes.Add(parentCode);
+        var permissionCodes = new HashSet<string> { "dashboard", "profile" };
         
-        var parent = allNavigations.FirstOrDefault(n => n.code == parentCode);
-        if (parent != null && !string.IsNullOrEmpty(parent.parent_code))
+        var user = permRep.QueryPermissionManagement(name: userName, type: "user");
+        if (user == null) return permissionCodes;
+        
+        // 從角色收集權限
+        if (user.roles != null)
         {
-            AddParentNavigationCodes(allNavigations, parent.parent_code, allowedCodes);
+            foreach (var roleIdStr in user.roles)
+            {
+                if (int.TryParse(roleIdStr, out var roleId))
+                {
+                    var role = permRep.QueryPermissionManagement(id: roleId, type: "role");
+                    if (role?.navigation_permissions != null)
+                    {
+                        foreach (var permission in role.navigation_permissions)
+                        {
+                            if (!string.IsNullOrEmpty(permission))
+                                permissionCodes.Add(permission);
+                        }
+                    }
+                }
+            }
         }
+        
+        // 從用戶本身收集權限
+        if (user.navigation_permissions != null)
+        {
+            foreach (var permission in user.navigation_permissions)
+            {
+                if (!string.IsNullOrEmpty(permission))
+                    permissionCodes.Add(permission);
+            }
+        }
+        
+        return permissionCodes;
     }
 
     /// <summary>
-    /// 遞迴新增子項目導航代碼
+    /// 遞迴添加父項目導航代碼（如果子項目有權限，父項目也必須顯示）
     /// </summary>
-    private void AddChildNavigationCodes(List<vw_sidebar_navigation> allNavigations, string? parentCode, HashSet<string> allowedCodes)
+    private void AddParentCodesRecursively(Dictionary<string, vw_sidebar_navigation> navigationByCode, string parentCode, HashSet<string> allowedCodes)
     {
-        if (string.IsNullOrEmpty(parentCode))
+        if (string.IsNullOrEmpty(parentCode) || allowedCodes.Contains(parentCode))
             return;
         
-        var children = allNavigations.Where(n => n.parent_code == parentCode).ToList();
+        allowedCodes.Add(parentCode);
         
-        foreach (var child in children)
+        // 繼續向上查找父項目
+        if (navigationByCode.TryGetValue(parentCode, out var parent) && !string.IsNullOrEmpty(parent.parent_code))
         {
-            if (!string.IsNullOrEmpty(child.code) && !allowedCodes.Contains(child.code))
-            {
-                allowedCodes.Add(child.code);
-                
-                AddChildNavigationCodes(allNavigations, child.code, allowedCodes);
-            }
+            AddParentCodesRecursively(navigationByCode, parent.parent_code, allowedCodes);
         }
     }
 

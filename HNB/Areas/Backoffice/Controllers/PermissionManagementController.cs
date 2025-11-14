@@ -1,23 +1,24 @@
 using HNB.Areas.Backoffice.Filters;
 using HNB.Areas.Backoffice.Services;
+using HNB.Areas.Backoffice.Core;
 using Microsoft.AspNetCore.Mvc;
 using Models.HnbHnbBackoffice;
 
 namespace HNB.Areas.Backoffice.Controllers;
 
 [Area("Backoffice")]
-public class PermissionManagementController(PermissionManagementService sev, AuthService authService) : BaseController
+public class PermissionManagementController(PermissionManagementService sev, AuthService authService, OrganizationScope organizationScope) : BaseController
 {
     #region 共用工具
     /// <summary>
-    /// 獲取當前用戶的組織ID（從 Claims）
+    /// 獲取當前用戶的組織範圍 ID 列表
     /// </summary>
-    private int? GetCurrentUserOrganizationId()
+    private List<int> GetCurrentUserScopeIds()
     {
-        var organizationIdClaim = User.FindFirst("OrganizationId")?.Value;
-        return int.TryParse(organizationIdClaim, out var orgId) ? orgId : null;
+        var scope = organizationScope.ResolveUserScope(User);
+        return scope.ScopeIds;
     }
-	#endregion
+    #endregion
 
     #region 使用者管理
     public IActionResult Users()
@@ -25,27 +26,24 @@ public class PermissionManagementController(PermissionManagementService sev, Aut
 
     public IActionResult SearchUsers()
     {
-        var currentUserOrganizationId = GetCurrentUserOrganizationId();
-
-        var model = sev.LoadUserList(organizationId: currentUserOrganizationId);
+        var scopeIds = GetCurrentUserScopeIds();
+        var model = sev.LoadUserList(organizationIds: scopeIds);
         return PartialView("Partials/Users/_SearchResults", model);
     }
 
-    [HttpGet]
     public IActionResult LoadUserDetail(int id)
     {
-        var currentUserOrganizationId = GetCurrentUserOrganizationId();
-        sev.ViewBagModel(ViewBag, id: id, currentUserOrganizationId: currentUserOrganizationId);
-        var model = ViewBag.User as vw_permission_user;
+        var scopeIds = GetCurrentUserScopeIds();
+        sev.ViewBagModel(ViewBag, organizationIds: scopeIds);
+        var model = sev.LoadUser(id);
         return PartialView("Partials/Users/Modal/_Permissions", model);
     }
 
-    [HttpGet]
     public IActionResult LoadUserForm(int? id = null)
     {
-        var currentUserOrganizationId = GetCurrentUserOrganizationId();
-        sev.ViewBagModel(ViewBag, id: id, currentUserOrganizationId: currentUserOrganizationId);
-        var model = ViewBag.User as vw_permission_user;
+        var scopeIds = GetCurrentUserScopeIds();
+        sev.ViewBagModel(ViewBag, organizationIds: scopeIds);
+        var model = id.HasValue ? sev.LoadUser(id.Value) : null;
         return PartialView("Partials/Users/Modal/_FormData", model);
     }
 
@@ -53,135 +51,119 @@ public class PermissionManagementController(PermissionManagementService sev, Aut
 
     #region 角色管理
     public IActionResult Roles()
-    {
-        var currentUserOrganizationId = GetCurrentUserOrganizationId();
-        
-        sev.ViewBagModel(ViewBag, currentUserOrganizationId: currentUserOrganizationId);
-        
-        var model = sev.LoadRoleList(organizationId: currentUserOrganizationId);
-        return View(model);
-    }
+        => View();
 
-    [HttpGet]
     public IActionResult SearchRoles()
     {
-        var currentUserOrganizationId = GetCurrentUserOrganizationId();
-
-        var model = sev.LoadRoleList(organizationId: currentUserOrganizationId);
+        var scopeIds = GetCurrentUserScopeIds();
+        var model = sev.LoadRoleList(organizationIds: scopeIds);
         return PartialView("Partials/Roles/_SearchResults", model);
     }
 
-    [HttpGet]
     public IActionResult LoadRoleDetail(int id)
     {
-        var currentUserOrganizationId = GetCurrentUserOrganizationId();
-        sev.ViewBagModel(ViewBag, id: id, currentUserOrganizationId: currentUserOrganizationId);
-        var model = ViewBag.Role as vw_permission_role;
+        var scopeIds = GetCurrentUserScopeIds();
+        sev.ViewBagModel(ViewBag, organizationIds: scopeIds);
+        var model = sev.LoadRole(id);
         return PartialView("Partials/Roles/Modal/_Permissions", model);
     }
 
-    [HttpGet]
     public IActionResult LoadRoleForm(int? id = null)
     {
-        var currentUserOrganizationId = GetCurrentUserOrganizationId();
-        sev.ViewBagModel(ViewBag, id: id, currentUserOrganizationId: currentUserOrganizationId);
-        var model = ViewBag.Role as vw_permission_role;
+        var scopeIds = GetCurrentUserScopeIds();
+        sev.ViewBagModel(ViewBag, organizationIds: scopeIds);
+        var model = id.HasValue ? sev.LoadRole(id.Value) : null;
         return PartialView("Partials/Roles/Modal/_FormData", model);
     }
 
-	#endregion
+    #endregion
 
     #region 組織管理
     public IActionResult Organizations()
-    {
-        var currentUserOrganizationId = GetCurrentUserOrganizationId();
-        
-        sev.ViewBagModel(ViewBag, currentUserOrganizationId: currentUserOrganizationId);
-        
-        var model = sev.LoadOrganizationList(organizationId: currentUserOrganizationId);
-        return View(model);
-    }
+        => View();
 
     public IActionResult SearchOrganizations()
     {
-        var currentUserOrganizationId = GetCurrentUserOrganizationId();
-
-        var model = sev.LoadOrganizationList(organizationId: currentUserOrganizationId);
+        var scopeIds = GetCurrentUserScopeIds();
+        var model = sev.LoadOrganizationList(organizationIds: scopeIds);
         return PartialView("Partials/Organizations/_SearchResults", model);
     }
 
     public IActionResult LoadOrganizationDetail(int id)
     {
-        var currentUserOrganizationId = GetCurrentUserOrganizationId();
-        sev.ViewBagModel(ViewBag, id: id, currentUserOrganizationId: currentUserOrganizationId);
-        var model = ViewBag.Organization as vw_permission_organization;
+        var scopeIds = GetCurrentUserScopeIds();
+        sev.ViewBagModel(ViewBag, organizationIds: scopeIds);
+        var model = sev.LoadOrganization(id);
         return PartialView("Partials/Organizations/Modal/_Detail", model);
     }
 
     public IActionResult LoadOrganizationForm(int? id = null)
     {
-        var currentUserOrganizationId = GetCurrentUserOrganizationId();
-        sev.ViewBagModel(ViewBag, id: id, currentUserOrganizationId: currentUserOrganizationId);
-        var model = ViewBag.Organization as vw_permission_organization;
+        var scopeIds = GetCurrentUserScopeIds();
+        sev.ViewBagModel(ViewBag, organizationIds: scopeIds);
+        var model = id.HasValue ? sev.LoadOrganization(id.Value) : null;
         return PartialView("Partials/Organizations/Modal/_FormData", model);
     }
 
+    #endregion
+
+    #region 組織圖
     public IActionResult OrganizationChart()
+        => View();
+
+    public IActionResult LoadOrganizationChart()
     {
-        var currentUserOrganizationId = GetCurrentUserOrganizationId();
-
-        sev.ViewBagModel(ViewBag, currentUserOrganizationId: currentUserOrganizationId);
-        
-        var model = sev.LoadOrganizationList(organizationId: currentUserOrganizationId);
-        return View(model);
+        var scopeIds = GetCurrentUserScopeIds();
+        var model = sev.LoadOrganizationList(organizationIds: scopeIds);
+        return Json(model);
     }
-	#endregion
+    #endregion
 
-	#region 基本 CRUD 操作
+    #region 基本 CRUD 操作
 
     [HttpPost]
     public IActionResult Delete(int id)
     {
-        var result = sev.Delete(id);
+        var result = sev.DeletePermissionManagement(id);
         return Json(new { success = result, message = result ? "刪除成功" : "刪除失敗" });
     }
 
     [HttpPost]
-    public IActionResult SubmitUser(permission_management form, int[] role_ids) 
+    public IActionResult SubmitUser(permission_management form, int[] role_ids)
     {
         form.type = "user";
         form.roles = role_ids?.Select(id => id.ToString()).ToList() ?? [];
-        
+
         if (!string.IsNullOrEmpty(form.password_hash))
         {
             var (hash, salt) = authService.HashNewPassword(form.password_hash);
             form.password_hash = hash;
             form.salt = salt;
         }
-        
+
         var result = sev.CreateUser(form);
         return Json(new { success = result.success, message = result.message });
     }
 
     [HttpPost]
-    public IActionResult SubmitRole(permission_management form, string[] navigation_permissions) 
+    public IActionResult SubmitRole(permission_management form, string[] navigation_permissions)
     {
         form.type = "role";
         form.navigation_permissions = navigation_permissions?.ToList() ?? [];
-        
+
         var result = sev.CreateRole(form);
         return Json(new { success = result.success, message = result.message });
     }
 
     [HttpPost]
-    public IActionResult SubmitOrganization(permission_management form) 
+    public IActionResult SubmitOrganization(permission_management form)
     {
         form.type = "organization";
         form.roles = new List<string>(); // 不再分配角色給組織
-        
+
         var result = sev.CreateOrganization(form);
         return Json(new { success = result.success, message = result.message });
     }
-	#endregion
+    #endregion
 
 }

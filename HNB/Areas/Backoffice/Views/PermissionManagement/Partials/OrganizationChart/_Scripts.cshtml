@@ -4,14 +4,14 @@
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
-    let chartData = @Html.Raw(Json.Serialize(Model ?? new List<Models.HnbHnbBackoffice.vw_permission_organization>()));
+    let chartData = [];
     let svg,
         g,
         zoom;
 
     $(document).ready(() => {
         window.lucide?.createIcons?.();
-        initOrganizationChart();
+        LoadChartData();
 
         $('#btnResetView').on('click', resetView);
         $('#btnFitToScreen').on('click', fitToScreen);
@@ -23,6 +23,22 @@
             resizeTimer = setTimeout(initOrganizationChart, 250);
         });
     });
+
+    function LoadChartData() {
+        $.ajax({
+            url: '@Url.Action("LoadOrganizationChart", "PermissionManagement")',
+            type: 'GET',
+            success: (data) => {
+                chartData = data || [];
+                initOrganizationChart();
+            },
+            error: () => {
+                showToast('[失敗] 無法載入組織圖資料，請稍後再試', 'error');
+                chartData = [];
+                initOrganizationChart();
+            }
+        });
+    }
 
     function initOrganizationChart() {
         const container = d3.select('#organizationChart');

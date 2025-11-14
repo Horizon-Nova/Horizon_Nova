@@ -1,135 +1,71 @@
+@model Models.HnbHnbBackoffice.vw_permission_organization?
 @{
     Layout = null;
 
-    var organization = ViewBag.Organization as Models.HnbHnbBackoffice.vw_permission_organization;
     var organizations = ViewBag.Organizations as List<Models.HnbHnbBackoffice.vw_permission_organization> ?? new();
     var selectableParents = organizations
-        .Where(o => organization == null || o.id != organization.id)
+        .Where(o => Model == null || o.id != Model.id)
         .OrderBy(o => o.organization_name ?? string.Empty)
         .ToList();
-    var currentLevel = organization?.organization_level ?? 1;
-    var isActive = organization?.is_active ?? true;
+    var currentLevel = Model?.organization_level ?? 1;
+    var isActive = Model?.is_active ?? true;
 }
 
 <div id="organizationFormModal" class="modal fade" tabindex="-1" aria-labelledby="organizationFormModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
         <div class="modal-content" id="organizationFormModalContent">
             <div class="modal-header">
-                <h5 class="modal-title" id="organizationFormModalLabel">@(organization?.id > 0 ? "編輯組織" : "新增組織")</h5>
+                <h5 class="modal-title" id="organizationFormModalLabel">@(Model?.id > 0 ? "編輯組織" : "新增組織")</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
             </div>
 
             <div class="modal-body p-4">
                 <form id="FormDataOrganization" autocomplete="off">
-                    <input type="hidden" name="id" value="@(organization?.id ?? 0)" />
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@(Model?.id ?? 0)" />
 
-                    <div class="vstack gap-4">
-                        <div>
-                            <h6 class="fw-bold mb-3 pb-2 border-bottom">基本資訊</h6>
-                            <div class="vstack gap-2">
-                                <div class="row g-2 align-items-center">
-                                    <div class="col-auto" style="width: 110px;">
-                                        <label for="organization_name" class="col-form-label col-form-label-sm mb-0">
-                                            組織名稱<span class="text-danger">*</span>
-                                        </label>
-                                    </div>
-                                    <div class="col">
-                                        <input type="text"
-                                               id="organization_name"
-                                               name="organization_name"
-                                               value="@(organization?.organization_name ?? string.Empty)"
-                                               class="form-control form-control-sm"
-                                               placeholder="請輸入組織名稱"
-                                               required>
-                                    </div>
-                                </div>
-                                <div class="row g-2 align-items-center">
-                                    <div class="col-auto" style="width: 110px;">
-                                        <label for="organization_level" class="col-form-label col-form-label-sm mb-0">
-                                            組織層級<span class="text-danger">*</span>
-                                        </label>
-                                    </div>
-                                    <div class="col">
-                                        <input type="number"
-                                               id="organization_level"
-                                               name="organization_level"
-                                               value="@currentLevel"
-                                               min="1"
-                                               max="10"
-                                               class="form-control form-control-sm"
-                                               placeholder="1-10"
-                                               required>
-                                    </div>
-                                </div>
-                                <div class="row g-2 align-items-center">
-                                    <div class="col-auto" style="width: 110px;">
-                                        <label for="parent_id" class="col-form-label col-form-label-sm mb-0">
-                                            上級組織
-                                        </label>
-                                    </div>
-                                    <div class="col">
-                                        <select id="parent_id" name="parent_id" class="form-select form-select-sm">
-                                            <option value="">無（根組織）</option>
-                                            @foreach (var parent in selectableParents)
-                                            {
-                                                <option value="@parent.id"
-                                                        @(organization?.parent_id == parent.id ? "selected" : string.Empty)>
-                                                    @parent.organization_name
-                                                </option>
-                                            }
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="form-group row mt-2">
+                        <label class="col-lg-2 col-form-label" for="organization_name">組織名稱<span class="text-danger">*</span></label>
+                        <div class="col-lg-4">
+                            <input type="text" class="form-control" id="organization_name" name="organization_name" value="@(Model?.organization_name ?? "")" placeholder="請輸入組織名稱" required>
                         </div>
-
-                        <div>
-                            <h6 class="fw-bold mb-3 pb-2 border-bottom">描述資訊</h6>
-                            <div class="vstack gap-2">
-                                <div class="row g-2">
-                                    <div class="col-auto" style="width: 110px;">
-                                        <label for="organization_description" class="col-form-label col-form-label-sm mb-0">
-                                            組織描述
-                                        </label>
-                                    </div>
-                                    <div class="col">
-                                        <textarea id="organization_description"
-                                                  name="organization_description"
-                                                  rows="3"
-                                                  class="form-control form-control-sm"
-                                                  placeholder="請輸入組織描述和職責說明">@((organization?.organization_description) ?? string.Empty)</textarea>
-                                    </div>
-                                </div>
-                                <div class="row g-2">
-                                    <div class="col-auto" style="width: 110px;">
-                                        <label for="public_notes" class="col-form-label col-form-label-sm mb-0">
-                                            備註
-                                        </label>
-                                    </div>
-                                    <div class="col">
-                                        <textarea id="public_notes"
-                                                  name="public_notes"
-                                                  rows="2"
-                                                  class="form-control form-control-sm"
-                                                  placeholder="請輸入相關備註或特殊說明">@((organization?.public_notes) ?? string.Empty)</textarea>
-                                    </div>
-                                </div>
-                            </div>
+                        <label class="col-lg-2 col-form-label" for="organization_level">組織層級<span class="text-danger">*</span></label>
+                        <div class="col-lg-4">
+                            <input type="number" class="form-control" id="organization_level" name="organization_level" value="@currentLevel" min="1" max="10" placeholder="1-10" required>
                         </div>
+                    </div>
 
-                        <div>
-                            <h6 class="fw-bold mb-3 pb-2 border-bottom">狀態設定</h6>
-                            <div class="row g-2 align-items-center">
-                                <div class="col-auto" style="width: 110px;">
-                                    <label for="is_active" class="col-form-label col-form-label-sm mb-0">組織狀態</label>
-                                </div>
-                                <div class="col">
-                                    <select id="is_active" name="is_active" class="form-select form-select-sm">
-                                        <option value="true" @(isActive ? "selected" : string.Empty)>啟用</option>
-                                        <option value="false" @(!isActive ? "selected" : string.Empty)>停用</option>
-                                    </select>
-                                </div>
-                            </div>
+                    <div class="form-group row mt-2">
+                        <label class="col-lg-2 col-form-label" for="parent_id">上級組織</label>
+                        <div class="col-lg-4">
+                            <select class="form-select" id="parent_id" name="parent_id">
+                                <option value="">無（根組織）</option>
+                                @foreach (var parent in selectableParents)
+                                {
+                                    <option value="@parent.id" @(Model?.parent_id == parent.id ? "selected" : "")>@parent.organization_name</option>
+                                }
+                            </select>
+                        </div>
+                        <label class="col-lg-2 col-form-label" for="is_active">組織狀態</label>
+                        <div class="col-lg-4">
+                            <select class="form-select" id="is_active" name="is_active">
+                                <option value="true" @(isActive ? "selected" : "")>啟用</option>
+                                <option value="false" @(!isActive ? "selected" : "")>停用</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-2">
+                        <label class="col-lg-2 col-form-label" for="organization_description">組織描述</label>
+                        <div class="col-lg-10">
+                            <textarea class="form-control" id="organization_description" name="organization_description" rows="3" placeholder="請輸入組織描述和職責說明">@(Model?.organization_description ?? "")</textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-2">
+                        <label class="col-lg-2 col-form-label" for="public_notes">備註</label>
+                        <div class="col-lg-10">
+                            <textarea class="form-control" id="public_notes" name="public_notes" rows="2" placeholder="請輸入相關備註或特殊說明">@(Model?.public_notes ?? "")</textarea>
                         </div>
                     </div>
                 </form>
@@ -137,9 +73,8 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-primary btn-sm" onclick="submitOrganizationFormData()">@(organization?.id > 0 ? "儲存變更" : "新增組織")</button>
+                <button type="button" class="btn btn-primary btn-sm" onclick="Submit()">@(Model?.id > 0 ? "儲存變更" : "新增組織")</button>
             </div>
         </div>
     </div>
 </div>
-

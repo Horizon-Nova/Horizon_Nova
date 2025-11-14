@@ -1,7 +1,6 @@
+@model Models.HnbHnbBackoffice.vw_permission_organization?
 @{
     Layout = null;
-
-    var organization = ViewBag.Organization as Models.HnbHnbBackoffice.vw_permission_organization;
 }
 
 <div id="organizationDetailModal" class="modal fade" tabindex="-1" aria-labelledby="organizationDetailModalLabel" aria-hidden="true">
@@ -12,8 +11,8 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
             </div>
 
-            <div class="modal-body">
-                @if (organization != null)
+            <div class="modal-body p-4">
+                @if (Model != null)
                 {
                     <div class="vstack gap-4">
                         <div class="d-flex align-items-center gap-3">
@@ -22,8 +21,8 @@
                                 <i data-lucide="building" class="text-primary" style="width: 2rem; height: 2rem;"></i>
                             </div>
                             <div>
-                                <h4 class="fs-5 fw-semibold mb-1">@organization.organization_name</h4>
-                                <p class="text-muted mb-0">@organization.organization_description</p>
+                                <h4 class="fs-5 fw-semibold mb-1">@(Model.organization_name ?? "")</h4>
+                                <p class="text-muted mb-0">@(Model.organization_description ?? "")</p>
                             </div>
                         </div>
 
@@ -33,27 +32,27 @@
                                 <table class="table table-sm table-borderless small mb-0">
                                     <tr>
                                         <td class="text-muted">組織名稱</td>
-                                        <td>@organization.organization_name</td>
+                                        <td>@(Model.organization_name ?? "-")</td>
                                     </tr>
                                     <tr>
                                         <td class="text-muted">層級</td>
-                                        <td>@organization.organization_level</td>
+                                        <td>@(Model.organization_level ?? 0)</td>
                                     </tr>
                                     <tr>
                                         <td class="text-muted">狀態</td>
                                         <td>
-                                            <span class="badge rounded-pill @(organization.is_active == true ? "bg-success" : "bg-danger")">
-                                                @(organization.is_active == true ? "啟用" : "停用")
+                                            <span class="badge rounded-pill @(Model.is_active == true ? "bg-success" : "bg-danger")">
+                                                @(Model.is_active == true ? "啟用" : "停用")
                                             </span>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-muted">上級組織</td>
-                                        <td>@(organization.parent_organization_name ?? "根組織")</td>
+                                        <td>@(Model.parent_organization_name ?? "根組織")</td>
                                     </tr>
                                     <tr>
                                         <td class="text-muted">建立時間</td>
-                                        <td>@(organization.created_at?.ToString("yyyy/MM/dd HH:mm") ?? "-")</td>
+                                        <td>@(Model.created_at?.ToString("yyyy/MM/dd HH:mm") ?? "-")</td>
                                     </tr>
                                 </table>
                             </div>
@@ -62,29 +61,29 @@
                                 <table class="table table-sm table-borderless small mb-0">
                                     <tr>
                                         <td class="text-muted">使用者數量</td>
-                                        <td>@(organization.total_users_count ?? 0)</td>
+                                        <td>@(Model.total_users_count ?? 0)</td>
                                     </tr>
                                     <tr>
                                         <td class="text-muted">角色數量</td>
-                                        <td>@(organization.total_roles_count ?? 0)</td>
+                                        <td>@(Model.total_roles_count ?? 0)</td>
                                     </tr>
                                     <tr>
                                         <td class="text-muted">子組織數量</td>
-                                        <td>@(organization.total_sub_organizations_count ?? 0)</td>
+                                        <td>@(Model.total_sub_organizations_count ?? 0)</td>
                                     </tr>
                                     <tr>
                                         <td class="text-muted">更新時間</td>
-                                        <td>@(organization.updated_at?.ToString("yyyy/MM/dd HH:mm") ?? "-")</td>
+                                        <td>@(Model.updated_at?.ToString("yyyy/MM/dd HH:mm") ?? "-")</td>
                                     </tr>
                                 </table>
                             </div>
                         </div>
 
-                        @if (!string.IsNullOrWhiteSpace(organization.public_notes))
+                        @if (!string.IsNullOrWhiteSpace(Model.public_notes))
                         {
                             <div>
                                 <h6 class="fw-semibold mb-2">備註</h6>
-                                <p class="small text-muted mb-0">@organization.public_notes</p>
+                                <p class="small text-muted mb-0">@Model.public_notes</p>
                             </div>
                         }
                     </div>
@@ -99,11 +98,11 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">關閉</button>
-                @if (organization != null)
+                @if (Model != null)
                 {
                     <button type="button"
                             class="btn btn-primary btn-sm"
-                            onclick="closeModal('organizationDetailModal'); showModal('organizationFormModal', { url: '@Url.Action("LoadOrganizationForm", "PermissionManagement")', method: 'GET', data: { id: @(organization.id ?? 0) }, container: 'organizationFormModalContent' })">
+                            onclick="closeModal('organizationDetailModal'); showModal('organizationFormModal', { url: '@Url.Action("LoadOrganizationForm", "PermissionManagement")', method: 'GET', data: { id: @(Model.id ?? 0) }, container: 'organizationFormModalContent' })">
                         編輯
                     </button>
                 }
@@ -111,4 +110,3 @@
         </div>
     </div>
 </div>
-

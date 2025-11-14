@@ -7,17 +7,11 @@
 
     $(document).ready(function() {
         window.lucide?.createIcons?.();
-        searchUsers();
+        Search();
     });
 
-    function searchUsers() {
+    function Search() {
         const $container = $('#userResultsContainer');
-        $container.html(`
-            <div class="py-5 text-center text-muted">
-                <div class="spinner-border text-primary" role="status"></div>
-                <div class="small mt-3">載入使用者資料中...</div>
-            </div>
-        `);
 
         $.ajax({
             url: '@Url.Action("SearchUsers", "PermissionManagement")',
@@ -30,11 +24,6 @@
                 bindSearchAndFilterEvents();
             },
             error: () => {
-                $container.html(`
-                    <div class="alert alert-danger mb-0" role="alert">
-                        [失敗] 無法載入使用者資料，請稍後再試
-                    </div>
-                `);
                 showToast('[失敗] 無法載入使用者資料，請稍後再試', 'error');
             }
         });
@@ -84,7 +73,7 @@
         usersTable?.draw();
     }
 
-    function deleteItem(id) {
+    function Delete(id) {
         if (!confirm('確定要刪除這位使用者嗎？')) {
             return;
         }
@@ -96,7 +85,7 @@
             success: (response) => {
                 const message = response?.message ?? '[成功] 使用者已刪除';
                 showToast(message, 'success');
-                searchUsers();
+                Search();
             },
             error: () => {
                 showToast('[失敗] 無法刪除使用者，請稍後再試', 'error');
@@ -119,7 +108,7 @@
         lucide.createIcons();
     }
 
-    function submitUserFormData() {
+    function Submit() {
         const formElement = $('#FormDataUser')[0];
 
         if (!formElement.checkValidity()) {

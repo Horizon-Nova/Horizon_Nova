@@ -7,17 +7,11 @@
 
     $(document).ready(() => {
         window.lucide?.createIcons?.();
-        searchRoles();
+        Search();
     });
 
-    function searchRoles() {
+    function Search() {
         const $container = $('#roleResultsContainer');
-        $container.html(`
-            <div class="py-5 text-center text-muted">
-                <div class="spinner-border text-primary" role="status"></div>
-                <div class="small mt-3">載入角色資料中...</div>
-            </div>
-        `);
 
         $.ajax({
             url: '@Url.Action("SearchRoles", "PermissionManagement")',
@@ -31,11 +25,6 @@
                 applyRoleFilters();
             },
             error: () => {
-                $container.html(`
-                    <div class="alert alert-danger mb-0" role="alert">
-                        [失敗] 無法載入角色資料，請稍後再試
-                    </div>
-                `);
                 showToast('[失敗] 無法載入角色資料，請稍後再試', 'error');
             }
         });
@@ -80,7 +69,7 @@
         rolesTable?.draw();
     }
 
-    function deleteRole(id) {
+    function Delete(id) {
         if (!confirm('確定要刪除這個角色嗎？')) {
             return;
         }
@@ -92,7 +81,7 @@
             success: (response) => {
                 const message = response?.message ?? '[成功] 角色已刪除';
                 showToast(message, resolveToastType(message));
-                searchRoles();
+                Search();
             },
             error: () => {
                 showToast('[失敗] 無法刪除角色，請稍後再試', 'error');
@@ -100,7 +89,7 @@
         });
     }
 
-    function submitRoleFormData() {
+    function Submit() {
         const $form = $('#FormDataRole');
         const formElement = $form[0];
 
@@ -119,7 +108,7 @@
                 const message = response?.message ?? '[成功] 角色已儲存';
                 showToast(message, resolveToastType(message));
                 closeModal('roleFormModal');
-                searchRoles();
+                Search();
             },
             error: () => {
                 showToast('[失敗] 提交失敗，請聯絡系統管理員', 'error');

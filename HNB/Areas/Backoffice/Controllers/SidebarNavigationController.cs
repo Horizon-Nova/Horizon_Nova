@@ -8,32 +8,23 @@ namespace HNB.Areas.Backoffice.Controllers;
 public class SidebarNavigationController(SidebarNavigationService sev) : BaseController
 {
     /// <summary>
-    /// 目錄管理頁面（新版UI）
+    /// 目錄管理頁面
     /// </summary>
     public IActionResult Index()
-    {
-        sev.ViewBagModel(ViewBag);
-        return View();
-    }
+        => View();
 
     /// <summary>
     /// 載入導航資料（通用：詳情、編輯、刪除都用這個）
     /// </summary>
     public IActionResult LoadDetail(int id)
     {
-        var result = sev.LoadNavigationById(id);
-        return PartialView("Partials/SidebarNavigation/Modal/_FormData", result);
+        var result = sev.LoadNavigation(id);
+        return PartialView("Partials/Modal/_FormData", result);
     }
 
-    /// <summary>
-    /// 載入上層目錄選項（以 PartialView 回傳 <option>）
-    /// </summary>
-    public IActionResult LoadParentOptions()
-    {
-        var navigations = sev.LoadAllNavigations()
-            .OrderBy(n => n.full_path)
-            .ToList();
-        return PartialView("Partials/SidebarNavigation/_ParentOptions", navigations);
+    public IActionResult LoadTreeItem(){
+        var result = sev.LoadNavigationList();
+        return PartialView("Partials/_Tree", result);
     }
 
     #region 基本 CRUD 操作
@@ -72,7 +63,7 @@ public class SidebarNavigationController(SidebarNavigationService sev) : BaseCon
         foreach (var update in updates)
         {
             // 查詢完整物件
-            var nav = sev.LoadNavigationById(update.id);
+            var nav = sev.LoadNavigation(update.id);
             if (nav != null)
             {
                 // 只更新 sort_order
