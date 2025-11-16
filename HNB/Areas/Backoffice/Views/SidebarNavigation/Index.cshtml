@@ -3,7 +3,7 @@
     ViewData["PageTitle"] = "目錄管理";
     ViewData["PageDescription"] = "管理系統導航選單結構與權限";
     ViewData["PageIcon"] = "folder-tree";
-    ViewData["HelpModalId"] = "navigation-help";
+    ViewData["HelpModalId"] = "NavigationHelpModal";
     Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
 }
 
@@ -11,9 +11,12 @@
 
 <section class="mb-3 mb-lg-4">
     @await Html.PartialAsync("Partials/_Control")
+    @await Html.PartialAsync("Partials/_SearchResults")
 </section>
-@await Html.PartialAsync("Partials/_TreeItem")
+
 @await Html.PartialAsync("Partials/Modal/_FormData")
+@await Html.PartialAsync("Partials/Modal/_Help")
+@await Html.PartialAsync("Partials/Modal/_IconPicker")
 
 @section Scripts {
     @await Html.PartialAsync("Partials/_Scripts")

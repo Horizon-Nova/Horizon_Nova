@@ -2,9 +2,9 @@
     Layout = null;
 }
 
-<!-- 靜態 Modal：圖標選擇器（不會被 AJAX 重新載入）-->
+<!-- 靜態 Modal：圖標選擇器 -->
 <div id="icon-picker-modal" class="modal fade" tabindex="-1" aria-labelledby="iconPickerModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable overflow-hidden">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title fw-bold">選擇圖標</h5>
@@ -26,9 +26,7 @@
                 </div>
                 
                 <!-- 圖標網格 -->
-                <div class="row g-3" id="iconGrid" style="max-height: 60vh; overflow-y: auto;">
-                    <!-- 圖標將通過 JavaScript 動態載入 -->
-                </div>
+                <div class="row g-3" id="iconGrid" style="max-height: 60vh; overflow-y: auto;"></div>
                 
                 <!-- 無結果提示 -->
                 <div id="iconNoResults" class="text-center py-5 text-muted" style="display: none;">

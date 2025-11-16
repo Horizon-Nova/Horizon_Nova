@@ -3,32 +3,215 @@
 }
 <script src="~/Backoffice/js/NavigationManagement.js"></script>
 <script>
-    function SubmitFormData() {
-        const formData = $('#NavFormData').serializeArray();
-        const dataObject = {};
-        
-        formData.forEach(field => {
-            dataObject[field.name] = field.value;
-        });
-        
-        dataObject['is_active'] = $('#is_active').is(':checked');
-        
+    $(document).ready(function() {
+        window.lucide?.createIcons?.();
+        Search();
+
+        $(document)
+            .off('draw.dt.nav', '#navigationsTable')
+            .on('draw.dt.nav', '#navigationsTable', function () {
+                restoreOpenNavigationChildren();
+            });
+
+        initNavigationDragDrop();
+    });
+
+    const openNavigationParents = new Set();
+    let draggedNavId = null;
+
+    function Search() {
+        const $container = $('#navigationResultsContainer');
+        const formData = $('#FormDataEntity').serialize();
+
         $.ajax({
+            url: '@Url.Action("SearchNavigations", "SidebarNavigation")',
             type: 'POST',
-            url: '@Url.Action("SubmitNavigation", "SidebarNavigation")',
-            data: dataObject,
-            success: function(response) {
-                if (response?.success) {
-                    showToast(response?.message || '儲存成功', 'success');
-                    closeModal('NavModal');
-                    location.reload();
-                } else {
-                    showToast(response?.message || '儲存失敗', 'error');
-                }
+            data: formData,
+            success: (html) => {
+                $container.html(html);
+                window.lucide?.createIcons?.();
+                HNBDataTable.autoInit($container);
             },
-            error: function() {
-                showToast('儲存失敗，系統發生錯誤。', 'error');
+            error: () => {
+                showToast('[失敗] 無法載入導航資料，請稍後再試', 'error');
             }
         });
     }
+
+    function Delete(id) {
+        if (!confirm('確定要刪除這個導航項目嗎？')) {
+            return;
+        }
+
+        $.ajax({
+            url: '@Url.Action("Delete", "SidebarNavigation")',
+            type: 'POST',
+            data: { id },
+            success: (response) => {
+                const message = response?.message ?? '[成功] 導航項目已刪除';
+                showToast(message, 'success');
+                Search();
+            },
+            error: () => {
+                showToast('[失敗] 無法刪除導航項目，請稍後再試', 'error');
+            }
+        });
+    }
+
+    function SubmitFormData() {
+        const form = $('#NavFormData').serialize()
+
+        $.ajax({
+            url: '@Url.Action("SubmitNavigation", "SidebarNavigation")',
+            type: 'POST',
+            data: form,
+            success: (response) => {
+                const message = response?.message ?? '[成功] 導航項目已儲存';
+                showToast(message, 'success');
+                closeModal('NavModal');
+                Search();
+            },
+            error: () => {
+                showToast('[失敗] 無法儲存導航項目，請稍後再試', 'error');
+            }
+        });
+    }
+
+    function toggleNavigationChildren(btn) {
+        const $btn = $(btn);
+        const targetId = $btn.attr('data-target');
+        const itemId = $btn.attr('data-item-id');
+        const $children = $(`#${targetId}`);
+        const $chevron = $btn.find('.nav-table-chevron-toggle');
+        const $row = $btn.closest('tr');
+        const $mainTbody = $('#navigationsTable tbody').first();
+        const $childrenTbody = $('#navigationsTable tbody.nav-table-children-tbody');
+        
+        if ($children.length === 0) return;
+
+        const isExpanded = !$children.hasClass('hidden');
+
+        if (isExpanded) {
+            // 目前為展開狀態，這次操作改為收合：從紀錄中移除
+            openNavigationParents.delete(itemId);
+            $children.addClass('hidden').detach().appendTo($childrenTbody);
+            $chevron.css('transform', 'rotate(0deg)');
+        } else {
+            // 目前為收合狀態，這次操作改為展開：加入紀錄
+            openNavigationParents.add(itemId);
+            $children.detach().removeClass('hidden').insertAfter($row);
+            $chevron.css('transform', 'rotate(90deg)');
+        }
+        
+        window.lucide?.createIcons?.();
+    }
+
+    function restoreOpenNavigationChildren() {
+        if (!openNavigationParents.size) return;
+
+        openNavigationParents.forEach(itemId => {
+            const btn = document.querySelector(`.nav-table-toggle[data-item-id="${itemId}"]`);
+            if (btn) {
+                const $children = $(`#${btn.getAttribute('data-target')}`);
+                if ($children.hasClass('hidden')) {
+                    toggleNavigationChildren(btn);
+                }
+            }
+        });
+    }
+
+    function initNavigationDragDrop() {
+        $(document)
+            .off('dragstart.navrow', '.nav-table-tree-item')
+            .on('dragstart.navrow', '.nav-table-tree-item', function (e) {
+                const $row = $(this);
+                draggedNavId = $row.data('nav-id');
+
+                if (e.originalEvent?.dataTransfer) {
+                    e.originalEvent.dataTransfer.effectAllowed = 'move';
+                }
+            })
+            .off('dragover.navrow', '.nav-table-tree-item')
+            .on('dragover.navrow', '.nav-table-tree-item', function (e) {
+                e.preventDefault();
+                if (e.originalEvent?.dataTransfer) {
+                    e.originalEvent.dataTransfer.dropEffect = 'move';
+                }
+            })
+            .off('drop.navrow', '.nav-table-tree-item')
+            .on('drop.navrow', '.nav-table-tree-item', function (e) {
+                e.preventDefault();
+
+                const $target = $(this);
+                const targetNavId = $target.data('nav-id');
+
+                if (!draggedNavId || draggedNavId === targetNavId) return;
+
+                const $draggedRow = $(`.nav-table-tree-item[data-nav-id="${draggedNavId}"]`).first();
+                if ($draggedRow.length === 0) return;
+
+                const draggedParent = ($draggedRow.data('parent-code') ?? '').toString();
+                const targetParent = ($target.data('parent-code') ?? '').toString();
+
+                // 僅允許同一父級之間拖曳排序
+                if (draggedParent !== targetParent) return;
+
+                const rect = this.getBoundingClientRect();
+                const offsetY = e.originalEvent.clientY - rect.top;
+
+                if (offsetY > rect.height / 2) {
+                    $target.after($draggedRow);
+                } else {
+                    $target.before($draggedRow);
+                }
+
+                updateSortOrderForParent(draggedParent);
+            });
+    }
+
+    function updateSortOrderForParent(parentCode) {
+        const normalizedParent = (parentCode ?? '').toString();
+        const selector = normalizedParent
+            ? `.nav-table-tree-item[data-parent-code="${normalizedParent}"]`
+            : '.nav-table-tree-item[data-parent-code=""]';
+
+        const $rows = $(selector);
+        if ($rows.length === 0) return;
+
+        const updates = [];
+
+        $rows.each((index, row) => {
+            const $row = $(row);
+            const id = $row.data('nav-id');
+            if (!id) return;
+
+            const newSort = index + 1;
+            updates.push({ id, sort_order: newSort });
+
+            const $cells = $row.find('td');
+            if ($cells.length > 5) {
+                $cells.eq(5).text(newSort);
+            }
+        });
+
+        if (!updates.length) return;
+
+        const token = $('#FormDataEntity').find('input[name="__RequestVerificationToken"]').val();
+
+        $.ajax({
+            url: '@Url.Action("UpdateSortOrder", "SidebarNavigation")',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(updates),
+            headers: token ? { 'RequestVerificationToken': token } : {},
+            success: (response) => {
+                const message = response?.message ?? '[成功] 排序已更新';
+                showToast(message, 'success');
+            },
+            error: () => {
+                showToast('[失敗] 無法更新排序，請稍後再試', 'error');
+            }
+        });
+    }
+    
 </script>

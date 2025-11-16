@@ -9,41 +9,46 @@
             <h5 class="mb-0 fw-semibold">操作面板</h5>
         </div>
 
-        <!-- 搜尋區 -->
-        <div class="mb-3">
-            <div class="position-relative">
-                <input type="text" id="searchInput" placeholder="搜尋目錄名稱、路徑..."
-                       class="form-control form-control-sm ps-5" oninput="applyFilters()">
-                <i data-lucide="search" class="position-absolute text-muted"></i>
-            </div>
-        </div>
-
-        <!-- 篩選與操作按鈕 -->
-        <div class="row g-2">
-            <div class="col-6 col-lg-3">
-                <select id="statusFilter" class="form-select form-select-sm" onchange="applyFilters()">
-                    <option value="">所有狀態</option>
-                    <option value="active">啟用</option>
-                    <option value="inactive">停用</option>
-                </select>
+        <form id="FormDataEntity" method="post" onsubmit="return false;">
+            @Html.AntiForgeryToken()
+            <div class="form-group row align-items-center mt-2">
+                <label class="col-lg-2 col-form-label col-form-label-sm mb-0" for="searchInput">搜尋條件</label>
+                <div class="col-lg-10">
+                    <div class="position-relative">
+                        <i data-lucide="search" class="position-absolute text-muted"></i>
+                        <input type="text"
+                               id="searchInput"
+                               name="title"
+                               placeholder="搜尋目錄名稱、路徑..."
+                               class="form-control form-control-sm ps-5"
+                               oninput="Search()">
+                    </div>
+                </div>
             </div>
 
-            <div class="col-6 col-lg-3">
-                <select id="levelFilter" class="form-select form-select-sm" onchange="applyFilters()">
-                    <option value="">所有層級</option>
-                    <option value="1">第一層</option>
-                    <option value="2">第二層</option>
-                    <option value="3">第三層</option>
-                </select>
+            <div class="form-group row align-items-center mt-2">
+                <label class="col-lg-2 col-form-label col-form-label-sm mb-0">篩選條件</label>
+                <div class="col-lg-10">
+                    <div class="row g-2">
+                        <div class="col-6 col-lg-3">
+                            <select id="statusFilter"
+                                    name="is_active"
+                                    class="form-select form-select-sm"
+                                    onchange="Search()">
+                                <option value="">所有狀態</option>
+                                <option value="true">啟用</option>
+                                <option value="false">停用</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-lg-9">
+                            <button type="button" class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2" onclick="showModal('NavModal')">
+                                <i data-lucide="plus"></i>
+                                新增目錄
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-
-            <div class="col-12 col-lg-6">
-                <button type="button" class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2" onclick="showModal('NavModal')">
-                    <i data-lucide="plus"></i>
-                    新增目錄
-                </button>
-            </div>
-        </div>
+        </form>
     </div>
 </div>
-

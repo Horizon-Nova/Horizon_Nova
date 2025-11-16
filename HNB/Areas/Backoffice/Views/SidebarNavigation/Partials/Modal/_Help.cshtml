@@ -3,19 +3,19 @@
 }
 
 <!-- 靜態 Modal：操作說明 -->
-<div id="navigation-help" class="modal fade" tabindex="-1" aria-labelledby="navigationHelpLabel" aria-hidden="true">
+<div id="NavigationHelpModal" class="modal fade" tabindex="-1" aria-labelledby="navigationHelpLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title fw-bold">操作說明</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
             </div>
-            
+
             <div class="modal-body p-4">
                 <div class="row g-4">
                     <!-- 左側：說明內容 -->
                     <div class="col-md-6">
-                <div class="mb-4">
+                        <div class="mb-4">
                             <h6 class="fw-semibold pb-2 border-bottom mb-3">基本操作</h6>
                             <ul class="small">
                                 <li class="mb-2"><strong>新增目錄：</strong>點擊「新增目錄」按鈕，填寫必填欄位（目錄名稱、目錄代碼），選擇性填寫圖標、上層目錄、排序順序、路徑 URL。</li>
@@ -25,10 +25,10 @@
                                 <li class="mb-2"><strong>刪除目錄：</strong>點擊「刪除」按鈕，輸入目錄代碼確認後刪除。<span class="text-danger">刪除操作無法復原，請謹慎操作。</span></li>
                                 <li class="mb-2"><strong>搜尋篩選：</strong>使用搜尋框輸入關鍵字（目錄名稱、路徑），或使用狀態/層級篩選器快速定位。</li>
                                 <li class="mb-2"><strong>展開/收合：</strong>點擊子項目旁的箭頭圖標，展開或收合子目錄。</li>
-                    </ul>
-                </div>
-                
-                <div class="mb-4">
+                            </ul>
+                        </div>
+
+                        <div class="mb-4">
                             <h6 class="fw-semibold pb-2 border-bottom mb-3">導航結構說明</h6>
                             <ul class="small">
                                 <li class="mb-2"><strong>階層關係：</strong>導航目錄支援多層級結構，第一層為根目錄（無上層目錄），第二層以下需指定上層目錄代碼。</li>
@@ -38,7 +38,7 @@
                                 <li class="mb-2"><strong>路徑 URL：</strong>內部路徑（/Backoffice/...）在同視窗開啟，外部 URL（https://...）會在新分頁開啟。留空表示此為分類項目（無連結）。</li>
                             </ul>
                         </div>
-                        
+
                         <div>
                             <h6 class="fw-semibold pb-2 border-bottom mb-3">欄位說明</h6>
                             <table class="table table-sm small">
@@ -52,7 +52,7 @@
                             </table>
                         </div>
                     </div>
-                    
+
                     <!-- 右側：常見問題 -->
                     <div class="col-md-6">
                         <div class="mb-4">
@@ -60,32 +60,40 @@
                             <div class="vstack gap-3 small">
                                 <div>
                                     <p class="fw-semibold mb-1">Q1：為什麼我建立的目錄沒有顯示在側邊欄？</p>
-                                    <p class="text-muted mb-0">A：請檢查以下項目：<br>
-                                    1. 目錄的「啟用狀態」是否勾選。<br>
-                                    2. 如果是子目錄，請確認上層目錄的「啟用狀態」也是勾選的。<br>
-                                    3. 檢查您的角色是否有此目錄的「導航權限」（在權限管理中設定）。<br>
-                                    4. 登出後重新登入，讓權限設定生效。</p>
+                                    <p class="text-muted mb-0">
+                                        A：請檢查以下項目：<br>
+                                        1. 目錄的「啟用狀態」是否勾選。<br>
+                                        2. 如果是子目錄，請確認上層目錄的「啟用狀態」也是勾選的。<br>
+                                        3. 檢查您的角色是否有此目錄的「導航權限」（在權限管理中設定）。<br>
+                                        4. 登出後重新登入，讓權限設定生效。
+                                    </p>
                                 </div>
                                 <div>
                                     <p class="fw-semibold mb-1">Q2：目錄代碼可以修改嗎？</p>
-                                    <p class="text-muted mb-0">A：可以修改，但需要注意：<br>
-                                    1. 修改後會影響所有使用此代碼的子目錄（需同步更新子目錄的「上層目錄」欄位）。<br>
-                                    2. 權限管理中使用此代碼的角色/用戶也需要更新。<br>
-                                    3. 建議在系統初期規劃好目錄代碼命名規則，避免頻繁修改。</p>
+                                    <p class="text-muted mb-0">
+                                        A：可以修改，但需要注意：<br>
+                                        1. 修改後會影響所有使用此代碼的子目錄（需同步更新子目錄的「上層目錄」欄位）。<br>
+                                        2. 權限管理中使用此代碼的角色/用戶也需要更新。<br>
+                                        3. 建議在系統初期規劃好目錄代碼命名規則，避免頻繁修改。
+                                    </p>
                                 </div>
                                 <div>
                                     <p class="fw-semibold mb-1">Q3：刪除目錄會影響子目錄嗎？</p>
-                                    <p class="text-muted mb-0">A：刪除父目錄不會自動刪除子目錄，但子目錄會失去父層關係，變成「孤立」狀態。建議：<br>
-                                    1. 刪除父目錄前，先將所有子目錄刪除或移動到其他上層目錄。<br>
-                                    2. 使用「查看詳情」確認該目錄是否有子項目。</p>
+                                    <p class="text-muted mb-0">
+                                        A：刪除父目錄不會自動刪除子目錄，但子目錄會失去父層關係，變成「孤立」狀態。建議：<br>
+                                        1. 刪除父目錄前，先將所有子目錄刪除或移動到其他上層目錄。<br>
+                                        2. 使用「查看詳情」確認該目錄是否有子項目。
+                                    </p>
                                 </div>
                                 <div>
                                     <p class="fw-semibold mb-1">Q4：如何建立多層級導航？</p>
-                                    <p class="text-muted mb-0">A：建立步驟：<br>
-                                    1. 先建立第一層目錄（不選擇上層目錄）。<br>
-                                    2. 記下第一層的「目錄代碼」。<br>
-                                    3. 建立第二層目錄時，在「上層目錄」選擇第一層的代碼。<br>
-                                    4. 以此類推建立更深層級。建議不超過 3 層，以維持良好的 UX。</p>
+                                    <p class="text-muted mb-0">
+                                        A：建立步驟：<br>
+                                        1. 先建立第一層目錄（不選擇上層目錄）。<br>
+                                        2. 記下第一層的「目錄代碼」。<br>
+                                        3. 建立第二層目錄時，在「上層目錄」選擇第一層的代碼。<br>
+                                        4. 以此類推建立更深層級。建議不超過 3 層，以維持良好的 UX。
+                                    </p>
                                 </div>
                                 <div>
                                     <p class="fw-semibold mb-1">Q5：外部連結如何設定？</p>
@@ -97,7 +105,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div>
                             <h6 class="fw-semibold pb-2 border-bottom mb-3">重要提示</h6>
                             <ul class="small text-muted">
@@ -106,16 +114,15 @@
                                 <li class="mb-2">刪除操作無法復原，刪除前請確認該目錄不再使用，且沒有其他目錄依賴此代碼。</li>
                                 <li class="mb-2">修改目錄的「啟用狀態」或「目錄代碼」後，建議通知相關用戶重新登入，以確保變更生效。</li>
                                 <li class="mb-2">排序順序使用連續整數（0, 1, 2, 3...），透過拖曳調整順序時系統會自動重新編號。</li>
-                    </ul>
+                            </ul>
                         </div>
                     </div>
                 </div>
             </div>
-            
+
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">我知道了</button>
             </div>
         </div>
     </div>
 </div>
-

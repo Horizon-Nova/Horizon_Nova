@@ -1,0 +1,166 @@
+@model List<Models.HnbHnbBackoffice.vw_sidebar_navigation>
+@{
+    Layout = null;
+    var items = Model ?? new List<Models.HnbHnbBackoffice.vw_sidebar_navigation>();
+    var rootNavigations = items
+        .Where(n => string.IsNullOrEmpty(n.parent_code))
+        .OrderBy(n => n.sort_order ?? 0)
+        .ToList();
+}
+
+<div id="navigationResultsContainer">
+    <table id="navigationsTable" class="table table-hover align-middle mb-0" data-hnb-datatable="true" data-hnb-options='{"order":[[5,"asc"]],"columnDefs":[{"orderable":false,"targets":[0,2,7]}]}'>
+        <thead class="table-light">
+            <tr>
+                <th style="width: 2rem;"></th>
+                <th>圖示</th>
+                <th>標題</th>
+                <th>編號</th>
+                <th>父級</th>
+                <th>排序</th>
+                <th>狀態</th>
+                <th class="text-end">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var nav in rootNavigations)
+            {
+                var hasChildren = nav.children_count.HasValue && nav.children_count > 0;
+                var rowId = $"nav-table-row-{nav.id}";
+                var childrenId = $"nav-table-children-{nav.id}";
+                <tr id="@rowId" 
+                    data-nav-id="@nav.id" 
+                    data-parent-code="@(nav.parent_code ?? "")"
+                    class="nav-table-tree-item @(string.IsNullOrEmpty(nav.parent_code) ? "" : "nav-table-child-row")"
+                    draggable="true">
+                    <td class="text-muted" style="cursor: grab;">
+                        <i data-lucide="grip-vertical" style="width: 1rem; height: 1rem;"></i>
+                    </td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(nav.icon))
+                        {
+                            <i data-lucide="@nav.icon" style="width: 1.25rem; height: 1.25rem;"></i>
+                        }
+                        else
+                        {
+                            <span class="text-muted">-</span>
+                        }
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            @if (hasChildren)
+                            {
+                                <button type="button"
+                                        class="btn btn-link p-0 border-0 bg-transparent nav-table-toggle"
+                                        data-target="@childrenId"
+                                        data-item-id="@nav.id"
+                                        style="width: 1.25rem; height: 1.25rem; flex-shrink: 0;"
+                                        onclick="toggleNavigationChildren(this)">
+                                    <i data-lucide="chevron-right" 
+                                       class="nav-table-chevron-toggle" 
+                                       style="width: 1rem; height: 1rem; transition: transform 0.2s ease-in-out;"></i>
+                                </button>
+                            }
+                            else
+                            {
+                                <span style="width: 1.25rem; display: inline-block;"></span>
+                            }
+                            <span>@(nav.title ?? "-")</span>
+                        </div>
+                    </td>
+                    <td>@(nav.code ?? "-")</td>
+                    <td>@(nav.parent_title ?? (string.IsNullOrEmpty(nav.parent_code) ? "根項目" : nav.parent_code))</td>
+                    <td>@(nav.sort_order ?? 0)</td>
+                    <td>
+                        <span class="badge rounded-pill @(nav.is_active == true ? "bg-success" : "bg-danger")">
+                            @(nav.is_active == true ? "啟用" : "停用")
+                        </span>
+                    </td>
+                    <td class="text-end">
+                        <button type="button"
+                                class="btn btn-sm btn-primary me-1"
+                                onclick="showModal('NavModal', { url: '@Url.Action("LoadDetail", "SidebarNavigation")', method: 'GET', data: { id: @nav.id }, container: 'NavModalContent' })">
+                            <i data-lucide="edit" style="width: 1rem; height: 1rem;"></i>
+                        </button>
+                        <button type="button"
+                                class="btn btn-sm btn-danger"
+                                onclick="Delete(@nav.id)">
+                            <i data-lucide="trash-2" style="width: 1rem; height: 1rem;"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+        <tbody class="nav-table-children-tbody">
+            @foreach (var nav in rootNavigations)
+            {
+                var hasChildren = nav.children_count.HasValue && nav.children_count > 0;
+                if (hasChildren && nav.children != null && nav.children.Any())
+                {
+                    var childrenId = $"nav-table-children-{nav.id}";
+                    <tr id="@childrenId" class="nav-table-children hidden">
+                        <td colspan="8" class="p-0">
+                            <div class="ms-4 ps-3 border-start">
+                                @{
+                                    var children = items
+                                        .Where(n => n.parent_code == nav.code)
+                                        .OrderBy(n => n.sort_order ?? 0)
+                                        .ToList();
+                                }
+                                @if (children.Any())
+                                {
+                                    <table class="table table-sm mb-0">
+                                        <tbody>
+                                            @foreach (var child in children)
+                                            {
+                                                <tr data-nav-id="@child.id" 
+                                                    data-parent-code="@(child.parent_code ?? "")"
+                                                    class="nav-table-tree-item nav-table-child-row"
+                                                    draggable="true">
+                                                    <td class="text-muted" style="cursor: grab;">
+                                                        <i data-lucide="grip-vertical" style="width: 1rem; height: 1rem;"></i>
+                                                    </td>
+                                                    <td>
+                                                        @if (!string.IsNullOrEmpty(child.icon))
+                                                        {
+                                                            <i data-lucide="@child.icon" style="width: 1.25rem; height: 1.25rem;"></i>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="text-muted">-</span>
+                                                        }
+                                                    </td>
+                                                    <td>@(child.title ?? "-")</td>
+                                                    <td>@(child.code ?? "-")</td>
+                                                    <td>@(child.parent_title ?? (string.IsNullOrEmpty(child.parent_code) ? "根項目" : child.parent_code))</td>
+                                                    <td>@(child.sort_order ?? 0)</td>
+                                                    <td>
+                                                        <span class="badge rounded-pill @(child.is_active == true ? "bg-success" : "bg-danger")">
+                                                            @(child.is_active == true ? "啟用" : "停用")
+                                                        </span>
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <button type="button"
+                                                                class="btn btn-sm btn-primary me-1"
+                                                                onclick="showModal('NavModal', { url: '@Url.Action("LoadDetail", "SidebarNavigation")', method: 'GET', data: { id: @child.id }, container: 'NavModalContent' })">
+                                                            <i data-lucide="edit" style="width: 1rem; height: 1rem;"></i>
+                                                        </button>
+                                                        <button type="button"
+                                                                class="btn btn-sm btn-danger"
+                                                                onclick="Delete(@child.id)">
+                                                            <i data-lucide="trash-2" style="width: 1rem; height: 1rem;"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

@@ -12,12 +12,10 @@ public class SidebarNavigationService(
     /// <summary>
     /// 載入導航項目列表
     /// </summary>
-    /// <param name="searchTerm">搜尋關鍵字</param>
-    /// <param name="parentCode">父項目篩選</param>
-    /// <param name="isActive">啟用狀態篩選</param>
+    /// <param name="form">查詢條件模型，null 代表不套用任何條件</param>
     /// <returns>導航項目列表</returns>
-    public List<vw_sidebar_navigation> LoadNavigationList(string? searchTerm = null, string? parentCode = null, bool? isActive = null)
-        => rep.QueryNavigationList(searchTerm, parentCode, isActive);
+    public List<vw_sidebar_navigation> LoadNavigationList(vw_sidebar_navigation? form)
+        => rep.QueryNavigationList(form);
 
     /// <summary>
     /// 載入單一導航項目
@@ -29,19 +27,14 @@ public class SidebarNavigationService(
 
     #endregion
 
-    #region ViewBag 設定方法
+    #region 特殊查詢
 
     /// <summary>
-    /// 設定側欄導航統一的 ViewBag 資料
+    /// 載入上層目錄列表（parent_code 為空代表根目錄）
     /// </summary>
-    /// <param name="viewBag">ViewBag 物件</param>
-    /// <param name="id">導航項目ID</param>
-    public void ViewBagModel(dynamic viewBag, int? id = null)
-    {
-        viewBag.Navigations = LoadNavigationList();
-        viewBag.Navigation = LoadNavigation(id);
-    }
-
+    public List<vw_sidebar_navigation> LoadParentNavigationList()
+        => rep.QueryParentNavigationList();
+    
     #endregion
 
     #region 基本 CRUD 操作
@@ -73,7 +66,7 @@ public class SidebarNavigationService(
         var permissionCodes = CollectUserPermissionCodes(userName);
         
         // 取得所有啟用的導航項目
-        var allNavigations = rep.QueryNavigationList(searchTerm: null, parentCode: null, isActive: true);
+        var allNavigations = LoadNavigationList(new vw_sidebar_navigation { is_active = true });
         
         // 建立導航代碼對應表（提升查詢效率）
         var navigationByCode = allNavigations
@@ -160,4 +153,5 @@ public class SidebarNavigationService(
     }
 
     #endregion
+
 }

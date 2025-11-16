@@ -1,6 +1,7 @@
 @model Models.HnbHnbBackoffice.vw_sidebar_navigation?
 @{
     Layout = null;
+    var parentList = ViewBag.ParentList as List<Models.HnbHnbBackoffice.vw_sidebar_navigation> ?? new List<Models.HnbHnbBackoffice.vw_sidebar_navigation>();
 }
 
 <!-- 表單Modal -->
@@ -35,7 +36,7 @@
                         <div class="col-lg-10">
                             <div class="input-group">
                                 <input type="text" class="form-control" id="icon" name="icon" value="@(Model?.icon ?? "")" placeholder="請選擇圖標">
-                                <button type="button" class="btn btn-outline-secondary" onclick="openIconPicker(this)">
+                                <button type="button" class="btn btn-outline-secondary" onclick="openIconPicker('#icon')">
                                     <i data-lucide="search"></i>
                                 </button>
                             </div>
@@ -47,6 +48,10 @@
                         <div class="col-lg-10">
                             <select class="form-select" id="parent_code" name="parent_code" data-current="@(Model?.parent_code ?? "")">
                                 <option value="">根目錄（第一層）</option>
+                                @foreach (var parent in parentList)
+                                {
+                                    <option value="@parent.code" @((Model?.parent_code == parent.code) ? "selected" : "")>@parent.title</option>
+                                }
                             </select>
                         </div>
                     </div>
@@ -69,11 +74,16 @@
                         <label class="col-lg-2 col-form-label">啟用狀態</label>
                         <div class="col-lg-10">
                             <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="is_active" name="is_active" @((Model?.is_active ?? false) ? "checked" : "")>
+                                <input type="checkbox" class="form-check-input"
+                                       id="is_active"
+                                       name="is_active"
+                                       value="true"
+                                @((Model?.is_active ?? false) ? "checked" : "") />
                                 <label class="form-check-label" for="is_active">啟用此目錄</label>
                             </div>
                         </div>
                     </div>
+
                 </form>
             </div>
             <div class="modal-footer">

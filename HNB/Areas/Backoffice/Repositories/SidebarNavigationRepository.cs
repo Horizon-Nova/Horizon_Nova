@@ -21,21 +21,29 @@ public class SidebarNavigationRepository(HnbHnbBackofficeDbContext db)
     /// <summary>
     /// 查詢導航項目列表
     /// </summary>
-    /// <param name="searchTerm">搜尋關鍵字</param>
-    /// <param name="parentCode">父項目篩選（null = 不過濾，空字串 = 只要根項目）</param>
-    /// <param name="isActive">啟用狀態篩選</param>
-    public List<vw_sidebar_navigation> QueryNavigationList(string? searchTerm = null, string? parentCode = null, bool? isActive = null)
-        => ValidNavigations
+    public List<vw_sidebar_navigation> QueryNavigationList(vw_sidebar_navigation? form)
+    {
+        if (form == null) return ValidNavigations.ToList();
+
+        return ValidNavigations
             .Where(na =>
-                (string.IsNullOrEmpty(searchTerm) ||
-                    (na.title != null && na.title.Contains(searchTerm)) ||
-                    (na.code != null && na.code.Contains(searchTerm))) &&
-                (parentCode == null ||
-                    (parentCode == "" && (na.parent_code == null || na.parent_code == "")) ||
-                    (parentCode != "" && na.parent_code == parentCode)) &&
-                (!isActive.HasValue || na.is_active == isActive.Value)
-            )
+                (!form.id.HasValue || na.id == form.id) &&
+                (string.IsNullOrEmpty(form.code) || na.code == form.code) &&
+                (string.IsNullOrEmpty(form.title) || na.title == form.title) &&
+                (string.IsNullOrEmpty(form.url) || na.url == form.url) &&
+                (string.IsNullOrEmpty(form.icon) || na.icon == form.icon) &&
+                (string.IsNullOrEmpty(form.parent_code) || na.parent_code == form.parent_code) &&
+                (!form.sort_order.HasValue || na.sort_order == form.sort_order) &&
+                (!form.is_active.HasValue || na.is_active == form.is_active) &&
+                (!form.created_at.HasValue || na.created_at == form.created_at) &&
+                (!form.updated_at.HasValue || na.updated_at == form.updated_at) &&
+                (string.IsNullOrEmpty(form.parent_title) || na.parent_title == form.parent_title) &&
+                (!form.children_count.HasValue || na.children_count == form.children_count) &&
+                (string.IsNullOrEmpty(form.full_path) || na.full_path == form.full_path) &&
+                (!form.is_parent.HasValue || na.is_parent == form.is_parent) &&
+                (!form.is_leaf.HasValue || na.is_leaf == form.is_leaf))
             .ToList();
+    }
 
     /// <summary>
     /// 查詢單一導航項目
@@ -43,6 +51,14 @@ public class SidebarNavigationRepository(HnbHnbBackofficeDbContext db)
     /// <param name="id">導航項目ID</param>
     public vw_sidebar_navigation? QueryNavigation(int? id)
         => ValidNavigations.FirstOrDefault(n => n.id == id);
+
+    /// <summary>
+    /// 查詢上層目錄列表（parent_code 為空代表根目錄）
+    /// </summary>
+    public List<vw_sidebar_navigation> QueryParentNavigationList()
+        => ValidNavigations
+            .Where(na => string.IsNullOrEmpty(na.parent_code))
+            .ToList();
 
     #endregion
 
@@ -67,14 +83,13 @@ public class SidebarNavigationRepository(HnbHnbBackofficeDbContext db)
         }
         
         existingEntity.title = form.title;
-        existingEntity.code = form.code;
         existingEntity.url = form.url;
         existingEntity.icon = form.icon;
         existingEntity.sort_order = form.sort_order;
         existingEntity.parent_code = form.parent_code;
         existingEntity.is_active = form.is_active;
         existingEntity.updated_at = DateTime.UtcNow;
-      
+
         db.SaveChanges();
         return existingEntity;
     }

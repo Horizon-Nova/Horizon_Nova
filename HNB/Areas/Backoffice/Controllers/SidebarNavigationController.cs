@@ -16,15 +16,18 @@ public class SidebarNavigationController(SidebarNavigationService sev) : BaseCon
     /// <summary>
     /// 載入導航資料（通用：詳情、編輯、刪除都用這個）
     /// </summary>
-    public IActionResult LoadDetail(int id)
+    public IActionResult LoadDetail(int? id)
     {
+        ViewBag.ParentList = sev.LoadParentNavigationList();
         var result = sev.LoadNavigation(id);
         return PartialView("Partials/Modal/_FormData", result);
     }
 
-    public IActionResult LoadTreeItem(){
-        var result = sev.LoadNavigationList();
-        return PartialView("Partials/_Tree", result);
+    [HttpPost]
+    public IActionResult SearchNavigations(vw_sidebar_navigation? form)
+    {
+        var result = sev.LoadNavigationList(form);
+        return PartialView("Partials/_SearchResults", result);
     }
 
     #region 基本 CRUD 操作
@@ -86,6 +89,7 @@ public class SidebarNavigationController(SidebarNavigationService sev) : BaseCon
     }
 
     #endregion
+
 }
 
 /// <summary>
