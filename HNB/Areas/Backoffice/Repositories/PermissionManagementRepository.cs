@@ -29,6 +29,11 @@ public class PermissionManagementRepository(HnbHnbBackofficeDbContext db)
     /// </summary>
     private IQueryable<vw_permission_organization> ValidOrganizations => db.vw_permission_organizations;
 
+    /// <summary>
+    /// 導航項目查詢來源
+    /// </summary>
+    private IQueryable<vw_sidebar_navigation> ValidNavigations => db.vw_sidebar_navigations.OrderBy(n => n.sort_order);
+
     #endregion
 
     #region 專用查詢方法
@@ -215,6 +220,16 @@ public class PermissionManagementRepository(HnbHnbBackofficeDbContext db)
         db.SaveChanges();
         return true;
     }
+
+    #endregion
+
+    #region 特殊查詢
+
+    /// <summary>
+    /// 查詢導航項目列表（返回所有啟用的導覽項目）
+    /// </summary>
+    public List<vw_sidebar_navigation> QueryNavigationList()
+        => ValidNavigations.Where(na => na.is_active == true).ToList();
 
     #endregion
 

@@ -51,18 +51,30 @@ public class SettingsRepositories(HnbHnbBackofficeDbContext db, HnbdataDbContext
     /// </summary>
     /// <param name="days">查詢天數（null 表示全部）</param>
     public List<error_log> QueryErrorLogList(int? days = null)
-        => days.HasValue 
-            ? ValidErrorLogs.Where(x => x.created_at >= DateTime.Now.AddDays(-days.Value)).ToList()
-            : ValidErrorLogs.ToList();
+    {
+        if (!days.HasValue)
+            return ValidErrorLogs.ToList();
+        
+        var cutoffDate = DateTime.UtcNow.AddDays(-days.Value);
+        return ValidErrorLogs
+            .Where(x => x.created_at.HasValue && x.created_at.Value >= cutoffDate)
+            .ToList();
+    }
 
     /// <summary>
     /// 查詢存取記錄列表
     /// </summary>
     /// <param name="days">查詢天數（null 表示全部）</param>
     public List<access_record> QueryAccessRecordList(int? days = null)
-        => days.HasValue 
-            ? ValidAccessRecords.Where(x => x.created_at >= DateTime.Now.AddDays(-days.Value)).ToList()
-            : ValidAccessRecords.ToList();
+    {
+        if (!days.HasValue)
+            return ValidAccessRecords.ToList();
+        
+        var cutoffDate = DateTime.UtcNow.AddDays(-days.Value);
+        return ValidAccessRecords
+            .Where(x => x.created_at.HasValue && x.created_at.Value >= cutoffDate)
+            .ToList();
+    }
 
     /// <summary>
     /// 查詢硬體監控設定

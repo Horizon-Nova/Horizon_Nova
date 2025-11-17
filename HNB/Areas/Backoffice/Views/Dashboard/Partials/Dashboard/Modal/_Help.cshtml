@@ -1,0 +1,139 @@
+@{
+    Layout = null;
+}
+
+<div id="dashboardHelpModal" class="modal fade" tabindex="-1" aria-labelledby="dashboardHelpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="dashboardHelpModalLabel">儀表板操作說明</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="vstack gap-3">
+                            <section>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">功能說明</h6>
+                                <p class="small mb-0">
+                                    儀表板是系統的總覽中心，提供系統狀態、資源使用情況與快速操作入口。
+                                    透過圖表與數據，您可以快速掌握系統整體運行狀況。
+                                </p>
+                            </section>
+
+                            <section>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">區塊說明</h6>
+                                <table class="table table-sm table-bordered small mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 120px;">區塊</th>
+                                            <th>說明</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>歡迎區</strong></td>
+                                            <td>顯示當前使用者資訊與最後登入時間，提供個人化的歡迎訊息。</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>快速操作</strong></td>
+                                            <td>常用功能的快速入口，包含系統設定、人員管理、角色管理與組織管理。</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>系統資源使用率</strong></td>
+                                            <td>以圓形圖表顯示 CPU 與記憶體使用率，並顯示伺服器運行狀態。</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>系統資源趨勢</strong></td>
+                                            <td>以折線圖顯示 CPU 與記憶體的使用趨勢，協助監控系統負載變化。</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>專案簡介</strong></td>
+                                            <td>介紹 Horizon Nova 系統的主要功能與特色。</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </section>
+
+                            <section>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">圖表說明</h6>
+                                <ul class="small mb-0">
+                                    <li><strong>圓形圖表：</strong>顯示資源使用百分比，顏色會根據使用率自動變化（綠色：正常、黃色：偏高、紅色：過高）。</li>
+                                    <li><strong>折線圖表：</strong>顯示 CPU 與記憶體的使用趨勢，可同時對比兩項指標。</li>
+                                    <li><strong>圖表互動：</strong>滑鼠懸停在圖表上可查看詳細數值。</li>
+                                </ul>
+                            </section>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="vstack gap-3">
+                            <section>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">資源使用率參考</h6>
+                                <table class="table table-sm table-bordered small mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 140px;">指標</th>
+                                            <th>建議範圍</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>CPU 使用率</strong></td>
+                                            <td>正常：0-70%（藍色）、偏高：70-90%（黃色）、過高：90%以上（紅色）</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>記憶體使用率</strong></td>
+                                            <td>正常：0-70%（藍色）、偏高：70-90%（黃色）、過高：90%以上（紅色）</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>伺服器狀態</strong></td>
+                                            <td>正常運行（綠色）表示系統正常，停止（紅色）表示系統異常。</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </section>
+
+                            <section>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">快速操作說明</h6>
+                                <ul class="small mb-0">
+                                    <li><strong>系統設定：</strong>進入系統監控、日誌管理與快取清理功能。</li>
+                                    <li><strong>人員管理：</strong>管理系統使用者帳號與權限設定。</li>
+                                    <li><strong>角色管理：</strong>設定與管理系統角色權限。</li>
+                                    <li><strong>組織管理：</strong>管理組織架構與層級設定。</li>
+                                </ul>
+                            </section>
+
+                            <section>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">常見問題</h6>
+                                <div class="small">
+                                    <p class="mb-2"><strong>Q1：圖表沒有顯示資料？</strong></p>
+                                    <p class="ms-3 mb-3">A：請確認硬體監控服務是否正常運行，或檢查系統設定頁面的監控狀態。</p>
+
+                                    <p class="mb-2"><strong>Q2：資源使用率顯示異常？</strong></p>
+                                    <p class="ms-3 mb-3">A：圖表會根據實際監控資料更新，如持續異常請至系統設定頁面檢查詳細資訊。</p>
+
+                                    <p class="mb-2"><strong>Q3：如何重新整理圖表資料？</strong></p>
+                                    <p class="ms-3 mb-0">A：重新載入頁面即可更新圖表資料，或前往系統設定頁面查看即時監控資訊。</p>
+                                </div>
+                            </section>
+
+                            <section class="alert alert-info small mb-0">
+                                <h6 class="fw-bold mb-2">使用提示</h6>
+                                <ul class="mb-0 ps-3">
+                                    <li>建議定期查看儀表板以掌握系統整體狀況。</li>
+                                    <li>發現資源使用率異常時，可透過快速操作進入相關管理頁面進行處理。</li>
+                                    <li>圖表資料會根據系統監控服務自動更新，無需手動刷新。</li>
+                                    <li>如需更詳細的系統資訊，請前往系統設定頁面查看。</li>
+                                </ul>
+                            </section>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">我知道了</button>
+            </div>
+        </div>
+    </div>
+</div>
+

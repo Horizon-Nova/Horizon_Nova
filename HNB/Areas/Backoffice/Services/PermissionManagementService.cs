@@ -3,7 +3,7 @@ using Models.HnbHnbBackoffice;
 
 namespace HNB.Areas.Backoffice.Services;
 
-public class PermissionManagementService(PermissionManagementRepository repo, SidebarNavigationService sidebarService)
+public class PermissionManagementService(PermissionManagementRepository repo)
 {
     #region 統一的查詢方法
 
@@ -136,7 +136,7 @@ public class PermissionManagementService(PermissionManagementRepository repo, Si
         viewBag.Organizations = repo.QueryOrganizationList(organizationIds: organizationIds);
         viewBag.Roles = repo.QueryRoleList(organizationIds: organizationIds);
         viewBag.Users = repo.QueryUserList(organizationIds: organizationIds);
-        viewBag.Navigations = sidebarService.LoadNavigationList();
+        viewBag.Navigations = repo.QueryNavigationList();
     }
 
     #endregion

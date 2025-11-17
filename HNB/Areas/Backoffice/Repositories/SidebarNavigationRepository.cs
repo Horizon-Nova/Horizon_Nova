@@ -10,7 +10,7 @@ public class SidebarNavigationRepository(HnbHnbBackofficeDbContext db)
 {
     #region 統一的查詢來源
     /// <summary>
-    /// 有效的導航項目查詢來源
+    /// 導航項目查詢來源
     /// </summary>
     private IQueryable<vw_sidebar_navigation> ValidNavigations => db.vw_sidebar_navigations.OrderBy(n => n.sort_order);
     

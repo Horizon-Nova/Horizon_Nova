@@ -3,6 +3,7 @@
     ViewData["PageTitle"] = "儀表板";
     ViewData["PageDescription"] = "歡迎使用 Horizon Nova 後台管理系統";
     ViewData["PageIcon"] = "home";
+    ViewData["HelpModalId"] = "dashboardHelpModal";
     Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
 }
 
@@ -14,6 +15,8 @@
     @await Html.PartialAsync("Partials/Dashboard/_SystemStatus")
     @await Html.PartialAsync("Partials/Dashboard/_RecentActivities")
 </section>
+
+@await Html.PartialAsync("Partials/Dashboard/Modal/_Help")
 
 @section Scripts {
     @await Html.PartialAsync("Partials/Dashboard/_Scripts")

@@ -1,6 +1,4 @@
-﻿using HNB.Areas.Backoffice.BackgroundServices;
-using HNB.Areas.Backoffice.BackgroundServices.Middleware;
-using HNB.Areas.Backoffice.BackgroundServices.Repositories;
+﻿using HNB.Areas.Backoffice.BackgroundServices.Repositories;
 using HNB.Areas.Backoffice.Core;
 using HNB.Areas.Backoffice.Repositories;
 using HNB.Areas.Backoffice.Services;
@@ -89,6 +87,32 @@ public static class ServiceExtensions
             var config = CreateDallE3Config(configuration);
             var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
             return new HNB.IntelligentSystems.DallE3.Module.DallE3Module(config, httpClientFactory);
+        });
+        
+        // QdrantEmbedding 配置建立方法
+        HNB.IntelligentSystems.QdrantEmbedding.Configuration.QdrantEmbeddingConfig CreateQdrantEmbeddingConfig(IConfiguration configuration)
+        {
+            return new HNB.IntelligentSystems.QdrantEmbedding.Configuration.QdrantEmbeddingConfig
+            {
+                Url = configuration["QdrantEmbedding:Url"] ?? "http://localhost",
+                Port = int.TryParse(configuration["QdrantEmbedding:Port"], out var port) ? port : 6333,
+                UseHttps = bool.TryParse(configuration["QdrantEmbedding:UseHttps"], out var useHttps) && useHttps,
+                ApiKey = configuration["QdrantEmbedding:ApiKey"],
+                DefaultCollectionName = configuration["QdrantEmbedding:DefaultCollectionName"] ?? "default",
+                DefaultVectorSize = int.TryParse(configuration["QdrantEmbedding:DefaultVectorSize"], out var vectorSize) ? vectorSize : 512,
+                DistanceMetric = configuration["QdrantEmbedding:DistanceMetric"] ?? "Cosine",
+                DefaultLimit = int.TryParse(configuration["QdrantEmbedding:DefaultLimit"], out var limit) ? limit : 10,
+                TimeoutSeconds = int.TryParse(configuration["QdrantEmbedding:TimeoutSeconds"], out var timeout) ? timeout : 30
+            };
+        }
+        
+        // QdrantEmbedding 模組 - 使用 Scoped 因為需要使用 IHttpClientFactory
+        services.AddScoped<HNB.IntelligentSystems.QdrantEmbedding.Module.QdrantEmbeddingModule>(sp =>
+        {
+            var configuration = sp.GetRequiredService<IConfiguration>();
+            var config = CreateQdrantEmbeddingConfig(configuration);
+            var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+            return new HNB.IntelligentSystems.QdrantEmbedding.Module.QdrantEmbeddingModule(config, httpClientFactory);
         });
         
         return services;
