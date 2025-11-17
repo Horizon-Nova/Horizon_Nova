@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Whatever the Weather</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <h1 class="logo">Whatever the <em>wheather</em>.</h1>
+      <div class="header-actions">
+        <button class="login-btn">Login</button>
+        <button class="try-free-btn">Try it for free</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Background Shapes -->
+    <div class="bg-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+    </div>
+
+    <!-- Left Section -->
+    <section class="left-section">
+      <div class="content-wrapper">
+        <h2 class="main-title">
+          Drag your photo<br>
+          to your walk-in<br>
+          <em>closet</em>
+        </h2>
+        <p class="subtitle">5 photos only, we will coordinate for you</p>
+
+        <!-- Upload Area -->
+        <div class="upload-container">
+          <div class="upload-area" id="uploadArea">
+            <div class="sample-photo">
+              <img src="https://images.pexels.com/photos/34751906/pexels-photo-34751906.jpeg?auto=compress&cs=tinysrgb&h=650&w=940" alt="Sample outfit" width="433" height="650">
+            </div>
+            <div class="upload-zone">
+              <div class="upload-text">
+                <strong>Upload<br>Here</strong>
+              </div>
+            </div>
+            <div class="sample-items">
+              <div class="item-placeholder beanie"></div>
+              <div class="item-placeholder shirt"></div>
+              <div class="item-placeholder pants"></div>
+            </div>
+          </div>
+          <div class="drag-arrow">
+            <svg width="60" height="40" viewBox="0 0 60 40" fill="none">
+              <path d="M5 20 L45 20 M35 10 L45 20 L35 30" stroke="#B8860B" stroke-width="2" fill="none"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right Section -->
+    <section class="right-section">
+      <div class="location-card">
+        <div class="location-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#D2691E"/>
+          </svg>
+        </div>
+        <div class="location-info">
+          <p class="location-label">Location:</p>
+          <p class="location-text">Winona, MN 55987</p>
+          <button class="edit-location">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 0 1-.927-.928l.929-3.25c.081-.286.235-.547.445-.758l8.61-8.61Z" fill="#D2691E"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="weather-input">
+        <input type="text" placeholder="Today I want to ..." class="weather-field">
+        <button class="generate-btn">Generate</button>
+      </div>
+    </section>
+
+    <!-- Clothing Carousel -->
+    <section class="clothing-carousel">
+      <div class="carousel-header">
+        <span class="view-text">View photo / Item</span>
+      </div>
+      <div class="carousel-container">
+        <div class="clothing-items">
+          <div class="clothing-item">
+            <button class="remove-btn">&times;</button>
+            <img src="https://images.pexels.com/photos/6069530/pexels-photo-6069530.jpeg?auto=compress&cs=tinysrgb&h=650&w=940" alt="Cardigan" width="975" height="650">
+          </div>
+          <div class="clothing-item">
+            <button class="remove-btn">&times;</button>
+            <img src="https://images.pexels.com/photos/8306367/pexels-photo-8306367.jpeg?auto=compress&cs=tinysrgb&h=650&w=940" alt="Light blue shirt" width="433" height="650">
+          </div>
+          <div class="clothing-item">
+            <button class="remove-btn">&times;</button>
+            <img src="https://images.pexels.com/photos/8311884/pexels-photo-8311884.jpeg?auto=compress&cs=tinysrgb&h=650&w=940" alt="Jeans" width="433" height="650">
+          </div>
+          <div class="clothing-item">
+            <button class="remove-btn">&times;</button>
+            <img src="https://images.pexels.com/photos/8311894/pexels-photo-8311894.jpeg?auto=compress&cs=tinysrgb&h=650&w=940" alt="Denim jacket" width="975" height="650">
+          </div>
+          <div class="clothing-item">
+            <button class="remove-btn">&times;</button>
+            <img src="https://images.pexels.com/photos/9185878/pexels-photo-9185878.jpeg?auto=compress&cs=tinysrgb&h=650&w=940" alt="Black pants" width="975" height="650">
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-links">
+        <div class="footer-section">
+          <h4>Company</h4>
+        </div>
+        <div class="footer-section">
+          <h4>Pricing</h4>
+        </div>
+        <div class="footer-section">
+          <h4>Legal</h4>
+        </div>
+      </div>
+      <div class="social-links">
+        <a href="#" class="social-link">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+          </svg>
+        </a>
+        <a href="#" class="social-link">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.174-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.097.118.112.221.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.402.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.357-.629-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24.009 12.017 24.009c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641.001 12.017.001z"/>
+          </svg>
+        </a>
+        <a href="#" class="social-link">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0C5.374 0 0 5.373 0 12s5.374 12 12 12 12-5.373 12-12S18.626 0 12 0zm5.568 8.16c-.169 1.858-.896 3.433-2.188 4.72-1.292 1.288-2.896 2.005-4.81 2.15-.95.072-1.906-.022-2.81-.28-.45-.129-.883-.297-1.29-.5v3.68c0 .199-.161.36-.36.36H5.4c-.199 0-.36-.161-.36-.36V8.16c0-.199.161-.36.36-.36h.72c.199 0 .36.161.36.36v1.44c.407-.203.84-.371 1.29-.5.904-.258 1.86-.352 2.81-.28 1.914.145 3.518.862 4.81 2.15 1.292 1.287 2.019 2.862 2.188 4.72z"/>
+          </svg>
+        </a>
+        <a href="#" class="social-link">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-logo">
+        <h2>Whatever the <em>wheather</em>.</h2>
+      </div>
+      <div class="copyright">
+        <p>&copy; 2025 WW. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -14,4 +14,11 @@ public class OutfitController : Controller
     /// <returns>返回首頁視圖</returns>
     public IActionResult Index()
         => View();
+
+    /// <summary>
+    /// 顯示入口功能頁面（Try it for Free 進入）
+    /// </summary>
+    /// <returns>返回入口功能視圖</returns>
+    public IActionResult Entry()
+        => View();
 }

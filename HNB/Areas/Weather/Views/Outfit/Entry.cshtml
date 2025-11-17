@@ -1,0 +1,11 @@
+@{
+    ViewData["Title"] = "Whatever the wheather - Entry";
+    Layout = "~/Areas/Weather/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    @await Html.PartialAsync("Partials/Outfit/_EntryStyles")
+}
+
+@await Html.PartialAsync("Partials/Outfit/_EntryMain")
+
