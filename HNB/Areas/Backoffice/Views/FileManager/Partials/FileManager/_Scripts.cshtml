@@ -1,57 +1,181 @@
 @{
     Layout = null;
 }
-<script src="~/Backoffice/js/FileManager.js"></script>
+
 <script>
-    $(function(){
-        // 確保 Lucide 載入完成
-        if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
-            lucide.createIcons();
+    $(document).ready(() => {
+        LoadSidebar();
+        switchView(null, '/');
+    });
+
+    function LoadSidebar(currentPath) {
+        const $container = $('#fileManagerSidebar');
+        const url = '/Backoffice/FileManager/LoadSidebar?currentPath=' + encodeURIComponent(currentPath || '/');
+        
+        $.ajax({
+            url: url,
+            type: 'GET',
+            success: (html) => {
+                $container.html(html);
+                if (window.lucide?.createIcons) {
+                    window.lucide.createIcons();
         }
+            },
+            error: () => {
+                showToast('載入失敗', '無法載入側邊欄，請重新整理頁面', 'error');
+            }
+        });
+    }
 
-        // 初始化 DataTable
-        if ($('#filesTable').length) {
-            HNBDataTable.init('#filesTable', {
-                initComplete: function() {
-                    $('.dataTables_length').hide();
+    function getViewUrl(view, path) {
+        var url = '/Backoffice/FileManager/LoadView?';
+        if (view) {
+            url += 'view=' + encodeURIComponent(view) + '&';
+        }
+        url += 'path=' + encodeURIComponent(path || '/');
+        return url;
+    }
 
-                    // DataTable 初始化完成後再次初始化 icons
-                    if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
-                        lucide.createIcons();
-                    }
+    function switchView(view, path) {
+        const contentContainer = $('#fileManagerContent');
+        const viewUrl = getViewUrl(view, path);
+        
+        contentContainer.css('opacity', '0.5');
+        
+        $.ajax({
+            url: viewUrl,
+            method: 'GET',
+            success: function(html) {
+                contentContainer.html(html).css('opacity', '1');
+                
+                LoadSidebar(path);
+                
+                updateSidebarActive(view);
+                updateBreadcrumb(view, path);
+                
+                if (window.lucide?.createIcons) {
+                    window.lucide.createIcons();
+                }
+                
+                if (typeof HNBDataTable !== 'undefined' && HNBDataTable.autoInit) {
+                    HNBDataTable.autoInit(contentContainer);
+                }
+            },
+            error: function() {
+                contentContainer.css('opacity', '1');
+                showToast('載入失敗', '無法載入畫面，請重新整理頁面', 'error');
                 }
             });
         }
 
-        // FileManager 工具列與行為（委派）
-        $(document)
-            .off('click.fmPage', '.js-tree-toggle')
-            .on('click.fmPage', '.js-tree-toggle', function(e){ toggleTreeNode(e, this); })
-
-            .off('click.fmPage', '.js-fm-open-create-file')
-            .on('click.fmPage', '.js-fm-open-create-file', function(){ showModal('createFileModal'); })
-
-            .off('click.fmPage', '.js-fm-open-create-folder')
-            .on('click.fmPage', '.js-fm-open-create-folder', function(){ showModal('createFolderModal'); })
-
-            .off('click.fmPage', '.js-fm-reload')
-            .on('click.fmPage', '.js-fm-reload', function(){ location.reload(); })
-
-            .off('click.fmPage', '.js-open-preview')
-            .on('click.fmPage', '.js-open-preview', function(e){
-                e.preventDefault();
-                const path = $(this).data('path');
-                const name = $(this).data('name');
-                openPreview(path, name);
-            })
-
-            .off('click.fmPage', '.js-open-item-panel')
-            .on('click.fmPage', '.js-open-item-panel', function(){
-                const name = $(this).data('name');
-                const type = $(this).data('type');
-                const path = $(this).data('path');
-                openItemPanel(name, type, path);
+    // 更新側邊欄 active 狀態
+    function updateSidebarActive(view) {
+        $('.nav-link').removeClass('active').addClass('text-muted');
+        
+        if (!view || view === '') {
+            $('.nav-link').first().removeClass('text-muted').addClass('active');
+        } else {
+            $('.nav-link').each(function() {
+                var onclick = $(this).attr('onclick') || '';
+                if (onclick.includes("switchView('" + view + "')") || onclick.includes('switchView("' + view + '")')) {
+                    $(this).removeClass('text-muted').addClass('active');
+                }
             });
-    });
-</script>
+        }
+    }
 
+    // 更新麵包屑（需要重新載入整個 breadcrumb）
+    function updateBreadcrumb(view, path) {
+        // TODO: 可以選擇重新載入 breadcrumb partial 或直接更新標題
+        // 暫時先更新標題文字
+        var titleMap = {
+            'shared': '與我共用',
+            'recent': '最近',
+            'trash': '回收桶',
+            '': '我的檔案'
+        };
+        var title = titleMap[view || ''] || '我的檔案';
+        $('.card-title').text(title);
+    }
+
+    function loadItemDetail(path, name) {
+        const $panel = $('#itemDetailPanel');
+        if (!$panel.length) return;
+        
+        $panel.css('opacity', '0.5');
+        
+        $.ajax({
+            url: '/Backoffice/FileManager/LoadDetail',
+            method: 'GET',
+            data: {
+                path: path || '/',
+                name: name
+            },
+            success: function(html) {
+                $panel.html(html).css('opacity', '1');
+                
+                if (window.lucide?.createIcons) {
+                    window.lucide.createIcons();
+                }
+            },
+            error: function() {
+                $panel.css('opacity', '1');
+                showToast('載入失敗', '無法載入項目詳細資訊', 'error');
+            }
+        });
+    }
+
+    // 暴露為全域，提供 inline onclick 及其他模組呼叫
+    window.switchView = switchView;
+    window.getViewUrl = getViewUrl;
+    window.toggleFolderNode = toggleFolderNode;
+    window.loadItemDetail = loadItemDetail;
+
+
+    function toggleFolderNode(nodeId) {
+        var children = document.getElementById(nodeId + '-children');
+        var icon = document.getElementById(nodeId + '-icon');
+        
+        if (children && icon) {
+            if (children.style.display === 'none') {
+                children.style.display = 'block';
+                icon.setAttribute('data-lucide', 'chevron-down');
+            } else {
+                children.style.display = 'none';
+                icon.setAttribute('data-lucide', 'chevron-right');
+            }
+            if (window.lucide?.createIcons) {
+                window.lucide.createIcons();
+            }
+        }
+    }
+
+    function reloadFileManager() {
+        var currentPath = $('.folder-node a.text-primary').attr('onclick');
+        if (currentPath) {
+            var match = currentPath.match(/switchView\(null,\s*['"]([^'"]+)['"]\)/);
+            if (match) {
+                LoadSidebar(match[1]);
+            } else {
+                LoadSidebar('/');
+            }
+        } else {
+            LoadSidebar('/');
+        }
+        
+        var currentView = $('.nav-link.active').attr('onclick');
+        if (currentView) {
+            var viewMatch = currentView.match(/switchView\(['"]([^'"]+)['"]\)/);
+            if (viewMatch) {
+                switchView(viewMatch[1]);
+            } else {
+                switchView(null, '/');
+            }
+        } else {
+            switchView(null, '/');
+        }
+    }
+
+    window.LoadSidebar = LoadSidebar;
+    window.reloadFileManager = reloadFileManager;
+</script>

@@ -1,0 +1,176 @@
+@model HNB.Areas.Backoffice.Dtos.FileManagerDto
+@{
+    Layout = null;
+}
+
+<div class="row g-3">
+    <!-- 左側：檔案列表 -->
+    <div class="col-12 col-lg-8">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th scope="col" style="width:40%;">
+                        <div class="d-flex align-items-center gap-2">
+                            <span>名稱</span>
+                            <i data-lucide="chevron-up" class="text-muted" style="width:0.9rem;height:0.9rem;"></i>
+                        </div>
+                    </th>
+                    <th scope="col" style="width:15%;">共用</th>
+                    <th scope="col" style="width:15%;">擁有者</th>
+                    <th scope="col" style="width:20%;">修改日期</th>
+                    <th scope="col" class="text-end" style="width:10%;">大小</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 模擬資料：最近開啟的檔案 -->
+                <tr class="table-active">
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <i data-lucide="file-text" class="text-primary" style="width:1.1rem;height:1.1rem;"></i>
+                            <a href="javascript:void(0)" class="text-decoration-none">需求說明書.docx</a>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center gap-1">
+                            <div class="d-flex">
+                                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width:1.4rem;height:1.4rem;font-size:0.75rem;">
+                                    M
+                                </div>
+                                <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center ms-n1" style="width:1.4rem;height:1.4rem;font-size:0.75rem;">
+                                    A
+                                </div>
+                            </div>
+                            <span class="small text-muted ms-1">+2</span>
+                        </div>
+                    </td>
+                    <td class="small text-muted">Ming</td>
+                    <td class="small text-muted">2025/03/01 下午 03:21</td>
+                    <td class="text-end small text-muted">1.2 MB</td>
+                </tr>
+
+                <!-- 模擬資料：最近開啟的資料夾 -->
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <i data-lucide="folder" class="text-warning" style="width:1.1rem;height:1.1rem;"></i>
+                            <a href="javascript:void(0)" class="text-decoration-none">專案文件</a>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center gap-1 text-muted small">
+                            <i data-lucide="link" style="width:0.95rem;height:0.95rem;"></i>
+                            <span>有連結</span>
+                        </div>
+                    </td>
+                    <td class="small text-muted">Ming</td>
+                    <td class="small text-muted">2025/03/01 上午 10:15</td>
+                    <td class="text-end small text-muted">—</td>
+                </tr>
+
+                <!-- 模擬資料：最近開啟的圖片 -->
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <i data-lucide="image" class="text-info" style="width:1.1rem;height:1.1rem;"></i>
+                            <a href="javascript:void(0)" class="text-decoration-none">首頁設計.png</a>
+                        </div>
+                    </td>
+                    <td class="small text-muted">未共用</td>
+                    <td class="small text-muted">Ming</td>
+                    <td class="small text-muted">2025/02/28 下午 05:30</td>
+                    <td class="text-end small text-muted">850 KB</td>
+                </tr>
+
+                <!-- 模擬資料：最近開啟的檔案 -->
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <i data-lucide="file-text" class="text-danger" style="width:1.1rem;height:1.1rem;"></i>
+                            <a href="javascript:void(0)" class="text-decoration-none">會議記錄.pdf</a>
+                        </div>
+                    </td>
+                    <td class="small text-muted">未共用</td>
+                    <td class="small text-muted">Ming</td>
+                    <td class="small text-muted">2025/02/27 上午 09:45</td>
+                    <td class="text-end small text-muted">2.3 MB</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 右側：詳細資料 -->
+    <div class="col-12 col-lg-4">
+        <div class="border rounded-3 bg-white p-3">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <i data-lucide="file-text" class="text-primary" style="width:1.5rem;height:1.5rem;"></i>
+                <div>
+                    <div class="fw-semibold small">需求說明書.docx</div>
+                    <div class="text-muted small">Word 文件</div>
+                </div>
+            </div>
+
+            <hr class="my-2">
+
+            <div class="small mb-2">
+                <div class="text-muted mb-1">位置</div>
+                <div class="d-flex align-items-center gap-1">
+                    <i data-lucide="folder" class="text-muted" style="width:0.9rem;height:0.9rem;"></i>
+                    <span class="text-truncate">/我的檔案/專案文件</span>
+                </div>
+            </div>
+
+            <div class="small mb-2">
+                <div class="text-muted mb-1">擁有者</div>
+                <div class="d-flex align-items-center gap-2">
+                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width:1.5rem;height:1.5rem;font-size:0.8rem;">
+                        M
+                    </div>
+                    <span>Ming</span>
+                </div>
+            </div>
+
+            <div class="small mb-2">
+                <div class="text-muted mb-1">共用</div>
+                <div class="d-flex align-items-center gap-2">
+                    <div class="d-flex">
+                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width:1.4rem;height:1.4rem;font-size:0.75rem;">
+                            M
+                        </div>
+                        <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center ms-n1" style="width:1.4rem;height:1.4rem;font-size:0.75rem;">
+                            A
+                        </div>
+                    </div>
+                    <span class="small text-muted">與 3 個人共用</span>
+                </div>
+            </div>
+
+            <div class="small mb-2">
+                <div class="text-muted mb-1">大小</div>
+                <span>1.2 MB</span>
+            </div>
+
+            <div class="small mb-2">
+                <div class="text-muted mb-1">建立時間</div>
+                <span>2025/02/15 下午 02:30</span>
+            </div>
+
+            <div class="small mb-2">
+                <div class="text-muted mb-1">上次修改</div>
+                <span>2025/03/01 下午 03:21</span>
+            </div>
+
+            <div class="small mb-2">
+                <div class="text-muted mb-1">最近開啟</div>
+                <span>2025/03/01 下午 03:21</span>
+            </div>
+
+            <hr class="my-2">
+
+            <div class="small mb-1 text-muted">描述</div>
+            <p class="small mb-0 text-muted">
+                專案主要需求與規格說明文件，包含功能列表、使用者角色與流程說明。
+            </p>
+        </div>
+    </div>
+</div>
+

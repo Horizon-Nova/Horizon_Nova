@@ -11,27 +11,94 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// <summary>
     /// 檔案管理主頁面
     /// </summary>
-    public IActionResult Index(string path = "/")
+    public IActionResult Index() => View();
+
+    /// <summary>
+    /// 載入側邊欄（用於 AJAX 更新）
+    /// </summary>
+    public IActionResult LoadSidebar(string? currentPath = "/")
     {
         var currentUser = User.Identity?.Name;
         if (string.IsNullOrWhiteSpace(currentUser)) return Unauthorized();
-        svc.ViewBagModel(ViewBag, path, currentUser);
-        var model = svc.LoadUserFileSystemItems(path ?? "/", currentUser);
-        return View(model);
+        
+        var dto = new HNB.Areas.Backoffice.Dtos.FileManagerIndexDto
+        {
+            CurrentPath = currentPath ?? "/",
+            UserFolderTree = svc.BuildFolderTree(currentUser),
+            UserStoragePath = svc.GetUserStoragePath(currentUser),
+            UsedStorage = svc.CalculateUserStorageUsage(currentUser),
+            TotalStorage = svc.GetUserStorageLimit(currentUser)
+        };
+        
+        return PartialView("Partials/FileManager/_Sidebar", dto);
     }
-    #endregion
 
-    #region Modal 載入
-    public IActionResult LoadDetail(string? name = null, string? currentPath = null, string? type = null)
+    /// <summary>
+    /// 載入檔案總管視圖（用於 AJAX 切換畫面）
+    /// </summary>
+    public IActionResult LoadView(string? view = null, string path = "/")
     {
         var currentUser = User.Identity?.Name;
         if (string.IsNullOrWhiteSpace(currentUser)) return Unauthorized();
-        var detail = svc.LoadFileSystemDetail(currentPath ?? "/", name ?? "", currentUser);
-        ViewBag.CurrentPath = currentPath ?? "/";
-        ViewBag.CurrentUser = currentUser;
-        return PartialView("Partials/FileManager/_SidePanelBody", detail);
+        
+        var dto = new FileManagerDto
+        {
+            ViewMode = view,
+            CurrentPath = path
+        };
+        
+        var partialView = view?.ToLower() switch
+        {
+            "shared" => "Partials/FileManager/_SharedWithMe",
+            "recent" => "Partials/FileManager/_Recent",
+            "trash" => "Partials/FileManager/_Trash",
+            _ => "Partials/FileManager/_FileList"
+        };
+        
+        switch (view?.ToLower())
+        {
+            case "shared":
+            case "recent":
+            case "trash":
+                dto.CurrentPath = view ?? "/";
+                dto.FolderCount = 0;
+                dto.FileCount = 0;
+                dto.TotalSize = 0L;
+                break;
+            
+            default:
+                var userStoragePath = svc.GetUserStoragePath(currentUser);
+                var actualPath = path == "/" ? userStoragePath : $"{userStoragePath}{path}";
+                dto.UserStoragePath = userStoragePath;
+                dto.UserFolders = svc.LoadUserFolders(currentUser);
+                var items = svc.LoadUserFileSystemItems(actualPath, currentUser);
+                dto.Items = items;
+                var folders = items.Where(f => f.Type == "folder").ToList();
+                var files = items.Where(f => f.Type == "file").ToList();
+                dto.FolderCount = folders.Count;
+                dto.FileCount = files.Count;
+                dto.TotalSize = files.Sum(f => f.Size ?? 0L);
+                break;
+        }
+        
+        return PartialView(partialView, dto);
     }
 
+    /// <summary>
+    /// 載入項目詳細資訊
+    /// </summary>
+    public IActionResult LoadDetail(string path, string name)
+    {
+        var currentUser = User.Identity?.Name;
+        if (string.IsNullOrWhiteSpace(currentUser)) return Unauthorized();
+        
+        var userStoragePath = svc.GetUserStoragePath(currentUser);
+        var actualPath = path == "/" ? userStoragePath : $"{userStoragePath}{path}";
+        
+        var detail = svc.LoadFileSystemDetail(actualPath, name, currentUser);
+        
+        return PartialView("Partials/FileManager/_ItemDetail", detail);
+    }
     #endregion
 
     #region 資料夾操作 API
@@ -42,13 +109,17 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     [ValidateAntiForgeryToken]
     public IActionResult SubmitFolder([FromBody] CreateItemRequest request)
     {
-        if (string.IsNullOrWhiteSpace(User.Identity?.Name)) return Unauthorized();
-        var entry = new FileSystemEntry { VirtualPath = request.Path, Name = request.Name, Type = "folder" };
+        var currentUser = User.Identity?.Name;
+        if (string.IsNullOrWhiteSpace(currentUser)) return Unauthorized();
+        
+        var userStoragePath = svc.GetUserStoragePath(currentUser);
+        var actualPath = request.Path == "/" ? userStoragePath : $"{userStoragePath}{request.Path}";
+        var entry = new FileSystemEntry { VirtualPath = actualPath, Name = request.Name, Type = "folder" };
         svc.CreateFolder(entry);
         if (request.SharedUsers != null && request.SharedUsers.Count > 0)
             svc.UpdateItemOwners(entry, request.SharedUsers.ToArray());
 
-        return Json(new FileManagerResponse { Success = true, Message = "資料夾已建立" });
+        return Json(new FileManagerResponse { Success = true, Message = "資料夾已建立", ShouldReloadSidebar = true });
     }
 
     /// <summary>
@@ -58,10 +129,14 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     [ValidateAntiForgeryToken]
     public IActionResult Delete([FromBody] DeleteItemRequest request)
     {
-        if (string.IsNullOrWhiteSpace(User.Identity?.Name)) return Unauthorized();
-        var entry = new FileSystemEntry { VirtualPath = request.Path, Name = request.Name, Type = "folder" };
+        var currentUser = User.Identity?.Name;
+        if (string.IsNullOrWhiteSpace(currentUser)) return Unauthorized();
+        
+        var userStoragePath = svc.GetUserStoragePath(currentUser);
+        var actualPath = request.Path == "/" ? userStoragePath : $"{userStoragePath}{request.Path}";
+        var entry = new FileSystemEntry { VirtualPath = actualPath, Name = request.Name, Type = "folder" };
         svc.DeleteFolder(entry);
-        return Json(new FileManagerResponse { Success = true, Message = "資料夾已刪除" });
+        return Json(new FileManagerResponse { Success = true, Message = "資料夾已刪除", ShouldReloadSidebar = true });
     }
 
     /// <summary>
@@ -71,10 +146,14 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     [ValidateAntiForgeryToken]
     public IActionResult SubmitRename([FromBody] RenameItemRequest request)
     {
-        if (string.IsNullOrWhiteSpace(User.Identity?.Name)) return Unauthorized();
-        var entry = new FileSystemEntry { VirtualPath = request.Path, Name = request.OldName, Type = "folder" };
+        var currentUser = User.Identity?.Name;
+        if (string.IsNullOrWhiteSpace(currentUser)) return Unauthorized();
+        
+        var userStoragePath = svc.GetUserStoragePath(currentUser);
+        var actualPath = request.Path == "/" ? userStoragePath : $"{userStoragePath}{request.Path}";
+        var entry = new FileSystemEntry { VirtualPath = actualPath, Name = request.OldName, Type = "folder" };
         svc.RenameFolder(entry, request.NewName);
-        return Json(new FileManagerResponse { Success = true, Message = "資料夾已重新命名" });
+        return Json(new FileManagerResponse { Success = true, Message = "資料夾已重新命名", ShouldReloadSidebar = true });
     }
     #endregion
 
@@ -86,8 +165,12 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     [ValidateAntiForgeryToken]
     public IActionResult SubmitFile([FromBody] CreateItemRequest request)
     {
-        if (string.IsNullOrWhiteSpace(User.Identity?.Name)) return Unauthorized();
-        var entry = new FileSystemEntry { VirtualPath = request.Path, Name = request.Name, Type = "file" };
+        var currentUser = User.Identity?.Name;
+        if (string.IsNullOrWhiteSpace(currentUser)) return Unauthorized();
+        
+        var userStoragePath = svc.GetUserStoragePath(currentUser);
+        var actualPath = request.Path == "/" ? userStoragePath : $"{userStoragePath}{request.Path}";
+        var entry = new FileSystemEntry { VirtualPath = actualPath, Name = request.Name, Type = "file" };
         svc.CreateFile(entry);
         if (request.SharedUsers != null && request.SharedUsers.Count > 0)
             svc.UpdateItemOwners(entry, request.SharedUsers.ToArray());
@@ -102,8 +185,12 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     [ValidateAntiForgeryToken]
     public IActionResult DeleteFile([FromBody] DeleteItemRequest request)
     {
-        if (string.IsNullOrWhiteSpace(User.Identity?.Name)) return Unauthorized();
-        var entry = new FileSystemEntry { VirtualPath = request.Path, Name = request.Name, Type = "file" };
+        var currentUser = User.Identity?.Name;
+        if (string.IsNullOrWhiteSpace(currentUser)) return Unauthorized();
+        
+        var userStoragePath = svc.GetUserStoragePath(currentUser);
+        var actualPath = request.Path == "/" ? userStoragePath : $"{userStoragePath}{request.Path}";
+        var entry = new FileSystemEntry { VirtualPath = actualPath, Name = request.Name, Type = "file" };
         svc.DeleteFile(entry);
         return Json(new FileManagerResponse { Success = true, Message = "檔案已刪除" });
     }
@@ -115,8 +202,12 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     [ValidateAntiForgeryToken]
     public IActionResult SubmitRenameFile([FromBody] RenameItemRequest request)
     {
-        if (string.IsNullOrWhiteSpace(User.Identity?.Name)) return Unauthorized();
-        var entry = new FileSystemEntry { VirtualPath = request.Path, Name = request.OldName, Type = "file" };
+        var currentUser = User.Identity?.Name;
+        if (string.IsNullOrWhiteSpace(currentUser)) return Unauthorized();
+        
+        var userStoragePath = svc.GetUserStoragePath(currentUser);
+        var actualPath = request.Path == "/" ? userStoragePath : $"{userStoragePath}{request.Path}";
+        var entry = new FileSystemEntry { VirtualPath = actualPath, Name = request.OldName, Type = "file" };
         svc.RenameFile(entry, request.NewName);
         return Json(new FileManagerResponse { Success = true, Message = "檔案已重新命名" });
     }
@@ -126,25 +217,69 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// </summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult SubmitTextFile([FromBody] SaveTextFileRequest request)
+    public IActionResult SubmitSaveTextFile([FromBody] SaveTextFileRequest request)
     {
-        if (string.IsNullOrWhiteSpace(User.Identity?.Name)) return Unauthorized();
-        var entry = new FileSystemEntry { VirtualPath = request.Path, Name = request.Name, Type = "file" };
+        var currentUser = User.Identity?.Name;
+        if (string.IsNullOrWhiteSpace(currentUser)) return Unauthorized();
+        
+        var userStoragePath = svc.GetUserStoragePath(currentUser);
+        var actualPath = request.Path == "/" ? userStoragePath : $"{userStoragePath}{request.Path}";
+        var entry = new FileSystemEntry { VirtualPath = actualPath, Name = request.Name, Type = "file" };
         svc.SaveTextFile(entry, request.Content, request.Encoding);
         return Json(new FileManagerResponse { Success = true, Message = "檔案已儲存" });
     }
 
     /// <summary>
-    /// 設定分享擁有者（檔案或資料夾）
+    /// 生成共享連結
+    /// </summary>
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult GenerateShareLink([FromBody] GenerateShareLinkRequest request)
+    {
+        var currentUser = User.Identity?.Name;
+        if (string.IsNullOrWhiteSpace(currentUser)) return Unauthorized();
+        
+        var userStoragePath = svc.GetUserStoragePath(currentUser);
+        var actualPath = request.Path == "/" ? userStoragePath : $"{userStoragePath}{request.Path}";
+        var detail = svc.LoadFileSystemDetail(actualPath, request.Name, currentUser);
+        
+        if (detail.PrimaryOwner != currentUser && !detail.SharedUsers.Contains(currentUser))
+            return Unauthorized();
+        
+        var shareToken = Guid.NewGuid().ToString("N");
+        var shareLink = $"{Request.Scheme}://{Request.Host}{Url.Action("AccessShared", "FileManager", new { area = "Backoffice", token = shareToken })}";
+        
+        return Json(new FileManagerResponse 
+        { 
+            Success = true, 
+            Message = "共享連結已生成",
+            Data = new { ShareLink = shareLink, ShareToken = shareToken }
+        });
+    }
+
+    /// <summary>
+    /// 透過共享連結存取檔案/資料夾
+    /// </summary>
+    [HttpGet]
+    public IActionResult AccessShared(string token)
+    {
+        return BadRequest("共享連結功能開發中");
+    }
+
+    /// <summary>
+    /// 設定分享擁有者（檔案或資料夾）- 保留舊版 API 以向後相容
     /// </summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult SubmitShare([FromBody] UpdateOwnersRequest request)
     {
-        if (string.IsNullOrWhiteSpace(User.Identity?.Name)) return Unauthorized();
-        var entry = new FileSystemEntry { VirtualPath = request.Path, Name = request.Name };
-        var currentUser = User.Identity!.Name!;
-        var detail = svc.LoadFileSystemDetail(request.Path, request.Name, currentUser);
+        var currentUser = User.Identity?.Name;
+        if (string.IsNullOrWhiteSpace(currentUser)) return Unauthorized();
+        
+        var userStoragePath = svc.GetUserStoragePath(currentUser);
+        var actualPath = request.Path == "/" ? userStoragePath : $"{userStoragePath}{request.Path}";
+        var entry = new FileSystemEntry { VirtualPath = actualPath, Name = request.Name };
+        var detail = svc.LoadFileSystemDetail(actualPath, request.Name, currentUser);
         var primary = detail.PrimaryOwner;
 
         var incoming = request.Owners ?? new List<string>();
@@ -160,7 +295,7 @@ public class FileManagerController(FileManagerServices svc) : BaseController
             return BadRequest("擁有者列表不可為空，且不得移除原擁有者。");
 
         svc.UpdateItemOwners(entry, normalized.ToArray());
-        return Json(new FileManagerResponse { Success = true, Message = "分享設定已更新" });
+        return Json(new FileManagerResponse { Success = true, Message = "共享設定已更新" });
     }
     #endregion
 
@@ -175,11 +310,14 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     [ValidateAntiForgeryToken]
     public IActionResult SubmitUpload(string virtualPath, List<IFormFile> files, List<string>? relativePaths)
     {
-        if (string.IsNullOrWhiteSpace(User.Identity?.Name)) return Unauthorized();
+        var currentUser = User.Identity?.Name;
+        if (string.IsNullOrWhiteSpace(currentUser)) return Unauthorized();
         if (files == null || files.Count == 0)
             return Json(new FileManagerResponse { Success = false, Message = "未選擇檔案" });
 
-        var result = svc.UploadBatchFiles(virtualPath, files, relativePaths);
+        var userStoragePath = svc.GetUserStoragePath(currentUser);
+        var actualPath = virtualPath == "/" ? userStoragePath : $"{userStoragePath}{virtualPath}";
+        var result = svc.UploadBatchFiles(actualPath, files, relativePaths);
         
         return Json(new UploadResponse
         {
@@ -201,8 +339,12 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// </summary>
     public IActionResult Download(string path, string name)
     {
-        if (string.IsNullOrWhiteSpace(User.Identity?.Name)) return Unauthorized();
-        var (stream, fileName, contentType) = svc.DownloadFile(path, name);
+        var currentUser = User.Identity?.Name;
+        if (string.IsNullOrWhiteSpace(currentUser)) return Unauthorized();
+        
+        var userStoragePath = svc.GetUserStoragePath(currentUser);
+        var actualPath = path == "/" ? userStoragePath : $"{userStoragePath}{path}";
+        var (stream, fileName, contentType) = svc.DownloadFile(actualPath, name);
         return File(stream, contentType, fileName, enableRangeProcessing: true);
     }
 
@@ -211,8 +353,12 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// </summary>
     public IActionResult DownloadFolder(string path, string name)
     {
-        if (string.IsNullOrWhiteSpace(User.Identity?.Name)) return Unauthorized();
-        var (stream, fileName, contentType) = svc.DownloadFolderAsZip(path, name);
+        var currentUser = User.Identity?.Name;
+        if (string.IsNullOrWhiteSpace(currentUser)) return Unauthorized();
+        
+        var userStoragePath = svc.GetUserStoragePath(currentUser);
+        var actualPath = path == "/" ? userStoragePath : $"{userStoragePath}{path}";
+        var (stream, fileName, contentType) = svc.DownloadFolderAsZip(actualPath, name);
         return File(stream, contentType, fileName, enableRangeProcessing: true);
     }
 
@@ -221,8 +367,12 @@ public class FileManagerController(FileManagerServices svc) : BaseController
     /// </summary>
     public IActionResult Preview(string path, string name)
     {
-        if (string.IsNullOrWhiteSpace(User.Identity?.Name)) return Unauthorized();
-        var (stream, contentType) = svc.PreviewFile(path, name);
+        var currentUser = User.Identity?.Name;
+        if (string.IsNullOrWhiteSpace(currentUser)) return Unauthorized();
+        
+        var userStoragePath = svc.GetUserStoragePath(currentUser);
+        var actualPath = path == "/" ? userStoragePath : $"{userStoragePath}{path}";
+        var (stream, contentType) = svc.PreviewFile(actualPath, name);
         Response.Headers["Content-Disposition"] = $"inline; filename*=UTF-8''{Uri.EscapeDataString(name)}";
         return File(stream, contentType, enableRangeProcessing: true);
     }

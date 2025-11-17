@@ -1,47 +1,31 @@
-@model List<HNB.Areas.Backoffice.Dtos.FileSystemEntry>
 @{
     ViewData["Title"] = "檔案總管";
     ViewData["PageTitle"] = "檔案總管";
     ViewData["PageDescription"] = "管理檔案和資料夾、上傳下載、預覽編輯";
     ViewData["PageIcon"] = "folder";
-    ViewData["HelpModalId"] = "fileManagerHelpModal";
+    ViewData["HelpModalId"] = "";
     Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
-
-    var currentPath = ViewBag.CurrentPath as string ?? "/";
-    var currentUser = ViewBag.CurrentUser as string ?? "guest";
-    var tree = ViewBag.Tree as List<object> ?? new();
-    var allItems = Model ?? new();
-
-    var itemsByType = allItems.GroupBy(item => item.Type).ToDictionary(g => g.Key, g => g.ToList());
-    var folders = itemsByType.GetValueOrDefault("folder", new List<HNB.Areas.Backoffice.Dtos.FileSystemEntry>());
-    var files = itemsByType.GetValueOrDefault("file", new List<HNB.Areas.Backoffice.Dtos.FileSystemEntry>());
-
-    var (folderCount, fileCount, totalSize) = (
-        ViewBag.FolderCount as int? ?? folders.Count,
-        ViewBag.FileCount as int? ?? files.Count,
-        ViewBag.TotalSize as long? ?? files.Sum(f => f.Size ?? 0L)
-    );
 }
 
 @await Html.PartialAsync("Partials/FileManager/_Styles")
 
-<div class="bg-white border rounded-3 p-3">
-    <div class="row g-0">
-        @await Html.PartialAsync("Partials/FileManager/_Sidebar")
+<div class="row g-3 file-manager-root">
+    <!-- 左側：OneDrive 導覽 -->
+    <div class="col-12 col-md-3" id="fileManagerSidebar">
+        <!-- 側邊欄將透過 AJAX 載入 -->
+    </div>
 
-        <!-- 右側：內容區 -->
-        <div class="col-md-9">
+    <!-- 右側：頂部工具列 + 檔案列表區 -->
+    <div class="col-12 col-md-9">
+        <div class="card border-0 shadow-sm h-100 d-flex flex-column">
             @await Html.PartialAsync("Partials/FileManager/_Breadcrumb")
-            @await Html.PartialAsync("Partials/FileManager/_MobileTree")
-            @await Html.PartialAsync("Partials/FileManager/_UploadZone")
-            @await Html.PartialAsync("Partials/FileManager/_FileList", Model)
+            
+            <div class="card-body overflow-auto p-0" id="fileManagerContent" style="min-height: 0;">
+                <!-- 內容將透過 AJAX 載入 -->
+            </div>
         </div>
     </div>
 </div>
-
-@await Html.PartialAsync("Partials/FileManager/_SidePanel")
-@await Html.PartialAsync("Partials/FileManager/Modal/_FormData")
-@await Html.PartialAsync("Partials/FileManager/Modal/_UploadProgress")
 
 @section Scripts {
     @await Html.PartialAsync("Partials/FileManager/_Scripts")

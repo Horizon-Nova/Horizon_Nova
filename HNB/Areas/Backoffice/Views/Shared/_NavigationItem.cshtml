@@ -20,7 +20,8 @@
         <button type="button"
                 class="w-100 d-flex align-items-center rounded px-3 py-2 border-0 bg-transparent nav-item nav-toggle position-relative"
                 data-target="nav-children-@Model.id"
-                data-item-id="@Model.id">
+                data-item-id="@Model.id"
+                onclick="ToggleNavigationItem('@Model.id', 'nav-children-@Model.id')">
             <i data-lucide="@(Model.icon ?? "folder")" style="width: 1rem; height: 1rem; flex-shrink: 0;"></i>
             <span class="text-truncate text-start ms-2" data-collapsed-target>@Model.title</span>
             <i data-lucide="chevron-right" class="nav-chevron-toggle position-absolute p-1" style="right: 0.75rem; transition: all 0.2s ease-in-out;"></i>

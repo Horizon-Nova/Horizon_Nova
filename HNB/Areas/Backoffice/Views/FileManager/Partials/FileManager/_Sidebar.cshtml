@@ -1,38 +1,168 @@
+@model HNB.Areas.Backoffice.Dtos.FileManagerIndexDto
 @{
     Layout = null;
-    var currentPath = ViewBag.CurrentPath as string ?? "/";
-    var tree = ViewBag.Tree as List<object> ?? new();
+    var currentPath = Model?.CurrentPath ?? "/";
+    var viewMode = Model?.ViewMode;
+    var userFolderTree = Model?.UserFolderTree ?? new List<HNB.Areas.Backoffice.Dtos.FolderTreeNode>();
+    var userStoragePath = Model?.UserStoragePath ?? "/storage";
 }
 
-<!-- 左側：目錄樹 -->
-<aside class="col-md-3 d-none d-md-block border-end">
-    <div class="d-flex flex-column">
-        <div class="d-flex align-items-center justify-content-between border-bottom p-3" style="min-height: 54px;">
-            <span class="small fw-semibold">檔案總管</span>
-            <div class="d-flex align-items-center gap-1">
-                <button type="button" class="btn btn-link btn-sm p-0 js-fm-open-create-file" title="新增檔案">
-                    <i data-lucide="file-plus" class="text-muted" style="width:1rem;height:1rem;"></i>
-                </button>
-                <button type="button" class="btn btn-link btn-sm p-0 js-fm-open-create-folder" title="新增資料夾">
-                    <i data-lucide="folder-plus" class="text-muted" style="width:1rem;height:1rem;"></i>
-                </button>
-                <button type="button" class="btn btn-link btn-sm p-0 js-fm-reload" title="重新整理">
-                    <i data-lucide="refresh-cw" class="text-muted" style="width:1rem;height:1rem;"></i>
-                </button>
-            </div>
-        </div>
-        <div class="flex-grow-1 overflow-auto p-2">
-            <!-- 根目錄 -->
-            <div class="tree-item @(currentPath == "/" ? "active" : "")" data-level="0">
-                <a href="@Url.Action("Index", "FileManager", new { area = "Backoffice", path = "/" })" class="tree-link">
-                    <i data-lucide="@(currentPath == "/" ? "folder-open" : "folder")" class="tree-icon"></i>
-                    <span class="tree-text">根目錄</span>
+@functions {
+    void RenderFolderNode(HNB.Areas.Backoffice.Dtos.FolderTreeNode node, string currentPath, int depth = 0)
+    {
+        var isActive = currentPath == node.Path;
+        var hasChildren = node.Children.Count > 0;
+        var nodeId = "folder-" + node.Path.Replace("/", "-").Replace("\\", "-").TrimStart('-');
+        var indent = depth * 1.25;
+        
+        <div class="folder-node" data-depth="@depth">
+            <div class="d-flex align-items-center gap-1" style="padding-left: @(indent)rem;">
+                @if (hasChildren)
+                {
+                    <button type="button" class="btn btn-link btn-sm p-0 text-muted folder-toggle" 
+                            onclick="toggleFolderNode('@nodeId')" 
+                            style="width:0.875rem;height:0.875rem;line-height:1;">
+                        <i data-lucide="chevron-down" id="@nodeId-icon" style="width:0.875rem;height:0.875rem;"></i>
+                    </button>
+                }
+                else
+                {
+                    <span style="width:0.875rem;height:0.875rem;display:inline-block;"></span>
+                }
+                <a href="javascript:void(0)" onclick="switchView(null, '@node.Path')"
+                   class="text-decoration-none d-flex align-items-center gap-1 flex-grow-1 @(isActive ? "text-primary" : "text-muted")">
+                    <i data-lucide="@(isActive ? "folder-open" : "folder")" style="width:1rem;height:1rem;"></i>
+                    <span class="text-truncate">@node.Name</span>
                 </a>
             </div>
+            @if (hasChildren)
+            {
+                <div class="folder-children" id="@nodeId-children" style="display:block;">
+                    @foreach (var child in node.Children)
+                    {
+                        RenderFolderNode(child, currentPath, depth + 1);
+                    }
+                </div>
+            }
+        </div>
+    }
 
-            <!-- 目錄樹 -->
-            @await Html.PartialAsync("Partials/FileManager/_TreeNodes", tree)
+    string FormatBytes(long bytes)
+    {
+        string[] sizes = { "B", "KB", "MB", "GB", "TB" };
+        double len = bytes;
+        int order = 0;
+        while (len >= 1024 && order < sizes.Length - 1)
+        {
+            order++;
+            len = len / 1024;
+        }
+        return $"{len:0.##} {sizes[order]}";
+    }
+}
+
+<!-- 左側：OneDrive 風格導覽 + 資料夾區 -->
+<div class="card border-0 shadow-sm h-100">
+    <!-- Logo / 標題列 -->
+    <div class="card-header bg-transparent border-bottom">
+        <div class="d-flex align-items-center gap-2">
+            <i data-lucide="cloud" class="text-primary" style="width:1.2rem;height:1.2rem;"></i>
+            <span class="fw-semibold small">Horizon Drive</span>
         </div>
     </div>
-</aside>
+
+    <div class="card-body p-0 d-flex flex-column">
+        <!-- 主導覽 -->
+        <nav class="p-3 border-bottom">
+            <ul class="nav nav-pills flex-column small">
+                <li class="nav-item">
+                    <a class="nav-link d-flex align-items-center gap-2 @(viewMode != "shared" && viewMode != "recent" && viewMode != "trash" && currentPath == "/" ? "active" : "text-muted")"
+                       href="javascript:void(0)" onclick="switchView(null, '/')">
+                        <i data-lucide="folder" style="width:1rem;height:1rem;"></i>
+                        <span>我的檔案</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link d-flex align-items-center gap-2 @(viewMode == "shared" ? "active" : "text-muted")"
+                       href="javascript:void(0)" onclick="switchView('shared')">
+                        <i data-lucide="users" style="width:1rem;height:1rem;"></i>
+                        <span>與我共用</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link d-flex align-items-center gap-2 @(viewMode == "recent" ? "active" : "text-muted")"
+                       href="javascript:void(0)" onclick="switchView('recent')">
+                        <i data-lucide="clock" style="width:1rem;height:1rem;"></i>
+                        <span>最近</span>
+                    </a>
+                </li>
+                <li class="nav-item mt-2">
+                    <a class="nav-link d-flex align-items-center gap-2 @(viewMode == "trash" ? "active" : "text-muted")"
+                       href="javascript:void(0)" onclick="switchView('trash')">
+                        <i data-lucide="trash-2" style="width:1rem;height:1rem;"></i>
+                        <span>回收桶</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- 快速動作 -->
+        <div class="p-3 border-bottom">
+            <div class="btn-group-vertical w-100 gap-2" role="group">
+                <button type="button" class="btn btn-primary btn-sm d-flex align-items-center justify-content-center gap-2" onclick="openCreateFolderModal()">
+                    <i data-lucide="folder-plus" style="width:1rem;height:1rem;"></i>
+                    <span>新增資料夾</span>
+                </button>
+                <button type="button" class="btn btn-outline-primary btn-sm d-flex align-items-center justify-content-center gap-2" onclick="openCreateFileModal()">
+                    <i data-lucide="file-plus" style="width:1rem;height:1rem;"></i>
+                    <span>新增檔案</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 資料夾區 -->
+        <div class="flex-grow-1 overflow-auto p-3">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="small text-muted fw-semibold">資料夾</span>
+                <button type="button" class="btn btn-link btn-sm p-0 text-muted" onclick="reloadFileManager()" title="重新整理">
+                    <i data-lucide="refresh-cw" style="width:1rem;height:1rem;"></i>
+                </button>
+            </div>
+
+            <div class="d-flex flex-column gap-1">
+                <a href="javascript:void(0)" onclick="switchView(null, '/')"
+                   class="text-decoration-none d-flex align-items-center gap-2 @(currentPath == "/" ? "text-primary" : "text-muted")">
+                    <i data-lucide="@(currentPath == "/" ? "folder-open" : "folder")" style="width:1rem;height:1rem;"></i>
+                    <span>根目錄</span>
+                </a>
+
+                @foreach (var node in userFolderTree)
+                {
+                    RenderFolderNode(node, currentPath, 0);
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- 儲存空間資訊 -->
+    <div class="card-footer bg-transparent border-top">
+        <div class="small text-muted mb-2">
+            @{
+                var usedStorage = Model?.UsedStorage ?? 0L;
+                var totalStorage = Model?.TotalStorage ?? 0L;
+                var usedStorageFormatted = FormatBytes(usedStorage);
+                var totalStorageFormatted = FormatBytes(totalStorage);
+                var percentage = totalStorage > 0 ? (int)((usedStorage * 100) / totalStorage) : 0;
+            }
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <span>儲存空間</span>
+                <span class="fw-semibold">@usedStorageFormatted / @totalStorageFormatted</span>
+            </div>
+            <div class="progress" style="height: 4px;">
+                <div class="progress-bar bg-primary" role="progressbar" style="width: @percentage%;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 
