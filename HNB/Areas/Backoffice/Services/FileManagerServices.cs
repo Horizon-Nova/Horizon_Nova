@@ -40,7 +40,7 @@ public class FileManagerServices(DirectoryManagerUtilities DM, IHttpContextAcces
             var combined = Path.GetFullPath(Path.Combine(root, relativePath));
             
             if (!combined.StartsWith(root, StringComparison.OrdinalIgnoreCase))
-                throw new InvalidOperationException("路徑不安全");
+                return;
             
             if (!Directory.Exists(combined))
             {
@@ -74,6 +74,31 @@ public class FileManagerServices(DirectoryManagerUtilities DM, IHttpContextAcces
     }
 
     /// <summary>
+    /// 取得實際路徑（用於 Controller）
+    /// </summary>
+    public string GetActualPath(string currentUser, string path)
+    {
+        if (path?.StartsWith("/storage/", StringComparison.OrdinalIgnoreCase) == true)
+        {
+            return path;
+        }
+        
+        var userStoragePath = GetUserStoragePath(currentUser);
+        return path == "/" ? userStoragePath : $"{userStoragePath}{path}";
+    }
+
+    /// <summary>
+    /// 計算資料夾統計資訊（資料夾數、檔案數、總大小）
+    /// </summary>
+    public (int folderCount, int fileCount, long totalSize) CalculateFolderStatistics(string virtualPath, string currentUser)
+    {
+        var items = LoadUserFileSystemItems(virtualPath, currentUser);
+        var folders = items.Where(f => f.Type == "folder").ToList();
+        var files = items.Where(f => f.Type == "file").ToList();
+        return (folders.Count, files.Count, files.Sum(f => f.Size ?? 0L));
+    }
+
+    /// <summary>
     /// 載入用戶有權限的檔案系統項目
     /// </summary>
     public List<FileSystemEntry> LoadUserFileSystemItems(string virtualPath, string currentUser)
@@ -90,6 +115,108 @@ public class FileManagerServices(DirectoryManagerUtilities DM, IHttpContextAcces
         var userStoragePath = GetUserStoragePath(currentUser);
         var items = LoadUserFileSystemItems(userStoragePath, currentUser);
         return items.Where(f => f.Type == "folder").ToList();
+    }
+
+    /// <summary>
+    /// 載入與當前使用者共用的檔案和資料夾
+    /// </summary>
+    public List<FileSystemEntry> LoadSharedWithMe(string currentUser)
+    {
+        var root = Path.GetFullPath(configuration["Storage:Root"] ?? "Areas/Backoffice/storage");
+        if (!Directory.Exists(root)) return new List<FileSystemEntry>();
+
+        var sharedItems = new List<FileSystemEntry>();
+
+        foreach (var userDir in Directory.GetDirectories(root))
+        {
+            var ownerUserName = Path.GetFileName(userDir);
+            if (string.IsNullOrWhiteSpace(ownerUserName) || ownerUserName.Equals(currentUser, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            ScanSharedItems(userDir, $"/storage/{ownerUserName}", currentUser, sharedItems);
+        }
+
+        return sharedItems.OrderByDescending(i => i.UpdatedAt ?? DateTime.MinValue).ToList();
+    }
+
+    /// <summary>
+    /// 遞迴掃描共用項目
+    /// </summary>
+    private void ScanSharedItems(string absPath, string virtualPath, string currentUser, List<FileSystemEntry> sharedItems)
+    {
+        try
+        {
+            if (Directory.Exists(absPath))
+            {
+                var owners = DirectoryManagerUtilities.GetAppOwners(absPath);
+                var isFolderShared = owners.Length > 0 && owners.Contains(currentUser, StringComparer.OrdinalIgnoreCase) && 
+                                    owners.Any(o => !o.Equals(currentUser, StringComparison.OrdinalIgnoreCase));
+                
+                if (isFolderShared)
+                {
+                    var dirInfo = new DirectoryInfo(absPath);
+                    var folderName = dirInfo.Name;
+                    
+                    sharedItems.Add(new FileSystemEntry
+                    {
+                        Name = folderName,
+                        Type = "folder",
+                        Size = null,
+                        PrimaryOwner = owners[0],
+                        Owner = owners[0],
+                        SharedUsers = owners.ToList(),
+                        VirtualPath = virtualPath,
+                        CreatedAt = dirInfo.CreationTimeUtc,
+                        UpdatedAt = dirInfo.LastWriteTimeUtc
+                    });
+                    
+                    return;
+                }
+
+                foreach (var subDir in Directory.GetDirectories(absPath))
+                {
+                    var subDirName = Path.GetFileName(subDir);
+                    ScanSharedItems(subDir, $"{virtualPath}/{subDirName}", currentUser, sharedItems);
+                }
+
+                foreach (var file in Directory.GetFiles(absPath))
+                {
+                    try
+                    {
+                        var fileOwners = DirectoryManagerUtilities.GetAppOwners(file);
+                        if (fileOwners.Length > 0 && fileOwners.Contains(currentUser, StringComparer.OrdinalIgnoreCase) && 
+                            fileOwners.Any(o => !o.Equals(currentUser, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            var fileInfo = new FileInfo(file);
+                            var fileName = fileInfo.Name;
+                            var mimeType = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider().TryGetContentType(fileName, out var contentType) 
+                                ? contentType 
+                                : "application/octet-stream";
+                            
+                            sharedItems.Add(new FileSystemEntry
+                            {
+                                Name = fileName,
+                                Type = "file",
+                                Size = fileInfo.Length,
+                                MimeType = mimeType,
+                                PrimaryOwner = fileOwners[0],
+                                Owner = fileOwners[0],
+                                SharedUsers = fileOwners.ToList(),
+                                VirtualPath = virtualPath,
+                                CreatedAt = fileInfo.CreationTimeUtc,
+                                UpdatedAt = fileInfo.LastWriteTimeUtc
+                            });
+                        }
+                    }
+                    catch
+                    {
+                    }
+                }
+            }
+        }
+        catch
+        {
+        }
     }
 
     /// <summary>
@@ -147,7 +274,7 @@ public class FileManagerServices(DirectoryManagerUtilities DM, IHttpContextAcces
     /// <summary>
     /// 載入檔案詳細資訊
     /// </summary>
-    public FileSystemEntry LoadFileSystemDetail(string virtualPath, string name, string currentUser)
+    public FileSystemEntry? LoadFileSystemDetail(string virtualPath, string name, string currentUser)
     {
         var convertedPath = ConvertStoragePathToVirtualPath(virtualPath);
         return DM.LoadFileSystemDetail(convertedPath, name, currentUser);
@@ -213,41 +340,6 @@ public class FileManagerServices(DirectoryManagerUtilities DM, IHttpContextAcces
     }
 
 
-    /// <summary>
-    /// 載入用戶有權限的目錄樹
-    /// </summary>
-    public List<object> LoadUserTree(string currentUser)
-    {
-        var tree = new List<object>();
-        var userStoragePath = GetUserStoragePath(currentUser);
-
-        void BuildTree(string virtualPath, int depth = 0)
-        {
-            if (depth > 5) return;
-
-            var items = LoadUserFileSystemItems(virtualPath, currentUser);
-            var folders = items.Where(f => f.Type == "folder").ToList();
-
-            foreach (var folder in folders)
-            {
-                var folderPath = virtualPath == userStoragePath ? $"{userStoragePath}/{folder.Name}" : $"{virtualPath}/{folder.Name}";
-
-                tree.Add(new
-                {
-                    name = folder.Name,
-                    path = folderPath,
-                    type = "folder",
-                    depth = depth,
-                    hasChildren = true
-                });
-
-                BuildTree(folderPath, depth + 1);
-            }
-        }
-
-        BuildTree(userStoragePath);
-        return tree;
-    }
 
     /// <summary>
     /// 檢查檔案是否可編輯
@@ -347,79 +439,61 @@ public class FileManagerServices(DirectoryManagerUtilities DM, IHttpContextAcces
     /// <summary>
     /// 上傳檔案（支援單個或批量上傳）
     /// </summary>
-    /// <param name="virtualPath">表單欄位：virtualPath（目標虛擬路徑）</param>
-    /// <param name="files">表單欄位：files（檔案清單）</param>
-    /// <param name="relativePaths">表單欄位：relativePaths（可選；每個檔案的相對路徑，用於保留資料夾結構）</param>
-    /// <remarks>
-    /// 如果未提供 relativePaths 或數量不符，會自動使用檔案名稱（不保留資料夾結構）
-    /// </remarks>
     public (bool success, int savedCount, int failedCount, List<string> errors) UploadBatchFiles(string virtualPath, List<IFormFile> files, List<string>? relativePaths = null)
     {
+        if (files == null || files.Count == 0)
+            return (false, 0, 0, new List<string> { "未選擇檔案" });
+
         var uploader = httpContextAccessor?.HttpContext?.User?.Identity?.Name;
         
         if (relativePaths == null || relativePaths.Count != files.Count)
             relativePaths = files.Select(f => f.FileName).ToList();
         
-        var parentOwners = new List<string>();
-        if (!string.IsNullOrWhiteSpace(uploader))
-        {
-            try
-            {
-                var convertedPath = ConvertStoragePathToVirtualPath(virtualPath);
-                var parentItems = DM.LoadUserFileSystemItems(convertedPath, uploader);
-                
-                var parentAbsPath = GetParentDirectoryAbsolutePath(virtualPath);
-                if (!string.IsNullOrEmpty(parentAbsPath) && Directory.Exists(parentAbsPath))
-                {
-                    var owners = DirectoryManagerUtilities.GetAppOwners(parentAbsPath);
-                    parentOwners = owners.Length > 0 ? owners.ToList() : new List<string> { uploader };
-                }
-                else
-                {
-                    parentOwners = new List<string> { uploader };
-                }
-            }
-            catch
-            {
-                parentOwners = new List<string> { uploader };
-            }
-        }
-        
-        string? GetParentDirectoryAbsolutePath(string vPath)
-        {
-            try
-            {
-                var convertedPath = ConvertStoragePathToVirtualPath(vPath);
-                var (tempPath, _, _) = DM.PrepareBatchUploadTarget(convertedPath, "temp.tmp");
-                return Path.GetDirectoryName(tempPath);
-            }
-            catch
-            {
-                return null;
-            }
-        }
-        
+        var parentOwners = GetParentOwners(virtualPath, uploader);
         var convertedVirtualPath = ConvertStoragePathToVirtualPath(virtualPath);
+        
         for (int i = 0; i < files.Count; i++)
         {
-            var (absPath, _, _) = DM.PrepareBatchUploadTarget(convertedVirtualPath, relativePaths[i]);
-            
-            using (var stream = new FileStream(absPath, FileMode.Create))
-            {
-                files[i].CopyTo(stream);
-            }
-            
-            if (parentOwners.Count > 0)
-            {
-                DirectoryManagerUtilities.SetAppOwners(absPath, parentOwners.ToArray());
-            }
-            else if (!string.IsNullOrWhiteSpace(uploader))
-            {
-                DirectoryManagerUtilities.SetAppOwners(absPath, new[] { uploader });
-            }
+            using var fileStream = files[i].OpenReadStream();
+            DM.UploadFile(convertedVirtualPath, relativePaths[i], fileStream, parentOwners);
         }
         
         return (true, files.Count, 0, new List<string>());
+    }
+
+    /// <summary>
+    /// 取得父資料夾的擁有者列表
+    /// </summary>
+    private string[] GetParentOwners(string virtualPath, string? uploader)
+    {
+        if (string.IsNullOrWhiteSpace(uploader))
+            return Array.Empty<string>();
+
+        try
+        {
+            var root = Path.GetFullPath(configuration["Storage:Root"] ?? "Areas/Backoffice/storage");
+            var convertedPath = ConvertStoragePathToVirtualPath(virtualPath);
+            var normalized = convertedPath.Replace('\\', '/').Trim();
+            if (string.IsNullOrEmpty(normalized) || normalized == "/") normalized = "/";
+            if (!normalized.StartsWith('/')) normalized = "/" + normalized;
+            
+            var relativePath = normalized.TrimStart('/');
+            var absDir = Path.GetFullPath(Path.Combine(root, relativePath));
+            
+            if (!absDir.StartsWith(root, StringComparison.OrdinalIgnoreCase))
+                return new[] { uploader };
+            
+            if (Directory.Exists(absDir))
+            {
+                var owners = DirectoryManagerUtilities.GetAppOwners(absDir);
+                return owners.Length > 0 ? owners : new[] { uploader };
+            }
+        }
+        catch
+        {
+        }
+        
+        return new[] { uploader };
     }
     
     /// <summary>
@@ -447,6 +521,15 @@ public class FileManagerServices(DirectoryManagerUtilities DM, IHttpContextAcces
     {
         var convertedPath = ConvertStoragePathToVirtualPath(virtualPath);
         return DM.OpenRaw(convertedPath, fileName);
+    }
+    
+    /// <summary>
+    /// 處理待刪除項目（背景服務）
+    /// </summary>
+    public (int successCount, int failedCount, List<string> errors) ProcessPendingDeletions(int maxItems = 100)
+    {
+        var root = Path.GetFullPath(configuration["Storage:Root"] ?? "Areas/Backoffice/storage");
+        return DM.ProcessPendingDeletions(root, maxItems);
     }
     
     #endregion

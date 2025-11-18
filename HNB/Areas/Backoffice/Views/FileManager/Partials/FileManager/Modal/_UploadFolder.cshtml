@@ -1,0 +1,333 @@
+@{
+    Layout = null;
+}
+
+<div id="uploadFolderModal" class="modal fade" tabindex="-1" aria-labelledby="uploadFolderModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title" id="uploadFolderModalLabel">上傳資料夾</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+            </div>
+            <form id="uploadFolderForm" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="folderInput" class="form-label small">
+                            選擇資料夾<span class="text-danger">*</span>
+                        </label>
+                        <input type="file" 
+                               class="form-control" 
+                               id="folderInput" 
+                               webkitdirectory
+                               directory
+                               multiple
+                               required>
+                        <div class="form-text small">將保留資料夾結構</div>
+                    </div>
+                    <div id="uploadFolderList" class="mb-3" style="display:none;">
+                        <label class="form-label small">已選擇的檔案</label>
+                        <div id="uploadFolderListItems" class="list-group list-group-flush" style="max-height: 200px; overflow-y: auto;"></div>
+                    </div>
+                    <div id="uploadFolderProgress" class="mb-3" style="display:none;">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="small text-muted">上傳進度</span>
+                            <span class="small text-muted" id="uploadFolderProgressText">0%</span>
+                        </div>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                 id="uploadFolderProgressBar" 
+                                 role="progressbar" 
+                                 style="width: 0%;"></div>
+                        </div>
+                        <div class="small text-muted mt-1" id="uploadFolderProgressDetail"></div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary btn-sm" id="uploadFolderCancelBtn">取消</button>
+                    <button type="submit" class="btn btn-primary btn-sm" id="uploadFolderSubmitBtn">
+                        <i data-lucide="folder-up" style="width:1rem;height:1rem;"></i>
+                        上傳
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openUploadFolderModal() {
+        showModal('uploadFolderModal');
+        $('#folderInput').val('');
+        $('#uploadFolderList').hide();
+        $('#uploadFolderListItems').empty();
+    }
+
+    function showBackgroundUploadProgress() {
+        if ($('#backgroundUploadProgress').length === 0) {
+            $('body').append(`
+                <div id="backgroundUploadProgress" class="position-fixed" style="bottom: 1.25rem; right: 1.25rem; z-index: 1080; background: white; border-radius: 0.75rem; box-shadow: 0 18px 45px -15px rgba(15, 23, 42, 0.35); padding: 1rem; min-width: 16rem; max-width: 24rem;">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="small fw-semibold">上傳中...</span>
+                        <button type="button" class="btn-close btn-close-sm" id="backgroundUploadCancelBtn"></button>
+                    </div>
+                    <div class="progress mb-2" style="height: 6px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" id="backgroundUploadProgressBar" style="width: 0%;"></div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="small text-muted" id="backgroundUploadProgressText">0%</span>
+                        <span class="small text-muted" id="backgroundUploadProgressDetail"></span>
+                    </div>
+                </div>
+            `);
+            
+            $('#backgroundUploadCancelBtn').on('click', function() {
+                if (window.currentUploadXhr && window.currentUploadXhr.readyState !== 4) {
+                    if (confirm('上傳正在進行中，確定要取消上傳嗎？')) {
+                        window.currentUploadXhr.abort();
+                        window.currentUploadXhr = null;
+                        hideBackgroundUploadProgress();
+                        showToast('上傳已取消', 'info');
+                    }
+                } else {
+                    hideBackgroundUploadProgress();
+                }
+            });
+        }
+    }
+
+    function updateBackgroundUploadProgress(percent, loadedMB, totalMB) {
+        if ($('#backgroundUploadProgress').length > 0) {
+            $('#backgroundUploadProgressBar').css('width', percent + '%');
+            $('#backgroundUploadProgressText').text(percent + '%');
+            $('#backgroundUploadProgressDetail').text(`${loadedMB} MB / ${totalMB} MB`);
+        }
+    }
+
+    function hideBackgroundUploadProgress() {
+        $('#backgroundUploadProgress').remove();
+    }
+
+    $(document).ready(function() {
+        $('#folderInput').on('change', function() {
+            const files = this.files;
+            const $list = $('#uploadFolderListItems');
+            $list.empty();
+            
+            if (files.length > 0) {
+                const maxSize = 5 * 1024 * 1024 * 1024;
+                let totalSize = 0;
+                for (let i = 0; i < files.length; i++) {
+                    totalSize += files[i].size;
+                }
+
+                if (totalSize > maxSize) {
+                    const totalSizeGB = (totalSize / (1024 * 1024 * 1024)).toFixed(2);
+                    showToast(`檔案大小超過 5GB（目前：${totalSizeGB} GB），無法上傳`, 'error');
+                    $(this).val('');
+                    $('#uploadFolderList').hide();
+                    return;
+                }
+
+                $('#uploadFolderList').show();
+                const fileMap = new Map();
+                
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const relativePath = file.webkitRelativePath || file.name;
+                    fileMap.set(relativePath, file);
+                }
+                
+                const sortedPaths = Array.from(fileMap.keys()).sort();
+                const displayCount = Math.min(sortedPaths.length, 20);
+                
+                for (let i = 0; i < displayCount; i++) {
+                    const path = sortedPaths[i];
+                    const file = fileMap.get(path);
+                    const size = file.size > 1024 * 1024 
+                        ? (file.size / (1024 * 1024)).toFixed(2) + ' MB'
+                        : (file.size / 1024).toFixed(2) + ' KB';
+                    
+                    $list.append(`
+                        <div class="list-group-item d-flex align-items-center gap-2 small">
+                            <i data-lucide="file" style="width:1rem;height:1rem;"></i>
+                            <span class="flex-grow-1 text-truncate" title="${path}">${path}</span>
+                            <span class="text-muted">${size}</span>
+                        </div>
+                    `);
+                }
+                
+                if (sortedPaths.length > displayCount) {
+                    $list.append(`
+                        <div class="list-group-item text-muted text-center small">
+                            還有 ${sortedPaths.length - displayCount} 個檔案...
+                        </div>
+                    `);
+                }
+                
+                if (window.lucide?.createIcons) {
+                    window.lucide.createIcons();
+                }
+            } else {
+                $('#uploadFolderList').hide();
+            }
+        });
+
+        $('#uploadFolderForm').on('submit', function(e) {
+            e.preventDefault();
+            
+            const files = $('#folderInput')[0].files;
+            if (files.length === 0) {
+                showToast('請選擇資料夾', 'error');
+                return;
+            }
+
+            const currentPath = getPathFromUrl();
+            const formData = new FormData();
+            formData.append('virtualPath', currentPath);
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                formData.append('files', file);
+                let relativePath = file.webkitRelativePath || file.name;
+                if (relativePath.startsWith('.')) {
+                    relativePath = relativePath.substring(1);
+                }
+                if (relativePath.startsWith('/')) {
+                    relativePath = relativePath.substring(1);
+                }
+                formData.append('relativePaths', relativePath);
+            }
+
+            const token = $('input[name="__RequestVerificationToken"]').val() || $('meta[name="__RequestVerificationToken"]').attr('content');
+            if (!token) {
+                showToast('無法取得驗證 Token，請重新整理頁面', 'error');
+                return;
+            }
+
+            $('#uploadFolderSubmitBtn').prop('disabled', true);
+            $('#uploadFolderProgress').show();
+            $('#uploadFolderProgressBar').css('width', '0%');
+            $('#uploadFolderProgressText').text('0%');
+            $('#uploadFolderProgressDetail').text('準備上傳...');
+
+            let isUploading = true;
+            let uploadXhr = null;
+
+            uploadXhr = $.ajax({
+                url: '/Backoffice/FileManager/SubmitUpload',
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': token
+                },
+                data: formData,
+                processData: false,
+                contentType: false,
+                xhr: function() {
+                    const xhr = new window.XMLHttpRequest();
+                    xhr.upload.addEventListener('progress', function(e) {
+                        if (e.lengthComputable) {
+                            const percentComplete = Math.round((e.loaded / e.total) * 100);
+                            const loadedMB = (e.loaded / (1024 * 1024)).toFixed(2);
+                            const totalMB = (e.total / (1024 * 1024)).toFixed(2);
+                            
+                            if ($('#uploadFolderModal').hasClass('show')) {
+                                $('#uploadFolderProgressBar').css('width', percentComplete + '%');
+                                $('#uploadFolderProgressText').text(percentComplete + '%');
+                                $('#uploadFolderProgressDetail').text(`${loadedMB} MB / ${totalMB} MB`);
+                            } else {
+                                updateBackgroundUploadProgress(percentComplete, loadedMB, totalMB);
+                            }
+                        }
+                    });
+                    return xhr;
+                },
+                success: function(response) {
+                    isUploading = false;
+                    $('#uploadFolderSubmitBtn').prop('disabled', false);
+                    $('#uploadFolderProgress').hide();
+                    hideBackgroundUploadProgress();
+                    
+                    if (response.success) {
+                        showToast(response.message, 'success');
+                        closeModal('uploadFolderModal');
+                        $('#folderInput').val('');
+                        $('#uploadFolderList').hide();
+                        $('#uploadFolderListItems').empty();
+                        
+                        switchView(null, currentPath);
+                        LoadSidebar(currentPath);
+                        LoadBreadcrumb(null, currentPath);
+                    } else {
+                        const errorMessage = response.message || '上傳失敗';
+                        showToast(errorMessage, 'error');
+                    }
+                },
+                error: function(xhr) {
+                    isUploading = false;
+                    $('#uploadFolderSubmitBtn').prop('disabled', false);
+                    $('#uploadFolderProgress').hide();
+                    hideBackgroundUploadProgress();
+                    
+                    if (xhr.statusText === 'abort') {
+                        showToast('上傳已取消', 'info');
+                        window.currentUploadXhr = null;
+                        return;
+                    }
+                    
+                    let errorMessage = '上傳時發生錯誤';
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response.message) {
+                            errorMessage = response.message;
+                        }
+                    } catch (e) {
+                    }
+                    showToast(errorMessage, 'error');
+                }
+            });
+
+            window.currentUploadXhr = uploadXhr;
+        });
+
+        $('#uploadFolderCancelBtn').on('click', function() {
+            if (window.currentUploadXhr && window.currentUploadXhr.readyState !== 4) {
+                if (confirm('上傳正在進行中，確定要取消上傳嗎？')) {
+                    window.currentUploadXhr.abort();
+                    window.currentUploadXhr = null;
+                    hideBackgroundUploadProgress();
+                    showToast('上傳已取消', 'info');
+                    $('#uploadFolderModal').modal('hide');
+                }
+            } else {
+                $('#uploadFolderModal').modal('hide');
+            }
+        });
+
+        $('#uploadFolderModal').on('hide.bs.modal', function(e) {
+            if (window.currentUploadXhr && window.currentUploadXhr.readyState !== 4) {
+                showBackgroundUploadProgress();
+                const currentPercent = parseInt($('#uploadFolderProgressText').text()) || 0;
+                const currentDetail = $('#uploadFolderProgressDetail').text() || '';
+                const parts = currentDetail.split(' / ');
+                updateBackgroundUploadProgress(currentPercent, parts[0] || '0 MB', parts[1] || '0 MB');
+            }
+        });
+
+        $('#uploadFolderModal').on('hidden.bs.modal', function() {
+            if (!window.currentUploadXhr || window.currentUploadXhr.readyState === 4) {
+                $('#folderInput').val('');
+                $('#uploadFolderList').hide();
+                $('#uploadFolderListItems').empty();
+                $('#uploadFolderProgress').hide();
+                $('#uploadFolderProgressBar').css('width', '0%');
+                $('#uploadFolderProgressText').text('0%');
+                $('#uploadFolderProgressDetail').text('');
+                $('#uploadFolderSubmitBtn').prop('disabled', false);
+                window.currentUploadXhr = null;
+            }
+        });
+    });
+
+    window.openUploadFolderModal = openUploadFolderModal;
+</script>
+

@@ -63,14 +63,19 @@
     }
 }
 
+@{
+    var currentUser = ViewBag.CurrentUser as string ?? User?.Identity?.Name ?? "";
+}
 @if (Model != null)
 {
     var isFolder = Model.Type == "folder";
     var iconName = isFolder ? "folder" : GetFileIcon(Model.Name);
     var iconColor = isFolder ? "text-warning" : GetFileIconColor(Model.Name);
     var sizeText = isFolder ? "—" : FormatBytes(Model.Size ?? 0);
-    var owner = Model.Owner ?? Model.PrimaryOwner ?? "—";
-    var ownerInitial = !string.IsNullOrEmpty(owner) && owner != "—" ? owner.Substring(0, 1).ToUpper() : "?";
+    var isCurrentUserOwner = !string.IsNullOrEmpty(currentUser) && Model.SharedUsers?.Contains(currentUser, StringComparer.OrdinalIgnoreCase) == true;
+    var primaryOwner = Model.PrimaryOwner ?? Model.Owner ?? "—";
+    var owner = isCurrentUserOwner && primaryOwner != currentUser ? "您" : primaryOwner;
+    var ownerInitial = !string.IsNullOrEmpty(owner) && owner != "—" ? (owner == "您" ? "您" : owner.Substring(0, 1).ToUpper()) : "?";
     var sharedCount = Model.SharedUsers?.Count ?? 0;
     var path = Model.VirtualPath ?? "/我的檔案";
     if (path.StartsWith("/storage/", StringComparison.OrdinalIgnoreCase))

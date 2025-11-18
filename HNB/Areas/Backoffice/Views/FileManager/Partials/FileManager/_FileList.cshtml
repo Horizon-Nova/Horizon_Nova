@@ -2,6 +2,7 @@
 @using System.IO
 @{
     Layout = null;
+    var currentUser = Model?.CurrentUser ?? User?.Identity?.Name ?? "";
 }
 
 @functions {
@@ -61,6 +62,13 @@
         }
         return $"{len:0.##} {sizes[order]}";
     }
+
+    string TruncateString(string text, int maxLength)
+    {
+        if (string.IsNullOrEmpty(text)) return string.Empty;
+        if (text.Length <= maxLength) return text;
+        return text.Substring(0, maxLength) + "...";
+    }
 }
 
 <div class="row g-3 m-0" style="min-width: max-content;">
@@ -89,22 +97,39 @@
                         var sizeText = isFolder ? "—" : FormatBytes(item.Size ?? 0);
                         var sharedText = item.SharedUsers?.Count > 0 ? "有連結" : "未共用";
                         var sharedCount = item.SharedUsers?.Count ?? 0;
+                        var isCurrentUserOwner = !string.IsNullOrEmpty(currentUser) && item.SharedUsers?.Contains(currentUser, StringComparer.OrdinalIgnoreCase) == true;
+                        var primaryOwner = item.PrimaryOwner ?? item.Owner ?? "—";
+                        var ownerDisplay = isCurrentUserOwner && primaryOwner != currentUser ? "您" : primaryOwner;
                         
-                        <tr onclick="loadItemDetail('@Model?.CurrentPath', '@item.Name')" style="cursor: pointer;">
+                        <tr onclick="selectItem('@Model?.CurrentPath', '@item.Name', '@item.Type')" 
+                            data-item-path="@Model?.CurrentPath" 
+                            data-item-name="@item.Name" 
+                            data-item-type="@item.Type"
+                            style="cursor: pointer;">
                             <td>
                                 <div class="d-flex align-items-center gap-2">
                                     <i data-lucide="@iconName" class="@iconColor" style="width:1.1rem;height:1.1rem;flex-shrink:0;"></i>
                                     @if (isFolder)
                                     {
-                                        var folderPath = Model?.CurrentPath == "/" ? $"/{item.Name}" : $"{Model?.CurrentPath}/{item.Name}";
-                                        <a href="javascript:void(0)" class="text-decoration-none text-truncate flex-grow-1" style="min-width: 0;" onclick="event.stopPropagation(); switchView(null, '@folderPath')" title="@item.Name">
-                                            @item.Name
+                                        string folderPath;
+                                        if (item.VirtualPath?.StartsWith("/storage/", StringComparison.OrdinalIgnoreCase) == true)
+                                        {
+                                            folderPath = $"{item.VirtualPath}/{item.Name}";
+                                        }
+                                        else
+                                        {
+                                            folderPath = Model?.CurrentPath == "/" ? $"/{item.Name}" : $"{Model?.CurrentPath}/{item.Name}";
+                                        }
+                                        var displayName = TruncateString(item.Name, 10);
+                                        <a href="javascript:void(0)" class="text-decoration-none" onclick="event.stopPropagation(); switchView(null, '@folderPath')" title="@item.Name">
+                                            @displayName
                                         </a>
                                     }
                                     else
                                     {
-                                        <span class="text-truncate flex-grow-1" style="min-width: 0;" title="@item.Name">
-                                            @item.Name
+                                        var displayName = TruncateString(item.Name, 10);
+                                        <span title="@item.Name">
+                                            @displayName
                                         </span>
                                     }
                                 </div>
@@ -122,7 +147,7 @@
                                     <span class="small text-muted">未共用</span>
                                 }
                             </td>
-                            <td class="small text-muted">@(item.Owner ?? item.PrimaryOwner ?? "—")</td>
+                            <td class="small text-muted">@ownerDisplay</td>
                             <td class="small text-muted">@(item.UpdatedAt?.ToString("yyyy/MM/dd HH:mm") ?? item.LastWriteUtc?.ToString("yyyy/MM/dd HH:mm") ?? "—")</td>
                             <td class="text-end small text-muted">@sizeText</td>
                         </tr>

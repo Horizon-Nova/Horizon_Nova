@@ -9,7 +9,17 @@
 
 @await Html.PartialAsync("Partials/FileManager/_Styles")
 
-<div class="row g-3 file-manager-root">
+@Html.AntiForgeryToken()
+
+@await Html.PartialAsync("Partials/FileManager/Modal/_Delete")
+@await Html.PartialAsync("Partials/FileManager/Modal/_Share")
+@await Html.PartialAsync("Partials/FileManager/Modal/_CreateFolder")
+@await Html.PartialAsync("Partials/FileManager/Modal/_UploadFile")
+@await Html.PartialAsync("Partials/FileManager/Modal/_UploadFolder")
+@await Html.PartialAsync("Partials/FileManager/Modal/_CreateFile")
+@await Html.PartialAsync("Partials/FileManager/Modal/_CreateLink")
+
+<div class="row g-3 file-manager-root h-100">
     <!-- 左側：OneDrive 導覽 -->
     <div class="col-12 col-md-3" id="fileManagerSidebar">
         <!-- 側邊欄將透過 AJAX 載入 -->
@@ -18,7 +28,9 @@
     <!-- 右側：頂部工具列 + 檔案列表區 -->
     <div class="col-12 col-md-9">
         <div class="card border-0 shadow-sm h-100 d-flex flex-column">
-            @await Html.PartialAsync("Partials/FileManager/_Breadcrumb")
+            <div id="fileManagerBreadcrumb">
+                <!-- 麵包屑將透過 AJAX 載入 -->
+            </div>
             
             <div class="card-body overflow-auto p-0" id="fileManagerContent" style="min-height: 0;">
                 <!-- 內容將透過 AJAX 載入 -->

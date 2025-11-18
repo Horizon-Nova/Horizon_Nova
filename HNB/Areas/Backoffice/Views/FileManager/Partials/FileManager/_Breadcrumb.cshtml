@@ -1,7 +1,8 @@
+@model HNB.Areas.Backoffice.Dtos.FileManagerDto
 @{
     Layout = null;
-    var viewMode = ViewBag.ViewMode as string;
-    var currentPath = ViewBag.CurrentPath as string ?? "/";
+    var viewMode = Model?.ViewMode;
+    var currentPath = Model?.CurrentPath ?? "/";
     var breadcrumb = new List<(string Name, string VirtualPath)>();
     
     if (viewMode == "shared")
@@ -31,9 +32,9 @@
                 .ToList();
     }
 
-    var folderCount = ViewBag.FolderCount as int? ?? 0;
-    var fileCount = ViewBag.FileCount as int? ?? 0;
-    var totalSize = ViewBag.TotalSize as long? ?? 0L;
+    var folderCount = Model?.FolderCount ?? 0;
+    var fileCount = Model?.FileCount ?? 0;
+    var totalSize = Model?.TotalSize ?? 0L;
 }
 
 <!-- OneDrive 風格頂部工具列 + 麵包屑 -->
@@ -62,25 +63,15 @@
         <div class="col-12 col-lg-auto">
             <div class="btn-toolbar gap-2" role="toolbar">
                 <div class="btn-group btn-group-sm" role="group">
-                    <button type="button" class="btn btn-primary d-flex align-items-center gap-1" onclick="openCreateFolderModal()">
-                        <i data-lucide="folder-plus" style="width:1rem;height:1rem;"></i>
-                        <span>新增</span>
-                    </button>
-                    <button type="button" class="btn btn-outline-primary d-flex align-items-center gap-1" onclick="openCreateFileModal()">
-                        <i data-lucide="upload-cloud" style="width:1rem;height:1rem;"></i>
-                        <span>上傳</span>
-                    </button>
-                </div>
-                <div class="btn-group btn-group-sm" role="group">
-                    <button type="button" class="btn btn-outline-secondary d-flex align-items-center gap-1" disabled>
+                    <button type="button" id="btnShare" class="btn btn-outline-secondary d-flex align-items-center gap-1" disabled onclick="shareItem()">
                         <i data-lucide="share-2" style="width:1rem;height:1rem;"></i>
                         <span>共用</span>
                     </button>
-                    <button type="button" class="btn btn-outline-secondary d-flex align-items-center gap-1" disabled>
+                    <button type="button" id="btnDownload" class="btn btn-outline-secondary d-flex align-items-center gap-1" disabled onclick="downloadItem()">
                         <i data-lucide="download" style="width:1rem;height:1rem;"></i>
                         <span>下載</span>
                     </button>
-                    <button type="button" class="btn btn-outline-secondary d-flex align-items-center gap-1" disabled>
+                    <button type="button" id="btnDelete" class="btn btn-outline-secondary d-flex align-items-center gap-1" disabled onclick="deleteItem()">
                         <i data-lucide="trash-2" style="width:1rem;height:1rem;"></i>
                         <span>刪除</span>
                     </button>
@@ -101,7 +92,7 @@
                             }
                             else
                             {
-                                <a href="@Url.Action("Index", "FileManager", new { area = "Backoffice", path = path })" class="text-decoration-none">@name</a>
+                                <a href="javascript:void(0)" onclick="switchView(null, '@path')" class="text-decoration-none">@name</a>
                             }
                         </li>
                     }

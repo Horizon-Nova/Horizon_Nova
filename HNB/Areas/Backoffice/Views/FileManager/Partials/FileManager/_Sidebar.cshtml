@@ -22,7 +22,7 @@
                     <button type="button" class="btn btn-link btn-sm p-0 text-muted folder-toggle" 
                             onclick="toggleFolderNode('@nodeId')" 
                             style="width:0.875rem;height:0.875rem;line-height:1;">
-                        <i data-lucide="chevron-down" id="@nodeId-icon" style="width:0.875rem;height:0.875rem;"></i>
+                        <i data-lucide="chevron-right" id="@nodeId-icon" style="width:0.875rem;height:0.875rem;"></i>
                     </button>
                 }
                 else
@@ -37,7 +37,7 @@
             </div>
             @if (hasChildren)
             {
-                <div class="folder-children" id="@nodeId-children" style="display:block;">
+                <div class="folder-children" id="@nodeId-children" style="display:none;">
                     @foreach (var child in node.Children)
                     {
                         RenderFolderNode(child, currentPath, depth + 1);
@@ -63,6 +63,69 @@
 
 <!-- 左側：OneDrive 風格導覽 + 資料夾區 -->
 <div class="card border-0 shadow-sm h-100">
+    <!-- 快速動作 -->
+    <div class="card-header bg-transparent border-bottom p-3">
+        <div class="dropdown w-100">
+            <button type="button" class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2" data-bs-toggle="dropdown" aria-expanded="false">
+                <i data-lucide="plus" style="width:1rem;height:1rem;"></i>
+                <span>建立或上傳</span>
+                <i data-lucide="chevron-down" style="width:0.875rem;height:0.875rem;"></i>
+            </button>
+            <ul class="dropdown-menu w-100" style="min-width: 200px;">
+                <li>
+                    <button type="button" class="dropdown-item d-flex align-items-center gap-2" onclick="openCreateFolderModal()">
+                        <i data-lucide="folder" style="width:1rem;height:1rem;"></i>
+                        <span>資料夾</span>
+                    </button>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <button type="button" class="dropdown-item d-flex align-items-center gap-2" onclick="openUploadFileModal()">
+                        <i data-lucide="upload" style="width:1rem;height:1rem;"></i>
+                        <span>檔案上傳</span>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="dropdown-item d-flex align-items-center gap-2" onclick="openUploadFolderModal()">
+                        <i data-lucide="folder-up" style="width:1rem;height:1rem;"></i>
+                        <span>資料夾上傳</span>
+                    </button>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <button type="button" class="dropdown-item d-flex align-items-center gap-2" onclick="openCreateFileModal('docx')">
+                        <i data-lucide="file-text" class="text-primary" style="width:1rem;height:1rem;"></i>
+                        <span>Word 文件</span>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="dropdown-item d-flex align-items-center gap-2" onclick="openCreateFileModal('xlsx')">
+                        <i data-lucide="file-spreadsheet" class="text-success" style="width:1rem;height:1rem;"></i>
+                        <span>Excel 活頁簿</span>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="dropdown-item d-flex align-items-center gap-2" onclick="openCreateFileModal('txt')">
+                        <i data-lucide="file-text" class="text-muted" style="width:1rem;height:1rem;"></i>
+                        <span>文字檔</span>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="dropdown-item d-flex align-items-center gap-2" onclick="openCreateFileModal('md')">
+                        <i data-lucide="file-code" class="text-muted" style="width:1rem;height:1rem;"></i>
+                        <span>Markdown</span>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="dropdown-item d-flex align-items-center gap-2" onclick="openCreateLinkModal()">
+                        <i data-lucide="link" class="text-info" style="width:1rem;height:1rem;"></i>
+                        <span>連結</span>
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+
     <!-- Logo / 標題列 -->
     <div class="card-header bg-transparent border-bottom">
         <div class="d-flex align-items-center gap-2">
@@ -105,20 +168,6 @@
                 </li>
             </ul>
         </nav>
-
-        <!-- 快速動作 -->
-        <div class="p-3 border-bottom">
-            <div class="btn-group-vertical w-100 gap-2" role="group">
-                <button type="button" class="btn btn-primary btn-sm d-flex align-items-center justify-content-center gap-2" onclick="openCreateFolderModal()">
-                    <i data-lucide="folder-plus" style="width:1rem;height:1rem;"></i>
-                    <span>新增資料夾</span>
-                </button>
-                <button type="button" class="btn btn-outline-primary btn-sm d-flex align-items-center justify-content-center gap-2" onclick="openCreateFileModal()">
-                    <i data-lucide="file-plus" style="width:1rem;height:1rem;"></i>
-                    <span>新增檔案</span>
-                </button>
-            </div>
-        </div>
 
         <!-- 資料夾區 -->
         <div class="flex-grow-1 overflow-auto p-3">

@@ -52,6 +52,10 @@ public class RequestResponseLoggerFilter : IAsyncResourceFilter
     private static async Task<string> ReadRequestBodyAsync(HttpRequest req)
     {
         if (req.Method is not ("POST" or "PUT")) return "無 Request Body";
+        
+        if (req.ContentType?.StartsWith("multipart/form-data") == true)
+            return "檔案上傳請求（已跳過請求體記錄）";
+        
         using var reader = new StreamReader(req.Body, Encoding.UTF8, leaveOpen: true);
         var body = await reader.ReadToEndAsync();
         req.Body.Position = 0;

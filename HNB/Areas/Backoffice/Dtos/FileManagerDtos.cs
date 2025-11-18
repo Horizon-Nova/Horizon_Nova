@@ -128,25 +128,30 @@ public class FileManagerIndexDto
     public long TotalStorage { get; set; }
 }
 
-/// <summary>
-/// 檔案管理 DTO
-/// </summary>
-public class FileManagerDto
-{
     /// <summary>
-    /// 當前路徑
+    /// 檔案管理 DTO
     /// </summary>
-    public string CurrentPath { get; set; } = "/";
+    public class FileManagerDto
+    {
+        /// <summary>
+        /// 當前路徑
+        /// </summary>
+        public string CurrentPath { get; set; } = "/";
 
-    /// <summary>
-    /// 視圖模式（shared, recent, favorites, trash, null）
-    /// </summary>
-    public string? ViewMode { get; set; }
+        /// <summary>
+        /// 視圖模式（shared, recent, favorites, trash, null）
+        /// </summary>
+        public string? ViewMode { get; set; }
 
-    /// <summary>
-    /// 用戶儲存路徑
-    /// </summary>
-    public string UserStoragePath { get; set; } = string.Empty;
+        /// <summary>
+        /// 當前使用者名稱
+        /// </summary>
+        public string? CurrentUser { get; set; }
+
+        /// <summary>
+        /// 用戶儲存路徑
+        /// </summary>
+        public string UserStoragePath { get; set; } = string.Empty;
 
     /// <summary>
     /// 用戶資料夾列表（用於側邊欄）

@@ -269,6 +269,13 @@ public sealed class DirectoryManagerUtilities
         {
             SetAppOwners(newDir, new[] { owner });
         }
+
+        // 檢查父資料夾是否有待刪除標記（誰先誰得 + 強制同步）
+        var parentMarked = IsParentMarkedForDeletion(newDir);
+        if (!string.IsNullOrEmpty(parentMarked))
+        {
+            MarkForDeletion(newDir);
+        }
     }
 
     /// <summary>
@@ -294,6 +301,13 @@ public sealed class DirectoryManagerUtilities
         {
             SetAppOwners(target, new[] { owner });
         }
+
+        // 檢查父資料夾是否有待刪除標記（誰先誰得 + 強制同步）
+        var parentMarked = IsParentMarkedForDeletion(target);
+        if (!string.IsNullOrEmpty(parentMarked))
+        {
+            MarkForDeletion(target);
+        }
     }
 
     /// <summary>
@@ -316,8 +330,31 @@ public sealed class DirectoryManagerUtilities
         if (!full.EndsWith(safe)) throw new InvalidOperationException("路徑驗證失敗");
         if (!File.Exists(full)) throw new FileNotFoundException($"檔案不存在: {entry.Name}");
 
-        File.Delete(full);
-        // 應用程式擁有者儲存在 ADS/xattr，會隨檔案一起刪除
+        const int maxRetries = 3;
+        const int retryDelayMs = 500;
+
+        for (int attempt = 0; attempt < maxRetries; attempt++)
+        {
+            try
+            {
+                File.Delete(full);
+                UnmarkForDeletion(full);
+                return;
+            }
+            catch (IOException) when (attempt < maxRetries - 1)
+            {
+                MarkForDeletion(full);
+                System.Threading.Thread.Sleep(retryDelayMs);
+            }
+            catch (UnauthorizedAccessException) when (attempt < maxRetries - 1)
+            {
+                MarkForDeletion(full);
+                System.Threading.Thread.Sleep(retryDelayMs);
+            }
+        }
+
+        MarkForDeletion(full);
+        throw new IOException($"檔案正在使用中，無法刪除: {entry.Name}。已標記為待刪除，將在背景服務中重試。");
     }
 
     /// <summary>
@@ -342,8 +379,31 @@ public sealed class DirectoryManagerUtilities
 
         if (dir == _root || dir.Length <= _root.Length) throw new InvalidOperationException("禁止刪除根目錄");
 
-        Directory.Delete(dir, recursive: true);
-        // 應用程式擁有者儲存在 ADS/xattr，會隨資料夾一起刪除
+        const int maxRetries = 3;
+        const int retryDelayMs = 500;
+
+        for (int attempt = 0; attempt < maxRetries; attempt++)
+        {
+            try
+            {
+                Directory.Delete(dir, recursive: true);
+                UnmarkForDeletion(dir);
+                return;
+            }
+            catch (IOException) when (attempt < maxRetries - 1)
+            {
+                MarkForDeletion(dir);
+                System.Threading.Thread.Sleep(retryDelayMs);
+            }
+            catch (UnauthorizedAccessException) when (attempt < maxRetries - 1)
+            {
+                MarkForDeletion(dir);
+                System.Threading.Thread.Sleep(retryDelayMs);
+            }
+        }
+
+        MarkForDeletion(dir);
+        throw new IOException($"資料夾正在使用中，無法刪除: {entry.Name}。已標記為待刪除，將在背景服務中重試。");
     }
 
     /// <summary>
@@ -489,6 +549,34 @@ public sealed class DirectoryManagerUtilities
         var absTarget = EnsureUniqueFile(Path.Combine(absDir, filePart));
 
         return (absTarget, Path.GetFileName(absTarget), targetVDir);
+    }
+
+    /// <summary>
+    /// 上傳單個檔案（包含設定擁有者和檢查待刪除標記）
+    /// </summary>
+    /// <param name="virtualPath">虛擬路徑</param>
+    /// <param name="relativePath">相對路徑</param>
+    /// <param name="fileStream">檔案串流</param>
+    /// <param name="owners">擁有者列表</param>
+    public void UploadFile(string virtualPath, string relativePath, Stream fileStream, string[] owners)
+    {
+        var (absPath, _, _) = PrepareBatchUploadTarget(virtualPath, relativePath);
+        
+        using (var stream = new FileStream(absPath, FileMode.Create))
+        {
+            fileStream.CopyTo(stream);
+        }
+        
+        if (owners != null && owners.Length > 0)
+        {
+            SetAppOwners(absPath, owners);
+        }
+
+        var parentMarked = IsParentMarkedForDeletion(absPath);
+        if (!string.IsNullOrEmpty(parentMarked))
+        {
+            MarkForDeletion(absPath);
+        }
     }
 
     /// <summary>
@@ -951,6 +1039,316 @@ public sealed class DirectoryManagerUtilities
         return owners.Length > 0 ? string.Join(", ", owners) : "未設定";
     }
 
+    #endregion
+
+    #region 待刪除標記管理（跨平台）
+
+    /// <summary>
+    /// Linux: 設定待刪除標記（使用 xattr）
+    /// </summary>
+    private static void SetMarkedForDeletionLinux(string path, string timestamp)
+    {
+        try
+        {
+            var bytes = Encoding.UTF8.GetBytes(timestamp);
+            var result = Mono.Unix.Native.Syscall.setxattr(
+                path,
+                "user.MarkedForDeletion",
+                bytes,
+                (ulong)bytes.Length,
+                0
+            );
+
+            if (result != 0)
+            {
+                var errno = Mono.Unix.Native.Stdlib.GetLastError();
+                throw new InvalidOperationException($"Linux 設定待刪除標記失敗: {errno}");
+            }
+        }
+        catch (Exception ex) when (ex is not InvalidOperationException)
+        {
+            throw new InvalidOperationException($"Linux 設定待刪除標記失敗: {ex.Message}", ex);
+        }
+    }
+
+    /// <summary>
+    /// Linux: 取得待刪除標記（使用 xattr）
+    /// </summary>
+    private static string GetMarkedForDeletionLinux(string path)
+    {
+        try
+        {
+            var size = Mono.Unix.Native.Syscall.getxattr(path, "user.MarkedForDeletion", null, 0);
+            if (size < 0)
+            {
+                return null;
+            }
+
+            var buffer = new byte[size];
+            var result = Mono.Unix.Native.Syscall.getxattr(path, "user.MarkedForDeletion", buffer, (ulong)size);
+
+            if (result < 0)
+            {
+                return null;
+            }
+
+            var value = Encoding.UTF8.GetString(buffer, 0, (int)result);
+            return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// 標記檔案或資料夾為「待刪除」
+    /// Windows: 使用 Alternate Data Stream (ADS)
+    /// Linux: 使用 Extended Attributes (xattr)
+    /// </summary>
+    /// <param name="path">檔案或資料夾路徑</param>
+    public static void MarkForDeletion(string path)
+    {
+        if (!System.IO.File.Exists(path) && !System.IO.Directory.Exists(path))
+            throw new FileNotFoundException($"路徑不存在: {path}");
+
+        var timestamp = DateTime.UtcNow.ToString("O");
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            var adsPath = $"{path}:MarkedForDeletion";
+            System.IO.File.WriteAllText(adsPath, timestamp);
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            SetMarkedForDeletionLinux(path, timestamp);
+        }
+        else
+        {
+            throw new PlatformNotSupportedException("此平台不支援待刪除標記功能");
+        }
+    }
+
+    /// <summary>
+    /// 檢查檔案或資料夾是否被標記為「待刪除」
+    /// </summary>
+    /// <param name="path">檔案或資料夾路徑</param>
+    /// <returns>如果被標記為待刪除則返回標記時間（ISO 8601 格式），否則返回 null</returns>
+    public static string IsMarkedForDeletion(string path)
+    {
+        if (!System.IO.File.Exists(path) && !System.IO.Directory.Exists(path))
+            return null;
+
+        try
+        {
+            string timestamp = null;
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                var adsPath = $"{path}:MarkedForDeletion";
+                if (System.IO.File.Exists(adsPath))
+                {
+                    timestamp = System.IO.File.ReadAllText(adsPath).Trim();
+                }
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                timestamp = GetMarkedForDeletionLinux(path);
+            }
+
+            return string.IsNullOrWhiteSpace(timestamp) ? null : timestamp;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// 移除待刪除標記
+    /// </summary>
+    /// <param name="path">檔案或資料夾路徑</param>
+    public static void UnmarkForDeletion(string path)
+    {
+        if (!System.IO.File.Exists(path) && !System.IO.Directory.Exists(path))
+            return;
+
+        try
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                var adsPath = $"{path}:MarkedForDeletion";
+                if (System.IO.File.Exists(adsPath))
+                {
+                    System.IO.File.Delete(adsPath);
+                }
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                Mono.Unix.Native.Syscall.removexattr(path, "user.MarkedForDeletion");
+            }
+        }
+        catch
+        {
+        }
+    }
+
+    /// <summary>
+    /// 檢查父資料夾是否被標記為「待刪除」（遞迴檢查所有父資料夾）
+    /// </summary>
+    /// <param name="path">檔案或資料夾路徑</param>
+    /// <returns>如果任何父資料夾被標記為待刪除則返回標記時間，否則返回 null</returns>
+    public static string IsParentMarkedForDeletion(string path)
+    {
+        try
+        {
+            var dir = System.IO.Directory.Exists(path) ? path : Path.GetDirectoryName(path);
+            if (string.IsNullOrEmpty(dir))
+                return null;
+
+            var currentDir = new DirectoryInfo(dir);
+            while (currentDir != null && currentDir.Exists)
+            {
+                var marked = IsMarkedForDeletion(currentDir.FullName);
+                if (!string.IsNullOrEmpty(marked))
+                    return marked;
+
+                currentDir = currentDir.Parent;
+            }
+
+            return null;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// 處理待刪除項目（背景服務）
+    /// 掃描所有被標記為「待刪除」的檔案和資料夾，嘗試執行實際刪除
+    /// </summary>
+    /// <param name="rootPath">根目錄路徑</param>
+    /// <param name="maxItems">每次處理的最大項目數（避免一次處理太多）</param>
+    /// <returns>處理結果（成功數、失敗數、錯誤列表）</returns>
+    public (int successCount, int failedCount, List<string> errors) ProcessPendingDeletions(string rootPath, int maxItems = 100)
+    {
+        var successCount = 0;
+        var failedCount = 0;
+        var errors = new List<string>();
+
+        try
+        {
+            if (!Directory.Exists(rootPath))
+                return (0, 0, errors);
+
+            var markedItems = new List<(string Path, bool IsDirectory)>();
+            ScanForMarkedItems(rootPath, markedItems, maxItems);
+
+            foreach (var (itemPath, isDirectory) in markedItems)
+            {
+                try
+                {
+                    if (isDirectory)
+                    {
+                        if (Directory.Exists(itemPath))
+                        {
+                            Directory.Delete(itemPath, recursive: true);
+                            UnmarkForDeletion(itemPath);
+                            successCount++;
+                        }
+                        else
+                        {
+                            UnmarkForDeletion(itemPath);
+                            successCount++;
+                        }
+                    }
+                    else
+                    {
+                        if (File.Exists(itemPath))
+                        {
+                            File.Delete(itemPath);
+                            UnmarkForDeletion(itemPath);
+                            successCount++;
+                        }
+                        else
+                        {
+                            UnmarkForDeletion(itemPath);
+                            successCount++;
+                        }
+                    }
+                }
+                catch (IOException ex)
+                {
+                    failedCount++;
+                    errors.Add($"{itemPath}: {ex.Message}");
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    failedCount++;
+                    errors.Add($"{itemPath}: {ex.Message}");
+                }
+                catch (Exception ex)
+                {
+                    failedCount++;
+                    errors.Add($"{itemPath}: {ex.Message}");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            errors.Add($"掃描待刪除項目時發生錯誤: {ex.Message}");
+        }
+
+        return (successCount, failedCount, errors);
+    }
+
+    /// <summary>
+    /// 遞迴掃描目錄，找出所有被標記為「待刪除」的項目
+    /// </summary>
+    private void ScanForMarkedItems(string directory, List<(string Path, bool IsDirectory)> markedItems, int maxItems)
+    {
+        if (markedItems.Count >= maxItems)
+            return;
+
+        try
+        {
+            if (!Directory.Exists(directory))
+                return;
+
+            foreach (var dir in Directory.GetDirectories(directory))
+            {
+                if (markedItems.Count >= maxItems)
+                    break;
+
+                var marked = IsMarkedForDeletion(dir);
+                if (!string.IsNullOrEmpty(marked))
+                {
+                    markedItems.Add((dir, true));
+                }
+                else
+                {
+                    ScanForMarkedItems(dir, markedItems, maxItems);
+                }
+            }
+
+            foreach (var file in Directory.GetFiles(directory))
+            {
+                if (markedItems.Count >= maxItems)
+                    break;
+
+                var marked = IsMarkedForDeletion(file);
+                if (!string.IsNullOrEmpty(marked))
+                {
+                    markedItems.Add((file, false));
+                }
+            }
+        }
+        catch
+        {
+        }
+    }
+
     /// <summary>
     /// 統一的檔案系統查詢方法 - 查詢用戶有權限的檔案/資料夾
     /// </summary>
@@ -969,6 +1367,9 @@ public sealed class DirectoryManagerUtilities
         {
             var folderName = Path.GetFileName(dir);
             if (IsProtected(virtualPath, folderName)) continue;
+
+            // 過濾掉被標記為待刪除的項目（樂觀刪除：UI 看不到）
+            if (!string.IsNullOrEmpty(IsMarkedForDeletion(dir))) continue;
 
             var owners = GetAppOwners(dir);
 
@@ -998,6 +1399,9 @@ public sealed class DirectoryManagerUtilities
         {
             var fileName = Path.GetFileName(file);
             if (IsProtected(virtualPath, fileName)) continue;
+
+            // 過濾掉被標記為待刪除的項目（樂觀刪除：UI 看不到）
+            if (!string.IsNullOrEmpty(IsMarkedForDeletion(file))) continue;
 
             var owners = GetAppOwners(file);
 
@@ -1033,18 +1437,18 @@ public sealed class DirectoryManagerUtilities
     /// <param name="name">檔案/資料夾名稱</param>
     /// <param name="currentUser">當前用戶</param>
     /// <returns>檔案詳細資訊</returns>
-    public FileSystemEntry LoadFileSystemDetail(string virtualPath, string name, string currentUser)
+    public FileSystemEntry? LoadFileSystemDetail(string virtualPath, string name, string currentUser)
     {
         var absDir = GetSafeAbsolutePath(virtualPath);
         var safeName = SanitizeName(name);
         var fullPath = Path.Combine(absDir, safeName);
 
         if (!File.Exists(fullPath) && !Directory.Exists(fullPath))
-            throw new FileNotFoundException("檔案或資料夾不存在");
+            return null;
 
         // 權限檢查
         if (!HasUserPermission(fullPath, currentUser))
-            throw new UnauthorizedAccessException("您沒有權限存取此檔案");
+            return null;
 
         var owners = GetAppOwners(fullPath);
         var primaryOwner = owners.Length > 0 ? owners[0] : currentUser;

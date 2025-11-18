@@ -1,0 +1,173 @@
+@{
+    Layout = null;
+}
+
+<div id="createLinkModal" class="modal fade" tabindex="-1" aria-labelledby="createLinkModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title" id="createLinkModalLabel">建立連結</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+            </div>
+            <form id="createLinkForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="linkNameInput" class="form-label small">
+                            連結名稱<span class="text-danger">*</span>
+                        </label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="linkNameInput" 
+                               placeholder="請輸入連結名稱"
+                               autocomplete="off"
+                               required>
+                        <div class="invalid-feedback" id="linkNameError" style="display:none;">
+                            連結名稱不可為空
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="linkUrlInput" class="form-label small">
+                            URL<span class="text-danger">*</span>
+                        </label>
+                        <input type="url" 
+                               class="form-control" 
+                               id="linkUrlInput" 
+                               placeholder="https://example.com"
+                               autocomplete="off"
+                               required>
+                        <div class="invalid-feedback" id="linkUrlError" style="display:none;">
+                            請輸入有效的 URL
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary btn-sm" id="createLinkSubmitBtn">
+                        <i data-lucide="link" style="width:1rem;height:1rem;"></i>
+                        建立
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openCreateLinkModal() {
+        showModal('createLinkModal');
+        setTimeout(() => {
+            $('#linkNameInput').focus();
+        }, 300);
+    }
+
+    $(document).ready(function() {
+        $('#createLinkForm').on('submit', function(e) {
+            e.preventDefault();
+            
+            const linkName = $('#linkNameInput').val().trim();
+            const linkUrl = $('#linkUrlInput').val().trim();
+            
+            if (!linkName) {
+                $('#linkNameInput').addClass('is-invalid');
+                $('#linkNameError').show();
+                return;
+            }
+            
+            if (!linkUrl) {
+                $('#linkUrlInput').addClass('is-invalid');
+                $('#linkUrlError').show();
+                return;
+            }
+
+            let fileName = linkName;
+            if (!fileName.endsWith('.url') && !fileName.endsWith('.lnk')) {
+                fileName += '.url';
+            }
+
+            const currentPath = getPathFromUrl();
+            const token = $('input[name="__RequestVerificationToken"]').val() || $('meta[name="__RequestVerificationToken"]').attr('content');
+            
+            if (!token) {
+                showToast('錯誤', '無法取得驗證 Token，請重新整理頁面', 'error');
+                return;
+            }
+
+            const urlContent = `[InternetShortcut]\nURL=${linkUrl}\n`;
+
+            $('#createLinkSubmitBtn').prop('disabled', true);
+
+            $.ajax({
+                url: '/Backoffice/FileManager/SubmitFile',
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': token
+                },
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    path: currentPath,
+                    name: fileName
+                }),
+                success: function(response) {
+                    if (response.success) {
+                        $.ajax({
+                            url: '/Backoffice/FileManager/SubmitSaveTextFile',
+                            method: 'POST',
+                            headers: {
+                                'RequestVerificationToken': token
+                            },
+                            contentType: 'application/json',
+                            data: JSON.stringify({
+                                path: currentPath,
+                                name: fileName,
+                                content: urlContent,
+                                encoding: 'utf-8'
+                            }),
+                            success: function(saveResponse) {
+                                $('#createLinkSubmitBtn').prop('disabled', false);
+                                if (saveResponse.success) {
+                                    showToast('成功', '連結已建立', 'success');
+                                    closeModal('createLinkModal');
+                                    $('#linkNameInput').val('');
+                                    $('#linkUrlInput').val('');
+                                    $('#linkNameInput').removeClass('is-invalid');
+                                    $('#linkUrlInput').removeClass('is-invalid');
+                                    $('#linkNameError').hide();
+                                    $('#linkUrlError').hide();
+                                    
+                                    switchView(null, currentPath);
+                                    LoadBreadcrumb(null, currentPath);
+                                } else {
+                                    showToast('失敗', saveResponse.message || '儲存連結內容失敗', 'error');
+                                }
+                            },
+                            error: function() {
+                                $('#createLinkSubmitBtn').prop('disabled', false);
+                                showToast('錯誤', '儲存連結內容時發生錯誤', 'error');
+                            }
+                        });
+                    } else {
+                        $('#createLinkSubmitBtn').prop('disabled', false);
+                        showToast('失敗', response.message || '建立連結失敗', 'error');
+                    }
+                },
+                error: function() {
+                    $('#createLinkSubmitBtn').prop('disabled', false);
+                    showToast('錯誤', '建立連結時發生錯誤', 'error');
+                }
+            });
+        });
+
+        $('#createLinkModal').on('hidden.bs.modal', function() {
+            $('#linkNameInput').val('');
+            $('#linkUrlInput').val('');
+            $('#linkNameInput').removeClass('is-invalid');
+            $('#linkUrlInput').removeClass('is-invalid');
+            $('#linkNameError').hide();
+            $('#linkUrlError').hide();
+            $('#createLinkSubmitBtn').prop('disabled', false);
+        });
+    });
+
+    window.openCreateLinkModal = openCreateLinkModal;
+</script>
+
