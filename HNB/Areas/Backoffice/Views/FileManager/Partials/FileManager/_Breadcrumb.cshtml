@@ -13,10 +13,6 @@
     {
         breadcrumb.Add(("最近", "/"));
     }
-    else if (viewMode == "trash")
-    {
-        breadcrumb.Add(("回收桶", "/"));
-    }
     else
     {
         breadcrumb = currentPath == "/"
@@ -46,7 +42,7 @@
                 <h5 class="card-title mb-0 fw-semibold">
                     @(viewMode == "shared" ? "與我共用" :
                       viewMode == "recent" ? "最近" :
-                      viewMode == "trash" ? "回收桶" : "我的檔案")
+                      "我的檔案")
                 </h5>
                 @if (viewMode == null || viewMode == "")
                 {

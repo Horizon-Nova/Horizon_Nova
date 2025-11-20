@@ -94,8 +94,9 @@
                         var iconName = isFolder ? "folder" : GetFileIcon(item.Name);
                         var iconColor = isFolder ? "text-warning" : GetFileIconColor(item.Name);
                         var sizeText = isFolder ? "—" : FormatBytes(item.Size ?? 0);
-                        var ownerName = item.Owner ?? "未知";
-                        var ownerInitial = !string.IsNullOrEmpty(ownerName) ? ownerName.Substring(0, 1).ToUpper() : "?";
+                        var ownerName = item.PrimaryOwner ?? item.Owner;
+                        var ownerDisplay = string.IsNullOrEmpty(ownerName) ? "?" : ownerName;
+                        var ownerInitial = ownerDisplay == "?" ? "?" : ownerDisplay.Substring(0, 1).ToUpper();
                         
                         <tr onclick="selectItem('@item.VirtualPath', '@item.Name', '@item.Type')" 
                             data-item-path="@item.VirtualPath" 
@@ -126,7 +127,7 @@
                                     <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width:1.4rem;height:1.4rem;font-size:0.75rem;">
                                         @ownerInitial
                                     </div>
-                                    <span class="small text-muted">@ownerName</span>
+                                    <span class="small text-muted">@ownerDisplay</span>
                                 </div>
                             </td>
                             <td class="small text-muted">@item.UpdatedAt?.ToString("yyyy/MM/dd HH:mm")</td>

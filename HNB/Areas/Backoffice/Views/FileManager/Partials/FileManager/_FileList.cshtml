@@ -97,9 +97,8 @@
                         var sizeText = isFolder ? "—" : FormatBytes(item.Size ?? 0);
                         var sharedText = item.SharedUsers?.Count > 0 ? "有連結" : "未共用";
                         var sharedCount = item.SharedUsers?.Count ?? 0;
-                        var isCurrentUserOwner = !string.IsNullOrEmpty(currentUser) && item.SharedUsers?.Contains(currentUser, StringComparer.OrdinalIgnoreCase) == true;
-                        var primaryOwner = item.PrimaryOwner ?? item.Owner ?? "—";
-                        var ownerDisplay = isCurrentUserOwner && primaryOwner != currentUser ? "您" : primaryOwner;
+                        var primaryOwner = item.PrimaryOwner ?? item.Owner;
+                        var ownerDisplay = string.IsNullOrEmpty(primaryOwner) ? "?" : primaryOwner;
                         
                         <tr onclick="selectItem('@Model?.CurrentPath', '@item.Name', '@item.Type')" 
                             data-item-path="@Model?.CurrentPath" 
@@ -111,15 +110,7 @@
                                     <i data-lucide="@iconName" class="@iconColor" style="width:1.1rem;height:1.1rem;flex-shrink:0;"></i>
                                     @if (isFolder)
                                     {
-                                        string folderPath;
-                                        if (item.VirtualPath?.StartsWith("/storage/", StringComparison.OrdinalIgnoreCase) == true)
-                                        {
-                                            folderPath = $"{item.VirtualPath}/{item.Name}";
-                                        }
-                                        else
-                                        {
-                                            folderPath = Model?.CurrentPath == "/" ? $"/{item.Name}" : $"{Model?.CurrentPath}/{item.Name}";
-                                        }
+                                        var folderPath = Model?.CurrentPath == "/" ? $"/{item.Name}" : $"{Model?.CurrentPath}/{item.Name}";
                                         var displayName = TruncateString(item.Name, 10);
                                         <a href="javascript:void(0)" class="text-decoration-none" onclick="event.stopPropagation(); switchView(null, '@folderPath')" title="@item.Name">
                                             @displayName

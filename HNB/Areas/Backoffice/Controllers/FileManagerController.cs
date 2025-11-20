@@ -55,7 +55,6 @@ public class FileManagerController(FileManagerServices svc, PermissionManagement
         {
             "shared" => "Partials/FileManager/_SharedWithMe",
             "recent" => "Partials/FileManager/_Recent",
-            "trash" => "Partials/FileManager/_Trash",
             _ => "Partials/FileManager/_FileList"
         };
         
@@ -70,11 +69,12 @@ public class FileManagerController(FileManagerServices svc, PermissionManagement
                 dto.TotalSize = sharedFiles.Sum(f => f.Size ?? 0L);
                 break;
             case "recent":
-            case "trash":
-                dto.CurrentPath = view ?? "/";
-                dto.FolderCount = 0;
-                dto.FileCount = 0;
-                dto.TotalSize = 0L;
+                dto.Items = svc.LoadRecentItems(currentUser);
+                var recentFolders = dto.Items.Where(i => i.Type == "folder").ToList();
+                var recentFiles = dto.Items.Where(i => i.Type == "file").ToList();
+                dto.FolderCount = recentFolders.Count;
+                dto.FileCount = recentFiles.Count;
+                dto.TotalSize = recentFiles.Sum(f => f.Size ?? 0L);
                 break;
             
             default:
@@ -84,35 +84,10 @@ public class FileManagerController(FileManagerServices svc, PermissionManagement
                 dto.UserFolders = svc.LoadUserFolders(currentUser);
                 dto.Items = svc.LoadUserFileSystemItems(actualPath, currentUser);
                 
-                if (path == "/")
-                {
-                    var sharedItems = svc.LoadSharedWithMe(currentUser);
-                    var existingPaths = new HashSet<string>(dto.Items.Select(i => $"{i.VirtualPath}/{i.Name}"), StringComparer.OrdinalIgnoreCase);
-                    
-                    foreach (var sharedItem in sharedItems)
-                    {
-                        var sharedPath = $"{sharedItem.VirtualPath}/{sharedItem.Name}";
-                        if (!existingPaths.Contains(sharedPath))
-                        {
-                            dto.Items.Add(sharedItem);
-                            existingPaths.Add(sharedPath);
-                        }
-                    }
-                    
-                    var sharedFoldersCount = sharedItems.Where(i => i.Type == "folder").Count();
-                    var sharedFilesList = sharedItems.Where(i => i.Type == "file").ToList();
-                    var stats = svc.CalculateFolderStatistics(actualPath, currentUser);
-                    dto.FolderCount = stats.folderCount + sharedFoldersCount;
-                    dto.FileCount = stats.fileCount + sharedFilesList.Count;
-                    dto.TotalSize = stats.totalSize + sharedFilesList.Sum(f => f.Size ?? 0L);
-                }
-                else
-                {
-                    var stats = svc.CalculateFolderStatistics(actualPath, currentUser);
-                    dto.FolderCount = stats.folderCount;
-                    dto.FileCount = stats.fileCount;
-                    dto.TotalSize = stats.totalSize;
-                }
+                var stats = svc.CalculateFolderStatistics(actualPath, currentUser);
+                dto.FolderCount = stats.folderCount;
+                dto.FileCount = stats.fileCount;
+                dto.TotalSize = stats.totalSize;
                 break;
         }
         
@@ -144,11 +119,12 @@ public class FileManagerController(FileManagerServices svc, PermissionManagement
                 dto.TotalSize = sharedFiles.Sum(f => f.Size ?? 0L);
                 break;
             case "recent":
-            case "trash":
-                dto.CurrentPath = view ?? "/";
-                dto.FolderCount = 0;
-                dto.FileCount = 0;
-                dto.TotalSize = 0L;
+                var recentItems = svc.LoadRecentItems(currentUser);
+                var recentFolders = recentItems.Where(i => i.Type == "folder").ToList();
+                var recentFiles = recentItems.Where(i => i.Type == "file").ToList();
+                dto.FolderCount = recentFolders.Count;
+                dto.FileCount = recentFiles.Count;
+                dto.TotalSize = recentFiles.Sum(f => f.Size ?? 0L);
                 break;
             
             default:

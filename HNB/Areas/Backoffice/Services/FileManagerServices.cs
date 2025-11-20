@@ -130,13 +130,129 @@ public class FileManagerServices(DirectoryManagerUtilities DM, IHttpContextAcces
         foreach (var userDir in Directory.GetDirectories(root))
         {
             var ownerUserName = Path.GetFileName(userDir);
-            if (string.IsNullOrWhiteSpace(ownerUserName) || ownerUserName.Equals(currentUser, StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrWhiteSpace(ownerUserName) || string.Equals(ownerUserName, currentUser, StringComparison.OrdinalIgnoreCase))
                 continue;
 
             ScanSharedItems(userDir, $"/storage/{ownerUserName}", currentUser, sharedItems);
         }
 
         return sharedItems.OrderByDescending(i => i.UpdatedAt ?? DateTime.MinValue).ToList();
+    }
+
+    /// <summary>
+    /// 載入最近90天內修改的檔案和資料夾
+    /// </summary>
+    public List<FileSystemEntry> LoadRecentItems(string currentUser)
+    {
+        var root = Path.GetFullPath(configuration["Storage:Root"] ?? "Areas/Backoffice/storage");
+        var userAbsPath = Path.Combine(root, currentUser);
+        
+        if (!Directory.Exists(userAbsPath)) return new List<FileSystemEntry>();
+
+        var recentItems = new List<FileSystemEntry>();
+        var cutoffDate = DateTime.UtcNow.AddDays(-90);
+
+        ScanRecentItems(userAbsPath, "/storage/" + currentUser, currentUser, recentItems, cutoffDate);
+
+        return recentItems.OrderByDescending(i => i.UpdatedAt ?? DateTime.MinValue).ToList();
+    }
+
+    /// <summary>
+    /// 遞迴掃描最近修改的項目
+    /// </summary>
+    private void ScanRecentItems(string absPath, string virtualPath, string currentUser, List<FileSystemEntry> recentItems, DateTime cutoffDate)
+    {
+        try
+        {
+            if (Directory.Exists(absPath))
+            {
+                foreach (var dir in Directory.GetDirectories(absPath))
+                {
+                    try
+                    {
+                        var dirInfo = new DirectoryInfo(dir);
+                        var dirName = dirInfo.Name;
+                        var dirVirtualPath = virtualPath == "/storage/" + currentUser ? $"{virtualPath}/{dirName}" : $"{virtualPath}/{dirName}";
+
+                        if (!string.IsNullOrEmpty(DirectoryManagerUtilities.IsMarkedForDeletion(dir))) continue;
+
+                        var owners = DirectoryManagerUtilities.GetAppOwners(dir);
+                        var hasPermission = owners.Length == 0 || owners.Any(o => string.Equals(o, currentUser, StringComparison.OrdinalIgnoreCase));
+                        if (!hasPermission) continue;
+
+                        var lastWriteTime = dirInfo.LastWriteTimeUtc;
+                        var createdTime = dirInfo.CreationTimeUtc;
+
+                        if (lastWriteTime >= cutoffDate || createdTime >= cutoffDate)
+                        {
+                            var primaryOwner = owners.Length > 0 ? owners[0] : currentUser;
+                            recentItems.Add(new FileSystemEntry
+                            {
+                                Name = dirName,
+                                Type = "folder",
+                                Size = null,
+                                PrimaryOwner = primaryOwner,
+                                Owner = primaryOwner,
+                                SharedUsers = owners.Length > 0 ? owners.ToList() : new List<string> { primaryOwner },
+                                VirtualPath = dirVirtualPath,
+                                CreatedAt = createdTime,
+                                UpdatedAt = lastWriteTime
+                            });
+                        }
+
+                        ScanRecentItems(dir, dirVirtualPath, currentUser, recentItems, cutoffDate);
+                    }
+                    catch
+                    {
+                    }
+                }
+
+                foreach (var file in Directory.GetFiles(absPath))
+                {
+                    try
+                    {
+                        if (!string.IsNullOrEmpty(DirectoryManagerUtilities.IsMarkedForDeletion(file))) continue;
+
+                        var owners = DirectoryManagerUtilities.GetAppOwners(file);
+                        var hasPermission = owners.Length == 0 || owners.Any(o => string.Equals(o, currentUser, StringComparison.OrdinalIgnoreCase));
+                        if (!hasPermission) continue;
+
+                        var fileInfo = new FileInfo(file);
+                        var lastWriteTime = fileInfo.LastWriteTimeUtc;
+                        var createdTime = fileInfo.CreationTimeUtc;
+
+                        if (lastWriteTime >= cutoffDate || createdTime >= cutoffDate)
+                        {
+                            var fileName = fileInfo.Name;
+                            var primaryOwner = owners.Length > 0 ? owners[0] : currentUser;
+                            var mimeType = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider().TryGetContentType(fileName, out var contentType)
+                                ? contentType
+                                : "application/octet-stream";
+
+                            recentItems.Add(new FileSystemEntry
+                            {
+                                Name = fileName,
+                                Type = "file",
+                                Size = fileInfo.Length,
+                                MimeType = mimeType,
+                                PrimaryOwner = primaryOwner,
+                                Owner = primaryOwner,
+                                SharedUsers = owners.Length > 0 ? owners.ToList() : new List<string> { primaryOwner },
+                                VirtualPath = virtualPath,
+                                CreatedAt = createdTime,
+                                UpdatedAt = lastWriteTime
+                            });
+                        }
+                    }
+                    catch
+                    {
+                    }
+                }
+            }
+        }
+        catch
+        {
+        }
     }
 
     /// <summary>
@@ -150,7 +266,7 @@ public class FileManagerServices(DirectoryManagerUtilities DM, IHttpContextAcces
             {
                 var owners = DirectoryManagerUtilities.GetAppOwners(absPath);
                 var isFolderShared = owners.Length > 0 && owners.Contains(currentUser, StringComparer.OrdinalIgnoreCase) && 
-                                    owners.Any(o => !o.Equals(currentUser, StringComparison.OrdinalIgnoreCase));
+                                    owners.Any(o => !string.Equals(o, currentUser, StringComparison.OrdinalIgnoreCase));
                 
                 if (isFolderShared)
                 {
@@ -185,7 +301,7 @@ public class FileManagerServices(DirectoryManagerUtilities DM, IHttpContextAcces
                     {
                         var fileOwners = DirectoryManagerUtilities.GetAppOwners(file);
                         if (fileOwners.Length > 0 && fileOwners.Contains(currentUser, StringComparer.OrdinalIgnoreCase) && 
-                            fileOwners.Any(o => !o.Equals(currentUser, StringComparison.OrdinalIgnoreCase)))
+                            fileOwners.Any(o => !string.Equals(o, currentUser, StringComparison.OrdinalIgnoreCase)))
                         {
                             var fileInfo = new FileInfo(file);
                             var fileName = fileInfo.Name;

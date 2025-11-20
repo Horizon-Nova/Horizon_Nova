@@ -139,7 +139,7 @@
         <nav class="p-3 border-bottom">
             <ul class="nav nav-pills flex-column small">
                 <li class="nav-item">
-                    <a class="nav-link d-flex align-items-center gap-2 @(viewMode != "shared" && viewMode != "recent" && viewMode != "trash" && currentPath == "/" ? "active" : "text-muted")"
+                    <a class="nav-link d-flex align-items-center gap-2 @(viewMode != "shared" && viewMode != "recent" && currentPath == "/" ? "active" : "text-muted")"
                        href="javascript:void(0)" onclick="switchView(null, '/')">
                         <i data-lucide="folder" style="width:1rem;height:1rem;"></i>
                         <span>我的檔案</span>
@@ -157,13 +157,6 @@
                        href="javascript:void(0)" onclick="switchView('recent')">
                         <i data-lucide="clock" style="width:1rem;height:1rem;"></i>
                         <span>最近</span>
-                    </a>
-                </li>
-                <li class="nav-item mt-2">
-                    <a class="nav-link d-flex align-items-center gap-2 @(viewMode == "trash" ? "active" : "text-muted")"
-                       href="javascript:void(0)" onclick="switchView('trash')">
-                        <i data-lucide="trash-2" style="width:1rem;height:1rem;"></i>
-                        <span>回收桶</span>
                     </a>
                 </li>
             </ul>
