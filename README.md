@@ -1,6 +1,10 @@
+<<<<<<< HEAD
 <div align="center">
 
 # Horizon Nova 系統交接文件
+=======
+# Horizon Nova 系統文件
+>>>>>>> ebd8662cdcebd74828302adb4327c8e185e709c6
 
 <!-- 如果有 Logo 圖片，可以使用以下格式 -->
 <!-- <img src="./assets/logo.png" alt="Horizon Nova Logo" width="300"> -->
@@ -220,6 +224,7 @@ dotnet run
 
 ## 貢獻
 
+<<<<<<< HEAD
 歡迎提交 Issue 和 Pull Request！
 
 ## 授權
@@ -235,3 +240,8 @@ dotnet run
 Made with ![Love](https://img.shields.io/badge/Made%20with-Love-FF1744?logo=heart&logoColor=white) by Horizon Nova Team
 
 </div>
+=======
+| 日期 | 版本 | 更新內容 | 更新人員 | 更新原因 |
+|------|------|----------|----------|----------|
+| 2025-11-20 | 1.0 | 初始版本 | RuanLuojie | 建立文件 |
+>>>>>>> ebd8662cdcebd74828302adb4327c8e185e709c6
