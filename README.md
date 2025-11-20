@@ -1,4 +1,4 @@
-# Horizon Nova 系統交接文件
+# Horizon Nova 系統文件
 
 ## 目錄
 
