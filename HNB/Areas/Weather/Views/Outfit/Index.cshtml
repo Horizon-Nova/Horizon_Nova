@@ -4,14 +4,9 @@
 }
 
 @section Styles {
-    @await Html.PartialAsync("Partials/Outfit/_Styles")
+    @await Html.PartialAsync("Partials/_Styles")
 }
 
-<div id="section-a">
-    @await Html.PartialAsync("Partials/Outfit/_Hero")
-    @await Html.PartialAsync("Partials/Outfit/_ClosetManagement")
-    @await Html.PartialAsync("Partials/Outfit/_OutfitLog")
-</div>
-
-@await Html.PartialAsync("Partials/Outfit/_WhatToWear")
-@await Html.PartialAsync("Partials/Outfit/_CallToAction")
+@await Html.PartialAsync("Partials/_head")
+@await Html.PartialAsync("Partials/_middle")
+@await Html.PartialAsync("Partials/_bottom")
