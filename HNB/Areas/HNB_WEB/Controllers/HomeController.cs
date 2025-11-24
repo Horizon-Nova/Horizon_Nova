@@ -1,23 +1,32 @@
 using System.Diagnostics;
 using HNB.Areas.HNB_WEB.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace HNB.Areas.HNB_WEB.Controllers;
 
+/// <summary>
+/// 首頁控制器
+/// </summary>
 [Area("HNB_WEB")]
-public class HomeController(ILogger<HomeController> logger) : Controller
+public class HomeController : Controller
 {
-    private readonly ILogger<HomeController> _logger = logger;
-
+    /// <summary>
+    /// 首頁
+    /// </summary>
     [HttpGet]
     public IActionResult Index()
         => View();
 
+    /// <summary>
+    /// 隱私權頁面
+    /// </summary>
     [HttpGet]
     public IActionResult Privacy()
         => View();
 
+    /// <summary>
+    /// 錯誤頁面
+    /// </summary>
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     [HttpGet]
     public IActionResult Error()

@@ -16,19 +16,30 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Models.Hnbdata;
+namespace Models.Hnb;
 
-[Table("blocked_ips", Schema = "dbo")]
-public partial class blocked_ip
+[Table("access_records", Schema = "dbo")]
+public partial class access_record
 {
     [Key]
     public Guid id { get; set; }
 
-    public string ip { get; set; } = null!;
-
-    public string? reason { get; set; }
-
+    [Column(TypeName = "timestamp without time zone")]
     public DateTime? created_at { get; set; }
 
-    public DateTime? expires_at { get; set; }
+    public string? log_type { get; set; }
+
+    public string? user_id { get; set; }
+
+    public string? ip_address { get; set; }
+
+    public string? user_agent { get; set; }
+
+    public string? request_path { get; set; }
+
+    public string? request_method { get; set; }
+
+    public int? response_status { get; set; }
+
+    public string? created_user_name { get; set; }
 }

@@ -16,37 +16,38 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Models.Hnbdata;
+namespace Models.Hnb;
 
-[Table("access_records", Schema = "dbo")]
-public partial class access_record
+[Table("error_logs", Schema = "dbo")]
+public partial class error_log
 {
     [Key]
     public Guid id { get; set; }
 
-    public string user_name { get; set; } = null!;
-
-    public string? roles { get; set; }
-
-    public string request_path { get; set; } = null!;
-
-    public string? ip { get; set; }
-
-    public string result { get; set; } = null!;
-
-    public string? user_agent { get; set; }
-
+    [Column(TypeName = "timestamp without time zone")]
     public DateTime? created_at { get; set; }
 
-    public string? log_type { get; set; }
+    public string? layer { get; set; }
+
+    public int? stage { get; set; }
+
+    public string? function { get; set; }
+
+    public string? function_full { get; set; }
+
+    public string? message { get; set; }
+
+    public string? stack_trace { get; set; }
+
+    public string? path { get; set; }
 
     public string? http_method { get; set; }
 
-    public string? request_body { get; set; }
-
-    public string? response_body { get; set; }
-
     public int? status_code { get; set; }
 
-    public double? duration_ms { get; set; }
+    public string? trace_id { get; set; }
+
+    public string? user_id { get; set; }
+
+    public string? extra { get; set; }
 }

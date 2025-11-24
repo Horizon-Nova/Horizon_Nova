@@ -1,6 +1,6 @@
 using HNB.Areas.Backoffice.Repositories;
 using Models.HnbHnbBackoffice;
-using Models.Hnbdata;
+using Models.Hnb;
 
 namespace HNB.Areas.Backoffice.Services;
 

@@ -1,5 +1,5 @@
 using HNB.Areas.HNB_WEB.Repositories;
-using Models.Hnbdata;
+using Models.HnbWeb;
 
 namespace HNB.Areas.HNB_WEB.Services;
 
@@ -8,39 +8,41 @@ namespace HNB.Areas.HNB_WEB.Services;
 /// </summary>
 public class TeamZoneService(TeamZoneRepository repository)
 {
-    #region 載入資料
+    #region 統一的查詢方法
 
     /// <summary>
-    /// 取得專案標籤列表。
+    /// 載入專案標籤列表
     /// </summary>
     public List<project_tag> LoadProjectTagList()
         => repository.QueryProjectTagList();
 
     /// <summary>
-    /// 取得專案資料列表。
+    /// 載入專案列表
     /// </summary>
     public List<project> LoadProjectList()
         => repository.QueryProjectList();
 
     /// <summary>
-    /// 取得團隊成員列表。
+    /// 載入團隊成員列表
     /// </summary>
     public List<team_member> LoadTeamMemberList()
         => repository.QueryTeamMemberList();
 
     /// <summary>
-    /// 取得指定專案資料。
+    /// 載入指定專案
     /// </summary>
-    public project? LoadProject(int id)
+    /// <param name="id">專案 ID</param>
+    public project? LoadProject(int? id = null)
         => repository.QueryProject(id);
 
     #endregion
 
-    #region ViewBag 設定
+    #region ViewBag 設定方法
 
     /// <summary>
-    /// 組裝作品集頁面所需的 ViewBag 資料。
+    /// 設定作品集頁面的 ViewBag 資料
     /// </summary>
+    /// <param name="viewBag">ViewBag 物件</param>
     public void ViewBagPortfolioModel(dynamic viewBag)
     {
         viewBag.PortfolioTabsMap = LoadProjectTagList();

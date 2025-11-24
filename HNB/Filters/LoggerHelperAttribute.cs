@@ -1,6 +1,6 @@
 ﻿using HNB.Helpers;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Models.Hnbdata;
+using Models.Hnb;
 using System.Text;
 
 namespace HNB.Filters;
@@ -99,26 +99,18 @@ public class RequestResponseLoggerFilter : IAsyncResourceFilter
         {
             id = Guid.NewGuid(),
             log_type = "action",
-            user_name = LogSanitizer.Clean(http.User.Identity?.Name ?? "Anonymous"),
-            roles = LogSanitizer.Clean(
-                               http.User.Identity?.IsAuthenticated == true
-                               ? string.Join(',', http.User.Claims
-                                   .Where(c => c.Type == System.Security.Claims.ClaimTypes.Role)
-                                   .Select(c => c.Value))
-                               : "Anonymous"),
+            created_user_name = LogSanitizer.Clean(http.User.Identity?.Name ?? "Anonymous"),
+            user_id = http.User.Identity?.IsAuthenticated == true
+                      ? http.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                      : null,
             request_path = LogSanitizer.Clean(http.Request.Path + http.Request.QueryString),
-            ip = LogSanitizer.Clean(GetClientIp(http)),
-            result = LogSanitizer.Clean(
-                               ex == null ? "執行成功" : $"執行失敗：{ex.Message}"),
+            ip_address = LogSanitizer.Clean(GetClientIp(http)),
             user_agent = LogSanitizer.Clean(http.Request.Headers["User-Agent"].ToString()),
-            http_method = LogSanitizer.Clean(http.Request.Method),
-            request_body = CleanBody(reqBody),
-            response_body = CleanBody(respBody),
-            status_code = http.Response.StatusCode,
-            duration_ms = duration,
+            request_method = LogSanitizer.Clean(http.Request.Method),
+            response_status = http.Response.StatusCode
         };
 
-        var db = http.RequestServices.GetRequiredService<HnbdataDbContext>();
+        var db = http.RequestServices.GetRequiredService<HnbDbContext>();
         db.access_records.Add(record);
         await db.SaveChangesAsync();
     }

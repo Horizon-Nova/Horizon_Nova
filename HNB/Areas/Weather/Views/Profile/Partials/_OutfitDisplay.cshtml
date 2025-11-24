@@ -1,0 +1,70 @@
+@{
+    Layout = null;
+    var selectedDate = ViewBag.SelectedDate as string ?? DateTime.Now.ToString("yyyy-MM-dd");
+    var dateObj = DateTime.Parse(selectedDate);
+    var monthNames = new[] { "Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.", "Jul.", "Aug.", "Sep.", "Oct.", "Nov.", "Dec." };
+    var displayDate = monthNames[dateObj.Month - 1] + " " + dateObj.Day;
+}
+
+<div class="outfit-card mb-3 h-100">
+    <div class="outfit-header mb-2">
+        <h3 class="h5 fw-bold" id="outfit-date-display">@displayDate</h3>
+    </div>
+    <div class="outfit-image-container mb-2" id="outfit-content">
+        <!-- 有服裝時顯示 -->
+        <div class="outfit-item" id="outfit-item" style="display: none;"></div>
+        
+        <!-- 沒有服裝時顯示 -->
+        <div class="outfit-empty-message" id="outfit-empty-message">
+            <p class="mb-2">Haven't decided what to wear yet?</p>
+            <p class="outfit-empty-subtitle">Let's get dressed up for the day!</p>
+        </div>
+    </div>
+    <a href="@Url.Action("Index", "Entry", new { area = "Weather" })" class="btn modify-btn w-100 text-decoration-none">Modify</a>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 初始化顯示
+    const selectedDate = '@selectedDate';
+    updateOutfitDisplay(selectedDate);
+    
+    // 監聽日曆日期變化
+    const calendarElement = document.querySelector('#outfit-calendar');
+    if (calendarElement && calendarElement._flatpickr) {
+        calendarElement._flatpickr.config.onChange.push(function(selectedDates, dateStr, instance) {
+            updateOutfitDisplay(dateStr);
+        });
+    }
+    
+    // 監聽自定義事件（如果日曆在其他地方更新）
+    document.addEventListener('dateChanged', function(e) {
+        updateOutfitDisplay(e.detail.date);
+    });
+});
+
+function updateOutfitDisplay(dateStr) {
+    const date = new Date(dateStr);
+    const monthNames = ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'May', 'Jun.', 'Jul.', 'Aug.', 'Sep.', 'Oct.', 'Nov.', 'Dec.'];
+    const displayDate = monthNames[date.getMonth()] + ' ' + date.getDate();
+    
+    const dateDisplay = document.getElementById('outfit-date-display');
+    if (dateDisplay) {
+        dateDisplay.textContent = displayDate;
+    }
+    
+    // 檢查是否有服裝（目前先假設沒有，顯示空狀態）
+    const hasOutfit = false; // TODO: 從後端獲取是否有服裝
+    const outfitItem = document.getElementById('outfit-item');
+    const outfitEmptyMessage = document.getElementById('outfit-empty-message');
+    
+    if (hasOutfit) {
+        if (outfitItem) outfitItem.style.display = 'block';
+        if (outfitEmptyMessage) outfitEmptyMessage.style.display = 'none';
+    } else {
+        if (outfitItem) outfitItem.style.display = 'none';
+        if (outfitEmptyMessage) outfitEmptyMessage.style.display = 'block';
+    }
+}
+</script>
+

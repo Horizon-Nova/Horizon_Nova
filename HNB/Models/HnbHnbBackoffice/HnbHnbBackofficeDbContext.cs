@@ -27,8 +27,6 @@ public partial class HnbHnbBackofficeDbContext : DbContext
 
     public virtual DbSet<ai_log> ai_logs { get; set; }
 
-    public virtual DbSet<file_manager> file_managers { get; set; }
-
     public virtual DbSet<hardware_monitoring> hardware_monitorings { get; set; }
 
     public virtual DbSet<permission_management> permission_managements { get; set; }
@@ -38,8 +36,6 @@ public partial class HnbHnbBackofficeDbContext : DbContext
     public virtual DbSet<vw_ai_config> vw_ai_configs { get; set; }
 
     public virtual DbSet<vw_ai_log> vw_ai_logs { get; set; }
-
-    public virtual DbSet<vw_file_manager> vw_file_managers { get; set; }
 
     public virtual DbSet<vw_hardware_monitoring> vw_hardware_monitorings { get; set; }
 
@@ -78,37 +74,6 @@ public partial class HnbHnbBackofficeDbContext : DbContext
             entity.Property(e => e.status).HasDefaultValueSql("'pending'::character varying");
 
             entity.HasOne(d => d.ai_config).WithMany(p => p.ai_logs).HasConstraintName("fk_ai_log_config");
-        });
-
-        modelBuilder.Entity<file_manager>(entity =>
-        {
-            entity.HasKey(e => e.id).HasName("file_manager_pkey");
-
-            entity.ToTable("file_manager", "dbo", tb => tb.HasComment("檔案管理資料表"));
-
-            entity.HasIndex(e => new { e.file_path, e.file_name, e.mode }, "idx_file_manager_unique")
-                .IsUnique()
-                .HasFilter("(is_deleted = false)");
-
-            entity.Property(e => e.id).HasComment("流水號主鍵");
-            entity.Property(e => e.code).HasComment("唯一識別碼");
-            entity.Property(e => e.created_at)
-                .HasDefaultValueSql("now()")
-                .HasComment("建立時間");
-            entity.Property(e => e.deleted_at).HasComment("刪除時間");
-            entity.Property(e => e.file_name).HasComment("檔案或資料夾名稱");
-            entity.Property(e => e.file_path).HasComment("檔案路徑");
-            entity.Property(e => e.file_size).HasComment("檔案大小（bytes）");
-            entity.Property(e => e.is_deleted)
-                .HasDefaultValue(false)
-                .HasComment("是否已軟刪除");
-            entity.Property(e => e.item_type).HasComment("類型（file/folder）");
-            entity.Property(e => e.mime_type).HasComment("MIME 類型");
-            entity.Property(e => e.mode).HasComment("環境模式（development=開發區/測試區, production=正式區）");
-            entity.Property(e => e.owner_username).HasComment("擁有者使用者名稱");
-            entity.Property(e => e.parent_code).HasComment("上層資料夾 code");
-            entity.Property(e => e.shared_users).HasComment("共享使用者陣列");
-            entity.Property(e => e.updated_at).HasComment("更新時間");
         });
 
         modelBuilder.Entity<hardware_monitoring>(entity =>
@@ -353,11 +318,6 @@ public partial class HnbHnbBackofficeDbContext : DbContext
         modelBuilder.Entity<vw_ai_log>(entity =>
         {
             entity.ToView("vw_ai_log", "dbo");
-        });
-
-        modelBuilder.Entity<vw_file_manager>(entity =>
-        {
-            entity.ToView("vw_file_manager", "dbo");
         });
 
         modelBuilder.Entity<vw_hardware_monitoring>(entity =>

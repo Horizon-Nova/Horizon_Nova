@@ -1,6 +1,6 @@
 ﻿using HNB.Helpers;
 using HNB.Repositories;
-using Models.Hnbdata;
+using Models.Hnb;
 
 namespace HNB.Services;
 

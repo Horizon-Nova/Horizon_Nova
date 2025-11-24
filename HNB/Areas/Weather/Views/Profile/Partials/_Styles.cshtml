@@ -1,0 +1,424 @@
+@{
+    Layout = null;
+}
+
+<style>
+/* 日曆卡片 */
+.calendar-card {
+    background-color: var(--color-white);
+    border-radius: 8px;
+    padding: 1rem;
+    padding-bottom: 0;
+}
+
+/* Flatpickr 日曆容器 */
+.calendar-container {
+    width: 100%;
+}
+
+/* Flatpickr 自訂樣式 */
+.flatpickr-calendar {
+    background: transparent;
+    box-shadow: none;
+    border: none;
+    width: 100%;
+}
+
+.flatpickr-months {
+    margin-bottom: 0.5rem;
+}
+
+.flatpickr-month {
+    color: var(--color-black);
+}
+
+.flatpickr-prev-month,
+.flatpickr-next-month {
+    color: var(--color-black);
+}
+
+.flatpickr-prev-month:hover,
+.flatpickr-next-month:hover {
+    color: var(--color-orange);
+}
+
+.flatpickr-current-month {
+    font-weight: 600;
+    color: var(--color-black);
+}
+
+.flatpickr-weekdays {
+    background: transparent;
+}
+
+.flatpickr-weekday {
+    color: var(--color-black);
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.flatpickr-days {
+    width: 100%;
+}
+
+.flatpickr-day {
+    color: var(--color-black);
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+
+.flatpickr-day.flatpickr-disabled,
+.flatpickr-day.prevMonthDay,
+.flatpickr-day.nextMonthDay {
+    color: red; /* TODO: 需要淺灰色變數 */
+}
+
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange {
+    background: var(--color-orange);
+    color: var(--color-white);
+    border-color: var(--color-orange);
+}
+
+.flatpickr-day.selected:hover,
+.flatpickr-day.startRange:hover,
+.flatpickr-day.endRange:hover {
+    background: var(--color-orange);
+    color: var(--color-white);
+}
+
+.flatpickr-day:hover {
+    background: transparent;
+    border-color: transparent;
+}
+
+/* 年份導航 */
+.year-nav span {
+    color: var(--color-black);
+    cursor: pointer;
+}
+
+.year-nav span:hover {
+    color: var(--color-orange);
+}
+
+/* 編輯連結 */
+.edit-link {
+    color: var(--color-orange);
+    cursor: pointer;
+}
+
+.edit-link:hover {
+    color: red; /* TODO: 需要 hover 橘色變數 */
+}
+
+/* 表單區塊（Occasion） */
+.form-section {
+    background-color: var(--color-cream);
+    padding: 1rem;
+    margin-left: -1rem;
+    margin-right: -1rem;
+    margin-bottom: -1rem;
+    margin-top: 0.5rem;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+/* 表單標籤 */
+.form-section .form-label {
+    color: var(--color-black);
+    margin-bottom: 0.5rem;
+}
+
+/* Date 輸入框 */
+.form-section .date-input {
+    background-color: var(--color-white) !important;
+    border: none !important;
+    border-radius: 24px !important;
+    padding: 0.5rem;
+    color: var(--color-black);
+    text-align: left;
+}
+
+.form-section .date-input:focus {
+    background-color: var(--color-white) !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    text-align: left;
+    border-radius: 24px !important;
+}
+
+.form-section .date-input::placeholder {
+    text-align: left;
+    color: var(--color-black);
+    opacity: 0.6;
+}
+
+/* 編輯連結 */
+.edit-link {
+    color: var(--color-black);
+    text-align: right;
+}
+
+.refresh-icon {
+    color: var(--color-orange);
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+}
+
+/* 穿搭卡片 */
+.outfit-card {
+    background-color: var(--color-white);
+    border-radius: 8px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 穿搭圖片容器 */
+.outfit-image-container {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+}
+
+/* 穿搭項目 */
+.outfit-item {
+    width: 100%;
+    height: 100%;
+    background-color: red;
+    border-radius: 4px;
+    min-height: 200px;
+}
+
+/* 空狀態訊息 */
+.outfit-empty-message {
+    text-align: center;
+    color: var(--color-black);
+    padding: 2rem 1rem;
+}
+
+.outfit-empty-message p {
+    margin-bottom: 0.5rem;
+    color: var(--color-black);
+}
+
+.outfit-empty-subtitle {
+    font-family: var(--font-brand-italic);
+    font-style: italic;
+    color: var(--color-black);
+}
+
+/* Modify 按鈕 */
+.modify-btn {
+    background-color: var(--color-orange);
+    color: var(--color-white);
+    border: none;
+}
+
+.modify-btn:hover {
+    background-color: red; /* TODO: 需要 hover 橘色變數 */
+    color: var(--color-white);
+}
+
+/* 個人資料卡片 */
+.profile-card {
+    background-color: var(--color-white);
+    border-radius: 8px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-info {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* 個人頭像 */
+.profile-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: var(--color-avatar-bg);
+    margin: 0 auto;
+}
+
+/* 頭像首字母 */
+.avatar-initial {
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: var(--color-white);
+    line-height: 1;
+}
+
+/* 風格文字 */
+.style-text {
+    font-family: var(--font-brand-italic);
+    font-style: italic;
+    color: var(--color-orange);
+}
+
+/* 引言 */
+.quote {
+    font-style: italic;
+    color: var(--color-black);
+}
+
+.quote-author {
+    color: var(--color-black);
+    font-size: 0.9rem;
+}
+
+/* 個人資料詳情 */
+.profile-details {
+    color: var(--color-black);
+}
+
+/* 顏色樣本 */
+.color-swatch {
+    width: 30px;
+    height: 30px;
+    border-radius: 4px;
+}
+
+.color-swatch.light {
+    background-color: red; /* TODO: 需要很淺的灰色變數 */
+    border: 1px solid red; /* TODO: 需要淺灰色邊框變數 */
+}
+
+.color-swatch.dark {
+    background-color: red; /* TODO: 需要深灰色變數 */
+}
+
+/* AI 區塊 */
+.ai-section {
+    margin-top: auto;
+    text-align: right;
+}
+
+/* 帳號狀態 */
+.account-status {
+    color: var(--color-black);
+}
+
+/* 服裝分類區塊容器 */
+.clothing-section-card {
+    background-color: var(--color-white);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+/* 服裝分類卡片 */
+.category-card {
+    background-color: transparent;
+    padding: 0;
+}
+
+/* 分類動作按鈕（匯入按鈕） */
+.add-btn {
+    background-color: var(--color-cream);
+    border: 2px dashed var(--color-orange);
+    color: var(--color-orange);
+    font-size: 1.2rem;
+    border-radius: 4px;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+}
+
+.add-btn:hover {
+    background-color: var(--color-cream);
+    border-color: var(--color-orange);
+    color: var(--color-orange);
+}
+
+.heart-btn {
+    color: var(--color-black);
+    font-size: 1.2rem;
+}
+
+.heart-btn:hover {
+    color: var(--color-orange);
+}
+
+/* 服裝項目 */
+.clothing-item {
+    aspect-ratio: 1;
+    background-color: red; /* TODO: 需要淺灰色變數 */
+    border-radius: 4px;
+}
+
+/* 服裝項目刪除按鈕（右上角叉叉） */
+.clothing-delete-btn {
+    background-color: transparent;
+    border: none;
+    color: var(--color-black);
+    font-size: 1.5rem;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transform: translate(25%, -25%);
+    z-index: 1;
+}
+
+.clothing-delete-btn:hover {
+    color: var(--color-orange);
+}
+
+/* 服裝項目愛心按鈕（右下角） */
+.clothing-favorite-btn {
+    background-color: transparent;
+    border: none;
+    color: var(--color-black);
+    font-size: 1.2rem;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    line-height: 1;
+    cursor: pointer;
+    transform: translate(25%, 25%);
+    z-index: 1;
+}
+
+.clothing-favorite-btn:hover {
+    color: var(--color-orange);
+}
+
+/* 展開按鈕 */
+.expand-btn {
+    color: var(--color-black);
+    cursor: pointer;
+    font-size: 1.5rem;
+}
+
+.expand-btn:hover {
+    color: var(--color-orange);
+}
+
+/* Modify Closet 按鈕 */
+.modify-closet-btn {
+    background-color: var(--color-orange);
+    color: var(--color-white);
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 25px;
+}
+
+.modify-closet-btn:hover {
+    background-color: red; /* TODO: 需要 hover 橘色變數 */
+    color: var(--color-white);
+}
+</style>
+

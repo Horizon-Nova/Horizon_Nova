@@ -1,0 +1,74 @@
+@{
+    Layout = null;
+    var selectedDate = ViewBag.SelectedDate as string ?? DateTime.Now.ToString("yyyy-MM-dd");
+    var currentYear = DateTime.Now.Year;
+}
+
+<div class="calendar-card mb-3 h-100">
+    <div class="card-header mb-2">
+        <h2 class="h4 fw-bold">Outfit Log</h2>
+    </div>
+    
+    <div id="outfit-calendar" class="calendar-container"></div>
+    
+    <div class="year-nav mt-2 mb-2">
+        <div class="row">
+            <div class="col text-start">
+                <span>@(currentYear - 1)</span>
+            </div>
+            <div class="col text-end">
+                <span>@currentYear</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="form-section">
+        <div class="form-field mb-2">
+            <label class="form-label text-center d-block">Occasion</label>
+        </div>
+        <div class="form-field mb-2">
+            <label class="form-label d-block mb-1">Date</label>
+            <input type="text" class="form-control date-input" placeholder="Date" />
+        </div>
+        <div class="edit-link">
+            <span class="me-2">Edit to make it more correct</span>
+            <i data-lucide="refresh-cw" class="refresh-icon"></i>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 初始化 Lucide icons
+    if (window.lucide && typeof lucide.createIcons === 'function') {
+        lucide.createIcons();
+    }
+    
+    // 初始化 Flatpickr 日曆
+    if (typeof flatpickr !== 'undefined') {
+        const calendar = flatpickr('#outfit-calendar', {
+            inline: true,
+            dateFormat: 'Y-m-d',
+            defaultDate: '@selectedDate',
+            locale: {
+                firstDayOfWeek: 0,
+                weekdays: {
+                    shorthand: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+                    longhand: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+                },
+                months: {
+                    shorthand: ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'May', 'Jun.', 'Jul.', 'Aug.', 'Sep.', 'Oct.', 'Nov.', 'Dec.'],
+                    longhand: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+                }
+            },
+            onChange: function(selectedDates, dateStr, instance) {
+                console.log('Selected date:', dateStr);
+                // 觸發自定義事件來更新服裝顯示
+                const event = new CustomEvent('dateChanged', { detail: { date: dateStr } });
+                document.dispatchEvent(event);
+            }
+        });
+    }
+});
+</script>
+

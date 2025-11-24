@@ -7,8 +7,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.FileProviders;
-using Models.Hnbdata;
+using Models.Hnb;
 using Models.HnbHnbBackoffice;
+using Models.HnbWeb;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,10 +19,12 @@ builder.Services.AddControllersWithViews(options =>
     options.Filters.Add<RequestResponseLoggerFilter>();
 });
 
-builder.Services.AddDbContext<HnbdataDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("Hnbdata")));
+builder.Services.AddDbContext<HnbDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("Hnb")));
 builder.Services.AddDbContext<HnbHnbBackofficeDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("HnbHnbBackoffice")));
+builder.Services.AddDbContext<HnbWebDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("HnbWeb")));
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient();

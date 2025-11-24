@@ -1,0 +1,99 @@
+@{
+    Layout = null;
+    var user = ViewBag.User as Models.HnbHnbBackoffice.vw_permission_user;
+    var displayName = user?.nickname ?? user?.name ?? "User";
+    var avatarUrl = user?.avatar_url ?? user?.third_party_avatar;
+    var bio = user?.bio;
+    var gender = user?.gender;
+    var birthday = user?.birthday;
+    var favoriteColor = user?.favorite_color;
+    var birthdayDisplay = birthday.HasValue ? birthday.Value.ToString("yyyy/MM/dd") : "";
+    var avatarInitial = string.IsNullOrWhiteSpace(displayName) ? "?" : displayName.Substring(0, 1).ToUpper();
+}
+@if (user != null)
+{
+    <div class="profile-card mb-3 h-100">
+        <div class="profile-info">
+            @if (!string.IsNullOrEmpty(avatarUrl))
+            {
+                <div class="profile-avatar mb-3" style="background-image: url('@avatarUrl'); background-size: cover; background-position: center;"></div>
+            }
+            else
+            {
+                <div class="profile-avatar mb-3 d-flex align-items-center justify-content-center">
+                    <span class="avatar-initial">@avatarInitial</span>
+                </div>
+            }
+            
+            <h3 class="h5 fw-bold mb-2 text-end">@displayName's <span class="style-text">Style Profile</span></h3>
+            @if (!string.IsNullOrEmpty(bio))
+            {
+                <p class="quote mb-3 text-end">"@bio"</p>
+            }
+            else
+            {
+                <p class="quote mb-3 text-end">"Style is a way to say who you are without having to speak." — Rachel Zoe</p>
+            }
+            
+            <div class="profile-details mb-3 text-end">
+                @if (!string.IsNullOrEmpty(gender))
+                {
+                    <p class="mb-1">@gender</p>
+                }
+                @if (!string.IsNullOrEmpty(birthdayDisplay))
+                {
+                    <p class="mb-0">@birthdayDisplay</p>
+                }
+            </div>
+            
+            <div class="ai-section">
+                <p class="mb-3 text-end"><em>AI detects your</em></p>
+                
+                @if (!string.IsNullOrEmpty(favoriteColor))
+                {
+                    <div class="color-preferences mb-3">
+                        <span class="d-block mb-2 text-end">Favorite Color</span>
+                        <div class="color-swatches text-end">
+                            <div class="color-swatch d-inline-block me-2" style="background-color: @favoriteColor;"></div>
+                        </div>
+                    </div>
+                }
+                
+                <div class="account-status text-end">
+                    <span class="d-block mb-2">Account Status</span>
+                    <p class="mb-1">Billing</p>
+                    <p class="mb-0">Cancel</p>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="profile-card mb-3 h-100">
+        <div class="profile-info">
+            <div class="profile-avatar mb-3 d-flex align-items-center justify-content-center">
+                <span class="avatar-initial">?</span>
+            </div>
+            
+            <h3 class="h5 fw-bold mb-2 text-end">User's <span class="style-text">Style Profile</span></h3>
+            <p class="quote mb-3 text-end">"Style is a way to say who you are without having to speak." — Rachel Zoe</p>
+            
+            <div class="profile-details mb-3 text-end">
+                <p class="mb-1">-</p>
+                <p class="mb-0">-</p>
+            </div>
+            
+            <div class="ai-section">
+                <p class="mb-3 text-end"><em>AI detects your</em></p>
+                
+                <div class="account-status text-end">
+                    <span class="d-block mb-2">Account Status</span>
+                    <p class="mb-1">Billing</p>
+                    <p class="mb-0">Cancel</p>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+

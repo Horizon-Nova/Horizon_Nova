@@ -1,13 +1,13 @@
 using Microsoft.EntityFrameworkCore;
+using Models.Hnb;
 using Models.HnbHnbBackoffice;
-using Models.Hnbdata;
 
 namespace HNB.Areas.Backoffice.Repositories;
 
 /// <summary>
 /// 系統設定資料存取層，負責處理硬體監控和日誌管理功能
 /// </summary>
-public class SettingsRepositories(HnbHnbBackofficeDbContext db, HnbdataDbContext hnbdataDb)
+public class SettingsRepositories(HnbHnbBackofficeDbContext db, HnbDbContext hnbDb)
 {
     #region 統一的查詢來源
     /// <summary>
@@ -18,12 +18,12 @@ public class SettingsRepositories(HnbHnbBackofficeDbContext db, HnbdataDbContext
     /// <summary>
     /// 有效的錯誤日誌查詢來源
     /// </summary>
-    private IQueryable<error_log> ValidErrorLogs => hnbdataDb.error_logs;
+    private IQueryable<error_log> ValidErrorLogs => hnbDb.error_logs;
     
     /// <summary>
     /// 有效的存取記錄查詢來源
     /// </summary>
-    private IQueryable<access_record> ValidAccessRecords => hnbdataDb.access_records;
+    private IQueryable<access_record> ValidAccessRecords => hnbDb.access_records;
     #endregion
 
     #region 專用查詢方法
@@ -91,8 +91,8 @@ public class SettingsRepositories(HnbHnbBackofficeDbContext db, HnbdataDbContext
     /// </summary>
     public bool DeleteErrorLogs(List<error_log> logs)
     {
-        hnbdataDb.error_logs.RemoveRange(logs);
-        hnbdataDb.SaveChanges();
+        hnbDb.error_logs.RemoveRange(logs);
+        hnbDb.SaveChanges();
         return true;
     }
 
@@ -101,8 +101,8 @@ public class SettingsRepositories(HnbHnbBackofficeDbContext db, HnbdataDbContext
     /// </summary>
     public bool DeleteAccessRecords(List<access_record> records)
     {
-        hnbdataDb.access_records.RemoveRange(records);
-        hnbdataDb.SaveChanges();
+        hnbDb.access_records.RemoveRange(records);
+        hnbDb.SaveChanges();
         return true;
     }
 

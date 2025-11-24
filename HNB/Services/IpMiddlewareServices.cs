@@ -1,6 +1,6 @@
 ﻿using HNB.Repositories;
 using Microsoft.Extensions.Caching.Memory;
-using Models.Hnbdata;
+using Models.Hnb;
 
 namespace HNB.Services;
 
@@ -69,14 +69,11 @@ public class IpMiddlewareServices(BlockedIpRepository rep, IMemoryCache cache, I
     /// <returns>成功返回 true，失敗返回 false</returns>
     private bool BlockIp(string ip, string reason)
     {
-        var now = DateTime.UtcNow;
-
         var blockedIp = new blocked_ip
         {
-            ip = ip,
-            reason = reason,
-            created_at = now,
-            expires_at = now.AddMinutes(BLOCK_MINUTES)
+            id = Guid.NewGuid(),
+            ip_address = ip,
+            reason = reason
         };
 
         var result = rep.Insert(blockedIp);

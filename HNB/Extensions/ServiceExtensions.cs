@@ -5,6 +5,8 @@ using HNB.Areas.Backoffice.Services;
 using HNB.Areas.Backoffice.Utilities;
 using HNB.Areas.HNB_WEB.Repositories;
 using HNB.Areas.HNB_WEB.Services;
+using HNB.Areas.Weather.Repositories;
+using HNB.Areas.Weather.Services;
 using HNB.IntelligentSystems.ObjectDetection.Api;
 using HNB.IntelligentSystems.ObjectDetection.Configuration;
 using HNB.IntelligentSystems.ObjectDetection.Module;
@@ -29,6 +31,10 @@ public static class ServiceExtensions
         services.AddScoped<DatabaseService>();
         services.AddScoped<OrganizationScope>();
         services.AddScoped<TeamZoneService>();
+        
+        // Weather 區域服務
+        services.AddScoped<LoginService>();
+        services.AddScoped<ProfileService>();
         
         // 物件辨識配置建立方法（共用）
         ObjectDetectionConfig CreateObjectDetectionConfig(IConfiguration configuration, IWebHostEnvironment environment)
@@ -130,6 +136,9 @@ public static class ServiceExtensions
         services.AddScoped<HardwareMonitoringRepository>();
         services.AddScoped<BlockedIpRepository>();
         services.AddScoped<TeamZoneRepository>();
+        
+        // Weather 區域倉儲
+        services.AddScoped<LoginRepository>();
         return services;
     }
     /// <summary> DI注入管理 Utilities 功能 </summary>

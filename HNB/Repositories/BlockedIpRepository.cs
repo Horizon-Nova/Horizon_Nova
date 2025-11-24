@@ -1,11 +1,11 @@
-using Models.Hnbdata;
+using Models.Hnb;
 
 namespace HNB.Repositories;
 
 /// <summary>
 /// 封鎖 IP 資料存取層，負責處理封鎖 IP 的資料庫操作
 /// </summary>
-public class BlockedIpRepository(HnbdataDbContext db)
+public class BlockedIpRepository(HnbDbContext db)
 {
     #region 統一的查詢來源
     /// <summary>
@@ -34,8 +34,7 @@ public class BlockedIpRepository(HnbdataDbContext db)
     /// <param name="ip">IP 位址</param>
     /// <returns>如果被封鎖返回 true，否則返回 false</returns>
     public bool QueryIsBlocked(string ip)
-        => ValidBlockedIps.Any(b => b.ip == ip &&
-                                    (b.expires_at == null || b.expires_at > DateTime.UtcNow));
+        => ValidBlockedIps.Any(b => b.ip_address == ip);
     #endregion
 }
 

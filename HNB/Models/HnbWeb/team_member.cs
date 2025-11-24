@@ -16,7 +16,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Models.Hnbdata;
+namespace Models.HnbWeb;
 
 [Table("team_member", Schema = "dbo")]
 public partial class team_member

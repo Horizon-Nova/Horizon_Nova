@@ -16,139 +16,66 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Models.Hnbdata;
+namespace Models.HnbWeb;
 
-/// <summary>
-/// Project（專案區）
-/// </summary>
+[Keyless]
 [Table("project", Schema = "dbo")]
-[Index("name", Name = "project_name_key", IsUnique = true)]
 public partial class project
 {
-    [Key]
     public int id { get; set; }
 
-    /// <summary>
-    /// 專案大類
-    /// </summary>
     [StringLength(100)]
     public string category { get; set; } = null!;
 
-    /// <summary>
-    /// 專案名稱（主鍵）
-    /// </summary>
     [StringLength(200)]
     public string name { get; set; } = null!;
 
-    /// <summary>
-    /// 專案 icon 名稱或檔名
-    /// </summary>
     [StringLength(255)]
     public string? icon { get; set; }
 
-    /// <summary>
-    /// 專案簡介
-    /// </summary>
     public string? summary { get; set; }
 
-    /// <summary>
-    /// 專案亮點（可逗號分隔）
-    /// </summary>
     public List<string>? highlight { get; set; }
 
-    /// <summary>
-    /// 主要功能（可逗號分隔）
-    /// </summary>
     public List<string>? features { get; set; }
 
-    /// <summary>
-    /// 專案截圖檔名（多筆以逗號分隔）
-    /// </summary>
     public List<string>? screenshots { get; set; }
 
-    /// <summary>
-    /// 專案介紹（詳細）
-    /// </summary>
     public string? intro { get; set; }
 
-    /// <summary>
-    /// 主要挑戰
-    /// </summary>
     public List<string>? challenges { get; set; }
 
-    /// <summary>
-    /// 解決方案
-    /// </summary>
     public List<string>? solution { get; set; }
 
-    /// <summary>
-    /// 開發時程（例如：6個月）
-    /// </summary>
     [StringLength(50)]
     public string? duration { get; set; }
 
-    /// <summary>
-    /// 團隊規模（人數）
-    /// </summary>
     public int? team_size { get; set; }
 
-    /// <summary>
-    /// 客戶名稱（如需 FK 可改接 Client 表）
-    /// </summary>
     [StringLength(200)]
     public string? client { get; set; }
 
-    /// <summary>
-    /// 專案狀態（例如：已完成並上線）
-    /// </summary>
     [StringLength(50)]
     public string? status { get; set; }
 
-    /// <summary>
-    /// 技術棧
-    /// </summary>
     public List<string>? tech_stack { get; set; }
 
-    /// <summary>
-    /// 功能主特色
-    /// </summary>
     public string? main_features { get; set; }
 
-    /// <summary>
-    /// 功能特色簡介
-    /// </summary>
     public List<string>? feature_intro { get; set; }
 
-    /// <summary>
-    /// 開發工具
-    /// </summary>
     public List<string>? dev_tools { get; set; }
 
-    /// <summary>
-    /// 技術架構圖檔名
-    /// </summary>
     [StringLength(255)]
     public string? arch_img { get; set; }
 
-    /// <summary>
-    /// 專案成果簡介
-    /// </summary>
     public string? outcome_summary { get; set; }
 
-    /// <summary>
-    /// 專案成果績效（量化）
-    /// </summary>
     public string? outcome_performance { get; set; }
 
-    /// <summary>
-    /// 客戶回饋（JSON）
-    /// </summary>
     [StringLength(1000)]
     public string? feedback { get; set; }
 
-    /// <summary>
-    /// 專案 icon 顏色（例如 #FF5733 或 blue）
-    /// </summary>
     [StringLength(50)]
     public string? icon_color { get; set; }
 }

@@ -1,11 +1,11 @@
-using Models.Hnbdata;
+using Models.HnbWeb;
 
 namespace HNB.Areas.HNB_WEB.Repositories;
 
 /// <summary>
-/// 團隊作品集資料存取層，僅負責資料查詢與轉換。
+/// 團隊作品集資料存取層，僅負責資料查詢與轉換
 /// </summary>
-public class TeamZoneRepository(HnbdataDbContext db)
+public class TeamZoneRepository(HnbWebDbContext db)
 {
     #region 統一的查詢來源
 
@@ -20,28 +20,32 @@ public class TeamZoneRepository(HnbdataDbContext db)
     #region 專用查詢方法
 
     /// <summary>
-    /// 取得專案標籤列表。
+    /// 查詢專案標籤列表
     /// </summary>
     public List<project_tag> QueryProjectTagList()
-        => ValidProjectTags?.ToList() ?? new List<project_tag>();
+        => ValidProjectTags.ToList();
 
     /// <summary>
-    /// 取得專案列表。
+    /// 查詢專案列表
     /// </summary>
     public List<project> QueryProjectList()
-        => ValidProjects?.ToList() ?? new List<project>();
+        => ValidProjects.ToList();
 
     /// <summary>
-    /// 取得團隊成員列表。
+    /// 查詢團隊成員列表
     /// </summary>
     public List<team_member> QueryTeamMemberList()
-        => ValidTeamMembers?.ToList() ?? new List<team_member>();
+        => ValidTeamMembers.ToList();
 
     /// <summary>
-    /// 查詢指定專案。
+    /// 查詢指定專案
     /// </summary>
-    public project? QueryProject(int id)
-        => ValidProjects.FirstOrDefault(project => project.id == id);
+    /// <param name="id">專案 ID</param>
+    public project? QueryProject(int? id = null)
+    {
+        if (!id.HasValue) return null;
+        return ValidProjects.FirstOrDefault(p => p.id == id.Value);
+    }
 
     #endregion
 }

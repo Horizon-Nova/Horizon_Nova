@@ -1,11 +1,11 @@
-﻿using Models.Hnbdata;
+﻿using Models.Hnb;
 
 namespace HNB.Repositories;
 
 /// <summary>
 /// 錯誤日誌資料存取層，負責處理錯誤日誌的資料庫操作
 /// </summary>
-public class ErrorLogRepository(HnbdataDbContext db)
+public class ErrorLogRepository(HnbDbContext db)
 {
     #region 統一的查詢來源
     /// <summary>
