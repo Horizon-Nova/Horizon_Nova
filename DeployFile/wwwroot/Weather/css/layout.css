@@ -1,8 +1,29 @@
-:root { --bg-color: #d4ceb9; --brand-orange: #E07A34; }
+:root { 
+    --bg-color: #d4ceb9; 
+    --brand-orange: #E07A34;
+    
+    /* 顏色變數 */
+    --color-teal: #9dbab5;        /* 青綠色 */
+    --color-orange: #d87136;      /* 橘色 */
+    --color-terracotta: #d3a38c;  /* 紅褐色 */
+    --color-cream: #f6f0d8;       /* 米白色 */
+    --color-beige: #d9d4c0;       /* 棕色 */
+    --color-black: #100E09;       /* 黑色 */
+    --color-white: #FDFFF5;       /* 白色 */
+    --color-avatar-bg: #CD7F32;   /* 頭像背景色 */
+    
+    /* 字體變數 */
+    --font-brand-italic: 'Bodoni Moda', serif;
+    
+    /* 縮放因子 */
+    --scale-factor: 0.90;
+}
 
-body { background-color: var(--bg-color); font-family: 'Lato', sans-serif; }
+body { font-family: 'Lato', sans-serif; }
 
-.brand-italic { font-family: 'Bodoni Moda', serif; font-style: italic; }
+#main-content { background-color: var(--bg-color); }
+
+.brand-italic { font-family: var(--font-brand-italic); font-style: italic; }
 
 .btn-brand { background-color: var(--brand-orange); color: #fff; border: none; }
 .btn-brand:hover { background-color: #cf6c28; color: #fff; }
