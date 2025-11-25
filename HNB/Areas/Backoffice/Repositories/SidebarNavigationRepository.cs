@@ -1,4 +1,4 @@
-using Models.HnbHnbBackoffice;
+using Models.HnbBackoffice;
 using Microsoft.EntityFrameworkCore;
 
 namespace HNB.Areas.Backoffice.Repositories;
@@ -6,7 +6,7 @@ namespace HNB.Areas.Backoffice.Repositories;
 /// <summary>
 /// 側欄導航資料存取層，負責處理導航項目的資料存取功能
 /// </summary>
-public class SidebarNavigationRepository(HnbHnbBackofficeDbContext db)
+public class SidebarNavigationRepository(HnbBackofficeDbContext db)
 {
     #region 統一的查詢來源
     /// <summary>

@@ -1,8 +1,8 @@
-@model Models.HnbHnbBackoffice.vw_permission_organization?
+@model Models.HnbBackoffice.vw_permission_organization?
 @{
     Layout = null;
 
-    var organizations = ViewBag.Organizations as List<Models.HnbHnbBackoffice.vw_permission_organization> ?? new();
+    var organizations = ViewBag.Organizations as List<Models.HnbBackoffice.vw_permission_organization> ?? new();
     var selectableParents = organizations
         .Where(o => Model == null || o.id != Model.id)
         .OrderBy(o => o.organization_name ?? string.Empty)

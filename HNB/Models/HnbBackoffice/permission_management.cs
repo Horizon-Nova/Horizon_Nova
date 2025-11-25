@@ -17,41 +17,31 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Net;
 using Microsoft.EntityFrameworkCore;
 
-namespace Models.HnbHnbBackoffice;
+namespace Models.HnbBackoffice;
 
 /// <summary>
 /// 權限管理統一資料表 - 用於統一管理用戶、角色、組織三種類型的資料，透過 type 欄位區分資料類型
 /// </summary>
+[Keyless]
 [Table("permission_management", Schema = "dbo")]
-[Index("created_at", Name = "idx_permission_management_created_at")]
-[Index("email", Name = "idx_permission_management_email")]
-[Index("is_active", Name = "idx_permission_management_is_active")]
-[Index("last_login_at", Name = "idx_permission_management_last_login_at")]
-[Index("login_method", Name = "idx_permission_management_login_method")]
-[Index("parent_id", Name = "idx_permission_management_parent_id")]
-[Index("status", Name = "idx_permission_management_status")]
-[Index("subscription_status", Name = "idx_permission_management_subscription_status")]
-[Index("third_party_id", Name = "idx_permission_management_third_party_id")]
-[Index("type", Name = "idx_permission_management_type")]
 public partial class permission_management
 {
     /// <summary>
     /// 主鍵ID
     /// </summary>
-    [Key]
-    public int id { get; set; }
+    public int? id { get; set; }
 
     /// <summary>
     /// 資料類型：user=用戶, role=角色, organization=組織
     /// </summary>
     [StringLength(50)]
-    public string type { get; set; } = null!;
+    public string? type { get; set; }
 
     /// <summary>
     /// 名稱：用戶=username, 角色=角色名稱, 組織=組織名稱
     /// </summary>
     [StringLength(100)]
-    public string name { get; set; } = null!;
+    public string? name { get; set; }
 
     /// <summary>
     /// 描述：角色或組織的詳細說明

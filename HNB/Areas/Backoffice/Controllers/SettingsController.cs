@@ -101,24 +101,8 @@ public class SettingsController(SettingsServices svc) : BaseController
     }
 
     /// <summary>
-    /// 切換維護模式
-    /// </summary>
-    [HttpPost]
-    public IActionResult ToggleMaintenanceMode(bool enabled)
-    {
-        var result = svc.CreateMaintenanceMode(enabled);
-        var success = result != null;
-        var message = success 
-            ? (enabled ? "維護模式已啟用" : "維護模式已停用")
-            : "切換維護模式失敗";
-        
-        return Json(new { success, message });
-    }
-
-    /// <summary>
     /// 系統健康檢查（直接調用資料庫資料）
     /// </summary>
-    [HttpGet]
     public IActionResult SystemHealth()
     {
         var healthInfo = svc.LoadSystemHealth();
@@ -126,46 +110,12 @@ public class SettingsController(SettingsServices svc) : BaseController
     }
 
     /// <summary>
-    /// 匯出日誌
+    /// 刷新硬體資訊
     /// </summary>
-    [HttpGet]
-    public IActionResult ExportLogs(string logType = "all")
+    public IActionResult RefreshHardwareInfo()
     {
-        var logData = svc.LoadExportLogs(logType);
-        var fileName = $"logs_{logType}_{DateTime.Now:yyyyMMdd_HHmmss}.json";
-        
-        return Json(new { 
-            success = true, 
-            data = logData,
-            fileName = fileName,
-            message = "日誌匯出成功"
-        });
-    }
-
-    /// <summary>
-    /// 優化資料庫
-    /// </summary>
-    [HttpPost]
-    public IActionResult OptimizeDatabase()
-    {
-        var result = svc.LoadDatabaseOptimization();
-        return Json(new { 
-            success = result.success, 
-            message = result.message,
-            details = result.details
-        });
-    }
-
-    /// <summary>
-    /// 重啟系統
-    /// </summary>
-    [HttpPost]
-    public IActionResult RestartSystem()
-    {
-        var result = svc.LoadSystemRestart();
-        return Json(new { 
-            success = result.success, 
-            message = result.message
-        });
+        ViewBag.HardwareInfo = svc.LoadLocalHardwareInfo();
+        ViewBag.MemoryChannel = svc.GetMemoryChannelCount();
+        return PartialView("Partials/_Hardware");
     }
 }

@@ -140,85 +140,6 @@
         });
     };
 
-    const toggleMaintenanceMode = () => {
-        const $checkbox = $('#maintenanceMode');
-        const enabled = $checkbox.prop('checked');
-
-        const message = enabled
-            ? '確定要啟用維護模式嗎？這將暫時關閉網站。'
-            : '確定要停用維護模式嗎？';
-
-        if (!window.confirm(message)) {
-            $checkbox.prop('checked', !enabled);
-            return;
-        }
-
-        $.ajax({
-            type: 'POST',
-            url: '/Backoffice/Settings/ToggleMaintenanceMode',
-            data: { enabled }
-        }).done(response => {
-            const type = response?.success ? 'success' : 'error';
-            const toastMessage = response?.message ?? (response?.success ? '維護模式已更新' : '維護模式更新失敗');
-            showToast(formatMessage(toastMessage, type), type);
-
-            if (!response?.success) {
-                $checkbox.prop('checked', !enabled);
-            }
-        }).fail(() => {
-            showToast(formatMessage('維護模式更新失敗，請稍後再試', 'error'), 'error');
-            $checkbox.prop('checked', !enabled);
-        });
-    };
-
-    const optimizeDatabase = () => {
-        if (!window.confirm('確定要優化資料庫嗎？這可能需要幾分鐘時間。')) {
-            return;
-        }
-
-        const $button = $('#btnOptimizeDatabase');
-        updateButtonState($button, true, '優化中...');
-
-        $.ajax({
-            type: 'POST',
-            url: '/Backoffice/Settings/OptimizeDatabase'
-        }).done(response => {
-            const type = response?.success ? 'success' : 'error';
-            const message = response?.message ?? (response?.success ? '資料庫優化完成' : '資料庫優化失敗');
-            showToast(formatMessage(message, type), type);
-
-            if (response?.success && response?.details) {
-                console.info('優化詳情：', response.details);
-            }
-        }).fail(() => {
-            showToast(formatMessage('資料庫優化失敗，請稍後再試', 'error'), 'error');
-        }).always(() => {
-            updateButtonState($button, false);
-        });
-    };
-
-    const restartApplication = () => {
-        if (!window.confirm('確定要重啟系統嗎？這將中斷所有用戶的連接。')) {
-            return;
-        }
-
-        const $button = $('#btnRestartSystem');
-        updateButtonState($button, true, '重啟中...');
-
-        $.ajax({
-            type: 'POST',
-            url: '/Backoffice/Settings/RestartSystem'
-        }).done(response => {
-            const type = response?.success ? 'success' : 'error';
-            const message = response?.message ?? (response?.success ? '系統已重新啟動' : '系統重啟失敗');
-            showToast(formatMessage(message, type), type);
-        }).fail(() => {
-            showToast(formatMessage('系統重啟失敗，請稍後再試', 'error'), 'error');
-        }).always(() => {
-            updateButtonState($button, false);
-        });
-    };
-
     const getLogTypeName = (key) => ({
         error: '錯誤日誌',
         access: '存取記錄',
@@ -232,8 +153,28 @@
         all: '所有快取'
     }[key] ?? key ?? '');
 
+    const refreshHardwareInfo = () => {
+        $.ajax({
+            type: 'GET',
+            url: '/Backoffice/Settings/RefreshHardwareInfo'
+        }).done(html => {
+            if (html && typeof html === 'string') {
+                const $newContent = $(html);
+                const $currentCard = $('#hardwareInfoCard');
+                if ($currentCard.length > 0 && $newContent.length > 0) {
+                    $currentCard.replaceWith($newContent);
+                    window.lucide?.createIcons?.();
+                }
+            }
+        }).fail(() => {
+        });
+    };
+
     $(document).ready(() => {
         window.lucide?.createIcons?.();
+
+        refreshHardwareInfo();
+        setInterval(refreshHardwareInfo, 2000);
 
         $(document)
             .off('click.settings', '.js-refresh-logs')
@@ -257,13 +198,7 @@
                 const type = ($button.data('type') ?? '').toString();
                 const isThirtyDays = ($button.data('days') ?? '').toString() === '30';
                 clearCache(type, isThirtyDays, $button);
-            })
-            .off('click.settings', '.js-optimize-database')
-            .on('click.settings', '.js-optimize-database', optimizeDatabase)
-            .off('click.settings', '.js-restart-system')
-            .on('click.settings', '.js-restart-system', restartApplication)
-            .off('change.settings', '#maintenanceMode')
-            .on('change.settings', '#maintenanceMode', toggleMaintenanceMode);
+            });
     });
 })();
 </script>

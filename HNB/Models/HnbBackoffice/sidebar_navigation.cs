@@ -16,70 +16,67 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Models.HnbHnbBackoffice;
+namespace Models.HnbBackoffice;
 
+/// <summary>
+/// 側欄導航管理表
+/// </summary>
 [Keyless]
-public partial class vw_ai_config
+[Table("sidebar_navigation", Schema = "dbo")]
+public partial class sidebar_navigation
 {
-    public long? id { get; set; }
+    /// <summary>
+    /// 主鍵，自動遞增
+    /// </summary>
+    public int? id { get; set; }
 
-    [StringLength(100)]
-    public string? service_name { get; set; }
-
+    /// <summary>
+    /// 導航項目編號，唯一識別碼
+    /// </summary>
     [StringLength(50)]
-    public string? provider { get; set; }
+    public string? code { get; set; }
 
-    [StringLength(50)]
-    public string? scope { get; set; }
-
+    /// <summary>
+    /// 導航項目顯示標題
+    /// </summary>
     [StringLength(100)]
-    public string? model_key { get; set; }
+    public string? title { get; set; }
 
-    [StringLength(20)]
-    public string? version { get; set; }
+    /// <summary>
+    /// 導航項目連結網址
+    /// </summary>
+    [StringLength(500)]
+    public string? url { get; set; }
 
-    public string? description { get; set; }
+    /// <summary>
+    /// 導航項目圖示名稱
+    /// </summary>
+    [StringLength(50)]
+    public string? icon { get; set; }
 
-    public string? changelog { get; set; }
+    /// <summary>
+    /// 排序順序，數字越小越前面
+    /// </summary>
+    public int? sort_order { get; set; }
 
-    public string? system_prompt { get; set; }
+    /// <summary>
+    /// 父級導航項目編號，用於建立階層結構
+    /// </summary>
+    [StringLength(50)]
+    public string? parent_code { get; set; }
 
-    public List<string>? field_names { get; set; }
+    /// <summary>
+    /// 是否啟用此導航項目
+    /// </summary>
+    public bool? is_active { get; set; }
 
-    public List<string>? field_labels { get; set; }
-
-    public List<string>? field_types { get; set; }
-
-    public List<string>? field_values { get; set; }
-
-    public List<bool>? field_required { get; set; }
-
-    public List<bool>? field_sensitive { get; set; }
-
-    public List<bool>? field_enabled { get; set; }
-
-    [Precision(3, 2)]
-    public decimal? quality_score { get; set; }
-
-    [Precision(10, 2)]
-    public decimal? monthly_budget { get; set; }
-
-    [Precision(10, 2)]
-    public decimal? yearly_budget { get; set; }
-
-    public int? budget_alert_threshold { get; set; }
-
-    public bool? is_enabled { get; set; }
-
-    public int? priority { get; set; }
-
-    public int? daily_limit { get; set; }
-
-    [Column(TypeName = "timestamp without time zone")]
+    /// <summary>
+    /// 建立時間
+    /// </summary>
     public DateTime? created_at { get; set; }
 
-    [Column(TypeName = "timestamp without time zone")]
+    /// <summary>
+    /// 最後更新時間
+    /// </summary>
     public DateTime? updated_at { get; set; }
-
-    public int? field_count { get; set; }
 }

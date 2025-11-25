@@ -16,10 +16,10 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Models.HnbHnbBackoffice;
+namespace Models.HnbBackoffice;
 
 [Keyless]
-public partial class vw_permission_organization
+public partial class vw_permission_role
 {
     /// <summary>
     /// 主鍵ID
@@ -27,32 +27,27 @@ public partial class vw_permission_organization
     public int? id { get; set; }
 
     /// <summary>
-    /// 資料類型：organization
+    /// 資料類型：role
     /// </summary>
     [StringLength(50)]
     public string? type { get; set; }
 
     /// <summary>
-    /// 組織名稱
+    /// 角色名稱
     /// </summary>
     [StringLength(100)]
-    public string? organization_name { get; set; }
+    public string? name { get; set; }
 
     /// <summary>
-    /// 組織描述
+    /// 角色描述
     /// </summary>
     [StringLength(500)]
-    public string? organization_description { get; set; }
+    public string? description { get; set; }
 
     /// <summary>
-    /// 組織層級
+    /// 權限陣列
     /// </summary>
-    public int? organization_level { get; set; }
-
-    /// <summary>
-    /// 排序順序
-    /// </summary>
-    public int? sort_order { get; set; }
+    public List<string>? permissions { get; set; }
 
     /// <summary>
     /// 是否啟用
@@ -78,19 +73,29 @@ public partial class vw_permission_organization
     public DateTime? updated_at { get; set; }
 
     /// <summary>
-    /// 公開備註
+    /// 標籤陣列
     /// </summary>
-    public string? public_notes { get; set; }
+    public List<string>? tags { get; set; }
 
     /// <summary>
-    /// 內部備註
+    /// 備註
     /// </summary>
-    public string? internal_notes { get; set; }
+    public string? notes { get; set; }
 
     /// <summary>
-    /// 上級組織ID
+    /// 所屬組織ID
     /// </summary>
     public int? parent_id { get; set; }
+
+    /// <summary>
+    /// 排序順序
+    /// </summary>
+    public int? sort_order { get; set; }
+
+    /// <summary>
+    /// 角色層級
+    /// </summary>
+    public int? level { get; set; }
 
     /// <summary>
     /// 建立者ID
@@ -103,77 +108,55 @@ public partial class vw_permission_organization
     public int? updated_by { get; set; }
 
     /// <summary>
-    /// 總角色數量
+    /// 內部備註
     /// </summary>
-    public int? total_roles_count { get; set; }
+    public string? internal_notes { get; set; }
 
     /// <summary>
-    /// 總用戶數量
-    /// </summary>
-    public long? total_users_count { get; set; }
-
-    /// <summary>
-    /// 總子組織數量
-    /// </summary>
-    public long? total_sub_organizations_count { get; set; }
-
-    /// <summary>
-    /// 組織角色ID陣列
-    /// </summary>
-    public List<string>? organization_role_ids { get; set; }
-
-    /// <summary>
-    /// 組織角色名稱陣列
-    /// </summary>
-    [Column(TypeName = "character varying[]")]
-    public List<string>? organization_role_names { get; set; }
-
-    /// <summary>
-    /// 組織用戶ID陣列
-    /// </summary>
-    public List<string>? organization_user_ids { get; set; }
-
-    /// <summary>
-    /// 組織用戶名稱陣列
-    /// </summary>
-    [Column(TypeName = "character varying[]")]
-    public List<string>? organization_user_names { get; set; }
-
-    /// <summary>
-    /// 組織用戶完整名稱陣列
-    /// </summary>
-    [Column(TypeName = "character varying[]")]
-    public List<string>? organization_user_full_names { get; set; }
-
-    /// <summary>
-    /// 上級組織名稱
+    /// 所屬組織名稱
     /// </summary>
     [StringLength(100)]
-    public string? parent_organization_name { get; set; }
+    public string? organization_name { get; set; }
 
     /// <summary>
-    /// 上級組織ID
+    /// 所屬組織ID
     /// </summary>
-    public int? parent_organization_id { get; set; }
+    public int? organization_id { get; set; }
 
     /// <summary>
-    /// 子組織名稱陣列
+    /// 擁有此角色的用戶數量
+    /// </summary>
+    public long? user_count { get; set; }
+
+    /// <summary>
+    /// 權限數量
+    /// </summary>
+    public int? permission_count { get; set; }
+
+    /// <summary>
+    /// 擁有此角色的用戶名稱陣列
     /// </summary>
     [Column(TypeName = "character varying[]")]
-    public List<string>? sub_organization_names { get; set; }
+    public List<string>? user_names { get; set; }
 
     /// <summary>
-    /// 子組織ID陣列
+    /// 導航權限陣列
     /// </summary>
-    public List<string>? sub_organization_ids { get; set; }
+    public List<string>? navigation_permissions { get; set; }
 
     /// <summary>
-    /// 是否為根組織
+    /// 權限名稱陣列
     /// </summary>
-    public bool? is_root_organization { get; set; }
+    [Column(TypeName = "character varying[]")]
+    public List<string>? permission_names { get; set; }
 
     /// <summary>
-    /// 組織成員總數
+    /// 角色類型：system/custom
     /// </summary>
-    public int? total_organization_members_count { get; set; }
+    public string? role_type { get; set; }
+
+    /// <summary>
+    /// 是否為系統角色
+    /// </summary>
+    public bool? is_system_role { get; set; }
 }

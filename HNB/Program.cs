@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.FileProviders;
 using Models.Hnb;
-using Models.HnbHnbBackoffice;
+using Models.HnbBackoffice;
 using Models.HnbWeb;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,8 +21,8 @@ builder.Services.AddControllersWithViews(options =>
 
 builder.Services.AddDbContext<HnbDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Hnb")));
-builder.Services.AddDbContext<HnbHnbBackofficeDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("HnbHnbBackoffice")));
+builder.Services.AddDbContext<HnbBackofficeDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("HnbBackoffice")));
 builder.Services.AddDbContext<HnbWebDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("HnbWeb")));
 

@@ -1,4 +1,4 @@
-using Models.HnbHnbBackoffice;
+using Models.HnbBackoffice;
 using Microsoft.EntityFrameworkCore;
 
 namespace HNB.Areas.Backoffice.Repositories;
@@ -6,7 +6,7 @@ namespace HNB.Areas.Backoffice.Repositories;
 /// <summary>
 /// 認證資料存取層，負責處理用戶認證相關的資料庫操作
 /// </summary>
-public class AuthRepository(HnbHnbBackofficeDbContext db)
+public class AuthRepository(HnbBackofficeDbContext db)
 {
     #region 統一的查詢來源
     /// <summary>

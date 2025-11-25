@@ -47,7 +47,6 @@
         return string.IsNullOrEmpty(maxText) ? minText : $"{minText} - {maxText}";
     }
 
-    var cpuTemperature = ToNullableDouble(hardware?.cpu_temperature);
     var cpuHealth = ToNullableDouble(hardware?.cpu_health_percentage);
     var cpuBaseClock = ToNullableDouble(hardware?.cpu_base_clock);
     var cpuBoostClock = ToNullableDouble(hardware?.cpu_boost_clock);
@@ -55,7 +54,6 @@
     var cpuThreads = ToNullableInt(hardware?.cpu_threads) ?? 0;
 
     var gpuTemperature = ToNullableDouble(hardware?.gpu_temperature);
-    var gpuHealth = ToNullableDouble(hardware?.gpu_health_percentage);
 
     var memoryHealth = ToNullableDouble(hardware?.memory_health_percentage);
     var memoryUsed = ToNullableDouble(hardware?.memory_used_gb);
@@ -63,7 +61,7 @@
     var memoryChannelText = (ViewBag.MemoryChannel as string) ?? string.Empty;
 }
 
-<div class="card border-0 shadow-sm mb-3">
+<div id="hardwareInfoCard" class="card border-0 shadow-sm mb-3">
     <div class="card-body p-3">
         <h5 class="card-title fw-semibold d-flex align-items-center gap-2 mb-3">
             <i data-lucide="monitor" style="width: 1.25rem; height: 1.25rem;"></i>
@@ -91,12 +89,6 @@
                             <span class="small text-muted">時脈</span>
                             <span class="small fw-medium">
                                 @(string.IsNullOrEmpty(FormatRange(cpuBaseClock, cpuBoostClock)) ? string.Empty : $"{FormatRange(cpuBaseClock, cpuBoostClock)} GHz")
-                            </span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="small text-muted">溫度</span>
-                            <span class="small fw-medium @(TemperatureClass(cpuTemperature))">
-                                @FormatTemperature(cpuTemperature)
                             </span>
                         </div>
                         <div class="d-flex justify-content-between align-items-center">
@@ -134,12 +126,6 @@
                             <span class="small text-muted">溫度</span>
                             <span class="small fw-medium @(TemperatureClass(gpuTemperature))">
                                 @FormatTemperature(gpuTemperature)
-                            </span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="small text-muted">健康度</span>
-                            <span class="small fw-medium @(HealthClass(gpuHealth))">
-                                @FormatPercentage(gpuHealth)
                             </span>
                         </div>
                     </div>

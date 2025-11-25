@@ -1,6 +1,6 @@
-@model Models.HnbHnbBackoffice.vw_sidebar_navigation
+@model Models.HnbBackoffice.vw_sidebar_navigation
 @{
-    var allNavigations = ViewData["AllNavigations"] as List<Models.HnbHnbBackoffice.vw_sidebar_navigation> ?? new List<Models.HnbHnbBackoffice.vw_sidebar_navigation>();
+    var allNavigations = ViewData["AllNavigations"] as List<Models.HnbBackoffice.vw_sidebar_navigation> ?? new List<Models.HnbBackoffice.vw_sidebar_navigation>();
     var children = allNavigations
         .Where(n => n.parent_code == Model.code)
         .OrderBy(n => n.sort_order)

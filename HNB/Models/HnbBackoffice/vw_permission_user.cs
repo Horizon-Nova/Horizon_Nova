@@ -17,7 +17,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Net;
 using Microsoft.EntityFrameworkCore;
 
-namespace Models.HnbHnbBackoffice;
+namespace Models.HnbBackoffice;
 
 [Keyless]
 public partial class vw_permission_user

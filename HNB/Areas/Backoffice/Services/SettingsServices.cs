@@ -1,6 +1,11 @@
 using HNB.Areas.Backoffice.Repositories;
-using Models.HnbHnbBackoffice;
+using HNB.Areas.Backoffice.Utilities;
+using HNB.Areas.Backoffice.Dtos;
 using Models.Hnb;
+using System.Linq;
+using System.Net;
+using System.Runtime.InteropServices;
+using System.Management;
 
 namespace HNB.Areas.Backoffice.Services;
 
@@ -10,12 +15,6 @@ namespace HNB.Areas.Backoffice.Services;
 public class SettingsServices(SettingsRepositories rep)
 {
     #region 統一的查詢方法
-
-    /// <summary>
-    /// 載入硬體監控資料
-    /// </summary>
-    public vw_hardware_monitoring? LoadHardwareMonitoring()
-        => rep.QueryHardwareMonitoring();
 
     /// <summary>
     /// 載入錯誤日誌數量
@@ -50,12 +49,14 @@ public class SettingsServices(SettingsRepositories rep)
     /// </summary>
     public void ViewBagModel(dynamic viewBag)
     {
-        var hardwareInfo = LoadHardwareMonitoring();
         var errorLogsCount = LoadErrorLogsCount();
         var accessLogsCount = LoadAccessLogsCount();
         var cacheStats = LoadCacheStatistics();
         
+        var hardwareInfo = LoadLocalHardwareInfo();
+        
         viewBag.HardwareInfo = hardwareInfo;
+        viewBag.MemoryChannel = GetMemoryChannelCount();
         viewBag.ErrorLogsCount = errorLogsCount;
         viewBag.AccessLogsCount = accessLogsCount;
         viewBag.MemoryCacheSize = cacheStats.memoryCacheSize;
@@ -63,18 +64,205 @@ public class SettingsServices(SettingsRepositories rep)
         viewBag.LastCacheCleared = cacheStats.lastCleared;
     }
     
+    /// <summary>
+    /// 載入本地硬體資訊
+    /// </summary>
+    public HardwareInfoDto LoadLocalHardwareInfo()
+    {
+        var hardware = new HardwareCollector
+        {
+            server_ip = GetLocalIpAddress() ?? "N/A",
+            server_location = null,
+            server_provider = null,
+            environment_type = null
+        };
+
+        hardware = HardwareUtility.CollectCpuInfo(hardware) ?? hardware;
+        hardware = HardwareUtility.CollectGpuInfo(hardware) ?? hardware;
+        hardware = HardwareUtility.CollectMemoryInfo(hardware) ?? hardware;
+        hardware = HardwareUtility.CollectStorageInfo(hardware) ?? hardware;
+        hardware = NetworkHardwareUtility.CollectNetworkInfo(hardware) ?? hardware;
+        hardware = SystemHardwareUtility.CollectSystemInfo(hardware) ?? hardware;
+        hardware = HardwareUtility.CollectPowerInfo(hardware) ?? hardware;
+        hardware = SystemHardwareUtility.SetCheckInfo(hardware, "local", 300) ?? hardware;
+
+        return ConvertToDto(hardware);
+    }
+    
+    /// <summary>
+    /// 取得記憶體通道數
+    /// </summary>
+    public string GetMemoryChannelCount()
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            using var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_PhysicalMemory");
+            var collection = searcher.Get();
+            
+            var moduleCount = 0;
+            foreach (ManagementObject obj in collection)
+            {
+                moduleCount++;
+            }
+            
+            if (moduleCount > 0)
+            {
+                if (moduleCount <= 2)
+                {
+                    return moduleCount == 2 ? "雙通道" : "單通道";
+                }
+                else if (moduleCount <= 4)
+                {
+                    return moduleCount == 4 ? "四通道" : "雙通道";
+                }
+                else
+                {
+                    return $"{moduleCount} 模組";
+                }
+            }
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            if (Directory.Exists("/sys/devices/system/edac/mc"))
+            {
+                var mcDirs = Directory.GetDirectories("/sys/devices/system/edac/mc");
+                if (mcDirs.Length > 0)
+                {
+                    return mcDirs.Length == 1 ? "單通道" : 
+                           mcDirs.Length == 2 ? "雙通道" : 
+                           mcDirs.Length == 4 ? "四通道" : 
+                           $"{mcDirs.Length} 通道";
+                }
+            }
+        }
+        
+        return "N/A";
+    }
+    
+    /// <summary>
+    /// 轉換硬體收集器為 DTO
+    /// </summary>
+    private HardwareInfoDto ConvertToDto(HardwareCollector hardware)
+    {
+        if (hardware == null)
+        {
+            return new HardwareInfoDto
+            {
+                server_ip = "N/A",
+                host_name = "N/A",
+                operating_system = "N/A",
+                cpu_name = "N/A",
+                cpu_model = "N/A",
+                gpu_name = "N/A",
+                memory_name = "N/A"
+            };
+        }
+
+        decimal? memoryUsagePercent = null;
+        if (hardware.system_memory_total.HasValue && hardware.system_memory_used.HasValue && hardware.system_memory_total.Value > 0)
+        {
+            memoryUsagePercent = (decimal)(hardware.system_memory_used.Value * 100) / hardware.system_memory_total.Value;
+        }
+
+        long? memoryTotalGb = hardware.system_memory_total.HasValue 
+            ? hardware.system_memory_total.Value / (1024 * 1024 * 1024) 
+            : null;
+        long? memoryUsedGb = hardware.system_memory_used.HasValue 
+            ? hardware.system_memory_used.Value / (1024 * 1024 * 1024) 
+            : null;
+
+        return new HardwareInfoDto
+        {
+            server_ip = hardware.server_ip ?? "N/A",
+            server_location = hardware.server_location ?? "N/A",
+            server_provider = hardware.server_provider ?? "N/A",
+            environment_type = hardware.environment_type ?? "N/A",
+            host_name = hardware.host_name ?? "N/A",
+            operating_system = hardware.operating_system ?? "N/A",
+            kernel_version = hardware.kernel_version ?? "N/A",
+            uptime = hardware.uptime ?? "N/A",
+            
+            cpu_name = hardware.cpu_names?.FirstOrDefault() ?? "N/A",
+            cpu_manufacturer = hardware.cpu_manufacturers?.FirstOrDefault() ?? "N/A",
+            cpu_model = hardware.cpu_models?.FirstOrDefault() ?? "N/A",
+            cpu_cores = hardware.cpu_cores?.FirstOrDefault(),
+            cpu_threads = hardware.cpu_threads?.FirstOrDefault(),
+            cpu_base_clock = hardware.cpu_base_clocks?.FirstOrDefault(),
+            cpu_boost_clock = hardware.cpu_boost_clocks?.FirstOrDefault(),
+            cpu_temperature = hardware.cpu_temperatures?.FirstOrDefault(),
+            cpu_usage_percent = hardware.cpu_usages?.FirstOrDefault(),
+            cpu_health_status = hardware.cpu_health_statuses?.FirstOrDefault() ?? "N/A",
+            cpu_health_percentage = hardware.cpu_health_percentages?.FirstOrDefault(),
+            
+            gpu_name = hardware.gpu_names?.FirstOrDefault() ?? "N/A",
+            gpu_manufacturer = hardware.gpu_manufacturers?.FirstOrDefault() ?? "N/A",
+            gpu_model = hardware.gpu_models?.FirstOrDefault() ?? "N/A",
+            gpu_memory_size = hardware.gpu_memory_sizes?.FirstOrDefault() ?? "N/A",
+            gpu_temperature = hardware.gpu_temperatures?.FirstOrDefault(),
+            gpu_usage_percent = null,
+            gpu_health_status = null,
+            gpu_health_percentage = null,
+            
+            memory_name = hardware.memory_names?.FirstOrDefault() ?? "N/A",
+            memory_type = hardware.memory_types?.FirstOrDefault() ?? "N/A",
+            memory_total_capacity = hardware.memory_capacities?.FirstOrDefault() ?? "N/A",
+            memory_speed = hardware.memory_speeds?.FirstOrDefault() ?? "N/A",
+            memory_usage_percent = hardware.memory_usages?.FirstOrDefault() ?? memoryUsagePercent,
+            memory_health_status = hardware.memory_health_statuses?.FirstOrDefault() ?? "N/A",
+            memory_health_percentage = hardware.memory_health_percentages?.FirstOrDefault(),
+            
+            system_memory_total = hardware.system_memory_total,
+            system_memory_used = hardware.system_memory_used,
+            system_memory_free = hardware.system_memory_free,
+            memory_total_capacity_gb = memoryTotalGb,
+            memory_used_gb = memoryUsedGb,
+            memory_available_gb = hardware.system_memory_free.HasValue 
+                ? hardware.system_memory_free.Value / (1024 * 1024 * 1024) 
+                : null,
+            
+            system_load_avg = hardware.system_load_avg?.FirstOrDefault(),
+            system_processes = hardware.system_processes,
+            system_users = hardware.system_users,
+            
+            battery_level = hardware.battery_level,
+            power_efficiency = hardware.power_efficiency ?? "N/A",
+            power_supply_info = hardware.power_supply_info ?? "N/A",
+            
+            last_check_time = hardware.last_check_time,
+            check_method = hardware.check_method ?? "N/A",
+            check_interval = hardware.check_interval,
+            is_active = hardware.is_active,
+            created_at = hardware.created_at,
+            updated_at = hardware.updated_at
+        };
+    }
+    
+    /// <summary>
+    /// 取得本地 IP 位址
+    /// </summary>
+    private string GetLocalIpAddress()
+    {
+        try
+        {
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (var ip in host.AddressList)
+            {
+                if (ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                {
+                    return ip.ToString();
+                }
+            }
+        }
+        catch
+        {
+        }
+        
+        return "127.0.0.1";
+    }
+    
     #endregion
 
     #region 基本 CRUD 操作
-
-    /// <summary>
-    /// 創建維護模式切換（更新）
-    /// </summary>
-    public hardware_monitoring? CreateMaintenanceMode(bool enabled)
-    {
-        var config = new hardware_monitoring { is_active = enabled };
-        return rep.InsertHardwareMonitoringConfig(config);
-    }
 
     /// <summary>
     /// 刪除錯誤日誌
@@ -118,7 +306,6 @@ public class SettingsServices(SettingsRepositories rep)
     /// </summary>
     public object LoadSystemHealth()
     {
-        var hardwareInfo = LoadHardwareMonitoring();
         var errorLogsCount = LoadErrorLogsCount();
         var accessLogsCount = LoadAccessLogsCount();
         var cacheStats = LoadCacheStatistics();
@@ -126,80 +313,25 @@ public class SettingsServices(SettingsRepositories rep)
         return new
         {
             timestamp = DateTime.Now,
-            systemStatus = hardwareInfo?.is_active == true ? "運行中" : "停止",
-            cpuUsage = hardwareInfo?.cpu_usage_percent ?? 0,
-            memoryUsage = hardwareInfo?.memory_usage_percent ?? 0,
+            systemStatus = "運行中",
+            cpuUsage = 0,
+            memoryUsage = 0,
             diskUsage = 0,
             errorLogs = errorLogsCount,
             accessLogs = accessLogsCount,
             cacheSize = cacheStats.memoryCacheSize,
-            uptime = hardwareInfo?.uptime ?? "未知",
-            lastUpdated = hardwareInfo?.last_check_time ?? DateTime.Now,
-            healthScore = CalculateHealthScore(hardwareInfo, errorLogsCount, accessLogsCount, cacheStats)
+            uptime = "未知",
+            lastUpdated = DateTime.Now,
+            healthScore = CalculateHealthScore(errorLogsCount, accessLogsCount, cacheStats)
         };
     }
-
-    /// <summary>
-    /// 載入匯出日誌資料
-    /// </summary>
-    public object LoadExportLogs(string logType)
-    {
-        List<object> logs = logType.ToLower() switch
-        {
-            "error" => LoadErrorLogList().Cast<object>().ToList(),
-            "access" => LoadAccessRecordList().Cast<object>().ToList(),
-            _ => LoadErrorLogList().Cast<object>().Concat(LoadAccessRecordList().Cast<object>()).ToList()
-        };
-
-        return new
-        {
-            exportTime = DateTime.Now,
-            logType = logType,
-            totalCount = logs.Count,
-            logs = logs
-        };
-    }
-
-    /// <summary>
-    /// 載入資料庫優化結果
-    /// </summary>
-    public (bool success, string message, object details) LoadDatabaseOptimization()
-    {
-        var details = new
-        {
-            optimizedAt = DateTime.Now,
-            operations = new[]
-            {
-                "清理未使用的空間",
-                "更新統計資訊",
-                "重建索引",
-                "檢查資料完整性"
-            },
-            estimatedTime = "2-5 分鐘"
-        };
-        
-        return (true, "資料庫優化完成", details);
-    }
-
-    /// <summary>
-    /// 載入系統重啟結果
-    /// </summary>
-    public (bool success, string message) LoadSystemRestart()
-        => (true, "系統重啟指令已發送，將在30秒後重啟");
 
     /// <summary>
     /// 計算系統健康分數
     /// </summary>
-    private int CalculateHealthScore(vw_hardware_monitoring? hardwareInfo, int errorLogs, int accessLogs, (long memoryCacheSize, int cacheEntries, DateTime lastCleared) cacheStats)
+    private int CalculateHealthScore(int errorLogs, int accessLogs, (long memoryCacheSize, int cacheEntries, DateTime lastCleared) cacheStats)
     {
         int score = 100;
-        
-        if (hardwareInfo != null)
-        {
-            if (hardwareInfo.cpu_usage_percent > 90) score -= 20;
-            if (hardwareInfo.memory_usage_percent > 90) score -= 20;
-            if (hardwareInfo.is_active != true) score -= 30;
-        }
         
         if (errorLogs > 100) score -= 10;
         if (cacheStats.memoryCacheSize > 1024 * 1024 * 100) score -= 5;

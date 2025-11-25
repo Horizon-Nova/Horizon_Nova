@@ -3,7 +3,7 @@ using HNB.Areas.Backoffice.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Security.Claims;
-using Models.HnbHnbBackoffice;
+using Models.HnbBackoffice;
 using Microsoft.Extensions.DependencyInjection;
 
 

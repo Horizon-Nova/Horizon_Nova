@@ -14,30 +14,18 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
-namespace Models.HnbHnbBackoffice;
+namespace Models.HnbBackoffice;
 
-public partial class HnbHnbBackofficeDbContext : DbContext
+public partial class HnbBackofficeDbContext : DbContext
 {
-    public HnbHnbBackofficeDbContext(DbContextOptions<HnbHnbBackofficeDbContext> options)
+    public HnbBackofficeDbContext(DbContextOptions<HnbBackofficeDbContext> options)
         : base(options)
     {
     }
 
-    public virtual DbSet<ai_config> ai_configs { get; set; }
-
-    public virtual DbSet<ai_log> ai_logs { get; set; }
-
-    public virtual DbSet<hardware_monitoring> hardware_monitorings { get; set; }
-
     public virtual DbSet<permission_management> permission_managements { get; set; }
 
     public virtual DbSet<sidebar_navigation> sidebar_navigations { get; set; }
-
-    public virtual DbSet<vw_ai_config> vw_ai_configs { get; set; }
-
-    public virtual DbSet<vw_ai_log> vw_ai_logs { get; set; }
-
-    public virtual DbSet<vw_hardware_monitoring> vw_hardware_monitorings { get; set; }
 
     public virtual DbSet<vw_permission_organization> vw_permission_organizations { get; set; }
 
@@ -49,140 +37,21 @@ public partial class HnbHnbBackofficeDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.HasPostgresExtension("dbo", "pgcrypto");
-
-        modelBuilder.Entity<ai_config>(entity =>
-        {
-            entity.HasKey(e => e.id).HasName("ai_config_pkey");
-
-            entity.HasIndex(e => new { e.provider, e.scope, e.model_key }, "idx_ai_config_unique")
-                .IsUnique()
-                .HasFilter("(deleted_at IS NULL)");
-
-            entity.Property(e => e.budget_alert_threshold).HasDefaultValue(80);
-            entity.Property(e => e.created_at).HasDefaultValueSql("now()");
-            entity.Property(e => e.is_enabled).HasDefaultValue(true);
-            entity.Property(e => e.priority).HasDefaultValue(0);
-            entity.Property(e => e.version).HasDefaultValueSql("'v1.0.0'::character varying");
-        });
-
-        modelBuilder.Entity<ai_log>(entity =>
-        {
-            entity.HasKey(e => e.id).HasName("ai_log_pkey");
-
-            entity.Property(e => e.created_at).HasDefaultValueSql("now()");
-            entity.Property(e => e.status).HasDefaultValueSql("'pending'::character varying");
-
-            entity.HasOne(d => d.ai_config).WithMany(p => p.ai_logs).HasConstraintName("fk_ai_log_config");
-        });
-
-        modelBuilder.Entity<hardware_monitoring>(entity =>
-        {
-            entity.HasKey(e => e.id).HasName("hardware_monitoring_pkey");
-
-            entity.ToTable("hardware_monitoring", "dbo", tb => tb.HasComment("硬體監控資料表 - 統一儲存伺服器硬體監控資訊"));
-
-            entity.Property(e => e.id).HasComment("主鍵ID");
-            entity.Property(e => e.battery_level).HasComment("電池電量 (%)");
-            entity.Property(e => e.check_interval).HasComment("檢查間隔 (秒)");
-            entity.Property(e => e.check_method).HasComment("檢查方式 (agent/api/snmp)");
-            entity.Property(e => e.cpu_base_clocks).HasComment("CPU基礎時脈陣列 (GHz)");
-            entity.Property(e => e.cpu_boost_clocks).HasComment("CPU加速時脈陣列 (GHz)");
-            entity.Property(e => e.cpu_cores).HasComment("CPU核心數陣列");
-            entity.Property(e => e.cpu_health_percentages).HasComment("CPU健康百分比陣列");
-            entity.Property(e => e.cpu_health_statuses).HasComment("CPU健康狀態陣列");
-            entity.Property(e => e.cpu_manufacturers).HasComment("CPU製造商陣列");
-            entity.Property(e => e.cpu_models).HasComment("CPU型號陣列");
-            entity.Property(e => e.cpu_names).HasComment("CPU名稱陣列");
-            entity.Property(e => e.cpu_temperatures).HasComment("CPU溫度陣列 (°C)");
-            entity.Property(e => e.cpu_threads).HasComment("CPU執行緒數陣列");
-            entity.Property(e => e.cpu_usages).HasComment("CPU使用率陣列 (%)");
-            entity.Property(e => e.created_at)
-                .HasDefaultValueSql("now()")
-                .HasComment("建立時間");
-            entity.Property(e => e.environment_type).HasComment("環境類型 (Production/Development/Test)");
-            entity.Property(e => e.gpu_health_percentages).HasComment("GPU健康百分比陣列");
-            entity.Property(e => e.gpu_health_statuses).HasComment("GPU健康狀態陣列");
-            entity.Property(e => e.gpu_manufacturers).HasComment("GPU製造商陣列");
-            entity.Property(e => e.gpu_memory_sizes).HasComment("GPU記憶體大小陣列");
-            entity.Property(e => e.gpu_models).HasComment("GPU型號陣列");
-            entity.Property(e => e.gpu_names).HasComment("GPU名稱陣列");
-            entity.Property(e => e.gpu_temperatures).HasComment("GPU溫度陣列 (°C)");
-            entity.Property(e => e.gpu_usages).HasComment("GPU使用率陣列 (%)");
-            entity.Property(e => e.host_name).HasComment("主機名稱");
-            entity.Property(e => e.is_active)
-                .HasDefaultValue(true)
-                .HasComment("是否啟用");
-            entity.Property(e => e.kernel_version).HasComment("核心版本");
-            entity.Property(e => e.last_check_time).HasComment("最後檢查時間");
-            entity.Property(e => e.memory_capacities).HasComment("記憶體容量陣列");
-            entity.Property(e => e.memory_health_percentages).HasComment("記憶體健康百分比陣列");
-            entity.Property(e => e.memory_health_statuses).HasComment("記憶體健康狀態陣列");
-            entity.Property(e => e.memory_names).HasComment("記憶體名稱陣列");
-            entity.Property(e => e.memory_speeds).HasComment("記憶體速度陣列");
-            entity.Property(e => e.memory_types).HasComment("記憶體類型陣列");
-            entity.Property(e => e.memory_usages).HasComment("記憶體使用率陣列 (%)");
-            entity.Property(e => e.network_interfaces).HasComment("網路介面名稱陣列");
-            entity.Property(e => e.network_rx_bytes).HasComment("接收位元組數陣列");
-            entity.Property(e => e.network_speeds).HasComment("網路速度陣列");
-            entity.Property(e => e.network_statuses).HasComment("網路狀態陣列");
-            entity.Property(e => e.network_tx_bytes).HasComment("傳輸位元組數陣列");
-            entity.Property(e => e.network_types).HasComment("網路類型陣列");
-            entity.Property(e => e.operating_system).HasComment("作業系統");
-            entity.Property(e => e.power_efficiency).HasComment("電源效率");
-            entity.Property(e => e.power_supply_info).HasComment("電源供應器資訊");
-            entity.Property(e => e.server_ip).HasComment("伺服器IP位址");
-            entity.Property(e => e.server_location).HasComment("伺服器位置");
-            entity.Property(e => e.server_provider).HasComment("伺服器提供商");
-            entity.Property(e => e.storage_capacities).HasComment("儲存容量陣列");
-            entity.Property(e => e.storage_interfaces).HasComment("儲存介面陣列");
-            entity.Property(e => e.storage_names).HasComment("儲存裝置名稱陣列");
-            entity.Property(e => e.storage_read_speeds).HasComment("讀取速度陣列 (MB/s)");
-            entity.Property(e => e.storage_types).HasComment("儲存類型陣列");
-            entity.Property(e => e.storage_write_speeds).HasComment("寫入速度陣列 (MB/s)");
-            entity.Property(e => e.system_disk_free).HasComment("系統可用磁碟空間 (bytes)");
-            entity.Property(e => e.system_disk_total).HasComment("系統總磁碟空間 (bytes)");
-            entity.Property(e => e.system_disk_used).HasComment("系統已用磁碟空間 (bytes)");
-            entity.Property(e => e.system_load_avg).HasComment("系統負載平均值陣列");
-            entity.Property(e => e.system_memory_free).HasComment("系統可用記憶體 (bytes)");
-            entity.Property(e => e.system_memory_total).HasComment("系統總記憶體 (bytes)");
-            entity.Property(e => e.system_memory_used).HasComment("系統已用記憶體 (bytes)");
-            entity.Property(e => e.system_processes).HasComment("系統程序數");
-            entity.Property(e => e.system_swap_total).HasComment("系統總交換空間 (bytes)");
-            entity.Property(e => e.system_swap_used).HasComment("系統已用交換空間 (bytes)");
-            entity.Property(e => e.system_users).HasComment("系統使用者數");
-            entity.Property(e => e.updated_at)
-                .HasDefaultValueSql("now()")
-                .HasComment("更新時間");
-            entity.Property(e => e.uptime).HasComment("系統運行時間");
-        });
+        modelBuilder
+            .UseCollation("C")
+            .HasPostgresExtension("dbo", "dblink");
 
         modelBuilder.Entity<permission_management>(entity =>
         {
-            entity.HasKey(e => e.id).HasName("permission_management_pkey");
-
             entity.ToTable("permission_management", "dbo", tb => tb.HasComment("權限管理統一資料表 - 用於統一管理用戶、角色、組織三種類型的資料，透過 type 欄位區分資料類型"));
 
-            entity.HasIndex(e => e.navigation_permissions, "idx_permission_management_navigation_permissions").HasMethod("gin");
-
-            entity.HasIndex(e => e.payment_methods, "idx_permission_management_payment_methods").HasMethod("gin");
-
-            entity.HasIndex(e => e.preferences, "idx_permission_management_preferences").HasMethod("gin");
-
-            entity.HasIndex(e => e.subscription_products, "idx_permission_management_subscription_products").HasMethod("gin");
-
-            entity.Property(e => e.id).HasComment("主鍵ID");
-            entity.Property(e => e.auto_renew)
-                .HasDefaultValue(true)
-                .HasComment("自動續費：true=自動續費, false=手動續費");
+            entity.Property(e => e.auto_renew).HasComment("自動續費：true=自動續費, false=手動續費");
             entity.Property(e => e.avatar_url).HasComment("頭像網址：用戶頭像圖片連結");
             entity.Property(e => e.billing_cycle).HasComment("計費週期：monthly/yearly等");
             entity.Property(e => e.bio).HasComment("個人簡介：用戶的自我介紹");
             entity.Property(e => e.birthday).HasComment("生日：用戶出生日期");
             entity.Property(e => e.color_scheme).HasComment("色彩主題：用戶介面色彩配置");
-            entity.Property(e => e.created_at)
-                .HasDefaultValueSql("now()")
-                .HasComment("建立時間：記錄建立時間");
+            entity.Property(e => e.created_at).HasComment("建立時間：記錄建立時間");
             entity.Property(e => e.created_by).HasComment("建立者ID：建立此記錄的用戶ID");
             entity.Property(e => e.description).HasComment("描述：角色或組織的詳細說明");
             entity.Property(e => e.device_fingerprints).HasComment("設備指紋陣列：設備唯一識別碼列表");
@@ -190,35 +59,22 @@ public partial class HnbHnbBackofficeDbContext : DbContext
             entity.Property(e => e.favorite_color).HasComment("喜愛的顏色：用戶偏好顏色");
             entity.Property(e => e.full_name).HasComment("完整名稱：用戶=真實姓名, 角色=角色完整名稱, 組織=組織完整名稱");
             entity.Property(e => e.gender).HasComment("性別：男/女/其他");
+            entity.Property(e => e.id).HasComment("主鍵ID");
             entity.Property(e => e.internal_notes).HasComment("內部備註：僅管理員可見的內部備註");
-            entity.Property(e => e.is_active)
-                .HasDefaultValue(true)
-                .HasComment("是否啟用：true=啟用, false=停用");
-            entity.Property(e => e.is_email_verified)
-                .HasDefaultValue(false)
-                .HasComment("郵箱是否驗證：true=已驗證, false=未驗證");
-            entity.Property(e => e.is_online)
-                .HasDefaultValue(false)
-                .HasComment("是否在線：true=在線, false=離線");
-            entity.Property(e => e.is_phone_verified)
-                .HasDefaultValue(false)
-                .HasComment("電話是否驗證：true=已驗證, false=未驗證");
-            entity.Property(e => e.language)
-                .HasDefaultValueSql("'zh-TW'::character varying")
-                .HasComment("語言設定：用戶介面語言");
+            entity.Property(e => e.is_active).HasComment("是否啟用：true=啟用, false=停用");
+            entity.Property(e => e.is_email_verified).HasComment("郵箱是否驗證：true=已驗證, false=未驗證");
+            entity.Property(e => e.is_online).HasComment("是否在線：true=在線, false=離線");
+            entity.Property(e => e.is_phone_verified).HasComment("電話是否驗證：true=已驗證, false=未驗證");
+            entity.Property(e => e.language).HasComment("語言設定：用戶介面語言");
             entity.Property(e => e.last_activity_at).HasComment("最後活動時間：最近一次活動時間");
             entity.Property(e => e.last_device_info).HasComment("最後設備資訊：JSON格式的設備詳細資訊");
             entity.Property(e => e.last_login_at).HasComment("最後登入時間：最近一次登入時間");
             entity.Property(e => e.last_login_ip).HasComment("最後登入IP：最近一次登入的IP地址");
             entity.Property(e => e.last_login_user_agent).HasComment("最後登入用戶代理：最近一次登入的瀏覽器資訊");
             entity.Property(e => e.last_password_change_at).HasComment("最後密碼變更時間：密碼最後修改時間");
-            entity.Property(e => e.level)
-                .HasDefaultValue(1)
-                .HasComment("層級：組織=組織層級(1-10), 角色=角色層級, 用戶=用戶層級");
+            entity.Property(e => e.level).HasComment("層級：組織=組織層級(1-10), 角色=角色層級, 用戶=用戶層級");
             entity.Property(e => e.location).HasComment("所在地：用戶居住或工作地點");
-            entity.Property(e => e.login_count)
-                .HasDefaultValue(0)
-                .HasComment("登入次數：用戶總登入次數");
+            entity.Property(e => e.login_count).HasComment("登入次數：用戶總登入次數");
             entity.Property(e => e.login_method).HasComment("登入方式：local/oauth/google/facebook等");
             entity.Property(e => e.name).HasComment("名稱：用戶=username, 角色=角色名稱, 組織=組織名稱");
             entity.Property(e => e.navigation_permissions).HasComment("導航權限陣列：儲存sidebar_navigation表的code編號，用於控制用戶可訪問的頁面");
@@ -234,40 +90,28 @@ public partial class HnbHnbBackofficeDbContext : DbContext
             entity.Property(e => e.phone).HasComment("電話號碼：用戶聯絡電話");
             entity.Property(e => e.preferences).HasComment("用戶偏好：JSON格式的個人偏好設定");
             entity.Property(e => e.privacy_settings).HasComment("隱私設定：JSON格式的隱私控制設定");
-            entity.Property(e => e.profile_completion_percentage)
-                .HasDefaultValue(0)
-                .HasComment("資料完成度：個人資料完成百分比");
+            entity.Property(e => e.profile_completion_percentage).HasComment("資料完成度：個人資料完成百分比");
             entity.Property(e => e.role_names).HasComment("角色名稱陣列：角色名稱列表（用於顯示）");
             entity.Property(e => e.roles).HasComment("角色ID陣列：用戶=擁有的角色ID列表, 組織=分配的角色ID列表");
             entity.Property(e => e.salt).HasComment("密碼鹽值：用於密碼雜湊的隨機字串");
             entity.Property(e => e.security_questions).HasComment("安全問題：JSON格式的安全問題和答案");
-            entity.Property(e => e.sort_order)
-                .HasDefaultValue(0)
-                .HasComment("排序順序：顯示順序編號");
-            entity.Property(e => e.status)
-                .HasDefaultValueSql("'active'::character varying")
-                .HasComment("狀態：active/inactive/suspended等");
+            entity.Property(e => e.sort_order).HasComment("排序順序：顯示順序編號");
+            entity.Property(e => e.status).HasComment("狀態：active/inactive/suspended等");
             entity.Property(e => e.status_reason).HasComment("狀態原因：狀態變更的原因說明");
             entity.Property(e => e.subscription_expires_at).HasComment("訂閱到期時間：訂閱服務到期日期");
             entity.Property(e => e.subscription_products).HasComment("訂閱產品：JSON格式的訂閱產品資訊");
             entity.Property(e => e.subscription_status).HasComment("訂閱狀態：active/inactive/cancelled等");
             entity.Property(e => e.tags).HasComment("標籤陣列：用於分類和搜尋的標籤列表");
-            entity.Property(e => e.theme)
-                .HasDefaultValueSql("'auto'::character varying")
-                .HasComment("主題設定：用戶介面主題");
+            entity.Property(e => e.theme).HasComment("主題設定：用戶介面主題");
             entity.Property(e => e.third_party_avatar).HasComment("第三方頭像：第三方登入的頭像網址");
             entity.Property(e => e.third_party_email).HasComment("第三方郵箱：第三方登入的郵箱地址");
             entity.Property(e => e.third_party_id).HasComment("第三方ID：OAuth等第三方登入的用戶ID");
-            entity.Property(e => e.timezone)
-                .HasDefaultValueSql("'Asia/Taipei'::character varying")
-                .HasComment("時區：用戶所在時區");
+            entity.Property(e => e.timezone).HasComment("時區：用戶所在時區");
             entity.Property(e => e.total_session_time).HasComment("總會話時間：用戶累計使用時間");
             entity.Property(e => e.trial_ends_at).HasComment("試用期結束時間：免費試用結束日期");
             entity.Property(e => e.trusted_devices).HasComment("信任設備陣列：已信任的設備ID列表");
             entity.Property(e => e.trusted_ips).HasComment("信任IP陣列：已信任的IP地址列表");
-            entity.Property(e => e.two_factor_enabled)
-                .HasDefaultValue(false)
-                .HasComment("是否啟用雙因子認證：true=啟用, false=未啟用");
+            entity.Property(e => e.two_factor_enabled).HasComment("是否啟用雙因子認證：true=啟用, false=未啟用");
             entity.Property(e => e.two_factor_secret).HasComment("雙因子認證密鑰：TOTP密鑰");
             entity.Property(e => e.type).HasComment("資料類型：user=用戶, role=角色, organization=組織");
             entity.Property(e => e.updated_at).HasComment("更新時間：記錄最後更新時間");
@@ -278,105 +122,18 @@ public partial class HnbHnbBackofficeDbContext : DbContext
 
         modelBuilder.Entity<sidebar_navigation>(entity =>
         {
-            entity.HasKey(e => e.id).HasName("sidebar_navigation_pkey");
-
             entity.ToTable("sidebar_navigation", "dbo", tb => tb.HasComment("側欄導航管理表"));
 
-            entity.Property(e => e.id).HasComment("主鍵，自動遞增");
             entity.Property(e => e.code).HasComment("導航項目編號，唯一識別碼");
-            entity.Property(e => e.created_at)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasComment("建立時間");
-            entity.Property(e => e.icon)
-                .HasDefaultValueSql("'circle'::character varying")
-                .HasComment("導航項目圖示名稱");
-            entity.Property(e => e.is_active)
-                .HasDefaultValue(true)
-                .HasComment("是否啟用此導航項目");
-            entity.Property(e => e.parent_code).HasComment("父級導航項目編號，用於建立階層結構");
-            entity.Property(e => e.sort_order)
-                .HasDefaultValue(0)
-                .HasComment("排序順序，數字越小越前面");
-            entity.Property(e => e.title).HasComment("導航項目顯示標題");
-            entity.Property(e => e.updated_at)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasComment("最後更新時間");
-            entity.Property(e => e.url).HasComment("導航項目連結網址");
-
-            entity.HasOne(d => d.parent_codeNavigation).WithMany(p => p.Inverseparent_codeNavigation)
-                .HasPrincipalKey(p => p.code)
-                .HasForeignKey(d => d.parent_code)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("fk_sidebar_navigation_parent");
-        });
-
-        modelBuilder.Entity<vw_ai_config>(entity =>
-        {
-            entity.ToView("vw_ai_config", "dbo");
-        });
-
-        modelBuilder.Entity<vw_ai_log>(entity =>
-        {
-            entity.ToView("vw_ai_log", "dbo");
-        });
-
-        modelBuilder.Entity<vw_hardware_monitoring>(entity =>
-        {
-            entity.ToView("vw_hardware_monitoring", "dbo");
-
-            entity.Property(e => e.battery_level).HasComment("電池電量 (%)");
-            entity.Property(e => e.check_interval).HasComment("檢查間隔 (秒)");
-            entity.Property(e => e.check_method).HasComment("檢查方式");
-            entity.Property(e => e.cpu_base_clock).HasComment("CPU基礎時脈 (GHz)");
-            entity.Property(e => e.cpu_boost_clock).HasComment("CPU加速時脈 (GHz)");
-            entity.Property(e => e.cpu_cores).HasComment("CPU核心數");
-            entity.Property(e => e.cpu_health_percentage).HasComment("CPU健康百分比");
-            entity.Property(e => e.cpu_health_status).HasComment("CPU健康狀態");
-            entity.Property(e => e.cpu_manufacturer).HasComment("CPU製造商");
-            entity.Property(e => e.cpu_model).HasComment("CPU型號");
-            entity.Property(e => e.cpu_name).HasComment("CPU名稱");
-            entity.Property(e => e.cpu_temperature).HasComment("CPU溫度 (°C)");
-            entity.Property(e => e.cpu_threads).HasComment("CPU執行緒數");
-            entity.Property(e => e.cpu_usage_percent).HasComment("CPU使用率 (%)");
             entity.Property(e => e.created_at).HasComment("建立時間");
-            entity.Property(e => e.environment_type).HasComment("環境類型");
-            entity.Property(e => e.gpu_health_percentage).HasComment("GPU健康百分比");
-            entity.Property(e => e.gpu_health_status).HasComment("GPU健康狀態");
-            entity.Property(e => e.gpu_manufacturer).HasComment("GPU製造商");
-            entity.Property(e => e.gpu_memory_size).HasComment("GPU記憶體大小");
-            entity.Property(e => e.gpu_model).HasComment("GPU型號");
-            entity.Property(e => e.gpu_name).HasComment("GPU名稱");
-            entity.Property(e => e.gpu_temperature).HasComment("GPU溫度 (°C)");
-            entity.Property(e => e.gpu_usage_percent).HasComment("GPU使用率 (%)");
-            entity.Property(e => e.host_name).HasComment("主機名稱");
-            entity.Property(e => e.id).HasComment("主鍵ID");
-            entity.Property(e => e.is_active).HasComment("是否啟用");
-            entity.Property(e => e.kernel_version).HasComment("核心版本");
-            entity.Property(e => e.last_check_time).HasComment("最後檢查時間");
-            entity.Property(e => e.memory_available_gb).HasComment("記憶體可用 (GB)");
-            entity.Property(e => e.memory_health_percentage).HasComment("記憶體健康百分比");
-            entity.Property(e => e.memory_health_status).HasComment("記憶體健康狀態");
-            entity.Property(e => e.memory_name).HasComment("記憶體名稱");
-            entity.Property(e => e.memory_speed).HasComment("記憶體速度");
-            entity.Property(e => e.memory_total_capacity).HasComment("記憶體總容量");
-            entity.Property(e => e.memory_total_capacity_gb).HasComment("記憶體總容量 (GB)");
-            entity.Property(e => e.memory_type).HasComment("記憶體類型");
-            entity.Property(e => e.memory_usage_percent).HasComment("記憶體使用率 (%)");
-            entity.Property(e => e.memory_used_gb).HasComment("記憶體已使用 (GB)");
-            entity.Property(e => e.operating_system).HasComment("作業系統");
-            entity.Property(e => e.power_efficiency).HasComment("電源效率");
-            entity.Property(e => e.power_supply_info).HasComment("電源供應器資訊");
-            entity.Property(e => e.server_ip).HasComment("伺服器IP位址");
-            entity.Property(e => e.server_location).HasComment("伺服器位置");
-            entity.Property(e => e.server_provider).HasComment("伺服器提供商");
-            entity.Property(e => e.system_load_avg).HasComment("系統負載平均值");
-            entity.Property(e => e.system_memory_free).HasComment("系統可用記憶體 (bytes)");
-            entity.Property(e => e.system_memory_total).HasComment("系統總記憶體 (bytes)");
-            entity.Property(e => e.system_memory_used).HasComment("系統已用記憶體 (bytes)");
-            entity.Property(e => e.system_processes).HasComment("系統程序數");
-            entity.Property(e => e.system_users).HasComment("系統使用者數");
-            entity.Property(e => e.updated_at).HasComment("更新時間");
-            entity.Property(e => e.uptime).HasComment("系統運行時間");
+            entity.Property(e => e.icon).HasComment("導航項目圖示名稱");
+            entity.Property(e => e.id).HasComment("主鍵，自動遞增");
+            entity.Property(e => e.is_active).HasComment("是否啟用此導航項目");
+            entity.Property(e => e.parent_code).HasComment("父級導航項目編號，用於建立階層結構");
+            entity.Property(e => e.sort_order).HasComment("排序順序，數字越小越前面");
+            entity.Property(e => e.title).HasComment("導航項目顯示標題");
+            entity.Property(e => e.updated_at).HasComment("最後更新時間");
+            entity.Property(e => e.url).HasComment("導航項目連結網址");
         });
 
         modelBuilder.Entity<vw_permission_organization>(entity =>

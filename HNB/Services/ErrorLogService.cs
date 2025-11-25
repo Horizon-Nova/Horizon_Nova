@@ -38,6 +38,7 @@ public class ErrorLogService(ErrorLogRepository rep)
 
         var log = new error_log
         {
+            id = Guid.NewGuid(),
             stage = stage,
             layer = LogSanitizer.Clean(layer),
             function = LogSanitizer.Clean(context.Request.Path),

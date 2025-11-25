@@ -1,4 +1,4 @@
-using Models.HnbHnbBackoffice;
+using Models.HnbBackoffice;
 using Microsoft.EntityFrameworkCore;
 
 namespace HNB.Areas.Weather.Repositories;
@@ -6,7 +6,7 @@ namespace HNB.Areas.Weather.Repositories;
 /// <summary>
 /// 登入資料存取層，負責處理登入相關的資料庫操作
 /// </summary>
-public class LoginRepository(HnbHnbBackofficeDbContext db)
+public class LoginRepository(HnbBackofficeDbContext db)
 {
     /// <summary>
     /// 查詢用戶的組織名稱是否為指定值

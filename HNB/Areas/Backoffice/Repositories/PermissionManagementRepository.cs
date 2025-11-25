@@ -1,12 +1,12 @@
 using Microsoft.EntityFrameworkCore;
-using Models.HnbHnbBackoffice;
+using Models.HnbBackoffice;
 
 namespace HNB.Areas.Backoffice.Repositories;
 
 /// <summary>
 /// 權限管理資料存取層，負責處理權限管理資料的存取功能
 /// </summary>
-public class PermissionManagementRepository(HnbHnbBackofficeDbContext db)
+public class PermissionManagementRepository(HnbBackofficeDbContext db)
 {
     #region 統一的查詢來源
     /// <summary>

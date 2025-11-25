@@ -1,7 +1,7 @@
-@model List<Models.HnbHnbBackoffice.vw_sidebar_navigation>
+@model List<Models.HnbBackoffice.vw_sidebar_navigation>
 @{
     Layout = null;
-    var items = Model ?? new List<Models.HnbHnbBackoffice.vw_sidebar_navigation>();
+    var items = Model ?? new List<Models.HnbBackoffice.vw_sidebar_navigation>();
     var rootNavigations = items
         .Where(n => string.IsNullOrEmpty(n.parent_code))
         .OrderBy(n => n.sort_order ?? 0)

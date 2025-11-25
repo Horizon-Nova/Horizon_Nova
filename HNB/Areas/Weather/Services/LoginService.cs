@@ -1,5 +1,5 @@
 using HNB.Areas.Weather.Repositories;
-using Models.HnbHnbBackoffice;
+using Models.HnbBackoffice;
 using System.Security.Cryptography;
 using System.Text;
 

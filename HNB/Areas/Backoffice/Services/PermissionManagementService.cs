@@ -1,5 +1,5 @@
 using HNB.Areas.Backoffice.Repositories;
-using Models.HnbHnbBackoffice;
+using Models.HnbBackoffice;
 
 namespace HNB.Areas.Backoffice.Services;
 
@@ -69,7 +69,7 @@ public class PermissionManagementService(PermissionManagementRepository repo)
     {
         if (data.type == "organization" && data.roles != null && data.roles.Any())
         {
-            var occupiedRoles = repo.QueryOccupiedRoles(data.roles, data.id);
+            var occupiedRoles = repo.QueryOccupiedRoles(data.roles, data.id ?? 0);
             if (occupiedRoles.Any())
             {
                 var errorMessages = occupiedRoles.Select(kvp => 

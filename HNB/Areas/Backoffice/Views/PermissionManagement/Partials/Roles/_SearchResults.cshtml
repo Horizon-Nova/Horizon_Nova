@@ -1,4 +1,4 @@
-@model List<Models.HnbHnbBackoffice.vw_permission_role>
+@model List<Models.HnbBackoffice.vw_permission_role>
 @{
     Layout = null;
 }
@@ -20,7 +20,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var role in Model ?? new List<Models.HnbHnbBackoffice.vw_permission_role>())
+            @foreach (var role in Model ?? new List<Models.HnbBackoffice.vw_permission_role>())
             {
                 <tr>
                     <td>

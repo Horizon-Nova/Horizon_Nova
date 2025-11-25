@@ -11,10 +11,9 @@ public class DashboardController(SettingsServices settingsService) : BaseControl
     /// </summary>
     public IActionResult Index()
     {
-        // 載入系統狀態資料
-        var hardwareInfo = settingsService.LoadHardwareMonitoring();
-        ViewBag.HardwareInfo = hardwareInfo;
-        ViewBag.ServerStatus = hardwareInfo?.is_active == true ? "正常運行" : "停止";
+        var hardwareInfo = settingsService.LoadLocalHardwareInfo();
+        
+        ViewBag.ServerStatus = hardwareInfo != null && hardwareInfo.is_active == true ? "正常運行" : "停止";
         ViewBag.CpuUsage = hardwareInfo?.cpu_usage_percent ?? 0;
         ViewBag.MemoryUsage = hardwareInfo?.memory_usage_percent ?? 0;
 

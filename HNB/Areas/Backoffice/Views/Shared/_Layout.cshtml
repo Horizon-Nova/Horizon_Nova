@@ -123,7 +123,7 @@
 
             <nav class="px-3 py-3 flex-grow-1" style="height: calc(100vh - 4rem); overflow-y: auto; overflow-x: hidden;">
                 @{
-                    var sidebarNavigation = ViewBag.SidebarNavigation as List<Models.HnbHnbBackoffice.vw_sidebar_navigation> ?? new List<Models.HnbHnbBackoffice.vw_sidebar_navigation>();
+                    var sidebarNavigation = ViewBag.SidebarNavigation as List<Models.HnbBackoffice.vw_sidebar_navigation> ?? new List<Models.HnbBackoffice.vw_sidebar_navigation>();
                     var rootItems = sidebarNavigation.Where(n => string.IsNullOrEmpty(n.parent_code)).OrderBy(n => n.sort_order).ToList();
                 }
 

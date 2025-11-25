@@ -16,60 +16,53 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Models.HnbHnbBackoffice;
+namespace Models.HnbBackoffice;
 
-/// <summary>
-/// 側欄導航管理表
-/// </summary>
-[Table("sidebar_navigation", Schema = "dbo")]
-[Index("code", Name = "idx_sidebar_navigation_code")]
-[Index("parent_code", Name = "idx_sidebar_navigation_parent_code")]
-[Index("code", Name = "sidebar_navigation_code_key", IsUnique = true)]
-public partial class sidebar_navigation
+[Keyless]
+public partial class vw_sidebar_navigation
 {
     /// <summary>
-    /// 主鍵，自動遞增
+    /// 主鍵ID
     /// </summary>
-    [Key]
-    public int id { get; set; }
+    public int? id { get; set; }
 
     /// <summary>
-    /// 導航項目編號，唯一識別碼
+    /// 導航項目編號
     /// </summary>
     [StringLength(50)]
-    public string code { get; set; } = null!;
+    public string? code { get; set; }
 
     /// <summary>
-    /// 導航項目顯示標題
+    /// 導航項目標題
     /// </summary>
     [StringLength(100)]
-    public string title { get; set; } = null!;
+    public string? title { get; set; }
 
     /// <summary>
-    /// 導航項目連結網址
+    /// 導航項目連結
     /// </summary>
     [StringLength(500)]
-    public string url { get; set; } = null!;
+    public string? url { get; set; }
 
     /// <summary>
-    /// 導航項目圖示名稱
+    /// 導航項目圖示
     /// </summary>
     [StringLength(50)]
     public string? icon { get; set; }
 
     /// <summary>
-    /// 排序順序，數字越小越前面
-    /// </summary>
-    public int? sort_order { get; set; }
-
-    /// <summary>
-    /// 父級導航項目編號，用於建立階層結構
+    /// 父級導航項目編號
     /// </summary>
     [StringLength(50)]
     public string? parent_code { get; set; }
 
     /// <summary>
-    /// 是否啟用此導航項目
+    /// 排序順序
+    /// </summary>
+    public int? sort_order { get; set; }
+
+    /// <summary>
+    /// 是否啟用
     /// </summary>
     public bool? is_active { get; set; }
 
@@ -79,14 +72,44 @@ public partial class sidebar_navigation
     public DateTime? created_at { get; set; }
 
     /// <summary>
-    /// 最後更新時間
+    /// 更新時間
     /// </summary>
     public DateTime? updated_at { get; set; }
 
-    [InverseProperty("parent_codeNavigation")]
-    public virtual ICollection<sidebar_navigation> Inverseparent_codeNavigation { get; set; } = new List<sidebar_navigation>();
+    /// <summary>
+    /// 父級導航標題：從parent_code關聯取得
+    /// </summary>
+    [StringLength(100)]
+    public string? parent_title { get; set; }
 
-    [ForeignKey("parent_code")]
-    [InverseProperty("Inverseparent_codeNavigation")]
-    public virtual sidebar_navigation? parent_codeNavigation { get; set; }
+    /// <summary>
+    /// 子項目數量：自動計算子導航項目數量
+    /// </summary>
+    public long? children_count { get; set; }
+
+    /// <summary>
+    /// 子項目陣列：子導航項目的code陣列
+    /// </summary>
+    [Column(TypeName = "character varying[]")]
+    public List<string>? children { get; set; }
+
+    /// <summary>
+    /// 完整路徑：階層路徑字串
+    /// </summary>
+    public string? full_path { get; set; }
+
+    /// <summary>
+    /// 階層等級：1為根項目，2為子項目
+    /// </summary>
+    public int? hierarchy_level { get; set; }
+
+    /// <summary>
+    /// 是否有子項目：children_count &gt; 0時為true
+    /// </summary>
+    public bool? is_parent { get; set; }
+
+    /// <summary>
+    /// 是否為葉子節點：children_count = 0時為true
+    /// </summary>
+    public bool? is_leaf { get; set; }
 }

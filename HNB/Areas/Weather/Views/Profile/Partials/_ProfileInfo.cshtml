@@ -1,6 +1,6 @@
 @{
     Layout = null;
-    var user = ViewBag.User as Models.HnbHnbBackoffice.vw_permission_user;
+    var user = ViewBag.User as Models.HnbBackoffice.vw_permission_user;
     var displayName = user?.nickname ?? user?.name ?? "User";
     var avatarUrl = user?.avatar_url ?? user?.third_party_avatar;
     var bio = user?.bio;

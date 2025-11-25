@@ -2,7 +2,7 @@
 using HNB.Areas.Backoffice.Services;
 using HNB.Areas.Backoffice.Core;
 using Microsoft.AspNetCore.Mvc;
-using Models.HnbHnbBackoffice;
+using Models.HnbBackoffice;
 
 namespace HNB.Areas.Backoffice.Controllers;
 

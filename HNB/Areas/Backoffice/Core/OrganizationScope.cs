@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using Models.HnbHnbBackoffice;
+using Models.HnbBackoffice;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
@@ -43,7 +43,7 @@ public class UserScope
     public List<string> NavigationPermissions { get; set; } = new();
 }
 
-public class OrganizationScope(HnbHnbBackofficeDbContext db)
+public class OrganizationScope(HnbBackofficeDbContext db)
 {
     #region 公開方法
 

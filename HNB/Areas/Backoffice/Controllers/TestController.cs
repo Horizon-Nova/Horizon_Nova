@@ -1,7 +1,7 @@
 using HNB.Areas.Backoffice.Utilities;
 using HNB.Areas.Backoffice.Core;
 using Microsoft.AspNetCore.Mvc;
-using Models.HnbHnbBackoffice;
+using Models.HnbBackoffice;
 using static HNB.Areas.Backoffice.Utilities.DirectoryManagerUtilities;
 
 namespace HNB.Areas.Backoffice.Controllers;

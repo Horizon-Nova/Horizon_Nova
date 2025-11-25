@@ -1,5 +1,4 @@
-﻿using HNB.Areas.Backoffice.BackgroundServices.Repositories;
-using HNB.Areas.Backoffice.Core;
+﻿using HNB.Areas.Backoffice.Core;
 using HNB.Areas.Backoffice.Repositories;
 using HNB.Areas.Backoffice.Services;
 using HNB.Areas.Backoffice.Utilities;
@@ -133,7 +132,6 @@ public static class ServiceExtensions
         services.AddScoped<SettingsRepositories>();
         services.AddScoped<AuthRepository>();
         services.AddScoped<SidebarNavigationRepository>();
-        services.AddScoped<HardwareMonitoringRepository>();
         services.AddScoped<BlockedIpRepository>();
         services.AddScoped<TeamZoneRepository>();
         
