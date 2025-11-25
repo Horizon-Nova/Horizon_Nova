@@ -1,6 +1,6 @@
 using HNB.IntelligentSystems.DallE3.Models;
 using HNB.IntelligentSystems.DallE3.Module;
-using HNB.IntelligentSystems.ObjectDetection.Utils;
+using HNB.IntelligentSystems.GroundingDINO.Utils;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HNB.IntelligentSystems.DallE3.Api;

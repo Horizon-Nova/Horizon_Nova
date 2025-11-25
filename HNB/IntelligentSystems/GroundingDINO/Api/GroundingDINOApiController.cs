@@ -1,27 +1,27 @@
-using HNB.IntelligentSystems.ObjectDetection.Models;
-using HNB.IntelligentSystems.ObjectDetection.Module;
-using HNB.IntelligentSystems.ObjectDetection.Utils;
+using HNB.IntelligentSystems.GroundingDINO.Models;
+using HNB.IntelligentSystems.GroundingDINO.Module;
+using HNB.IntelligentSystems.GroundingDINO.Utils;
 using Microsoft.AspNetCore.Mvc;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using System.Linq;
 
-namespace HNB.IntelligentSystems.ObjectDetection.Api;
+namespace HNB.IntelligentSystems.GroundingDINO.Api;
 
 /// <summary>
-/// 物件辨識 API Controller
+/// GroundingDINO 物件檢測 API Controller
 /// 統一返回格式：所有 API 都返回 images 陣列格式
 /// base64 輸入 → base64 輸出，圖片輸入 → URL 輸出
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-public class ObjectDetectionApiController(ObjectDetectionModule module, IWebHostEnvironment env) : ControllerBase
+public class GroundingDINOApiController(GroundingDINOModule module, IWebHostEnvironment env) : ControllerBase
 {
-    private const string StorageRoot = "Areas/Backoffice/storage/ObjectDetection";
+    private const string StorageRoot = "Areas/Backoffice/storage/GroundingDINO";
 
     /// <summary>
-    /// 簡介：檢查物件辨識服務狀態
-    /// 端口：GET /api/ObjectDetectionApi/Status
+    /// 簡介：檢查 GroundingDINO 服務狀態
+    /// 端口：GET /api/GroundingDINOApi/Status
     /// </summary>
     [HttpGet("Status")]
     public IActionResult Status()
@@ -54,10 +54,10 @@ public class ObjectDetectionApiController(ObjectDetectionModule module, IWebHost
 
     /// <summary>
     /// 簡介：從 base64 圖片進行物件檢測，返回檢測結果和裁剪圖片 base64
-    /// 端口：POST /api/ObjectDetectionApi/DetectBase64
+    /// 端口：POST /api/GroundingDINOApi/DetectBase64
     /// </summary>
     [HttpPost("DetectBase64")]
-    public IActionResult DetectBase64([FromBody] ObjectDetectionRequest request)
+    public IActionResult DetectBase64([FromBody] GroundingDINORequest request)
     {
         if (request.ImagesBase64 == null || request.ImagesBase64.Count == 0)
             return BadRequest(new { success = false, error = "請提供 base64 圖片資料" });
@@ -95,7 +95,7 @@ public class ObjectDetectionApiController(ObjectDetectionModule module, IWebHost
 
     /// <summary>
     /// 簡介：從上傳的圖片進行物件檢測，返回渲染後的圖片 URL 和裁剪圖片
-    /// 端口：POST /api/ObjectDetectionApi/DetectImage
+    /// 端口：POST /api/GroundingDINOApi/DetectImage
     /// </summary>
     [HttpPost("DetectImage")]
     public async Task<IActionResult> DetectImage([FromForm(Name = "image[]")] List<IFormFile> images, [FromForm] string? textPrompt = null)
@@ -132,7 +132,7 @@ public class ObjectDetectionApiController(ObjectDetectionModule module, IWebHost
                 
                 ImageUtils.SaveImageFromBytes(detection.CroppedImageBytes, croppedFilePath);
                 
-                var croppedImageUrl = $"/storage/ObjectDetection/裁剪/{dateStr}/{croppedFileName}";
+                var croppedImageUrl = $"/storage/GroundingDINO/裁剪/{dateStr}/{croppedFileName}";
                 detectionsOutput.Add(new
                 {
                     id = detection.Id,
@@ -154,7 +154,7 @@ public class ObjectDetectionApiController(ObjectDetectionModule module, IWebHost
                 var filePath = Path.Combine(savePath, fileName);
                 ImageUtils.SaveImage(annotatedImage, filePath);
 
-                var annotatedImageUrl = $"/storage/ObjectDetection/渲染/{annotatedDateStr}/{fileName}";
+                var annotatedImageUrl = $"/storage/GroundingDINO/渲染/{annotatedDateStr}/{fileName}";
                 imageResults.Add(new { imageId, success = true, detections = detectionsOutput, count = detectionsOutput.Count, annotatedImageUrl });
             }
         }
@@ -162,9 +162,6 @@ public class ObjectDetectionApiController(ObjectDetectionModule module, IWebHost
         return Ok(BuildResponse(imageResults, errors));
     }
 
-    /// <summary>
-    /// 簡介：渲染檢測結果到圖片
-    /// </summary>
     private Image<Rgb24> RenderDetections(byte[] imageBytes, List<DetectionResult> detections)
     {
         using var originalImage = ImageUtils.DecodeImage(imageBytes);
@@ -173,9 +170,6 @@ public class ObjectDetectionApiController(ObjectDetectionModule module, IWebHost
         return annotatedImage;
     }
 
-    /// <summary>
-    /// 簡介：構建統一的 API 回應格式
-    /// </summary>
     private object BuildResponse(List<dynamic> imageResults, List<string> errors)
     {
         var images = imageResults.ToList();
@@ -198,3 +192,4 @@ public class ObjectDetectionApiController(ObjectDetectionModule module, IWebHost
         };
     }
 }
+

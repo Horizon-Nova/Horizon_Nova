@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using HNB.Areas.Backoffice.Controllers;
 using HNB.Areas.Backoffice.Dtos;
-using HNB.IntelligentSystems.ObjectDetection.Utils;
+using HNB.IntelligentSystems.GroundingDINO.Utils;
 using System.IO;
 
 namespace HNB.Areas.Backoffice.Controllers;

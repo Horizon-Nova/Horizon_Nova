@@ -1,16 +1,16 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Microsoft.ML.OnnxRuntime;
 using Microsoft.ML.OnnxRuntime.Tensors;
-using HNB.IntelligentSystems.ObjectDetection.Configuration;
-using HNB.IntelligentSystems.ObjectDetection.Models;
-using HNB.IntelligentSystems.ObjectDetection.Utils;
+using HNB.IntelligentSystems.GroundingDINO.Configuration;
+using HNB.IntelligentSystems.GroundingDINO.Models;
+using HNB.IntelligentSystems.GroundingDINO.Utils;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
-namespace HNB.IntelligentSystems.ObjectDetection.Core
+namespace HNB.IntelligentSystems.GroundingDINO.Core
 {
     /// <summary>
     /// Main detection engine using GroundingDINO ONNX model.
@@ -19,7 +19,7 @@ namespace HNB.IntelligentSystems.ObjectDetection.Core
     {
         private readonly InferenceSession session;
         private readonly TextTokenizer tokenizer;
-        private readonly ObjectDetectionConfig config;
+        private readonly GroundingDINOConfig config;
         private readonly int[] targetSize;
         private const int MaxTextLen = 256;
 
@@ -29,7 +29,7 @@ namespace HNB.IntelligentSystems.ObjectDetection.Core
         /// <summary>
         /// Initializes a new instance of the DetectionEngine.
         /// </summary>
-        public DetectionEngine(ObjectDetectionConfig config)
+        public DetectionEngine(GroundingDINOConfig config)
         {
             this.config = config ?? throw new ArgumentNullException(nameof(config));
 
@@ -114,8 +114,6 @@ namespace HNB.IntelligentSystems.ObjectDetection.Core
             NamedOnnxValue.CreateFromTensor("text_token_mask", new DenseTensor<bool>(textMaskFlat, new[] { 1, seqLen, seqLen }))
         };
 
-        // ONNX Runtime InferenceSession.Run() is thread-safe and can be called concurrently
-        // No lock needed - multiple threads can call Run() simultaneously
         using (var results = session.Run(inputs))
         {
             var logitsTensor = results.FirstOrDefault(r => r.Name == "logits")?.Value as DenseTensor<float>;
@@ -136,7 +134,6 @@ namespace HNB.IntelligentSystems.ObjectDetection.Core
             int numQueries = logitsTensor.Dimensions[1];
             int numTokens = logitsTensor.Dimensions[2];
 
-            // Store all potential detections with their scores
             var candidateDetections = new List<(int queryIndex, float maxScore, int bestTokenIndex, float tokenScore, long tokenId)>();
 
             for (int i = 0; i < numQueries; i++)
@@ -155,7 +152,6 @@ namespace HNB.IntelligentSystems.ObjectDetection.Core
                 int bestTokenIndex = -1;
                 float bestTokenScore = 0;
 
-                // Check all tokens to find the best matching category
                 for (int j = 1; j < numTokens - 1 && j < inputIds.Length; j++)
                 {
                     float score = Sigmoid(logitsTensor[0, i, j]);
@@ -173,11 +169,8 @@ namespace HNB.IntelligentSystems.ObjectDetection.Core
                 }
             }
 
-            // Apply Non-Maximum Suppression (NMS) to remove overlapping boxes
-            // This helps with shoes (銝?? - merge nearby shoe detections
             var filteredDetections = ApplyNMS(candidateDetections, boxesTensor, srcW, srcH, inputIds, tokenizer);
 
-            // Convert to DetectionResult
             foreach (var (queryIndex, maxScore, bestTokenIndex, tokenScore, tokenId) in filteredDetections)
             {
                 float cx = boxesTensor[0, queryIndex, 0];
@@ -209,9 +202,6 @@ namespace HNB.IntelligentSystems.ObjectDetection.Core
             return results;
         }
 
-        /// <summary>
-        /// Applies Non-Maximum Suppression with special handling for overlapping categories (jacket and clothes).
-        /// </summary>
         private List<(int queryIndex, float maxScore, int bestTokenIndex, float tokenScore, long tokenId)> ApplyNMS(
             List<(int queryIndex, float maxScore, int bestTokenIndex, float tokenScore, long tokenId)> candidates,
             DenseTensor<float> boxesTensor, int srcW, int srcH, long[] inputIds, TextTokenizer tokenizer)
@@ -219,47 +209,14 @@ namespace HNB.IntelligentSystems.ObjectDetection.Core
             if (candidates.Count == 0)
                 return new List<(int, float, int, float, long)>();
 
-            // Group by category (tokenId)
             var grouped = candidates.GroupBy(c => c.tokenId).ToList();
             var filtered = new List<(int, float, int, float, long)>();
 
-            // Get token IDs for jacket and clothes to allow them to overlap
-            long? jacketTokenId = null;
-            long? clothesTokenId = null;
-            foreach (var group in grouped)
-            {
-                string categoryName = tokenizer.ConvertIdToToken(group.Key).ToLower();
-                if (categoryName.Contains("jacket"))
-                    jacketTokenId = group.Key;
-                else if (categoryName.Contains("clothes") || categoryName.Contains("cloth"))
-                    clothesTokenId = group.Key;
-            }
+            const float nmsThreshold = 0.4f;
 
             foreach (var group in grouped)
             {
                 var categoryDetections = group.OrderByDescending(c => c.maxScore).ToList();
-                string categoryName = tokenizer.ConvertIdToToken(group.Key).ToLower();
-                long currentTokenId = group.Key;
-
-                // Different NMS thresholds for different categories
-                float nmsThreshold;
-                if (categoryName.Contains("shoe") || categoryName == "shoes")
-                {
-                    // For shoes, use higher IoU threshold to merge pairs (銝??
-                    nmsThreshold = 0.5f;
-                }
-                else if (categoryName.Contains("jacket") || categoryName.Contains("clothes") || categoryName.Contains("cloth"))
-                {
-                    // For clothing items, use lower threshold to allow detection of overlapping items
-                    nmsThreshold = 0.6f; // Higher threshold allows more overlapping detections
-                }
-                else
-                {
-                    // Default NMS threshold
-                    nmsThreshold = 0.4f;
-                }
-
-                // Apply NMS within this category
                 var kept = new List<(int, float, int, float, long)>();
 
                 for (int i = 0; i < categoryDetections.Count; i++)
@@ -267,7 +224,6 @@ namespace HNB.IntelligentSystems.ObjectDetection.Core
                     bool shouldKeep = true;
                     var current = categoryDetections[i];
 
-                    // Get box coordinates
                     float cx1 = boxesTensor[0, current.queryIndex, 0];
                     float cy1 = boxesTensor[0, current.queryIndex, 1];
                     float w1 = boxesTensor[0, current.queryIndex, 2];
@@ -279,7 +235,6 @@ namespace HNB.IntelligentSystems.ObjectDetection.Core
                         (int)(h1 * srcH)
                     );
 
-                    // Check against already kept detections of the SAME category
                     foreach (var keptDet in kept)
                     {
                         float cx2 = boxesTensor[0, keptDet.Item1, 0];
@@ -310,59 +265,9 @@ namespace HNB.IntelligentSystems.ObjectDetection.Core
                 filtered.AddRange(kept);
             }
 
-            // Allow jacket and clothes to coexist even if they overlap significantly
-            // This handles the case where clothes are under jacket
-            var finalFiltered = new List<(int, float, int, float, long)>();
-            finalFiltered.AddRange(filtered);
-
-            // Additional pass: ensure jacket and clothes can both be detected even if overlapping
-            if (jacketTokenId.HasValue && clothesTokenId.HasValue)
-            {
-                var jacketDets = filtered.Where(f => f.Item5 == jacketTokenId.Value).ToList();
-                var clothesDets = filtered.Where(f => f.Item5 == clothesTokenId.Value).ToList();
-
-                // If we have both jacket and clothes, allow both even if they overlap
-                // (clothes under jacket is a valid detection scenario)
-                foreach (var jacketDet in jacketDets)
-                {
-                    float cx1 = boxesTensor[0, jacketDet.Item1, 0];
-                    float cy1 = boxesTensor[0, jacketDet.Item1, 1];
-                    float w1 = boxesTensor[0, jacketDet.Item1, 2];
-                    float h1 = boxesTensor[0, jacketDet.Item1, 3];
-                    Models.Rectangle jacketBox = new Models.Rectangle(
-                        (int)((cx1 - w1 * 0.5f) * srcW),
-                        (int)((cy1 - h1 * 0.5f) * srcH),
-                        (int)(w1 * srcW),
-                        (int)(h1 * srcH)
-                    );
-
-                    foreach (var clothesDet in clothesDets)
-                    {
-                        float cx2 = boxesTensor[0, clothesDet.Item1, 0];
-                        float cy2 = boxesTensor[0, clothesDet.Item1, 1];
-                        float w2 = boxesTensor[0, clothesDet.Item1, 2];
-                        float h2 = boxesTensor[0, clothesDet.Item1, 3];
-                        Models.Rectangle clothesBox = new Models.Rectangle(
-                            (int)((cx2 - w2 * 0.5f) * srcW),
-                            (int)((cy2 - h2 * 0.5f) * srcH),
-                            (int)(w2 * srcW),
-                            (int)(h2 * srcH)
-                        );
-
-                        float iou = CalculateIoU(jacketBox, clothesBox);
-                        // If jacket and clothes overlap significantly (>50%), both are valid
-                        // They are already in finalFiltered, so no action needed
-                        // This comment explains why both are kept
-                    }
-                }
-            }
-
-            return finalFiltered;
+            return filtered;
         }
 
-    /// <summary>
-    /// Calculates Intersection over Union (IoU) between two bounding boxes.
-    /// </summary>
     private static float CalculateIoU(Models.Rectangle box1, Models.Rectangle box2)
         {
             int x1 = Math.Max(box1.X, box2.X);

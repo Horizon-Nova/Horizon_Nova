@@ -75,7 +75,7 @@ builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(optio
 
 var app = builder.Build();
 
-var modelHealthChecker = app.Services.GetRequiredService<HNB.IntelligentSystems.ObjectDetection.Core.ModelHealthChecker>();
+var modelHealthChecker = app.Services.GetRequiredService<HNB.IntelligentSystems.GroundingDINO.Core.ModelHealthChecker>();
 _ = modelHealthChecker;
 
 app.UseExceptionHandler("/Error/NotFound");

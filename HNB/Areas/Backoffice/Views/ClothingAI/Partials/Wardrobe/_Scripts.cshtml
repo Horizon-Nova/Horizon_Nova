@@ -173,7 +173,7 @@ $(document).ready(function() {
         
         $.ajax({
             type: 'POST',
-            url: '/api/ObjectDetectionApi/DetectBase64',
+            url: '/api/GroundingDINOApi/DetectBase64',
             contentType: 'application/json',
             data: JSON.stringify(detectionRequest),
             success: function(detectionResponse) {

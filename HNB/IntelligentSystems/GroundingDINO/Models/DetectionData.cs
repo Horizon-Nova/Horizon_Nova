@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace HNB.IntelligentSystems.ObjectDetection.Models;
+namespace HNB.IntelligentSystems.GroundingDINO.Models;
 
 public class ImageDetectionData
 {
@@ -25,11 +25,9 @@ public class DetectionSessionData
     public List<ImageDetectionData> Images { get; set; } = new List<ImageDetectionData>();
 }
 
-/// <summary>
-/// 物件檢測請求模型（統一使用列表格式）
-/// </summary>
-public class ObjectDetectionRequest
+public class GroundingDINORequest
 {
     public List<string> ImagesBase64 { get; set; } = new();
     public string? TextPrompt { get; set; }
 }
+

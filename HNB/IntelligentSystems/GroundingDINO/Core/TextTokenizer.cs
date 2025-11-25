@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace HNB.IntelligentSystems.ObjectDetection.Core
+namespace HNB.IntelligentSystems.GroundingDINO.Core
 {
     /// <summary>
     /// BERT-based text tokenizer for converting text prompts into model inputs.

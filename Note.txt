@@ -1,2 +1,14 @@
-2.需討論是否需要使用Interface但是接口又不同
-3.需討論AI使用紀錄方式，不可以為每個AI都寫上自己的計費方式這樣沒有意義一定要有一個統一或是方式
+.gitattributes
+README.md
+config.json
+flax_model.msgpack
+merges.txt
+model.safetensors
+preprocessor_config.json
+pytorch_model.bin
+special_tokens_map.json
+tf_model.h5
+tokenizer.json
+tokenizer_config.json
+vocab.json
+

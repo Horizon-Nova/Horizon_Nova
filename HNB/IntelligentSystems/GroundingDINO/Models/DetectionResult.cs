@@ -1,4 +1,4 @@
-namespace HNB.IntelligentSystems.ObjectDetection.Models;
+namespace HNB.IntelligentSystems.GroundingDINO.Models;
 
 public class DetectionResult
 {
@@ -7,9 +7,6 @@ public class DetectionResult
     public float Score { get; set; }
 }
 
-/// <summary>
-/// 簡單的矩形框結構
-/// </summary>
 public struct Rectangle
 {
     public int X { get; set; }
@@ -26,21 +23,15 @@ public struct Rectangle
     }
 }
 
-/// <summary>
-/// 檢測結果輸出模型（包含裁剪圖片資料）
-/// </summary>
 public class DetectionOutput
 {
     public string Id { get; set; } = string.Empty;
-    public int[] Box { get; set; } = new int[4]; // [x, y, width, height]
+    public int[] Box { get; set; } = new int[4];
     public string Label { get; set; } = string.Empty;
     public float Score { get; set; }
-    public byte[] CroppedImageBytes { get; set; } = Array.Empty<byte>(); // 裁剪圖片的原始位元組資料
+    public byte[] CroppedImageBytes { get; set; } = Array.Empty<byte>();
 }
 
-/// <summary>
-/// 圖片檢測結果輸出模型
-/// </summary>
 public class ImageDetectionOutput
 {
     public string ImageId { get; set; } = string.Empty;
@@ -51,10 +42,7 @@ public class ImageDetectionOutput
     public string? AnnotatedImageUrl { get; set; }
 }
 
-/// <summary>
-/// API 回應模型
-/// </summary>
-public class ObjectDetectionResponse
+public class GroundingDINOResponse
 {
     public bool Success { get; set; }
     public List<ImageDetectionOutput> Images { get; set; } = new();
@@ -62,9 +50,6 @@ public class ObjectDetectionResponse
     public List<string>? Errors { get; set; }
 }
 
-/// <summary>
-/// 檢測摘要資訊
-/// </summary>
 public class DetectionSummary
 {
     public int TotalImages { get; set; }

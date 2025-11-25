@@ -1,6 +1,7 @@
 using HNB.IntelligentSystems.DallE3.Configuration;
 using HNB.IntelligentSystems.DallE3.Core;
 using HNB.IntelligentSystems.DallE3.Models;
+using Microsoft.Extensions.Configuration;
 
 namespace HNB.IntelligentSystems.DallE3.Module;
 
@@ -8,11 +9,17 @@ namespace HNB.IntelligentSystems.DallE3.Module;
 /// DallE3 圖片編輯模組
 /// 負責執行圖片編輯/組合，封裝 DallE3Engine 的邏輯
 /// </summary>
-public class DallE3Module(DallE3Config config, IHttpClientFactory httpClientFactory) : IDisposable
+public class DallE3Module(IConfiguration configuration, IHttpClientFactory httpClientFactory) : IDisposable
 {
-    // 參數驗證
-    private readonly DallE3Config _config = config ?? throw new ArgumentNullException(nameof(config));
+    private readonly DallE3Config _config = LoadConfig(configuration);
     private readonly IHttpClientFactory _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+    
+    private static DallE3Config LoadConfig(IConfiguration configuration)
+    {
+        var config = new DallE3Config();
+        configuration.GetSection("DallE3").Bind(config);
+        return config;
+    }
     private DallE3Engine? _engine;
 
     #region 核心編輯方法

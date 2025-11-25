@@ -1,6 +1,7 @@
 using HNB.IntelligentSystems.QdrantEmbedding.Configuration;
 using HNB.IntelligentSystems.QdrantEmbedding.Core;
 using HNB.IntelligentSystems.QdrantEmbedding.Models;
+using Microsoft.Extensions.Configuration;
 
 namespace HNB.IntelligentSystems.QdrantEmbedding.Module;
 
@@ -8,10 +9,17 @@ namespace HNB.IntelligentSystems.QdrantEmbedding.Module;
 /// QdrantEmbedding 模組
 /// 封裝 QdrantEmbeddingEngine 的邏輯，提供高階 API
 /// </summary>
-public class QdrantEmbeddingModule(QdrantEmbeddingConfig config, IHttpClientFactory httpClientFactory) : IDisposable
+public class QdrantEmbeddingModule(IConfiguration configuration, IHttpClientFactory httpClientFactory) : IDisposable
 {
-    private readonly QdrantEmbeddingConfig _config = config ?? throw new ArgumentNullException(nameof(config));
+    private readonly QdrantEmbeddingConfig _config = LoadConfig(configuration);
     private readonly IHttpClientFactory _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+    
+    private static QdrantEmbeddingConfig LoadConfig(IConfiguration configuration)
+    {
+        var config = new QdrantEmbeddingConfig();
+        configuration.GetSection("QdrantEmbedding").Bind(config);
+        return config;
+    }
     private QdrantEmbeddingEngine? _engine;
 
     #region Collection 管理

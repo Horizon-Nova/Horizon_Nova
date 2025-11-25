@@ -1,21 +1,41 @@
-using HNB.IntelligentSystems.ObjectDetection.Configuration;
-using HNB.IntelligentSystems.ObjectDetection.Core;
-using HNB.IntelligentSystems.ObjectDetection.Models;
-using HNB.IntelligentSystems.ObjectDetection.Utils;
+using HNB.IntelligentSystems.GroundingDINO.Configuration;
+using HNB.IntelligentSystems.GroundingDINO.Core;
+using HNB.IntelligentSystems.GroundingDINO.Models;
+using HNB.IntelligentSystems.GroundingDINO.Utils;
+using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Hosting;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
-namespace HNB.IntelligentSystems.ObjectDetection.Module;
+namespace HNB.IntelligentSystems.GroundingDINO.Module;
 
 /// <summary>
-/// 物件辨識模組 - 物件檢測功能模組
+/// GroundingDINO 物件檢測模組
 /// 負責執行物件檢測，模型管理由 ModelHealthChecker 負責
 /// </summary>
-public class ObjectDetectionModule(ObjectDetectionConfig config, ModelHealthChecker healthChecker) : IDisposable
+public class GroundingDINOModule(IConfiguration configuration, IWebHostEnvironment environment, ModelHealthChecker healthChecker) : IDisposable
 {
-    // 參數驗證
-    private readonly ObjectDetectionConfig _config = config ?? throw new ArgumentNullException(nameof(config));
+    private readonly GroundingDINOConfig _config = LoadConfig(configuration, environment);
     private readonly ModelHealthChecker _healthChecker = healthChecker ?? throw new ArgumentNullException(nameof(healthChecker));
+    
+    private static GroundingDINOConfig LoadConfig(IConfiguration configuration, IWebHostEnvironment environment)
+    {
+        var config = new GroundingDINOConfig();
+        configuration.GetSection("GroundingDINO").Bind(config);
+        
+        var storageRoot = configuration["Storage:Root"] ?? "Areas/Backoffice/storage";
+        if (string.IsNullOrEmpty(config.ModelPath))
+            config.ModelPath = Path.Combine(environment.ContentRootPath, storageRoot, "AI", "DINO", "groundingdino", "groundingdino.onnx");
+        else if (!Path.IsPathRooted(config.ModelPath))
+            config.ModelPath = Path.Combine(environment.ContentRootPath, config.ModelPath);
+        
+        if (string.IsNullOrEmpty(config.VocabPath))
+            config.VocabPath = Path.Combine(environment.ContentRootPath, storageRoot, "AI", "DINO", "groundingdino", "vocab.txt");
+        else if (!Path.IsPathRooted(config.VocabPath))
+            config.VocabPath = Path.Combine(environment.ContentRootPath, config.VocabPath);
+        
+        return config;
+    }
 
     #region 狀態檢查方法
 
@@ -142,7 +162,7 @@ public class ObjectDetectionModule(ObjectDetectionConfig config, ModelHealthChec
     /// <summary>
     /// 載入配置資訊
     /// </summary>
-    public ObjectDetectionConfig LoadConfig() => _config;
+    public GroundingDINOConfig GetConfig() => _config;
 
     /// <summary>
     /// 載入當前配置的文字提示詞
