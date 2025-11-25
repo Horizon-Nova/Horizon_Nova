@@ -3,6 +3,9 @@ using Microsoft.ML.OnnxRuntime.Tensors;
 using OnnxSessionOptions = Microsoft.ML.OnnxRuntime.SessionOptions;
 using OnnxInferenceSession = Microsoft.ML.OnnxRuntime.InferenceSession;
 using OnnxGraphOptimizationLevel = Microsoft.ML.OnnxRuntime.GraphOptimizationLevel;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 
 namespace HNB.IntelligentSystems.Embedding.Core.Providers;
 
@@ -167,8 +170,105 @@ public class CLIPEmbeddingProvider : IEmbeddingProvider, IDisposable
 
     public async Task<List<float>> EncodeImageAsync(byte[] imageBytes, CancellationToken cancellationToken = default)
     {
-        await Task.CompletedTask;
-        return new List<float>();
+        if (imageBytes == null || imageBytes.Length == 0 || !EnsureModelsLoaded() ||
+            _visionEncoderSession == null || _visionProjectionSession == null)
+            return new List<float>();
+
+        Image<Rgb24>? image = null;
+        try
+        {
+            image = Image.Load<Rgb24>(imageBytes);
+            
+            var targetSize = 224;
+            var (width, height) = (image.Width, image.Height);
+            var scale = Math.Max((float)targetSize / width, (float)targetSize / height);
+            var newWidth = (int)(width * scale);
+            var newHeight = (int)(height * scale);
+            
+            image.Mutate(ctx => ctx.Resize(newWidth, newHeight));
+            
+            var x = (newWidth - targetSize) / 2;
+            var y = (newHeight - targetSize) / 2;
+            image.Mutate(ctx => ctx.Crop(new Rectangle(x, y, targetSize, targetSize)));
+
+            var inputTensor = new DenseTensor<float>(new[] { 1, 3, 224, 224 });
+            var mean = new[] { 0.485f, 0.456f, 0.406f };
+            var std = new[] { 0.229f, 0.224f, 0.225f };
+
+            image.ProcessPixelRows(accessor =>
+            {
+                for (int y = 0; y < accessor.Height; y++)
+                {
+                    var row = accessor.GetRowSpan(y);
+                    for (int x = 0; x < row.Length; x++)
+                    {
+                        var pixel = row[x];
+                        var r = pixel.R / 255f;
+                        var g = pixel.G / 255f;
+                        var b = pixel.B / 255f;
+
+                        inputTensor[0, 0, y, x] = (r - mean[0]) / std[0];
+                        inputTensor[0, 1, y, x] = (g - mean[1]) / std[1];
+                        inputTensor[0, 2, y, x] = (b - mean[2]) / std[2];
+                    }
+                }
+            });
+
+            var visionInputMetadata = _visionEncoderSession.InputMetadata;
+            if (visionInputMetadata.Count == 0)
+                return new List<float>();
+
+            var visionInputName = visionInputMetadata.Keys.First();
+            var visionInputs = new List<Microsoft.ML.OnnxRuntime.NamedOnnxValue>
+            {
+                Microsoft.ML.OnnxRuntime.NamedOnnxValue.CreateFromTensor(visionInputName, inputTensor)
+            };
+
+            using var visionResults = _visionEncoderSession.Run(visionInputs);
+            var visionOutput = visionResults.First().Value as DenseTensor<float>;
+            if (visionOutput == null)
+                return new List<float>();
+
+            var projectionInputMetadata = _visionProjectionSession.InputMetadata;
+            if (projectionInputMetadata.Count == 0)
+                return new List<float>();
+
+            var projectionInputName = projectionInputMetadata.Keys.First();
+            var projectionInputs = new List<Microsoft.ML.OnnxRuntime.NamedOnnxValue>
+            {
+                Microsoft.ML.OnnxRuntime.NamedOnnxValue.CreateFromTensor(projectionInputName, visionOutput)
+            };
+
+            using var projectionResults = _visionProjectionSession.Run(projectionInputs);
+            var projectionOutput = projectionResults.First().Value as DenseTensor<float>;
+            if (projectionOutput == null)
+                return new List<float>();
+
+            var vector = new List<float>();
+            var dims = projectionOutput.Dimensions.ToArray();
+
+            if (dims.Length == 2)
+            {
+                for (int i = 0; i < dims[1]; i++)
+                    vector.Add(projectionOutput[0, i]);
+            }
+            else if (dims.Length == 1)
+            {
+                for (int i = 0; i < dims[0]; i++)
+                    vector.Add(projectionOutput[i]);
+            }
+
+            await Task.CompletedTask;
+            return vector;
+        }
+        catch
+        {
+            return new List<float>();
+        }
+        finally
+        {
+            image?.Dispose();
+        }
     }
 
     public void Dispose()
