@@ -154,13 +154,43 @@ public class FileManagerController(FileManagerServices svc, PermissionManagement
             return Json(new { success = false, message = "檔案或資料夾不存在，或您沒有權限存取" });
         }
         
+        if (organizationScope == null)
+        {
+            return Json(new { success = false, message = "組織範圍服務未初始化" });
+        }
+        
+        if (permissionService == null)
+        {
+            return Json(new { success = false, message = "權限管理服務未初始化" });
+        }
+        
         var scope = organizationScope.ResolveUserScope(User);
-        var users = permissionService.LoadUserList(isActive: true, organizationIds: scope.ScopeIds);
+        if (scope == null)
+        {
+            return Json(new { success = false, message = "無法取得使用者組織範圍" });
+        }
+        
+        var users = permissionService.LoadUserList(isActive: true, organizationIds: scope.ScopeIds ?? new List<int>());
         
         ViewBag.ItemDetail = detail;
         ViewBag.Users = users;
         
         return PartialView("Partials/FileManager/Modal/_Share");
+    }
+
+    /// <summary>
+    /// 搜尋使用者（用於共享關鍵字搜尋，不限制組織）
+    /// </summary>
+    public IActionResult SearchUsersForShare(string? searchTerm = null)
+    {
+        var users = permissionService.LoadUserList(searchTerm: searchTerm, isActive: true);
+        return Json(users.Select(u => new
+        {
+            name = u.name ?? "",
+            email = u.email ?? "",
+            fullName = u.full_name ?? u.name ?? "",
+            initial = !string.IsNullOrEmpty(u.full_name) ? u.full_name.Substring(0, 1).ToUpper() : (!string.IsNullOrEmpty(u.name) ? u.name.Substring(0, 1).ToUpper() : "?")
+        }).ToList());
     }
 
     /// <summary>

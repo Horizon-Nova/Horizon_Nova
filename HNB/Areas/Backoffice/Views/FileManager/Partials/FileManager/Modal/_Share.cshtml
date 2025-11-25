@@ -186,57 +186,74 @@
                 return;
             }
 
-            const term = searchTerm.toLowerCase();
-            const filtered = allUsers.filter(user => {
-                const name = String(user.name || '').toLowerCase();
-                const email = String(user.email || '').toLowerCase();
-                const fullName = String(user.fullName || '').toLowerCase();
-                return name.includes(term) || email.includes(term) || fullName.includes(term);
-            });
-
-            $dropdownList.empty();
-            
-            if (filtered.length === 0) {
-                $dropdownList.append('<div class="list-group-item text-muted text-center small">找不到符合的使用者</div>');
-            } else {
-                filtered.forEach(user => {
-                    const isSelected = selectedUsers.has(user.name);
-                    const $item = $(`
-                        <button type="button" class="list-group-item list-group-item-action d-flex align-items-center gap-2 ${isSelected ? 'disabled' : ''}" data-user-name="${user.name}">
-                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width:2rem;height:2rem;font-size:0.9rem;">
-                                ${user.initial}
-                            </div>
-                            <div class="flex-grow-1 text-start">
-                                <div class="small fw-semibold">${user.fullName || user.name}</div>
-                                <div class="small text-muted">${user.email}</div>
-                            </div>
-                            ${isSelected ? '<i data-lucide="check" class="text-success" style="width:1rem;height:1rem;"></i>' : ''}
-                        </button>
-                    `);
+            $.ajax({
+                url: '/Backoffice/FileManager/SearchUsersForShare',
+                method: 'GET',
+                data: { searchTerm: searchTerm },
+                success: function(users) {
+                    $dropdownList.empty();
                     
-                    if (!isSelected) {
-                        $item.on('click', function() {
-                            const userName = $(this).data('user-name');
-                            selectedUsers.add(userName);
-                            $(`#share-user-${userName}`).prop('checked', true);
-                            $searchInput.val('');
-                            hideDropdown();
-                            updateSelectedUsersDisplay();
-                            if (window.lucide?.createIcons) {
-                                window.lucide.createIcons();
+                    if (users.length === 0) {
+                        $dropdownList.append('<div class="list-group-item text-muted text-center small">找不到符合的使用者</div>');
+                    } else {
+                        users.forEach(user => {
+                            const isSelected = selectedUsers.has(user.name);
+                            const $item = $(`
+                                <button type="button" class="list-group-item list-group-item-action d-flex align-items-center gap-2 ${isSelected ? 'disabled' : ''}" data-user-name="${user.name}">
+                                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width:2rem;height:2rem;font-size:0.9rem;">
+                                        ${user.initial}
+                                    </div>
+                                    <div class="flex-grow-1 text-start">
+                                        <div class="small fw-semibold">${user.fullName || user.name}</div>
+                                        <div class="small text-muted">${user.email}</div>
+                                    </div>
+                                    ${isSelected ? '<i data-lucide="check" class="text-success" style="width:1rem;height:1rem;"></i>' : ''}
+                                </button>
+                            `);
+                            
+                            if (!isSelected) {
+                                $item.on('click', function() {
+                                    const userName = $(this).data('user-name');
+                                    selectedUsers.add(userName);
+                                    const $checkbox = $(`#share-user-${userName}`);
+                                    if ($checkbox.length) {
+                                        $checkbox.prop('checked', true);
+                                    } else {
+                                        const userData = users.find(u => u.name === userName);
+                                        if (userData) {
+                                            allUsers.push({
+                                                name: userData.name,
+                                                email: userData.email,
+                                                fullName: userData.fullName,
+                                                initial: userData.initial
+                                            });
+                                        }
+                                    }
+                                    $searchInput.val('');
+                                    hideDropdown();
+                                    updateSelectedUsersDisplay();
+                                    if (window.lucide?.createIcons) {
+                                        window.lucide.createIcons();
+                                    }
+                                });
                             }
+                            
+                            $dropdownList.append($item);
                         });
                     }
-                    
-                    $dropdownList.append($item);
-                });
-            }
 
-            if (window.lucide?.createIcons) {
-                window.lucide.createIcons();
-            }
+                    if (window.lucide?.createIcons) {
+                        window.lucide.createIcons();
+                    }
 
-            showDropdown();
+                    showDropdown();
+                },
+                error: function() {
+                    $dropdownList.empty();
+                    $dropdownList.append('<div class="list-group-item text-muted text-center small">搜尋時發生錯誤</div>');
+                    showDropdown();
+                }
+            });
         }
 
         $searchInput.off('input.shareModal focus.shareModal').on('input.shareModal focus.shareModal', function() {

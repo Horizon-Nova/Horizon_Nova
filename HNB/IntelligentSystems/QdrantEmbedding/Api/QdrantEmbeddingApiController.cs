@@ -143,6 +143,7 @@ public class QdrantEmbeddingApiController(QdrantEmbeddingModule module) : Contro
             return BadRequest(new { success = false, error = "查詢向量不能為空" });
 
         try
+
         {
             var results = await module.Search(
                 request.CollectionName,
@@ -189,4 +190,5 @@ public class QdrantEmbeddingApiController(QdrantEmbeddingModule module) : Contro
         }
     }
 }
+
 
