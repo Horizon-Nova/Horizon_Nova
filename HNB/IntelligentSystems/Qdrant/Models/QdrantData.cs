@@ -1,4 +1,4 @@
-namespace HNB.IntelligentSystems.QdrantEmbedding.Models;
+namespace HNB.IntelligentSystems.Qdrant.Models;
 
 /// <summary>
 /// 向量點資料模型

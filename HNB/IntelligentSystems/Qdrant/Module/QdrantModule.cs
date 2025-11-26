@@ -1,26 +1,26 @@
-using HNB.IntelligentSystems.QdrantEmbedding.Configuration;
-using HNB.IntelligentSystems.QdrantEmbedding.Core;
-using HNB.IntelligentSystems.QdrantEmbedding.Models;
+using HNB.IntelligentSystems.Qdrant.Configuration;
+using HNB.IntelligentSystems.Qdrant.Core;
+using HNB.IntelligentSystems.Qdrant.Models;
 using Microsoft.Extensions.Configuration;
 
-namespace HNB.IntelligentSystems.QdrantEmbedding.Module;
+namespace HNB.IntelligentSystems.Qdrant.Module;
 
 /// <summary>
-/// QdrantEmbedding 模組
-/// 封裝 QdrantEmbeddingEngine 的邏輯，提供高階 API
+/// Qdrant 模組
+/// 封裝 QdrantEngine 的邏輯，提供高階 API
 /// </summary>
-public class QdrantEmbeddingModule(IConfiguration configuration, IHttpClientFactory httpClientFactory) : IDisposable
+public class QdrantModule(IConfiguration configuration, IHttpClientFactory httpClientFactory) : IDisposable
 {
-    private readonly QdrantEmbeddingConfig _config = LoadConfig(configuration);
+    private readonly QdrantConfig _config = LoadConfig(configuration);
     private readonly IHttpClientFactory _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
     
-    private static QdrantEmbeddingConfig LoadConfig(IConfiguration configuration)
+    private static QdrantConfig LoadConfig(IConfiguration configuration)
     {
-        var config = new QdrantEmbeddingConfig();
-        configuration.GetSection("QdrantEmbedding").Bind(config);
+        var config = new QdrantConfig();
+        configuration.GetSection("Qdrant").Bind(config);
         return config;
     }
-    private QdrantEmbeddingEngine? _engine;
+    private QdrantEngine? _engine;
 
     #region Collection 管理
 
@@ -130,19 +130,19 @@ public class QdrantEmbeddingModule(IConfiguration configuration, IHttpClientFact
     /// <summary>
     /// 載入配置資訊
     /// </summary>
-    public QdrantEmbeddingConfig LoadConfig() => _config;
+    public QdrantConfig LoadConfig() => _config;
 
     #endregion
 
     #region 私有方法
 
-    private QdrantEmbeddingEngine GetOrCreateEngine()
+    private QdrantEngine GetOrCreateEngine()
     {
         if (_engine == null)
         {
             var httpClient = _httpClientFactory.CreateClient();
             httpClient.Timeout = TimeSpan.FromSeconds(_config.TimeoutSeconds);
-            _engine = new QdrantEmbeddingEngine(_config, httpClient);
+            _engine = new QdrantEngine(_config, httpClient);
         }
         return _engine;
     }

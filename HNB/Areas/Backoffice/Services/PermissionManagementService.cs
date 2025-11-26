@@ -69,7 +69,7 @@ public class PermissionManagementService(PermissionManagementRepository repo)
     {
         if (data.type == "organization" && data.roles != null && data.roles.Any())
         {
-            var occupiedRoles = repo.QueryOccupiedRoles(data.roles, data.id ?? 0);
+            var occupiedRoles = repo.QueryOccupiedRoles(data.roles, data.id);
             if (occupiedRoles.Any())
             {
                 var errorMessages = occupiedRoles.Select(kvp => 

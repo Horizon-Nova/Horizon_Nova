@@ -16,32 +16,36 @@ public class LoginController(LoginService loginService) : Controller
     /// 顯示登入頁面
     /// </summary>
     /// <returns>返回登入頁面視圖</returns>
-    public IActionResult Index()
+    public IActionResult Index(string? returnUrl = null)
     {
         if (User.Identity?.IsAuthenticated == true)
         {
             return RedirectToAction("Index", "Profile", new { area = "Weather" });
         }
+
+        ViewBag.ReturnUrl = returnUrl ?? "/Weather/Profile/";
         return View();
     }
 
     /// <summary>
-    /// 處理登入表單提交（AJAX）
+    /// 處理登入表單提交
     /// </summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Login([FromBody] LoginRequest request)
+    public IActionResult LoginFunction(string username, string password, bool rememberMe, string? returnUrl = null)
     {
-        if (request == null || string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
+        if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
         {
-            return Json(new { success = false, errorMessage = "請輸入帳號和密碼" });
+            ViewBag.ErrorMessage = "請輸入帳號和密碼";
+            return View("Index");
         }
 
-        var loginResult = loginService.ProcessLogin(request.Email, request.Password);
+        var loginResult = loginService.ProcessLogin(username, password);
         
         if (!loginResult.success)
         {
-            return Json(new { success = false, errorMessage = loginResult.errorMessage });
+            ViewBag.ErrorMessage = loginResult.errorMessage;
+            return View("Index");
         }
 
         var user = loginResult.user!;
@@ -50,8 +54,8 @@ public class LoginController(LoginService loginService) : Controller
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, user.id?.ToString() ?? "0"),
-            new Claim(ClaimTypes.Name, user.name ?? request.Email),
-            new Claim(ClaimTypes.Email, user.email ?? request.Email),
+            new Claim(ClaimTypes.Name, user.name ?? username),
+            new Claim(ClaimTypes.Email, user.email ?? username),
             new Claim("FullName", user.full_name ?? user.name ?? ""),
             new Claim("OrganizationName", user.organization_name ?? "Whatever the wheather")
         };
@@ -64,23 +68,27 @@ public class LoginController(LoginService loginService) : Controller
         var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
         var authProperties = new AuthenticationProperties
         {
-            IsPersistent = true,
-            ExpiresUtc = DateTimeOffset.UtcNow.AddDays(30)
+            IsPersistent = rememberMe,
+            ExpiresUtc = rememberMe ? DateTimeOffset.UtcNow.AddDays(30) : DateTimeOffset.UtcNow.AddHours(8)
         };
 
-        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
-            new ClaimsPrincipal(claimsIdentity), authProperties);
+        HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
+            new ClaimsPrincipal(claimsIdentity), authProperties).GetAwaiter().GetResult();
 
-        return Json(new { success = true, redirectUrl = Url.Action("Index", "Profile", new { area = "Weather" }) });
+        return !string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl) 
+            ? Redirect(returnUrl) 
+            : RedirectToAction("Index", "Profile", new { area = "Weather" });
     }
 
     /// <summary>
-    /// 登入請求模型
+    /// 處理登出
     /// </summary>
-    public class LoginRequest
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Logout()
     {
-        public string Email { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
+        HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme).GetAwaiter().GetResult();
+        return RedirectToAction("Index", "Login", new { area = "Weather" });
     }
 }
 

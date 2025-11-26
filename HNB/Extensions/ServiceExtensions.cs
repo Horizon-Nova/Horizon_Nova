@@ -41,8 +41,8 @@ public static class ServiceExtensions
         // DallE3 模組
         services.AddScoped<HNB.IntelligentSystems.DallE3.Module.DallE3Module>();
         
-        // QdrantEmbedding 模組
-        services.AddScoped<HNB.IntelligentSystems.QdrantEmbedding.Module.QdrantEmbeddingModule>();
+        // Qdrant 模組
+        services.AddScoped<HNB.IntelligentSystems.Qdrant.Module.QdrantModule>();
         
         // Embedding 模組 - 支援切換向量模型
         services.AddSingleton<EmbeddingModule>();

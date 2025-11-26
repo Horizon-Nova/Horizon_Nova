@@ -1,6 +1,10 @@
 @{
     Layout = null;
     var title = ViewData["Title"] as string ?? "Whatever the wheather";
+    var isAuthenticated = User.Identity?.IsAuthenticated == true;
+    var currentUserName = User.Identity?.Name ?? "";
+    var fullName = User.FindFirst("FullName")?.Value ?? currentUserName;
+    var displayName = !string.IsNullOrEmpty(fullName) ? fullName : currentUserName;
 }
 
 <!DOCTYPE html>
@@ -33,8 +37,100 @@
     <header class="bg-true-black text-white py-2 position-relative">
         <div class="container">
             <div class="d-flex justify-content-end align-items-center gap-3">
-                <a href="#" class="text-white text-decoration-none small">Login</a>
-                <a href="@Url.Action("Index", "Entry", new { area = "Weather" })" class="btn btn-brand btn-sm px-3 rounded-pill text-decoration-none">Try it for free</a>
+                @if (isAuthenticated)
+                {
+                    <!-- 使用者選單 -->
+                    <div class="dropdown position-relative">
+                        <button id="btnUserMenu"
+                                type="button"
+                                class="btn btn-link text-white text-decoration-none p-0 d-flex align-items-center gap-2"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                            <span class="small">Hello, @displayName</span>
+                            <i id="userMenuIcon" data-lucide="chevron-down" style="width: 1rem; height: 1rem;"></i>
+                        </button>
+                        <!-- Dropdown Menu -->
+                        <ul id="userMenu"
+                            class="dropdown-menu dropdown-menu-end position-absolute end-0 mt-2 bg-dark"
+                            style="min-width: auto; width: auto; z-index: 1050;"
+                            aria-labelledby="btnUserMenu">
+                            <li>
+                                <div class="px-3 py-2">
+                                    <h6 class="mb-0 fw-bold">
+                                        <span class="brand-italic">W</span>w
+                                    </h6>
+                                </div>
+                            </li>
+                            <li>
+                                <a class="dropdown-item text-white text-orange" 
+                                   href="@Url.Action("Index", "Profile", new { area = "Weather" })">
+                                    My Closet
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item text-white" href="@Url.Action("Index", "Profile", new { area = "Weather" })">
+                                    Calendar
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item text-white" href="@Url.Action("Index", "Profile", new { area = "Weather" })">
+                                    Account Status
+                                </a>
+                            </li>
+                            <li>
+                                <div class="dropdown-item text-white d-flex justify-content-center align-items-center" style="cursor: default; padding: 0.5rem 1rem;">
+                                    <span class="d-flex align-items-center justify-content-center gap-2">
+                                        <!-- 1. 洗衣機 -->
+                                        <svg style="width: 1rem; height: 1rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="3" y="4" width="18" height="16" rx="2"/>
+                                            <circle cx="12" cy="12" r="4"/>
+                                            <path d="M8 4V2M16 4V2"/>
+                                        </svg>
+                                        <!-- 2. 三角形 -->
+                                        <svg style="width: 1rem; height: 1rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M12 2L22 20H2L12 2Z"/>
+                                        </svg>
+                                        <!-- 3. 正方形 -->
+                                        <svg style="width: 1rem; height: 1rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="3" y="3" width="18" height="18"/>
+                                        </svg>
+                                        <!-- 4. 正方形中有圓形 -->
+                                        <svg style="width: 1rem; height: 1rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="3" y="3" width="18" height="18"/>
+                                            <circle cx="12" cy="12" r="5"/>
+                                        </svg>
+                                        <!-- 5. 熨斗 -->
+                                        <svg style="width: 1rem; height: 1rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M6 8L18 8L16 20H8L6 8Z"/>
+                                            <path d="M6 8L4 6L6 4L8 6L6 8Z"/>
+                                            <path d="M18 8L20 6L18 4L16 6L18 8Z"/>
+                                            <circle cx="12" cy="14" r="2"/>
+                                        </svg>
+                                        <!-- 6. 圓形 -->
+                                        <svg style="width: 1rem; height: 1rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10"/>
+                                        </svg>
+                                    </span>
+                                </div>
+                            </li>
+                            <li>
+                                <form method="post" action="@Url.Action("Logout", "Login", new { area = "Weather" })">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit"
+                                            class="dropdown-item text-white w-100 text-start border-0 bg-transparent"
+                                            style="border-top: 1px dashed rgba(255, 255, 255, 0.3) !important; margin-top: 0.5rem;">
+                                        Log out
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                }
+                else
+                {
+                    <a href="@Url.Action("Index", "Login", new { area = "Weather" })" class="text-white text-decoration-none small">Login</a>
+                    <a href="@Url.Action("Index", "Profile", new { area = "Weather" })" class="btn btn-brand btn-sm px-3 rounded-pill text-decoration-none">Try it for free</a>
+                }
             </div>
             <div class="position-absolute top-50 start-50 translate-middle text-center">
                 <div class="fw-bold medium">Whatever the <em class="brand-italic">wheather</em>.</div>
@@ -87,6 +183,26 @@
             if (window.lucide && typeof lucide.createIcons === 'function') {
                 lucide.createIcons();
             }
+
+            // 監聽 Bootstrap dropdown 事件來更新圖標
+            const btnUserMenu = document.getElementById('btnUserMenu');
+            const userMenuIcon = document.getElementById('userMenuIcon');
+            
+            if (btnUserMenu && userMenuIcon) {
+                btnUserMenu.addEventListener('show.bs.dropdown', function () {
+                    userMenuIcon.setAttribute('data-lucide', 'chevron-up');
+                    if (window.lucide && typeof lucide.createIcons === 'function') {
+                        lucide.createIcons();
+                    }
+                });
+
+                btnUserMenu.addEventListener('hide.bs.dropdown', function () {
+                    userMenuIcon.setAttribute('data-lucide', 'chevron-down');
+                    if (window.lucide && typeof lucide.createIcons === 'function') {
+                        lucide.createIcons();
+                    }
+                });
+            }
         });
     </script>
 
@@ -94,3 +210,4 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+

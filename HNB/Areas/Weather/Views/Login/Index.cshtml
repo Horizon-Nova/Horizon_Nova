@@ -1,177 +1,26 @@
 @{
-    ViewData["Title"] = "Login";
-    Layout = "~/Areas/Weather/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "系統登入 - Whatever the wheather";
+    Layout = "~/Areas/Weather/Views/Shared/_LayoutLogin.cshtml";
 }
 
-@section Styles {
-    <!-- AOS Animation Library -->
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    @await Html.PartialAsync("Partials/_Styles")
-}
+<main class="min-h-screen flex items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
+    <div class="w-full max-w-sm sm:max-w-md lg:max-w-lg">
+        <div class="relative rounded-2xl bg-white shadow-xl ring-1 ring-slate-200 p-5 sm:p-7 lg:p-10">
+            <div id="loginNotification" class="notification fixed top-4 right-4 z-50 px-4 py-2 rounded-lg shadow-lg text-white text-sm font-medium hidden"></div>
+            <header class="mb-6 sm:mb-8 text-center space-y-2">
+                <i data-lucide="log-in" class="w-9 h-9 sm:w-10 sm:h-10 text-orange-600 mx-auto animate-bounce"></i>
+                <h1 class="text-xl sm:text-2xl font-bold text-slate-800">歡迎登入</h1>
+                <p class="text-xs sm:text-sm text-slate-500">請輸入帳號與密碼</p>
+            </header>
 
-@await Html.PartialAsync("Partials/_Content")
+            @await Html.PartialAsync("Partials/Login/_Messages")
+            @await Html.PartialAsync("Partials/Login/_Form")
+        </div>
+
+        <p class="mt-6 text-center text-xs text-white/80">&copy; @DateTime.Now.Year Whatever the wheather</p>
+    </div>
+</main>
 
 @section Scripts {
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- AOS Animation Library -->
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <!-- Particles.js -->
-    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // 初始化 AOS
-            AOS.init({
-                duration: 800,
-                easing: 'ease-in-out',
-                once: true
-            });
-            
-            // 初始化 Particles.js
-            if (typeof particlesJS !== 'undefined') {
-                particlesJS('particles-js', {
-                    particles: {
-                        number: {
-                            value: 80,
-                            density: {
-                                enable: true,
-                                value_area: 800
-                            }
-                        },
-                        color: {
-                            value: '#d87136'
-                        },
-                        shape: {
-                            type: 'circle',
-                            stroke: {
-                                width: 0,
-                                color: '#000000'
-                            }
-                        },
-                        opacity: {
-                            value: 0.5,
-                            random: false,
-                            anim: {
-                                enable: false
-                            }
-                        },
-                        size: {
-                            value: 3,
-                            random: true,
-                            anim: {
-                                enable: false
-                            }
-                        },
-                        line_linked: {
-                            enable: true,
-                            distance: 150,
-                            color: '#d87136',
-                            opacity: 0.4,
-                            width: 1
-                        },
-                        move: {
-                            enable: true,
-                            speed: 2,
-                            direction: 'none',
-                            random: false,
-                            straight: false,
-                            out_mode: 'out',
-                            bounce: false,
-                            attract: {
-                                enable: false
-                            }
-                        }
-                    },
-                    interactivity: {
-                        detect_on: 'canvas',
-                        events: {
-                            onhover: {
-                                enable: true,
-                                mode: 'repulse'
-                            },
-                            onclick: {
-                                enable: true,
-                                mode: 'push'
-                            },
-                            resize: true
-                        },
-                        modes: {
-                            grab: {
-                                distance: 400,
-                                line_linked: {
-                                    opacity: 1
-                                }
-                            },
-                            bubble: {
-                                distance: 400,
-                                size: 40,
-                                duration: 2,
-                                opacity: 8,
-                                speed: 3
-                            },
-                            repulse: {
-                                distance: 200,
-                                duration: 0.4
-                            },
-                            push: {
-                                particles_nb: 4
-                            },
-                            remove: {
-                                particles_nb: 2
-                            }
-                        }
-                    },
-                    retina_detect: true
-                });
-            }
-
-            // 處理登入表單提交
-            $('#login-form').on('submit', function(e) {
-                e.preventDefault();
-                
-                const email = $('#email').val();
-                const password = $('#password').val();
-                const $errorMessage = $('#login-error-message');
-                const $submitBtn = $('#login-submit-btn');
-                
-                // 隱藏錯誤訊息
-                $errorMessage.hide();
-                
-                // 禁用提交按鈕
-                $submitBtn.prop('disabled', true).text('登入中...');
-                
-                $.ajax({
-                    type: 'POST',
-                    url: '@Url.Action("Login", "Login", new { area = "Weather" })',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-                        email: email,
-                        password: password
-                    }),
-                    headers: {
-                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
-                    },
-                    success: function(response) {
-                        if (response && response.success) {
-                            // 登入成功，重定向
-                            window.location.href = response.redirectUrl || '@Url.Action("Index", "Profile", new { area = "Weather" })';
-                        } else {
-                            // 顯示錯誤訊息
-                            $errorMessage.text(response.errorMessage || '登入失敗').show();
-                            $submitBtn.prop('disabled', false).text('Login');
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        let errorMsg = '登入失敗，請稍後再試';
-                        if (xhr.responseJSON && xhr.responseJSON.errorMessage) {
-                            errorMsg = xhr.responseJSON.errorMessage;
-                        }
-                        $errorMessage.text(errorMsg).show();
-                        $submitBtn.prop('disabled', false).text('Login');
-                    }
-                });
-            });
-        });
-    </script>
+    @await Html.PartialAsync("Partials/Login/_Scripts")
 }
-

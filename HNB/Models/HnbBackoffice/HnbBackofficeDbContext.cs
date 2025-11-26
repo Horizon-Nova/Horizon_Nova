@@ -43,8 +43,13 @@ public partial class HnbBackofficeDbContext : DbContext
 
         modelBuilder.Entity<permission_management>(entity =>
         {
+            entity.HasKey(e => e.id).HasName("permission_management_pkey");
+
             entity.ToTable("permission_management", "dbo", tb => tb.HasComment("權限管理統一資料表 - 用於統一管理用戶、角色、組織三種類型的資料，透過 type 欄位區分資料類型"));
 
+            entity.Property(e => e.id)
+                .ValueGeneratedNever()
+                .HasComment("主鍵ID");
             entity.Property(e => e.auto_renew).HasComment("自動續費：true=自動續費, false=手動續費");
             entity.Property(e => e.avatar_url).HasComment("頭像網址：用戶頭像圖片連結");
             entity.Property(e => e.billing_cycle).HasComment("計費週期：monthly/yearly等");
@@ -59,7 +64,6 @@ public partial class HnbBackofficeDbContext : DbContext
             entity.Property(e => e.favorite_color).HasComment("喜愛的顏色：用戶偏好顏色");
             entity.Property(e => e.full_name).HasComment("完整名稱：用戶=真實姓名, 角色=角色完整名稱, 組織=組織完整名稱");
             entity.Property(e => e.gender).HasComment("性別：男/女/其他");
-            entity.Property(e => e.id).HasComment("主鍵ID");
             entity.Property(e => e.internal_notes).HasComment("內部備註：僅管理員可見的內部備註");
             entity.Property(e => e.is_active).HasComment("是否啟用：true=啟用, false=停用");
             entity.Property(e => e.is_email_verified).HasComment("郵箱是否驗證：true=已驗證, false=未驗證");
@@ -122,12 +126,16 @@ public partial class HnbBackofficeDbContext : DbContext
 
         modelBuilder.Entity<sidebar_navigation>(entity =>
         {
+            entity.HasKey(e => e.id).HasName("sidebar_navigation_pkey");
+
             entity.ToTable("sidebar_navigation", "dbo", tb => tb.HasComment("側欄導航管理表"));
 
+            entity.Property(e => e.id)
+                .ValueGeneratedNever()
+                .HasComment("主鍵，自動遞增");
             entity.Property(e => e.code).HasComment("導航項目編號，唯一識別碼");
             entity.Property(e => e.created_at).HasComment("建立時間");
             entity.Property(e => e.icon).HasComment("導航項目圖示名稱");
-            entity.Property(e => e.id).HasComment("主鍵，自動遞增");
             entity.Property(e => e.is_active).HasComment("是否啟用此導航項目");
             entity.Property(e => e.parent_code).HasComment("父級導航項目編號，用於建立階層結構");
             entity.Property(e => e.sort_order).HasComment("排序順序，數字越小越前面");

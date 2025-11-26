@@ -22,14 +22,14 @@ namespace Models.HnbBackoffice;
 /// <summary>
 /// 權限管理統一資料表 - 用於統一管理用戶、角色、組織三種類型的資料，透過 type 欄位區分資料類型
 /// </summary>
-[Keyless]
 [Table("permission_management", Schema = "dbo")]
 public partial class permission_management
 {
     /// <summary>
     /// 主鍵ID
     /// </summary>
-    public int? id { get; set; }
+    [Key]
+    public int id { get; set; }
 
     /// <summary>
     /// 資料類型：user=用戶, role=角色, organization=組織

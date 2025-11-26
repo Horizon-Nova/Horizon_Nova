@@ -1,9 +1,9 @@
-namespace HNB.IntelligentSystems.QdrantEmbedding.Configuration;
+namespace HNB.IntelligentSystems.Qdrant.Configuration;
 
 /// <summary>
-/// QdrantEmbedding 配置類別
+/// Qdrant 配置類別
 /// </summary>
-public class QdrantEmbeddingConfig
+public class QdrantConfig
 {
     /// <summary>
     /// Qdrant 服務 URL

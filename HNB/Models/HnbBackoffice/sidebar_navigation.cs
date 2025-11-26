@@ -21,14 +21,14 @@ namespace Models.HnbBackoffice;
 /// <summary>
 /// 側欄導航管理表
 /// </summary>
-[Keyless]
 [Table("sidebar_navigation", Schema = "dbo")]
 public partial class sidebar_navigation
 {
     /// <summary>
     /// 主鍵，自動遞增
     /// </summary>
-    public int? id { get; set; }
+    [Key]
+    public int id { get; set; }
 
     /// <summary>
     /// 導航項目編號，唯一識別碼

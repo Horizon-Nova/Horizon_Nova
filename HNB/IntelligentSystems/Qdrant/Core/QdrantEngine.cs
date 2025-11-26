@@ -1,17 +1,17 @@
 using System.Text;
 using System.Text.Json;
-using HNB.IntelligentSystems.QdrantEmbedding.Configuration;
-using HNB.IntelligentSystems.QdrantEmbedding.Models;
+using HNB.IntelligentSystems.Qdrant.Configuration;
+using HNB.IntelligentSystems.Qdrant.Models;
 
-namespace HNB.IntelligentSystems.QdrantEmbedding.Core;
+namespace HNB.IntelligentSystems.Qdrant.Core;
 
 /// <summary>
-/// QdrantEmbedding 核心引擎
+/// Qdrant 核心引擎
 /// 負責與 Qdrant 向量資料庫進行互動
 /// </summary>
-public class QdrantEmbeddingEngine(QdrantEmbeddingConfig config, HttpClient httpClient)
+public class QdrantEngine(QdrantConfig config, HttpClient httpClient)
 {
-    private readonly QdrantEmbeddingConfig _config = config ?? throw new ArgumentNullException(nameof(config));
+    private readonly QdrantConfig _config = config ?? throw new ArgumentNullException(nameof(config));
     private readonly HttpClient _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
 
     private string GetBaseUrl()
@@ -238,6 +238,6 @@ public class QdrantEmbeddingEngine(QdrantEmbeddingConfig config, HttpClient http
     /// <summary>
     /// 取得配置資訊
     /// </summary>
-    public QdrantEmbeddingConfig GetConfig() => _config;
+    public QdrantConfig GetConfig() => _config;
 }
 
