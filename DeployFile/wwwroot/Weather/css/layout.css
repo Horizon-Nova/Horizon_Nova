@@ -30,4 +30,41 @@ body { font-family: 'Lato', sans-serif; }
 
 .bg-true-black { background-color: #000 !important; }
 
+/* 使用者選單樣式 */
+#userMenu.dropdown-menu {
+    background-color: var(--color-black) !important;
+    border: none;
+    font-family: 'Lato', sans-serif;
+    min-width: auto;
+    width: auto;
+}
+
+#userMenu .dropdown-item {
+    text-align: center;
+    justify-content: center;
+}
+
+#userMenu .dropdown-item {
+    color: var(--color-white) !important;
+}
+
+#userMenu .dropdown-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--color-white) !important;
+}
+
+#userMenu .dropdown-item.text-orange {
+    color: var(--brand-orange) !important;
+}
+
+#userMenu .dropdown-item.text-orange:hover {
+    color: var(--brand-orange) !important;
+    background-color: rgba(224, 122, 52, 0.1);
+}
+
+#userMenu h6 {
+    color: var(--color-white) !important;
+    font-family: var(--font-brand-italic);
+}
+
 
