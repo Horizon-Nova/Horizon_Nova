@@ -1,0 +1,537 @@
+@{
+    Layout = null;
+}
+
+<div class="row g-4">
+    <!-- 左側：模型導航 -->
+    <div class="col-12 col-lg-4 col-xl-3">
+        <div class="model-sidebar rounded-3 p-3 overflow-auto d-flex flex-column gap-3">
+            <div class="sidebar-search position-relative">
+                <i data-lucide="search" style="width: 1rem; height: 1rem;" class="position-absolute top-50 start-0 translate-middle-y ms-3"></i>
+                <input type="text" id="sidebarSearch" class="form-control ps-5" placeholder="搜尋模型...">
+            </div>
+            
+            <div id="modelNavList" class="d-flex flex-column gap-2">
+                <div class="model-nav-item active rounded d-flex align-items-center gap-2 p-2 border border-2" data-model="groundingdino" onclick="selectModel('groundingdino')">
+                    <div class="nav-icon rounded d-flex align-items-center justify-content-center flex-shrink-0" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">
+                        <i data-lucide="scan-search" style="width: 20px; height: 20px;"></i>
+                    </div>
+                    <div class="nav-info flex-grow-1 min-w-0">
+                        <div class="nav-name small fw-semibold text-truncate">GroundingDINO</div>
+                        <div class="nav-desc small text-truncate">物件檢測</div>
+                    </div>
+                    <div class="nav-status inactive rounded-circle flex-shrink-0" id="nav-status-groundingdino"></div>
+                </div>
+                
+                <div class="model-nav-item rounded d-flex align-items-center gap-2 p-2 border border-2 border-transparent" data-model="embedding" onclick="selectModel('embedding')">
+                    <div class="nav-icon rounded d-flex align-items-center justify-content-center flex-shrink-0" style="background: linear-gradient(135deg, #06b6d4, #0891b2);">
+                        <i data-lucide="layers" style="width: 20px; height: 20px;"></i>
+                    </div>
+                    <div class="nav-info flex-grow-1 min-w-0">
+                        <div class="nav-name small fw-semibold text-truncate">Embedding</div>
+                        <div class="nav-desc small text-truncate">向量嵌入</div>
+                    </div>
+                    <div class="nav-status inactive rounded-circle flex-shrink-0" id="nav-status-embedding"></div>
+                </div>
+                
+                <div class="model-nav-item rounded d-flex align-items-center gap-2 p-2 border border-2 border-transparent" data-model="dalle3" onclick="selectModel('dalle3')">
+                    <div class="nav-icon rounded d-flex align-items-center justify-content-center flex-shrink-0" style="background: linear-gradient(135deg, #10b981, #059669);">
+                        <i data-lucide="image" style="width: 20px; height: 20px;"></i>
+                    </div>
+                    <div class="nav-info flex-grow-1 min-w-0">
+                        <div class="nav-name small fw-semibold text-truncate">DallE3</div>
+                        <div class="nav-desc small text-truncate">圖像生成</div>
+                    </div>
+                    <div class="nav-status inactive rounded-circle flex-shrink-0" id="nav-status-dalle3"></div>
+                </div>
+                
+                <div class="model-nav-item rounded d-flex align-items-center gap-2 p-2 border border-2 border-transparent" data-model="qdrant" onclick="selectModel('qdrant')">
+                    <div class="nav-icon rounded d-flex align-items-center justify-content-center flex-shrink-0" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                        <i data-lucide="database" style="width: 20px; height: 20px;"></i>
+                    </div>
+                    <div class="nav-info flex-grow-1 min-w-0">
+                        <div class="nav-name small fw-semibold text-truncate">Qdrant</div>
+                        <div class="nav-desc small text-truncate">向量資料庫</div>
+                    </div>
+                    <div class="nav-status inactive rounded-circle flex-shrink-0" id="nav-status-qdrant"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 右側：詳細控制面板 -->
+    <div class="col-12 col-lg-8 col-xl-9">
+        <div class="model-detail-panel d-flex flex-column overflow-auto rounded" id="detailPanel">
+        <!-- GroundingDINO 詳細面板 -->
+        <div class="model-detail-content d-flex flex-column overflow-auto rounded" id="detail-groundingdino">
+            <!-- 標題和操作 -->
+            <div class="p-4 border-bottom">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <i data-lucide="scan-search" style="width: 24px; height: 24px;" class="text-primary"></i>
+                        <div>
+                            <h2 class="h4 fw-bold mb-0">GroundingDINO</h2>
+                            <p class="small text-muted mb-0">物件檢測模型</p>
+                        </div>
+                    </div>
+                    <span class="status-display inactive d-inline-flex align-items-center gap-2 small" id="detail-status-groundingdino">
+                        <span class="status-dot-large rounded-circle" style="width: 8px; height: 8px;"></span>
+                        <span>未載入</span>
+                    </span>
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-success btn-sm d-flex align-items-center gap-2" data-model="groundingdino">
+                        <i data-lucide="play" style="width: 16px; height: 16px;"></i>
+                        <span>啟動</span>
+                    </button>
+                    <button type="button" class="btn btn-danger btn-sm d-flex align-items-center gap-2" style="display: none;" data-model="groundingdino">
+                        <i data-lucide="square" style="width: 16px; height: 16px;"></i>
+                        <span>停止</span>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2" data-model="groundingdino">
+                        <i data-lucide="terminal" style="width: 16px; height: 16px;"></i>
+                        <span>終端機</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 內容區 -->
+            <div class="p-4">
+                <div class="row g-3 mb-3">
+                    <div class="col-12 col-md-6">
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                            <span class="text-muted small">費用</span>
+                            <span class="fw-semibold" id="cost-groundingdino">$0.00</span>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                            <span class="text-muted small">使用量</span>
+                            <span class="fw-semibold" id="usage-groundingdino">0 次</span>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                            <span class="text-muted small">系統用量</span>
+                            <span class="fw-semibold" id="system-groundingdino">-</span>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                            <span class="text-muted small">網路用量</span>
+                            <span class="fw-semibold" id="network-groundingdino">0 MB</span>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                            <span class="text-muted small">模型大小</span>
+                            <span class="fw-semibold" id="modelSize-groundingdino">-</span>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                            <span class="text-muted small">模型版本</span>
+                            <span class="fw-semibold" id="modelVersion-groundingdino">-</span>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                            <span class="text-muted small">檔案路徑</span>
+                            <span class="fw-semibold text-end text-truncate ms-2" id="modelPath-groundingdino">-</span>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                            <span class="text-muted small">上線時間</span>
+                            <span class="fw-semibold" id="onlineTime-groundingdino">-</span>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                            <span class="text-muted small">使用時間</span>
+                            <span class="fw-semibold" id="usageTime-groundingdino">-</span>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                            <span class="text-muted small">最後使用</span>
+                            <span class="fw-semibold" id="lastUsed-groundingdino">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 使用紀錄 -->
+            <div class="p-4 border-top">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h6 class="small fw-semibold mb-0">使用紀錄</h6>
+                    <button type="button" class="btn btn-link btn-sm p-0" id="viewRecords-groundingdino">查看全部</button>
+                </div>
+                <div class="overflow-auto" id="recentRecords-groundingdino">
+                    <div class="text-muted small text-center py-3">暫無使用紀錄</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Embedding 詳細面板 -->
+        <div class="model-detail-content" id="detail-embedding" style="display: none;">
+            <div class="detail-header">
+                <div class="header-top">
+                    <div class="model-title-section">
+                        <div class="model-avatar-large" style="background: linear-gradient(135deg, #06b6d4, #0891b2);">
+                            <i data-lucide="layers" style="width: 28px; height: 28px;"></i>
+                        </div>
+                        <div class="model-title-text">
+                            <h2>Embedding</h2>
+                            <p>向量嵌入模型</p>
+                        </div>
+                    </div>
+                    <span class="status-display inactive" id="detail-status-embedding">
+                        <span class="status-dot-large"></span>
+                        <span>未載入</span>
+                    </span>
+                </div>
+            </div>
+            <div class="key-metrics-area">
+                <div class="metrics-grid">
+                    <div class="primary-metric">
+                        <div class="primary-metric-label">費用</div>
+                        <div class="primary-metric-value money" id="cost-embedding">$0.00</div>
+                    </div>
+                    <div class="primary-metric">
+                        <div class="primary-metric-label">使用量</div>
+                        <div class="primary-metric-value usage" id="usage-embedding">0<span style="font-size: 0.875rem; color: #9ca3af; font-weight: 400; margin-left: 0.25rem;">次</span></div>
+                    </div>
+                </div>
+                <div class="secondary-metrics">
+                    <div class="secondary-metric">
+                        <div class="secondary-label">系統用量</div>
+                        <div class="secondary-value" id="system-embedding">-</div>
+                    </div>
+                    <div class="secondary-metric">
+                        <div class="secondary-label">網路用量</div>
+                        <div class="secondary-value" id="network-embedding">0 MB</div>
+                    </div>
+                </div>
+            </div>
+            <div class="actions-area">
+                <div class="actions-row">
+                    <button type="button" class="primary-action start js-start-model" data-model="embedding">
+                        <i data-lucide="play" style="width: 20px; height: 20px;"></i>
+                        <span>啟動模型</span>
+                    </button>
+                    <button type="button" class="primary-action stop js-stop-model" data-model="embedding" style="display: none;">
+                        <i data-lucide="square" style="width: 20px; height: 20px;"></i>
+                        <span>停止模型</span>
+                    </button>
+                    <button type="button" class="secondary-action js-view-terminal" data-model="embedding">
+                        <i data-lucide="terminal" style="width: 20px; height: 20px;"></i>
+                        <span>終端機</span>
+                    </button>
+                </div>
+            </div>
+            <div class="info-area">
+                <div class="info-section">
+                    <div class="section-title">
+                        <h6><i data-lucide="file-text" style="width: 16px; height: 16px;"></i>模型資訊</h6>
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-item-label">模型大小</span>
+                            <span class="info-item-value" id="modelSize-embedding">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-item-label">模型版本</span>
+                            <span class="info-item-value" id="modelVersion-embedding">-</span>
+                        </div>
+                        <div class="info-item" style="grid-column: 1 / -1;">
+                            <span class="info-item-label">檔案路徑</span>
+                            <span class="info-item-value text-truncate" style="max-width: 100%;" id="modelPath-embedding">-</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-section">
+                    <div class="section-title">
+                        <h6><i data-lucide="clock" style="width: 16px; height: 16px;"></i>時間資訊</h6>
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-item-label">上線時間</span>
+                            <span class="info-item-value" id="onlineTime-embedding">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-item-label">使用時間</span>
+                            <span class="info-item-value" id="usageTime-embedding">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-item-label">最後使用</span>
+                            <span class="info-item-value" id="lastUsed-embedding">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="records-area">
+                <div class="section-title">
+                    <h6><i data-lucide="list" style="width: 16px; height: 16px;"></i>使用紀錄</h6>
+                    <button type="button" class="btn btn-link btn-sm p-0" id="viewRecords-embedding">查看全部 →</button>
+                </div>
+                <div class="records-list" id="recentRecords-embedding">
+                    <div class="text-muted small text-center py-3">暫無使用紀錄</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- DallE3 詳細面板 -->
+        <div class="model-detail-content" id="detail-dalle3" style="display: none;">
+            <div class="detail-header">
+                <div class="header-top">
+                    <div class="model-title-section">
+                        <div class="model-avatar-large" style="background: linear-gradient(135deg, #10b981, #059669);">
+                            <i data-lucide="image" style="width: 28px; height: 28px;"></i>
+                        </div>
+                        <div class="model-title-text">
+                            <h2>DallE3</h2>
+                            <p>圖像生成模型</p>
+                        </div>
+                    </div>
+                    <span class="status-display inactive" id="detail-status-dalle3">
+                        <span class="status-dot-large"></span>
+                        <span>未載入</span>
+                    </span>
+                </div>
+            </div>
+            <div class="key-metrics-area">
+                <div class="metrics-grid">
+                    <div class="primary-metric">
+                        <div class="primary-metric-label">費用</div>
+                        <div class="primary-metric-value money" id="cost-dalle3">$0.00</div>
+                    </div>
+                    <div class="primary-metric">
+                        <div class="primary-metric-label">使用量</div>
+                        <div class="primary-metric-value usage" id="usage-dalle3">0<span style="font-size: 0.875rem; color: #9ca3af; font-weight: 400; margin-left: 0.25rem;">次</span></div>
+                    </div>
+                </div>
+                <div class="secondary-metrics">
+                    <div class="secondary-metric">
+                        <div class="secondary-label">系統用量</div>
+                        <div class="secondary-value" id="system-dalle3">-</div>
+                    </div>
+                    <div class="secondary-metric">
+                        <div class="secondary-label">網路用量</div>
+                        <div class="secondary-value" id="network-dalle3">0 MB</div>
+                    </div>
+                </div>
+            </div>
+            <div class="actions-area">
+                <div class="actions-row">
+                    <button type="button" class="primary-action start js-start-model" data-model="dalle3">
+                        <i data-lucide="play" style="width: 20px; height: 20px;"></i>
+                        <span>啟動模型</span>
+                    </button>
+                    <button type="button" class="primary-action stop js-stop-model" data-model="dalle3" style="display: none;">
+                        <i data-lucide="square" style="width: 20px; height: 20px;"></i>
+                        <span>停止模型</span>
+                    </button>
+                    <button type="button" class="secondary-action js-view-terminal" data-model="dalle3">
+                        <i data-lucide="terminal" style="width: 20px; height: 20px;"></i>
+                        <span>終端機</span>
+                    </button>
+                </div>
+            </div>
+            <div class="info-area">
+                <div class="info-section">
+                    <div class="section-title">
+                        <h6><i data-lucide="file-text" style="width: 16px; height: 16px;"></i>API 資訊</h6>
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-item-label">API 狀態</span>
+                            <span class="info-item-value">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-item-label">API 版本</span>
+                            <span class="info-item-value">-</span>
+                        </div>
+                        <div class="info-item" style="grid-column: 1 / -1;">
+                            <span class="info-item-label">端點</span>
+                            <span class="info-item-value text-truncate" style="max-width: 100%;">-</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-section">
+                    <div class="section-title">
+                        <h6><i data-lucide="clock" style="width: 16px; height: 16px;"></i>時間資訊</h6>
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-item-label">上線時間</span>
+                            <span class="info-item-value" id="onlineTime-dalle3">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-item-label">使用時間</span>
+                            <span class="info-item-value" id="usageTime-dalle3">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-item-label">最後使用</span>
+                            <span class="info-item-value" id="lastUsed-dalle3">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="records-area">
+                <div class="section-title">
+                    <h6><i data-lucide="list" style="width: 16px; height: 16px;"></i>使用紀錄</h6>
+                    <button type="button" class="btn btn-link btn-sm p-0" id="viewRecords-dalle3">查看全部 →</button>
+                </div>
+                <div class="records-list" id="recentRecords-dalle3">
+                    <div class="text-muted small text-center py-3">暫無使用紀錄</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Qdrant 詳細面板 -->
+        <div class="model-detail-content" id="detail-qdrant" style="display: none;">
+            <div class="detail-header">
+                <div class="header-top">
+                    <div class="model-title-section">
+                        <div class="model-avatar-large" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                            <i data-lucide="database" style="width: 28px; height: 28px;"></i>
+                        </div>
+                        <div class="model-title-text">
+                            <h2>Qdrant</h2>
+                            <p>向量資料庫</p>
+                        </div>
+                    </div>
+                    <span class="status-display inactive" id="detail-status-qdrant">
+                        <span class="status-dot-large"></span>
+                        <span>未連接</span>
+                    </span>
+                </div>
+            </div>
+            <div class="key-metrics-area">
+                <div class="metrics-grid">
+                    <div class="primary-metric">
+                        <div class="primary-metric-label">費用</div>
+                        <div class="primary-metric-value money" id="cost-qdrant">$0.00</div>
+                    </div>
+                    <div class="primary-metric">
+                        <div class="primary-metric-label">使用量</div>
+                        <div class="primary-metric-value usage" id="usage-qdrant">0<span style="font-size: 0.875rem; color: #9ca3af; font-weight: 400; margin-left: 0.25rem;">次</span></div>
+                    </div>
+                </div>
+                <div class="secondary-metrics">
+                    <div class="secondary-metric">
+                        <div class="secondary-label">系統用量</div>
+                        <div class="secondary-value" id="system-qdrant">-</div>
+                    </div>
+                    <div class="secondary-metric">
+                        <div class="secondary-label">網路用量</div>
+                        <div class="secondary-value" id="network-qdrant">0 MB</div>
+                    </div>
+                </div>
+            </div>
+            <div class="actions-area">
+                <div class="actions-row">
+                    <button type="button" class="primary-action start js-start-model" data-model="qdrant">
+                        <i data-lucide="link" style="width: 20px; height: 20px;"></i>
+                        <span>連接資料庫</span>
+                    </button>
+                    <button type="button" class="primary-action stop js-stop-model" data-model="qdrant" style="display: none;">
+                        <i data-lucide="unlink" style="width: 20px; height: 20px;"></i>
+                        <span>斷開連接</span>
+                    </button>
+                    <button type="button" class="secondary-action js-view-terminal" data-model="qdrant">
+                        <i data-lucide="terminal" style="width: 20px; height: 20px;"></i>
+                        <span>終端機</span>
+                    </button>
+                </div>
+            </div>
+            <div class="info-area">
+                <div class="info-section">
+                    <div class="section-title">
+                        <h6><i data-lucide="file-text" style="width: 16px; height: 16px;"></i>資料庫資訊</h6>
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-item-label">連接狀態</span>
+                            <span class="info-item-value">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-item-label">集合數量</span>
+                            <span class="info-item-value">-</span>
+                        </div>
+                        <div class="info-item" style="grid-column: 1 / -1;">
+                            <span class="info-item-label">服務端點</span>
+                            <span class="info-item-value text-truncate" style="max-width: 100%;">-</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-section">
+                    <div class="section-title">
+                        <h6><i data-lucide="clock" style="width: 16px; height: 16px;"></i>時間資訊</h6>
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-item-label">上線時間</span>
+                            <span class="info-item-value" id="onlineTime-qdrant">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-item-label">使用時間</span>
+                            <span class="info-item-value" id="usageTime-qdrant">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-item-label">最後使用</span>
+                            <span class="info-item-value" id="lastUsed-qdrant">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="records-area">
+                <div class="section-title">
+                    <h6><i data-lucide="list" style="width: 16px; height: 16px;"></i>使用紀錄</h6>
+                    <button type="button" class="btn btn-link btn-sm p-0" id="viewRecords-qdrant">查看全部 →</button>
+                </div>
+                <div class="records-list" id="recentRecords-qdrant">
+                    <div class="text-muted small text-center py-3">暫無使用紀錄</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function selectModel(modelId) {
+    // 更新導航項目的 active 狀態
+    document.querySelectorAll('.model-nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    document.querySelector(`[data-model="${modelId}"]`).classList.add('active');
+    
+    // 顯示對應的詳細面板
+    document.querySelectorAll('.model-detail-content').forEach(panel => {
+        panel.style.display = 'none';
+    });
+    document.getElementById(`detail-${modelId}`).style.display = 'flex';
+    
+    // 重新初始化圖標
+    if (window.lucide) {
+        window.lucide.createIcons();
+    }
+}
+
+// 側邊欄搜尋
+document.getElementById('sidebarSearch')?.addEventListener('input', function(e) {
+    const term = e.target.value.toLowerCase().trim();
+    document.querySelectorAll('.model-nav-item').forEach(item => {
+        const name = item.querySelector('.nav-name')?.textContent.toLowerCase() || '';
+        const desc = item.querySelector('.nav-desc')?.textContent.toLowerCase() || '';
+        item.style.display = (!term || name.includes(term) || desc.includes(term)) ? '' : 'none';
+    });
+});
+
+// 初始化顯示第一個模型
+if (document.querySelector('.model-nav-item[data-model="groundingdino"]')) {
+    selectModel('groundingdino');
+}
+</script>

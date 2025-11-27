@@ -1,0 +1,76 @@
+@{
+    Layout = null;
+}
+
+<!-- 記憶體使用卡片 - 圓形進度條 -->
+<div class="col-12 col-lg-4">
+    <div class="card border-0 shadow-sm h-100">
+        <div class="card-body p-4 text-center">
+            <h6 class="text-muted mb-4 fw-semibold">記憶體使用</h6>
+            <div class="position-relative d-inline-block mb-3">
+                <svg width="120" height="120" class="transform-rotate-90">
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="#e9ecef" stroke-width="8"></circle>
+                    <circle cx="60" cy="60" r="50" fill="none" stroke="#0d6efd" stroke-width="8" 
+                            stroke-dasharray="314" 
+                            stroke-dashoffset="314" 
+                            stroke-linecap="round"
+                            id="memoryCircle"
+                            style="transition: stroke-dashoffset 0.5s ease;">
+                    </circle>
+                </svg>
+                <div class="position-absolute top-50 start-50 translate-middle">
+                    <span class="fs-3 fw-bold" id="memoryPercent">0%</span>
+                </div>
+            </div>
+            <p class="text-muted small mb-0">
+                <span id="memoryUsed">0 MB</span> / <span id="memoryTotal">0 MB</span>
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- CPU 使用率卡片 - 線性圖表 -->
+<div class="col-12 col-lg-4">
+    <div class="card border-0 shadow-sm h-100">
+        <div class="card-body p-4">
+            <h6 class="text-muted mb-4 fw-semibold d-flex align-items-center justify-content-between">
+                <span>CPU 使用率</span>
+                <i data-lucide="cpu" style="width: 1.25rem; height: 1.25rem;"></i>
+            </h6>
+            <div class="mb-3">
+                <div class="d-flex align-items-end justify-content-between gap-1" style="height: 80px;">
+                    <div class="bg-primary rounded-top" style="width: 15%; height: 20%;"></div>
+                    <div class="bg-primary rounded-top" style="width: 15%; height: 35%;"></div>
+                    <div class="bg-primary rounded-top" style="width: 15%; height: 60%;"></div>
+                    <div class="bg-primary rounded-top" style="width: 15%; height: 80%;"></div>
+                    <div class="bg-primary rounded-top" style="width: 15%; height: 50%;"></div>
+                    <div class="bg-primary rounded-top" style="width: 15%; height: 70%;"></div>
+                </div>
+            </div>
+            <div class="text-center">
+                <span class="fs-4 fw-bold" id="cpuPercent">0%</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 響應時間卡片 - 速度計 -->
+<div class="col-12 col-lg-4">
+    <div class="card border-0 shadow-sm h-100">
+        <div class="card-body p-4 text-center">
+            <h6 class="text-muted mb-4 fw-semibold d-flex align-items-center justify-content-center gap-2">
+                <i data-lucide="gauge" style="width: 1.25rem; height: 1.25rem;"></i>
+                響應時間
+            </h6>
+            <div class="mb-3 position-relative" style="height: 100px;">
+                <div class="position-absolute top-50 start-50 translate-middle">
+                    <span class="fs-2 fw-bold" id="responseTime">0ms</span>
+                </div>
+            </div>
+            <p class="text-muted small mb-0">
+                <span class="badge bg-success" id="responseStatus">正常</span>
+            </p>
+        </div>
+    </div>
+</div>
+

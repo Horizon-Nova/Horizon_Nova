@@ -3,22 +3,24 @@
     Layout = "~/Areas/Backoffice/Views/Shared/_LayoutLogin.cshtml";
 }
 
+@await Html.PartialAsync("Partials/_Styles")
+
 <main class="min-h-screen flex items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
     <div class="w-full max-w-sm sm:max-w-md lg:max-w-lg">
-        <div class="relative rounded-2xl bg-white shadow-xl ring-1 ring-slate-200 p-5 sm:p-7 lg:p-10">
+        <div class="relative rounded-2xl authorize-bg-white shadow-xl ring-1 authorize-border-slate-300 p-5 sm:p-7 lg:p-10">
             <header class="mb-6 sm:mb-8 text-center space-y-2">
-                <i data-lucide="shield-x" class="w-9 h-9 sm:w-10 sm:h-10 text-red-600 mx-auto"></i>
-                <h1 class="text-xl sm:text-2xl font-bold text-slate-800">存取被拒絕</h1>
-                <p class="text-xs sm:text-sm text-slate-500">您沒有權限存取此頁面</p>
+                <i data-lucide="shield-x" class="w-9 h-9 sm:w-10 sm:h-10 authorize-text-red-600 mx-auto"></i>
+                <h1 class="text-xl sm:text-2xl font-bold authorize-text-slate-800">存取被拒絕</h1>
+                <p class="text-xs sm:text-sm authorize-text-slate-500">您沒有權限存取此頁面</p>
             </header>
 
             <div class="space-y-4">
-                <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                <div class="authorize-bg-red-50 border authorize-bg-red-200 rounded-lg p-4">
                     <div class="flex items-start">
-                        <i data-lucide="alert-triangle" class="w-5 h-5 text-red-600 mt-0.5 mr-3"></i>
+                        <i data-lucide="alert-triangle" class="w-5 h-5 authorize-text-red-600 mt-0.5 mr-3"></i>
                         <div>
-                            <h3 class="text-sm font-medium text-red-800">權限不足</h3>
-                            <p class="text-sm text-red-700 mt-1">
+                            <h3 class="text-sm font-medium authorize-text-red-800">權限不足</h3>
+                            <p class="text-sm authorize-text-red-700 mt-1">
                                 您目前的帳號沒有足夠的權限來存取此功能。如需協助，請聯繫系統管理員。
                             </p>
                         </div>
@@ -27,28 +29,28 @@
 
                 <div class="space-y-3">
                     <a href="@Url.Action("Index", "Dashboard", new { area = "Backoffice" })"
-                       class="w-full flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-white font-medium shadow-md hover:scale-[1.02] hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-white transition-transform duration-200">
+                       class="w-full flex items-center justify-center gap-2 rounded-xl authorize-bg-indigo-600 px-4 py-2.5 authorize-text-white font-medium shadow-md hover:scale-[1.02] authorize-hover-bg-indigo-700 focus:ring-2 authorize-focus-ring-indigo-500 focus:ring-offset-2 focus:ring-offset-white transition-transform duration-200">
                         <i data-lucide="home" class="w-5 h-5"></i>
                         <span class="text-sm sm:text-base">返回首頁</span>
                     </a>
 
                     <a href="@Url.Action("Login", "Authorize", new { area = "Backoffice" })" 
-                       class="w-full flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-slate-700 font-medium shadow-sm hover:bg-slate-50 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-white transition-colors duration-200">
+                       class="w-full flex items-center justify-center gap-2 rounded-xl border authorize-border-slate-300 authorize-bg-white px-4 py-2.5 authorize-text-slate-700 font-medium shadow-sm authorize-hover-bg-slate-50 focus:ring-2 authorize-focus-ring-indigo-500 focus:ring-offset-2 focus:ring-offset-white transition-colors duration-200">
                         <i data-lucide="log-in" class="w-5 h-5"></i>
                         <span class="text-sm sm:text-base">重新登入</span>
                     </a>
                 </div>
 
                 <div class="text-center">
-                    <p class="text-xs text-slate-500">
+                    <p class="text-xs authorize-text-slate-500">
                         如有疑問，請聯繫系統管理員或查看
-                        <a href="#" class="text-indigo-600 hover:underline">使用說明</a>
+                        <a href="#" class="authorize-text-indigo-600 hover:underline">使用說明</a>
                     </p>
                 </div>
             </div>
         </div>
 
-        <p class="mt-6 text-center text-xs text-slate-500">&copy; @DateTime.Now.Year Horizon-Nova</p>
+        <p class="mt-6 text-center text-xs authorize-text-slate-500">&copy; @DateTime.Now.Year Horizon-Nova</p>
     </div>
 </main>
 

@@ -78,11 +78,11 @@
         if ($notification.length === 0) return;
 
         $notification
-            .removeClass('hidden bg-red-500 bg-green-500 bg-yellow-500 bg-blue-500')
+            .removeClass('hidden authorize-bg-red-500 authorize-bg-green-500 authorize-bg-yellow-500 authorize-bg-blue-500')
             .addClass(
-                type === 'error' ? 'bg-red-500' :
-                type === 'success' ? 'bg-green-500' :
-                type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500'
+                type === 'error' ? 'authorize-bg-red-500' :
+                type === 'success' ? 'authorize-bg-green-500' :
+                type === 'warning' ? 'authorize-bg-yellow-500' : 'authorize-bg-blue-500'
             )
             .text(message)
             .fadeIn(150);

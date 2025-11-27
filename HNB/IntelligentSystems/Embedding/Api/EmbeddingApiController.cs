@@ -7,7 +7,9 @@ namespace HNB.IntelligentSystems.Embedding.Api;
 
 /// <summary>
 /// Embedding API Controller
+/// 已停用 - AI 模組已關閉以節省記憶體
 /// </summary>
+/*
 [ApiController]
 [Route("api/[controller]")]
 public class EmbeddingApiController(EmbeddingModule module) : ControllerBase
@@ -172,6 +174,7 @@ public class EmbeddingApiController(EmbeddingModule module) : ControllerBase
         });
     }
 }
+*/
 
 /// <summary>
 /// 文本請求

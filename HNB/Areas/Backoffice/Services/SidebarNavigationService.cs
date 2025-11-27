@@ -56,6 +56,28 @@ public class SidebarNavigationService(
     #region 輔助方法
 
     /// <summary>
+    /// 計算下一個可用的排序順序（根據 parent_code）
+    /// </summary>
+    /// <param name="parentCode">父級導航代碼，null 或空字串代表根目錄</param>
+    /// <returns>下一個可用的排序順序</returns>
+    public int GetNextSortOrder(string? parentCode = null)
+    {
+        var normalizedParentCode = string.IsNullOrEmpty(parentCode) ? null : parentCode;
+        var navigations = LoadNavigationList(new vw_sidebar_navigation { parent_code = normalizedParentCode });
+        
+        if (!navigations.Any())
+            return 1;
+        
+        var maxSortOrder = navigations
+            .Where(n => n.sort_order.HasValue)
+            .Select(n => n.sort_order!.Value)
+            .DefaultIfEmpty(0)
+            .Max();
+        
+        return maxSortOrder + 1;
+    }
+
+    /// <summary>
     /// 載入用戶的側欄導航列表（根據用戶角色權限）
     /// </summary>
     /// <param name="userName">用戶名稱</param>

@@ -1,0 +1,10 @@
+using Microsoft.AspNetCore.Mvc;
+
+namespace HNB.Areas.Backoffice.Controllers;
+
+[Area("Backoffice")]
+public class FontPaletteController : BaseController
+{
+    public IActionResult Index()
+        => View();
+}

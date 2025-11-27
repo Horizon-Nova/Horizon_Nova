@@ -1,0 +1,45 @@
+@{
+    Layout = null;
+}
+
+<div class="modal fade" id="aiControlHelpModal" tabindex="-1" aria-labelledby="aiControlHelpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="aiControlHelpModalLabel">
+                    <i data-lucide="help-circle" style="width: 1.25rem; height: 1.25rem;"></i>
+                    AI 控制台說明
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h6 class="fw-semibold mb-3">功能說明</h6>
+                <ul class="list-unstyled mb-4">
+                    <li class="mb-2">
+                        <i data-lucide="play" style="width: 1rem; height: 1rem;" class="text-success me-2"></i>
+                        <strong>啟動：</strong>載入 AI 模型到記憶體中，使 AI 功能可用。首次載入可能需要一些時間。
+                    </li>
+                    <li class="mb-2">
+                        <i data-lucide="square" style="width: 1rem; height: 1rem;" class="text-danger me-2"></i>
+                        <strong>停止：</strong>從記憶體中卸載 AI 模型，釋放記憶體空間。停止後需要重新啟動才能使用 AI 功能。
+                    </li>
+                    <li class="mb-2">
+                        <i data-lucide="maximize-2" style="width: 1rem; height: 1rem;" class="text-primary me-2"></i>
+                        <strong>查看日誌：</strong>在新視窗中查看完整的啟動日誌，方便監控模型載入過程。
+                    </li>
+                </ul>
+                
+                <h6 class="fw-semibold mb-3">注意事項</h6>
+                <ul class="mb-0">
+                    <li class="mb-2">AI 模型載入會佔用較多記憶體（約 2-4GB），請根據系統資源情況決定是否常駐記憶體。</li>
+                    <li class="mb-2">首次啟動時，如果模型檔案不存在，系統會自動下載模型檔案。</li>
+                    <li class="mb-2">停止模型後，記憶體會立即釋放，下次使用時需要重新啟動。</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+            </div>
+        </div>
+    </div>
+</div>
+

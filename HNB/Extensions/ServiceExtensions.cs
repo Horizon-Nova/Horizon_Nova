@@ -34,18 +34,19 @@ public static class ServiceExtensions
         services.AddScoped<LoginService>();
         services.AddScoped<ProfileService>();
         
+        // AI 模組已停用 - 為節省雲端記憶體成本
         // GroundingDINO 物件檢測模組 - 使用 Singleton 避免重複載入模型
-        services.AddSingleton<HNB.IntelligentSystems.GroundingDINO.Core.ModelHealthChecker>();
-        services.AddSingleton<GroundingDINOModule>();
+        // services.AddSingleton<HNB.IntelligentSystems.GroundingDINO.Core.ModelHealthChecker>();
+        // services.AddSingleton<GroundingDINOModule>();
         
         // DallE3 模組
-        services.AddScoped<HNB.IntelligentSystems.DallE3.Module.DallE3Module>();
+        // services.AddScoped<HNB.IntelligentSystems.DallE3.Module.DallE3Module>();
         
         // Qdrant 模組
-        services.AddScoped<HNB.IntelligentSystems.Qdrant.Module.QdrantModule>();
+        // services.AddScoped<HNB.IntelligentSystems.Qdrant.Module.QdrantModule>();
         
         // Embedding 模組 - 支援切換向量模型
-        services.AddSingleton<EmbeddingModule>();
+        // services.AddSingleton<EmbeddingModule>();
         
         return services;
     }

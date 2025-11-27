@@ -38,6 +38,14 @@
         });
     }
 
+    function LoadNewNavigation() {
+        showModal('NavModal', {
+            url: '@Url.Action("LoadDetail", "SidebarNavigation")',
+            method: 'GET',
+            data: { id: null }
+        });
+    }
+
     function Delete(id) {
         if (!confirm('確定要刪除這個導航項目嗎？')) {
             return;

@@ -57,6 +57,7 @@ public partial class HnbDbContext : DbContext
             entity.Property(e => e.id).ValueGeneratedNever();
             entity.Property(e => e.created_at).HasDefaultValueSql("CURRENT_TIMESTAMP");
         });
+        modelBuilder.HasSequence("sidebar_navigation_id_seq", "dbo");
 
         OnModelCreatingPartial(modelBuilder);
     }

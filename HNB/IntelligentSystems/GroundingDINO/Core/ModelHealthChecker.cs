@@ -21,7 +21,6 @@ public class ModelHealthChecker : IDisposable
     private string? _initializationError;
     private bool _isDownloading = false;
 
-    // 下載進度追蹤（支持並行下載）
     private Dictionary<string, (long downloaded, long? total)> _fileProgress = new Dictionary<string, (long, long?)>();
     private List<string> _downloadingFiles = new List<string>();
     private List<string> _downloadQueue = new List<string>();
@@ -37,10 +36,6 @@ public class ModelHealthChecker : IDisposable
         _config = LoadConfig(configuration, environment);
 
         _lastHealthCheckTime = DateTime.Now;
-
-        EnsureEngineInitialized();
-
-        StartHealthCheckTimer();
     }
 
     private static GroundingDINOConfig LoadConfig(IConfiguration configuration, IWebHostEnvironment environment)
@@ -145,80 +140,18 @@ public class ModelHealthChecker : IDisposable
                 EngineInitializedTime = _engineInitializedTime
             };
 
-            if (File.Exists(_config.ModelPath))
-            {
-                info.ModelFileExists = true;
-                var modelInfo = new FileInfo(_config.ModelPath);
-                info.ModelFileSize = modelInfo.Length;
-            }
-
-            if (File.Exists(_config.VocabPath))
-            {
-                info.VocabFileExists = true;
-                var vocabInfo = new FileInfo(_config.VocabPath);
-                info.VocabFileSize = vocabInfo.Length;
-            }
-
             if (_engine != null)
             {
                 info.Message = "模型已準備就緒";
                 info.EngineInitializedTime = _engineInitializedTime;
             }
-            else if (_isDownloading && _downloadingFiles.Count > 0)
-            {
-                var filesText = _downloadingFiles.Count == 1
-                    ? _downloadingFiles[0]
-                    : string.Join("、", _downloadingFiles);
-
-                var progressText = totalSize.HasValue
-                    ? $"{overallProgress:F1}% ({FormatBytes(totalDownloaded)} / {FormatBytes(totalSize.Value)})"
-                    : $"{FormatBytes(totalDownloaded)}";
-
-                var queueText = _downloadQueue.Count > 0
-                    ? $" (等待下載: {string.Join(", ", _downloadQueue)})"
-                    : "";
-
-                var details = new List<string>();
-                foreach (var file in _downloadingFiles)
-                {
-                    if (fileProgress.TryGetValue(file, out var progress))
-                    {
-                        var fileProgressText = progress.total.HasValue
-                            ? $"{progress.progress:F1}%"
-                            : FormatBytes(progress.downloaded);
-                        details.Add($"{file} ({fileProgressText})");
-                    }
-                }
-
-                var detailsText = details.Count > 0 ? $" [{string.Join(", ", details)}]" : "";
-
-                info.Message = $"正在並行下載 {filesText}... 總進度 {progressText}{detailsText}{queueText}";
-            }
             else if (!string.IsNullOrEmpty(_initializationError))
             {
                 info.Message = _initializationError;
             }
-            else if (!info.ModelFileExists && !info.VocabFileExists)
-            {
-                info.Message = _isDownloading
-                    ? "模型檔案和詞彙表檔案不存在，系統正在自動下載中..."
-                    : "模型檔案和詞彙表檔案不存在，等待下載...";
-            }
-            else if (!info.ModelFileExists)
-            {
-                info.Message = _isDownloading
-                    ? "模型檔案不存在，系統正在自動下載中..."
-                    : "模型檔案不存在，等待下載...";
-            }
-            else if (!info.VocabFileExists)
-            {
-                info.Message = _isDownloading
-                    ? "詞彙表檔案不存在，系統正在自動下載中..."
-                    : "詞彙表檔案不存在，等待下載...";
-            }
             else
             {
-                info.Message = "模型檔案存在但尚未初始化";
+                info.Message = "模型尚未初始化";
             }
 
             return info;
@@ -242,52 +175,14 @@ public class ModelHealthChecker : IDisposable
 
     private void PerformHealthCheck(object? state)
     {
-        try
+        _lastHealthCheckTime = DateTime.Now;
+
+        lock (_lock)
         {
-            _lastHealthCheckTime = DateTime.Now;
-
-            lock (_lock)
+            if (_engine != null)
             {
-                if (!AreModelFilesExists())
-                {
-                    _consecutiveFailures++;
-                    if (_consecutiveFailures >= MaxConsecutiveFailures)
-                    {
-                        TryRepairModelFiles();
-                        _consecutiveFailures = 0;
-                    }
-                    else
-                    {
-                        EnsureEngineInitialized();
-                    }
-                    return;
-                }
-
-                if (!IsModelFileValid(_config.ModelPath))
-                {
-                    _consecutiveFailures++;
-                    if (_consecutiveFailures >= MaxConsecutiveFailures)
-                    {
-                        TryRepairModelFiles();
-                        _consecutiveFailures = 0;
-                    }
-                    return;
-                }
-
-                if (_engine == null)
-                {
-                    InitializeEngineIfFilesExist();
-                    return;
-                }
-
                 _consecutiveFailures = 0;
             }
-        }
-        catch (Exception ex)
-        {
-            _consecutiveFailures++;
-            _initializationError = $"健康檢查異常：{ex.Message}";
-            Console.WriteLine($"健康檢查異常：{ex.Message}");
         }
     }
 
@@ -296,39 +191,15 @@ public class ModelHealthChecker : IDisposable
         if (_engine != null)
             return;
 
-        if (!AreModelFilesExists())
-        {
-            StartModelDownload();
-            return;
-        }
-
-        InitializeEngineIfFilesExist();
+        InitializeEngine();
     }
 
-    private void InitializeEngineIfFilesExist()
+    private void InitializeEngine()
     {
-        if (!AreModelFilesExists())
-            return;
-
-        if (!IsModelFileValid(_config.ModelPath))
-        {
-            _initializationError = "模型文件損壞或無效，自動修復中...";
-            TryRepairModelFiles();
-            return;
-        }
-
-        try
-        {
-            _initializationError = null;
-            _engine = new DetectionEngine(_config);
-            _engineInitializedTime = DateTime.Now;
-            _consecutiveFailures = 0;
-        }
-        catch (Exception ex)
-        {
-            _initializationError = $"模型初始化失敗：{ex.Message}。自動修復中...";
-            TryRepairModelFiles();
-        }
+        _initializationError = null;
+        _engine = new DetectionEngine(_config);
+        _engineInitializedTime = DateTime.Now;
+        _consecutiveFailures = 0;
     }
 
     private void TryRepairModelFiles()
@@ -339,36 +210,8 @@ public class ModelHealthChecker : IDisposable
             _engine = null;
             _engineInitializedTime = null;
 
-            var modelPath = Path.GetFullPath(_config.ModelPath);
-            var vocabPath = Path.GetFullPath(_config.VocabPath);
-
-            if (File.Exists(modelPath) && modelPath.EndsWith("groundingdino.onnx", StringComparison.OrdinalIgnoreCase))
-            {
-                try
-                {
-                    File.Delete(modelPath);
-                    Console.WriteLine($"[ModelHealthChecker] 已刪除模型文件：{modelPath}");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"[ModelHealthChecker] 刪除模型文件失敗：{ex.Message}");
-                }
-            }
-
-            if (File.Exists(vocabPath) && vocabPath.EndsWith("vocab.txt", StringComparison.OrdinalIgnoreCase))
-            {
-                try
-                {
-                    File.Delete(vocabPath);
-                    Console.WriteLine($"[ModelHealthChecker] 已刪除詞彙表文件：{vocabPath}");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"[ModelHealthChecker] 刪除詞彙表文件失敗：{ex.Message}");
-                }
-            }
-
-            StartModelDownload();
+            _initializationError = "模型檔案損壞或無效，請手動檢查並重新上傳模型檔案";
+            Console.WriteLine("[ModelHealthChecker] 模型檔案損壞或無效，請手動檢查並重新上傳");
         }
         catch (Exception ex)
         {
@@ -405,7 +248,10 @@ public class ModelHealthChecker : IDisposable
                 lock (_lock)
                 {
                     _initializationError = null;
-                    InitializeEngineIfFilesExist();
+                    if (_engine == null)
+                    {
+                        InitializeEngine();
+                    }
                 }
             }
             catch (Exception ex)
@@ -738,6 +584,42 @@ public class ModelHealthChecker : IDisposable
     public void ResetFailureCount()
     {
         _consecutiveFailures = 0;
+    }
+
+    /// <summary>
+    /// 手動啟動模型引擎（載入到記憶體）
+    /// </summary>
+    public void StartEngine()
+    {
+        lock (_lock)
+        {
+            if (_engine != null)
+                return;
+
+            InitializeEngine();
+        }
+    }
+
+    /// <summary>
+    /// 手動停止模型引擎（從記憶體卸載）
+    /// </summary>
+    public void StopEngine()
+    {
+        lock (_lock)
+        {
+            if (_engine == null)
+            {
+                Console.WriteLine("[ModelHealthChecker] 模型未載入，無需卸載");
+                return;
+            }
+
+            Console.WriteLine("[ModelHealthChecker] 開始手動卸載模型...");
+            _engine?.Dispose();
+            _engine = null;
+            _engineInitializedTime = null;
+            _initializationError = null;
+            Console.WriteLine("[ModelHealthChecker] 模型已卸載");
+        }
     }
 
     public void Dispose()

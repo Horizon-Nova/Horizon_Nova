@@ -1,0 +1,111 @@
+@{
+    Layout = null;
+}
+
+<div id="createFolderModal" class="modal fade" tabindex="-1" aria-labelledby="createFolderModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title" id="createFolderModalLabel">建立資料夾</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+            </div>
+            <form id="createFolderForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="folderNameInput" class="form-label small">
+                            資料夾名稱<span class="text-danger">*</span>
+                        </label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="folderNameInput" 
+                               placeholder="請輸入資料夾名稱"
+                               autocomplete="off"
+                               required>
+                        <div class="invalid-feedback" id="folderNameError" style="display:none;">
+                            資料夾名稱不可為空
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i data-lucide="folder-plus" style="width:1rem;height:1rem;"></i>
+                        建立
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openCreateFolderModal() {
+        showModal('createFolderModal');
+        setTimeout(() => {
+            $('#folderNameInput').focus();
+        }, 300);
+    }
+
+    $(document).ready(function() {
+        $('#createFolderForm').on('submit', function(e) {
+            e.preventDefault();
+            
+            const folderName = $('#folderNameInput').val().trim();
+            if (!folderName) {
+                $('#folderNameInput').addClass('is-invalid');
+                $('#folderNameError').show();
+                return;
+            }
+
+            const currentPath = getPathFromUrl();
+            const token = $('input[name="__RequestVerificationToken"]').val() || $('meta[name="__RequestVerificationToken"]').attr('content');
+            
+            if (!token) {
+                showToast('無法取得驗證 Token，請重新整理頁面', 'error');
+                return;
+            }
+
+            $.ajax({
+                url: '/Backoffice/FileManager/SubmitFolder',
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': token
+                },
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    path: currentPath,
+                    name: folderName
+                }),
+                success: function(response) {
+                    if (response.success) {
+                        showToast(response.message || '資料夾建立成功', 'success');
+                        closeModal('createFolderModal');
+                        $('#folderNameInput').val('');
+                        $('#folderNameInput').removeClass('is-invalid');
+                        $('#folderNameError').hide();
+                        
+                        if (response.shouldReloadSidebar) {
+                            LoadSidebar(currentPath);
+                        }
+                        switchView(null, currentPath);
+                        LoadBreadcrumb(null, currentPath);
+                    } else {
+                        showToast(response.message || '建立失敗', 'error');
+                    }
+                },
+                error: function() {
+                    showToast('建立資料夾時發生錯誤', 'error');
+                }
+            });
+        });
+
+        $('#createFolderModal').on('hidden.bs.modal', function() {
+            $('#folderNameInput').val('');
+            $('#folderNameInput').removeClass('is-invalid');
+            $('#folderNameError').hide();
+        });
+    });
+
+    window.openCreateFolderModal = openCreateFolderModal;
+</script>
+

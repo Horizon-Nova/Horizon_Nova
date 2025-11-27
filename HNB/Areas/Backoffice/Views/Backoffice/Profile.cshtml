@@ -8,9 +8,11 @@
     Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
 }
 
+@await Html.PartialAsync("Partials/_Styles")
+
 <section class="mb-3 mb-lg-4">
     <div class="bg-white border rounded-3">
-        @await Html.PartialAsync("Partials/Profile/_Header", Model)
+        @await Html.PartialAsync("Partials/_Header", Model)
         
         <!-- 標籤導航 -->
         <div class="border-bottom">
@@ -30,14 +32,14 @@
 
         <!-- 標籤內容 -->
         <div class="tab-content p-3 p-lg-4">
-            @await Html.PartialAsync("Partials/Profile/_BasicInfo", Model)
-            @await Html.PartialAsync("Partials/Profile/_SecuritySettings", Model)
+            @await Html.PartialAsync("Partials/_BasicInfo", Model)
+            @await Html.PartialAsync("Partials/_SecuritySettings", Model)
         </div>
     </div>
 </section>
 
-@await Html.PartialAsync("Partials/Profile/Modal/_Help")
+@await Html.PartialAsync("Partials/Modal/_Help")
 
 @section Scripts {
-    @await Html.PartialAsync("Partials/Profile/_Scripts")
+    @await Html.PartialAsync("Partials/_Scripts")
 }

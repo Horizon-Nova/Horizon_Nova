@@ -1,0 +1,24 @@
+@{
+    ViewData["Title"] = "AI 控制台";
+    ViewData["PageTitle"] = "AI 控制台";
+    ViewData["PageDescription"] = "管理 AI 模型啟動、停止與日誌監控";
+    ViewData["PageIcon"] = "cpu";
+    ViewData["HelpModalId"] = "aiControlHelpModal";
+    Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
+}
+
+@await Html.PartialAsync("Partials/_Styles")
+
+@Html.AntiForgeryToken()
+
+<!-- 模型列表 -->
+<div class="row g-3">
+    @await Html.PartialAsync("Partials/_ModelList")
+</div>
+
+@await Html.PartialAsync("Partials/Modal/_Help")
+
+@section Scripts {
+    @await Html.PartialAsync("Partials/_Scripts")
+}
+

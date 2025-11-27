@@ -20,6 +20,16 @@ public class SidebarNavigationController(SidebarNavigationService sev) : BaseCon
     {
         ViewBag.ParentList = sev.LoadParentNavigationList();
         var result = sev.LoadNavigation(id);
+        
+        // 新增時自動計算排序順序
+        if (result == null && !id.HasValue)
+        {
+            result = new vw_sidebar_navigation
+            {
+                sort_order = sev.GetNextSortOrder(null)
+            };
+        }
+        
         return PartialView("Partials/Modal/_FormData", result);
     }
 

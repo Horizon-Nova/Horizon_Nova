@@ -4,7 +4,7 @@
 
 @if (ViewBag.ErrorMessage is string err && !string.IsNullOrWhiteSpace(err))
 {
-    <div class="mb-4 rounded-lg bg-red-50 text-red-700 px-3 py-2 text-sm flex items-center gap-2">
+    <div class="mb-4 rounded-lg authorize-bg-red-50 authorize-text-red-700 px-3 py-2 text-sm flex items-center gap-2">
         <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0"></i>
         <span>@err</span>
     </div>
@@ -12,7 +12,7 @@
 
 @if (ViewBag.SuccessMessage is string success && !string.IsNullOrWhiteSpace(success))
 {
-    <div class="mb-4 rounded-lg bg-green-50 text-green-700 px-3 py-2 text-sm flex items-center gap-2">
+    <div class="mb-4 rounded-lg authorize-bg-green-50 authorize-text-green-700 px-3 py-2 text-sm flex items-center gap-2">
         <i data-lucide="check-circle" class="w-4 h-4 flex-shrink-0"></i>
         <span>@success</span>
     </div>

@@ -9,7 +9,9 @@ namespace HNB.IntelligentSystems.DallE3.Api;
 /// DallE3 圖片編輯 API Controller
 /// 統一返回格式：所有 API 都返回 images 陣列格式
 /// EditBase64 → base64 輸出，EditImage → URL 輸出
+/// 已停用 - AI 模組已關閉以節省記憶體
 /// </summary>
+/*
 [ApiController]
 [Route("api/[controller]")]
 public class DallE3ApiController(DallE3Module module, IWebHostEnvironment env) : ControllerBase
@@ -118,4 +120,5 @@ public class DallE3ApiController(DallE3Module module, IWebHostEnvironment env) :
         };
     }
 }
+*/
 

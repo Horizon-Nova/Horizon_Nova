@@ -7,17 +7,17 @@
     Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
 }
 
-@await Html.PartialAsync("Partials/Dashboard/_Styles")
+@await Html.PartialAsync("Partials/_Styles")
 
 <section class="mb-3 mb-lg-4">
-    @await Html.PartialAsync("Partials/Dashboard/_Welcome")
-    @await Html.PartialAsync("Partials/Dashboard/_QuickActions")
-    @await Html.PartialAsync("Partials/Dashboard/_SystemStatus")
-    @await Html.PartialAsync("Partials/Dashboard/_RecentActivities")
+    @await Html.PartialAsync("Partials/_Welcome")
+    @await Html.PartialAsync("Partials/_QuickActions")
+    @await Html.PartialAsync("Partials/_SystemStatus")
+    @await Html.PartialAsync("Partials/_RecentActivities")
 </section>
 
-@await Html.PartialAsync("Partials/Dashboard/Modal/_Help")
+@await Html.PartialAsync("Partials/Modal/_Help")
 
 @section Scripts {
-    @await Html.PartialAsync("Partials/Dashboard/_Scripts")
+    @await Html.PartialAsync("Partials/_Scripts")
 }

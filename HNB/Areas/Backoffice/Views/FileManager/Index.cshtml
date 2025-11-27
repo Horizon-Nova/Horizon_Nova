@@ -7,17 +7,17 @@
     Layout = "~/Areas/Backoffice/Views/Shared/_Layout.cshtml";
 }
 
-@await Html.PartialAsync("Partials/FileManager/_Styles")
+@await Html.PartialAsync("Partials/_Styles")
 
 @Html.AntiForgeryToken()
 
-@await Html.PartialAsync("Partials/FileManager/Modal/_Delete")
-@await Html.PartialAsync("Partials/FileManager/Modal/_Share")
-@await Html.PartialAsync("Partials/FileManager/Modal/_CreateFolder")
-@await Html.PartialAsync("Partials/FileManager/Modal/_UploadFile")
-@await Html.PartialAsync("Partials/FileManager/Modal/_UploadFolder")
-@await Html.PartialAsync("Partials/FileManager/Modal/_CreateFile")
-@await Html.PartialAsync("Partials/FileManager/Modal/_CreateLink")
+@await Html.PartialAsync("Partials/Modal/_Delete")
+@await Html.PartialAsync("Partials/Modal/_Share")
+@await Html.PartialAsync("Partials/Modal/_CreateFolder")
+@await Html.PartialAsync("Partials/Modal/_UploadFile")
+@await Html.PartialAsync("Partials/Modal/_UploadFolder")
+@await Html.PartialAsync("Partials/Modal/_CreateFile")
+@await Html.PartialAsync("Partials/Modal/_CreateLink")
 
 <div class="row g-3 file-manager-root h-100">
     <!-- 左側：OneDrive 導覽 -->
@@ -40,6 +40,6 @@
 </div>
 
 @section Scripts {
-    @await Html.PartialAsync("Partials/FileManager/_Scripts")
+    @await Html.PartialAsync("Partials/_Scripts")
 }
 

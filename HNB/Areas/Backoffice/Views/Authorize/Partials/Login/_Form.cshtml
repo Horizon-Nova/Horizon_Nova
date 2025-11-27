@@ -11,24 +11,24 @@
     <input type="hidden" id="returnUrl" name="returnUrl" value="@returnUrl" />
 
     <div>
-        <label for="Username" class="block text-sm font-medium text-slate-700">帳號</label>
+        <label for="Username" class="block text-sm font-medium authorize-text-slate-700">帳號</label>
         <div class="relative mt-1">
-            <i data-lucide="user" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            <i data-lucide="user" class="absolute left-3 top-1/2 -translate-y-1/2 authorize-text-slate-400"></i>
             <input id="Username" name="username" type="text" autocomplete="username" required
-                   class="w-full rounded-xl border border-slate-300 pl-10 pr-3 py-2 sm:py-2.5 text-slate-900 placeholder-slate-400 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 transition"
+                   class="w-full rounded-xl border authorize-border-slate-300 pl-10 pr-3 py-2 sm:py-2.5 authorize-text-slate-800 authorize-placeholder-slate-400 shadow-sm authorize-focus-border-indigo-500 focus:ring-2 authorize-focus-ring-indigo-500 transition"
                    placeholder="your.name@example.com" />
         </div>
     </div>
 
     <div>
-        <label for="Password" class="block text-sm font-medium text-slate-700">密碼</label>
+        <label for="Password" class="block text-sm font-medium authorize-text-slate-700">密碼</label>
         <div class="relative mt-1">
-            <i data-lucide="lock" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            <i data-lucide="lock" class="absolute left-3 top-1/2 -translate-y-1/2 authorize-text-slate-400"></i>
             <input id="Password" name="password" type="password" autocomplete="current-password" required
-                   class="w-full rounded-xl border border-slate-300 pl-10 pr-10 py-2 sm:py-2.5 text-slate-900 placeholder-slate-400 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30 transition"
+                   class="w-full rounded-xl border authorize-border-slate-300 pl-10 pr-10 py-2 sm:py-2.5 authorize-text-slate-800 authorize-placeholder-slate-400 shadow-sm authorize-focus-border-indigo-500 focus:ring-2 authorize-focus-ring-indigo-500 transition"
                    placeholder="••••••••" />
             <button type="button" id="togglePwdBtn"
-                    class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 authorize-text-slate-400 authorize-hover-text-slate-600 transition"
                     aria-label="顯示/隱藏密碼" title="顯示/隱藏密碼">
                 <i id="eyeIcon" data-lucide="eye" class="w-5 h-5"></i>
             </button>
@@ -36,15 +36,15 @@
     </div>
 
     <div class="flex items-center justify-between">
-        <label for="rememberMe" class="inline-flex items-center gap-2 text-sm text-slate-600 select-none">
+        <label for="rememberMe" class="inline-flex items-center gap-2 text-sm authorize-text-slate-600 select-none">
             <input id="rememberMe" name="rememberMe" type="checkbox"
-                   class="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
+                   class="h-4 w-4 rounded authorize-border-slate-300 authorize-text-indigo-600 authorize-focus-ring-indigo-500" />
             記住我
         </label>
     </div>
 
     <button id="btnSubmit" type="button"
-            class="w-full flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-white font-medium shadow-md hover:scale-[1.02] hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-white transition-transform duration-200">
+            class="w-full flex items-center justify-center gap-2 rounded-xl authorize-bg-indigo-600 px-4 py-2.5 authorize-text-white font-medium shadow-md hover:scale-[1.02] authorize-hover-bg-indigo-700 focus:ring-2 authorize-focus-ring-indigo-500 focus:ring-offset-2 focus:ring-offset-white transition-transform duration-200">
         <i data-lucide="log-in" class="w-5 h-5"></i>
         <span class="text-sm sm:text-base">登入</span>
         <svg id="btnSpinner" class="animate-spin h-5 w-5 ml-1 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">

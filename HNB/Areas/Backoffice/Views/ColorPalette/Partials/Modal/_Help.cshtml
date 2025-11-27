@@ -1,0 +1,141 @@
+@{
+    Layout = null;
+}
+
+<div id="colorPaletteHelpModal" class="modal fade" tabindex="-1" aria-labelledby="colorPaletteHelpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="colorPaletteHelpModalLabel">顏色表操作說明</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="vstack gap-3">
+                            <section>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">功能說明</h6>
+                                <p class="small mb-0">
+                                    顏色表提供系統中所有可用的顏色變數，您可以瀏覽、搜尋並複製顏色的 CSS 變數名稱。
+                                    所有顏色都定義在 CSS 變數中，方便統一管理和使用。顏色會按照主色系分組顯示，並使用色盤（HSL）排序。
+                                </p>
+                            </section>
+
+                            <section>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">操作說明</h6>
+                                <table class="table table-sm table-bordered small mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 120px;">操作</th>
+                                            <th>說明</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>瀏覽顏色</strong></td>
+                                            <td>頁面會自動載入所有以 <code>--</code> 開頭的 HEX 顏色 CSS 變數，並按主色系分組顯示。</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>搜尋顏色</strong></td>
+                                            <td>在搜尋框中輸入關鍵字，可搜尋顏色名稱或顏色代碼（例如：red、#FF0000）。</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>複製變數</strong></td>
+                                            <td>點擊顏色格子即可複製該顏色的 CSS 變數名稱（例如：<code>var(--Red)</code>）。</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>預覽顏色</strong></td>
+                                            <td>每個顏色格子會顯示該顏色的實際效果，文字顏色會根據背景自動調整為黑色或白色。</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </section>
+
+                            <section>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">主色系分類</h6>
+                                <ul class="small mb-0">
+                                    <li><strong>White：</strong>白色系，包含各種淺色和接近白色的顏色。</li>
+                                    <li><strong>Black：</strong>黑色系，包含各種深色和接近黑色的顏色。</li>
+                                    <li><strong>Red：</strong>紅色系，包含各種紅色調的顏色。</li>
+                                    <li><strong>Green：</strong>綠色系，包含各種綠色調的顏色。</li>
+                                    <li><strong>Blue：</strong>藍色系，包含各種藍色調的顏色。</li>
+                                    <li><strong>Yellow：</strong>黃色系，包含各種黃色調的顏色。</li>
+                                    <li><strong>Cyan：</strong>青色系，包含各種青藍色調的顏色。</li>
+                                    <li><strong>Magenta：</strong>洋紅色系，包含各種紫紅色調的顏色。</li>
+                                    <li><strong>Gray：</strong>灰色系，包含各種灰色調的顏色。</li>
+                                    <li><strong>Orange：</strong>橙色系，包含各種橙黃色調的顏色。</li>
+                                    <li><strong>Purple：</strong>紫色系，包含各種紫色調的顏色。</li>
+                                    <li><strong>Pink：</strong>粉紅色系，包含各種粉紅色調的顏色。</li>
+                                    <li><strong>Brown：</strong>棕色系，包含各種棕褐色調的顏色。</li>
+                                </ul>
+                            </section>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="vstack gap-3">
+                            <section>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">使用方式</h6>
+                                <div class="small">
+                                    <p class="mb-2"><strong>在 CSS 中使用：</strong></p>
+                                    <pre class="bg-light p-2 rounded mb-3"><code>background-color: var(--Red);
+color: var(--White);</code></pre>
+
+                                    <p class="mb-2"><strong>在 HTML 中使用：</strong></p>
+                                    <pre class="bg-light p-2 rounded mb-3"><code>&lt;div style="background-color: var(--Red); color: var(--White);"&gt;
+  文字內容
+&lt;/div&gt;</code></pre>
+
+                                    <p class="mb-2"><strong>在 JavaScript 中使用：</strong></p>
+                                    <pre class="bg-light p-2 rounded mb-0"><code>element.style.backgroundColor = 
+  getComputedStyle(document.documentElement)
+    .getPropertyValue('--Red');</code></pre>
+                                </div>
+                            </section>
+
+                            <section>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">顏色排序</h6>
+                                <p class="small mb-2">
+                                    顏色在每個主色系內會按照色盤（HSL）排序：
+                                </p>
+                                <ul class="small mb-0">
+                                    <li><strong>色相（Hue）：</strong>按照顏色在色盤上的位置排序。</li>
+                                    <li><strong>飽和度（Saturation）：</strong>飽和度高的顏色排在前面。</li>
+                                    <li><strong>亮度（Lightness）：</strong>亮度高的顏色排在前面。</li>
+                                </ul>
+                            </section>
+
+                            <section>
+                                <h6 class="fw-bold mb-2 pb-2 border-bottom">常見問題</h6>
+                                <div class="small">
+                                    <p class="mb-2"><strong>Q1：如何新增顏色變數？</strong></p>
+                                    <p class="ms-3 mb-3">A：在 <code>color-palette.css</code> 的 <code>:root</code> 區塊中新增 <code>--Color-Name: #HEXCODE;</code> 格式的變數，頁面會自動讀取並顯示。</p>
+
+                                    <p class="mb-2"><strong>Q2：複製的變數如何使用？</strong></p>
+                                    <p class="ms-3 mb-3">A：複製的變數名稱（如 <code>var(--Red)</code>）可以直接在 CSS 或 HTML 的 style 屬性中使用。</p>
+
+                                    <p class="mb-2"><strong>Q3：為什麼有些顏色找不到？</strong></p>
+                                    <p class="ms-3 mb-0">A：只有定義在 CSS 變數中且格式為 HEX 顏色（#RRGGBB 或 #RGB）的顏色才會顯示。請確認顏色變數已正確定義。</p>
+                                </div>
+                            </section>
+
+                            <section class="alert alert-info small mb-0">
+                                <h6 class="fw-bold mb-2">使用提示</h6>
+                                <ul class="mb-0 ps-3">
+                                    <li>建議使用 CSS 變數來管理顏色，方便統一修改和維護。</li>
+                                    <li>顏色變數名稱建議使用有意義的命名，如 <code>--Red</code>、<code>--Primary-Color</code> 等。</li>
+                                    <li>點擊顏色格子即可快速複製 CSS 變數，無需手動輸入。</li>
+                                    <li>搜尋功能支援部分匹配，輸入部分關鍵字即可找到相關顏色。</li>
+                                    <li>顏色會自動根據亮度調整文字顏色，確保可讀性。</li>
+                                </ul>
+                            </section>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">我知道了</button>
+            </div>
+        </div>
+    </div>
+</div>
+

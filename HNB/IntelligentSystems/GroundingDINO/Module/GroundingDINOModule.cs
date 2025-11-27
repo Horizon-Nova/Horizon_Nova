@@ -136,10 +136,8 @@ public class GroundingDINOModule(IConfiguration configuration, IWebHostEnvironme
             var detection = detections[i];
             var objectId = $"{imageId}_obj_{i + 1:D3}";
 
-            // 裁剪圖片
             using var croppedImage = ImageUtils.CropBox(originalImage, detection.Box);
 
-            // 編碼為 JPEG 位元組
             var croppedEncoded = ImageUtils.EncodeImage(croppedImage, ".jpg");
 
             processedResults.Add(new DetectionOutput
@@ -189,11 +187,30 @@ public class GroundingDINOModule(IConfiguration configuration, IWebHostEnvironme
 
     #endregion
 
+    #region 模型控制方法
+
+    /// <summary>
+    /// 手動啟動模型引擎（載入到記憶體）
+    /// </summary>
+    public void StartEngine()
+    {
+        _healthChecker.StartEngine();
+    }
+
+    /// <summary>
+    /// 手動停止模型引擎（從記憶體卸載）
+    /// </summary>
+    public void StopEngine()
+    {
+        _healthChecker.StopEngine();
+    }
+
+    #endregion
+
     #region 資源釋放
 
     public void Dispose()
     {
-        // ModelHealthChecker 由 DI 容器管理，不需要在這裡釋放
     }
 
     #endregion

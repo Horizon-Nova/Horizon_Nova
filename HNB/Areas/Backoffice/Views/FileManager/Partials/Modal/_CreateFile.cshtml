@@ -1,0 +1,137 @@
+@{
+    Layout = null;
+}
+
+<div id="createFileModal" class="modal fade" tabindex="-1" aria-labelledby="createFileModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title" id="createFileModalLabel">建立檔案</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+            </div>
+            <form id="createFileForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="fileNameInput" class="form-label small">
+                            檔案名稱<span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="fileNameInput" 
+                                   placeholder="請輸入檔案名稱"
+                                   autocomplete="off"
+                                   required>
+                            <span class="input-group-text" id="fileExtensionDisplay">.txt</span>
+                        </div>
+                        <div class="invalid-feedback" id="fileNameError" style="display:none;">
+                            檔案名稱不可為空
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary btn-sm" id="createFileSubmitBtn">
+                        <i data-lucide="file-plus" style="width:1rem;height:1rem;"></i>
+                        建立
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentFileType = 'txt';
+
+    function openCreateFileModal(fileType) {
+        currentFileType = fileType || 'txt';
+        const extensions = {
+            'docx': '.docx',
+            'xlsx': '.xlsx',
+            'txt': '.txt',
+            'md': '.md'
+        };
+        $('#fileExtensionDisplay').text(extensions[currentFileType] || '.txt');
+        showModal('createFileModal');
+        setTimeout(() => {
+            $('#fileNameInput').focus();
+        }, 300);
+    }
+
+    $(document).ready(function() {
+        $('#createFileForm').on('submit', function(e) {
+            e.preventDefault();
+            
+            let fileName = $('#fileNameInput').val().trim();
+            if (!fileName) {
+                $('#fileNameInput').addClass('is-invalid');
+                $('#fileNameError').show();
+                return;
+            }
+
+            const extensions = {
+                'docx': '.docx',
+                'xlsx': '.xlsx',
+                'txt': '.txt',
+                'md': '.md'
+            };
+            
+            if (!fileName.endsWith(extensions[currentFileType])) {
+                fileName += extensions[currentFileType];
+            }
+
+            const currentPath = getPathFromUrl();
+            const token = $('input[name="__RequestVerificationToken"]').val() || $('meta[name="__RequestVerificationToken"]').attr('content');
+            
+            if (!token) {
+                showToast('無法取得驗證 Token，請重新整理頁面', 'error');
+                return;
+            }
+
+            $('#createFileSubmitBtn').prop('disabled', true);
+
+            $.ajax({
+                url: '/Backoffice/FileManager/SubmitFile',
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': token
+                },
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    path: currentPath,
+                    name: fileName
+                }),
+                success: function(response) {
+                    $('#createFileSubmitBtn').prop('disabled', false);
+                    if (response.success) {
+                        showToast(response.message || '檔案建立成功', 'success');
+                        closeModal('createFileModal');
+                        $('#fileNameInput').val('');
+                        $('#fileNameInput').removeClass('is-invalid');
+                        $('#fileNameError').hide();
+                        
+                        switchView(null, currentPath);
+                        LoadBreadcrumb(null, currentPath);
+                    } else {
+                        showToast(response.message || '建立失敗', 'error');
+                    }
+                },
+                error: function() {
+                    $('#createFileSubmitBtn').prop('disabled', false);
+                    showToast('建立檔案時發生錯誤', 'error');
+                }
+            });
+        });
+
+        $('#createFileModal').on('hidden.bs.modal', function() {
+            $('#fileNameInput').val('');
+            $('#fileNameInput').removeClass('is-invalid');
+            $('#fileNameError').hide();
+            $('#createFileSubmitBtn').prop('disabled', false);
+        });
+    });
+
+    window.openCreateFileModal = openCreateFileModal;
+</script>
+

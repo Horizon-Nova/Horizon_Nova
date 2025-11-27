@@ -131,8 +131,9 @@ public partial class HnbBackofficeDbContext : DbContext
             entity.ToTable("sidebar_navigation", "dbo", tb => tb.HasComment("側欄導航管理表"));
 
             entity.Property(e => e.id)
-                .ValueGeneratedNever()
-                .HasComment("主鍵，自動遞增");
+                .HasComment("主鍵，自動遞增")
+                .UseIdentityAlwaysColumn()
+                .HasIdentityOptions(25L, null, null, null, null, null);
             entity.Property(e => e.code).HasComment("導航項目編號，唯一識別碼");
             entity.Property(e => e.created_at).HasComment("建立時間");
             entity.Property(e => e.icon).HasComment("導航項目圖示名稱");

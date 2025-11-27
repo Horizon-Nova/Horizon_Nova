@@ -3,21 +3,23 @@
     Layout = "~/Areas/Backoffice/Views/Shared/_LayoutLogin.cshtml";
 }
 
+@await Html.PartialAsync("Partials/_Styles")
+
 <main class="min-h-screen flex items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
     <div class="w-full max-w-sm sm:max-w-md lg:max-w-lg">
-        <div class="relative rounded-2xl bg-white shadow-xl ring-1 ring-slate-200 p-5 sm:p-7 lg:p-10">
-            <div id="loginNotification" class="notification fixed top-4 right-4 z-50 px-4 py-2 rounded-lg shadow-lg text-white text-sm font-medium hidden"></div>
+        <div class="relative rounded-2xl authorize-bg-white shadow-xl ring-1 authorize-border-slate-300 p-5 sm:p-7 lg:p-10">
+            <div id="loginNotification" class="notification fixed top-4 right-4 z-50 px-4 py-2 rounded-lg shadow-lg authorize-text-white text-sm font-medium hidden"></div>
             <header class="mb-6 sm:mb-8 text-center space-y-2">
-                <i data-lucide="log-in" class="w-9 h-9 sm:w-10 sm:h-10 text-indigo-600 mx-auto animate-bounce"></i>
-                <h1 class="text-xl sm:text-2xl font-bold text-slate-800">歡迎登入</h1>
-                <p class="text-xs sm:text-sm text-slate-500">請輸入帳號與密碼</p>
+                <i data-lucide="log-in" class="w-9 h-9 sm:w-10 sm:h-10 authorize-text-indigo-600 mx-auto animate-bounce"></i>
+                <h1 class="text-xl sm:text-2xl font-bold authorize-text-slate-800">歡迎登入</h1>
+                <p class="text-xs sm:text-sm authorize-text-slate-500">請輸入帳號與密碼</p>
             </header>
 
             @await Html.PartialAsync("Partials/Login/_Messages")
             @await Html.PartialAsync("Partials/Login/_Form")
         </div>
 
-        <p class="mt-6 text-center text-xs text-white/80">&copy; @DateTime.Now.Year Horizon-Nova</p>
+        <p class="mt-6 text-center text-xs authorize-text-white-80">&copy; @DateTime.Now.Year Horizon-Nova</p>
     </div>
 </main>
 

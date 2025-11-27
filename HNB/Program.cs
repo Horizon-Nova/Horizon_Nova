@@ -75,9 +75,6 @@ builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(optio
 
 var app = builder.Build();
 
-var modelHealthChecker = app.Services.GetRequiredService<HNB.IntelligentSystems.GroundingDINO.Core.ModelHealthChecker>();
-_ = modelHealthChecker;
-
 app.UseExceptionHandler("/Error/NotFound");
 app.UseStatusCodePagesWithReExecute("/Error/NotFound");
 app.UseHsts();
@@ -123,8 +120,5 @@ app.MapControllerRoute(
     pattern: "{controller= }/{action= }/{id?}");
 
 app.MapControllers();
-
-// ⚠️ 防止意外部署到正式環境 - 開發中請勿移除此錯誤 ⚠️
-//#error "開發中：重構尚未完成測試，禁止部署到正式環境！"
 
 app.Run();
