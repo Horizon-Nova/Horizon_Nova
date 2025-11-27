@@ -1,5 +1,18 @@
 ﻿/* Layout.css - Bootstrap 專用樣式 */
 
+:root {
+    /* 背景顏色 */
+    --bg-gradient-start: #f8fafc;
+    --bg-gradient-end: #f0f4f8;
+    
+    /* 側欄顏色 */
+    --sidebar-text: #0f172a;
+    --sidebar-hover-bg: #f1f5f9;
+    --sidebar-active-bg: #dbeafe;
+    --sidebar-active-text: #1d4ed8;
+    --sidebar-active-border: #1d4ed8;
+}
+
 html, body {
     height: 100%;
     font-size: 0.875rem;
@@ -9,7 +22,7 @@ html, body {
 
 /* 背景漸層 */
 body { 
-    background: linear-gradient(135deg, #f8fafc 0%, #f0f4f8 100%);
+    background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
     min-height: 100vh;
 }
 
@@ -41,32 +54,18 @@ body {
     margin-left: 4rem;
 }
 
-/* 手機版側欄 */
-@media (max-width: 991.98px) {
-    #sidebar {
-        transform: translateX(-100%);
-        position: fixed;
-        z-index: 40;
-    }
-    
+/* 手機版側欄 - 使用 Bootstrap 響應式類別在 HTML 中處理，這裡只保留必要的特殊效果 */
     #sidebar.show {
         transform: translateX(0);
     }
     
-    .app-main {
-        margin-left: 0;
-    }
-}
-
-/* 手機版背景遮罩 */
+/* 手機版背景遮罩 - 使用 Bootstrap 響應式類別在 HTML 中處理 */
 .sidebar-backdrop {
     display: none;
 }
 
-@media (max-width: 991.98px) {
     .sidebar-backdrop.show {
         display: block;
-    }
 }
 
 /* 導航項目樣式 */
@@ -75,35 +74,35 @@ body {
 }
 
 .nav-item:hover {
-    background-color: #f1f5f9;
+    background-color: var(--sidebar-hover-bg);
 }
 
 .nav-item.active {
-    background-color: #dbeafe;
-    color: #1d4ed8;
-    border-right: 2px solid #1d4ed8;
+    background-color: var(--sidebar-active-bg);
+    color: var(--sidebar-active-text);
+    border-right: 2px solid var(--sidebar-active-border);
 }
 
 .nav-item.active i {
-    color: #1d4ed8;
+    color: var(--sidebar-active-text);
 }
 
 /* 移除連結預設樣式 */
 #sidebar .nav-link,
 #sidebar a {
-    color: #0f172a;
+    color: var(--sidebar-text);
     text-decoration: none;
 }
 
 #sidebar .nav-link:hover,
 #sidebar a:hover {
-    color: #0f172a;
+    color: var(--sidebar-text);
     text-decoration: none;
 }
 
 #sidebar .nav-link:focus,
 #sidebar a:focus {
-    color: #0f172a;
+    color: var(--sidebar-text);
     text-decoration: none;
 }
 
