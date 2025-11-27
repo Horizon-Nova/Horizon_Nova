@@ -1,0 +1,22 @@
+# 1. 使用 .NET SDK 建置
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+# 複製整個專案
+COPY . .
+
+# 還原 NuGet 套件
+RUN dotnet restore HNB/HNB.csproj
+
+# 發佈 HNB 專案，包含 BuildModels DLL
+RUN dotnet publish HNB/HNB.csproj -c Release -o /app/out
+
+# 2. 使用輕量 runtime 映像檔
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+WORKDIR /app
+
+# 複製 build 的輸出
+COPY --from=build /app/out .
+
+# 設定 entrypoint
+ENTRYPOINT ["dotnet", "HNB.dll"]
