@@ -33,7 +33,7 @@ public class FileManagerController(FileManagerServices svc, PermissionManagement
             TotalStorage = svc.GetUserStorageLimit(currentUser)
         };
         
-        return PartialView("Partials/FileManager/_Sidebar", dto);
+        return PartialView("Partials/_Sidebar", dto);
     }
 
     /// <summary>
@@ -53,9 +53,9 @@ public class FileManagerController(FileManagerServices svc, PermissionManagement
         
         var partialView = view?.ToLower() switch
         {
-            "shared" => "Partials/FileManager/_SharedWithMe",
-            "recent" => "Partials/FileManager/_Recent",
-            _ => "Partials/FileManager/_FileList"
+            "shared" => "Partials/_SharedWithMe",
+            "recent" => "Partials/_Recent",
+            _ => "Partials/_FileList"
         };
         
         switch (view?.ToLower())
@@ -136,7 +136,7 @@ public class FileManagerController(FileManagerServices svc, PermissionManagement
                 break;
         }
         
-        return PartialView("Partials/FileManager/_Breadcrumb", dto);
+        return PartialView("Partials/_Breadcrumb", dto);
     }
 
     /// <summary>
@@ -175,7 +175,7 @@ public class FileManagerController(FileManagerServices svc, PermissionManagement
         ViewBag.ItemDetail = detail;
         ViewBag.Users = users;
         
-        return PartialView("Partials/FileManager/Modal/_Share");
+        return PartialView("Partials/Modal/_Share");
     }
 
     /// <summary>
@@ -220,7 +220,7 @@ public class FileManagerController(FileManagerServices svc, PermissionManagement
         }
         
         ViewBag.CurrentUser = currentUser;
-        return PartialView("Partials/FileManager/_ItemDetail", detail);
+        return PartialView("Partials/_ItemDetail", detail);
     }
     #endregion
 
