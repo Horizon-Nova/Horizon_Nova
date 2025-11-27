@@ -152,11 +152,11 @@
         <div class="border rounded-3 bg-white p-3" id="itemDetailPanel">
             @if (Model?.SelectedItem != null)
             {
-                @await Html.PartialAsync("Partials/FileManager/_ItemDetail", Model.SelectedItem)
+                @await Html.PartialAsync("_ItemDetail", Model.SelectedItem)
             }
             else if (Model?.Items != null && Model.Items.Count > 0)
             {
-                @await Html.PartialAsync("Partials/FileManager/_ItemDetail", Model.Items.First())
+                @await Html.PartialAsync("_ItemDetail", Model.Items.First())
             }
             else
             {
