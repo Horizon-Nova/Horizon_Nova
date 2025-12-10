@@ -592,6 +592,50 @@ public class FileManagerServices(DirectoryManagerUtilities DM, IHttpContextAcces
     }
 
     /// <summary>
+    /// 上傳檔案分塊
+    /// </summary>
+    public (bool success, int receivedChunks, string message) UploadChunk(string uploadId, int chunkIndex, int totalChunks, IFormFile chunkFile)
+    {
+        if (chunkFile == null || chunkFile.Length == 0)
+            return (false, 0, "分塊檔案為空");
+
+        try
+        {
+            using var chunkStream = chunkFile.OpenReadStream();
+            DM.SaveChunk(uploadId, chunkIndex, chunkStream);
+            
+            var receivedChunks = DM.GetReceivedChunksCount(uploadId, totalChunks);
+            return (true, receivedChunks, "分塊上傳成功");
+        }
+        catch (Exception ex)
+        {
+            return (false, 0, $"分塊上傳失敗: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// 合併檔案分塊
+    /// </summary>
+    public (bool success, string message) MergeChunks(string uploadId, string virtualPath, string fileName, string? relativePath, int totalChunks, long fileSize)
+    {
+        try
+        {
+            var uploader = httpContextAccessor?.HttpContext?.User?.Identity?.Name;
+            var parentOwners = GetParentOwners(virtualPath, uploader);
+            var convertedVirtualPath = ConvertStoragePathToVirtualPath(virtualPath);
+            
+            var finalRelativePath = relativePath ?? fileName;
+            DM.MergeChunks(uploadId, convertedVirtualPath, finalRelativePath, totalChunks, parentOwners);
+            
+            return (true, "檔案合併成功");
+        }
+        catch (Exception ex)
+        {
+            return (false, $"檔案合併失敗: {ex.Message}");
+        }
+    }
+
+    /// <summary>
     /// 取得父資料夾的擁有者列表
     /// </summary>
     private string[] GetParentOwners(string virtualPath, string? uploader)

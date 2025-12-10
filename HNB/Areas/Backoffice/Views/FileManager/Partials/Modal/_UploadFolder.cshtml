@@ -172,6 +172,86 @@
             }
         });
 
+        // 分塊上傳單個檔案（支援相對路徑）
+        async function uploadFileInChunks(file, virtualPath, relativePath, token, onProgress) {
+            const CHUNK_SIZE = 80 * 1024 * 1024; // 80MB per chunk
+            const fileSize = file.size;
+            const totalChunks = Math.ceil(fileSize / CHUNK_SIZE);
+            const uploadId = `${Date.now()}_${Math.random().toString(36).substring(7)}`;
+            
+            // 上傳所有分塊
+            for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+                const start = chunkIndex * CHUNK_SIZE;
+                const end = Math.min(start + CHUNK_SIZE, fileSize);
+                const chunk = file.slice(start, end);
+                
+                const chunkFormData = new FormData();
+                chunkFormData.append('uploadId', uploadId);
+                chunkFormData.append('chunkIndex', chunkIndex);
+                chunkFormData.append('totalChunks', totalChunks);
+                chunkFormData.append('fileName', file.name);
+                if (relativePath) {
+                    chunkFormData.append('relativePath', relativePath);
+                }
+                chunkFormData.append('fileSize', fileSize);
+                chunkFormData.append('chunk', chunk);
+                
+                await new Promise((resolve, reject) => {
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('POST', '/Backoffice/FileManager/SubmitUploadChunk');
+                    xhr.setRequestHeader('RequestVerificationToken', token);
+                    
+                    xhr.upload.addEventListener('progress', function(e) {
+                        if (e.lengthComputable) {
+                            const chunkProgress = (chunkIndex / totalChunks) * 100 + (e.loaded / e.total) * (100 / totalChunks);
+                            const loadedMB = ((chunkIndex * CHUNK_SIZE + e.loaded) / (1024 * 1024)).toFixed(2);
+                            const totalMB = (fileSize / (1024 * 1024)).toFixed(2);
+                            onProgress(chunkProgress, loadedMB, totalMB);
+                        }
+                    });
+                    
+                    xhr.onload = function() {
+                        if (xhr.status === 200) {
+                            const response = JSON.parse(xhr.responseText);
+                            if (response.success) {
+                                resolve();
+                            } else {
+                                reject(new Error(response.message || '分塊上傳失敗'));
+                            }
+                        } else {
+                            reject(new Error(`HTTP ${xhr.status}: ${xhr.statusText}`));
+                        }
+                    };
+                    
+                    xhr.onerror = function() {
+                        reject(new Error('網路錯誤'));
+                    };
+                    
+                    xhr.send(chunkFormData);
+                });
+            }
+            
+            // 合併分塊
+            const mergeResponse = await $.ajax({
+                url: '/Backoffice/FileManager/MergeChunks',
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': token,
+                    'Content-Type': 'application/json'
+                },
+                data: JSON.stringify({
+                    uploadId: uploadId,
+                    virtualPath: virtualPath,
+                    fileName: file.name,
+                    relativePath: relativePath,
+                    totalChunks: totalChunks,
+                    fileSize: fileSize
+                })
+            });
+            
+            return mergeResponse;
+        }
+
         $('#uploadFolderForm').on('submit', function(e) {
             e.preventDefault();
             
@@ -182,22 +262,6 @@
             }
 
             const currentPath = getPathFromUrl();
-            const formData = new FormData();
-            formData.append('virtualPath', currentPath);
-            
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                formData.append('files', file);
-                let relativePath = file.webkitRelativePath || file.name;
-                if (relativePath.startsWith('.')) {
-                    relativePath = relativePath.substring(1);
-                }
-                if (relativePath.startsWith('/')) {
-                    relativePath = relativePath.substring(1);
-                }
-                formData.append('relativePaths', relativePath);
-            }
-
             const token = $('input[name="__RequestVerificationToken"]').val() || $('meta[name="__RequestVerificationToken"]').attr('content');
             if (!token) {
                 showToast('無法取得驗證 Token，請重新整理頁面', 'error');
@@ -210,83 +274,175 @@
             $('#uploadFolderProgressText').text('0%');
             $('#uploadFolderProgressDetail').text('準備上傳...');
 
+            const CHUNK_THRESHOLD = 80 * 1024 * 1024; // 80MB
+            let hasLargeFiles = false;
+            let totalSize = 0;
+            for (let i = 0; i < files.length; i++) {
+                totalSize += files[i].size;
+                if (files[i].size > CHUNK_THRESHOLD) {
+                    hasLargeFiles = true;
+                    break;
+                }
+            }
+
             let isUploading = true;
             let uploadXhr = null;
 
-            uploadXhr = $.ajax({
-                url: '/Backoffice/FileManager/SubmitUpload',
-                method: 'POST',
-                headers: {
-                    'RequestVerificationToken': token
-                },
-                data: formData,
-                processData: false,
-                contentType: false,
-                xhr: function() {
-                    const xhr = new window.XMLHttpRequest();
-                    xhr.upload.addEventListener('progress', function(e) {
-                        if (e.lengthComputable) {
-                            const percentComplete = Math.round((e.loaded / e.total) * 100);
-                            const loadedMB = (e.loaded / (1024 * 1024)).toFixed(2);
-                            const totalMB = (e.total / (1024 * 1024)).toFixed(2);
+            if (hasLargeFiles || totalSize > CHUNK_THRESHOLD) {
+                // 使用分塊上傳
+                (async function() {
+                    try {
+                        let uploadedCount = 0;
+                        let failedCount = 0;
+                        const errors = [];
+                        
+                        for (let i = 0; i < files.length; i++) {
+                            const file = files[i];
+                            let relativePath = file.webkitRelativePath || file.name;
+                            if (relativePath.startsWith('.')) {
+                                relativePath = relativePath.substring(1);
+                            }
+                            if (relativePath.startsWith('/')) {
+                                relativePath = relativePath.substring(1);
+                            }
                             
-                            if ($('#uploadFolderModal').hasClass('show')) {
-                                $('#uploadFolderProgressBar').css('width', percentComplete + '%');
-                                $('#uploadFolderProgressText').text(percentComplete + '%');
-                                $('#uploadFolderProgressDetail').text(`${loadedMB} MB / ${totalMB} MB`);
-                            } else {
-                                updateBackgroundUploadProgress(percentComplete, loadedMB, totalMB);
+                            try {
+                                await uploadFileInChunks(file, currentPath, relativePath, token, function(percent, loadedMB, totalMB) {
+                                    const fileProgress = (uploadedCount / files.length) * 100 + (percent / files.length);
+                                    if ($('#uploadFolderModal').hasClass('show')) {
+                                        $('#uploadFolderProgressBar').css('width', fileProgress + '%');
+                                        $('#uploadFolderProgressText').text(Math.round(fileProgress) + '%');
+                                        $('#uploadFolderProgressDetail').text(`${loadedMB} MB / ${totalMB} MB (檔案 ${i + 1}/${files.length})`);
+                                    } else {
+                                        updateBackgroundUploadProgress(fileProgress, loadedMB, totalMB);
+                                    }
+                                });
+                                uploadedCount++;
+                            } catch (error) {
+                                failedCount++;
+                                errors.push(`${file.name}: ${error.message}`);
                             }
                         }
-                    });
-                    return xhr;
-                },
-                success: function(response) {
-                    isUploading = false;
-                    $('#uploadFolderSubmitBtn').prop('disabled', false);
-                    $('#uploadFolderProgress').hide();
-                    hideBackgroundUploadProgress();
-                    
-                    if (response.success) {
-                        showToast(response.message, 'success');
-                        closeModal('uploadFolderModal');
-                        $('#folderInput').val('');
-                        $('#uploadFolderList').hide();
-                        $('#uploadFolderListItems').empty();
                         
-                        switchView(null, currentPath);
-                        LoadSidebar(currentPath);
-                        LoadBreadcrumb(null, currentPath);
-                    } else {
-                        const errorMessage = response.message || '上傳失敗';
+                        isUploading = false;
+                        $('#uploadFolderSubmitBtn').prop('disabled', false);
+                        $('#uploadFolderProgress').hide();
+                        hideBackgroundUploadProgress();
+                        
+                        if (failedCount === 0) {
+                            showToast(`成功上傳 ${uploadedCount} 個檔案`, 'success');
+                            closeModal('uploadFolderModal');
+                            $('#folderInput').val('');
+                            $('#uploadFolderList').hide();
+                            $('#uploadFolderListItems').empty();
+                            
+                            switchView(null, currentPath);
+                            LoadSidebar(currentPath);
+                            LoadBreadcrumb(null, currentPath);
+                        } else {
+                            showToast(`上傳完成：${uploadedCount} 成功，${failedCount} 失敗`, 'error');
+                        }
+                    } catch (error) {
+                        isUploading = false;
+                        $('#uploadFolderSubmitBtn').prop('disabled', false);
+                        $('#uploadFolderProgress').hide();
+                        hideBackgroundUploadProgress();
+                        showToast(`上傳失敗: ${error.message}`, 'error');
+                    }
+                })();
+            } else {
+                // 使用傳統上傳（小檔案）
+                const formData = new FormData();
+                formData.append('virtualPath', currentPath);
+                
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    formData.append('files', file);
+                    let relativePath = file.webkitRelativePath || file.name;
+                    if (relativePath.startsWith('.')) {
+                        relativePath = relativePath.substring(1);
+                    }
+                    if (relativePath.startsWith('/')) {
+                        relativePath = relativePath.substring(1);
+                    }
+                    formData.append('relativePaths', relativePath);
+                }
+
+                uploadXhr = $.ajax({
+                    url: '/Backoffice/FileManager/SubmitUpload',
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': token
+                    },
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    xhr: function() {
+                        const xhr = new window.XMLHttpRequest();
+                        xhr.upload.addEventListener('progress', function(e) {
+                            if (e.lengthComputable) {
+                                const percentComplete = Math.round((e.loaded / e.total) * 100);
+                                const loadedMB = (e.loaded / (1024 * 1024)).toFixed(2);
+                                const totalMB = (e.total / (1024 * 1024)).toFixed(2);
+                                
+                                if ($('#uploadFolderModal').hasClass('show')) {
+                                    $('#uploadFolderProgressBar').css('width', percentComplete + '%');
+                                    $('#uploadFolderProgressText').text(percentComplete + '%');
+                                    $('#uploadFolderProgressDetail').text(`${loadedMB} MB / ${totalMB} MB`);
+                                } else {
+                                    updateBackgroundUploadProgress(percentComplete, loadedMB, totalMB);
+                                }
+                            }
+                        });
+                        return xhr;
+                    },
+                    success: function(response) {
+                        isUploading = false;
+                        $('#uploadFolderSubmitBtn').prop('disabled', false);
+                        $('#uploadFolderProgress').hide();
+                        hideBackgroundUploadProgress();
+                        
+                        if (response.success) {
+                            showToast(response.message, 'success');
+                            closeModal('uploadFolderModal');
+                            $('#folderInput').val('');
+                            $('#uploadFolderList').hide();
+                            $('#uploadFolderListItems').empty();
+                            
+                            switchView(null, currentPath);
+                            LoadSidebar(currentPath);
+                            LoadBreadcrumb(null, currentPath);
+                        } else {
+                            const errorMessage = response.message || '上傳失敗';
+                            showToast(errorMessage, 'error');
+                        }
+                    },
+                    error: function(xhr) {
+                        isUploading = false;
+                        $('#uploadFolderSubmitBtn').prop('disabled', false);
+                        $('#uploadFolderProgress').hide();
+                        hideBackgroundUploadProgress();
+                        
+                        if (xhr.statusText === 'abort') {
+                            showToast('上傳已取消', 'info');
+                            window.currentUploadXhr = null;
+                            return;
+                        }
+                        
+                        let errorMessage = '上傳時發生錯誤';
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            if (response.message) {
+                                errorMessage = response.message;
+                            }
+                        } catch (e) {
+                        }
                         showToast(errorMessage, 'error');
                     }
-                },
-                error: function(xhr) {
-                    isUploading = false;
-                    $('#uploadFolderSubmitBtn').prop('disabled', false);
-                    $('#uploadFolderProgress').hide();
-                    hideBackgroundUploadProgress();
-                    
-                    if (xhr.statusText === 'abort') {
-                        showToast('上傳已取消', 'info');
-                        window.currentUploadXhr = null;
-                        return;
-                    }
-                    
-                    let errorMessage = '上傳時發生錯誤';
-                    try {
-                        const response = JSON.parse(xhr.responseText);
-                        if (response.message) {
-                            errorMessage = response.message;
-                        }
-                    } catch (e) {
-                    }
-                    showToast(errorMessage, 'error');
-                }
-            });
+                });
 
-            window.currentUploadXhr = uploadXhr;
+                window.currentUploadXhr = uploadXhr;
+            }
         });
 
         $('#uploadFolderCancelBtn').on('click', function() {

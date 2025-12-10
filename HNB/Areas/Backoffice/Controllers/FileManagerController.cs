@@ -431,6 +431,59 @@ public class FileManagerController(FileManagerServices svc, PermissionManagement
                 : (result.errors.Count > 0 ? result.errors[0] : $"上傳完成：{result.savedCount} 成功，{result.failedCount} 失敗")
         });
     }
+
+    /// <summary>
+    /// 上傳檔案分塊（用於大檔案分塊上傳）
+    /// </summary>
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult SubmitUploadChunk([FromForm] string uploadId, [FromForm] int chunkIndex, [FromForm] int totalChunks, [FromForm] string fileName, [FromForm] string? relativePath, [FromForm] long fileSize, [FromForm] IFormFile chunk)
+    {
+        var currentUser = User.Identity?.Name;
+        if (string.IsNullOrWhiteSpace(currentUser)) return Unauthorized();
+
+        if (chunk == null || chunk.Length == 0)
+        {
+            return Json(new UploadChunkResponse
+            {
+                Success = false,
+                Message = "分塊檔案為空",
+                ReceivedChunks = 0
+            });
+        }
+
+        var result = svc.UploadChunk(uploadId, chunkIndex, totalChunks, chunk);
+        
+        return Json(new UploadChunkResponse
+        {
+            Success = result.success,
+            Message = result.message,
+            ReceivedChunks = result.receivedChunks
+        });
+    }
+
+    /// <summary>
+    /// 合併檔案分塊（用於大檔案分塊上傳）
+    /// </summary>
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult MergeChunks([FromBody] MergeChunksRequest request)
+    {
+        var currentUser = User.Identity?.Name;
+        if (string.IsNullOrWhiteSpace(currentUser)) return Unauthorized();
+
+        var actualPath = svc.GetActualPath(currentUser, request.VirtualPath ?? "/");
+        var result = svc.MergeChunks(request.UploadId, actualPath, request.FileName, request.RelativePath, request.TotalChunks, request.FileSize);
+        
+        return Json(new UploadResponse
+        {
+            Success = result.success,
+            Saved = result.success ? 1 : 0,
+            Failed = result.success ? 0 : 1,
+            Errors = result.success ? null : new List<string> { result.message },
+            Message = result.message
+        });
+    }
     
     #endregion
 

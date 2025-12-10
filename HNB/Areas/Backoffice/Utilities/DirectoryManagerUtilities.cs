@@ -580,6 +580,120 @@ public sealed class DirectoryManagerUtilities
     }
 
     /// <summary>
+    /// 取得 chunk 暫存目錄路徑
+    /// </summary>
+    private string GetChunkTempDirectory()
+    {
+        var tempDir = Path.Combine(Path.GetTempPath(), "FileManagerChunks");
+        Directory.CreateDirectory(tempDir);
+        return tempDir;
+    }
+
+    /// <summary>
+    /// 儲存檔案分塊到暫存目錄
+    /// </summary>
+    /// <param name="uploadId">上傳唯一識別碼</param>
+    /// <param name="chunkIndex">分塊索引</param>
+    /// <param name="chunkStream">分塊串流</param>
+    public void SaveChunk(string uploadId, int chunkIndex, Stream chunkStream)
+    {
+        var tempDir = GetChunkTempDirectory();
+        var chunkPath = Path.Combine(tempDir, $"{uploadId}_{chunkIndex}.chunk");
+        
+        using (var fileStream = new FileStream(chunkPath, FileMode.Create, FileAccess.Write))
+        {
+            chunkStream.CopyTo(fileStream);
+        }
+    }
+
+    /// <summary>
+    /// 檢查所有分塊是否都已上傳
+    /// </summary>
+    /// <param name="uploadId">上傳唯一識別碼</param>
+    /// <param name="totalChunks">總分塊數</param>
+    /// <returns>已接收的分塊數</returns>
+    public int GetReceivedChunksCount(string uploadId, int totalChunks)
+    {
+        var tempDir = GetChunkTempDirectory();
+        var count = 0;
+        
+        for (int i = 0; i < totalChunks; i++)
+        {
+            var chunkPath = Path.Combine(tempDir, $"{uploadId}_{i}.chunk");
+            if (File.Exists(chunkPath))
+            {
+                count++;
+            }
+        }
+        
+        return count;
+    }
+
+    /// <summary>
+    /// 合併所有分塊成完整檔案並上傳到目標位置
+    /// </summary>
+    /// <param name="uploadId">上傳唯一識別碼</param>
+    /// <param name="virtualPath">虛擬路徑</param>
+    /// <param name="relativePath">相對路徑</param>
+    /// <param name="totalChunks">總分塊數</param>
+    /// <param name="owners">擁有者列表</param>
+    public void MergeChunks(string uploadId, string virtualPath, string relativePath, int totalChunks, string[] owners)
+    {
+        var tempDir = GetChunkTempDirectory();
+        var (absPath, _, _) = PrepareBatchUploadTarget(virtualPath, relativePath);
+        
+        try
+        {
+            using (var outputStream = new FileStream(absPath, FileMode.Create, FileAccess.Write))
+            {
+                for (int i = 0; i < totalChunks; i++)
+                {
+                    var chunkPath = Path.Combine(tempDir, $"{uploadId}_{i}.chunk");
+                    if (!File.Exists(chunkPath))
+                    {
+                        throw new FileNotFoundException($"分塊 {i} 不存在: {chunkPath}");
+                    }
+                    
+                    using (var chunkStream = new FileStream(chunkPath, FileMode.Open, FileAccess.Read))
+                    {
+                        chunkStream.CopyTo(outputStream);
+                    }
+                }
+            }
+            
+            if (owners != null && owners.Length > 0)
+            {
+                SetAppOwners(absPath, owners);
+            }
+
+            var parentMarked = IsParentMarkedForDeletion(absPath);
+            if (!string.IsNullOrEmpty(parentMarked))
+            {
+                MarkForDeletion(absPath);
+            }
+        }
+        finally
+        {
+            // 清理所有分塊檔案
+            for (int i = 0; i < totalChunks; i++)
+            {
+                var chunkPath = Path.Combine(tempDir, $"{uploadId}_{i}.chunk");
+                try
+                {
+                    if (File.Exists(chunkPath))
+                    {
+                        File.Delete(chunkPath);
+                    }
+                }
+                catch
+                {
+                    // 忽略清理錯誤
+                }
+            }
+        }
+    }
+
+    /// <summary>
     /// 開啟檔案讀取
     /// </summary>
     /// <param name="virtualPath">虛擬路徑</param>

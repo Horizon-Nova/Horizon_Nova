@@ -77,6 +77,42 @@ public class UploadResponse
 }
 
 /// <summary>
+/// 上傳檔案分塊請求
+/// </summary>
+public class UploadChunkRequest
+{
+    public string UploadId { get; set; } = string.Empty;
+    public int ChunkIndex { get; set; }
+    public int TotalChunks { get; set; }
+    public string FileName { get; set; } = string.Empty;
+    public string? RelativePath { get; set; }
+    public long FileSize { get; set; }
+}
+
+/// <summary>
+/// 上傳檔案分塊響應
+/// </summary>
+public class UploadChunkResponse
+{
+    public bool Success { get; set; }
+    public string Message { get; set; } = string.Empty;
+    public int ReceivedChunks { get; set; }
+}
+
+/// <summary>
+/// 合併檔案分塊請求
+/// </summary>
+public class MergeChunksRequest
+{
+    public string UploadId { get; set; } = string.Empty;
+    public string VirtualPath { get; set; } = string.Empty;
+    public string FileName { get; set; } = string.Empty;
+    public string? RelativePath { get; set; }
+    public int TotalChunks { get; set; }
+    public long FileSize { get; set; }
+}
+
+/// <summary>
 /// 更新資料夾權限請求（舊）
 /// </summary>
 public class UpdateFolderPermissionsRequest
