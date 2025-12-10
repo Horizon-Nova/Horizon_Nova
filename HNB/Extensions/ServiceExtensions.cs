@@ -33,6 +33,7 @@ public static class ServiceExtensions
         // Weather 區域服務
         services.AddScoped<LoginService>();
         services.AddScoped<ProfileService>();
+        services.AddScoped<PageEditorService>();
         
         // AI 模組已停用 - 為節省雲端記憶體成本
         // GroundingDINO 物件檢測模組 - 使用 Singleton 避免重複載入模型

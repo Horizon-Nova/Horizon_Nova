@@ -568,13 +568,27 @@ public class FileManagerServices(DirectoryManagerUtilities DM, IHttpContextAcces
         var parentOwners = GetParentOwners(virtualPath, uploader);
         var convertedVirtualPath = ConvertStoragePathToVirtualPath(virtualPath);
         
+        var savedCount = 0;
+        var failedCount = 0;
+        var errors = new List<string>();
+        
         for (int i = 0; i < files.Count; i++)
         {
-            using var fileStream = files[i].OpenReadStream();
-            DM.UploadFile(convertedVirtualPath, relativePaths[i], fileStream, parentOwners);
+            try
+            {
+                using var fileStream = files[i].OpenReadStream();
+                DM.UploadFile(convertedVirtualPath, relativePaths[i], fileStream, parentOwners);
+                savedCount++;
+            }
+            catch (Exception ex)
+            {
+                failedCount++;
+                var fileName = relativePaths[i] ?? files[i].FileName ?? "未知檔案";
+                errors.Add($"{fileName}: {ex.Message}");
+            }
         }
         
-        return (true, files.Count, 0, new List<string>());
+        return (failedCount == 0, savedCount, failedCount, errors);
     }
 
     /// <summary>

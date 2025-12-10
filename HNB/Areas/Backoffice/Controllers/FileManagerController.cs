@@ -399,14 +399,26 @@ public class FileManagerController(FileManagerServices svc, PermissionManagement
     /// <param name="virtualPath">表單欄位名稱：virtualPath（上傳目標虛擬路徑，例如：/、/FolderA/Sub）</param>
     /// <param name="files">表單欄位名稱：files（檔案清單，多個檔案可重複此欄位）</param>
     /// <param name="relativePaths">表單欄位名稱：relativePaths（可選；每個檔案對應一個相對路徑，用於保留資料夾結構）</param>
-    [HttpPost, DisableRequestSizeLimit, RequestFormLimits(MultipartBodyLengthLimit = 5368709120), RequestSizeLimit(5368709120)] // 5GB
+    [HttpPost, DisableRequestSizeLimit, RequestFormLimits(ValueCountLimit = int.MaxValue, MultipartBodyLengthLimit = 5368709120, MultipartHeadersLengthLimit = int.MaxValue), RequestSizeLimit(5368709120)] // 5GB
     [ValidateAntiForgeryToken]
-    public IActionResult SubmitUpload(string virtualPath, List<IFormFile> files, List<string>? relativePaths)
+    public IActionResult SubmitUpload([FromForm] string? virtualPath, [FromForm] List<IFormFile>? files, [FromForm] List<string>? relativePaths)
     {
         var currentUser = User.Identity?.Name;
         if (string.IsNullOrWhiteSpace(currentUser)) return Unauthorized();
 
-        var result = svc.UploadBatchFiles(svc.GetActualPath(currentUser, virtualPath), files, relativePaths);
+        if (files == null || files.Count == 0)
+        {
+            return Json(new UploadResponse
+            {
+                Success = false,
+                Saved = 0,
+                Failed = 0,
+                Errors = new List<string> { "未選擇檔案" },
+                Message = "未選擇檔案"
+            });
+        }
+
+        var result = svc.UploadBatchFiles(svc.GetActualPath(currentUser, virtualPath ?? "/"), files, relativePaths);
         
         return Json(new UploadResponse
         {

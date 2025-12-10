@@ -1,0 +1,63 @@
+@{
+    Layout = null;
+    var pageName = ViewBag.PageName as string ?? "";
+    var sectionName = ViewBag.SectionName as string ?? "";
+    var content = ViewBag.Content as string ?? "";
+}
+
+<div id="editModal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">編輯：@pageName / @sectionName</h5>
+                <button type="button" class="btn-close" onclick="closeModal('editModal')"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editForm" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="pageName" value="@pageName" />
+                    <input type="hidden" name="sectionName" value="@sectionName" />
+                    <div class="mb-3">
+                        <label class="form-label">檔案內容</label>
+                        <textarea 
+                            name="content" 
+                            class="form-control" 
+                            rows="20" 
+                            style="font-family: 'Courier New', monospace; font-size: 0.9rem;"
+                            required>@content</textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('editModal')">取消</button>
+                <button type="button" class="btn btn-primary" onclick="submitEdit()">儲存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function submitEdit() {
+        const $form = $('#editForm');
+        const data = $form.serialize();
+        
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SubmitEdit", "PageEditor", new { area = "Weather" })',
+            data: data,
+            success: function(res) {
+                if (res.success) {
+                    alert(res.message || '儲存成功');
+                    closeModal('editModal');
+                    location.reload();
+                } else {
+                    alert(res.message || '儲存失敗');
+                }
+            },
+            error: function() {
+                alert('系統發生錯誤');
+            }
+        });
+    }
+</script>
+

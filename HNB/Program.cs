@@ -63,14 +63,18 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 builder.Services.Configure<Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerOptions>(options =>
 {
-    options.Limits.MaxRequestBodySize = 4294967296;
+    options.Limits.MaxRequestBodySize = 5368709120; // 5GB
+    options.Limits.RequestHeadersTimeout = TimeSpan.FromMinutes(30);
+    options.Limits.KeepAliveTimeout = TimeSpan.FromMinutes(30);
 });
 
 builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
 {
     options.ValueLengthLimit = int.MaxValue;
-    options.MultipartBodyLengthLimit = 4294967296;
+    options.ValueCountLimit = int.MaxValue; // 移除表單欄位數量限制
+    options.MultipartBodyLengthLimit = 5368709120; // 5GB
     options.MultipartHeadersLengthLimit = int.MaxValue;
+    options.MultipartBoundaryLengthLimit = int.MaxValue;
 });
 
 var app = builder.Build();
@@ -81,6 +85,7 @@ app.UseHsts();
 
 app.UseMiddleware<ExceptionLoggingMiddleware>();
 app.UseMiddleware<IpSecurityMiddleware>();
+app.UseMiddleware<FileUploadFormOptionsMiddleware>();
 
 app.UseForwardedHeaders();
 app.UseHttpsRedirection();
