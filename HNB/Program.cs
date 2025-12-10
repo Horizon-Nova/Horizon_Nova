@@ -64,8 +64,10 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.Configure<Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerOptions>(options =>
 {
     options.Limits.MaxRequestBodySize = 5368709120; // 5GB
-    options.Limits.RequestHeadersTimeout = TimeSpan.FromMinutes(30);
-    options.Limits.KeepAliveTimeout = TimeSpan.FromMinutes(30);
+    options.Limits.RequestHeadersTimeout = TimeSpan.MaxValue; // 無限等待請求標頭
+    options.Limits.KeepAliveTimeout = TimeSpan.MaxValue; // 無限 Keep-Alive
+    options.Limits.MinRequestBodyDataRate = null; // 移除最小請求體數據速率限制
+    options.Limits.MinResponseDataRate = null; // 移除最小響應數據速率限制
 });
 
 builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
