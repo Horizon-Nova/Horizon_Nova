@@ -1,11 +1,9 @@
-﻿using HNB.Areas.Backoffice.Core;
+using HNB.Areas.Backoffice.Core;
 using HNB.Areas.Backoffice.Repositories;
 using HNB.Areas.Backoffice.Services;
 using HNB.Areas.Backoffice.Utilities;
 using HNB.Areas.HNB_WEB.Repositories;
 using HNB.Areas.HNB_WEB.Services;
-using HNB.Areas.Weather.Repositories;
-using HNB.Areas.Weather.Services;
 using HNB.IntelligentSystems.Embedding.Module;
 using HNB.IntelligentSystems.GroundingDINO.Module;
 using HNB.Repositories;
@@ -19,7 +17,6 @@ public static class ServiceExtensions
     public static IServiceCollection ServicesModule(this IServiceCollection services)
     {
         services.AddScoped<ErrorLogService>();
-        services.AddScoped<ErrorLogRepository>();
         services.AddScoped<SettingsServices>();
         services.AddScoped<IpMiddlewareServices>();
         services.AddScoped<FileManagerServices>();
@@ -29,11 +26,6 @@ public static class ServiceExtensions
         services.AddScoped<DatabaseService>();
         services.AddScoped<OrganizationScope>();
         services.AddScoped<TeamZoneService>();
-        
-        // Weather 區域服務
-        services.AddScoped<LoginService>();
-        services.AddScoped<ProfileService>();
-        services.AddScoped<PageEditorService>();
         
         // AI 模組已停用 - 為節省雲端記憶體成本
         // GroundingDINO 物件檢測模組 - 使用 Singleton 避免重複載入模型
@@ -61,8 +53,6 @@ public static class ServiceExtensions
         services.AddScoped<BlockedIpRepository>();
         services.AddScoped<TeamZoneRepository>();
         
-        // Weather 區域倉儲
-        services.AddScoped<LoginRepository>();
         return services;
     }
     /// <summary> DI注入管理 Utilities 功能 </summary>

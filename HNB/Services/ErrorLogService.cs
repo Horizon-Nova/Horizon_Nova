@@ -1,16 +1,16 @@
 ﻿using HNB.Helpers;
-using HNB.Repositories;
-using Models.Hnb;
+using System.Text;
+using System.Text.Json;
 
 namespace HNB.Services;
 
 /// <summary>
 /// 錯誤日誌服務層，負責處理錯誤日誌的業務邏輯
 /// </summary>
-public class ErrorLogService(ErrorLogRepository rep)
+public class ErrorLogService(IHttpClientFactory httpClientFactory, IConfiguration configuration)
 {
     /// <summary>
-    /// 儲存錯誤日誌到資料庫
+    /// 發送錯誤日誌到 n8n webhook
     /// </summary>
     /// <param name="context">HTTP 上下文</param>
     /// <param name="ex">例外物件</param>
@@ -36,24 +36,60 @@ public class ErrorLogService(ErrorLogRepository rep)
             }
         }
 
-        var log = new error_log
+        // 非同步發送到 n8n webhook（不阻塞主流程）
+        _ = Task.Run(async () =>
         {
-            id = Guid.NewGuid(),
+            try
+            {
+                await SendToN8nWebhook(context, ex, layer, stage, function, functionFull);
+            }
+            catch
+            {
+                // 忽略 webhook 發送失敗，避免影響主流程
+            }
+        });
+
+        return true;
+    }
+
+    /// <summary>
+    /// 發送錯誤日誌到 n8n webhook
+    /// </summary>
+    private async Task SendToN8nWebhook(HttpContext context, Exception ex, string layer, short stage, string function, string? functionFull)
+    {
+        var webhookUrl = configuration["N8n:ErrorLogWebhookUrl"];
+        var webhookAuth = configuration["N8n:ErrorLogWebhookAuth"];
+        if (string.IsNullOrEmpty(webhookUrl))
+            return;
+
+        var httpClient = httpClientFactory.CreateClient();
+        httpClient.Timeout = TimeSpan.FromSeconds(10);
+
+        if (!string.IsNullOrEmpty(webhookAuth))
+        {
+            httpClient.DefaultRequestHeaders.Add("Authorization", webhookAuth);
+        }
+
+        var payload = new
+        {
+            id = Guid.NewGuid().ToString(),
+            message = LogSanitizer.Clean(ex.Message) ?? "",
+            layer = LogSanitizer.Clean(layer) ?? "",
             stage = stage,
-            layer = LogSanitizer.Clean(layer),
-            function = LogSanitizer.Clean(context.Request.Path),
-            function_full = LogSanitizer.Clean(functionFull),
-            message = LogSanitizer.Clean(ex.Message),
-            stack_trace = LogSanitizer.Clean(ex.StackTrace),
-            path = LogSanitizer.Clean(context.Request.Path),
-            http_method = LogSanitizer.Clean(context.Request.Method),
-            status_code = context.Response?.StatusCode,
-            user_id = LogSanitizer.Clean(context.User.Identity?.Name ?? "Anonymous"),
-            trace_id = LogSanitizer.Clean(context.TraceIdentifier),
-            extra = null,
+            function = LogSanitizer.Clean(function) ?? "",
+            function_full = LogSanitizer.Clean(functionFull) ?? "",
+            stack_trace = LogSanitizer.Clean(ex.StackTrace) ?? "",
+            path = LogSanitizer.Clean(context.Request.Path) ?? "",
+            http_method = LogSanitizer.Clean(context.Request.Method) ?? "",
+            status_code = context.Response?.StatusCode ?? 0,
+            trace_id = LogSanitizer.Clean(context.TraceIdentifier) ?? "",
+            user_id = LogSanitizer.Clean(context.User.Identity?.Name ?? "Anonymous") ?? ""
         };
 
-        return rep.Insert(log);
+        var json = JsonSerializer.Serialize(payload);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+        await httpClient.PostAsync(webhookUrl, content);
     }
 }
 

@@ -96,10 +96,12 @@ app.UseStaticFiles();
 var contentTypeProvider = new FileExtensionContentTypeProvider();
 contentTypeProvider.Mappings[".onnx"] = "application/octet-stream";
 
+var storagePath = Path.Combine(builder.Environment.ContentRootPath, "Areas", "Backoffice", "storage");
+Directory.CreateDirectory(storagePath);
+
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(
-        Path.Combine(builder.Environment.ContentRootPath, "Areas", "Backoffice", "storage")),
+    FileProvider = new PhysicalFileProvider(storagePath),
     RequestPath = "/storage",
     ContentTypeProvider = contentTypeProvider,
     ServeUnknownFileTypes = true
