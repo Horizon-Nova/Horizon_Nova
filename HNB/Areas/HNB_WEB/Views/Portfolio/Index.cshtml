@@ -13,7 +13,7 @@
     <header class="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
         <div class="container mx-auto px-3 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-4">
-                <a href='@Url.Action("NovaHome", "TeamZone", new { area = "HNB_WEB" })'
+                <a href='@Url.Action("Index", "NovaHome", new { area = "HNB_WEB" })'
                    class="inline-flex items-center gap-2 text-gray-700 hover:bg-gray-100 px-3 py-2 rounded-md transition">
                     <i data-lucide="arrow-left" class="h-4 w-4"></i>
                     <span>返回首頁</span>
@@ -115,11 +115,12 @@
                                     <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-6 ">
                                         @foreach (var p in items)
                                         {
+                                            var accent = string.IsNullOrWhiteSpace(p.accent_color) ? "#2563eb" : p.accent_color;
                                             <article class="hover:shadow-lg transition-all duration-300 border-0 shadow-md group hover:scale-105 rounded-xl bg-white">
                                                 <header class="p-6 pb-0">
                                                     <div class="flex items-start gap-3">
                                                         <div class="p-2 rounded-lg bg-blue-50">
-                                                            <i data-lucide="@(string.IsNullOrWhiteSpace(p.icon) ? "file-text" : p.icon)" class="h-8 w-8 text-@(p.icon_color)-600"></i>
+                                                            <i data-lucide="@(string.IsNullOrWhiteSpace(p.icon) ? "file-text" : p.icon)" class="h-8 w-8" style="color:@accent"></i>
                                                         </div>
                                                         <div>
                                                             <h3 class="text-xl font-bold text-gray-800">@p.name</h3>
@@ -140,7 +141,8 @@
                                                             <div class="flex flex-wrap gap-2">
                                                                 @foreach (var h in p.highlight)
                                                                 {
-                                                                    <span class="inline-flex font-bold items-center rounded-full px-3 py-1 text-sm bg-@(t.icon_color)-100 text-@(p.icon_color)-800 hover:bg-blue-200">
+                                                                    <span class="inline-flex font-bold items-center rounded-full px-3 py-1 text-sm hover:bg-blue-200"
+                                                                          style="background-color:color-mix(in srgb, @accent 15%, transparent); color:@accent;">
                                                                         @h
                                                                     </span>
                                                                 }
@@ -182,7 +184,7 @@
                                                     }
 
                                                     <div class="pt-2">
-                                                        <a href='@Url.Action("ProjectDetail", "TeamZone", new { area = "HNB_WEB", id = p.id })'
+                                                        <a href='@Url.Action("Index", "ProjectDetail", new { area = "HNB_WEB", id = p.id })'
                                                            class="w-full inline-flex items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300">
                                                             <i data-lucide="eye" class="h-4 w-4"></i> 查看詳細資訊 <i data-lucide="arrow-right" class="h-4 w-4"></i>
                                                         </a>
@@ -243,7 +245,6 @@
                                     <p class="text-blue-600 font-medium">@member.role</p>
                                 </header>
 
-                                <!-- 內容 + 底部社群：用 flex-col 撐滿，社群 mt-auto 貼底 -->
                                 <div class="px-6 pb-6 flex-1 flex flex-col">
                                     <div class="space-y-4">
                                         @if (!string.IsNullOrWhiteSpace(member.bio))
@@ -262,7 +263,6 @@
                                         }
                                     </div>
 
-                                    <!-- 社群連結區塊：一定在底部 -->
                                     <div class="flex justify-center space-x-3 pt-2 mt-auto">
                                         @if (!string.IsNullOrWhiteSpace(member.github))
                                         {
@@ -298,11 +298,11 @@
                 <h3 class="text-2xl font-bold mb-4">有興趣了解更多？</h3>
                 <p class="text-lg mb-6 opacity-90">我們很樂意為您介紹這些專案的詳細技術實作和解決方案</p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href='@Url.Action("Consultation", "TeamZone", new { area = "HNB_WEB" })'
+                    <a href='@Url.Action("Index", "Consultation", new { area = "HNB_WEB" })'
                        class="inline-flex items-center justify-center px-6 py-3 rounded-md bg-white text-blue-600 hover:bg-gray-100">
                         立即諮詢
                     </a>
-                    <a href='@Url.Action("Consultation", "TeamZone", new { area = "HNB_WEB" })'
+                    <a href='@Url.Action("Index", "Consultation", new { area = "HNB_WEB" })'
                        class="inline-flex items-center justify-center px-6 py-3 rounded-md border-2 border-white text-white hover:bg-white hover:text-blue-600">
                         聯絡我們
                     </a>

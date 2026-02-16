@@ -9,7 +9,7 @@
     <header class="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
         <div class="container mx-auto px-3 py-3 flex justify-between items-center">
             <div class="flex items-center gap-4">
-                <a href='@Url.Action("NovaHome", "TeamZone", new { area = "HNB_WEB" })'
+                <a href='@Url.Action("Index", "NovaHome", new { area = "HNB_WEB" })'
                    class="inline-flex items-center gap-2 px-2 py-2 rounded-md text-gray-700 hover:bg-gray-100 transition">
                     <i data-lucide="arrow-left" class="h-4 w-4"></i>
                     <span>返回首頁</span>
@@ -98,7 +98,6 @@
                                 <div class="space-y-3">
                                     <label class="text-sm font-medium">需要的服務項目 *</label>
                                     <div class="grid grid-cols-2 md:grid-cols-3 gap-3" id="servicesGrid">
-                                        <!-- software -->
                                         <label for="svc_software"
                                                class="svc-tile flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-all bg-white border-gray-200 hover:bg-gray-50">
                                             <input id="svc_software" name="services" type="checkbox" value="software" class="peer sr-only">
@@ -106,7 +105,6 @@
                                             <i data-lucide="code" class="h-4 w-4"></i>
                                             <span class="text-sm font-medium">軟體開發</span>
                                         </label>
-                                        <!-- web -->
                                         <label for="svc_web"
                                                class="svc-tile flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-all bg-white border-gray-200 hover:bg-gray-50">
                                             <input id="svc_web" name="services" type="checkbox" value="web" class="peer sr-only">
@@ -114,7 +112,6 @@
                                             <i data-lucide="globe" class="h-4 w-4"></i>
                                             <span class="text-sm font-medium">Web系統</span>
                                         </label>
-                                        <!-- mobile -->
                                         <label for="svc_mobile"
                                                class="svc-tile flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-all bg-white border-gray-200 hover:bg-gray-50">
                                             <input id="svc_mobile" name="services" type="checkbox" value="mobile" class="peer sr-only">
@@ -122,7 +119,6 @@
                                             <i data-lucide="smartphone" class="h-4 w-4"></i>
                                             <span class="text-sm font-medium">手機APP</span>
                                         </label>
-                                        <!-- database -->
                                         <label for="svc_database"
                                                class="svc-tile flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-all bg-white border-gray-200 hover:bg-gray-50">
                                             <input id="svc_database" name="services" type="checkbox" value="database" class="peer sr-only">
@@ -130,7 +126,6 @@
                                             <i data-lucide="database" class="h-4 w-4"></i>
                                             <span class="text-sm font-medium">資料庫</span>
                                         </label>
-                                        <!-- aiot -->
                                         <label for="svc_aiot"
                                                class="svc-tile flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-all bg-white border-gray-200 hover:bg-gray-50">
                                             <input id="svc_aiot" name="services" type="checkbox" value="aiot" class="peer sr-only">
@@ -199,7 +194,6 @@
 
                 <!-- Right：側欄 -->
                 <div class="space-y-6">
-                    <!-- 聯絡資訊 -->
                     <div class="rounded-2xl border border-gray-200 bg-white shadow-sm">
                         <div class="pt-3 px-6">
                             <div class="text-lg font-semibold">聯絡資訊</div>
@@ -226,7 +220,6 @@
                         </div>
                     </div>
 
-                    <!-- 諮詢流程 -->
                     <div class="rounded-2xl border border-gray-200 bg-white shadow-sm">
                         <div class="pt-3 px-6">
                             <div class="text-lg font-semibold">諮詢流程</div>
@@ -247,7 +240,6 @@
                         </div>
                     </div>
 
-                    <!-- 為什麼選擇我們 -->
                     <div class="rounded-2xl border border-gray-200 bg-white shadow-sm">
                         <div class="pt-3 px-6">
                             <div class="text-lg font-semibold">為什麼選擇我們</div>
@@ -285,7 +277,7 @@
                     <p>✓ 安排詳細的需求討論</p>
                 </div>
                 <div class="flex gap-3">
-                    <a href='@Url.Action("NovaHome", "TeamZone", new { area = "HNB_WEB" })'
+                    <a href='@Url.Action("Index", "NovaHome", new { area = "HNB_WEB" })'
                        class="flex-1 inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-gray-700 hover:bg-gray-50">
                         返回首頁
                     </a>

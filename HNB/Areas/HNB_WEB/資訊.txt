@@ -1,0 +1,30 @@
+APP項目 :
+	TAGV（AprilTag 快速識別、懸浮廣告）
+	智慧查表（AI 物件偵測、儀表自動擷取）
+
+Web項目 :
+	MISSA（簽核與文書、人員與權限、預算與公文）
+	倉儲管理系統（地圖繪製、AprilTag 盤點、表單管理）
+	EOS（AI 叢集與伺服器監控）
+	hnb-web（官網）
+	Horizon_Nova 官網／後台入口
+	WW、yellandhum_ww（網站專案）
+
+軟體項目 :
+	InSpecTool（量測／檢測串接、授權管理、Input 搬運）
+	監控AI Server（AI 數據監控、異常偵測、視覺化）
+	hnb-iis（站台管理、持續部署、系統資源與錯誤日誌監控）
+	InSpec_QAS（InSpec 設備韌體更新工具）
+
+系統項目 :
+	Horizon_Nova（企業後台、權限／檔案／導航、系統監控、AI 整合）
+	MISSA（簽核與文書系統、人員與權限、行事曆與預算）
+
+AI 項目 :
+	智慧查表（物件偵測、數字辨識、自動擷取）
+	EOS、監控AI Server（AI 叢集／數據監控、效能與異常）
+	Horizon_Nova（物件辨識 ONNX、圖像生成、向量搜尋 Qdrant）
+
+IoT 項目 :
+	倉儲管理系統（AprilTag 盤點與定位、地圖與表單）
+	TAGV（AprilTag 識別、動態資料申請）

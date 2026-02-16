@@ -1,4 +1,4 @@
-﻿:root {
+:root {
     --bms-topbar-h: 0px;
     --bms-sidebar-w: 16rem;
     --bms-divider: rgba(15,23,42,.08);
@@ -92,4 +92,27 @@ video::-webkit-media-controls {
 
 video::-webkit-media-controls-enclosure {
     display: none !important;
+}
+
+/* 捲軸樣式（全站） */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.5) transparent;
+}
+*::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+*::-webkit-scrollbar-track {
+    background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.5);
+    border-radius: 4px;
+}
+*::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.7);
+}
+*::-webkit-scrollbar-corner {
+    background: transparent;
 }

@@ -18,64 +18,134 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Models.HnbWeb;
 
-[Keyless]
+/// <summary>
+/// 作品集專案資料（HNB_WEB 前台展示用）
+/// </summary>
 [Table("project", Schema = "dbo")]
 public partial class project
 {
+    /// <summary>
+    /// 專案識別碼（主鍵）
+    /// </summary>
+    [Key]
     public int id { get; set; }
 
+    /// <summary>
+    /// 專案分類（對應 project_tags.category）
+    /// </summary>
     [StringLength(100)]
     public string category { get; set; } = null!;
 
+    /// <summary>
+    /// 專案名稱
+    /// </summary>
     [StringLength(200)]
     public string name { get; set; } = null!;
 
+    /// <summary>
+    /// Lucide icon 名稱
+    /// </summary>
     [StringLength(255)]
     public string? icon { get; set; }
 
+    /// <summary>
+    /// 卡片短摘要
+    /// </summary>
     public string? summary { get; set; }
 
+    /// <summary>
+    /// 專案亮點（Tag 列表）
+    /// </summary>
     public List<string>? highlight { get; set; }
 
+    /// <summary>
+    /// 主要功能（功能標題列表）
+    /// </summary>
     public List<string>? features { get; set; }
 
-    public List<string>? screenshots { get; set; }
+    /// <summary>
+    /// 專案截圖 URL 列表（空陣列表示無）
+    /// </summary>
+    public List<string> screenshots { get; set; } = null!;
 
+    /// <summary>
+    /// 專案介紹（長文）
+    /// </summary>
     public string? intro { get; set; }
 
+    /// <summary>
+    /// 主要挑戰
+    /// </summary>
     public List<string>? challenges { get; set; }
 
+    /// <summary>
+    /// 解決方案
+    /// </summary>
     public List<string>? solution { get; set; }
 
+    /// <summary>
+    /// 開發時程（展示用文字）
+    /// </summary>
     [StringLength(50)]
     public string? duration { get; set; }
 
+    /// <summary>
+    /// 團隊規模（人數，允許 NULL）
+    /// </summary>
     public int? team_size { get; set; }
 
+    /// <summary>
+    /// 客戶名稱（保密時為 NULL）
+    /// </summary>
     [StringLength(200)]
-    public string? client { get; set; }
+    public string? client_name { get; set; }
 
+    /// <summary>
+    /// 專案狀態（展示用文字）
+    /// </summary>
     [StringLength(50)]
     public string? status { get; set; }
 
+    /// <summary>
+    /// 技術/框架/工具列表（展示用）
+    /// </summary>
     public List<string>? tech_stack { get; set; }
 
-    public string? main_features { get; set; }
-
+    /// <summary>
+    /// 功能補充說明（與 features 索引對齊）
+    /// </summary>
     public List<string>? feature_intro { get; set; }
 
-    public List<string>? dev_tools { get; set; }
-
+    /// <summary>
+    /// 技術架構圖 URL
+    /// </summary>
     [StringLength(255)]
-    public string? arch_img { get; set; }
+    public string? architecture_image_url { get; set; }
 
-    public string? outcome_summary { get; set; }
+    /// <summary>
+    /// 成果一句話總結
+    /// </summary>
+    public string? outcome_tagline { get; set; }
 
-    public string? outcome_performance { get; set; }
-
+    /// <summary>
+    /// 客戶回饋
+    /// </summary>
     [StringLength(1000)]
     public string? feedback { get; set; }
 
+    /// <summary>
+    /// 主色（CSS 色碼或 CSS 色名）
+    /// </summary>
     [StringLength(50)]
-    public string? icon_color { get; set; }
+    public string? accent_color { get; set; }
+
+    /// <summary>
+    /// 客戶資訊是否保密（true=不顯示名稱）
+    /// </summary>
+    public bool is_client_confidential { get; set; }
+
+    /// <summary>
+    /// 量化成果指標列表
+    /// </summary>
+    public List<string>? outcome_kpis { get; set; }
 }

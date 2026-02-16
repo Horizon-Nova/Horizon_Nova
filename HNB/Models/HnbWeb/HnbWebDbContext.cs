@@ -33,6 +33,41 @@ public partial class HnbWebDbContext : DbContext
     {
         modelBuilder.UseCollation("C");
 
+        modelBuilder.Entity<project>(entity =>
+        {
+            entity.HasKey(e => e.id).HasName("project_pkey");
+
+            entity.ToTable("project", "dbo", tb => tb.HasComment("作品集專案資料（HNB_WEB 前台展示用）"));
+
+            entity.Property(e => e.id).HasComment("專案識別碼（主鍵）");
+            entity.Property(e => e.accent_color).HasComment("主色（CSS 色碼或 CSS 色名）");
+            entity.Property(e => e.architecture_image_url).HasComment("技術架構圖 URL");
+            entity.Property(e => e.category).HasComment("專案分類（對應 project_tags.category）");
+            entity.Property(e => e.challenges).HasComment("主要挑戰");
+            entity.Property(e => e.client_name).HasComment("客戶名稱（保密時為 NULL）");
+            entity.Property(e => e.duration).HasComment("開發時程（展示用文字）");
+            entity.Property(e => e.feature_intro).HasComment("功能補充說明（與 features 索引對齊）");
+            entity.Property(e => e.features).HasComment("主要功能（功能標題列表）");
+            entity.Property(e => e.feedback).HasComment("客戶回饋");
+            entity.Property(e => e.highlight).HasComment("專案亮點（Tag 列表）");
+            entity.Property(e => e.icon).HasComment("Lucide icon 名稱");
+            entity.Property(e => e.intro).HasComment("專案介紹（長文）");
+            entity.Property(e => e.is_client_confidential)
+                .HasDefaultValue(false)
+                .HasComment("客戶資訊是否保密（true=不顯示名稱）");
+            entity.Property(e => e.name).HasComment("專案名稱");
+            entity.Property(e => e.outcome_kpis).HasComment("量化成果指標列表");
+            entity.Property(e => e.outcome_tagline).HasComment("成果一句話總結");
+            entity.Property(e => e.screenshots)
+                .HasDefaultValueSql("'{}'::text[]")
+                .HasComment("專案截圖 URL 列表（空陣列表示無）");
+            entity.Property(e => e.solution).HasComment("解決方案");
+            entity.Property(e => e.status).HasComment("專案狀態（展示用文字）");
+            entity.Property(e => e.summary).HasComment("卡片短摘要");
+            entity.Property(e => e.team_size).HasComment("團隊規模（人數，允許 NULL）");
+            entity.Property(e => e.tech_stack).HasComment("技術/框架/工具列表（展示用）");
+        });
+
         modelBuilder.Entity<project_tag>(entity =>
         {
             entity.HasKey(e => e.id).HasName("project_tags_pkey");

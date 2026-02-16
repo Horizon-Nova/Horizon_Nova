@@ -1,0 +1,570 @@
+@model Models.HnbWeb.NovaHomeIndexModel
+@{
+    ViewData["Title"] = "Horizon Nova";
+    Layout = "_Layout";
+}
+
+<!-- DarkVeil CSS（Hero 背景用） -->
+<link rel="stylesheet" href="~/HNB_WEB/css/DarkVeil.css" asp-append-version="true" />
+
+<div class="min-h-screen bg-transparent">
+    <!-- 頂置選單（深銀色半透明、圓角膠囊） -->
+    <nav class="fixed inset-x-0 top-6 z-50">
+        <div class="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between gap-6 rounded-full border border-white/10 bg-slate-950/35 px-6 py-4 shadow-[0_20px_60px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:px-8">
+                <a href="#top"
+                   class="flex min-w-0 items-center gap-3 rounded-full px-2 py-1 text-white/90 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/30">
+                    <img src="~/HNB_WEB/image/Horizon Nova Icon.png"
+                         alt="Horizon Nova"
+                         class="h-7 w-7 rounded-lg object-cover" />
+                    <span class="truncate text-lg font-semibold">Horizon Nova</span>
+                </a>
+
+                <div class="hidden items-center gap-2 md:flex">
+                    <a href="#services"
+                       class="rounded-full px-4 py-2 text-sm font-semibold text-white/85 hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/30">
+                        服務項目
+                    </a>
+                    <a href="#about"
+                       class="rounded-full px-4 py-2 text-sm font-semibold text-white/85 hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/30">
+                        關於我們
+                    </a>
+                    <a href="#flow"
+                       class="rounded-full px-4 py-2 text-sm font-semibold text-white/85 hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/30">
+                        合作流程
+                    </a>
+                    <a href='@Url.Action("Index", "Consultation", new { area = "HNB_WEB" })'
+                       class="rounded-full bg-slate-100 px-5 py-2 text-sm font-semibold text-slate-900 shadow-[0_18px_50px_rgba(0,0,0,0.35)] hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-white/30">
+                        立即諮詢
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="top" class="relative flex min-h-screen items-center overflow-hidden bg-black px-4 pt-32 pb-20 sm:pt-36 sm:pb-24">
+        <!-- DarkVeil 背景 -->
+        <div id="darkveil-container" class="absolute inset-0"></div>
+        <div class="absolute inset-0 bg-black/60"></div>
+
+        <div class="container mx-auto relative z-10 w-full">
+            <div class="grid grid-cols-1 gap-12 items-center">
+                <div class="text-center">
+                    <div class="animate-in fade-in slide-in-from-left duration-1000">
+                        <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold mb-6 text-white drop-shadow-lg">
+                            Horizon Nova
+                        </h1>
+                        <p class="text-xl md:text-2xl text-white/80 mb-6 max-w-2xl mx-auto drop-shadow min-h-[1.5em]">
+                            <span data-hn-typewriter="開發只是開始，未來由我們領航"></span><span class="hn-typewriter-cursor" aria-hidden="true">|</span>
+                        </p>
+                        <p class="text-lg text-white/70 mb-8 max-w-xl mx-auto leading-relaxed drop-shadow">
+                            專業的軟體開發外包團隊，承接網站開發、系統整合與 AI 技術應用等資訊服務專案；從需求分析到上線部署與維運，協助你把想法落地成可交付、可交接、可長期演進的系統。
+                        </p>
+                        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                            <a href='@Url.Action("Index", "Consultation", new { area = "HNB_WEB" })'
+                               class="inline-flex items-center justify-center px-10 py-3 rounded-full text-slate-900 bg-slate-100 hover:bg-slate-200 transform hover:scale-105 transition-all duration-300 shadow-[0_18px_50px_rgba(0,0,0,0.35)] focus:outline-none focus:ring-2 focus:ring-white/30">
+                                立即諮詢
+                                <i data-lucide="arrow-right" class="ml-2 h-5 w-5"></i>
+                            </a>
+                            <a href='@Url.Action("Index", "Portfolio", new { area = "HNB_WEB" })'
+                               class="inline-flex items-center justify-center px-10 py-3 rounded-full border border-white/10 bg-white/5 text-white/90 hover:bg-white/10 transform hover:scale-105 transition-all duration-300 shadow-[0_18px_50px_rgba(0,0,0,0.25)] backdrop-blur-xl focus:outline-none focus:ring-2 focus:ring-white/30">
+                                查看作品
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    @await Html.PartialAsync("Partials/_Styles")
+    @await Html.PartialAsync("Partials/_Showcase", Model)
+
+    <!-- About Section -->
+    <section id="about" class="relative overflow-hidden py-20 bg-slate-950">
+        <div aria-hidden="true" class="pointer-events-none absolute inset-0 z-0">
+            <div class="absolute top-0 right-0 h-80 w-96 rounded-full blur-3xl opacity-20"
+                 style="background: radial-gradient(circle at center, rgba(99,102,241,.5), transparent 70%);">
+            </div>
+            <div class="absolute inset-0 opacity-[0.08]"
+                 style="background-image: radial-gradient(circle, rgba(255,255,255,0.35) 1px, transparent 1.6px); background-size: 20px 20px;">
+            </div>
+        </div>
+
+        <div class="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:items-center">
+                <div>
+                    <span class="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold tracking-widest text-white/80">
+                        關於我們
+                    </span>
+                    <h2 class="mt-4 text-4xl font-extrabold tracking-tight text-white">開發只是開始，未來由我們領航</h2>
+                    <div class="mt-6 h-1 w-24 rounded-full bg-gradient-to-r from-indigo-500/80 to-transparent"></div>
+
+                    <p class="mt-6 text-lg leading-relaxed text-white/70">
+                        Horizon Nova 起步於社群與合作夥伴的長期協作：多位工程師與設計夥伴在不同專案反覆並肩作戰，逐步建立同一套溝通節奏與交付標準，最後組成現在的工作室。
+                    </p>
+                    <p class="mt-4 text-lg leading-relaxed text-white/70">
+                        客戶最在意的往往不是「會不會做」，而是「好不好合作」：需求能否釐清、範圍能否對齊、溝通是否順暢、進度是否可預期。為此，合作過程以里程碑與驗收標準做共識基準，搭配快速回應與固定節奏回報，讓每一步都可追蹤、可確認、可放心。
+                    </p>
+
+                    <div class="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        @{
+                            var aboutFeatures = new[]
+                            {
+                                ("需求釐清", "把目標、範圍、里程碑與驗收標準先對齊", "clipboard-check"),
+                                ("溝通順暢", "固定節奏回報與快速回應，降低反覆與等待", "message-square"),
+                                ("可驗收交付", "每個節點可驗收，進度與品質清楚可見", "check-circle"),
+                                ("可交接可維運", "程式碼、文件、權限與部署流程一併提供", "package")
+                            };
+                        }
+                        @foreach (var (title, desc, icon) in aboutFeatures)
+                        {
+                            <div class="rounded-2xl border border-white/10 bg-slate-950 p-4 shadow-[0_18px_60px_rgba(2,6,23,0.35)]">
+                                <div class="flex items-start gap-3">
+                                    <span class="mt-0.5 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/20 ring-1 ring-indigo-500/30">
+                                        <i data-lucide="@icon" class="h-5 w-5 text-indigo-300"></i>
+                                    </span>
+                                    <div class="min-w-0">
+                                        <div class="text-sm font-bold text-white">@title</div>
+                                        <div class="mt-1 text-sm leading-relaxed text-white/65">@desc</div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="rounded-3xl border border-white/10 bg-slate-950 p-6 text-white shadow-[0_18px_60px_rgba(2,6,23,0.45)] sm:p-8">
+                        <h3 class="text-xl font-bold tracking-tight text-white">為什麼選擇我們？</h3>
+                        <ul class="mt-6 space-y-4">
+                            @{
+                                var points = new[] {
+                                    ("先把需求說清楚：範圍、風險與交付標準先對齊", "target"),
+                                    ("每個里程碑可驗收：讓進度與品質看得見", "check-circle"),
+                                    ("交付能交接：程式碼、文件、權限與部署流程一併提供", "package"),
+                                    ("上線不是結束：可維護、可擴充、可持續迭代", "refresh-cw")
+                                };
+                            }
+                            @foreach (var (text, icon) in points)
+                            {
+                                <li class="flex items-start gap-3">
+                                    <span class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-indigo-500/20 ring-1 ring-indigo-500/30">
+                                        <i data-lucide="@icon" class="h-4 w-4 text-indigo-300"></i>
+                                    </span>
+                                    <span class="text-white/85">@text</span>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Flow Section -->
+    <section id="flow" class="relative overflow-hidden py-20 bg-slate-950">
+        <div aria-hidden="true" class="pointer-events-none absolute inset-0 z-0">
+            <div class="absolute -top-24 left-1/2 h-72 w-[60rem] -translate-x-1/2 rounded-full blur-3xl opacity-20"
+                 style="background: radial-gradient(circle at center, rgba(99,102,241,.55), transparent 65%);">
+            </div>
+            <div class="absolute inset-0 opacity-[0.08]"
+                 style="background-image: radial-gradient(circle, rgba(255,255,255,0.35) 1px, transparent 1.6px); background-size: 20px 20px; background-position: center;">
+            </div>
+        </div>
+
+        <div class="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <span class="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold tracking-widest text-white/80">
+                    合作流程
+                </span>
+                <h2 class="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">交流 → 盤點 → 提案 → 確認 → 啟動 → 交案</h2>
+                <p class="mt-4 text-white/70">讓每一步都有共識、可追蹤、可驗收</p>
+                <p class="mt-3 text-sm leading-relaxed text-white/60">
+                    我們把「合作的關鍵問題」提早解決：範圍怎麼界定、交付怎麼驗收、里程碑怎麼走、風險怎麼控。
+                </p>
+            </div>
+
+            <!-- HN：互動式流程圖（n8n / Railway 風格） -->
+            <div id="hn-flow" class="mt-10" style="--hn-flow-accent-rgb:99,102,241;">
+                <div class="hn-flow-surface relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-4">
+                    <div class="hn-flow-viewport">
+                        <div class="hn-flow-stage">
+                            <svg class="absolute inset-0 h-full w-full" viewBox="0 0 1000 400" preserveAspectRatio="none" fill="none" aria-hidden="true">
+                                <path class="hn-flow-edge" data-hn-flow-edge="0" d="M140 270 C210 270 230 130 300 130" />
+                                <path class="hn-flow-edge" data-hn-flow-edge="1" d="M300 130 C370 130 390 270 460 270" />
+                                <path class="hn-flow-edge" data-hn-flow-edge="2" d="M460 270 C530 270 550 130 620 130" />
+                                <path class="hn-flow-edge" data-hn-flow-edge="3" d="M620 130 C690 130 710 270 780 270" />
+                                <path class="hn-flow-edge" data-hn-flow-edge="4" d="M780 270 C820 270 840 130 880 130" />
+                            </svg>
+
+                            <button type="button"
+                                    class="hn-flow-node is-active"
+                                    data-hn-flow-step="0"
+                                    style="left:14%; top:68%;"
+                                    aria-pressed="true">
+                                <span class="hn-flow-badge">
+                                    <i data-lucide="message-square" class="h-4 w-4"></i>
+                                </span>
+                                <span class="hn-flow-text">
+                                    <span class="hn-flow-title">交流</span>
+                                    <span class="hn-flow-sub">初談與需求入口</span>
+                                </span>
+                            </button>
+
+                            <button type="button"
+                                    class="hn-flow-node"
+                                    data-hn-flow-step="1"
+                                    style="left:30%; top:32%;"
+                                    aria-pressed="false">
+                                <span class="hn-flow-badge">
+                                    <i data-lucide="clipboard-list" class="h-4 w-4"></i>
+                                </span>
+                                <span class="hn-flow-text">
+                                    <span class="hn-flow-title">盤點</span>
+                                    <span class="hn-flow-sub">目標/範圍/驗收</span>
+                                </span>
+                            </button>
+
+                            <button type="button"
+                                    class="hn-flow-node"
+                                    data-hn-flow-step="2"
+                                    style="left:46%; top:68%;"
+                                    aria-pressed="false">
+                                <span class="hn-flow-badge">
+                                    <i data-lucide="monitor" class="h-4 w-4"></i>
+                                </span>
+                                <span class="hn-flow-text">
+                                    <span class="hn-flow-title">提案</span>
+                                    <span class="hn-flow-sub">方案/估時/估價</span>
+                                </span>
+                            </button>
+
+                            <button type="button"
+                                    class="hn-flow-node"
+                                    data-hn-flow-step="3"
+                                    style="left:62%; top:32%;"
+                                    aria-pressed="false">
+                                <span class="hn-flow-badge">
+                                    <i data-lucide="calendar" class="h-4 w-4"></i>
+                                </span>
+                                <span class="hn-flow-text">
+                                    <span class="hn-flow-title">確認</span>
+                                    <span class="hn-flow-sub">合作與排程</span>
+                                </span>
+                            </button>
+
+                            <button type="button"
+                                    class="hn-flow-node"
+                                    data-hn-flow-step="4"
+                                    style="left:78%; top:68%;"
+                                    aria-pressed="false">
+                                <span class="hn-flow-badge">
+                                    <i data-lucide="credit-card" class="h-4 w-4"></i>
+                                </span>
+                                <span class="hn-flow-text">
+                                    <span class="hn-flow-title">啟動</span>
+                                    <span class="hn-flow-sub">付款與開工</span>
+                                </span>
+                            </button>
+
+                            <button type="button"
+                                    class="hn-flow-node"
+                                    data-hn-flow-step="5"
+                                    style="left:88%; top:32%;"
+                                    aria-pressed="false">
+                                <span class="hn-flow-badge">
+                                    <i data-lucide="package" class="h-4 w-4"></i>
+                                </span>
+                                <span class="hn-flow-text">
+                                    <span class="hn-flow-title">交案</span>
+                                    <span class="hn-flow-sub">驗收與交接</span>
+                                </span>
+                            </button>
+                        </div>
+
+                        <div id="hn-flow-popover" class="hn-flow-popover" aria-live="polite" aria-atomic="true">
+                            <div class="text-xs font-semibold tracking-widest text-white/70">目前步驟</div>
+                            <div id="hn-flow-popover-title" class="mt-2 text-base font-extrabold text-white">交流（初談與需求入口）</div>
+                            <div id="hn-flow-popover-desc" class="mt-2 text-sm leading-relaxed text-white/75">
+                                你可以主動發起，也可以由我們引導。重點是先把「問題、目標、限制」說清楚，讓後續交流更有效率。
+                            </div>
+
+                            <div id="hn-flow-popover-tags" class="mt-3 flex flex-wrap gap-2"></div>
+
+                            <div class="mt-4 grid gap-4">
+                                <div>
+                                    <div class="text-xs font-extrabold tracking-widest text-white/70">你要怎麼做</div>
+                                    <ul id="hn-flow-popover-you" class="mt-2 space-y-2 text-sm text-white/70"></ul>
+                                </div>
+                                <div>
+                                    <div class="text-xs font-extrabold tracking-widest text-white/70">我們會怎麼做</div>
+                                    <ul id="hn-flow-popover-we" class="mt-2 space-y-2 text-sm text-white/70"></ul>
+                                </div>
+
+                                <details class="hn-flow-popover-details">
+                                    <summary class="hn-flow-popover-summary">更多細節</summary>
+                                    <div class="mt-3 grid gap-4">
+                                        <div>
+                                            <div class="text-xs font-extrabold tracking-widest text-white/70">溝通方式與節奏</div>
+                                            <ul id="hn-flow-popover-comm" class="mt-2 space-y-2 text-sm text-white/70"></ul>
+                                        </div>
+                                        <div>
+                                            <div class="text-xs font-extrabold tracking-widest text-white/70">交付物</div>
+                                            <ul id="hn-flow-popover-deliver" class="mt-2 space-y-2 text-sm text-white/70"></ul>
+                                        </div>
+                                    </div>
+                                </details>
+                            </div>
+
+                            <div class="mt-5 flex items-center gap-3">
+                                <button type="button" data-hn-flow-replay
+                                        class="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white/90 hover:bg-white/10">
+                                    重新播放
+                                    <i data-lucide="rotate-ccw" class="ml-2 h-4 w-4"></i>
+                                </button>
+                                <a href='@Url.Action("Index", "Consultation", new { area = "HNB_WEB" })'
+                                   class="inline-flex flex-1 items-center justify-center rounded-full bg-slate-100 px-5 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-white/30">
+                                    立即諮詢
+                                    <i data-lucide="arrow-right" class="ml-2 h-4 w-4"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 flex flex-wrap gap-2 text-xs text-white/60">
+                        <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1">會自動播放，你也可以點選節點跳轉</span>
+                        <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1">聚焦節點時會顯示該步驟的溝通方式與交付</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-10 grid gap-4 sm:grid-cols-2">
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
+                    <div class="text-sm font-extrabold text-white">你會得到什麼</div>
+                    <ul class="mt-3 space-y-2 text-sm text-white/70">
+                        <li class="flex items-start gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 text-white/55"></i><span>每一步的交付物與驗收點清楚可見</span></li>
+                        <li class="flex items-start gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 text-white/55"></i><span>里程碑節奏明確，避免「做到一半才發現方向不對」</span></li>
+                        <li class="flex items-start gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 text-white/55"></i><span>交付可交接：程式碼、文件、部署與權限流程一併整理</span></li>
+                    </ul>
+                </div>
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
+                    <div class="text-sm font-extrabold text-white">你需要準備什麼</div>
+                    <ul class="mt-3 space-y-2 text-sm text-white/70">
+                        <li class="flex items-start gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 text-white/55"></i><span>需求背景：你想解決什麼問題、目前卡在哪</span></li>
+                        <li class="flex items-start gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 text-white/55"></i><span>期望結果：你希望交付後做到什麼程度</span></li>
+                        <li class="flex items-start gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 text-white/55"></i><span>時程與預算範圍：用來規劃可落地的里程碑</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 text-white py-12 px-4">
+        <div class="container mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="h-10 w-10 rounded-lg flex items-center justify-center ring-1 ring-white/10 bg-white/5">
+                            <img src="~/HNB_WEB/image/Horizon Nova Icon.png" alt="HN" class="h-10 w-10 rounded-lg object-cover" />
+                        </div>
+                        <span class="text-xl font-bold">Horizon-Nova</span>
+                    </div>
+                    <p class="text-white/60">
+                        開發只是開始，未來由我們領航
+                    </p>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">服務項目</h3>
+                    <ul class="space-y-2 text-white/60">
+                        <li>軟體開發</li>
+                        <li>Web系統</li>
+                        <li>手機APP</li>
+                        <li>資料庫</li>
+                        <li>AIoT</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">聯絡資訊</h3>
+                    <div class="space-y-2 text-white/60">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="mail" class="h-4 w-4 text-white/70"></i>
+                            <a class="hover:text-white" href="mailto:hiaconde@gmail.com">hiaconde@gmail.com</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-white/10 mt-8 pt-8 text-center text-white/50">
+                <p>&copy; 2024 Horizon-Nova. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("Partials/_Scripts")
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            document.querySelectorAll('[data-hn-typewriter]').forEach(el => {
+                const text = el.dataset.hnTypewriter || '';
+                if (!text) return;
+                const parent = el.parentElement;
+                if (prefersReducedMotion) {
+                    el.textContent = text;
+                    if (parent) parent.classList.add('hn-typewriter-done');
+                    return;
+                }
+                el.textContent = '';
+                const chars = [...text];
+                let i = 0;
+                const next = () => {
+                    if (i < chars.length) {
+                        el.textContent += chars[i];
+                        i++;
+                        setTimeout(next, 90 + Math.random() * 40);
+                    } else if (parent) {
+                        parent.classList.add('hn-typewriter-done');
+                    }
+                };
+                setTimeout(next, 600);
+            });
+        });
+    </script>
+
+    <script type="module">
+        // 參考 React Bits：Dark Veil（以 OGL 方式渲染）
+        // - 背景清單：https://reactbits.dev/backgrounds/
+        import { Renderer, Program, Mesh, Triangle, Vec2 } from 'https://esm.sh/ogl@0.0.78?bundle';
+
+        const vertex = `
+            attribute vec2 position;
+            void main(){gl_Position=vec4(position,0.0,1.0);}
+        `;
+
+        const fragment = `
+            #ifdef GL_ES
+            precision lowp float;
+            #endif
+            uniform vec2 uResolution;
+            uniform float uTime;
+            uniform float uHueShift;
+            uniform float uNoise;
+            uniform float uScan;
+            uniform float uScanFreq;
+            uniform float uWarp;
+            #define iTime uTime
+            #define iResolution uResolution
+
+            vec4 buf[8];
+            float rand(vec2 c){return fract(sin(dot(c,vec2(12.9898,78.233)))*43758.5453);}
+
+            mat3 rgb2yiq=mat3(0.299,0.587,0.114,0.596,-0.274,-0.322,0.211,-0.523,0.312);
+            mat3 yiq2rgb=mat3(1.0,0.956,0.621,1.0,-0.272,-0.647,1.0,-1.106,1.703);
+
+            vec3 hueShiftRGB(vec3 col,float deg){
+                vec3 yiq=rgb2yiq*col;
+                float rad=radians(deg);
+                float cosh=cos(rad),sinh=sin(rad);
+                vec3 yiqShift=vec3(yiq.x,yiq.y*cosh-yiq.z*sinh,yiq.y*sinh+yiq.z*cosh);
+                return clamp(yiq2rgb*yiqShift,0.0,1.0);
+            }
+
+            vec4 sigmoid(vec4 x){return 1./(1.+exp(-x));}
+
+            vec4 cppn_fn(vec2 coordinate,float in0,float in1,float in2){
+                buf[6]=vec4(coordinate.x,coordinate.y,0.3948333106474662+in0,0.36+in1);
+                buf[7]=vec4(0.14+in2,sqrt(coordinate.x*coordinate.x+coordinate.y*coordinate.y),0.,0.);
+                buf[0]=mat4(vec4(6.5404263,-3.6126034,0.7590882,-1.13613),vec4(2.4582713,3.1660357,1.2219609,0.06276096),vec4(-5.478085,-6.159632,1.8701609,-4.7742867),vec4(6.039214,-5.542865,-0.90925294,3.251348))*buf[6]+mat4(vec4(0.8473259,-5.722911,3.975766,1.6522468),vec4(-0.24321538,0.5839259,-1.7661959,-5.350116),vec4(0.,0.,0.,0.),vec4(0.,0.,0.,0.))*buf[7]+vec4(0.21808943,1.1243913,-1.7969975,5.0294676);
+                buf[1]=mat4(vec4(-3.3522482,-6.0612736,0.55641043,-4.4719114),vec4(0.8631464,1.7432913,5.643898,1.6106541),vec4(2.4941394,-3.5012043,1.7184316,6.357333),vec4(3.310376,8.209261,1.1355612,-1.165539))*buf[6]+mat4(vec4(5.24046,-13.034365,0.009859298,15.870829),vec4(2.987511,3.129433,-0.89023495,-1.6822904),vec4(0.,0.,0.,0.),vec4(0.,0.,0.,0.))*buf[7]+vec4(-5.9457836,-6.573602,-0.8812491,1.5436668);
+                buf[0]=sigmoid(buf[0]);buf[1]=sigmoid(buf[1]);
+                buf[2]=mat4(vec4(-15.219568,8.095543,-2.429353,-1.9381982),vec4(-5.951362,4.3115187,2.6393783,1.274315),vec4(-7.3145227,6.7297835,5.2473326,5.9411426),vec4(5.0796127,8.979051,-1.7278991,-1.158976))*buf[6]+mat4(vec4(-11.967154,-11.608155,6.1486754,11.237008),vec4(2.124141,-6.263192,-1.7050359,-0.7021966),vec4(0.,0.,0.,0.),vec4(0.,0.,0.,0.))*buf[7]+vec4(-4.17164,-3.2281182,-4.576417,-3.6401186);
+                buf[3]=mat4(vec4(3.1832156,-13.738922,1.879223,3.233465),vec4(0.64300746,12.768129,1.9141049,0.50990224),vec4(-0.049295485,4.4807224,1.4733979,1.801449),vec4(5.0039253,13.000481,3.3991797,-4.5561905))*buf[6]+mat4(vec4(-0.1285731,7.720628,-3.1425676,4.742367),vec4(0.6393625,3.714393,-0.8108378,-0.39174938),vec4(0.,0.,0.,0.),vec4(0.,0.,0.,0.))*buf[7]+vec4(-1.1811101,-21.621881,0.7851888,1.2329718);
+                buf[2]=sigmoid(buf[2]);buf[3]=sigmoid(buf[3]);
+                buf[4]=mat4(vec4(5.214916,-7.183024,2.7228765,2.6592617),vec4(-5.601878,-25.3591,4.067988,0.4602802),vec4(-10.57759,24.286327,21.102104,37.546658),vec4(4.3024497,-1.9625226,2.3458803,-1.372816))*buf[0]+mat4(vec4(-17.6526,-10.507558,2.2587414,12.462782),vec4(6.265566,-502.75443,-12.642513,0.9112289),vec4(-10.983244,20.741234,-9.701768,-0.7635988),vec4(5.383626,1.4819539,-4.1911616,-4.8444734))*buf[1]+mat4(vec4(12.785233,-16.345072,-0.39901125,1.7955981),vec4(-30.48365,-1.8345358,1.4542528,-1.1118771),vec4(19.872723,-7.337935,-42.941723,-98.52709),vec4(8.337645,-2.7312303,-2.2927687,-36.142323))*buf[2]+mat4(vec4(-16.298317,3.5471997,-0.44300047,-9.444417),vec4(57.5077,-35.609753,16.163465,-4.1534753),vec4(-0.07470326,-3.8656476,-7.0901804,3.1523974),vec4(-12.559385,-7.077619,1.490437,-0.8211543))*buf[3]+vec4(-7.67914,15.927437,1.3207729,-1.6686112);
+                buf[5]=mat4(vec4(-1.4109162,-0.372762,-3.770383,-21.367174),vec4(-6.2103205,-9.35908,0.92529047,8.82561),vec4(11.460242,-22.348068,13.625772,-18.693201),vec4(-0.3429052,-3.9905605,-2.4626114,-0.45033523))*buf[0]+mat4(vec4(7.3481627,-4.3661838,-6.3037653,-3.868115),vec4(1.5462853,6.5488915,1.9701879,-0.58291394),vec4(6.5858274,-2.2180402,3.7127688,-1.3730392),vec4(-5.7973905,10.134961,-2.3395722,-5.965605))*buf[1]+mat4(vec4(-2.5132585,-6.6685553,-1.4029363,-0.16285264),vec4(-0.37908727,0.53738135,4.389061,-1.3024765),vec4(-0.70647055,2.0111287,-5.1659346,-3.728635),vec4(-13.562562,10.487719,-0.9173751,-2.6487076))*buf[2]+mat4(vec4(-8.645013,6.5546675,-6.3944063,-5.5933375),vec4(-0.57783127,-1.077275,36.91025,5.736769),vec4(14.283112,3.7146652,7.1452246,-4.5958776),vec4(2.7192075,3.6021907,-4.366337,-2.3653464))*buf[3]+vec4(-5.9000807,-4.329569,1.2427121,8.59503);
+                buf[4]=sigmoid(buf[4]);buf[5]=sigmoid(buf[5]);
+                buf[6]=mat4(vec4(-1.61102,0.7970257,1.4675229,0.20917463),vec4(-28.793737,-7.1390953,1.5025433,4.656581),vec4(-10.94861,39.66238,0.74318546,-10.095605),vec4(-0.7229728,-1.5483948,0.7301322,2.1687684))*buf[0]+mat4(vec4(3.2547753,21.489103,-1.0194173,-3.3100595),vec4(-3.7316632,-3.3792162,-7.223193,-0.23685838),vec4(13.1804495,0.7916005,5.338587,5.687114),vec4(-4.167605,-17.798311,-6.815736,-1.6451967))*buf[1]+mat4(vec4(0.604885,-7.800309,-7.213122,-2.741014),vec4(-3.522382,-0.12359311,-0.5258442,0.43852118),vec4(9.6752825,-22.853785,2.062431,0.099892326),vec4(-4.3196306,-17.730087,2.5184598,5.30267))*buf[2]+mat4(vec4(-6.545563,-15.790176,-6.0438633,-5.415399),vec4(-43.591583,28.551912,-16.00161,18.84728),vec4(4.212382,8.394307,3.0958717,8.657522),vec4(-5.0237565,-4.450633,-4.4768,-5.5010443))*buf[3]+mat4(vec4(1.6985557,-67.05806,6.897715,1.9004834),vec4(1.8680354,2.3915145,2.5231109,4.081538),vec4(11.158006,1.7294737,2.0738268,7.386411),vec4(-4.256034,-306.24686,8.258898,-17.132736))*buf[4]+mat4(vec4(1.6889864,-4.5852966,3.8534803,-6.3482175),vec4(1.3543309,-1.2640043,9.932754,2.9079645),vec4(-5.2770967,0.07150358,-0.13962056,3.3269649),vec4(28.34703,-4.918278,6.1044083,4.085355))*buf[5]+vec4(6.6818056,12.522166,-3.7075126,-4.104386);
+                buf[7]=mat4(vec4(-8.265602,-4.7027016,5.098234,0.7509808),vec4(8.6507845,-17.15949,16.51939,-8.884479),vec4(-4.036479,-2.3946867,-2.6055532,-1.9866527),vec4(-2.2167742,-1.8135649,-5.9759874,4.8846445))*buf[0]+mat4(vec4(6.7790847,3.5076547,-2.8191125,-2.7028968),vec4(-5.743024,-0.27844876,1.4958696,-5.0517144),vec4(13.122226,15.735168,-2.9397483,-4.101023),vec4(-14.375265,-5.030483,-6.2599335,2.9848232))*buf[1]+mat4(vec4(4.0950394,-0.94011575,-5.674733,4.755022),vec4(4.3809423,4.8310084,1.7425908,-3.437416),vec4(2.117492,0.16342592,-104.56341,16.949184),vec4(-5.22543,-2.994248,3.8350096,-1.9364246))*buf[2]+mat4(vec4(-5.900337,1.7946124,-13.604192,-3.8060522),vec4(6.6583457,31.911177,25.164474,91.81147),vec4(11.840538,4.1503043,-0.7314397,6.768467),vec4(-6.3967767,4.034772,6.1714606,-0.32874924))*buf[3]+mat4(vec4(3.4992442,-196.91893,-8.923708,2.8142626),vec4(3.4806502,-3.1846354,5.1725626,5.1804223),vec4(-2.4009497,15.585794,1.2863957,2.0252278),vec4(-71.25271,-62.441242,-8.138444,0.50670296))*buf[4]+mat4(vec4(-12.291733,-11.176166,-7.3474145,4.390294),vec4(10.805477,5.6337385,-0.9385842,-4.7348723),vec4(-12.869276,-7.039391,5.3029537,7.5436664),vec4(1.4593618,8.91898,3.5101583,5.840625))*buf[5]+vec4(2.2415268,-6.705987,-0.98861027,-2.117676);
+                buf[6]=sigmoid(buf[6]);buf[7]=sigmoid(buf[7]);
+                buf[0]=mat4(vec4(1.6794263,1.3817469,2.9625452,0.),vec4(-1.8834411,-1.4806935,-3.5924516,0.),vec4(-1.3279216,-1.0918057,-2.3124623,0.),vec4(0.2662234,0.23235129,0.44178495,0.))*buf[0]+mat4(vec4(-0.6299101,-0.5945583,-0.9125601,0.),vec4(0.17828953,0.18300213,0.18182953,0.),vec4(-2.96544,-2.5819945,-4.9001055,0.),vec4(1.4195864,1.1868085,2.5176322,0.))*buf[1]+mat4(vec4(-1.2584374,-1.0552157,-2.1688404,0.),vec4(-0.7200217,-0.52666044,-1.438251,0.),vec4(0.15345335,0.15196142,0.272854,0.),vec4(0.945728,0.8861938,1.2766753,0.))*buf[2]+mat4(vec4(-2.4218085,-1.968602,-4.35166,0.),vec4(-22.683098,-18.0544,-41.954372,0.),vec4(0.63792,0.5470648,1.1078634,0.),vec4(-1.5489894,-1.3075932,-2.6444845,0.))*buf[3]+mat4(vec4(-0.49252132,-0.39877754,-0.91366625,0.),vec4(0.95609266,0.7923952,1.640221,0.),vec4(0.30616966,0.15693925,0.8639857,0.),vec4(1.1825981,0.94504964,2.176963,0.))*buf[4]+mat4(vec4(0.35446745,0.3293795,0.59547555,0.),vec4(-0.58784515,-0.48177817,-1.0614829,0.),vec4(2.5271258,1.9991658,4.6846647,0.),vec4(0.13042648,0.08864098,0.30187556,0.))*buf[5]+mat4(vec4(-1.7718065,-1.4033192,-3.3355875,0.),vec4(3.1664357,2.638297,5.378702,0.),vec4(-3.1724713,-2.6107926,-5.549295,0.),vec4(-2.851368,-2.249092,-5.3013067,0.))*buf[6]+mat4(vec4(1.5203838,1.2212278,2.8404984,0.),vec4(1.5210563,1.2651345,2.683903,0.),vec4(2.9789467,2.4364579,5.2347264,0.),vec4(2.2270417,1.8825914,3.8028636,0.))*buf[7]+vec4(-1.5468478,-3.6171484,0.24762098,0.);
+                buf[0]=sigmoid(buf[0]);
+                return vec4(buf[0].x,buf[0].y,buf[0].z,1.);
+            }
+
+            void mainImage(out vec4 fragColor,in vec2 fragCoord){
+                vec2 uv=fragCoord/uResolution.xy*2.-1.;
+                uv.y*=-1.;
+                uv+=uWarp*vec2(sin(uv.y*6.283+uTime*0.5),cos(uv.x*6.283+uTime*0.5))*0.05;
+                fragColor=cppn_fn(uv,0.1*sin(0.3*uTime),0.1*sin(0.69*uTime),0.1*sin(0.44*uTime));
+            }
+
+            void main(){
+                vec4 col;mainImage(col,gl_FragCoord.xy);
+                col.rgb=hueShiftRGB(col.rgb,uHueShift);
+                float scanline_val=sin(gl_FragCoord.y*uScanFreq)*0.5+0.5;
+                col.rgb*=1.-(scanline_val*scanline_val)*uScan;
+                col.rgb+=(rand(gl_FragCoord.xy+uTime)-0.5)*uNoise;
+                gl_FragColor=vec4(clamp(col.rgb,0.0,1.0),1.0);
+            }
+        `;
+
+        const container = document.getElementById('darkveil-container');
+        if (!container) {
+            console.warn('找不到 darkveil-container 元素');
+        } else {
+            const canvas = document.createElement('canvas');
+            canvas.className = 'darkveil-canvas';
+            container.appendChild(canvas);
+
+            const renderer = new Renderer({ dpr: Math.min(window.devicePixelRatio, 2), canvas });
+            const gl = renderer.gl;
+            const geometry = new Triangle(gl);
+
+            const program = new Program(gl, {
+                vertex,
+                fragment,
+                uniforms: {
+                    uTime: { value: 0 },
+                    uResolution: { value: new Vec2() },
+                    uHueShift: { value: 0 },
+                    uNoise: { value: 0 },
+                    uScan: { value: 0 },
+                    uScanFreq: { value: 0 },
+                    uWarp: { value: 0 }
+                }
+            });
+
+            const mesh = new Mesh(gl, { geometry, program });
+
+            const resize = () => {
+                const width = container.clientWidth;
+                const height = container.clientHeight;
+                renderer.setSize(width, height);
+                program.uniforms.uResolution.value.set(width, height);
+            };
+
+            window.addEventListener('resize', resize);
+            resize();
+
+            const start = performance.now();
+            let frame = 0;
+
+            const loop = () => {
+                program.uniforms.uTime.value = ((performance.now() - start) / 1000) * 3;
+                renderer.render({ scene: mesh });
+                frame = requestAnimationFrame(loop);
+            };
+
+            loop();
+        }
+    </script>
+}
+
