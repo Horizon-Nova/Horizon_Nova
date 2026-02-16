@@ -1,6 +1,9 @@
 @using Models.HnbWeb
 @{
-    ViewData["Title"] = "作品集 Portfolio - Horizon Nova";
+    ViewData["Title"] = "作品集｜精選案例與技術實作";
+    ViewData["Description"] = "Horizon Nova Technology（Horizon Nova）作品集：涵蓋網站開發、企業系統、行動 APP、AI/資料智能與部署維運等軟體開發外包案例，展示需求、解法與交付成果。";
+    ViewData["Keywords"] = "作品集,案例,軟體開發外包,網站開發,系統整合,行動 APP,AI 應用,部署維運,Horizon Nova Technology";
+    ViewData["Canonical"] = "/HNB_WEB/Portfolio";
     Layout = "_Layout";
     var tabs = ViewBag.PortfolioTabsMap as List<project_tag> ?? new List<project_tag>();
     var projects = ViewBag.PortfolioDataMap as List<project> ?? new List<project>();

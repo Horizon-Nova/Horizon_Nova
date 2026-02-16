@@ -1,6 +1,10 @@
 @model Models.HnbWeb.project
 @{
-    ViewData["Title"] = "詳細資訊 - Horizon-Nova";
+    ViewData["Title"] = $"{Model.name}｜專案詳情";
+    ViewData["Description"] = string.IsNullOrWhiteSpace(Model.summary)
+        ? "Horizon Nova Technology（Horizon Nova）專案詳情頁：包含專案概述、功能與交付內容。"
+        : $"{Model.summary}（Horizon Nova Technology 專案詳情）";
+    ViewData["Keywords"] = "專案詳情,作品集,案例,軟體開發外包,網站開發,系統整合,AI 應用,Horizon Nova Technology";
     Layout = "_LayoutProjectDetail";
     var accent = string.IsNullOrWhiteSpace(Model.accent_color) ? "#2563eb" : Model.accent_color;
 }

@@ -21,6 +21,14 @@
         var canonicalPath = Context.Request.Path.HasValue ? Context.Request.Path.Value! : "/";
         var canonicalUrl = $"{Context.Request.Scheme}://{Context.Request.Host}{canonicalPath}";
 
+        var canonicalOverride = (ViewData["Canonical"] as string)?.Trim();
+        if (!string.IsNullOrWhiteSpace(canonicalOverride))
+        {
+            canonicalUrl = canonicalOverride.StartsWith("http", StringComparison.OrdinalIgnoreCase)
+                ? canonicalOverride
+                : $"{Context.Request.Scheme}://{Context.Request.Host}{canonicalOverride}";
+        }
+
         var ogImagePath = Url.Content("~/HNB_WEB/image/Horizon Nova Icon.png").Replace(" ", "%20");
         var ogImageUrl = $"{Context.Request.Scheme}://{Context.Request.Host}{ogImagePath}";
 
