@@ -125,8 +125,13 @@ app.MapControllerRoute(
     pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
+    name: "root",
+    pattern: "",
+    defaults: new { area = "HNB_WEB", controller = "NovaHome", action = "Index" });
+
+app.MapControllerRoute(
     name: "default",
-    pattern: "{controller= }/{action= }/{id?}");
+    pattern: "{controller=Error}/{action=NotFound}/{id?}");
 
 app.MapControllers();
 

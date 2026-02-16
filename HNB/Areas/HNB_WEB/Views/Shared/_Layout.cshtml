@@ -3,7 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewData["Title"]</title>
+    @{
+        var siteName = "Horizon Nova Technology";
+        var pageTitle = (ViewData["Title"] as string)?.Trim();
+        var fullTitle = string.IsNullOrWhiteSpace(pageTitle)
+            ? siteName
+            : (pageTitle.Contains(siteName, StringComparison.OrdinalIgnoreCase)
+                ? pageTitle
+                : $"{pageTitle}｜{siteName}");
+
+        var pageDescription = (ViewData["Description"] as string)?.Trim();
+        if (string.IsNullOrWhiteSpace(pageDescription))
+        {
+            pageDescription = "Horizon Nova Technology（Horizon Nova）提供網站開發、系統整合與 AI 技術應用等軟體開發外包服務，從需求分析到上線部署與維運，協助企業把想法落地成可交付、可交接、可長期演進的系統。";
+        }
+
+        var canonicalPath = Context.Request.Path.HasValue ? Context.Request.Path.Value! : "/";
+        var canonicalUrl = $"{Context.Request.Scheme}://{Context.Request.Host}{canonicalPath}";
+
+        var ogImagePath = Url.Content("~/HNB_WEB/image/Horizon Nova Icon.png").Replace(" ", "%20");
+        var ogImageUrl = $"{Context.Request.Scheme}://{Context.Request.Host}{ogImagePath}";
+
+        var pageKeywords = (ViewData["Keywords"] as string)?.Trim();
+    }
+
+    <title>@fullTitle</title>
+    <meta name="description" content="@pageDescription" />
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+    <link rel="canonical" href="@canonicalUrl" />
+    @if (!string.IsNullOrWhiteSpace(pageKeywords))
+    {
+        <meta name="keywords" content="@pageKeywords" />
+    }
+
+    <!-- Open Graph / Twitter（分享預覽用） -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="@siteName" />
+    <meta property="og:title" content="@fullTitle" />
+    <meta property="og:description" content="@pageDescription" />
+    <meta property="og:url" content="@canonicalUrl" />
+    <meta property="og:image" content="@ogImageUrl" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="@fullTitle" />
+    <meta name="twitter:description" content="@pageDescription" />
+    <meta name="twitter:image" content="@ogImageUrl" />
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="~/HNB_WEB/image/Horizon Nova Icon.png">
@@ -21,6 +64,36 @@
     <script type="module" src="https://cdn.jsdelivr.net/npm/@@shoelace-style/shoelace@2.13.0/cdn/shoelace.js"></script>
     <link rel="stylesheet" href="~/HNB_WEB/css/Layout.css" asp-append-version="true" />
     <script src="~/HNB_WEB/js/Layout.js" asp-append-version="true"></script>
+
+    <!-- 結構化資料（SEO） -->
+    @{
+        var siteUrl = $"{Context.Request.Scheme}://{Context.Request.Host}/";
+        var jsonLd = System.Text.Json.JsonSerializer.Serialize(new
+        {
+            @context = "https://schema.org",
+            @graph = new object[]
+            {
+                new
+                {
+                    @type = "Organization",
+                    name = siteName,
+                    alternateName = "Horizon Nova",
+                    url = siteUrl,
+                    logo = ogImageUrl,
+                    email = "hiaconde@gmail.com"
+                },
+                new
+                {
+                    @type = "WebSite",
+                    name = siteName,
+                    url = siteUrl
+                }
+            }
+        });
+    }
+    <script type="application/ld+json">@Html.Raw(jsonLd)</script>
+
+    @RenderSection("Head", required: false)
 </head>
 <body class="min-h-screen bg-slate-900">
     @RenderBody()
