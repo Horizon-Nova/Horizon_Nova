@@ -29,7 +29,7 @@
                 : $"{Context.Request.Scheme}://{Context.Request.Host}{canonicalOverride}";
         }
 
-        var ogImagePath = Url.Content("~/HNB_WEB/image/Horizon Nova Icon.png").Replace(" ", "%20");
+        var ogImagePath = Url.Content("~/HNB_WEB/image/horizon-nova.svg");
         var ogImageUrl = $"{Context.Request.Scheme}://{Context.Request.Host}{ogImagePath}";
 
         var pageKeywords = (ViewData["Keywords"] as string)?.Trim();
@@ -57,8 +57,8 @@
     <meta name="twitter:image" content="@ogImageUrl" />
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="~/HNB_WEB/image/Horizon Nova Icon.png">
-    <link rel="shortcut icon" type="image/png" href="~/HNB_WEB/image/Horizon Nova Icon.png">
+    <link rel="icon" type="image/svg+xml" href="@Url.Content("~/HNB_WEB/image/horizon-nova.svg")">
+    <link rel="shortcut icon" type="image/svg+xml" href="@Url.Content("~/HNB_WEB/image/horizon-nova.svg")">
 
     <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>

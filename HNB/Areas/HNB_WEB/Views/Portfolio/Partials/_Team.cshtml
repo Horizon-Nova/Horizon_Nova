@@ -1,0 +1,98 @@
+@using Models.HnbWeb
+@{
+    var teamMembers = ViewBag.TeamMemberInfo as List<team_member> ?? new List<team_member>();
+}
+
+<!-- 團隊區 -->
+@if (teamMembers.Any())
+{
+    <section id="team" class="scroll-mt-28 mt-16">
+        <div class="text-center mb-12">
+            <span class="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold tracking-widest text-white/80">
+                團隊
+            </span>
+            <h2 class="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+                專業團隊
+            </h2>
+            <p class="mt-4 text-lg text-white/70 max-w-2xl mx-auto">
+                我們的團隊由經驗豐富的專業人士組成，致力於為客戶提供最優質的技術解決方案
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+            @foreach (var member in teamMembers)
+            {
+                <article class="h-full flex flex-col text-center group rounded-2xl border border-white/10 bg-slate-950/60 shadow-[0_18px_60px_rgba(2,6,23,0.45)] backdrop-blur hover:bg-slate-950/75 transition-colors">
+                    <header class="p-6 pb-4">
+                        <div class="mb-4 flex justify-center">
+                            @if (!string.IsNullOrWhiteSpace(member.avatar_url))
+                            {
+                                <img src="@member.avatar_url"
+                                     alt="@member.name"
+                                     class="w-20 h-20 rounded-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                            }
+                            else
+                            {
+                                var color = string.IsNullOrWhiteSpace(member.color) ? "#2563eb" : member.color;
+                                var initials = !string.IsNullOrWhiteSpace(member.avatar_text)
+                                    ? member.avatar_text
+                                    : (!string.IsNullOrWhiteSpace(member.name)
+                                        ? new string(member.name.Where(char.IsLetter).Take(2).ToArray()).ToUpperInvariant()
+                                        : "TM");
+                                <div class="w-20 h-20 rounded-full flex items-center justify-center text-white font-bold text-xl group-hover:scale-105 transition-transform duration-300"
+                                     style="background:@color;">
+                                    @initials
+                                </div>
+                            }
+                        </div>
+                        <h3 class="text-xl text-white font-extrabold tracking-tight">@member.name</h3>
+                        <p class="mt-1 text-indigo-200 font-semibold">@member.role</p>
+                    </header>
+
+                    <div class="px-6 pb-6 flex-1 flex flex-col">
+                        <div class="space-y-4">
+                            @if (!string.IsNullOrWhiteSpace(member.bio))
+                            {
+                                <p class="text-white/65 text-sm leading-relaxed">@member.bio</p>
+                            }
+
+                            @if (member.skills != null && member.skills.Any(skill => !string.IsNullOrWhiteSpace(skill)))
+                            {
+                                <div class="flex flex-wrap gap-1 justify-center">
+                                    @foreach (var skill in member.skills.Where(x => !string.IsNullOrWhiteSpace(x)))
+                                    {
+                                        <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs bg-white/5 text-white/75 ring-1 ring-white/10">@skill</span>
+                                    }
+                                </div>
+                            }
+                        </div>
+
+                        <div class="flex justify-center space-x-3 pt-2 mt-auto">
+                            @if (!string.IsNullOrWhiteSpace(member.github))
+                            {
+                                <a class="h-9 w-9 inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 hover:bg-white/10"
+                                   href="@member.github" target="_blank" rel="noopener">
+                                    <i data-lucide="github" class="h-4 w-4 text-white/70"></i>
+                                </a>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(member.linkedin))
+                            {
+                                <a class="h-9 w-9 inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 hover:bg-white/10"
+                                   href="@member.linkedin" target="_blank" rel="noopener">
+                                    <i data-lucide="linkedin" class="h-4 w-4 text-white/70"></i>
+                                </a>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(member.twitter))
+                            {
+                                <a class="h-9 w-9 inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 hover:bg-white/10"
+                                   href="@member.twitter" target="_blank" rel="noopener">
+                                    <i data-lucide="twitter" class="h-4 w-4 text-white/70"></i>
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </article>
+            }
+        </div>
+    </section>
+}

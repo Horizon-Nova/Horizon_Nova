@@ -42,7 +42,6 @@ public class TeamZoneService(TeamZoneRepository repository)
     /// <summary>
     /// 設定作品集頁面的 ViewBag 資料
     /// </summary>
-    /// <param name="viewBag">ViewBag 物件</param>
     public void ViewBagPortfolioModel(dynamic viewBag)
     {
         viewBag.PortfolioTabsMap = LoadProjectTagList();

@@ -1,0 +1,196 @@
+<!-- 合作流程區 -->
+<section id="flow" class="relative overflow-hidden py-20 bg-slate-950">
+    <div aria-hidden="true" class="pointer-events-none absolute inset-0 z-0">
+        <div class="absolute -top-24 left-1/2 h-72 w-[60rem] -translate-x-1/2 rounded-full blur-3xl opacity-20"
+             style="background: radial-gradient(circle at center, rgba(99,102,241,.55), transparent 65%);">
+        </div>
+        <div class="absolute inset-0 opacity-[0.08]"
+             style="background-image: radial-gradient(circle, rgba(255,255,255,0.35) 1px, transparent 1.6px); background-size: 20px 20px; background-position: center;">
+        </div>
+    </div>
+
+    <div class="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="text-center">
+            <span class="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold tracking-widest text-white/80">
+                合作流程
+            </span>
+            <h2 class="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">交流 → 盤點 → 提案 → 確認 → 啟動 → 交案</h2>
+            <p class="mt-4 text-white/70">讓每一步都有共識、可追蹤、可驗收</p>
+            <p class="mt-3 text-sm leading-relaxed text-white/60">
+                我們把「合作的關鍵問題」提早解決：範圍怎麼界定、交付怎麼驗收、里程碑怎麼走、風險怎麼控。
+            </p>
+        </div>
+
+        <div id="hn-flow" class="mt-10" style="--hn-flow-accent-rgb:99,102,241;">
+            <div class="hn-flow-surface relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-4">
+                <div class="hn-flow-viewport">
+                    <div class="hn-flow-stage">
+                        <svg class="absolute inset-0 h-full w-full" viewBox="0 0 1000 400" preserveAspectRatio="none" fill="none" aria-hidden="true">
+                            <path class="hn-flow-edge" data-hn-flow-edge="0" d="M140 270 C210 270 230 130 300 130" />
+                            <path class="hn-flow-edge" data-hn-flow-edge="1" d="M300 130 C370 130 390 270 460 270" />
+                            <path class="hn-flow-edge" data-hn-flow-edge="2" d="M460 270 C530 270 550 130 620 130" />
+                            <path class="hn-flow-edge" data-hn-flow-edge="3" d="M620 130 C690 130 710 270 780 270" />
+                            <path class="hn-flow-edge" data-hn-flow-edge="4" d="M780 270 C820 270 840 130 880 130" />
+                        </svg>
+
+                        <button type="button"
+                                class="hn-flow-node is-active"
+                                data-hn-flow-step="0"
+                                style="left:14%; top:68%;"
+                                aria-pressed="true">
+                            <span class="hn-flow-badge">
+                                <i data-lucide="message-square" class="h-4 w-4"></i>
+                            </span>
+                            <span class="hn-flow-text">
+                                <span class="hn-flow-title">交流</span>
+                                <span class="hn-flow-sub">初談與需求入口</span>
+                            </span>
+                        </button>
+
+                        <button type="button"
+                                class="hn-flow-node"
+                                data-hn-flow-step="1"
+                                style="left:30%; top:32%;"
+                                aria-pressed="false">
+                            <span class="hn-flow-badge">
+                                <i data-lucide="clipboard-list" class="h-4 w-4"></i>
+                            </span>
+                            <span class="hn-flow-text">
+                                <span class="hn-flow-title">盤點</span>
+                                <span class="hn-flow-sub">目標/範圍/驗收</span>
+                            </span>
+                        </button>
+
+                        <button type="button"
+                                class="hn-flow-node"
+                                data-hn-flow-step="2"
+                                style="left:46%; top:68%;"
+                                aria-pressed="false">
+                            <span class="hn-flow-badge">
+                                <i data-lucide="monitor" class="h-4 w-4"></i>
+                            </span>
+                            <span class="hn-flow-text">
+                                <span class="hn-flow-title">提案</span>
+                                <span class="hn-flow-sub">方案/估時/估價</span>
+                            </span>
+                        </button>
+
+                        <button type="button"
+                                class="hn-flow-node"
+                                data-hn-flow-step="3"
+                                style="left:62%; top:32%;"
+                                aria-pressed="false">
+                            <span class="hn-flow-badge">
+                                <i data-lucide="calendar" class="h-4 w-4"></i>
+                            </span>
+                            <span class="hn-flow-text">
+                                <span class="hn-flow-title">確認</span>
+                                <span class="hn-flow-sub">合作與排程</span>
+                            </span>
+                        </button>
+
+                        <button type="button"
+                                class="hn-flow-node"
+                                data-hn-flow-step="4"
+                                style="left:78%; top:68%;"
+                                aria-pressed="false">
+                            <span class="hn-flow-badge">
+                                <i data-lucide="credit-card" class="h-4 w-4"></i>
+                            </span>
+                            <span class="hn-flow-text">
+                                <span class="hn-flow-title">啟動</span>
+                                <span class="hn-flow-sub">付款與開工</span>
+                            </span>
+                        </button>
+
+                        <button type="button"
+                                class="hn-flow-node"
+                                data-hn-flow-step="5"
+                                style="left:88%; top:32%;"
+                                aria-pressed="false">
+                            <span class="hn-flow-badge">
+                                <i data-lucide="package" class="h-4 w-4"></i>
+                            </span>
+                            <span class="hn-flow-text">
+                                <span class="hn-flow-title">交案</span>
+                                <span class="hn-flow-sub">驗收與交接</span>
+                            </span>
+                        </button>
+                    </div>
+
+                    <div id="hn-flow-popover" class="hn-flow-popover" aria-live="polite" aria-atomic="true">
+                        <div class="text-xs font-semibold tracking-widest text-white/70">目前步驟</div>
+                        <div id="hn-flow-popover-title" class="mt-2 text-base font-extrabold text-white">交流（初談與需求入口）</div>
+                        <div id="hn-flow-popover-desc" class="mt-2 text-sm leading-relaxed text-white/75">
+                            你可以主動發起，也可以由我們引導。重點是先把「問題、目標、限制」說清楚，讓後續交流更有效率。
+                        </div>
+
+                        <div id="hn-flow-popover-tags" class="mt-3 flex flex-wrap gap-2"></div>
+
+                        <div class="mt-4 grid gap-4">
+                            <div>
+                                <div class="text-xs font-extrabold tracking-widest text-white/70">你要怎麼做</div>
+                                <ul id="hn-flow-popover-you" class="mt-2 space-y-2 text-sm text-white/70"></ul>
+                            </div>
+                            <div>
+                                <div class="text-xs font-extrabold tracking-widest text-white/70">我們會怎麼做</div>
+                                <ul id="hn-flow-popover-we" class="mt-2 space-y-2 text-sm text-white/70"></ul>
+                            </div>
+
+                            <details class="hn-flow-popover-details">
+                                <summary class="hn-flow-popover-summary">更多細節</summary>
+                                <div class="mt-3 grid gap-4">
+                                    <div>
+                                        <div class="text-xs font-extrabold tracking-widest text-white/70">溝通方式與節奏</div>
+                                        <ul id="hn-flow-popover-comm" class="mt-2 space-y-2 text-sm text-white/70"></ul>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs font-extrabold tracking-widest text-white/70">交付物</div>
+                                        <ul id="hn-flow-popover-deliver" class="mt-2 space-y-2 text-sm text-white/70"></ul>
+                                    </div>
+                                </div>
+                            </details>
+                        </div>
+
+                        <div class="mt-5 flex items-center gap-3">
+                            <button type="button" data-hn-flow-replay
+                                    class="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white/90 hover:bg-white/10">
+                                重新播放
+                                <i data-lucide="rotate-ccw" class="ml-2 h-4 w-4"></i>
+                            </button>
+                            <a href='@Url.Action("Index", "Consultation", new { area = "HNB_WEB" })'
+                               class="inline-flex flex-1 items-center justify-center rounded-full bg-slate-100 px-5 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-white/30">
+                                立即諮詢
+                                <i data-lucide="arrow-right" class="ml-2 h-4 w-4"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 flex flex-wrap gap-2 text-xs text-white/60">
+                    <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1">會自動播放，你也可以點選節點跳轉</span>
+                    <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1">聚焦節點時會顯示該步驟的溝通方式與交付</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-10 grid gap-4 sm:grid-cols-2">
+            <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
+                <div class="text-sm font-extrabold text-white">你會得到什麼</div>
+                <ul class="mt-3 space-y-2 text-sm text-white/70">
+                    <li class="flex items-start gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 text-white/55"></i><span>每一步的交付物與驗收點清楚可見</span></li>
+                    <li class="flex items-start gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 text-white/55"></i><span>里程碑節奏明確，避免「做到一半才發現方向不對」</span></li>
+                    <li class="flex items-start gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 text-white/55"></i><span>交付可交接：程式碼、文件、部署與權限流程一併整理</span></li>
+                </ul>
+            </div>
+            <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
+                <div class="text-sm font-extrabold text-white">你需要準備什麼</div>
+                <ul class="mt-3 space-y-2 text-sm text-white/70">
+                    <li class="flex items-start gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 text-white/55"></i><span>需求背景：你想解決什麼問題、目前卡在哪</span></li>
+                    <li class="flex items-start gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 text-white/55"></i><span>期望結果：你希望交付後做到什麼程度</span></li>
+                    <li class="flex items-start gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 text-white/55"></i><span>時程與預算範圍：用來規劃可落地的里程碑</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>

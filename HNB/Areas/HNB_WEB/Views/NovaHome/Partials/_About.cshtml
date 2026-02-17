@@ -1,0 +1,82 @@
+<!-- 關於我們區 -->
+<section id="about" class="relative overflow-hidden py-20 bg-slate-950">
+    <div aria-hidden="true" class="pointer-events-none absolute inset-0 z-0">
+        <div class="absolute top-0 right-0 h-80 w-96 rounded-full blur-3xl opacity-20"
+             style="background: radial-gradient(circle at center, rgba(99,102,241,.5), transparent 70%);">
+        </div>
+        <div class="absolute inset-0 opacity-[0.08]"
+             style="background-image: radial-gradient(circle, rgba(255,255,255,0.35) 1px, transparent 1.6px); background-size: 20px 20px;">
+        </div>
+    </div>
+
+    <div class="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:items-center">
+            <div>
+                <span class="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold tracking-widest text-white/80">
+                    關於我們
+                </span>
+                <h2 class="mt-4 text-4xl font-extrabold tracking-tight text-white">開發只是開始，未來由我們領航</h2>
+                <div class="mt-6 h-1 w-24 rounded-full bg-gradient-to-r from-indigo-500/80 to-transparent"></div>
+
+                <p class="mt-6 text-lg leading-relaxed text-white/70">
+                    Horizon Nova 起步於社群與合作夥伴的長期協作：多位工程師與設計夥伴在不同專案反覆並肩作戰，逐步建立同一套溝通節奏與交付標準，最後組成現在的工作室。
+                </p>
+                <p class="mt-4 text-lg leading-relaxed text-white/70">
+                    客戶最在意的往往不是「會不會做」，而是「好不好合作」：需求能否釐清、範圍能否對齊、溝通是否順暢、進度是否可預期。為此，合作過程以里程碑與驗收標準做共識基準，搭配快速回應與固定節奏回報，讓每一步都可追蹤、可確認、可放心。
+                </p>
+
+                <div class="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    @{
+                        var aboutFeatures = new[]
+                        {
+                            ("需求釐清", "把目標、範圍、里程碑與驗收標準先對齊", "clipboard-check"),
+                            ("溝通順暢", "固定節奏回報與快速回應，降低反覆與等待", "message-square"),
+                            ("可驗收交付", "每個節點可驗收，進度與品質清楚可見", "check-circle"),
+                            ("可交接可維運", "程式碼、文件、權限與部署流程一併提供", "package")
+                        };
+                    }
+                    @foreach (var (title, desc, icon) in aboutFeatures)
+                    {
+                        <div class="rounded-2xl border border-white/10 bg-slate-950 p-4 shadow-[0_18px_60px_rgba(2,6,23,0.35)]">
+                            <div class="flex items-start gap-3">
+                                <span class="mt-0.5 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/20 ring-1 ring-indigo-500/30">
+                                    <i data-lucide="@icon" class="h-5 w-5 text-indigo-300"></i>
+                                </span>
+                                <div class="min-w-0">
+                                    <div class="text-sm font-bold text-white">@title</div>
+                                    <div class="mt-1 text-sm leading-relaxed text-white/65">@desc</div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <div class="rounded-3xl border border-white/10 bg-slate-950 p-6 text-white shadow-[0_18px_60px_rgba(2,6,23,0.45)] sm:p-8">
+                    <h3 class="text-xl font-bold tracking-tight text-white">為什麼選擇我們？</h3>
+                    <ul class="mt-6 space-y-4">
+                        @{
+                            var points = new[]
+                            {
+                                ("先把需求說清楚：範圍、風險與交付標準先對齊", "target"),
+                                ("每個里程碑可驗收：讓進度與品質看得見", "check-circle"),
+                                ("交付能交接：程式碼、文件、權限與部署流程一併提供", "package"),
+                                ("上線不是結束：可維護、可擴充、可持續迭代", "refresh-cw")
+                            };
+                        }
+                        @foreach (var (text, icon) in points)
+                        {
+                            <li class="flex items-start gap-3">
+                                <span class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-indigo-500/20 ring-1 ring-indigo-500/30">
+                                    <i data-lucide="@icon" class="h-4 w-4 text-indigo-300"></i>
+                                </span>
+                                <span class="text-white/85">@text</span>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

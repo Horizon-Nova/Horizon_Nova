@@ -26,7 +26,6 @@ public static class ServiceExtensions
         services.AddScoped<DatabaseService>();
         services.AddScoped<OrganizationScope>();
         services.AddScoped<TeamZoneService>();
-        services.AddScoped<NovaHomeService>();
 
         // AI 模組已停用 - 為節省雲端記憶體成本
         // GroundingDINO 物件檢測模組 - 使用 Singleton 避免重複載入模型
@@ -53,7 +52,6 @@ public static class ServiceExtensions
         services.AddScoped<SidebarNavigationRepository>();
         services.AddScoped<BlockedIpRepository>();
         services.AddScoped<TeamZoneRepository>();
-        services.AddScoped<NovaHomeRepository>();
 
         return services;
     }

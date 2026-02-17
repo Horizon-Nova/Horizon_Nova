@@ -1,4 +1,3 @@
-using HNB.Areas.HNB_WEB.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HNB.Areas.HNB_WEB.Controllers;
@@ -7,11 +6,11 @@ namespace HNB.Areas.HNB_WEB.Controllers;
 /// 首頁（NovaHome）
 /// </summary>
 [Area("HNB_WEB")]
-public class NovaHomeController(NovaHomeService service) : Controller
+public class NovaHomeController : Controller
 {
     /// <summary>
     /// 首頁
     /// </summary>
-    public IActionResult Index() => View(service.LoadNovaHomeModel());
+    public IActionResult Index() => View();
 }
 

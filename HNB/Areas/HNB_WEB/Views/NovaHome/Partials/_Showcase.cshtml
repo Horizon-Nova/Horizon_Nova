@@ -1,8 +1,16 @@
-@model Models.HnbWeb.NovaHomeIndexModel
 @{
-    var services = Model.ShowcaseServiceList;
+    var services = new[]
+    {
+        new { Key = "ai", Accent = "#6366F1", Icon = "sparkles", Eyebrow = "AI / 資料智能", Title = "讓 AI 變成可維運的功能", Desc = "把物件辨識、智慧擷取、向量搜尋與監控告警整合進系統，重點放在可部署、可追蹤、可長期迭代。", UseCases = new[] { "智慧查表：物件偵測與數字辨識，自動擷取並回填資料", "AI 叢集/伺服器監控：效能追蹤、資源分析、異常預警", "向量搜尋整合：資料向量化與相似度查詢（依需求）" }, Deliverables = new[] { "可部署服務（API/後台）與權限控管、操作日誌", "儀表板與告警：指標、事件留存、追溯能力", "模型/資料管線整合：版本管理、監控與迭代建議" }, Tags = new[] { "物件辨識", "向量搜尋", "監控告警", "儀表板", "模型整合" }, Cta = "我想導入 AI" },
+        new { Key = "tag", Accent = "#10B981", Icon = "scan-line", Eyebrow = "AprilTag / IoT", Title = "用 AprilTag 讓現場更快更準", Desc = "從快速識別、盤點與定位，到後台串接與追溯，將現場作業流程做成可管理、可量化的系統。", UseCases = new[] { "TAGV：AprilTag 快速識別與動態資料申請", "倉儲盤點：盤點/定位/地圖可視化與作業流程整合", "與後台串接：事件、報表、權限與追溯" }, Deliverables = new[] { "識別/盤點流程設計與串接（APP/系統）", "後台管理：標籤/任務/報表與權限（依需求）", "可視化與追溯：地圖、紀錄、事件留存" }, Tags = new[] { "AprilTag", "盤點", "定位", "可視化", "串接" }, Cta = "我想導入 AprilTag" },
+        new { Key = "app", Accent = "#D946EF", Icon = "smartphone", Eyebrow = "行動 APP", Title = "把流程帶到現場，順利上線", Desc = "支援跨平台與裝置整合，將掃描/辨識/資料回填等流程做成順手的行動工具，並規劃穩定迭代與上架流程。", UseCases = new[] { "識別與掃描：AprilTag 快速掃描、資料申請與顯示", "AI 智慧擷取：儀表讀值、自動擷取與檢核", "與後台整合：登入/權限、資料同步、操作紀錄" }, Deliverables = new[] { "APP 與後端串接：權限、版本、資料流程", "上線與維運：錯誤追蹤、效能觀測、迭代規劃", "部署/上架支援（依專案需求）" }, Tags = new[] { "Flutter", "React Native", "OpenCV", "TensorFlow", "上架" }, Cta = "我想做行動 APP" },
+        new { Key = "web", Accent = "#0EA5E9", Icon = "layout-dashboard", Eyebrow = "Web / 企業系統", Title = "把業務做成可管理的後台", Desc = "從簽核與文書、權限管理、檔案管理到儀表板與報表匯出，建立可交接、可維運的企業系統。", UseCases = new[] { "簽核與文書：表單、簽核流程、公告與權限", "企業後台：使用者/角色/組織、導航與檔案管理", "報表與匯出：Excel/Word 產出與通知整合" }, Deliverables = new[] { "系統架構與權限模型、文件與交付說明", "後台 UI / API / 資料庫設計與維護策略", "匯出與通知：範本、Email、記錄與審計" }, Tags = new[] { ".NET", "Razor", "PostgreSQL", "權限", "報表" }, Cta = "我想做企業系統" },
+        new { Key = "ops", Accent = "#F59E0B", Icon = "server", Eyebrow = "部署 / 維運", Title = "讓系統上線後穩定可控", Desc = "把部署流程、站台管理、健康檢查與資源監控做成一套可視化機制，讓維運可追蹤、可回溯、可交接。", UseCases = new[] { "站台管理：建立/啟動/停止/刪除與狀態查詢", "持續部署：部署狀態追蹤、健康測試與重試機制", "監控與日誌：CPU/記憶體/網路/磁碟與錯誤統計" }, Deliverables = new[] { "部署流程與健康檢查：步驟、結果回報與記錄", "監控面板：趨勢圖表、統計與事件追溯", "錯誤日誌：多維度查詢、匯出與維運建議" }, Tags = new[] { "CD", "監控", "日誌", "健康檢查", "可觀測性" }, Cta = "我想強化部署維運" },
+        new { Key = "inspect", Accent = "#64748B", Icon = "ruler", Eyebrow = "量測 / 檢測整合", Title = "把檢測結果串成可交付流程", Desc = "串接外部量測/檢測軟體與設備，整理結果輸出、授權管理與日誌追蹤，讓流程可交接、可維護。", UseCases = new[] { "結果串接：監聽輸入檔案並搬運到目標結果檔", "授權工具：機台指紋與金鑰管理、一鍵複製", "設備維護：韌體更新工具與操作流程文件" }, Deliverables = new[] { "工具程式與安裝/操作手冊（提供客戶）", "串接規格：輸入/輸出格式、錯誤處理與日誌", "維護機制：授權、更新流程與問題排查指引" }, Tags = new[] { "串接", "授權", "日誌", "工具", "交接文件" }, Cta = "我想整合檢測流程" }
+    };
 }
 
+<!-- 服務項目區 -->
 <section id="services" class="relative overflow-hidden py-20 bg-slate-900">
     <div aria-hidden="true" class="pointer-events-none absolute inset-0 z-0">
         <div class="absolute -top-24 left-1/2 h-72 w-[60rem] -translate-x-1/2 rounded-full blur-3xl opacity-25"
@@ -16,10 +24,8 @@
         </div>
     </div>
 
-    <!-- HN：服務展示區塊 v2（容器對齊 + 視覺層級強化） -->
     <div id="hn-services-showcase" class="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8" style="--hn-accent:@services[0].Accent">
         <div class="mt-12 grid grid-cols-1 gap-10 lg:grid-cols-[1fr_560px] lg:items-center">
-            <!-- 左側：標題與說明（避免被卡片視覺蓋住） -->
             <div class="relative z-20 text-white">
                 <span class="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold tracking-widest text-white/80">
                     服務總覽
@@ -31,7 +37,6 @@
                 <p class="mt-4 text-lg leading-relaxed text-white/70">
                     Horizon Nova 專注軟體開發外包與系統整合，承接各類資訊專案，服務範圍不受限於特定類型。合作可依需求採專案制報價或維護迭代，從需求釐清、設計開發到上線部署與後續維運，提供可驗收、可交接、可長期演進的成果。右側依服務類型列出適用情境與交付內容，方便快速比對。
                 </p>
-
                 <ul class="mt-6 space-y-3 text-sm text-white/70">
                     <li class="flex items-start gap-2">
                         <i data-lucide="sparkles" class="mt-0.5 h-4 w-4" style="color:var(--hn-accent)"></i>
@@ -46,7 +51,6 @@
                         <span>實務涵蓋廣：AI/監控、AprilTag/IoT、行動 APP、企業系統、部署維運與量測串接。</span>
                     </li>
                 </ul>
-
                 <div class="mt-7 flex flex-col gap-3 sm:flex-row">
                     <a href='@Url.Action("Index", "Consultation", new { area = "HNB_WEB" })'
                        class="inline-flex items-center justify-center rounded-full bg-slate-100 px-6 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-200">
@@ -60,13 +64,13 @@
                 </div>
             </div>
 
-            <!-- 右側：Card Swap（不額外包容器，避免區塊變小） -->
             <div class="relative z-10">
                 <div id="hn-card-swap"
                      data-hn-card-swap
                      data-card-distance="56"
                      data-vertical-distance="64"
                      data-delay="5200"
+                     data-drop-distance="500"
                      data-skew="6"
                      data-easing="elastic"
                      data-pause-on-hover="true"
@@ -75,14 +79,13 @@
                     {
                         <article data-hn-swap-card
                                  data-accent="@s.Accent"
-                                 class="hn-swap-card absolute left-1/2 top-[calc(50%+50px)] h-full w-full overflow-hidden rounded-3xl border border-white/10 bg-slate-950 p-6 text-white shadow-[0_10px_35px_rgba(2,6,23,0.35)] sm:p-7">
+                                 class="hn-swap-card absolute left-1/2 top-1/2 h-full w-full overflow-hidden rounded-3xl border border-white/10 bg-slate-950 p-6 text-white shadow-[0_10px_35px_rgba(2,6,23,0.35)] sm:p-7">
                             <div class="pointer-events-none absolute inset-0 opacity-90"
                                  style="background: radial-gradient(circle at 18% 18%, rgba(255,255,255,.10), transparent 42%), radial-gradient(circle at 70% 15%, @s.Accent, transparent 45%), radial-gradient(circle at 70% 85%, rgba(255,255,255,.06), transparent 55%);">
                             </div>
                             <div class="pointer-events-none absolute inset-0 opacity-[0.12]"
                                  style="background-image: radial-gradient(circle, rgba(255,255,255,0.35) 1px, transparent 1.6px); background-size: 18px 18px; background-position: center;">
                             </div>
-
                             <div class="relative">
                                 <div class="flex items-start justify-between gap-4">
                                     <div class="min-w-0">
@@ -96,16 +99,13 @@
                                         </span>
                                     </div>
                                 </div>
-
                                 <p class="mt-4 text-sm leading-relaxed text-white/80">@s.Desc</p>
-
                                 <div class="mt-5 flex flex-wrap gap-2">
                                     @foreach (var tag in s.Tags.Take(5))
                                     {
                                         <span class="rounded-full bg-white/5 px-3 py-1 text-xs font-semibold text-white/80 ring-1 ring-white/10">@tag</span>
                                     }
                                 </div>
-
                                 <div class="mt-6 grid gap-6 sm:grid-cols-2">
                                     <div>
                                         <div class="text-sm font-semibold text-white">適用情境</div>
@@ -132,7 +132,6 @@
                                         </ul>
                                     </div>
                                 </div>
-
                                 <div class="mt-7 flex flex-col gap-3 sm:flex-row">
                                     <a href='@Url.Action("Index", "Consultation", new { area = "HNB_WEB" })'
                                        class="inline-flex items-center justify-center rounded-full bg-slate-100 px-6 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-200">
@@ -149,9 +148,7 @@
                         </article>
                     }
                 </div>
-
             </div>
         </div>
     </div>
 </section>
-
