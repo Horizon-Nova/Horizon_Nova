@@ -1,5 +1,65 @@
+@{
+    var flowSteps = new[]
+    {
+        new
+        {
+            title = "評估（需求確認、引導、除錯）",
+            desc = "釐清需求、引導釐清重點與除錯，確認範圍與可行性後再進入開案。",
+            accentRgb = "99,102,241",
+            tags = new[] { "需求確認", "引導釐清", "除錯" },
+            youDo = new[] { "提供需求背景、目標與目前卡點", "提供參考資料（畫面、流程、既有系統）與時程預算區間" },
+            weDo = new[] { "整理問題清單、確認資訊缺口", "引導釐清範圍與除錯，提出可行切入方式與風險" }
+        },
+        new
+        {
+            title = "開案（報價單與相關文件）",
+            desc = "提供報價單與開案相關文件，確認範圍、時程與費用後正式開案。",
+            accentRgb = "16,185,129",
+            tags = new[] { "報價單", "開案文件", "範圍與時程" },
+            youDo = new[] { "確認報價與範圍、付款節點與開案條件", "提供開案所需資料（窗口、權限等）" },
+            weDo = new[] { "提供報價單與開案相關文件", "說明付款節點、交付節奏與變更規則" }
+        },
+        new
+        {
+            title = "設計（Demo 確認功能可行性）",
+            desc = "提供 Demo 讓客戶確認功能與流程可行性，定版後再進入製作。",
+            accentRgb = "14,165,233",
+            tags = new[] { "Demo", "功能確認", "定版" },
+            youDo = new[] { "確認 Demo 流程與功能是否符合預期", "提出調整與定版意見" },
+            weDo = new[] { "提供 Demo 或原型，說明關鍵流程與畫面", "依回饋調整並與客戶定版" }
+        },
+        new
+        {
+            title = "製作（開發與實作）",
+            desc = "依定版規格進行開發與實作，階段性交付可驗收成果。",
+            accentRgb = "245,158,11",
+            tags = new[] { "開發", "實作", "階段交付" },
+            youDo = new[] { "配合提供權限、資料或測試環境", "依約定節奏驗收階段成果並回饋" },
+            weDo = new[] { "依規格開發並依里程碑交付", "回報進度、問題與風險" }
+        },
+        new
+        {
+            title = "驗證（驗收與測試確認）",
+            desc = "依驗收清單完成測試與修正，確認結果符合約定後再導入。",
+            accentRgb = "217,70,239",
+            tags = new[] { "驗收清單", "測試確認", "修正" },
+            youDo = new[] { "依驗收清單逐項確認", "提供正式環境或上線所需資訊（若需要）" },
+            weDo = new[] { "依驗收清單完成測試與修正", "交付程式碼、文件與部署說明" }
+        },
+        new
+        {
+            title = "導入（正式上線）",
+            desc = "正式上線與交接，確保系統可維運、可接手。",
+            accentRgb = "100,116,139",
+            tags = new[] { "正式上線", "交接", "維運" },
+            youDo = new[] { "安排上線窗口與內部交接", "確認上線後維運方式與聯絡窗口" },
+            weDo = new[] { "協助正式環境上線與交接示範", "提供維運與常見問題說明" }
+        }
+    };
+}
 <!-- 合作流程區 -->
 <section id="flow" class="relative overflow-hidden py-20 bg-slate-950">
+    <script type="application/json" id="hn-flow-steps-data">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(flowSteps))</script>
     <div aria-hidden="true" class="pointer-events-none absolute inset-0 z-0">
         <div class="absolute -top-24 left-1/2 h-72 w-[60rem] -translate-x-1/2 rounded-full blur-3xl opacity-20"
              style="background: radial-gradient(circle at center, rgba(99,102,241,.55), transparent 65%);">
@@ -14,10 +74,10 @@
             <span class="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold tracking-widest text-white/80">
                 合作流程
             </span>
-            <h2 class="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">交流 → 盤點 → 提案 → 確認 → 啟動 → 交案</h2>
-            <p class="mt-4 text-white/70">讓每一步都有共識、可追蹤、可驗收</p>
+            <h2 class="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">評估 → 開案 → 設計 → 製作 → 驗證 → 導入</h2>
+            <p class="mt-4 text-white/70">從需求確認到正式上線，每一步可追蹤、可驗收</p>
             <p class="mt-3 text-sm leading-relaxed text-white/60">
-                我們把「合作的關鍵問題」提早解決：範圍怎麼界定、交付怎麼驗收、里程碑怎麼走、風險怎麼控。
+                需求評估與引導、報價與開案、Demo 確認可行性、製作與測試驗證，最後正式導入上線。
             </p>
         </div>
 
@@ -39,11 +99,11 @@
                                 style="left:14%; top:68%;"
                                 aria-pressed="true">
                             <span class="hn-flow-badge">
-                                <i data-lucide="message-square" class="h-4 w-4"></i>
+                                <i data-lucide="search" class="h-4 w-4"></i>
                             </span>
                             <span class="hn-flow-text">
-                                <span class="hn-flow-title">交流</span>
-                                <span class="hn-flow-sub">初談與需求入口</span>
+                                <span class="hn-flow-title">評估</span>
+                                <span class="hn-flow-sub">需求確認、引導、除錯</span>
                             </span>
                         </button>
 
@@ -53,11 +113,11 @@
                                 style="left:30%; top:32%;"
                                 aria-pressed="false">
                             <span class="hn-flow-badge">
-                                <i data-lucide="clipboard-list" class="h-4 w-4"></i>
+                                <i data-lucide="file-text" class="h-4 w-4"></i>
                             </span>
                             <span class="hn-flow-text">
-                                <span class="hn-flow-title">盤點</span>
-                                <span class="hn-flow-sub">目標/範圍/驗收</span>
+                                <span class="hn-flow-title">開案</span>
+                                <span class="hn-flow-sub">報價單與相關文件</span>
                             </span>
                         </button>
 
@@ -70,8 +130,8 @@
                                 <i data-lucide="monitor" class="h-4 w-4"></i>
                             </span>
                             <span class="hn-flow-text">
-                                <span class="hn-flow-title">提案</span>
-                                <span class="hn-flow-sub">方案/估時/估價</span>
+                                <span class="hn-flow-title">設計</span>
+                                <span class="hn-flow-sub">Demo 確認功能可行性</span>
                             </span>
                         </button>
 
@@ -81,11 +141,11 @@
                                 style="left:62%; top:32%;"
                                 aria-pressed="false">
                             <span class="hn-flow-badge">
-                                <i data-lucide="calendar" class="h-4 w-4"></i>
+                                <i data-lucide="code" class="h-4 w-4"></i>
                             </span>
                             <span class="hn-flow-text">
-                                <span class="hn-flow-title">確認</span>
-                                <span class="hn-flow-sub">合作與排程</span>
+                                <span class="hn-flow-title">製作</span>
+                                <span class="hn-flow-sub">開發與實作</span>
                             </span>
                         </button>
 
@@ -95,11 +155,11 @@
                                 style="left:78%; top:68%;"
                                 aria-pressed="false">
                             <span class="hn-flow-badge">
-                                <i data-lucide="credit-card" class="h-4 w-4"></i>
+                                <i data-lucide="check-circle" class="h-4 w-4"></i>
                             </span>
                             <span class="hn-flow-text">
-                                <span class="hn-flow-title">啟動</span>
-                                <span class="hn-flow-sub">付款與開工</span>
+                                <span class="hn-flow-title">驗證</span>
+                                <span class="hn-flow-sub">驗收與測試確認</span>
                             </span>
                         </button>
 
@@ -109,20 +169,20 @@
                                 style="left:88%; top:32%;"
                                 aria-pressed="false">
                             <span class="hn-flow-badge">
-                                <i data-lucide="package" class="h-4 w-4"></i>
+                                <i data-lucide="rocket" class="h-4 w-4"></i>
                             </span>
                             <span class="hn-flow-text">
-                                <span class="hn-flow-title">交案</span>
-                                <span class="hn-flow-sub">驗收與交接</span>
+                                <span class="hn-flow-title">導入</span>
+                                <span class="hn-flow-sub">正式上線</span>
                             </span>
                         </button>
                     </div>
 
                     <div id="hn-flow-popover" class="hn-flow-popover" aria-live="polite" aria-atomic="true">
                         <div class="text-xs font-semibold tracking-widest text-white/70">目前步驟</div>
-                        <div id="hn-flow-popover-title" class="mt-2 text-base font-extrabold text-white">交流（初談與需求入口）</div>
+                        <div id="hn-flow-popover-title" class="mt-2 text-base font-extrabold text-white">評估（需求確認、引導、除錯）</div>
                         <div id="hn-flow-popover-desc" class="mt-2 text-sm leading-relaxed text-white/75">
-                            你可以主動發起，也可以由我們引導。重點是先把「問題、目標、限制」說清楚，讓後續交流更有效率。
+                            釐清需求、引導釐清重點與除錯，確認範圍與可行性後再進入開案。
                         </div>
 
                         <div id="hn-flow-popover-tags" class="mt-3 flex flex-wrap gap-2"></div>
@@ -136,20 +196,6 @@
                                 <div class="text-xs font-extrabold tracking-widest text-white/70">我們會怎麼做</div>
                                 <ul id="hn-flow-popover-we" class="mt-2 space-y-2 text-sm text-white/70"></ul>
                             </div>
-
-                            <details class="hn-flow-popover-details">
-                                <summary class="hn-flow-popover-summary">更多細節</summary>
-                                <div class="mt-3 grid gap-4">
-                                    <div>
-                                        <div class="text-xs font-extrabold tracking-widest text-white/70">溝通方式與節奏</div>
-                                        <ul id="hn-flow-popover-comm" class="mt-2 space-y-2 text-sm text-white/70"></ul>
-                                    </div>
-                                    <div>
-                                        <div class="text-xs font-extrabold tracking-widest text-white/70">交付物</div>
-                                        <ul id="hn-flow-popover-deliver" class="mt-2 space-y-2 text-sm text-white/70"></ul>
-                                    </div>
-                                </div>
-                            </details>
                         </div>
 
                         <div class="mt-5 flex items-center gap-3">
@@ -169,7 +215,7 @@
 
                 <div class="mt-4 flex flex-wrap gap-2 text-xs text-white/60">
                     <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1">會自動播放，你也可以點選節點跳轉</span>
-                    <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1">聚焦節點時會顯示該步驟的溝通方式與交付</span>
+                    <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1">聚焦節點時會顯示該步驟說明</span>
                 </div>
             </div>
         </div>

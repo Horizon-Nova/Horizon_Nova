@@ -1,4 +1,13 @@
+<link rel="stylesheet" href="~/HNB_WEB/NovaHome/Card_Swap.css" asp-append-version="true" />
 <style>
+    .darkveil-canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
     @@keyframes hnDotFloat {
         0% { transform: translate3d(0,0,0); opacity: .22; }
         50% { transform: translate3d(0,-10px,0); opacity: .38; }
@@ -12,28 +21,7 @@
         100% { transform: translateX(40%); opacity: .0; }
     }
 
-    /* 服務區塊：Card Swap（立體層級 + 前景卡片強調） */
-    #hn-card-swap {
-        perspective: 1200px;
-        transform-style: preserve-3d;
-        touch-action: manipulation;
-    }
-
-    #hn-card-swap .hn-swap-card {
-        transform-style: preserve-3d;
-        will-change: transform, opacity;
-        transition: box-shadow .18s ease;
-        cursor: pointer;
-        backface-visibility: hidden;
-        -webkit-backface-visibility: hidden;
-    }
-
-    #hn-card-swap .hn-swap-card.is-front {
-        box-shadow:
-            0 0 0 1px rgba(255,255,255,0.14),
-            0 26px 90px rgba(2,6,23,0.70),
-            0 0 32px var(--hn-accent);
-    }
+    /* 服務區塊：Card Swap 樣式改由 Tailwind 類別套用（與 React 版本一致），此區塊已移除避免衝突 */
 
     /* Typewriter 效果：閃爍游標 */
     .hn-typewriter-cursor {
@@ -115,29 +103,6 @@
         transition: opacity .18s ease, transform .18s ease;
         opacity: 1;
     }
-
-    .hn-flow-popover-details {
-        border-radius: 14px;
-        border: 1px solid rgba(255,255,255,0.10);
-        background: rgba(255,255,255,0.04);
-        padding: 10px 12px;
-    }
-    .hn-flow-popover-summary {
-        cursor: pointer;
-        user-select: none;
-        font-weight: 800;
-        font-size: 12px;
-        letter-spacing: .12em;
-        color: rgba(255,255,255,0.70);
-        list-style: none;
-    }
-    .hn-flow-popover-summary::-webkit-details-marker { display: none; }
-    .hn-flow-popover-summary::after {
-        content: "展開";
-        float: right;
-        opacity: .7;
-    }
-    details[open] > .hn-flow-popover-summary::after { content: "收合"; }
 
     .hn-flow-edge {
         stroke: var(--hn-flow-edge);

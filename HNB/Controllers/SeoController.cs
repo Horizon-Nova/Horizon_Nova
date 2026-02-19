@@ -43,7 +43,6 @@ Sitemap: {baseUrl}/sitemap.xml
         {
             "/",
             "/HNB_WEB/NovaHome",
-            "/HNB_WEB/Portfolio",
             "/HNB_WEB/Consultation"
         };
 

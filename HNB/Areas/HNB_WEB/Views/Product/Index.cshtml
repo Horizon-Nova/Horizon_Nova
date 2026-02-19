@@ -1,0 +1,194 @@
+@{
+    ViewData["Title"] = "產品｜解決方案與能力模組";
+    ViewData["Description"] = "以產品化方式呈現可落地的系統能力：可觀測性、AI/資料智能、企業系統整合與自動化。此頁先完成版面與資訊架構，後續再接真實資料。";
+    ViewData["Keywords"] = "產品,解決方案,可觀測性,AI,資料智能,企業系統,自動化,系統整合";
+    ViewData["Canonical"] = "/product";
+    Layout = "_Layout";
+
+    var products = new[]
+    {
+        new
+        {
+            Slug = "ops-observability",
+            Eyebrow = "Ops / 可觀測性",
+            Name = "Observability Suite",
+            Summary = "把監控、告警、事件留存與追溯串成一條線，讓維運變成可被驗證的流程。",
+            Status = "Beta",
+            IsFeatured = true,
+            Tags = new[] { "告警", "儀表板", "事件追溯", "可觀測性" },
+            Highlights = new[] { "指標/日誌/事件整合", "可追溯的告警與責任分派", "可擴充的儀表板模板" }
+        },
+        new
+        {
+            Slug = "ai-data-intelligence",
+            Eyebrow = "AI / 資料智能",
+            Name = "AI Data Toolkit",
+            Summary = "把 OCR、向量搜尋與資料管線整合成可維運功能，重點在可部署、可追蹤、可迭代。",
+            Status = "規劃中",
+            IsFeatured = true,
+            Tags = new[] { "OCR", "向量搜尋", "資料管線", "模型整合" },
+            Highlights = new[] { "資料向量化與相似度查詢", "流程自動化與可稽核回填", "監控與版本策略" }
+        },
+        new
+        {
+            Slug = "enterprise-rbac",
+            Eyebrow = "企業系統 / 權限",
+            Name = "RBAC & Audit",
+            Summary = "把角色權限、操作日誌與稽核流程做成通用模組，降低每個系統重做一次的成本。",
+            Status = "上線中",
+            IsFeatured = false,
+            Tags = new[] { "RBAC", "操作日誌", "稽核", "後台" },
+            Highlights = new[] { "細粒度權限模型", "可查詢的操作軌跡", "異常行為告警鉤子" }
+        },
+        new
+        {
+            Slug = "workflow-automation",
+            Eyebrow = "流程 / 自動化",
+            Name = "Workflow Automation",
+            Summary = "把重複性流程變成可配置的節點與規則，讓跨部門協作更可控、更透明。",
+            Status = "PoC",
+            IsFeatured = false,
+            Tags = new[] { "流程引擎", "通知", "整合", "節點規則" },
+            Highlights = new[] { "可視化流程節點", "觸發條件與權限控管", "可插拔的整合器" }
+        }
+    };
+
+    var featured = products.Where(p => p.IsFeatured).Take(3).ToArray();
+    var catalog = products.Where(p => !p.IsFeatured).ToArray();
+}
+
+<div class="min-h-screen bg-black text-white">
+    <div aria-hidden="true" class="pointer-events-none fixed inset-0 z-0">
+        <div class="absolute inset-0 opacity-[0.08]"
+             style="background-image: radial-gradient(circle, rgba(255,255,255,0.35) 1px, transparent 1.6px); background-size: 22px 22px; background-position: center;">
+        </div>
+    </div>
+
+    <main class="relative z-10 mx-auto w-full max-w-7xl px-4 pt-28 pb-20 sm:px-6 lg:px-8">
+        <header class="max-w-3xl">
+            <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-white/80">
+                產品介紹（版面原型）
+            </div>
+            <h1 class="mt-6 text-4xl font-extrabold tracking-tight sm:text-5xl">用產品化方式呈現可落地的能力</h1>
+            <p class="mt-5 text-base leading-relaxed text-white/70">
+                這裡不是成果牆，而是「可持續擴充的產品目錄」：上層突出少數主打，下層用固定規格承接新增。
+            </p>
+            <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+                <a href='@Url.Action("Index", "Consultation", new { area = "HNB_WEB" })'
+                   class="inline-flex items-center justify-center gap-2 rounded-full bg-slate-100 px-7 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-200">
+                    需求討論與規格諮詢
+                    <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                </a>
+                <a href="#catalog"
+                   class="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-7 py-3 text-sm font-semibold text-white/90 hover:bg-white/10">
+                    先看產品目錄
+                </a>
+            </div>
+        </header>
+
+        <section class="mt-14">
+            <div class="flex items-end justify-between gap-6">
+                <div>
+                    <div class="text-sm font-extrabold tracking-widest text-white/70">主打產品</div>
+                    <h2 class="mt-3 text-2xl font-extrabold tracking-tight">少數主打，用完整敘事承接轉換</h2>
+                </div>
+                <div class="hidden sm:block text-sm text-white/60">後續接真實資料後，主打由欄位控制排序與曝光。</div>
+            </div>
+
+            <div class="mt-6 grid gap-6 lg:grid-cols-2">
+                @foreach (var p in featured)
+                {
+                    <article class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_18px_60px_rgba(2,6,23,0.35)]">
+                        <div class="flex items-start justify-between gap-4">
+                            <div class="min-w-0">
+                                <div class="text-xs font-semibold tracking-widest text-white/60">@p.Eyebrow</div>
+                                <h3 class="mt-3 text-2xl font-extrabold tracking-tight text-white">@p.Name</h3>
+                                <p class="mt-3 text-white/70 leading-relaxed">@p.Summary</p>
+                            </div>
+                            <span class="shrink-0 inline-flex items-center rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs font-semibold text-white/75">
+                                @p.Status
+                            </span>
+                        </div>
+
+                        <div class="mt-5 flex flex-wrap gap-2">
+                            @foreach (var tag in p.Tags.Take(5))
+                            {
+                                <span class="inline-flex items-center rounded-full bg-white/5 px-3 py-1 text-xs font-semibold text-white/80 ring-1 ring-white/10">@tag</span>
+                            }
+                        </div>
+
+                        <ul class="mt-6 grid gap-2 text-sm text-white/70 sm:grid-cols-3">
+                            @foreach (var h in p.Highlights.Take(3))
+                            {
+                                <li class="flex items-start gap-2">
+                                    <i data-lucide="check" class="mt-0.5 h-4 w-4 text-white/60"></i>
+                                    <span class="min-w-0">@h</span>
+                                </li>
+                            }
+                        </ul>
+
+                        <div class="mt-7 flex flex-col gap-3 sm:flex-row">
+                            <a href="@Url.Content($"~/product/{p.Slug}")"
+                               class="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-slate-100 px-6 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-200">
+                                查看產品介紹
+                                <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                            </a>
+                            <a href='@Url.Action("Index", "Consultation", new { area = "HNB_WEB" })'
+                               class="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-white/90 hover:bg-white/10">
+                                以此產品規格諮詢
+                            </a>
+                        </div>
+                    </article>
+                }
+            </div>
+        </section>
+
+        <section id="catalog" class="mt-14">
+            <div class="flex items-center justify-between gap-6">
+                <div>
+                    <div class="text-sm font-extrabold tracking-widest text-white/70">產品目錄</div>
+                    <h2 class="mt-3 text-2xl font-extrabold tracking-tight">固定規格卡片，承接未來新增</h2>
+                </div>
+                <div class="hidden md:flex items-center gap-2">
+                    <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white/70">狀態</span>
+                    <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white/70">分類</span>
+                    <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white/70">標籤</span>
+                </div>
+            </div>
+
+            <div class="mt-6 grid gap-4 md:grid-cols-2">
+                @foreach (var p in catalog)
+                {
+                    <article class="rounded-2xl border border-white/10 bg-white/5 p-5">
+                        <div class="flex items-start justify-between gap-4">
+                            <div class="min-w-0">
+                                <div class="text-xs font-semibold tracking-widest text-white/60">@p.Eyebrow</div>
+                                <div class="mt-2 text-lg font-extrabold tracking-tight text-white">@p.Name</div>
+                                <div class="mt-2 text-sm leading-relaxed text-white/65">@p.Summary</div>
+                            </div>
+                            <span class="shrink-0 inline-flex items-center rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs font-semibold text-white/75">
+                                @p.Status
+                            </span>
+                        </div>
+
+                        <div class="mt-4 flex flex-wrap gap-2">
+                            @foreach (var tag in p.Tags.Take(6))
+                            {
+                                <span class="inline-flex items-center rounded-full bg-white/5 px-3 py-1 text-xs font-semibold text-white/75 ring-1 ring-white/10">@tag</span>
+                            }
+                        </div>
+
+                        <div class="mt-5">
+                            <a href="@Url.Content($"~/product/{p.Slug}")"
+                               class="inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white/85 hover:bg-white/10 hover:text-white">
+                                查看產品介紹
+                                <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                            </a>
+                        </div>
+                    </article>
+                }
+            </div>
+        </section>
+    </main>
+</div>
+

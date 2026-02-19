@@ -1,0 +1,95 @@
+/* Card Swap 容器：寬高 500×400，由自身決定高度，不再用外層 height 補償 */
+#CardSwap {
+    width: 500px;
+    height: 400px;
+    perspective: 500px;
+    overflow: visible;
+}
+
+/* 單張卡片：對齊範例 .card（border-radius 1rem、白框、黑底、flex 直欄） */
+#CardSwap .hn-card {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 500px;
+    height: 400px;
+    border-radius: 1rem;
+    border: 1px solid #fff;
+    background: #000;
+    transform-style: preserve-3d;
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: transform 0.9s ease, opacity 0.9s ease;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+/* 卡片標題列 */
+#CardSwap .hn-card > h3 {
+    flex-shrink: 0;
+    width: fit-content;
+    align-self: center;
+    margin: 0;
+    padding: 6px 14px;
+    border-bottom: 1px solid rgb(255, 255, 255);
+    background: linear-gradient(to top, #0d0716, rgb(6, 6, 6));
+    color: rgb(255, 255, 255);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* 卡片內文區（在標題下、圖片上） */
+#CardSwap .hn-card-text {
+    flex-shrink: 0;
+    padding: 10px 16px;
+    max-height: 170px;
+    overflow: auto;
+}
+
+#CardSwap .hn-card-summary {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+#CardSwap .hn-card-points {
+    margin: 8px 0 0;
+    padding-left: 18px;
+    color: rgba(255, 255, 255, 0.68);
+    font-size: 12.5px;
+    line-height: 1.45;
+}
+
+#CardSwap .hn-card-points > li + li {
+    margin-top: 4px;
+}
+
+/* 卡片圖片：放在 p 下面，佔滿剩餘空間 */
+#CardSwap .hn-card > .hn-card-img {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    object-fit: contain;
+    object-position: center;
+}
+
+/* 小螢幕時縮放與位移，對齊 CardSwap-JS-TW 的 RWD 行為 */
+@media (max-width: 768px) {
+    #CardSwap {
+        transform: translateX(25%) translateY(25%) scale(0.75);
+        transform-origin: bottom right;
+    }
+}
+
+@media (max-width: 480px) {
+    #CardSwap {
+        transform: translateX(25%) translateY(25%) scale(0.55);
+        transform-origin: bottom right;
+    }
+}
+
