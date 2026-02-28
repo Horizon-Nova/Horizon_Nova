@@ -1532,3 +1532,7 @@ dotnet publish HNB/Horizon_Nova/HNB/HNB.csproj -c Release -o ./publish
 ---
 
 ## 更新記錄
+
+| 日期 | 版本 | 更新內容 | 更新人員 | 更新原因 |
+|------|------|----------|----------|----------|
+| 2025-11-20 | 1.0 | 初始版本 | RuanLuojie | 建立文件 |
