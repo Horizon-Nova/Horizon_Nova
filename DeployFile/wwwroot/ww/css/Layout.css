@@ -1,0 +1,56 @@
+.navigation-item svg {
+    color: white;
+    width: 15px;
+    height: 15px;
+}
+.navigation-item {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.navigation-item:hover {
+    background: rgba(232,118,58,0.1);
+}
+
+.navigation-item.active {
+    background: #E8763A;
+}
+
+.navigation-item i {
+    width: 15px;
+    height: 15px;
+    stroke-width: 1.7;
+}
+
+.navigation-item span {
+    font-size: 7px;
+    color: #A89F96;
+}
+
+.navigation-item.active span {
+    color: white;
+}
+
+/* ===== 動畫保留區（之後 Dashboard 會用） ===== */
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+    0%,100%{opacity:1}
+    50%{opacity:.3}
+}
+
+@keyframes fadeUp {
+    from { opacity:0; transform:translateY(5px) }
+    to { opacity:1; transform:translateY(0) }
+}
