@@ -1,0 +1,469 @@
+@model HNB.Areas.WW.Models.DashboardModel
+
+@{
+    ViewData["Title"] = "WW藍圖首頁";
+    Layout = "~/Areas/WW/Views/Shared/_Layout.cshtml";
+}
+
+<div class="cols flex flex-1 overflow-hidden">
+    <section class="lp w-[270px] shrink-0 border-r border-[#D4CCBF] flex flex-col overflow-hidden bg-[#EDE8DF]">
+        <div class="lp-scroll flex-1 overflow-y-auto px-[14px] pt-[14px] flex flex-col gap-[11px]">
+            <div class="wcard bg-[#E8763A] rounded-[13px] px-4 py-[13px] flex items-center justify-between">
+                <div class="wl">
+                    <div class="city text-[10px] text-white/70">@Model.CurrentLocationText</div>
+                    <div class="tmp text-[32px] font-medium text-white leading-none my-[2px]">@Model.CurrentTemperatureText</div>
+                    <div class="desc text-[11px] text-white/80">@Model.CurrentWeatherSummaryText</div>
+                </div>
+                <div class="wr text-right">
+                    <div class="ico text-[30px] leading-none">@Model.CurrentWeatherEmoji</div>
+                    <div class="feel text-[10px] text-white/60 mt-[3px]">@Model.CurrentWindSpeedText</div>
+                </div>
+            </div>
+
+            <div class="week-strip bg-white rounded-[12px] p-[10px]">
+                <div class="week-hdr text-[9px] text-[#A89F96] tracking-[0.05em] mb-2">THIS WEEK</div>
+                <div class="week-row flex gap-[2px] overflow-x-auto">
+                    <button type="button" class="wday js-week-day" data-type="past" data-date="Apr 17" data-occ="Casual" data-name="Weekend Easy" data-temp="25°" data-ico="☀️">
+                        <span class="wd-lbl">Fri</span>
+                        <span class="wd-ico">☀️</span>
+                        <span class="wd-circle filled"></span>
+                    </button>
+                    <button type="button" class="wday js-week-day" data-type="past" data-date="Apr 18" data-occ="Date" data-name="Evening Chic" data-temp="21°" data-ico="🌤️">
+                        <span class="wd-lbl">Sat</span>
+                        <span class="wd-ico">🌤️</span>
+                        <span class="wd-circle filled"></span>
+                    </button>
+                    <button type="button" class="wday js-week-day" data-type="past" data-date="Apr 19" data-occ="Work" data-name="Smart Casual" data-temp="23°" data-ico="⛅">
+                        <span class="wd-lbl">Sun</span>
+                        <span class="wd-ico">⛅</span>
+                        <span class="wd-circle filled"></span>
+                    </button>
+
+                    @foreach (var weatherDay in Model.WeatherDays)
+                    {
+                        var weekDayClassName = weatherDay.IsToday ? "wday today sel js-week-day" : "wday js-week-day";
+                        var dayId = weatherDay.IsToday ? "day-today" : string.Empty;
+                        <button type="button"
+                                id="@dayId"
+                                class="@weekDayClassName"
+                                data-type="@weatherDay.DayType"
+                                data-date="@weatherDay.DateFullText"
+                                data-temp="@weatherDay.TemperatureText"
+                                data-ico="@weatherDay.WeatherIconEmoji"
+                                data-desc="@weatherDay.WeatherDescriptionText">
+                            <span class="wd-lbl">@weatherDay.WeekdayText</span>
+                            <span class="wd-ico">@weatherDay.WeatherIconEmoji</span>
+                            <span class="wd-circle"></span>
+                        </button>
+                    }
+                </div>
+            </div>
+
+            <div id="occ-section">
+                <div class="flex flex-col gap-2">
+                    <div>
+                        <div class="occ-title text-[13px] font-medium text-[#1A1714]" id="occ-title">What's today about?</div>
+                        <div class="occ-sub text-[11px] text-[#6B6460] mt-[2px]">Pick one or describe your day</div>
+                    </div>
+                    <div class="occ-grid grid grid-cols-2 gap-[7px]">
+                        <button type="button" class="ocard text-left bg-white rounded-[10px] p-[10px]" onclick="pickOcc(this,'Work')"><div class="em text-[17px] mb-[3px]">💼</div><div class="nm text-[11px] font-medium">Work</div><div class="ht text-[9px] text-[#A89F96]">Office or meetings</div></button>
+                        <button type="button" class="ocard text-left bg-white rounded-[10px] p-[10px]" onclick="pickOcc(this,'Casual')"><div class="em text-[17px] mb-[3px]">☕</div><div class="nm text-[11px] font-medium">Casual</div><div class="ht text-[9px] text-[#A89F96]">Errands or chill</div></button>
+                        <button type="button" class="ocard text-left bg-white rounded-[10px] p-[10px]" onclick="pickOcc(this,'Date')"><div class="em text-[17px] mb-[3px]">✨</div><div class="nm text-[11px] font-medium">Date</div><div class="ht text-[9px] text-[#A89F96]">Dinner or night out</div></button>
+                        <button type="button" class="ocard text-left bg-white rounded-[10px] p-[10px]" onclick="pickOcc(this,'Outdoor')"><div class="em text-[17px] mb-[3px]">🌿</div><div class="nm text-[11px] font-medium">Outdoor</div><div class="ht text-[9px] text-[#A89F96]">Parks or activities</div></button>
+                    </div>
+                    <div class="free-row bg-white rounded-[10px] px-[11px] py-2 border border-[rgba(0,0,0,0.07)] flex items-center gap-[7px]">
+                        <i data-lucide="search" class="w-3 h-3 text-[#A89F96]"></i>
+                        <input class="free-inp flex-1 text-[11px] outline-none bg-transparent"
+                               id="free-occ"
+                               placeholder="Or type anything... wedding, interview, trip"
+                               oninput="handleFree(this)" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="lp-foot p-[14px] pt-[10px]">
+            <button class="gbtn w-full bg-[#E8763A] text-white rounded-[11px] py-3 text-[13px] font-medium flex items-center justify-center gap-[7px] disabled:opacity-35"
+                    id="gbtn"
+                    disabled
+                    onclick="startGen()">
+                <i data-lucide="zap" class="w-[13px] h-[13px]"></i>
+                <span id="gbtn-label">Get my outfit</span>
+            </button>
+        </div>
+    </section>
+
+    <section class="rp flex-1 bg-white flex flex-col overflow-hidden">
+        <div class="r-empty flex-1 flex flex-col items-center justify-center gap-[10px] p-6" id="r-empty">
+            <div class="w-[52px] h-[52px] rounded-full bg-[#EDE8DF] flex items-center justify-center">
+                <i data-lucide="shirt" class="w-6 h-6 text-[#A89F96]"></i>
+            </div>
+            <div class="text-[13px] font-medium text-[#6B6460]">Your outfit will appear here</div>
+            <div class="text-[11px] text-[#A89F96] text-center leading-[1.6]">Select an occasion on the left<br />and hit Generate</div>
+        </div>
+
+        <div class="r-gen hidden flex-1 flex flex-col items-center justify-center gap-3 p-6" id="r-gen">
+            <div class="gcircle relative w-[52px] h-[52px] rounded-full bg-[#FBF0E8] border-2 border-[#F5D5BC] flex items-center justify-center">
+                <div class="sring absolute w-[52px] h-[52px] rounded-full border-2 border-transparent border-t-[#E8763A]"></div>
+                <span class="text-[15px] text-[#E8763A]">✦</span>
+            </div>
+            <div class="text-[13px] font-medium text-[#1A1714]">Finding your look...</div>
+            <div class="text-[11px] text-[#A89F96]">Matching your closet with today's weather</div>
+            <div class="gsteps flex flex-col gap-[7px] w-[220px]">
+                <div class="gstep flex items-center gap-2"><div class="sd done"></div><span class="st done">Weather check complete</span></div>
+                <div class="gstep flex items-center gap-2"><div class="sd done"></div><span class="st done">Occasion selected <span id="g-occ">Work</span></span></div>
+                <div class="gstep flex items-center gap-2"><div class="sd" id="sd3"></div><span class="st" id="st3">Scanning closet for pieces...</span></div>
+                <div class="gstep flex items-center gap-2"><div class="sd" id="sd4"></div><span class="st" id="st4">Checking color harmony</span></div>
+                <div class="gstep flex items-center gap-2"><div class="sd" id="sd5"></div><span class="st" id="st5">Assembling look</span></div>
+            </div>
+        </div>
+
+        <div class="r-items hidden flex-1 flex flex-col items-center justify-center gap-3" id="r-items">
+            <div class="text-[11px] text-[#A89F96]" id="items-lbl">Picking items...</div>
+            <div class="items-row flex gap-3 items-end">
+                <div class="icard" id="ic0"><div class="ibox w-12 h-[60px]"><i data-lucide="shirt" class="w-[25px] h-[25px] text-[#B0A898]"></i><div class="ichk" id="ck0"><i data-lucide="check" class="w-2 h-2 text-white"></i></div></div><span class="ilbl">Shirt</span></div>
+                <div class="icard" id="ic1"><div class="ibox w-[42px] h-[72px]"><i data-lucide="pocket-knife" class="w-[21px] h-[21px] text-[#B0A898]"></i><div class="ichk" id="ck1"><i data-lucide="check" class="w-2 h-2 text-white"></i></div></div><span class="ilbl">Bottom</span></div>
+                <div class="icard" id="ic2"><div class="ibox w-[56px] h-[68px]"><i data-lucide="shirt" class="w-[27px] h-[27px] text-[#B0A898]"></i><div class="ichk" id="ck2"><i data-lucide="check" class="w-2 h-2 text-white"></i></div></div><span class="ilbl">Jacket</span></div>
+                <div class="icard" id="ic3"><div class="ibox w-12 h-[38px]"><i data-lucide="footprints" class="w-6 h-[18px] text-[#B0A898]"></i><div class="ichk" id="ck3"><i data-lucide="check" class="w-2 h-2 text-white"></i></div></div><span class="ilbl">Shoes</span></div>
+            </div>
+        </div>
+
+        <div class="r-result hidden flex-1 flex flex-col overflow-hidden" id="r-result">
+            <div class="r-topbar flex items-center justify-between px-4 py-[10px] border-b border-[rgba(0,0,0,0.07)]">
+                <button type="button" class="r-back text-[11px] text-[#A89F96] flex items-center gap-1" onclick="backToEmpty()">
+                    <i data-lucide="chevron-left" class="w-3 h-3"></i>Change occasion
+                </button>
+                <div class="r-icons flex gap-[10px]">
+                    <i data-lucide="heart" class="w-4 h-4 text-[#A89F96]"></i>
+                    <i data-lucide="share-2" class="w-4 h-4 text-[#A89F96]"></i>
+                </div>
+            </div>
+            <div class="r-scroll flex-1 overflow-y-auto px-4 py-[14px] flex flex-col gap-[11px]">
+                <div class="outfit-hero h-[196px] rounded-[13px] bg-gradient-to-br from-[#F5EFE6] to-[#E8DDD0] flex items-center justify-center relative overflow-hidden">
+                    <div class="obadge absolute top-[9px] left-[9px] text-[10px] text-[#E8763A] bg-[rgba(232,118,58,.15)] border border-[rgba(232,118,58,.35)] rounded-[20px] px-[9px] py-[3px]" id="r-occ-badge">Work</div>
+                    <div class="owbadge absolute top-[9px] right-[9px] text-[10px] text-[#6B6460] bg-white/90 rounded-[20px] px-[9px] py-[3px]">@Model.CurrentTemperatureText @Model.CurrentWeatherEmoji</div>
+                    <div class="outfit-full flex gap-[9px] items-end" id="outfit-full">
+                        <div class="of-item"><div class="of-box w-[42px] h-[54px]"><i data-lucide="shirt" class="w-[21px] h-[21px] text-[#B0A898]"></i></div><span class="of-lbl">Top</span></div>
+                        <div class="of-item"><div class="of-box w-[36px] h-[64px]"><i data-lucide="pocket-knife" class="w-[18px] h-[18px] text-[#B0A898]"></i></div><span class="of-lbl">Bottom</span></div>
+                        <div class="of-item"><div class="of-box w-[50px] h-[62px]"><i data-lucide="shirt" class="w-6 h-6 text-[#B0A898]"></i></div><span class="of-lbl">Jacket</span></div>
+                        <div class="of-item"><div class="of-box w-[38px] h-[30px]"><i data-lucide="footprints" class="w-[19px] h-[14px] text-[#B0A898]"></i></div><span class="of-lbl">Shoes</span></div>
+                    </div>
+                </div>
+                <div><div class="ai-name text-[14px] font-medium text-[#1A1714]" id="ai-name">Polished Rain-ready</div><div class="ai-text text-[11px] text-[#6B6460] leading-[1.65] min-h-[28px]" id="ai-text"></div></div>
+                <div class="ractions flex gap-[7px]" id="r-actions">
+                    <button type="button" class="rab flex-1 text-[11px]"><i data-lucide="refresh-cw" class="w-[11px] h-[11px]"></i>Redo</button>
+                    <button type="button" class="rab pri flex-1 text-[11px]"><i data-lucide="heart" class="w-[11px] h-[11px]"></i>Save look</button>
+                </div>
+                <div class="tweak" id="r-tweak">
+                    <div class="chips"><div class="chip">Warmer</div><div class="chip">More formal</div><div class="chip">No jacket</div><div class="chip">Swap shoes</div></div>
+                    <div class="tinp-row"><input class="tinp" placeholder="Or ask anything..." /><button type="button" class="tsend"><i data-lucide="send" class="w-[9px] h-[9px] text-white"></i></button></div>
+                </div>
+                <div class="shop-wrap" id="shop-wrap">
+                    <div class="shop-divider"></div>
+                    <div class="shop-hdr"><div class="shop-title">Shop this look</div><div class="shop-sub">Items that complete this outfit</div></div>
+                    <div class="shop-row">
+                        <div class="pcard"><div class="pimg"><i data-lucide="footprints" class="w-[26px] h-[26px] text-[#C4BAB0]"></i><div class="ptag">Completes look</div></div><div class="pinfo"><div class="pname">Oxford Loafer</div><div class="pwhy">Water-resistant sole</div><div class="pprice">$89 · Cole Haan</div></div></div>
+                        <div class="pcard"><div class="pimg"><i data-lucide="briefcase" class="w-[26px] h-[26px] text-[#C4BAB0]"></i></div><div class="pinfo"><div class="pname">Canvas Tote</div><div class="pwhy">Waterproof canvas</div><div class="pprice">$45 · Muji</div></div></div>
+                        <div class="pcard"><div class="pimg"><i data-lucide="umbrella" class="w-[26px] h-[26px] text-[#C4BAB0]"></i></div><div class="pinfo"><div class="pname">Compact Umbrella</div><div class="pwhy">Windproof, fits in bag</div><div class="pprice">$28 · Blunt</div></div></div>
+                        <div class="pcard"><div class="pimg"><i data-lucide="pocket-knife" class="w-[26px] h-[26px] text-[#C4BAB0]"></i></div><div class="pinfo"><div class="pname">Slim Chinos</div><div class="pwhy">Lighter than jeans</div><div class="pprice">$65 · Uniqlo</div></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="r-record hidden flex-1 flex flex-col overflow-hidden" id="r-record">
+            <div class="rec-topbar flex items-center justify-between px-4 py-[10px] border-b border-[rgba(0,0,0,0.07)]">
+                <div class="rec-date text-[12px] font-medium text-[#1A1714]" id="rec-date">Apr 19</div>
+                <div class="rec-meta text-[11px] text-[#A89F96]" id="rec-meta">Work · 23° ⛅</div>
+            </div>
+            <div class="rec-scroll flex-1 overflow-y-auto px-4 py-[14px] flex flex-col gap-[11px]">
+                <div class="rec-hero rounded-[13px] bg-gradient-to-br from-[#F5EFE6] to-[#E8DDD0] h-[196px] relative flex items-center justify-center">
+                    <div class="obadge absolute top-[9px] left-[9px] text-[10px] text-[#E8763A] bg-[rgba(232,118,58,.15)] border border-[rgba(232,118,58,.35)] rounded-[20px] px-[9px] py-[3px]" id="rec-badge">Work</div>
+                    <div class="owbadge absolute top-[9px] right-[9px] text-[10px] text-[#6B6460] bg-white/90 rounded-[20px] px-[9px] py-[3px]" id="rec-weather">23° ⛅</div>
+                </div>
+                <div class="rec-name text-[14px] font-medium text-[#1A1714]" id="rec-name">Smart Casual</div>
+                <div class="rec-reason text-[11px] text-[#6B6460] leading-[1.6]" id="rec-reason">Mild and partly cloudy outfit recommendation.</div>
+            </div>
+        </div>
+
+        <div class="r-future hidden flex-1 flex flex-col overflow-hidden" id="r-future">
+            <div class="fut-topbar px-4 py-[10px] border-b border-[rgba(0,0,0,0.07)]">
+                <div class="fut-date text-[12px] font-medium text-[#1A1714]" id="fut-date">Tue Apr 21</div>
+                <div class="fut-weather text-[11px] text-[#6B6460] mt-[2px] flex items-center gap-[5px]"><span id="fut-ico">⛅</span><span id="fut-desc">24° · Partly cloudy</span></div>
+            </div>
+            <div class="fut-scroll flex-1 overflow-y-auto px-4 py-[14px] flex flex-col gap-[11px]">
+                <div class="fut-note bg-[#FBF0E8] border-l-2 border-[#E8763A] rounded-r-[8px] p-[10px] text-[11px] text-[#7A5A3A]">Weather forecast ready. Set your occasion and save to calendar.</div>
+                <div class="fut-occ-title text-[13px] font-medium text-[#1A1714]">What's the occasion?</div>
+                <div class="fut-occ-grid grid grid-cols-2 gap-[7px]">
+                    <button type="button" class="ocard text-left bg-white rounded-[10px] p-[10px]" onclick="pickFutOcc(this,'Work')"><div class="em text-[17px] mb-[3px]">💼</div><div class="nm text-[11px] font-medium">Work</div><div class="ht text-[9px] text-[#A89F96]">Office or meetings</div></button>
+                    <button type="button" class="ocard text-left bg-white rounded-[10px] p-[10px]" onclick="pickFutOcc(this,'Casual')"><div class="em text-[17px] mb-[3px]">☕</div><div class="nm text-[11px] font-medium">Casual</div><div class="ht text-[9px] text-[#A89F96]">Errands or chill</div></button>
+                    <button type="button" class="ocard text-left bg-white rounded-[10px] p-[10px]" onclick="pickFutOcc(this,'Date')"><div class="em text-[17px] mb-[3px]">✨</div><div class="nm text-[11px] font-medium">Date</div><div class="ht text-[9px] text-[#A89F96]">Dinner or night out</div></button>
+                    <button type="button" class="ocard text-left bg-white rounded-[10px] p-[10px]" onclick="pickFutOcc(this,'Outdoor')"><div class="em text-[17px] mb-[3px]">🌿</div><div class="nm text-[11px] font-medium">Outdoor</div><div class="ht text-[9px] text-[#A89F96]">Parks or activities</div></button>
+                </div>
+                <button class="fut-gbtn hidden bg-[#E8763A] text-white rounded-[10px] py-[11px] text-[12px] font-medium" id="fut-gbtn" onclick="saveFuture()">Save to calendar</button>
+                <div class="hidden bg-[#FBF0E8] border border-[#F5D5BC] rounded-[10px] p-[11px] text-[12px] text-[#7A5A3A]" id="fut-saved">Occasion saved. We'll generate your outfit on the morning of this day.</div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section Styles {
+    <style>
+        .hidden{display:none!important;}
+        .fade{animation:fadeUp .2s ease;}
+        .lp-scroll::-webkit-scrollbar,.week-row::-webkit-scrollbar{display:none;}
+        .wday{flex-shrink:0;width:34px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 4px;border-radius:9px;cursor:pointer;transition:background .15s;background:transparent;border:0;}
+        .wday:hover{background:#FBF0E8;}
+        .wday.sel{background:#FBF0E8;outline:1.5px solid #E8763A;}
+        .wday.today{background:#E8763A;}
+        .wday.today:hover{background:#CF6128;}
+        .wd-lbl{font-size:9px;color:#A89F96;}
+        .wday.today .wd-lbl{color:rgba(255,255,255,.8);}
+        .wday.sel .wd-lbl{color:#E8763A;}
+        .wd-ico{font-size:14px;line-height:1;}
+        .wd-circle{width:8px;height:8px;border-radius:50%;border:1.5px solid #A89F96;}
+        .wday.today .wd-circle{border-color:rgba(255,255,255,.6);}
+        .wday.sel .wd-circle{border-color:#E8763A;}
+        .wd-circle.filled{background:#E8763A;border-color:#E8763A;}
+        .wday.today .wd-circle.filled{background:#fff;border-color:#fff;}
+        .ocard{border:1.5px solid transparent;transition:all .13s;}
+        .ocard:hover,.ocard.on{border-color:#E8763A;background:#FBF0E8;}
+        .gbtn:hover{background:#CF6128;}
+        .sring{animation:spin .8s linear infinite;}
+        .sd{width:6px;height:6px;border-radius:50%;background:#E0D9CE;flex-shrink:0;transition:background .3s;}
+        .sd.done{background:#E8763A;}
+        .sd.cur{background:#E8763A;animation:pulse .8s infinite;}
+        .st{font-size:11px;color:#A89F96;transition:color .3s;}
+        .st.done{color:#1A1714;}
+        .st.cur{color:#E8763A;}
+        .icard{display:flex;flex-direction:column;align-items:center;gap:5px;opacity:0;transform:translateY(10px) scale(.92);transition:opacity .3s ease,transform .3s ease;}
+        .icard.show{opacity:1;transform:translateY(0) scale(1);}
+        .ibox{border-radius:9px;background:#E2D9CE;display:flex;align-items:center;justify-content:center;position:relative;}
+        .ichk{position:absolute;top:-5px;right:-5px;width:14px;height:14px;border-radius:50%;background:#E8763A;display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(0);transition:all .2s cubic-bezier(.34,1.56,.64,1);}
+        .ichk.show{opacity:1;transform:scale(1);}
+        .ilbl{font-size:9px;color:#A89F96;}
+        .outfit-full{opacity:0;transform:scale(.92);transition:all .5s cubic-bezier(.34,1.2,.64,1);}
+        .outfit-full.show{opacity:1;transform:scale(1);}
+        .of-item{display:flex;flex-direction:column;align-items:center;gap:4px;}
+        .of-box{border-radius:8px;background:#DDD5C8;display:flex;align-items:center;justify-content:center;}
+        .of-lbl{font-size:9px;color:#A89F96;}
+        .ai-name,.ractions{opacity:0;transition:opacity .4s;}
+        .ai-text{min-height:28px;}
+        .cursor{display:inline-block;width:2px;height:11px;background:#E8763A;margin-left:1px;animation:blink .7s infinite;vertical-align:middle;}
+        @@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+        .rab{padding:8px 6px;border-radius:9px;border:1px solid rgba(0,0,0,.07);background:#EDE8DF;color:#6B6460;display:flex;align-items:center;justify-content:center;gap:4px;transition:all .15s;}
+        .rab:hover{border-color:#E8763A;color:#E8763A;}
+        .rab.pri{background:#E8763A;color:#fff;border-color:#E8763A;}
+        .tweak{background:#EDE8DF;border-radius:10px;border:.5px solid rgba(0,0,0,.07);padding:9px 11px;opacity:0;transition:opacity .4s;}
+        .chips{display:flex;gap:5px;margin-bottom:7px;flex-wrap:wrap;}
+        .chip{padding:3px 8px;border-radius:20px;background:#fff;border:.5px solid rgba(0,0,0,.07);font-size:10px;color:#6B6460;cursor:pointer;}
+        .chip:hover{background:#FBF0E8;border-color:#E8763A;color:#E8763A;}
+        .tinp-row{display:flex;gap:6px;align-items:center;}
+        .tinp{flex:1;border:none;outline:none;font-size:11px;color:#1A1714;background:transparent;}
+        .tinp::placeholder{color:#A89F96;}
+        .tsend{width:24px;height:24px;border-radius:50%;background:#E8763A;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+        .shop-wrap{opacity:0;transition:opacity .4s;}
+        .shop-divider{height:.5px;background:rgba(0,0,0,.07);margin-bottom:10px;}
+        .shop-hdr{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px;}
+        .shop-title{font-size:12px;font-weight:500;color:#1A1714;}
+        .shop-sub{font-size:10px;color:#A89F96;}
+        .shop-row{display:flex;gap:7px;overflow-x:auto;padding-bottom:2px;}
+        .shop-row::-webkit-scrollbar{height:2px;}
+        .shop-row::-webkit-scrollbar-thumb{background:#E0D9CE;}
+        .pcard{width:108px;flex-shrink:0;background:#EDE8DF;border-radius:10px;border:.5px solid rgba(0,0,0,.07);overflow:hidden;cursor:pointer;}
+        .pcard:hover{border-color:#E8763A;}
+        .pimg{height:78px;background:linear-gradient(135deg,#F5EFE6,#EAE0D3);display:flex;align-items:center;justify-content:center;position:relative;}
+        .ptag{position:absolute;top:5px;left:5px;background:#E8763A;color:#fff;font-size:7px;padding:2px 5px;border-radius:6px;}
+        .pinfo{padding:7px 8px;}
+        .pname{font-size:11px;font-weight:500;color:#1A1714;}
+        .pwhy{font-size:9px;color:#A89F96;margin-top:1px;line-height:1.3;}
+        .pprice{font-size:11px;font-weight:500;color:#E8763A;margin-top:4px;}
+        .r-scroll::-webkit-scrollbar{width:3px;}
+        .r-scroll::-webkit-scrollbar-thumb{background:#E0D9CE;border-radius:2px;}
+    </style>
+}
+
+@section Scripts {
+    <script>
+        const aiText = "Light rain today — picked your water-resistant navy jacket + slim trousers. Skipped your linen shirt: absorbs moisture and takes hours to dry. This combo keeps you sharp and dry all day.";
+        let selectedOccasion = null;
+        let typingTask = null;
+
+        const pastData = {
+            "Apr 17": { occ: "Casual", name: "Weekend Easy", temp: "25°", ico: "☀️", reason: "Sunny and warm selection for weekend comfort." },
+            "Apr 18": { occ: "Date", name: "Evening Chic", temp: "21°", ico: "🌤️", reason: "Mild evening outfit with cleaner lines." },
+            "Apr 19": { occ: "Work", name: "Smart Casual", temp: "23°", ico: "⛅", reason: "Balanced office look for light cloudy weather." }
+        };
+
+        function show(id){document.getElementById(id).classList.remove("hidden");}
+        function hide(id){document.getElementById(id).classList.add("hidden");}
+        function fadeIn(id){const element=document.getElementById(id);element.classList.remove("hidden");element.classList.add("fade");setTimeout(()=>element.classList.remove("fade"),250);}
+        function hideAllRight(){["r-empty","r-gen","r-items","r-result","r-record","r-future"].forEach(hide);}
+
+        function resetOccasion(){
+            document.querySelectorAll("#occ-section .ocard").forEach(card=>card.classList.remove("on"));
+            document.getElementById("free-occ").value = "";
+            selectedOccasion = null;
+            document.getElementById("gbtn").disabled = true;
+        }
+
+        function pickOcc(element, occasion){
+            document.querySelectorAll("#occ-section .ocard").forEach(card=>card.classList.remove("on"));
+            element.classList.add("on");
+            selectedOccasion = occasion;
+            document.getElementById("free-occ").value = "";
+            document.getElementById("gbtn").disabled = false;
+        }
+
+        function handleFree(input){
+            document.querySelectorAll("#occ-section .ocard").forEach(card=>card.classList.remove("on"));
+            selectedOccasion = input.value.trim();
+            document.getElementById("gbtn").disabled = !selectedOccasion;
+        }
+
+        function pickFutOcc(element){
+            document.querySelectorAll("#r-future .ocard").forEach(card=>card.classList.remove("on"));
+            element.classList.add("on");
+            show("fut-gbtn");
+        }
+
+        function saveFuture(){
+            hide("fut-gbtn");
+            fadeIn("fut-saved");
+            const selectedDay = document.querySelector(".wday.sel");
+            if(selectedDay){
+                const circle = selectedDay.querySelector(".wd-circle");
+                if(circle){circle.classList.add("filled");}
+            }
+        }
+
+        function clickDay(element){
+            document.querySelectorAll(".wday").forEach(day=>day.classList.remove("sel"));
+            element.classList.add("sel");
+
+            const dayType = element.dataset.type;
+            if(dayType === "today"){
+                document.getElementById("tb-title").textContent = "Today's Outfit";
+                document.getElementById("occ-title").textContent = "What's today about?";
+                document.getElementById("gbtn-label").textContent = "Get my outfit";
+                show("occ-section");
+                resetOccasion();
+                hideAllRight();
+                fadeIn("r-empty");
+                return;
+            }
+
+            if(dayType === "past"){
+                hide("occ-section");
+                document.getElementById("gbtn").disabled = true;
+                const record = pastData[element.dataset.date];
+                if(record){
+                    document.getElementById("tb-title").textContent = element.dataset.date;
+                    document.getElementById("rec-date").textContent = element.dataset.date;
+                    document.getElementById("rec-meta").textContent = `${record.occ} · ${record.temp} ${record.ico}`;
+                    document.getElementById("rec-name").textContent = record.name;
+                    document.getElementById("rec-reason").textContent = record.reason;
+                    document.getElementById("rec-badge").textContent = record.occ;
+                    document.getElementById("rec-weather").textContent = `${record.temp} ${record.ico}`;
+                }
+                hideAllRight();
+                fadeIn("r-record");
+                return;
+            }
+
+            show("occ-section");
+            document.getElementById("occ-title").textContent = `What's the occasion for ${element.dataset.date}?`;
+            document.getElementById("gbtn-label").textContent = "Save to calendar";
+            document.getElementById("tb-title").textContent = `Plan · ${element.dataset.date}`;
+            document.getElementById("fut-date").textContent = element.dataset.date;
+            document.getElementById("fut-ico").textContent = element.dataset.ico;
+            document.getElementById("fut-desc").textContent = `${element.dataset.temp} · ${element.dataset.desc}`;
+            hide("fut-saved");
+            hide("fut-gbtn");
+            document.querySelectorAll("#r-future .ocard").forEach(card=>card.classList.remove("on"));
+            resetOccasion();
+            hideAllRight();
+            fadeIn("r-future");
+        }
+
+        function typeWriter(text, index){
+            const target = document.getElementById("ai-text");
+            if(index < text.length){
+                target.innerHTML = `${text.slice(0, index + 1)}<span class="cursor"></span>`;
+                typingTask = setTimeout(()=>typeWriter(text, index + 1), 18);
+                return;
+            }
+            target.innerHTML = text;
+        }
+
+        function showResult(){
+            hide("r-items");
+            document.getElementById("tb-title").textContent = "Today's Outfit";
+            const todayElement = document.getElementById("day-today");
+            if(todayElement){
+                const circle = todayElement.querySelector(".wd-circle");
+                if(circle){circle.classList.add("filled");}
+            }
+            fadeIn("r-result");
+            setTimeout(()=>document.getElementById("outfit-full").classList.add("show"),150);
+            setTimeout(()=>document.getElementById("ai-name").style.opacity="1",450);
+            setTimeout(()=>typeWriter(aiText,0),700);
+            const animationDoneAt = 780 + aiText.length * 18;
+            setTimeout(()=>{document.getElementById("r-actions").style.opacity="1";document.getElementById("r-tweak").style.opacity="1";},animationDoneAt+80);
+            setTimeout(()=>document.getElementById("shop-wrap").style.opacity="1",animationDoneAt+560);
+        }
+
+        function startGen(){
+            const occasion = selectedOccasion || "Work";
+            document.getElementById("g-occ").textContent = occasion;
+            document.getElementById("r-occ-badge").textContent = occasion;
+            document.getElementById("tb-title").textContent = "Generating...";
+            hideAllRight();
+            fadeIn("r-gen");
+
+            const steps=[{d:"sd3",t:"st3",delay:380},{d:"sd4",t:"st4",delay:860},{d:"sd5",t:"st5",delay:1320}];
+            steps.forEach(step=>{
+                setTimeout(()=>{document.getElementById(step.d).className="sd cur";document.getElementById(step.t).className="st cur";},step.delay);
+                setTimeout(()=>{document.getElementById(step.d).className="sd done";document.getElementById(step.t).className="st done";},step.delay+460);
+            });
+
+            setTimeout(()=>{
+                hide("r-gen");
+                fadeIn("r-items");
+                const cards=["ic0","ic1","ic2","ic3"];
+                const checks=["ck0","ck1","ck2","ck3"];
+                const labels=["Picking shirt...","Adding trousers...","Grabbing jacket...","Choosing shoes..."];
+                cards.forEach((card,index)=>{
+                    setTimeout(()=>{
+                        document.getElementById("items-lbl").textContent = labels[index];
+                        document.getElementById(card).classList.add("show");
+                        setTimeout(()=>document.getElementById(checks[index]).classList.add("show"),240);
+                    },index*420);
+                });
+                setTimeout(showResult,cards.length*480+440);
+            },2000);
+        }
+
+        function backToEmpty(){
+            if(typingTask){clearTimeout(typingTask);}
+            document.getElementById("outfit-full").classList.remove("show");
+            document.getElementById("ai-name").style.opacity="0";
+            document.getElementById("ai-text").innerHTML="";
+            document.getElementById("r-actions").style.opacity="0";
+            document.getElementById("r-tweak").style.opacity="0";
+            document.getElementById("shop-wrap").style.opacity="0";
+            ["ic0","ic1","ic2","ic3"].forEach(id=>document.getElementById(id).classList.remove("show"));
+            ["ck0","ck1","ck2","ck3"].forEach(id=>document.getElementById(id).classList.remove("show"));
+            ["sd3","sd4","sd5"].forEach(id=>document.getElementById(id).className="sd");
+            ["st3","st4","st5"].forEach(id=>document.getElementById(id).className="st");
+            document.getElementById("tb-title").textContent = "Today's Outfit";
+            hideAllRight();
+            fadeIn("r-empty");
+        }
+
+        (() => {
+            document.querySelectorAll(".js-week-day").forEach(button=>button.addEventListener("click",()=>clickDay(button)));
+            window.lucide ? window.lucide.createIcons() : null;
+        })();
+    </script>
+}

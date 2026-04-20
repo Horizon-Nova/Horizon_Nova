@@ -1,0 +1,98 @@
+@{
+    Layout = null;
+
+    var title = ViewData["Title"] as string ?? "WW藍圖網站";
+    var topbarTitle = ViewData["TopbarTitle"] as string ?? "Today's Outfit";
+    var topbarLocation = ViewData["TopbarLocation"] as string ?? "Taipei · Mon Apr 20";
+    var avatarText = ViewData["AvatarText"] as string ?? "J";
+
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+
+    var navTodayClass = controller == "Dashboard" ? "navigation-item active" : "navigation-item";
+    var navClosetClass = controller == "Wardrobe" ? "navigation-item active" : "navigation-item";
+    var navCalendarClass = controller == "Calendar" ? "navigation-item active" : "navigation-item";
+    var navAccountClass = controller == "Account" ? "navigation-item active" : "navigation-item";
+}
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@title</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <link rel="stylesheet" href="~/ww/css/Layout.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+
+<body class="bg-[#EDE8DF] text-[#1A1714]">
+    <div class="flex w-full min-h-screen overflow-hidden">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar w-12 shrink-0 bg-[#E3DDD3] border-r border-[#D4CCBF] flex flex-col items-center py-[14px] gap-1">
+
+            <a asp-area="WW" asp-controller="Dashboard" asp-action="Index"
+               class="w-7 h-7 rounded-md bg-[#E8763A] flex items-center justify-center mb-3">
+                <span class="text-white text-[9px] font-medium">Ww</span>
+            </a>
+
+            <a asp-area="WW" asp-controller="Dashboard" asp-action="Index"
+               class="@navTodayClass">
+                <i data-lucide="sun-medium"></i>
+                <span>Today</span>
+            </a>
+
+            <a asp-area="WW" asp-controller="Wardrobe" asp-action="Index"
+               class="@navClosetClass">
+                <i data-lucide="shirt"></i>
+                <span>Closet</span>
+            </a>
+
+            <a asp-area="WW" asp-controller="Calendar" asp-action="Index"
+               class="@navCalendarClass">
+                <i data-lucide="calendar-days"></i>
+                <span>Cal</span>
+            </a>
+
+            <a asp-area="WW" asp-controller="Account" asp-action="Index"
+               class="@navAccountClass">
+                <i data-lucide="user-round"></i>
+                <span>Account</span>
+            </a>
+
+        </aside>
+
+        <!-- MAIN -->
+        <div class="flex flex-col flex-1 min-w-0">
+
+            <!-- TOPBAR -->
+            <header class="topbar h-[42px] shrink-0 bg-[rgba(237,232,223,.97)] border-b border-[rgba(0,0,0,0.1)] flex items-center justify-between px-4">
+
+                <span id="tb-title" class="text-[13px] font-medium">@topbarTitle</span>
+
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-1 text-[11px] text-[#6B6460]">
+                        <i data-lucide="map-pin" class="w-[11px] h-[11px]"></i>
+                        <span>@topbarLocation</span>
+                    </div>
+
+                    <div class="w-[26px] h-[26px] rounded-full bg-[#F5D5BC] flex items-center justify-center text-[10px] text-[#E8763A]">
+                        @avatarText
+                    </div>
+                </div>
+
+            </header>
+
+            <!-- BODY -->
+            @RenderBody()
+
+        </div>
+    </div>
+
+    <script src="~/ww/js/Layout.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
