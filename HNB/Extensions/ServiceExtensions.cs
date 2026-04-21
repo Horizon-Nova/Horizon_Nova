@@ -29,6 +29,8 @@ public static class ServiceExtensions
         services.AddScoped<TeamZoneService>();
 
         services.AddHttpClient<IWeatherService, WeatherService>();
+        services.AddScoped<IWardrobeService, WardrobeService>();
+        services.AddScoped<IHistoryService, HistoryService>();
 
         return services;
     }

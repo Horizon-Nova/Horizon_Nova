@@ -10,7 +10,7 @@
 
     var navTodayClass = controller == "Dashboard" ? "navigation-item active" : "navigation-item";
     var navClosetClass = controller == "Wardrobe" ? "navigation-item active" : "navigation-item";
-    var navCalendarClass = controller == "Calendar" ? "navigation-item active" : "navigation-item";
+    var navHistoryClass = controller == "History" ? "navigation-item active" : "navigation-item";
     var navAccountClass = controller == "Account" ? "navigation-item active" : "navigation-item";
 }
 
@@ -51,10 +51,10 @@
                 <span>Closet</span>
             </a>
 
-            <a asp-area="WW" asp-controller="Calendar" asp-action="Index"
-               class="@navCalendarClass">
-                <i data-lucide="calendar-days"></i>
-                <span>Cal</span>
+            <a asp-area="WW" asp-controller="History" asp-action="Index"
+               class="@navHistoryClass">
+                <i data-lucide="clock"></i>
+                <span>紀錄</span>
             </a>
 
             <a asp-area="WW" asp-controller="Account" asp-action="Index"

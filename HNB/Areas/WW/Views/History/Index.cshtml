@@ -1,0 +1,157 @@
+@using System.Text.Json
+@model HNB.Areas.WW.Models.HistoryIndexModel
+
+@{
+    Layout = "~/Areas/WW/Views/Shared/_Layout.cshtml";
+    var hasRecords = Model?.Records is not null && Model.Records.Count > 0;
+}
+
+<div class="flex flex-1 overflow-hidden">
+
+    <!-- LEFT PANEL -->
+    <section class="w-[270px] shrink-0 border-r border-[#D4CCBF] flex flex-col overflow-hidden bg-[#EDE8DF]">
+        <div class="flex-1 overflow-y-auto px-[14px] pt-[14px] flex flex-col gap-[11px] ww-scroll">
+
+            <!-- 日曆 -->
+            <div class="bg-white rounded-[12px] p-[10px] border border-[rgba(0,0,0,0.07)]">
+                <div class="text-[9px] text-[#A89F96] tracking-[0.05em] mb-2">日期</div>
+                <div class="flex items-center gap-2 bg-[#FBF0E8] rounded-[10px] border border-[#F5D5BC] px-[10px] py-[8px]">
+                    <i data-lucide="calendar-days" class="w-[14px] h-[14px] text-[#E8763A]"></i>
+                    <input id="ww-history-date"
+                           type="date"
+                           class="flex-1 bg-transparent outline-none text-[11px] text-[#1A1714]" />
+                </div>
+                <div class="flex gap-[6px] mt-[8px]">
+                    <button type="button" class="ww-mini-btn" onclick="wwHistoryPickQuickDate('today')">今天</button>
+                    <button type="button" class="ww-mini-btn" onclick="wwHistoryPickQuickDate('yesterday')">昨天</button>
+                </div>
+            </div>
+
+            <!-- 搜尋 -->
+            <div class="bg-white rounded-[12px] p-[10px] border border-[rgba(0,0,0,0.07)]">
+                <div class="text-[9px] text-[#A89F96] tracking-[0.05em] mb-2">搜尋</div>
+                <div class="flex items-center gap-2 bg-[#FBF0E8] rounded-[10px] border border-[#F5D5BC] px-[10px] py-[8px]">
+                    <i data-lucide="search" class="w-[14px] h-[14px] text-[#E8763A]"></i>
+                    <input id="ww-history-query"
+                           type="text"
+                           class="flex-1 bg-transparent outline-none text-[11px] text-[#1A1714]"
+                           placeholder="搜尋：匯入、提取、生成、保存…" />
+                    <button type="button" class="text-[10px] text-[#A89F96] hover:text-[#E8763A]" onclick="wwHistoryClearQuery()">清除</button>
+                </div>
+            </div>
+
+            <!-- 類型 -->
+            <div class="bg-white rounded-[12px] p-[10px] border border-[rgba(0,0,0,0.07)]">
+                <div class="text-[9px] text-[#A89F96] tracking-[0.05em] mb-2">類型</div>
+                <div class="flex flex-col gap-[6px]">
+                    <button type="button" class="ww-filter js-history-filter" data-filter="all" onclick="wwHistoryPickFilter('all')">
+                        <span class="flex items-center gap-2">
+                            <i data-lucide="list" class="w-[14px] h-[14px]"></i>
+                            <span>全部</span>
+                        </span>
+                        <span class="ww-badge" id="ww-history-count-all">0</span>
+                    </button>
+
+                    <button type="button" class="ww-filter js-history-filter" data-filter="import" onclick="wwHistoryPickFilter('import')">
+                        <span class="flex items-center gap-2">
+                            <i data-lucide="image-plus" class="w-[14px] h-[14px]"></i>
+                            <span>匯入</span>
+                        </span>
+                        <span class="ww-badge" id="ww-history-count-import">0</span>
+                    </button>
+
+                    <button type="button" class="ww-filter js-history-filter" data-filter="extract" onclick="wwHistoryPickFilter('extract')">
+                        <span class="flex items-center gap-2">
+                            <i data-lucide="wand-2" class="w-[14px] h-[14px]"></i>
+                            <span>提取</span>
+                        </span>
+                        <span class="ww-badge" id="ww-history-count-extract">0</span>
+                    </button>
+
+                    <button type="button" class="ww-filter js-history-filter" data-filter="ai_outfit" onclick="wwHistoryPickFilter('ai_outfit')">
+                        <span class="flex items-center gap-2">
+                            <i data-lucide="sparkles" class="w-[14px] h-[14px]"></i>
+                            <span>AI 生成</span>
+                        </span>
+                        <span class="ww-badge" id="ww-history-count-ai_outfit">0</span>
+                    </button>
+
+                    <button type="button" class="ww-filter js-history-filter" data-filter="save" onclick="wwHistoryPickFilter('save')">
+                        <span class="flex items-center gap-2">
+                            <i data-lucide="bookmark" class="w-[14px] h-[14px]"></i>
+                            <span>保存</span>
+                        </span>
+                        <span class="ww-badge" id="ww-history-count-save">0</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- MIDDLE PANEL -->
+    <section class="w-[360px] shrink-0 border-r border-[rgba(0,0,0,0.07)] bg-white flex flex-col overflow-hidden">
+        <div class="px-4 py-[10px] border-b border-[rgba(0,0,0,0.07)]">
+            <div class="text-[12px] font-medium text-[#1A1714]" id="ww-history-day-title">當日紀錄</div>
+            <div class="text-[10px] text-[#A89F96]" id="ww-history-day-sub">選擇日期以查看</div>
+        </div>
+        <div class="flex-1 overflow-y-auto px-4 py-[14px] ww-scroll" id="ww-history-groups"></div>
+    </section>
+
+    <!-- RIGHT PANEL -->
+    <section class="flex-1 min-w-0 bg-white flex flex-col overflow-hidden">
+        <div class="px-4 py-[10px] border-b border-[rgba(0,0,0,0.07)] flex items-center justify-between">
+            <div>
+                <div class="text-[12px] font-medium text-[#1A1714]">活動紀錄</div>
+                <div class="text-[10px] text-[#A89F96]" id="ww-history-subtitle">以「全部」顯示</div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button type="button" class="ww-icon-btn" onclick="wwHistoryReset()">
+                    <i data-lucide="rotate-ccw" class="w-[16px] h-[16px]"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto px-4 py-[14px] ww-scroll" id="ww-history-canvas">
+            <div class="ww-detail-empty" id="ww-history-detail-empty">
+                <div class="flex flex-col items-center justify-center gap-3 py-16">
+                    <div class="w-[52px] h-[52px] rounded-full bg-[#EDE8DF] flex items-center justify-center">
+                        <i data-lucide="mouse-pointer-click" class="w-[24px] h-[24px] text-[#A89F96]"></i>
+                    </div>
+                    <div class="text-[13px] font-medium text-[#6B6460]">選擇一筆紀錄</div>
+                    <div class="text-[11px] text-[#A89F96] text-center leading-[1.6]">
+                        左側選日期，中間選紀錄卡，就能在這裡查看詳情。
+                    </div>
+                </div>
+            </div>
+
+            <div class="hidden" id="ww-history-detail"></div>
+
+            <div class="@(hasRecords ? "hidden" : "")" id="ww-history-empty">
+                <div class="flex flex-col items-center justify-center gap-3 py-16">
+                    <div class="w-[52px] h-[52px] rounded-full bg-[#EDE8DF] flex items-center justify-center">
+                        <i data-lucide="clock" class="w-[24px] h-[24px] text-[#A89F96]"></i>
+                    </div>
+                    <div class="text-[13px] font-medium text-[#6B6460]">目前沒有符合條件的紀錄</div>
+                    <div class="text-[11px] text-[#A89F96] text-center leading-[1.6]">
+                        你可以切換類型、清除搜尋或重設條件。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/ww/css/History.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <script>
+        window.__wwHistoryBootstrap = {
+            records: @Html.Raw(JsonSerializer.Serialize(Model.Records))
+        };
+    </script>
+    <script src="~/ww/js/History.js" asp-append-version="true"></script>
+}
