@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Bodoni+Moda:ital,wght@1,500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --orange:   #d76736;
+  --orange-d: #b8522a;
+  --orange-l: #f2e0d5;
+  --orange-m: #e8b89e;
+  --beige:    #d3ceb8;
+  --bg:       #d9d4c0;
+  --peach:    #d3a38c;
+  --teal:     #9dbab5;
+  --black:    #141210;
+  --ink:      #1e1b18;
+  --ink2:     #5a534c;
+  --ink3:     #9a9188;
+  --font-sans: 'Lato', sans-serif;
+  --font-serif: 'Bodoni Moda', serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  padding: 32px;
+}
+
+/* ── APP SHELL ── */
+.app {
+  width: 1180px; height: 730px;
+  background: var(--bg);
+  border-radius: 22px;
+  border: 0.5px solid rgba(0,0,0,0.12);
+  display: flex; overflow: hidden;
+  position: relative;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.18), 0 8px 24px rgba(0,0,0,0.1);
+}
+
+/* ── BLOBS ── */
+.blobs {
+  position: absolute; inset: 0;
+  pointer-events: none; overflow: hidden;
+  border-radius: 22px; z-index: 0;
+}
+.blob { position: absolute; opacity: 1; }
+.blob-1 {
+  width: 380px; height: 320px;
+  background: var(--peach);
+  top: -80px; right: 140px;
+  border-radius: 63% 37% 54% 46% / 55% 48% 52% 45%;
+}
+.blob-2 {
+  width: 300px; height: 340px;
+  background: var(--teal);
+  bottom: -60px; right: 30px;
+  border-radius: 44% 56% 38% 62% / 58% 42% 58% 42%;
+}
+.blob-3 {
+  width: 220px; height: 200px;
+  background: var(--beige);
+  top: 200px; right: 460px;
+  border-radius: 52% 48% 62% 38% / 42% 58% 42% 58%;
+  opacity: 0.6;
+}
+.blob-4 {
+  width: 120px; height: 110px;
+  background: var(--orange-l);
+  bottom: 80px; right: 420px;
+  border-radius: 60% 40% 55% 45% / 50% 60% 40% 50%;
+  opacity: 0.7;
+}
+
+/* ── BLACK SIDEBAR ── */
+.sb {
+  width: 68px; flex-shrink: 0;
+  background: var(--black);
+  display: flex; flex-direction: column;
+  align-items: center;
+  padding: 22px 0 18px;
+  gap: 4px;
+  position: relative; z-index: 10;
+}
+.logo {
+  width: 38px; height: 38px; border-radius: 11px;
+  background: var(--orange);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 20px; flex-shrink: 0;
+  box-shadow: 0 4px 14px rgba(215,103,54,0.5);
+}
+.logo-text {
+  font-family: var(--font-sans);
+  font-weight: 900; font-size: 11px; color: #fff;
+  letter-spacing: 0.3px;
+}
+.logo-i {
+  font-family: var(--font-serif);
+  font-style: italic; font-weight: 500;
+  color: #fff;
+}
+.ni {
+  width: 46px; height: 46px; border-radius: 13px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 3px; cursor: pointer;
+  transition: background 0.15s;
+}
+.ni:hover { background: rgba(255,255,255,0.08); }
+.ni.on { background: var(--orange); box-shadow: 0 4px 12px rgba(215,103,54,0.4); }
+.ni svg { width: 18px; height: 18px; stroke: rgba(255,255,255,0.4); fill: none; stroke-width: 1.7; stroke-linecap: round; }
+.ni.on svg { stroke: #fff; }
+.ni span { font-size: 7.5px; color: rgba(255,255,255,0.35); font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase; }
+.ni.on span { color: #fff; }
+.sb-spacer { flex: 1; }
+.sb-divider { width: 28px; height: 0.5px; background: rgba(255,255,255,0.1); margin: 6px 0; }
+.av {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  border: 1.5px solid rgba(255,255,255,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.7);
+  cursor: pointer;
+}
+
+/* ── BODY ── */
+.body { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; z-index: 1; }
+
+/* ── TOPBAR ── */
+.tb {
+  height: 54px; flex-shrink: 0;
+  background: rgba(217,212,192,0.75);
+  backdrop-filter: blur(14px);
+  border-bottom: 0.5px solid rgba(0,0,0,0.07);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 28px;
+}
+.tb-brand {
+  font-family: var(--font-sans); font-weight: 900;
+  font-size: 15px; color: var(--ink); letter-spacing: 0.1px;
+}
+.tb-brand em {
+  font-family: var(--font-serif); font-style: italic;
+  font-weight: 500; color: var(--orange);
+}
+.tb-r { display: flex; align-items: center; gap: 12px; }
+
+/* Location pill — clickable */
+.loc-pill {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,0.6);
+  border: 0.5px solid rgba(0,0,0,0.08);
+  border-radius: 20px; padding: 6px 12px;
+  cursor: pointer; transition: all 0.15s;
+  position: relative;
+}
+.loc-pill:hover { background: rgba(255,255,255,0.85); border-color: var(--orange); }
+.loc-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--teal); animation: pdot 2s infinite; }
+@keyframes pdot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.75)} }
+.loc-text { font-size: 12px; color: var(--ink2); font-weight: 700; }
+.loc-edit { font-size: 10px; color: var(--orange); font-weight: 700; opacity: 0; transition: opacity 0.15s; }
+.loc-pill:hover .loc-edit { opacity: 1; }
+.loc-svg { width: 11px; height: 11px; stroke: var(--orange); fill: none; stroke-width: 2.2; }
+
+/* Location edit popup */
+.loc-popup {
+  position: absolute; top: 42px; right: 0;
+  background: #fff; border-radius: 14px;
+  border: 0.5px solid rgba(0,0,0,0.1);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.14);
+  padding: 14px 16px; width: 260px;
+  z-index: 100;
+  display: none;
+}
+.loc-popup.open { display: block; animation: fadeUp 0.18s ease; }
+.loc-popup-label { font-size: 10px; font-weight: 700; color: var(--ink3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+.loc-inp-row { display: flex; gap: 6px; align-items: center; }
+.loc-inp {
+  flex: 1; border: 1.5px solid var(--beige); border-radius: 9px;
+  padding: 8px 11px; font-size: 13px; font-family: var(--font-sans);
+  color: var(--ink); outline: none; background: #faf9f6;
+}
+.loc-inp:focus { border-color: var(--orange); }
+.loc-confirm {
+  background: var(--orange); color: #fff; border: none;
+  border-radius: 9px; padding: 8px 13px;
+  font-size: 12px; font-weight: 700; font-family: var(--font-sans);
+  cursor: pointer;
+}
+.loc-confirm:hover { background: var(--orange-d); }
+
+/* ── COLS ── */
+.cols { flex: 1; display: flex; overflow: hidden; }
+
+/* ── LEFT PANEL ── */
+.lp {
+  width: 310px; flex-shrink: 0;
+  border-right: 0.5px solid rgba(0,0,0,0.07);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.lp-scroll { flex: 1; overflow-y: auto; padding: 22px 20px 0; display: flex; flex-direction: column; gap: 16px; }
+.lp-scroll::-webkit-scrollbar { display: none; }
+.lp-foot { padding: 14px 20px 20px; flex-shrink: 0; }
+
+/* Weather card */
+.wcard {
+  background: var(--orange); border-radius: 18px;
+  padding: 18px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0; position: relative; overflow: hidden;
+  box-shadow: 0 8px 28px rgba(215,103,54,0.35);
+}
+.wcard::before {
+  content: ''; position: absolute;
+  top: -30px; right: -30px;
+  width: 130px; height: 130px; border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+}
+.wcard::after {
+  content: ''; position: absolute;
+  bottom: -40px; right: 50px;
+  width: 100px; height: 100px; border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+}
+.wl .city { font-size: 9.5px; color: rgba(255,255,255,0.6); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.wl .tmp { font-size: 44px; font-weight: 900; color: #fff; line-height: 1; margin: 3px 0; }
+.wl .desc { font-size: 12px; color: rgba(255,255,255,0.82); }
+.wr .ico { font-size: 38px; }
+.wr .feel { font-size: 10px; color: rgba(255,255,255,0.5); margin-top: 5px; text-align: right; }
+
+/* 7-day strip */
+.week-strip {
+  background: rgba(255,255,255,0.55);
+  backdrop-filter: blur(10px);
+  border-radius: 16px; padding: 13px 13px;
+  flex-shrink: 0;
+  border: 0.5px solid rgba(255,255,255,0.8);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+}
+.week-hdr { font-size: 9px; color: var(--ink3); letter-spacing: 0.1em; font-weight: 700; margin-bottom: 11px; text-transform: uppercase; }
+.week-row { display: flex; gap: 3px; overflow-x: auto; }
+.week-row::-webkit-scrollbar { display: none; }
+.wday {
+  flex-shrink: 0; width: 38px;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 4px; padding: 8px 4px; border-radius: 12px;
+  cursor: pointer; transition: background 0.15s;
+}
+.wday:hover { background: var(--orange-l); }
+.wday.sel { background: var(--orange-l); outline: 2px solid var(--orange); }
+.wday.today { background: var(--orange); box-shadow: 0 3px 10px rgba(215,103,54,0.35); }
+.wday.today:hover { background: var(--orange-d); }
+.wd-lbl { font-size: 9px; color: var(--ink3); font-weight: 700; text-transform: uppercase; }
+.wday.today .wd-lbl { color: rgba(255,255,255,0.8); }
+.wday.sel .wd-lbl { color: var(--orange); }
+.wd-ico { font-size: 15px; line-height: 1; }
+.wd-circle { width: 7px; height: 7px; border-radius: 50%; border: 1.5px solid var(--ink3); opacity: 0.3; }
+.wday.today .wd-circle { border-color: rgba(255,255,255,0.5); opacity: 1; }
+.wday.sel .wd-circle { border-color: var(--orange); opacity: 1; }
+.wd-circle.filled { background: var(--orange); border-color: var(--orange); opacity: 1; }
+.wday.today .wd-circle.filled { background: #fff; border-color: #fff; }
+
+/* Occasion section */
+.occ-section { display: flex; flex-direction: column; gap: 12px; }
+.occ-title { font-size: 15px; font-weight: 900; color: var(--ink); }
+.occ-sub { font-size: 11px; color: var(--ink3); margin-top: 2px; }
+.occ-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.ocard {
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(8px);
+  border-radius: 13px; padding: 12px 13px;
+  border: 1.5px solid rgba(255,255,255,0.7);
+  cursor: pointer; transition: all 0.13s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.ocard:hover { border-color: var(--orange); background: var(--orange-l); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(215,103,54,0.15); }
+.ocard.on { border-color: var(--orange); background: var(--orange-l); }
+.ocard .em { font-size: 20px; margin-bottom: 4px; }
+.ocard .nm { font-size: 12.5px; font-weight: 700; color: var(--ink); }
+.ocard .ht { font-size: 10px; color: var(--ink3); margin-top: 1px; }
+
+/* BIG free input */
+.free-block {
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 2px solid rgba(255,255,255,0.8);
+  padding: 16px 16px 14px;
+  display: flex; flex-direction: column; gap: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.free-block:focus-within {
+  border-color: var(--orange);
+  box-shadow: 0 4px 24px rgba(215,103,54,0.18);
+}
+.free-block-label {
+  font-size: 10px; font-weight: 700; color: var(--ink3);
+  text-transform: uppercase; letter-spacing: 0.08em;
+}
+.free-inp {
+  border: none; outline: none;
+  font-size: 14px; font-family: var(--font-sans); font-weight: 700;
+  color: var(--ink); background: transparent;
+  width: 100%; line-height: 1.5;
+  min-height: 42px;
+  resize: none;
+}
+.free-inp::placeholder { color: var(--ink3); font-weight: 400; }
+.free-examples {
+  display: flex; gap: 5px; flex-wrap: wrap;
+}
+.free-ex {
+  font-size: 10.5px; color: var(--ink3);
+  background: rgba(0,0,0,0.05);
+  border-radius: 20px; padding: 3px 9px;
+  cursor: pointer; transition: all 0.12s;
+  font-weight: 700;
+}
+.free-ex:hover { background: var(--orange-l); color: var(--orange); }
+
+/* Generate button */
+.gbtn {
+  width: 100%; background: var(--orange); color: #fff;
+  border: none; border-radius: 14px;
+  padding: 15px; font-size: 14.5px; font-weight: 900;
+  font-family: var(--font-sans); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 9px;
+  transition: all 0.15s;
+  letter-spacing: 0.3px;
+  box-shadow: 0 6px 20px rgba(215,103,54,0.4);
+}
+.gbtn:hover { background: var(--orange-d); transform: translateY(-2px); box-shadow: 0 10px 28px rgba(215,103,54,0.45); }
+.gbtn:active { transform: translateY(0); }
+.gbtn:disabled { opacity: 0.3; cursor: default; transform: none; box-shadow: none; }
+.gbtn svg { width: 15px; height: 15px; stroke: #fff; fill: none; stroke-width: 2.5; }
+
+/* ── RIGHT PANEL ── */
+.rp {
+  flex: 1; background: rgba(255,255,255,0.38);
+  backdrop-filter: blur(14px);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+
+/* Empty */
+.r-empty {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 16px; padding: 40px;
+}
+.r-empty-ico {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: rgba(255,255,255,0.7);
+  border: 0.5px solid rgba(0,0,0,0.06);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+}
+.r-empty-ico svg { width: 32px; height: 32px; stroke: var(--ink3); fill: none; stroke-width: 1.2; }
+.r-empty-title {
+  font-size: 26px; font-weight: 500; color: var(--ink);
+  font-family: var(--font-serif); font-style: italic;
+  text-align: center;
+}
+.r-empty-sub { font-size: 13px; color: var(--ink3); text-align: center; line-height: 1.75; max-width: 240px; }
+
+/* Gen loader */
+.r-gen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 40px; }
+.gcircle { width: 64px; height: 64px; border-radius: 50%; background: var(--orange-l); border: 2px solid var(--orange-m); display: flex; align-items: center; justify-content: center; position: relative; }
+.sring { position: absolute; width: 64px; height: 64px; border-radius: 50%; border: 2.5px solid transparent; border-top-color: var(--orange); animation: spin 0.85s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.gsteps { display: flex; flex-direction: column; gap: 10px; width: 240px; }
+.gstep { display: flex; align-items: center; gap: 10px; }
+.sd { width: 8px; height: 8px; border-radius: 50%; background: rgba(0,0,0,0.1); flex-shrink: 0; transition: background 0.3s; }
+.sd.done { background: var(--orange); }
+.sd.cur { background: var(--orange); animation: pulse 0.8s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.st { font-size: 12.5px; color: var(--ink3); transition: color 0.3s; }
+.st.done { color: var(--ink); }
+.st.cur { color: var(--orange); font-weight: 700; }
+
+/* Items */
+.r-items { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; }
+.items-row { display: flex; gap: 16px; align-items: flex-end; }
+.icard { display: flex; flex-direction: column; align-items: center; gap: 7px; opacity: 0; transform: translateY(14px) scale(0.9); transition: opacity 0.32s ease, transform 0.32s ease; }
+.icard.show { opacity: 1; transform: translateY(0) scale(1); }
+.ibox { border-radius: 13px; background: rgba(211,206,184,0.8); display: flex; align-items: center; justify-content: center; position: relative; }
+.ibox svg { stroke: rgba(0,0,0,0.22); fill: none; stroke-width: 1.3; }
+.ichk { position: absolute; top: -7px; right: -7px; width: 18px; height: 18px; border-radius: 50%; background: var(--orange); display: flex; align-items: center; justify-content: center; opacity: 0; transform: scale(0); transition: all 0.22s cubic-bezier(0.34,1.56,0.64,1); }
+.ichk.show { opacity: 1; transform: scale(1); }
+.ichk svg { width: 9px; height: 9px; stroke: #fff; fill: none; stroke-width: 2.5; }
+.ilbl { font-size: 10.5px; color: var(--ink3); font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase; }
+
+/* Result */
+.r-result { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.r-topbar { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; border-bottom: 0.5px solid rgba(0,0,0,0.07); flex-shrink: 0; }
+.r-back { font-size: 12px; color: var(--ink3); cursor: pointer; display: flex; align-items: center; gap: 5px; font-weight: 700; transition: color 0.15s; }
+.r-back:hover { color: var(--orange); }
+.r-back svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.2; }
+.r-icons { display: flex; gap: 14px; }
+.r-icons svg { width: 18px; height: 18px; stroke: var(--ink3); fill: none; stroke-width: 1.7; cursor: pointer; transition: stroke 0.15s; }
+.r-icons svg:hover { stroke: var(--orange); }
+.r-scroll { flex: 1; overflow-y: auto; padding: 22px 26px; display: flex; flex-direction: column; gap: 16px; }
+.r-scroll::-webkit-scrollbar { width: 3px; }
+.r-scroll::-webkit-scrollbar-thumb { background: var(--beige); border-radius: 2px; }
+
+/* Outfit hero */
+.outfit-hero {
+  border-radius: 18px;
+  background: linear-gradient(150deg, rgba(242,224,213,0.9) 0%, rgba(211,206,184,0.75) 100%);
+  height: 210px; display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden; flex-shrink: 0;
+  border: 0.5px solid rgba(255,255,255,0.7);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+}
+.obadge { position: absolute; top: 13px; left: 13px; background: rgba(215,103,54,0.15); border: 0.5px solid rgba(215,103,54,0.3); border-radius: 20px; padding: 4px 12px; font-size: 11px; color: var(--orange); font-weight: 700; }
+.owbadge { position: absolute; top: 13px; right: 13px; background: rgba(255,255,255,0.88); border-radius: 20px; padding: 4px 12px; font-size: 11px; color: var(--ink2); }
+.outfit-full { display: flex; gap: 13px; align-items: flex-end; opacity: 0; transform: scale(0.92); transition: all 0.55s cubic-bezier(0.34,1.2,0.64,1); }
+.outfit-full.show { opacity: 1; transform: scale(1); }
+.of-item { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.of-box { border-radius: 11px; background: rgba(200,194,170,0.85); display: flex; align-items: center; justify-content: center; }
+.of-box svg { stroke: rgba(0,0,0,0.2); fill: none; stroke-width: 1.3; }
+.of-lbl { font-size: 10px; color: var(--ink3); font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase; }
+
+/* AI text */
+.ai-name { font-size: 18px; font-weight: 500; color: var(--ink); font-family: var(--font-serif); font-style: italic; opacity: 0; transition: opacity 0.4s; }
+.ai-text { font-size: 12.5px; color: var(--ink2); line-height: 1.75; min-height: 28px; }
+.cursor { display: inline-block; width: 2px; height: 13px; background: var(--orange); margin-left: 1px; animation: blink 0.7s infinite; vertical-align: middle; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* Actions */
+.ractions { display: flex; gap: 9px; opacity: 0; transition: opacity 0.4s; flex-shrink: 0; }
+.rab { flex: 1; padding: 11px 8px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.08); background: rgba(255,255,255,0.65); font-size: 12.5px; color: var(--ink2); font-family: var(--font-sans); font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.13s; backdrop-filter: blur(4px); }
+.rab svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+.rab:hover { border-color: var(--orange); color: var(--orange); transform: translateY(-1px); }
+.rab.pri { background: var(--orange); color: #fff; border-color: var(--orange); box-shadow: 0 4px 14px rgba(215,103,54,0.3); }
+.rab.pri:hover { background: var(--orange-d); }
+
+/* Tweak */
+.tweak { background: rgba(255,255,255,0.55); border-radius: 15px; border: 0.5px solid rgba(0,0,0,0.07); padding: 13px 15px; opacity: 0; transition: opacity 0.4s; flex-shrink: 0; backdrop-filter: blur(8px); }
+.chips { display: flex; gap: 7px; margin-bottom: 10px; flex-wrap: wrap; }
+.chip { padding: 5px 11px; border-radius: 20px; background: rgba(255,255,255,0.8); border: 0.5px solid rgba(0,0,0,0.08); font-size: 11.5px; color: var(--ink2); cursor: pointer; font-weight: 700; transition: all 0.13s; }
+.chip:hover { background: var(--orange-l); border-color: var(--orange); color: var(--orange); }
+.tinp-row { display: flex; gap: 9px; align-items: center; }
+.tinp { flex: 1; border: none; outline: none; font-size: 12.5px; font-family: var(--font-sans); color: var(--ink); background: transparent; }
+.tinp::placeholder { color: var(--ink3); }
+.tsend { width: 30px; height: 30px; border-radius: 50%; background: var(--orange); border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.15s; }
+.tsend:hover { background: var(--orange-d); }
+.tsend svg { width: 11px; height: 11px; stroke: #fff; fill: none; stroke-width: 2.5; }
+
+/* Shop */
+.shop-wrap { opacity: 0; transition: opacity 0.4s; flex-shrink: 0; }
+.shop-divider { height: 0.5px; background: rgba(0,0,0,0.07); margin-bottom: 13px; }
+.shop-hdr { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 11px; }
+.shop-title { font-size: 14px; font-weight: 900; color: var(--ink); }
+.shop-sub { font-size: 11px; color: var(--ink3); }
+.shop-row { display: flex; gap: 9px; overflow-x: auto; padding-bottom: 3px; }
+.shop-row::-webkit-scrollbar { height: 2px; }
+.shop-row::-webkit-scrollbar-thumb { background: var(--beige); }
+.pcard { width: 118px; flex-shrink: 0; background: rgba(255,255,255,0.75); border-radius: 13px; border: 0.5px solid rgba(0,0,0,0.07); overflow: hidden; cursor: pointer; transition: all 0.15s; backdrop-filter: blur(4px); }
+.pcard:hover { border-color: var(--orange); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+.pimg { height: 82px; background: linear-gradient(135deg,rgba(242,224,213,0.9),rgba(211,206,184,0.8)); display: flex; align-items: center; justify-content: center; position: relative; }
+.pimg svg { width: 30px; height: 30px; stroke: rgba(0,0,0,0.18); fill: none; stroke-width: 1.3; }
+.ptag { position: absolute; top: 7px; left: 7px; background: var(--orange); color: #fff; font-size: 8px; padding: 2px 7px; border-radius: 6px; font-weight: 700; }
+.pinfo { padding: 9px 10px; }
+.pname { font-size: 12px; font-weight: 700; color: var(--ink); }
+.pwhy { font-size: 10px; color: var(--ink3); margin-top: 1px; line-height: 1.3; }
+.pprice { font-size: 12px; font-weight: 700; color: var(--orange); margin-top: 5px; }
+
+/* Past & Future */
+.r-record { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.rec-topbar { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; border-bottom: 0.5px solid rgba(0,0,0,0.07); flex-shrink: 0; }
+.rec-date { font-size: 14px; font-weight: 700; color: var(--ink); }
+.rec-meta { font-size: 11.5px; color: var(--ink3); }
+.rec-scroll { flex: 1; overflow-y: auto; padding: 22px 26px; display: flex; flex-direction: column; gap: 16px; }
+.rec-hero { border-radius: 18px; background: linear-gradient(150deg,rgba(242,224,213,0.9),rgba(211,206,184,0.75)); height: 210px; display: flex; align-items: center; justify-content: center; position: relative; flex-shrink: 0; border: 0.5px solid rgba(255,255,255,0.7); }
+.rec-name { font-size: 17px; font-weight: 500; color: var(--ink); font-family: var(--font-serif); font-style: italic; }
+.rec-reason { font-size: 12.5px; color: var(--ink2); line-height: 1.75; }
+.r-future { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.fut-topbar { padding: 14px 24px; border-bottom: 0.5px solid rgba(0,0,0,0.07); flex-shrink: 0; }
+.fut-date { font-size: 14px; font-weight: 700; color: var(--ink); }
+.fut-weather { font-size: 12px; color: var(--ink2); margin-top: 3px; display: flex; align-items: center; gap: 6px; }
+.fut-scroll { flex: 1; overflow-y: auto; padding: 22px 26px; display: flex; flex-direction: column; gap: 14px; }
+.fut-occ-title { font-size: 15px; font-weight: 900; color: var(--ink); }
+.fut-occ-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.fut-note { background: var(--orange-l); border-left: 3px solid var(--orange); border-radius: 0 12px 12px 0; padding: 12px 15px; font-size: 12.5px; color: #7a4020; line-height: 1.65; }
+.fut-gbtn { background: var(--orange); color: #fff; border: none; border-radius: 13px; padding: 14px; font-size: 13.5px; font-weight: 700; font-family: var(--font-sans); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px; box-shadow: 0 6px 20px rgba(215,103,54,0.35); }
+.fut-gbtn svg { width: 13px; height: 13px; stroke: #fff; fill: none; stroke-width: 2; }
+
+.hidden { display: none !important; }
+.fade { animation: fadeUp 0.22s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(7px)} to{opacity:1;transform:translateY(0)} }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="blobs">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="blob blob-4"></div>
+  </div>
+
+  <!-- BLACK SIDEBAR -->
+  <div class="sb">
+    <div class="logo">
+      <span class="logo-text">W<span class="logo-i">w</span></span>
+    </div>
+    <div class="ni on">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M3 12h1m16 0h1M12 3v1m0 16v1m-7.07-14.07.7.7m12.74 12.74.7.7m0-14.14-.7.7m-12.74 12.74-.7.7"/></svg>
+      <span>Today</span>
+    </div>
+    <div class="ni">
+      <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+      <span>Closet</span>
+    </div>
+    <div class="ni">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Cal</span>
+    </div>
+    <div class="sb-spacer"></div>
+    <div class="sb-divider"></div>
+    <div class="ni">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Profile</span>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="body">
+
+    <!-- TOPBAR -->
+    <div class="tb">
+      <span class="tb-brand" id="tb-title">Whatever the <em>Weather.</em></span>
+      <div class="tb-r">
+        <!-- Editable location -->
+        <div class="loc-pill" id="loc-pill" onclick="toggleLocPopup()">
+          <div class="loc-dot"></div>
+          <svg class="loc-svg" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span class="loc-text" id="loc-text">New York · Mon Apr 21</span>
+          <span class="loc-edit">Edit</span>
+          <!-- Popup -->
+          <div class="loc-popup" id="loc-popup" onclick="event.stopPropagation()">
+            <div class="loc-popup-label">Change Location</div>
+            <div class="loc-inp-row">
+              <input class="loc-inp" id="loc-inp" placeholder="City, State or ZIP" onkeydown="if(event.key==='Enter')confirmLoc()"/>
+              <button class="loc-confirm" onclick="confirmLoc()">Set</button>
+            </div>
+          </div>
+        </div>
+        <div class="av" onclick="toggleLocPopup()">J</div>
+      </div>
+    </div>
+
+    <div class="cols">
+
+      <!-- LEFT PANEL -->
+      <div class="lp">
+        <div class="lp-scroll">
+
+          <!-- Weather -->
+          <div class="wcard">
+            <div class="wl">
+              <div class="city">Now · Auto-detected</div>
+              <div class="tmp">22°</div>
+              <div class="desc">Light rain · Feels like 20°</div>
+            </div>
+            <div class="wr">
+              <div class="ico">🌧️</div>
+              <div class="feel">Wind 12 km/h</div>
+            </div>
+          </div>
+
+          <!-- Week strip -->
+          <div class="week-strip">
+            <div class="week-hdr">This Week</div>
+            <div class="week-row">
+              <div class="wday" data-type="past" data-date="Apr 17" data-occ="Casual" data-name="Weekend Easy" data-temp="25°" data-ico="☀️" onclick="clickDay(this)"><div class="wd-lbl">Fri</div><div class="wd-ico">☀️</div><div class="wd-circle filled"></div></div>
+              <div class="wday" data-type="past" data-date="Apr 18" data-occ="Date" data-name="Evening Chic" data-temp="21°" data-ico="🌙" onclick="clickDay(this)"><div class="wd-lbl">Sat</div><div class="wd-ico">🌤️</div><div class="wd-circle filled"></div></div>
+              <div class="wday" data-type="past" data-date="Apr 19" data-occ="Work" data-name="Smart Casual" data-temp="23°" data-ico="⛅" onclick="clickDay(this)"><div class="wd-lbl">Sun</div><div class="wd-ico">⛅</div><div class="wd-circle filled"></div></div>
+              <div class="wday today sel" id="day-today" data-type="today" onclick="clickDay(this)"><div class="wd-lbl">Today</div><div class="wd-ico">🌧️</div><div class="wd-circle"></div></div>
+              <div class="wday" data-type="future" data-date="Tue Apr 22" data-temp="24°" data-ico="⛅" data-desc="Partly cloudy" onclick="clickDay(this)"><div class="wd-lbl">Tue</div><div class="wd-ico">⛅</div><div class="wd-circle"></div></div>
+              <div class="wday" data-type="future" data-date="Wed Apr 23" data-temp="26°" data-ico="🌤️" data-desc="Mostly sunny" onclick="clickDay(this)"><div class="wd-lbl">Wed</div><div class="wd-ico">🌤️</div><div class="wd-circle"></div></div>
+              <div class="wday" data-type="future" data-date="Thu Apr 24" data-temp="28°" data-ico="☀️" data-desc="Hot and sunny" onclick="clickDay(this)"><div class="wd-lbl">Thu</div><div class="wd-ico">☀️</div><div class="wd-circle"></div></div>
+            </div>
+          </div>
+
+          <!-- Occasion -->
+          <div class="occ-section" id="occ-section">
+            <div>
+              <div class="occ-title" id="occ-title">What's today about?</div>
+              <div class="occ-sub">Quick pick, or describe below</div>
+            </div>
+            <div class="occ-grid">
+              <div class="ocard" onclick="pickOcc(this,'Work')"><div class="em">💼</div><div class="nm">Work</div><div class="ht">Office or meetings</div></div>
+              <div class="ocard" onclick="pickOcc(this,'Casual')"><div class="em">☕</div><div class="nm">Casual</div><div class="ht">Errands or chill</div></div>
+              <div class="ocard" onclick="pickOcc(this,'Date')"><div class="em">✨</div><div class="nm">Date</div><div class="ht">Dinner or night out</div></div>
+              <div class="ocard" onclick="pickOcc(this,'Outdoor')"><div class="em">🌿</div><div class="nm">Outdoor</div><div class="ht">Parks or activities</div></div>
+            </div>
+
+            <!-- BIG INPUT -->
+            <div class="free-block">
+              <div class="free-block-label">Or describe your day</div>
+              <textarea class="free-inp" id="free-occ" rows="2" placeholder='e.g. "rooftop dinner date", "startup job interview"' oninput="handleFree(this)"></textarea>
+              <div class="free-examples">
+                <span class="free-ex" onclick="setEx('beach wedding as a guest')">👰 Beach wedding</span>
+                <span class="free-ex" onclick="setEx('casual Friday at the office')">💻 Casual Friday</span>
+                <span class="free-ex" onclick="setEx('first date at a rooftop bar')">✨ Rooftop date</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Generate -->
+        <div class="lp-foot">
+          <button class="gbtn" id="gbtn" disabled onclick="startGen()">
+            <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <span id="gbtn-label">Style me today</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- RIGHT PANEL -->
+      <div class="rp">
+
+        <!-- Empty -->
+        <div class="r-empty" id="r-empty">
+          <div class="r-empty-ico">
+            <svg viewBox="0 0 24 24"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.57a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.57a2 2 0 00-1.34-2.23z"/></svg>
+          </div>
+          <div class="r-empty-title">Your outfit will appear here</div>
+          <div class="r-empty-sub">Pick an occasion or describe your day — then tap Style me today</div>
+        </div>
+
+        <!-- Gen loader -->
+        <div class="r-gen hidden" id="r-gen">
+          <div class="gcircle"><div class="sring"></div><span style="font-size:20px;color:var(--orange);">✦</span></div>
+          <div style="font-size:16px;font-weight:500;color:var(--ink);font-family:var(--font-serif);font-style:italic;">Finding your look...</div>
+          <div style="font-size:12.5px;color:var(--ink3);">Matching your closet with today's weather</div>
+          <div class="gsteps">
+            <div class="gstep"><div class="sd done"></div><span class="st done">Weather · 22° light rain ✓</span></div>
+            <div class="gstep"><div class="sd done"></div><span class="st done">Occasion · <span id="g-occ">Work</span> ✓</span></div>
+            <div class="gstep"><div class="sd" id="sd3"></div><span class="st" id="st3">Scanning closet for rain-safe pieces...</span></div>
+            <div class="gstep"><div class="sd" id="sd4"></div><span class="st" id="st4">Checking colour harmony</span></div>
+            <div class="gstep"><div class="sd" id="sd5"></div><span class="st" id="st5">Assembling your look</span></div>
+          </div>
+        </div>
+
+        <!-- Item assembly -->
+        <div class="r-items hidden" id="r-items">
+          <div style="font-size:12.5px;color:var(--ink3);font-weight:700;letter-spacing:0.05em;text-transform:uppercase;" id="items-lbl">Picking items...</div>
+          <div class="items-row">
+            <div class="icard" id="ic0"><div class="ibox" style="width:54px;height:66px;"><svg width="27" height="27" viewBox="0 0 24 24"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.57a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.57a2 2 0 00-1.34-2.23z"/></svg><div class="ichk" id="ck0"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div><span class="ilbl">Shirt</span></div>
+            <div class="icard" id="ic1"><div class="ibox" style="width:46px;height:78px;"><svg width="23" height="23" viewBox="0 0 24 24"><path d="M6 2l-3 8h5v12h8V10h5l-3-8H6z"/></svg><div class="ichk" id="ck1"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div><span class="ilbl">Trousers</span></div>
+            <div class="icard" id="ic2"><div class="ibox" style="width:62px;height:74px;"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M3 5c0-1 .7-2 2-2l4 3 3-3 3 3 4-3c1.3 0 2 1 2 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5z"/></svg><div class="ichk" id="ck2"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div><span class="ilbl">Jacket</span></div>
+            <div class="icard" id="ic3"><div class="ibox" style="width:54px;height:42px;"><svg width="27" height="19" viewBox="0 0 32 20"><ellipse cx="8" cy="14" rx="7" ry="5"/><ellipse cx="24" cy="14" rx="7" ry="5"/><path d="M1 14V8a6 6 0 0112 0v2h6V8a6 6 0 0112 0v6"/></svg><div class="ichk" id="ck3"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div><span class="ilbl">Shoes</span></div>
+          </div>
+        </div>
+
+        <!-- Result -->
+        <div class="r-result hidden" id="r-result">
+          <div class="r-topbar">
+            <div class="r-back" onclick="backToEmpty()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Change occasion</div>
+            <div class="r-icons">
+              <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+              <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            </div>
+          </div>
+          <div class="r-scroll">
+            <div class="outfit-hero">
+              <div class="obadge" id="r-occ-badge">Work</div>
+              <div class="owbadge">22° 🌧️</div>
+              <div class="outfit-full" id="outfit-full">
+                <div class="of-item"><div class="of-box" style="width:48px;height:60px;"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.57a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.57a2 2 0 00-1.34-2.23z"/></svg></div><span class="of-lbl">Top</span></div>
+                <div class="of-item"><div class="of-box" style="width:40px;height:70px;"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M6 2l-3 8h5v12h8V10h5l-3-8H6z"/></svg></div><span class="of-lbl">Bottom</span></div>
+                <div class="of-item"><div class="of-box" style="width:56px;height:68px;"><svg width="27" height="27" viewBox="0 0 24 24"><path d="M3 5c0-1 .7-2 2-2l4 3 3-3 3 3 4-3c1.3 0 2 1 2 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5z"/></svg></div><span class="of-lbl">Jacket</span></div>
+                <div class="of-item"><div class="of-box" style="width:44px;height:34px;"><svg width="22" height="15" viewBox="0 0 32 20"><ellipse cx="8" cy="14" rx="7" ry="5"/><ellipse cx="24" cy="14" rx="7" ry="5"/><path d="M1 14V8a6 6 0 0112 0v2h6V8a6 6 0 0112 0v6"/></svg></div><span class="of-lbl">Shoes</span></div>
+              </div>
+            </div>
+            <div>
+              <div class="ai-name" id="ai-name">Polished Rain-Ready</div>
+              <div class="ai-text" id="ai-text"></div>
+            </div>
+            <div class="ractions" id="r-actions">
+              <button class="rab"><svg viewBox="0 0 24 24"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>Redo</button>
+              <button class="rab pri"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>Save look</button>
+            </div>
+            <div class="tweak" id="r-tweak">
+              <div class="chips"><div class="chip">Warmer</div><div class="chip">More formal</div><div class="chip">No jacket</div><div class="chip">Swap shoes</div></div>
+              <div class="tinp-row"><input class="tinp" placeholder="Or ask anything..."/><button class="tsend"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button></div>
+            </div>
+            <div class="shop-wrap" id="shop-wrap">
+              <div class="shop-divider"></div>
+              <div class="shop-hdr"><div class="shop-title">Shop this look</div><div class="shop-sub">Items that complete this outfit</div></div>
+              <div class="shop-row">
+                <div class="pcard"><div class="pimg"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><div class="ptag">Completes look</div></div><div class="pinfo"><div class="pname">Oxford Loafer</div><div class="pwhy">Water-resistant sole</div><div class="pprice">$89 · Cole Haan</div></div></div>
+                <div class="pcard"><div class="pimg"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg></div><div class="pinfo"><div class="pname">Canvas Tote</div><div class="pwhy">Waterproof canvas</div><div class="pprice">$45 · Muji</div></div></div>
+                <div class="pcard"><div class="pimg"><svg viewBox="0 0 24 24"><path d="M23 12a11.05 11.05 0 00-22 0zm-5 7a3 3 0 01-6 0v-7"/></svg></div><div class="pinfo"><div class="pname">Compact Umbrella</div><div class="pwhy">Windproof, fits in bag</div><div class="pprice">$28 · Blunt</div></div></div>
+                <div class="pcard"><div class="pimg"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg></div><div class="pinfo"><div class="pname">Slim Chinos</div><div class="pwhy">Lighter than jeans</div><div class="pprice">$65 · Uniqlo</div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Past record -->
+        <div class="r-record hidden" id="r-record">
+          <div class="rec-topbar"><div class="rec-date" id="rec-date">Apr 19</div><div class="rec-meta" id="rec-meta">Work · 23° ⛅</div></div>
+          <div class="rec-scroll">
+            <div class="rec-hero">
+              <div class="obadge" id="rec-badge">Work</div><div class="owbadge" id="rec-weather">23° ⛅</div>
+              <div style="display:flex;gap:11px;align-items:flex-end;">
+                <div class="of-item"><div class="of-box" style="width:48px;height:60px;"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.57a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.57a2 2 0 00-1.34-2.23z"/></svg></div><span class="of-lbl">Top</span></div>
+                <div class="of-item"><div class="of-box" style="width:40px;height:70px;"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M6 2l-3 8h5v12h8V10h5l-3-8H6z"/></svg></div><span class="of-lbl">Bottom</span></div>
+                <div class="of-item"><div class="of-box" style="width:44px;height:34px;"><svg width="22" height="15" viewBox="0 0 32 20"><ellipse cx="8" cy="14" rx="7" ry="5"/><ellipse cx="24" cy="14" rx="7" ry="5"/><path d="M1 14V8a6 6 0 0112 0v2h6V8a6 6 0 0112 0v6"/></svg></div><span class="of-lbl">Shoes</span></div>
+              </div>
+            </div>
+            <div class="rec-name" id="rec-name">Smart Casual</div>
+            <div class="rec-reason" id="rec-reason">Mild and partly cloudy — picked your beige chino + white button-down. Light enough for the temperature, smart enough for the office.</div>
+          </div>
+        </div>
+
+        <!-- Future plan -->
+        <div class="r-future hidden" id="r-future">
+          <div class="fut-topbar"><div class="fut-date" id="fut-date">Tue Apr 22</div><div class="fut-weather"><span id="fut-ico">⛅</span><span id="fut-desc">24° · Partly cloudy</span></div></div>
+          <div class="fut-scroll">
+            <div class="fut-note">Weather forecast is ready. Set your occasion and we'll generate your outfit the morning of this day.</div>
+            <div class="fut-occ-title">What's the occasion?</div>
+            <div class="fut-occ-grid">
+              <div class="ocard" onclick="pickFutOcc(this,'Work')"><div class="em">💼</div><div class="nm">Work</div><div class="ht">Office or meetings</div></div>
+              <div class="ocard" onclick="pickFutOcc(this,'Casual')"><div class="em">☕</div><div class="nm">Casual</div><div class="ht">Errands or chill</div></div>
+              <div class="ocard" onclick="pickFutOcc(this,'Date')"><div class="em">✨</div><div class="nm">Date</div><div class="ht">Dinner or night out</div></div>
+              <div class="ocard" onclick="pickFutOcc(this,'Outdoor')"><div class="em">🌿</div><div class="nm">Outdoor</div><div class="ht">Parks or activities</div></div>
+            </div>
+            <button class="fut-gbtn hidden" id="fut-gbtn" onclick="saveFuture()"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Save to calendar</button>
+            <div class="hidden" id="fut-saved" style="background:var(--orange-l);border:0.5px solid var(--orange-m);border-radius:13px;padding:14px 16px;font-size:12.5px;color:#7a4020;display:flex;align-items:center;gap:10px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7a4020" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Occasion saved. We'll generate your outfit the morning of this day.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const aiText = "Light rain today — picked your water-resistant navy jacket + slim trousers. Skipped your linen shirt: absorbs moisture and takes hours to dry. This combo keeps you sharp and dry all day.";
+let selOcc = null, typeT = null;
+
+const pastData = {
+  'Apr 17':{occ:'Casual',name:'Weekend Easy',temp:'25°',ico:'☀️',reason:'Sunny and warm — light linen shirt + white shorts. Breathable and easy for a weekend afternoon.'},
+  'Apr 18':{occ:'Date',name:'Evening Chic',temp:'21°',ico:'🌙',reason:'Clear and mild — your silk blouse + tailored trousers. Elegant without being overdressed for dinner.'},
+  'Apr 19':{occ:'Work',name:'Smart Casual',temp:'23°',ico:'⛅',reason:'Mild and partly cloudy — beige chino + white button-down. Light enough for the temperature, smart enough for the office.'}
+};
+
+function show(id){ document.getElementById(id).classList.remove('hidden'); }
+function hide(id){ document.getElementById(id).classList.add('hidden'); }
+function fadeIn(id){ const e=document.getElementById(id); e.classList.remove('hidden'); e.classList.add('fade'); setTimeout(()=>e.classList.remove('fade'),250); }
+function hideAllRight(){ ['r-empty','r-gen','r-items','r-result','r-record','r-future'].forEach(id=>hide(id)); }
+
+// Location popup
+function toggleLocPopup(){
+  const p = document.getElementById('loc-popup');
+  p.classList.toggle('open');
+  if(p.classList.contains('open')) setTimeout(()=>document.getElementById('loc-inp').focus(), 50);
+}
+function confirmLoc(){
+  const v = document.getElementById('loc-inp').value.trim();
+  if(v){ document.getElementById('loc-text').textContent = v + ' · ' + new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}); }
+  document.getElementById('loc-popup').classList.remove('open');
+}
+document.addEventListener('click', e=>{
+  const pill = document.getElementById('loc-pill');
+  if(!pill.contains(e.target)) document.getElementById('loc-popup').classList.remove('open');
+});
+
+function setEx(txt){
+  const inp = document.getElementById('free-occ');
+  inp.value = txt;
+  handleFree(inp);
+  inp.focus();
+}
+
+function clickDay(el){
+  document.querySelectorAll('.wday').forEach(d=>d.classList.remove('sel'));
+  el.classList.add('sel');
+  const type = el.dataset.type;
+  if(type==='today'){
+    document.getElementById('tb-title').innerHTML = "Whatever the <em>Weather.</em>";
+    show('occ-section');
+    document.getElementById('occ-title').textContent = "What's today about?";
+    document.getElementById('gbtn-label').textContent = "Style me today";
+    resetOcc(); hideAllRight(); fadeIn('r-empty');
+  } else if(type==='past'){
+    hide('occ-section');
+    document.getElementById('gbtn').disabled = true;
+    const d = pastData[el.dataset.date];
+    document.getElementById('tb-title').innerHTML = el.dataset.date;
+    document.getElementById('rec-date').textContent = el.dataset.date;
+    document.getElementById('rec-meta').textContent = d.occ+' · '+d.temp+' '+el.dataset.ico;
+    document.getElementById('rec-badge').textContent = d.occ;
+    document.getElementById('rec-weather').textContent = d.temp+' '+el.dataset.ico;
+    document.getElementById('rec-name').textContent = d.name;
+    document.getElementById('rec-reason').textContent = d.reason;
+    hideAllRight(); fadeIn('r-record');
+  } else {
+    show('occ-section');
+    document.getElementById('occ-title').textContent = 'What\'s the occasion for '+el.dataset.date+'?';
+    document.getElementById('gbtn-label').textContent = 'Save to calendar';
+    resetOcc();
+    document.getElementById('fut-date').textContent = el.dataset.date;
+    document.getElementById('fut-ico').textContent = el.dataset.ico;
+    document.getElementById('fut-desc').textContent = el.dataset.temp+' · '+el.dataset.desc;
+    hide('fut-saved'); hide('fut-gbtn');
+    document.querySelectorAll('#r-future .ocard').forEach(c=>c.classList.remove('on'));
+    hideAllRight(); fadeIn('r-future');
+  }
+}
+
+function resetOcc(){
+  document.querySelectorAll('#occ-section .ocard').forEach(c=>c.classList.remove('on'));
+  document.getElementById('free-occ').value = '';
+  selOcc = null;
+  document.getElementById('gbtn').disabled = true;
+}
+function pickOcc(el, occ){
+  document.querySelectorAll('#occ-section .ocard').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on'); selOcc = occ;
+  document.getElementById('free-occ').value = '';
+  document.getElementById('gbtn').disabled = false;
+}
+function handleFree(el){
+  document.querySelectorAll('#occ-section .ocard').forEach(c=>c.classList.remove('on'));
+  selOcc = el.value.trim();
+  document.getElementById('gbtn').disabled = !selOcc;
+}
+function pickFutOcc(el, occ){
+  document.querySelectorAll('#r-future .ocard').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on'); show('fut-gbtn');
+}
+function saveFuture(){
+  hide('fut-gbtn'); fadeIn('fut-saved');
+  const selDay = document.querySelector('.wday.sel');
+  if(selDay){ const c=selDay.querySelector('.wd-circle'); if(c) c.classList.add('filled'); }
+}
+function startGen(){
+  const occ = selOcc||'Work';
+  document.getElementById('g-occ').textContent = occ;
+  document.getElementById('r-occ-badge').textContent = occ;
+  document.getElementById('tb-title').innerHTML = 'Generating...';
+  hideAllRight(); fadeIn('r-gen');
+  const steps=[{d:'sd3',t:'st3',dl:400},{d:'sd4',t:'st4',dl:920},{d:'sd5',t:'st5',dl:1400}];
+  steps.forEach(({d,t,dl})=>{
+    setTimeout(()=>{ document.getElementById(d).className='sd cur'; document.getElementById(t).className='st cur'; }, dl);
+    setTimeout(()=>{ document.getElementById(d).className='sd done'; document.getElementById(t).className='st done'; }, dl+520);
+  });
+  setTimeout(()=>{
+    hide('r-gen'); fadeIn('r-items');
+    const ids=['ic0','ic1','ic2','ic3'], cks=['ck0','ck1','ck2','ck3'];
+    const lbls=['Picking shirt...','Adding trousers...','Grabbing jacket...','Choosing shoes...'];
+    ids.forEach((id,i)=>{
+      setTimeout(()=>{
+        document.getElementById('items-lbl').textContent = lbls[i];
+        document.getElementById(id).classList.add('show');
+        setTimeout(()=>document.getElementById(cks[i]).classList.add('show'), 270);
+      }, i*520);
+    });
+    setTimeout(()=>showResult(), ids.length*520+500);
+  }, 2300);
+}
+function showResult(){
+  hide('r-items');
+  document.getElementById('tb-title').innerHTML = "Whatever the <em>Weather.</em>";
+  const todayEl = document.getElementById('day-today');
+  const circle = todayEl.querySelector('.wd-circle');
+  if(circle) circle.classList.add('filled');
+  fadeIn('r-result');
+  setTimeout(()=>document.getElementById('outfit-full').classList.add('show'), 170);
+  setTimeout(()=>{ const n=document.getElementById('ai-name'); n.style.opacity='1'; n.style.transition='opacity .45s'; }, 620);
+  setTimeout(()=>typeWriter(aiText,0), 840);
+  const endT = 840+aiText.length*18;
+  setTimeout(()=>{ document.getElementById('r-actions').style.opacity='1'; document.getElementById('r-tweak').style.opacity='1'; }, endT+120);
+  setTimeout(()=>document.getElementById('shop-wrap').style.opacity='1', endT+600);
+}
+function typeWriter(text, i){
+  const el = document.getElementById('ai-text');
+  if(i < text.length){ el.innerHTML=text.slice(0,i+1)+'<span class="cursor"></span>'; typeT=setTimeout(()=>typeWriter(text,i+1),18); }
+  else { el.innerHTML=text; }
+}
+function backToEmpty(){
+  if(typeT) clearTimeout(typeT);
+  document.getElementById('outfit-full').classList.remove('show');
+  document.getElementById('ai-name').style.opacity='0';
+  document.getElementById('ai-text').innerHTML='';
+  document.getElementById('r-actions').style.opacity='0';
+  document.getElementById('r-tweak').style.opacity='0';
+  document.getElementById('shop-wrap').style.opacity='0';
+  ['ic0','ic1','ic2','ic3'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  ['ck0','ck1','ck2','ck3'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  ['sd3','sd4','sd5'].forEach(id=>document.getElementById(id).className='sd');
+  ['st3','st4','st5'].forEach(id=>document.getElementById(id).className='st');
+  document.getElementById('tb-title').innerHTML="Whatever the <em>Weather.</em>";
+  hideAllRight(); fadeIn('r-empty');
+}
+</script>
+</body>
+</html>

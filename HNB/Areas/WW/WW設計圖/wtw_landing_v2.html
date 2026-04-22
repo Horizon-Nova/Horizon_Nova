@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Bodoni+Moda:ital,wght@1,500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --orange:   #d76736;
+  --orange-d: #b8522a;
+  --orange-l: #f2e0d5;
+  --orange-m: #e8b89e;
+  --beige:    #d3ceb8;
+  --bg:       #d9d4c0;
+  --peach:    #d3a38c;
+  --teal:     #9dbab5;
+  --black:    #141210;
+  --ink:      #1e1b18;
+  --ink2:     #5a534c;
+  --ink3:     #9a9188;
+  --font-sans: 'Lato', sans-serif;
+  --font-serif: 'Bodoni Moda', serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); overflow-x: hidden; }
+
+/* ── NAVBAR ── */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: var(--black); height: 54px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 52px;
+}
+.nav-brand { font-weight: 900; font-size: 15px; color: #fff; }
+.nav-brand em { font-family: var(--font-serif); font-style: italic; font-weight: 500; color: var(--orange); }
+.nav-r { display: flex; align-items: center; gap: 28px; }
+.nav-link { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.45); text-decoration: none; transition: color 0.15s; }
+.nav-link:hover { color: #fff; }
+.nav-cta { background: var(--orange); color: #fff; border: none; border-radius: 22px; padding: 9px 22px; font-size: 13px; font-weight: 700; font-family: var(--font-sans); cursor: pointer; transition: all 0.15s; box-shadow: 0 4px 14px rgba(215,103,54,0.4); }
+.nav-cta:hover { background: var(--orange-d); transform: translateY(-1px); }
+
+/* ── SHARED ── */
+.blob { position: absolute; pointer-events: none; }
+.section-eyebrow { font-size: 11px; font-weight: 700; color: var(--orange); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 14px; }
+.section-title { font-size: clamp(34px, 4vw, 54px); font-weight: 900; color: var(--ink); line-height: 1.08; letter-spacing: -0.02em; margin-bottom: 16px; }
+.section-title em { font-family: var(--font-serif); font-style: italic; font-weight: 500; color: var(--orange); }
+.section-sub { font-size: 16px; color: var(--ink2); line-height: 1.75; max-width: 460px; }
+.check-list { display: flex; flex-direction: column; gap: 11px; margin-top: 28px; }
+.check-item { display: flex; align-items: center; gap: 11px; font-size: 13.5px; color: var(--ink2); font-weight: 700; }
+.check-ico { width: 22px; height: 22px; border-radius: 6px; background: var(--orange-l); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.check-ico svg { width: 11px; height: 11px; stroke: var(--orange); fill: none; stroke-width: 2.8; stroke-linecap: round; }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.7)} }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh; background: var(--bg);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 130px 52px 80px; position: relative; overflow: hidden; text-align: center;
+}
+.hero-b1 { width: 500px; height: 460px; background: var(--peach); top: -120px; left: -80px; border-radius: 63% 37% 54% 46% / 55% 48% 52% 45%; opacity: 0.65; }
+.hero-b2 { width: 420px; height: 460px; background: var(--teal); bottom: -100px; right: -60px; border-radius: 44% 56% 38% 62% / 58% 42% 58% 42%; opacity: 0.6; }
+.hero-b3 { width: 280px; height: 260px; background: var(--orange-l); top: 25%; left: 58%; border-radius: 52% 48% 62% 38% / 42% 58% 42% 58%; opacity: 0.55; }
+
+.hero-pill { font-size: 11px; font-weight: 700; color: var(--orange); letter-spacing: 0.1em; text-transform: uppercase; background: rgba(255,255,255,0.65); border: 0.5px solid rgba(215,103,54,0.25); border-radius: 20px; padding: 6px 16px; margin-bottom: 30px; display: inline-flex; align-items: center; gap: 7px; animation: fadeUp 0.6s ease both; backdrop-filter: blur(8px); }
+.hero-pill-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--orange); animation: pulse 1.5s infinite; }
+
+.hero-title { font-size: clamp(58px, 8vw, 108px); font-weight: 900; color: var(--ink); line-height: 0.95; letter-spacing: -0.03em; margin-bottom: 24px; animation: fadeUp 0.7s ease 0.1s both; position: relative; z-index: 1; }
+.hero-title em { font-family: var(--font-serif); font-style: italic; font-weight: 500; color: var(--orange); }
+
+.hero-sub { font-size: 19px; color: var(--ink2); line-height: 1.65; max-width: 520px; margin: 0 auto 42px; animation: fadeUp 0.7s ease 0.2s both; position: relative; z-index: 1; }
+.hero-sub strong { color: var(--ink); font-weight: 700; }
+
+.hero-btns { display: flex; gap: 12px; justify-content: center; animation: fadeUp 0.7s ease 0.3s both; position: relative; z-index: 1; margin-bottom: 72px; }
+.btn-primary { background: var(--orange); color: #fff; border: none; border-radius: 14px; padding: 17px 38px; font-size: 15px; font-weight: 900; font-family: var(--font-sans); cursor: pointer; transition: all 0.15s; box-shadow: 0 10px 32px rgba(215,103,54,0.42); display: flex; align-items: center; gap: 9px; }
+.btn-primary:hover { background: var(--orange-d); transform: translateY(-2px); box-shadow: 0 14px 40px rgba(215,103,54,0.48); }
+.btn-primary svg { width: 16px; height: 16px; stroke: #fff; fill: none; stroke-width: 2.5; }
+.btn-ghost { background: rgba(255,255,255,0.55); color: var(--ink); border: 1.5px solid rgba(0,0,0,0.1); border-radius: 14px; padding: 17px 32px; font-size: 15px; font-weight: 700; font-family: var(--font-sans); cursor: pointer; transition: all 0.15s; backdrop-filter: blur(8px); }
+.btn-ghost:hover { border-color: var(--orange); color: var(--orange); background: var(--orange-l); }
+
+/* Steps strip under hero */
+.hero-steps { display: flex; gap: 0; background: rgba(255,255,255,0.55); backdrop-filter: blur(12px); border-radius: 18px; border: 0.5px solid rgba(255,255,255,0.85); box-shadow: 0 8px 32px rgba(0,0,0,0.1); overflow: hidden; max-width: 780px; width: 100%; animation: fadeUp 0.7s ease 0.4s both; position: relative; z-index: 1; }
+.hs-step { flex: 1; padding: 22px 24px; display: flex; align-items: flex-start; gap: 14px; }
+.hs-step + .hs-step { border-left: 0.5px solid rgba(0,0,0,0.07); }
+.hs-num { width: 34px; height: 34px; border-radius: 50%; background: var(--orange); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 900; color: #fff; flex-shrink: 0; box-shadow: 0 4px 12px rgba(215,103,54,0.35); }
+.hs-title { font-size: 13px; font-weight: 900; color: var(--ink); margin-bottom: 3px; }
+.hs-desc { font-size: 11.5px; color: var(--ink3); line-height: 1.5; }
+
+/* ── CLOSET ── */
+.closet-sec { background: #fff; padding: 110px 52px; position: relative; overflow: hidden; }
+.closet-b1 { width: 320px; height: 300px; background: var(--peach); top: -70px; right: -50px; border-radius: 60% 40% 55% 45% / 50% 60% 40% 50%; opacity: 0.45; }
+.closet-b2 { width: 240px; height: 220px; background: var(--teal); bottom: -50px; left: -30px; border-radius: 45% 55% 40% 60% / 60% 40% 55% 45%; opacity: 0.4; }
+.closet-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; gap: 80px; }
+.closet-text { flex: 1; }
+.closet-visual { flex: 1.2; position: relative; z-index: 1; }
+
+/* AI scanning badge */
+.ai-badge { display: inline-flex; align-items: center; gap: 7px; background: var(--black); color: #fff; font-size: 11px; font-weight: 700; padding: 6px 14px; border-radius: 20px; margin-bottom: 14px; letter-spacing: 0.04em; }
+.ai-badge-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--orange); animation: pulse 1.5s infinite; }
+
+.closet-demo { background: rgba(250,248,244,0.9); border-radius: 20px; border: 0.5px solid rgba(0,0,0,0.08); box-shadow: 0 20px 60px rgba(0,0,0,0.12); overflow: hidden; }
+.cd-topbar { background: var(--bg); padding: 13px 18px; display: flex; align-items: center; justify-content: space-between; border-bottom: 0.5px solid rgba(0,0,0,0.07); }
+.cd-topbar-title { font-size: 13px; font-weight: 900; color: var(--ink); }
+.cd-topbar-stat { font-size: 12px; color: var(--ink3); }
+.cd-topbar-stat strong { color: var(--orange); font-weight: 900; }
+.cd-bubbles { display: flex; gap: 10px; padding: 12px 16px; border-bottom: 0.5px solid rgba(0,0,0,0.06); overflow-x: auto; }
+.cd-bubble { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; flex-shrink: 0; }
+.cd-bubble-c { width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,0.8); border: 2px solid rgba(0,0,0,0.07); display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.15s; }
+.cd-bubble.on .cd-bubble-c { border-color: var(--orange); background: var(--orange-l); }
+.cd-bubble-l { font-size: 9px; font-weight: 700; color: var(--ink3); text-transform: uppercase; }
+.cd-bubble.on .cd-bubble-l { color: var(--orange); }
+.cd-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 10px; padding: 14px 16px 16px; }
+.cd-card { background: #fff; border-radius: 12px; overflow: hidden; border: 0.5px solid rgba(0,0,0,0.06); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+.cd-img { height: 86px; display: flex; align-items: center; justify-content: center; position: relative; }
+.cd-img svg { stroke: rgba(0,0,0,0.16); fill: none; stroke-width: 1.1; }
+.cd-cat { position: absolute; top: 6px; left: 6px; background: rgba(20,18,16,0.72); color: #fff; font-size: 7.5px; font-weight: 700; padding: 2px 6px; border-radius: 5px; text-transform: uppercase; }
+.cd-body { padding: 7px 8px 9px; }
+.cd-name { font-size: 10.5px; font-weight: 700; color: var(--ink); }
+.cd-tag-row { display: flex; gap: 3px; margin-top: 3px; }
+.cd-t { font-size: 8.5px; color: var(--ink3); background: rgba(0,0,0,0.05); border-radius: 4px; padding: 1px 5px; font-weight: 700; }
+
+/* ── WHAT TO WEAR ── */
+.wear-sec { background: var(--bg); padding: 110px 52px; position: relative; overflow: hidden; }
+.wear-b1 { width: 360px; height: 320px; background: var(--teal); top: -70px; right: -40px; border-radius: 55% 45% 60% 40% / 45% 55% 45% 55%; opacity: 0.55; }
+.wear-b2 { width: 280px; height: 260px; background: var(--peach); bottom: -60px; left: -30px; border-radius: 48% 52% 42% 58% / 58% 42% 55% 45%; opacity: 0.5; }
+.wear-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; gap: 80px; }
+.wear-text { flex: 1; }
+.wear-visual { flex: 1.2; position: relative; z-index: 1; }
+
+/* App window */
+.app-window { background: var(--bg); border-radius: 20px; border: 0.5px solid rgba(0,0,0,0.1); box-shadow: 0 24px 64px rgba(0,0,0,0.16); overflow: hidden; }
+.aw-bar { background: var(--black); height: 46px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; }
+.aw-dots { display: flex; gap: 5px; }
+.aw-dot { width: 9px; height: 9px; border-radius: 50%; }
+.aw-title { font-size: 12px; font-weight: 900; color: #fff; }
+.aw-title em { font-family: var(--font-serif); font-style: italic; color: var(--orange); }
+.aw-body { display: flex; height: 360px; }
+
+/* Left panel in app window */
+.aw-left { width: 200px; flex-shrink: 0; border-right: 0.5px solid rgba(0,0,0,0.07); padding: 14px 14px 0; display: flex; flex-direction: column; gap: 10px; }
+.aw-weather { background: var(--orange); border-radius: 12px; padding: 12px 14px; box-shadow: 0 6px 20px rgba(215,103,54,0.3); }
+.aw-w-city { font-size: 8px; color: rgba(255,255,255,0.6); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+.aw-w-tmp { font-size: 32px; font-weight: 900; color: #fff; line-height: 1; margin: 2px 0; }
+.aw-w-desc { font-size: 9.5px; color: rgba(255,255,255,0.8); }
+.aw-w-ico { font-size: 24px; margin-top: 6px; }
+.aw-occ-label { font-size: 9px; font-weight: 700; color: var(--ink3); text-transform: uppercase; letter-spacing: 0.08em; }
+.aw-occ-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+.aw-occ { background: rgba(255,255,255,0.6); border-radius: 9px; padding: 8px 6px; border: 1.5px solid transparent; text-align: center; }
+.aw-occ.on { border-color: var(--orange); background: var(--orange-l); }
+.aw-occ-em { font-size: 14px; }
+.aw-occ-nm { font-size: 8.5px; font-weight: 700; color: var(--ink); margin-top: 2px; }
+
+/* Free input */
+.aw-inp { background: rgba(255,255,255,0.65); border-radius: 9px; padding: 8px 10px; border: 1.5px solid rgba(0,0,0,0.07); font-size: 9.5px; color: var(--ink3); font-family: var(--font-sans); }
+.aw-btn { background: var(--orange); color: #fff; border: none; border-radius: 10px; padding: 11px; font-size: 11px; font-weight: 900; font-family: var(--font-sans); cursor: pointer; box-shadow: 0 4px 14px rgba(215,103,54,0.35); display: flex; align-items: center; justify-content: center; gap: 6px; }
+.aw-btn svg { width: 11px; height: 11px; stroke: #fff; fill: none; stroke-width: 2.5; }
+
+/* Right result panel */
+.aw-right { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.aw-result-bar { padding: 10px 14px; border-bottom: 0.5px solid rgba(0,0,0,0.07); display: flex; align-items: center; justify-content: space-between; }
+.aw-result-back { font-size: 9.5px; color: var(--ink3); font-weight: 700; }
+.aw-result-icons { display: flex; gap: 8px; }
+.aw-result-ico { width: 24px; height: 24px; border-radius: 7px; background: rgba(255,255,255,0.6); display: flex; align-items: center; justify-content: center; }
+.aw-result-ico svg { width: 11px; height: 11px; stroke: var(--ink3); fill: none; stroke-width: 1.8; }
+.aw-result-scroll { flex: 1; overflow-y: auto; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+.aw-result-scroll::-webkit-scrollbar { display: none; }
+
+/* Outfit hero in app */
+.aw-outfit-hero { background: linear-gradient(150deg,rgba(242,224,213,0.92),rgba(211,206,184,0.78)); border-radius: 14px; height: 130px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; flex-shrink: 0; border: 0.5px solid rgba(255,255,255,0.8); }
+.aw-ob { position: absolute; top: 8px; left: 8px; background: rgba(215,103,54,0.15); border: 0.5px solid rgba(215,103,54,0.3); border-radius: 20px; padding: 3px 9px; font-size: 9px; color: var(--orange); font-weight: 700; }
+.aw-ow { position: absolute; top: 8px; right: 8px; background: rgba(255,255,255,0.88); border-radius: 20px; padding: 3px 9px; font-size: 9px; color: var(--ink2); font-weight: 700; }
+.aw-look { display: flex; gap: 10px; align-items: flex-end; }
+.aw-look-item { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.aw-look-box { border-radius: 8px; background: rgba(195,188,165,0.85); display: flex; align-items: center; justify-content: center; }
+.aw-look-box svg { stroke: rgba(0,0,0,0.18); fill: none; stroke-width: 1.2; }
+.aw-look-lbl { font-size: 7.5px; color: var(--ink3); font-weight: 700; text-transform: uppercase; }
+
+.aw-ai-name { font-size: 13px; font-weight: 500; color: var(--ink); font-family: var(--font-serif); font-style: italic; }
+.aw-ai-text { font-size: 10px; color: var(--ink2); line-height: 1.65; }
+.aw-actions { display: flex; gap: 6px; }
+.aw-act { flex: 1; padding: 7px 6px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.08); background: rgba(255,255,255,0.65); font-size: 10px; color: var(--ink2); font-family: var(--font-sans); font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; }
+.aw-act svg { width: 10px; height: 10px; stroke: currentColor; fill: none; stroke-width: 2; }
+.aw-act.pri { background: var(--orange); color: #fff; border-color: var(--orange); }
+
+/* Wear features */
+.wear-features { display: flex; flex-direction: column; gap: 20px; margin-top: 36px; }
+.wf { display: flex; align-items: flex-start; gap: 14px; }
+.wf-ico { width: 42px; height: 42px; border-radius: 12px; background: rgba(255,255,255,0.6); border: 0.5px solid rgba(255,255,255,0.9); display: flex; align-items: center; justify-content: center; flex-shrink: 0; backdrop-filter: blur(6px); }
+.wf-ico svg { width: 19px; height: 19px; stroke: var(--orange); fill: none; stroke-width: 1.8; }
+.wf-title { font-size: 14px; font-weight: 900; color: var(--ink); margin-bottom: 3px; }
+.wf-desc { font-size: 12.5px; color: var(--ink2); line-height: 1.65; }
+
+/* ── OUTFIT LOG ── */
+.log-sec { background: #fff; padding: 110px 52px; position: relative; overflow: hidden; }
+.log-b1 { width: 300px; height: 280px; background: var(--peach); top: -60px; left: -40px; border-radius: 55% 45% 60% 40% / 45% 55% 45% 55%; opacity: 0.35; }
+.log-b2 { width: 260px; height: 240px; background: var(--teal); bottom: -50px; right: -30px; border-radius: 48% 52% 42% 58% / 58% 42% 55% 45%; opacity: 0.3; }
+.log-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; gap: 80px; }
+.log-text { flex: 1; }
+.log-visual { flex: 1.2; position: relative; z-index: 1; }
+
+.log-demo { background: rgba(250,248,244,0.95); border-radius: 20px; border: 0.5px solid rgba(0,0,0,0.08); box-shadow: 0 20px 60px rgba(0,0,0,0.12); overflow: hidden; }
+.ld-header { background: var(--bg); padding: 13px 18px; display: flex; align-items: center; justify-content: space-between; border-bottom: 0.5px solid rgba(0,0,0,0.07); }
+.ld-title { font-size: 14px; font-weight: 900; color: var(--ink); }
+.ld-title em { font-family: var(--font-serif); font-style: italic; font-weight: 500; color: var(--orange); }
+.ld-nav { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; color: var(--ink3); }
+.ld-nav-btn { width: 26px; height: 26px; border-radius: 8px; background: rgba(255,255,255,0.65); border: 0.5px solid rgba(0,0,0,0.07); display: flex; align-items: center; justify-content: center; font-size: 13px; color: var(--ink3); cursor: pointer; }
+.ld-body { display: flex; }
+.ld-cal { width: 210px; flex-shrink: 0; padding: 14px 14px; border-right: 0.5px solid rgba(0,0,0,0.06); }
+.ld-summary { display: flex; gap: 0; margin-bottom: 12px; background: rgba(255,255,255,0.6); border-radius: 10px; overflow: hidden; border: 0.5px solid rgba(0,0,0,0.06); }
+.ld-sum-stat { flex: 1; padding: 8px 4px; text-align: center; }
+.ld-sum-stat + .ld-sum-stat { border-left: 0.5px solid rgba(0,0,0,0.06); }
+.ld-sum-num { font-size: 16px; font-weight: 900; color: var(--orange); line-height: 1; }
+.ld-sum-label { font-size: 8px; color: var(--ink3); font-weight: 700; text-transform: uppercase; margin-top: 2px; }
+.lcal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 1px; }
+.lcal-dow { text-align: center; font-size: 8px; font-weight: 700; color: var(--ink3); padding: 0 0 5px; text-transform: uppercase; }
+.lcal-day { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 7px; font-size: 10px; font-weight: 700; color: var(--ink); position: relative; gap: 1px; cursor: pointer; }
+.lcal-day:hover { background: var(--orange-l); }
+.lcal-day.has::after { content: ''; width: 3px; height: 3px; border-radius: 50%; background: var(--orange); }
+.lcal-day.today { background: var(--orange); color: #fff; }
+.lcal-day.today::after { background: rgba(255,255,255,0.75); }
+.lcal-day.sel { background: var(--orange-l); color: var(--orange); outline: 1.5px solid var(--orange); border-radius: 7px; }
+.lcal-day.dim { opacity: 0.22; pointer-events: none; }
+
+.ld-detail { flex: 1; padding: 16px 16px; display: flex; flex-direction: column; gap: 10px; }
+.ldd-date { font-size: 18px; font-weight: 500; color: var(--ink); font-family: var(--font-serif); font-style: italic; line-height: 1.1; }
+.ldd-pills { display: flex; gap: 6px; }
+.ldd-pill { font-size: 10.5px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+.ldd-pill.w { background: rgba(0,0,0,0.06); color: var(--ink2); }
+.ldd-pill.o { background: var(--orange-l); color: var(--orange); }
+.ldd-hero { background: linear-gradient(145deg,rgba(242,224,213,0.9),rgba(211,206,184,0.8)); border-radius: 12px; height: 110px; display: flex; align-items: center; justify-content: center; gap: 12px; }
+.ldd-item { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.ldd-box { border-radius: 8px; background: rgba(195,188,165,0.85); display: flex; align-items: center; justify-content: center; }
+.ldd-box svg { stroke: rgba(0,0,0,0.18); fill: none; stroke-width: 1.2; }
+.ldd-lbl { font-size: 8px; color: var(--ink3); font-weight: 700; text-transform: uppercase; }
+.ldd-ai-name { font-size: 14px; font-weight: 500; color: var(--ink); font-family: var(--font-serif); font-style: italic; }
+.ldd-ai-text { font-size: 11px; color: var(--ink2); line-height: 1.65; }
+
+/* ── CTA ── */
+.cta-sec { background: var(--black); padding: 130px 52px; text-align: center; position: relative; overflow: hidden; }
+.cta-b1 { width: 500px; height: 460px; background: rgba(215,103,54,0.1); top: -100px; left: -80px; border-radius: 60% 40% 55% 45% / 50% 60% 40% 50%; }
+.cta-b2 { width: 420px; height: 400px; background: rgba(157,186,181,0.08); bottom: -90px; right: -60px; border-radius: 44% 56% 38% 62% / 58% 42% 58% 42%; }
+.cta-b3 { width: 300px; height: 280px; background: rgba(215,103,54,0.07); top: 30%; right: 10%; border-radius: 52% 48% 62% 38% / 42% 58% 42% 58%; }
+.cta-pill { font-size: 11px; font-weight: 700; color: var(--orange); letter-spacing: 0.1em; text-transform: uppercase; background: rgba(215,103,54,0.15); border: 0.5px solid rgba(215,103,54,0.25); border-radius: 20px; padding: 6px 16px; display: inline-block; margin-bottom: 26px; }
+.cta-title { font-size: clamp(38px, 5.5vw, 72px); font-weight: 900; color: #fff; line-height: 1.05; letter-spacing: -0.025em; margin-bottom: 20px; position: relative; z-index: 1; }
+.cta-title em { font-family: var(--font-serif); font-style: italic; font-weight: 500; color: var(--orange); }
+.cta-sub { font-size: 17px; color: rgba(255,255,255,0.45); margin-bottom: 48px; max-width: 440px; margin-left: auto; margin-right: auto; line-height: 1.7; position: relative; z-index: 1; }
+.cta-btn { background: var(--orange); color: #fff; border: none; border-radius: 16px; padding: 19px 52px; font-size: 16px; font-weight: 900; font-family: var(--font-sans); cursor: pointer; transition: all 0.15s; box-shadow: 0 12px 40px rgba(215,103,54,0.48); display: inline-flex; align-items: center; gap: 10px; position: relative; z-index: 1; }
+.cta-btn:hover { background: var(--orange-d); transform: translateY(-2px); box-shadow: 0 18px 48px rgba(215,103,54,0.52); }
+.cta-btn svg { width: 17px; height: 17px; stroke: #fff; fill: none; stroke-width: 2.5; }
+.cta-note { font-size: 12px; color: rgba(255,255,255,0.25); margin-top: 16px; position: relative; z-index: 1; }
+
+/* ── FOOTER ── */
+footer { background: var(--black); border-top: 0.5px solid rgba(255,255,255,0.05); padding: 44px 52px 30px; }
+.ft-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 36px; }
+.ft-links { display: flex; gap: 28px; }
+.ft-link { font-size: 12.5px; color: rgba(255,255,255,0.35); text-decoration: none; font-weight: 700; transition: color 0.15s; }
+.ft-link:hover { color: rgba(255,255,255,0.75); }
+.ft-socials { display: flex; gap: 10px; }
+.ft-soc { width: 34px; height: 34px; border-radius: 10px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.15s; }
+.ft-soc:hover { background: rgba(255,255,255,0.1); }
+.ft-soc svg { width: 14px; height: 14px; stroke: rgba(255,255,255,0.35); fill: none; stroke-width: 1.8; }
+.ft-brand { text-align: center; padding-top: 32px; border-top: 0.5px solid rgba(255,255,255,0.05); }
+.ft-brand-big { font-size: clamp(40px, 6vw, 72px); font-weight: 900; color: #fff; letter-spacing: -0.025em; }
+.ft-brand-big em { font-family: var(--font-serif); font-style: italic; font-weight: 500; color: var(--orange); }
+.ft-copy { font-size: 11px; color: rgba(255,255,255,0.18); margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="nav">
+  <div class="nav-brand">Whatever the <em>Weather.</em></div>
+  <div class="nav-r">
+    <a href="#" class="nav-link">Pricing</a>
+    <a href="#" class="nav-link">Login</a>
+    <button class="nav-cta">Try it for Free</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="blob hero-b1"></div>
+  <div class="blob hero-b2"></div>
+  <div class="blob hero-b3"></div>
+
+  <div class="hero-pill"><div class="hero-pill-dot"></div>AI-Powered Personal Styling</div>
+  <h1 class="hero-title">Whatever the<br><em>Weather.</em></h1>
+  <p class="hero-sub">Your AI stylist that knows your wardrobe, reads the weather, and puts together the <strong>perfect outfit every morning.</strong></p>
+  <div class="hero-btns">
+    <button class="btn-primary">
+      <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      Try it for Free
+    </button>
+    <button class="btn-ghost">See how it works ↓</button>
+  </div>
+
+  <!-- 3 steps strip -->
+  <div class="hero-steps">
+    <div class="hs-step">
+      <div class="hs-num">1</div>
+      <div>
+        <div class="hs-title">Upload your clothes</div>
+        <div class="hs-desc">AI scans your photos and builds your digital wardrobe automatically</div>
+      </div>
+    </div>
+    <div class="hs-step">
+      <div class="hs-num">2</div>
+      <div>
+        <div class="hs-title">Tell us your day</div>
+        <div class="hs-desc">Type anything — "rooftop dinner" or "startup interview" — or quick pick</div>
+      </div>
+    </div>
+    <div class="hs-step">
+      <div class="hs-num">3</div>
+      <div>
+        <div class="hs-title">Get your perfect outfit</div>
+        <div class="hs-desc">AI picks from your actual wardrobe, weather-aware, with a full explanation</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MY CLOSET -->
+<section class="closet-sec">
+  <div class="blob closet-b1"></div>
+  <div class="blob closet-b2"></div>
+  <div class="closet-inner">
+    <div class="closet-text">
+      <div class="section-eyebrow">Smart Wardrobe</div>
+      <h2 class="section-title">Manage your Closet<br>with <em>AI-power.</em></h2>
+      <p class="section-sub">Just upload photos from your phone. AI instantly detects every item, assigns categories, and builds your digital wardrobe — no manual tagging needed.</p>
+      <div class="check-list">
+        <div class="check-item"><div class="check-ico"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Auto category & colour detection</div>
+        <div class="check-item"><div class="check-ico"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Works with any photo — no styling needed</div>
+        <div class="check-item"><div class="check-ico"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Learns your personal style over time</div>
+      </div>
+    </div>
+    <div class="closet-visual">
+      <div class="ai-badge"><div class="ai-badge-dot"></div>AI scanning your wardrobe</div>
+      <div class="closet-demo">
+        <div class="cd-topbar">
+          <div class="cd-topbar-title">My Closet</div>
+          <div class="cd-topbar-stat"><strong>24</strong> items · <strong>6</strong> categories</div>
+        </div>
+        <div class="cd-bubbles">
+          <div class="cd-bubble on"><div class="cd-bubble-c">👔</div><div class="cd-bubble-l">All 24</div></div>
+          <div class="cd-bubble"><div class="cd-bubble-c">👕</div><div class="cd-bubble-l">Tops 6</div></div>
+          <div class="cd-bubble"><div class="cd-bubble-c">👖</div><div class="cd-bubble-l">Bottoms 5</div></div>
+          <div class="cd-bubble"><div class="cd-bubble-c">🧥</div><div class="cd-bubble-l">Outer 4</div></div>
+          <div class="cd-bubble"><div class="cd-bubble-c">👟</div><div class="cd-bubble-l">Shoes 5</div></div>
+          <div class="cd-bubble"><div class="cd-bubble-c">👜</div><div class="cd-bubble-l">Acc 4</div></div>
+        </div>
+        <div class="cd-grid">
+          <div class="cd-card"><div class="cd-img" style="background:linear-gradient(145deg,#f0ebe2,#e5ddd0);"><svg width="34" height="34" viewBox="0 0 24 24"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.57a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.57a2 2 0 00-1.34-2.23z"/></svg><div class="cd-cat">Top</div></div><div class="cd-body"><div class="cd-name">White Oxford</div><div class="cd-tag-row"><span class="cd-t">White</span><span class="cd-t">Work</span></div></div></div>
+          <div class="cd-card"><div class="cd-img" style="background:linear-gradient(145deg,#2c3a4a,#1e2c3a);"><svg width="34" height="34" viewBox="0 0 24 24"><path d="M3 5c0-1 .7-2 2-2l4 3 3-3 3 3 4-3c1.3 0 2 1 2 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5z" stroke="rgba(255,255,255,0.3)"/></svg><div class="cd-cat">Outer</div></div><div class="cd-body"><div class="cd-name">Navy Jacket</div><div class="cd-tag-row"><span class="cd-t">Navy</span><span class="cd-t">Rain</span></div></div></div>
+          <div class="cd-card"><div class="cd-img" style="background:linear-gradient(145deg,#e8e0d0,#d8d0c0);"><svg width="34" height="34" viewBox="0 0 24 24"><path d="M6 2l-3 8h5v12h8V10h5l-3-8H6z"/></svg><div class="cd-cat">Bottom</div></div><div class="cd-body"><div class="cd-name">Beige Chinos</div><div class="cd-tag-row"><span class="cd-t">Beige</span><span class="cd-t">Work</span></div></div></div>
+          <div class="cd-card"><div class="cd-img" style="background:linear-gradient(145deg,#3a2e22,#2a1e12);"><svg width="30" height="20" viewBox="0 0 32 20"><ellipse cx="8" cy="14" rx="7" ry="5" stroke="rgba(255,255,255,0.35)"/><ellipse cx="24" cy="14" rx="7" ry="5" stroke="rgba(255,255,255,0.35)"/><path d="M1 14V8a6 6 0 0112 0v2h6V8a6 6 0 0112 0v6" stroke="rgba(255,255,255,0.35)"/></svg><div class="cd-cat">Shoes</div></div><div class="cd-body"><div class="cd-name">Oxford Loafer</div><div class="cd-tag-row"><span class="cd-t">Brown</span></div></div></div>
+          <div class="cd-card"><div class="cd-img" style="background:linear-gradient(145deg,#1a1a2e,#16213e);"><svg width="34" height="34" viewBox="0 0 24 24"><path d="M6 2l-3 8h5v12h8V10h5l-3-8H6z" stroke="rgba(255,255,255,0.3)"/></svg><div class="cd-cat">Bottom</div></div><div class="cd-body"><div class="cd-name">Black Jeans</div><div class="cd-tag-row"><span class="cd-t">Black</span></div></div></div>
+          <div class="cd-card"><div class="cd-img" style="background:linear-gradient(145deg,#f5f5f5,#e8e8e8);"><svg width="30" height="20" viewBox="0 0 32 20"><ellipse cx="8" cy="14" rx="7" ry="5"/><ellipse cx="24" cy="14" rx="7" ry="5"/><path d="M1 14V8a6 6 0 0112 0v2h6V8a6 6 0 0112 0v6"/></svg><div class="cd-cat">Shoes</div></div><div class="cd-body"><div class="cd-name">White Sneakers</div><div class="cd-tag-row"><span class="cd-t">White</span></div></div></div>
+          <div class="cd-card"><div class="cd-img" style="background:linear-gradient(145deg,#c8b898,#b8a880);"><svg width="34" height="34" viewBox="0 0 24 24"><path d="M3 5c0-1 .7-2 2-2l4 3 3-3 3 3 4-3c1.3 0 2 1 2 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5z" stroke="rgba(255,255,255,0.4)"/></svg><div class="cd-cat">Outer</div></div><div class="cd-body"><div class="cd-name">Khaki Trench</div><div class="cd-tag-row"><span class="cd-t">Khaki</span></div></div></div>
+          <div class="cd-card"><div class="cd-img" style="background:linear-gradient(145deg,#f5ede0,#ead8c0);"><svg width="34" height="34" viewBox="0 0 24 24"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.57a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.57a2 2 0 00-1.34-2.23z"/></svg><div class="cd-cat">Top</div></div><div class="cd-body"><div class="cd-name">Beige Knit</div><div class="cd-tag-row"><span class="cd-t">Beige</span><span class="cd-t">Fall</span></div></div></div>
+          <div class="cd-card"><div class="cd-img" style="background:linear-gradient(145deg,#e8edf2,#d8e2ec);"><svg width="34" height="34" viewBox="0 0 24 24"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.57a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.57a2 2 0 00-1.34-2.23z"/></svg><div class="cd-cat">Top</div></div><div class="cd-body"><div class="cd-name">Blue Denim</div><div class="cd-tag-row"><span class="cd-t">Blue</span><span class="cd-t">Casual</span></div></div></div>
+          <div class="cd-card"><div class="cd-img" style="background:linear-gradient(145deg,#2a2a2a,#1a1a1a);"><svg width="34" height="34" viewBox="0 0 24 24"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.57a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.57a2 2 0 00-1.34-2.23z" stroke="rgba(255,255,255,0.25)"/></svg><div class="cd-cat">Top</div></div><div class="cd-body"><div class="cd-name">Black Tee</div><div class="cd-tag-row"><span class="cd-t">Black</span></div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHAT TO WEAR -->
+<section class="wear-sec">
+  <div class="blob wear-b1"></div>
+  <div class="blob wear-b2"></div>
+  <div class="wear-inner">
+    <div class="wear-text">
+      <div class="section-eyebrow">AI Styling</div>
+      <h2 class="section-title">What to <em>wear?</em><br>AI decides.</h2>
+      <p class="section-sub">Tell us your day — AI picks the perfect outfit from your actual wardrobe, factoring in live weather, your occasion, and your personal style.</p>
+      <div class="wear-features">
+        <div class="wf">
+          <div class="wf-ico"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+          <div><div class="wf-title">Location & weather auto-detected</div><div class="wf-desc">No need to check the forecast. AI reads live conditions and adjusts every recommendation.</div></div>
+        </div>
+        <div class="wf">
+          <div class="wf-ico"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+          <div><div class="wf-title">Explains every pick</div><div class="wf-desc">AI tells you exactly why each item was chosen — and what it skipped and why.</div></div>
+        </div>
+        <div class="wf">
+          <div class="wf-ico"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div>
+          <div><div class="wf-title">Gets smarter every day</div><div class="wf-desc">The more you use it, the better it understands your preferences, lifestyle, and body.</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="wear-visual">
+      <div class="app-window">
+        <div class="aw-bar">
+          <div class="aw-dots">
+            <div class="aw-dot" style="background:#ff5f57;"></div>
+            <div class="aw-dot" style="background:#ffbd2e;"></div>
+            <div class="aw-dot" style="background:#28c840;"></div>
+          </div>
+          <div class="aw-title">Whatever the <em>Weather.</em></div>
+          <div style="width:60px;"></div>
+        </div>
+        <div class="aw-body">
+          <!-- Left panel -->
+          <div class="aw-left">
+            <div class="aw-weather">
+              <div class="aw-w-city">Now · NYC</div>
+              <div class="aw-w-tmp">22°</div>
+              <div class="aw-w-desc">Light rain · Feels 20°</div>
+              <div class="aw-w-ico">🌧️</div>
+            </div>
+            <div class="aw-occ-label">What's today about?</div>
+            <div class="aw-occ-grid">
+              <div class="aw-occ on"><div class="aw-occ-em">💼</div><div class="aw-occ-nm">Work</div></div>
+              <div class="aw-occ"><div class="aw-occ-em">☕</div><div class="aw-occ-nm">Casual</div></div>
+              <div class="aw-occ"><div class="aw-occ-em">✨</div><div class="aw-occ-nm">Date</div></div>
+              <div class="aw-occ"><div class="aw-occ-em">🌿</div><div class="aw-occ-nm">Outdoor</div></div>
+            </div>
+            <div class="aw-inp">Or describe your day...</div>
+            <button class="aw-btn">
+              <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              Style me today
+            </button>
+          </div>
+          <!-- Right result -->
+          <div class="aw-right">
+            <div class="aw-result-bar">
+              <div class="aw-result-back">← Change occasion</div>
+              <div class="aw-result-icons">
+                <div class="aw-result-ico"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div>
+                <div class="aw-result-ico"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div>
+              </div>
+            </div>
+            <div class="aw-result-scroll">
+              <div class="aw-outfit-hero">
+                <div class="aw-ob">Work</div>
+                <div class="aw-ow">22° 🌧️</div>
+                <div class="aw-look">
+                  <div class="aw-look-item"><div class="aw-look-box" style="width:38px;height:48px;"><svg width="19" height="19" viewBox="0 0 24 24"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.57a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.57a2 2 0 00-1.34-2.23z"/></svg></div><span class="aw-look-lbl">Top</span></div>
+                  <div class="aw-look-item"><div class="aw-look-box" style="width:32px;height:58px;"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M6 2l-3 8h5v12h8V10h5l-3-8H6z"/></svg></div><span class="aw-look-lbl">Bottom</span></div>
+                  <div class="aw-look-item"><div class="aw-look-box" style="width:46px;height:56px;"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M3 5c0-1 .7-2 2-2l4 3 3-3 3 3 4-3c1.3 0 2 1 2 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5z"/></svg></div><span class="aw-look-lbl">Jacket</span></div>
+                  <div class="aw-look-item"><div class="aw-look-box" style="width:38px;height:28px;"><svg width="18" height="12" viewBox="0 0 32 20"><ellipse cx="8" cy="14" rx="7" ry="5"/><ellipse cx="24" cy="14" rx="7" ry="5"/><path d="M1 14V8a6 6 0 0112 0v2h6V8a6 6 0 0112 0v6"/></svg></div><span class="aw-look-lbl">Shoes</span></div>
+                </div>
+              </div>
+              <div class="aw-ai-name">Polished Rain-Ready</div>
+              <div class="aw-ai-text">Navy jacket + slim trousers. Skipped your linen shirt — absorbs moisture and takes hours to dry. Sharp and dry all day.</div>
+              <div class="aw-actions">
+                <button class="aw-act"><svg viewBox="0 0 24 24"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>Redo</button>
+                <button class="aw-act pri"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>Save look</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- OUTFIT LOG -->
+<section class="log-sec">
+  <div class="blob log-b1"></div>
+  <div class="blob log-b2"></div>
+  <div class="log-inner">
+    <div class="log-text">
+      <div class="section-eyebrow">Outfit Log</div>
+      <h2 class="section-title">Your style,<br><em>documented.</em></h2>
+      <p class="section-sub">Every outfit gets logged automatically. Look back at any day — what you wore, the weather, the occasion. Your personal style diary.</p>
+      <div class="check-list">
+        <div class="check-item"><div class="check-ico"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>See what you wore any day</div>
+        <div class="check-item"><div class="check-ico"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Discover your style patterns & palette</div>
+        <div class="check-item"><div class="check-ico"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Plan outfits for upcoming events</div>
+      </div>
+    </div>
+    <div class="log-visual">
+      <div class="log-demo">
+        <div class="ld-header">
+          <div class="ld-title">Outfit <em>Log</em></div>
+          <div class="ld-nav"><div class="ld-nav-btn">‹</div>April 2026<div class="ld-nav-btn">›</div></div>
+        </div>
+        <div class="ld-body">
+          <div class="ld-cal">
+            <div class="ld-summary">
+              <div class="ld-sum-stat"><div class="ld-sum-num">18</div><div class="ld-sum-label">Outfits</div></div>
+              <div class="ld-sum-stat"><div class="ld-sum-num">22°</div><div class="ld-sum-label">Avg Temp</div></div>
+              <div class="ld-sum-stat"><div class="ld-sum-num" style="font-size:11px;">Work</div><div class="ld-sum-label">Top Occ.</div></div>
+            </div>
+            <div class="lcal-grid">
+              <div class="lcal-dow">S</div><div class="lcal-dow">M</div><div class="lcal-dow">T</div><div class="lcal-dow">W</div><div class="lcal-dow">T</div><div class="lcal-dow">F</div><div class="lcal-dow">S</div>
+              <div class="lcal-day dim"></div><div class="lcal-day dim"></div><div class="lcal-day has">1</div><div class="lcal-day has">2</div><div class="lcal-day has">3</div><div class="lcal-day has">4</div><div class="lcal-day">5</div>
+              <div class="lcal-day has">6</div><div class="lcal-day has">7</div><div class="lcal-day has">8</div><div class="lcal-day has">9</div><div class="lcal-day has">10</div><div class="lcal-day has">11</div><div class="lcal-day">12</div>
+              <div class="lcal-day has">13</div><div class="lcal-day has">14</div><div class="lcal-day has">15</div><div class="lcal-day sel">16</div><div class="lcal-day has">17</div><div class="lcal-day has">18</div><div class="lcal-day">19</div>
+              <div class="lcal-day has">20</div><div class="lcal-day today">21</div><div class="lcal-day dim">22</div><div class="lcal-day dim">23</div><div class="lcal-day dim">24</div><div class="lcal-day dim">25</div><div class="lcal-day dim">26</div>
+            </div>
+          </div>
+          <div class="ld-detail">
+            <div class="ldd-date">Wednesday,<br>April 16</div>
+            <div class="ldd-pills">
+              <span class="ldd-pill w">🌤️ 22°</span>
+              <span class="ldd-pill o">Date Night</span>
+            </div>
+            <div class="ldd-hero">
+              <div class="ldd-item"><div class="ldd-box" style="width:36px;height:46px;"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.57a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.57a2 2 0 00-1.34-2.23z"/></svg></div><span class="ldd-lbl">Top</span></div>
+              <div class="ldd-item"><div class="ldd-box" style="width:28px;height:54px;"><svg width="14" height="14" viewBox="0 0 24 24"><path d="M6 2l-3 8h5v12h8V10h5l-3-8H6z"/></svg></div><span class="ldd-lbl">Bottom</span></div>
+              <div class="ldd-item"><div class="ldd-box" style="width:38px;height:28px;"><svg width="18" height="12" viewBox="0 0 32 20"><ellipse cx="8" cy="14" rx="7" ry="5"/><ellipse cx="24" cy="14" rx="7" ry="5"/><path d="M1 14V8a6 6 0 0112 0v2h6V8a6 6 0 0112 0v6"/></svg></div><span class="ldd-lbl">Shoes</span></div>
+              <div class="ldd-item"><div class="ldd-box" style="width:34px;height:34px;"><svg width="17" height="17" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></div><span class="ldd-lbl">Bag</span></div>
+            </div>
+            <div class="ldd-ai-name">Evening Chic</div>
+            <div class="ldd-ai-text">Clear and mild — silk blouse + tailored trousers. Elegant without being overdressed for dinner.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-sec">
+  <div class="blob cta-b1"></div>
+  <div class="blob cta-b2"></div>
+  <div class="blob cta-b3"></div>
+  <div class="cta-pill">✦ Start today — it's free</div>
+  <h2 class="cta-title">Ready to create<br>your <em>AI Closet?</em></h2>
+  <p class="cta-sub">Join people who never stress about what to wear. Upload your clothes, and let AI do the rest.</p>
+  <button class="cta-btn">
+    <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    Get Started — Free
+  </button>
+  <div class="cta-note">No credit card required · Cancel anytime</div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="ft-top">
+    <div class="ft-links">
+      <a href="#" class="ft-link">Company</a>
+      <a href="#" class="ft-link">Pricing</a>
+      <a href="#" class="ft-link">Legal</a>
+    </div>
+    <div class="ft-socials">
+      <div class="ft-soc"><svg viewBox="0 0 24 24"><path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/></svg></div>
+      <div class="ft-soc"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></div>
+      <div class="ft-soc"><svg viewBox="0 0 24 24"><path d="M22.54 6.42a2.78 2.78 0 00-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 00-1.95 1.96A29 29 0 001 12a29 29 0 00.46 5.58A2.78 2.78 0 003.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 001.95-1.95A29 29 0 0023 12a29 29 0 00-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg></div>
+    </div>
+  </div>
+  <div class="ft-brand">
+    <div class="ft-brand-big">Whatever the <em>Weather.</em></div>
+    <div class="ft-copy">© 2026 WTW. All rights reserved.</div>
+  </div>
+</footer>
+
+</body>
+</html>

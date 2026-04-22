@@ -1,0 +1,245 @@
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@(ViewData["Title"] as string ?? "WW Landing")</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Bodoni+Moda:ital,wght@1,500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --orange: #d76736;
+            --orange-d: #b8522a;
+            --orange-l: #f2e0d5;
+            --orange-m: #e8b89e;
+            --beige: #d3ceb8;
+            --bg: #d9d4c0;
+            --peach: #d3a38c;
+            --teal: #9dbab5;
+            --black: #141210;
+            --ink: #1e1b18;
+            --ink2: #5a534c;
+            --ink3: #9a9188;
+            --font-sans: "Lato", sans-serif;
+            --font-serif: "Bodoni Moda", serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); overflow-x: hidden; }
+
+        /* NAVBAR */
+        .nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            background: var(--black); height: 54px;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 52px;
+        }
+        .nav-brand { font-weight: 900; font-size: 15px; color: #fff; }
+        .nav-brand em { font-family: var(--font-serif); font-style: italic; font-weight: 500; color: var(--orange); }
+        .nav-r { display: flex; align-items: center; gap: 28px; }
+        .nav-link { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.45); text-decoration: none; transition: color 0.15s; }
+        .nav-link:hover { color: #fff; }
+        .nav-cta { background: var(--orange); color: #fff; border: none; border-radius: 22px; padding: 9px 22px; font-size: 13px; font-weight: 700; font-family: var(--font-sans); cursor: pointer; transition: all 0.15s; box-shadow: 0 4px 14px rgba(215,103,54,0.4); }
+        .nav-cta:hover { background: var(--orange-d); transform: translateY(-1px); }
+
+        /* SHARED */
+        .blob { position: absolute; pointer-events: none; }
+        .section-eyebrow { font-size: 11px; font-weight: 700; color: var(--orange); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 14px; }
+        .section-title { font-size: clamp(34px, 4vw, 54px); font-weight: 900; color: var(--ink); line-height: 1.08; letter-spacing: -0.02em; margin-bottom: 16px; }
+        .section-title em { font-family: var(--font-serif); font-style: italic; font-weight: 500; color: var(--orange); }
+        .section-sub { font-size: 16px; color: var(--ink2); line-height: 1.75; max-width: 460px; }
+        .check-list { display: flex; flex-direction: column; gap: 11px; margin-top: 28px; }
+        .check-item { display: flex; align-items: center; gap: 11px; font-size: 13.5px; color: var(--ink2); font-weight: 700; }
+        .check-ico { width: 22px; height: 22px; border-radius: 6px; background: var(--orange-l); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .check-ico svg { width: 11px; height: 11px; stroke: var(--orange); fill: none; stroke-width: 2.8; stroke-linecap: round; }
+
+        @@keyframes fadeUp { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
+        @@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.7)} }
+
+        /* HERO */
+        .hero {
+            min-height: 100vh; background: var(--bg);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 130px 52px 80px; position: relative; overflow: hidden; text-align: center;
+        }
+        .hero-b1 { width: 500px; height: 460px; background: var(--peach); top: -120px; left: -80px; border-radius: 63% 37% 54% 46% / 55% 48% 52% 45%; opacity: 0.65; }
+        .hero-b2 { width: 420px; height: 460px; background: var(--teal); bottom: -100px; right: -60px; border-radius: 44% 56% 38% 62% / 58% 42% 58% 42%; opacity: 0.6; }
+        .hero-b3 { width: 280px; height: 260px; background: var(--orange-l); top: 25%; left: 58%; border-radius: 52% 48% 62% 38% / 42% 58% 42% 58%; opacity: 0.55; }
+
+        .hero-pill { font-size: 11px; font-weight: 700; color: var(--orange); letter-spacing: 0.1em; text-transform: uppercase; background: rgba(255,255,255,0.65); border: 0.5px solid rgba(215,103,54,0.25); border-radius: 20px; padding: 6px 16px; margin-bottom: 30px; display: inline-flex; align-items: center; gap: 7px; animation: fadeUp 0.6s ease both; backdrop-filter: blur(8px); }
+        .hero-pill-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--orange); animation: pulse 1.5s infinite; }
+
+        .hero-title { font-size: clamp(58px, 8vw, 108px); font-weight: 900; color: var(--ink); line-height: 0.95; letter-spacing: -0.03em; margin-bottom: 24px; animation: fadeUp 0.7s ease 0.1s both; position: relative; z-index: 1; }
+        .hero-title em { font-family: var(--font-serif); font-style: italic; font-weight: 500; color: var(--orange); }
+
+        .hero-sub { font-size: 19px; color: var(--ink2); line-height: 1.65; max-width: 520px; margin: 0 auto 42px; animation: fadeUp 0.7s ease 0.2s both; position: relative; z-index: 1; }
+        .hero-sub strong { color: var(--ink); font-weight: 700; }
+
+        .hero-btns { display: flex; gap: 12px; justify-content: center; animation: fadeUp 0.7s ease 0.3s both; position: relative; z-index: 1; margin-bottom: 72px; }
+        .btn-primary { background: var(--orange); color: #fff; border: none; border-radius: 14px; padding: 17px 38px; font-size: 15px; font-weight: 900; font-family: var(--font-sans); cursor: pointer; transition: all 0.15s; box-shadow: 0 10px 32px rgba(215,103,54,0.42); display: flex; align-items: center; gap: 9px; }
+        .btn-primary:hover { background: var(--orange-d); transform: translateY(-2px); box-shadow: 0 14px 40px rgba(215,103,54,0.48); }
+        .btn-primary svg { width: 16px; height: 16px; stroke: #fff; fill: none; stroke-width: 2.5; }
+
+        .btn-secondary { background: rgba(255,255,255,0.65); color: var(--ink); border: 0.5px solid rgba(0,0,0,0.12); border-radius: 14px; padding: 17px 26px; font-size: 14px; font-weight: 900; font-family: var(--font-sans); cursor: pointer; transition: all 0.15s; }
+        .btn-secondary:hover { background: rgba(255,255,255,0.85); border-color: rgba(215,103,54,0.25); transform: translateY(-1px); }
+
+        .hero-card {
+            width: min(1050px, 100%);
+            background: rgba(255,255,255,0.55);
+            border: 0.5px solid rgba(255,255,255,0.85);
+            border-radius: 22px;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 24px 64px rgba(0,0,0,0.14);
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+        }
+
+        .hc-l { padding: 34px 34px 32px; border-right: 0.5px solid rgba(0,0,0,0.07); }
+        .hc-title { font-size: 14px; font-weight: 900; color: var(--ink); margin-bottom: 10px; }
+        .hc-sub { font-size: 12px; color: var(--ink3); line-height: 1.7; margin-bottom: 18px; }
+        .hc-row { display: flex; gap: 10px; }
+        .hc-input { flex: 1; background: rgba(255,255,255,0.8); border: 0.5px solid rgba(0,0,0,0.1); border-radius: 14px; padding: 12px 14px; font-size: 12px; outline: none; }
+        .hc-go { background: var(--orange); color: #fff; border: none; border-radius: 14px; padding: 12px 16px; font-size: 12px; font-weight: 900; cursor: pointer; transition: background 0.15s; }
+        .hc-go:hover { background: var(--orange-d); }
+
+        .hc-r { padding: 28px 28px 26px; }
+        .hc-r-title { font-size: 11px; font-weight: 900; color: var(--ink3); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 12px; }
+        .hc-steps { display: flex; flex-direction: column; gap: 10px; }
+        .hc-step { display: flex; gap: 10px; align-items: flex-start; }
+        .hc-step-num { width: 22px; height: 22px; border-radius: 6px; background: var(--orange-l); color: var(--orange); font-weight: 900; font-size: 11px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .hc-step-t { font-size: 12px; color: var(--ink2); line-height: 1.6; font-weight: 700; }
+
+        /* SECTION */
+        .section { padding: 92px 52px; position: relative; overflow: hidden; }
+        .section-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 46px; align-items: center; }
+        .panel { background: rgba(255,255,255,0.55); border: 0.5px solid rgba(255,255,255,0.85); border-radius: 22px; backdrop-filter: blur(16px); box-shadow: 0 24px 64px rgba(0,0,0,0.12); overflow: hidden; }
+        .p-hdr { padding: 18px 20px; border-bottom: 0.5px solid rgba(0,0,0,0.07); background: rgba(217,212,192,0.35); }
+        .p-hdr-title { font-size: 13px; font-weight: 900; color: var(--ink); }
+        .p-hdr-sub { font-size: 11px; color: var(--ink3); margin-top: 2px; }
+        .p-body { padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .p-card { background: rgba(255,255,255,0.75); border: 0.5px solid rgba(0,0,0,0.07); border-radius: 16px; padding: 14px; }
+        .p-card-title { font-size: 12px; font-weight: 900; color: var(--ink); }
+        .p-card-sub { font-size: 11px; color: var(--ink3); margin-top: 5px; line-height: 1.65; }
+
+        /* FOOTER */
+        .footer { background: var(--black); color: rgba(255,255,255,0.55); padding: 44px 52px; }
+        .footer-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+        .footer-brand { font-weight: 900; font-size: 14px; color: #fff; }
+        .footer-brand em { font-family: var(--font-serif); font-style: italic; font-weight: 500; color: var(--orange); }
+        .footer-links { display: flex; gap: 18px; font-size: 12px; }
+        .footer-links a { color: rgba(255,255,255,0.45); text-decoration: none; }
+        .footer-links a:hover { color: #fff; }
+        .footer-copy { font-size: 11px; color: rgba(255,255,255,0.25); }
+
+        @@media (max-width: 980px) {
+            .nav { padding: 0 18px; }
+            .hero { padding: 120px 18px 64px; }
+            .hero-card { grid-template-columns: 1fr; }
+            .hc-l { border-right: none; border-bottom: 0.5px solid rgba(0,0,0,0.07); }
+            .section { padding: 72px 18px; }
+            .section-inner { grid-template-columns: 1fr; }
+            .footer { padding: 36px 18px; }
+            .footer-inner { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <div class="nav-brand">Whatever the <em>Weather.</em></div>
+        <div class="nav-r">
+            <a class="nav-link" href="#pricing">Pricing</a>
+            <a class="nav-link" asp-area="WW" asp-controller="Auth" asp-action="Index">Login</a>
+            <button class="nav-cta" onclick="location.href='@Url.Action("Index","Auth", new { area = "WW" })'">Try it for Free</button>
+        </div>
+    </div>
+
+    <section class="hero">
+        <div class="blob hero-b1"></div>
+        <div class="blob hero-b2"></div>
+        <div class="blob hero-b3"></div>
+
+        <div class="hero-pill"><span class="hero-pill-dot"></span> AI-Powered Personal Styling</div>
+        <h1 class="hero-title">Whatever the <em>Weather.</em></h1>
+        <p class="hero-sub">Your AI stylist that knows your wardrobe, reads the weather, and puts together the <strong>perfect outfit</strong> every morning.</p>
+
+        <div class="hero-btns">
+            <button class="btn-primary" onclick="location.href='@Url.Action("Index","Auth", new { area = "WW" })'">
+                <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                Try it for Free
+            </button>
+            <button class="btn-secondary" onclick="location.href='#how'">See how it works</button>
+        </div>
+
+        <div class="hero-card" id="how">
+            <div class="hc-l">
+                <div class="hc-title">Tell us your day</div>
+                <div class="hc-sub">Type anything — “rooftop dinner” or “startup interview” — or quick pick.</div>
+                <div class="hc-row">
+                    <input class="hc-input" placeholder='e.g. "rooftop dinner", "startup interview"' />
+                    <button class="hc-go">Generate</button>
+                </div>
+                <div class="check-list">
+                    <div class="check-item"><div class="check-ico"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Upload your clothes</div>
+                    <div class="check-item"><div class="check-ico"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>AI builds your digital closet</div>
+                    <div class="check-item"><div class="check-ico"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Get weather-aware outfits</div>
+                </div>
+            </div>
+            <div class="hc-r">
+                <div class="hc-r-title">3 steps</div>
+                <div class="hc-steps">
+                    <div class="hc-step"><div class="hc-step-num">1</div><div class="hc-step-t">Upload your clothes once.</div></div>
+                    <div class="hc-step"><div class="hc-step-num">2</div><div class="hc-step-t">Describe your day in one line.</div></div>
+                    <div class="hc-step"><div class="hc-step-num">3</div><div class="hc-step-t">Get a full outfit with a clear explanation.</div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="pricing">
+        <div class="section-inner">
+            <div>
+                <div class="section-eyebrow">Smart Wardrobe</div>
+                <div class="section-title">Manage your <em>Closet</em> with AI-power.</div>
+                <div class="section-sub">Just upload photos from your phone. AI instantly detects every item, assigns categories, and builds your digital wardrobe — no manual tagging needed.</div>
+                <div class="check-list">
+                    <div class="check-item"><div class="check-ico"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Auto category & color detection</div>
+                    <div class="check-item"><div class="check-ico"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Works with any photo</div>
+                    <div class="check-item"><div class="check-ico"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Learns your style over time</div>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="p-hdr">
+                    <div class="p-hdr-title">Highlights</div>
+                    <div class="p-hdr-sub">A fast, controllable workflow</div>
+                </div>
+                <div class="p-body">
+                    <div class="p-card"><div class="p-card-title">Upload your clothes</div><div class="p-card-sub">AI scans photos and builds your wardrobe automatically.</div></div>
+                    <div class="p-card"><div class="p-card-title">Tell us your day</div><div class="p-card-sub">Quick pick or a short description.</div></div>
+                    <div class="p-card"><div class="p-card-title">Get your outfit</div><div class="p-card-sub">Weather-aware with clear reasoning.</div></div>
+                    <div class="p-card"><div class="p-card-title">Tweak & save</div><div class="p-card-sub">Adjust and keep a record for later.</div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-brand">Whatever the <em>Weather.</em></div>
+            <div class="footer-links">
+                <a href="#pricing">Pricing</a>
+                <a asp-area="WW" asp-controller="Auth" asp-action="Index">Login</a>
+            </div>
+            <div class="footer-copy">© 2026 Whatever the Weather. All rights reserved.</div>
+        </div>
+    </footer>
+</body>
+</html>

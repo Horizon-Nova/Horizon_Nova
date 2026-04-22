@@ -1,0 +1,204 @@
+@model HNB.Areas.WW.Models.HistoryIndexModel
+
+@{
+    Layout = "~/Areas/WW/Views/Shared/_Layout.cshtml";
+}
+
+@section Topbar {
+    <div class="tb">
+        <span class="tb-brand">Outfit <em>Log</em></span>
+        <div class="tb-r">
+            <button type="button" class="mnav-btn" onclick="wwCalendarChangeMonth(-1)" aria-label="Previous month">
+                <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6" /></svg>
+            </button>
+            <div class="mnav-label" id="month-label">April 2026</div>
+            <button type="button" class="mnav-btn" onclick="wwCalendarChangeMonth(1)" aria-label="Next month">
+                <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6" /></svg>
+            </button>
+        </div>
+    </div>
+}
+
+<div class="cols">
+    <!-- LEFT -->
+    <div class="cal-col">
+        <div class="month-summary">
+            <div class="ms-stat"><div class="ms-num orange">18</div><div class="ms-label">Outfits</div></div>
+            <div class="ms-stat"><div class="ms-num">22°</div><div class="ms-label">Avg Temp</div></div>
+            <div class="ms-stat"><div class="ms-num" style="font-size:13px;">Work</div><div class="ms-label">Top Occasion</div></div>
+        </div>
+
+        <div class="cal-wrap">
+            <div class="cal-grid" id="cal-grid"></div>
+        </div>
+
+        <div class="sec-label">AI Detected Palette</div>
+        <div class="palette-row">
+            <div class="swatch" style="background:#f5f0e8;"></div>
+            <div class="swatch" style="background:#c8c4bc;"></div>
+            <div class="swatch" style="background:#8a8070;"></div>
+            <div class="swatch" style="background:#6a7a88;"></div>
+            <div class="swatch" style="background:#2c2420;"></div>
+            <span class="palette-note">Neutrals · 82%</span>
+        </div>
+
+        <div class="sec-label">Top Occasions</div>
+        <div class="occ-list">
+            <div class="occ-row"><div class="occ-top"><span class="occ-name">Work</span><span class="occ-pct">42%</span></div><div class="occ-bg"><div class="occ-fill" style="width:42%"></div></div></div>
+            <div class="occ-row"><div class="occ-top"><span class="occ-name">Casual</span><span class="occ-pct">31%</span></div><div class="occ-bg"><div class="occ-fill" style="width:31%"></div></div></div>
+            <div class="occ-row"><div class="occ-top"><span class="occ-name">Date</span><span class="occ-pct">18%</span></div><div class="occ-bg"><div class="occ-fill" style="width:18%"></div></div></div>
+            <div class="occ-row"><div class="occ-top"><span class="occ-name">Outdoor</span><span class="occ-pct">9%</span></div><div class="occ-bg"><div class="occ-fill" style="width:9%"></div></div></div>
+        </div>
+
+        <div class="sec-label">Recent</div>
+        <div class="recent-strip">
+            <div class="recent-item active js-recent-item"
+                 data-date="Apr 20"
+                 data-weekday="Sunday"
+                 data-weather="🌤️ 24°"
+                 data-occ="Casual"
+                 data-name="Weekend Glow"
+                 data-summary="Sunny Sunday — linen shirt + white shorts. Easy, breezy, exactly right for a slow afternoon.">
+                <div class="ri-date">Apr 20</div>
+                <div class="ri-name">Weekend Glow</div>
+                <div class="ri-occ">Casual</div>
+                <div class="ri-weather">🌤️</div>
+            </div>
+
+            <div class="recent-item js-recent-item"
+                 data-date="Apr 19"
+                 data-weekday="Saturday"
+                 data-weather="🌧️ 20°"
+                 data-occ="Date"
+                 data-name="Rainy Evening"
+                 data-summary="Light rain all day — water-resistant outerwear + clean trousers. Dry, sharp, and ready for dinner.">
+                <div class="ri-date">Apr 19</div>
+                <div class="ri-name">Rainy Evening</div>
+                <div class="ri-occ">Date</div>
+                <div class="ri-weather">🌧️</div>
+            </div>
+
+            <div class="recent-item js-recent-item"
+                 data-date="Apr 18"
+                 data-weekday="Friday"
+                 data-weather="⛅ 22°"
+                 data-occ="Work"
+                 data-name="Office Classic"
+                 data-summary="Partly cloudy, mild — beige chinos + white button-down. Clean and professional for a full day of back-to-back meetings.">
+                <div class="ri-date">Apr 18</div>
+                <div class="ri-name">Office Classic</div>
+                <div class="ri-occ">Work</div>
+                <div class="ri-weather">⛅</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="log-col">
+        <div class="log-empty hidden" id="log-empty">
+            <div class="log-empty-ico">
+                <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+            </div>
+            <div class="log-empty-title">Pick a day</div>
+            <div class="log-empty-sub">Tap any date with a dot to see your outfit that day</div>
+        </div>
+
+        <div class="log-detail" id="log-detail">
+            <div class="log-topbar">
+                <div>
+                    <div class="log-date-big" id="log-date-big">Sunday, April 20</div>
+                    <div class="log-pills">
+                        <span class="log-weather-pill" id="log-weather">🌤️ 24°</span>
+                        <span class="log-occ-pill" id="log-occ">Casual</span>
+                    </div>
+                </div>
+                <div class="log-icons">
+                    <button type="button" class="log-icon-btn liked" id="like-btn" onclick="wwCalendarToggleLike()" aria-label="Like">
+                        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" /></svg>
+                    </button>
+                    <button type="button" class="log-icon-btn" aria-label="Share">
+                        <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" /></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="log-scroll">
+                <div class="outfit-hero">
+                    <div class="hero-badge" id="hero-badge">Casual</div>
+                    <div class="hero-weather" id="hero-weather">🌤️ 24°</div>
+                    <div class="full-look">
+                        <div class="look-item">
+                            <div class="look-box" style="width:52px;height:64px;">
+                                <svg width="26" height="26" viewBox="0 0 24 24"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.57a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.57a2 2 0 00-1.34-2.23z" /></svg>
+                            </div>
+                            <span class="look-lbl">Top</span>
+                        </div>
+                        <div class="look-item">
+                            <div class="look-box" style="width:44px;height:78px;">
+                                <svg width="22" height="22" viewBox="0 0 24 24"><path d="M6 2l-3 8h5v12h8V10h5l-3-8H6z" /></svg>
+                            </div>
+                            <span class="look-lbl">Bottom</span>
+                        </div>
+                        <div class="look-item">
+                            <div class="look-box" style="width:48px;height:36px;">
+                                <svg width="24" height="16" viewBox="0 0 32 20"><ellipse cx="8" cy="14" rx="7" ry="5" /><ellipse cx="24" cy="14" rx="7" ry="5" /><path d="M1 14V8a6 6 0 0112 0v2h6V8a6 6 0 0112 0v6" /></svg>
+                            </div>
+                            <span class="look-lbl">Shoes</span>
+                        </div>
+                        <div class="look-item">
+                            <div class="look-box" style="width:44px;height:44px;">
+                                <svg width="22" height="20" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 01-8 0" /></svg>
+                            </div>
+                            <span class="look-lbl">Bag</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ai-summary">
+                    <div class="ai-summary-name" id="ai-summary-name">Weekend Glow</div>
+                    <div class="ai-summary-text" id="ai-summary-text">Sunny Sunday — linen shirt + white shorts. Easy, breezy, exactly right for a slow afternoon.</div>
+                </div>
+
+                <div class="items-row-label">Items worn</div>
+                <div class="items-compact">
+                    <div class="ic-card">
+                        <div class="ic-img" style="background:linear-gradient(145deg,#f0ebe2,#e5ddd0);">
+                            <svg width="22" height="22" viewBox="0 0 24 24"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.57a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.57a2 2 0 00-1.34-2.23z" stroke="rgba(0,0,0,0.2)" /></svg>
+                        </div>
+                        <div class="ic-name">White Button-down</div>
+                        <div class="ic-cat">Top</div>
+                    </div>
+                    <div class="ic-card">
+                        <div class="ic-img" style="background:linear-gradient(145deg,#f5f0e8,#ece5d8);">
+                            <svg width="20" height="20" viewBox="0 0 24 24"><path d="M6 2l-3 8h5v12h8V10h5l-3-8H6z" stroke="rgba(0,0,0,0.2)" /></svg>
+                        </div>
+                        <div class="ic-name">Beige Chinos</div>
+                        <div class="ic-cat">Bottom</div>
+                    </div>
+                    <div class="ic-card">
+                        <div class="ic-img" style="background:linear-gradient(145deg,#f5f5f5,#e8e8e8);">
+                            <svg width="22" height="15" viewBox="0 0 32 20"><ellipse cx="8" cy="14" rx="7" ry="5" stroke="rgba(0,0,0,0.2)" /><ellipse cx="24" cy="14" rx="7" ry="5" stroke="rgba(0,0,0,0.2)" /><path d="M1 14V8a6 6 0 0112 0v2h6V8a6 6 0 0112 0v6" stroke="rgba(0,0,0,0.2)" /></svg>
+                        </div>
+                        <div class="ic-name">White Sneakers</div>
+                        <div class="ic-cat">Shoes</div>
+                    </div>
+                    <div class="ic-card">
+                        <div class="ic-img" style="background:linear-gradient(145deg,#c8b070,#b8a060);">
+                            <svg width="20" height="18" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" stroke="rgba(255,255,255,0.4)" /><line x1="3" y1="6" x2="21" y2="6" stroke="rgba(255,255,255,0.4)" /><path d="M16 10a4 4 0 01-8 0" stroke="rgba(255,255,255,0.4)" /></svg>
+                        </div>
+                        <div class="ic-name">Tan Tote Bag</div>
+                        <div class="ic-cat">Accessory</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/ww/css/Calendar.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <script src="~/ww/js/Calendar.js" asp-append-version="true"></script>
+}

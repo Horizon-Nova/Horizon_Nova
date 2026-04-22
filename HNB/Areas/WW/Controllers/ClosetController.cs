@@ -5,11 +5,11 @@ using System;
 namespace HNB.Areas.WW.Controllers
 {
     [Area("WW")]
-    public class WardrobeController : Controller
+    public class ClosetController : Controller
     {
         private readonly IWardrobeService _wardrobeService;
 
-        public WardrobeController(IWardrobeService wardrobeService)
+        public ClosetController(IWardrobeService wardrobeService)
         {
             _wardrobeService = wardrobeService;
         }
@@ -18,9 +18,7 @@ namespace HNB.Areas.WW.Controllers
 
         public IActionResult Index()
         {
-            ViewData["Title"] = "衣櫃";
-            ViewData["TopbarTitle"] = "衣櫃";
-            ViewData["TopbarLocation"] = $"Taipei · {DateTime.Today:yyyy-MM-dd}";
+            ViewData["Title"] = "Closet";
 
             var model = _wardrobeService.QueryWardrobeIndexModel();
             return View(model);

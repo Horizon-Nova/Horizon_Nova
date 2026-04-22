@@ -10,11 +10,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace HNB.Areas.WW.Controllers
 {
     [Area("WW")]
-    public class DashboardController : Controller
+    public class TodayController : Controller
     {
         private readonly IWeatherService _weatherService;
 
-        public DashboardController(IWeatherService weatherService)
+        public TodayController(IWeatherService weatherService)
         {
             _weatherService = weatherService;
         }
@@ -71,8 +71,9 @@ namespace HNB.Areas.WW.Controllers
                 });
             }
 
-            ViewData["Title"] = "WW藍圖首頁";
-            ViewData["TopbarTitle"] = "Today's Outfit";
+            ViewData["Title"] = "Today";
+            ViewData["TopbarBrandPrefix"] = "Whatever the ";
+            ViewData["TopbarBrandEmphasis"] = "Weather.";
             ViewData["TopbarLocation"] = $"Taipei · {DateTime.Today:ddd MMM dd}";
 
             return View(dashboardModel);

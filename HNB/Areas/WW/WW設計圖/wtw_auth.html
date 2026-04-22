@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Bodoni+Moda:ital,wght@1,500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --orange:   #d76736;
+  --orange-d: #b8522a;
+  --orange-l: #f2e0d5;
+  --orange-m: #e8b89e;
+  --beige:    #d3ceb8;
+  --bg:       #d9d4c0;
+  --peach:    #d3a38c;
+  --teal:     #9dbab5;
+  --black:    #141210;
+  --ink:      #1e1b18;
+  --ink2:     #5a534c;
+  --ink3:     #9a9188;
+  --font-sans: 'Lato', sans-serif;
+  --font-serif: 'Bodoni Moda', serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  display: flex;
+  overflow: hidden;
+}
+
+/* ── LEFT PANEL ── */
+.left-panel {
+  width: 480px; flex-shrink: 0;
+  background: var(--black);
+  display: flex; flex-direction: column;
+  padding: 48px;
+  position: relative; overflow: hidden;
+}
+
+/* Blobs on left */
+.lp-blob { position: absolute; pointer-events: none; }
+.lp-b1 { width: 340px; height: 320px; background: rgba(215,103,54,0.18); top: -80px; right: -60px; border-radius: 63% 37% 54% 46% / 55% 48% 52% 45%; }
+.lp-b2 { width: 280px; height: 300px; background: rgba(157,186,181,0.12); bottom: -60px; left: -40px; border-radius: 44% 56% 38% 62% / 58% 42% 58% 42%; }
+.lp-b3 { width: 200px; height: 180px; background: rgba(215,103,54,0.1); top: 40%; left: 30%; border-radius: 52% 48% 62% 38% / 42% 58% 42% 58%; }
+
+.lp-brand { position: relative; z-index: 1; margin-bottom: auto; }
+.lp-brand-name { font-weight: 900; font-size: 18px; color: #fff; display: flex; align-items: center; gap: 10px; }
+.lp-brand-name em { font-family: var(--font-serif); font-style: italic; font-weight: 500; color: var(--orange); }
+.lp-logo { width: 36px; height: 36px; border-radius: 10px; background: var(--orange); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(215,103,54,0.5); }
+.lp-logo-text { font-weight: 900; font-size: 11px; color: #fff; }
+.lp-logo-i { font-family: var(--font-serif); font-style: italic; }
+
+.lp-content { position: relative; z-index: 1; }
+.lp-headline { font-size: 42px; font-weight: 900; color: #fff; line-height: 1.05; letter-spacing: -0.025em; margin-bottom: 16px; }
+.lp-headline em { font-family: var(--font-serif); font-style: italic; font-weight: 500; color: var(--orange); }
+.lp-sub { font-size: 15px; color: rgba(255,255,255,0.45); line-height: 1.7; margin-bottom: 40px; }
+
+/* Feature list */
+.lp-features { display: flex; flex-direction: column; gap: 16px; }
+.lp-feat { display: flex; align-items: center; gap: 14px; }
+.lp-feat-ico { width: 38px; height: 38px; border-radius: 11px; background: rgba(255,255,255,0.06); border: 0.5px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.lp-feat-ico svg { width: 17px; height: 17px; stroke: var(--orange); fill: none; stroke-width: 1.8; }
+.lp-feat-title { font-size: 13.5px; font-weight: 700; color: #fff; }
+.lp-feat-sub { font-size: 12px; color: rgba(255,255,255,0.38); margin-top: 1px; }
+
+.lp-footer { position: relative; z-index: 1; margin-top: 48px; font-size: 11.5px; color: rgba(255,255,255,0.2); }
+
+/* ── RIGHT PANEL ── */
+.right-panel {
+  flex: 1; background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  padding: 48px; position: relative; overflow: hidden;
+}
+
+/* Blobs on right */
+.rp-blob { position: absolute; pointer-events: none; }
+.rp-b1 { width: 380px; height: 340px; background: var(--peach); top: -80px; right: -60px; border-radius: 60% 40% 55% 45% / 50% 60% 40% 50%; opacity: 0.6; }
+.rp-b2 { width: 300px; height: 320px; background: var(--teal); bottom: -70px; left: -40px; border-radius: 44% 56% 38% 62% / 58% 42% 58% 42%; opacity: 0.5; }
+.rp-b3 { width: 220px; height: 200px; background: var(--orange-l); top: 35%; left: 20%; border-radius: 52% 48% 62% 38% / 42% 58% 42% 58%; opacity: 0.45; }
+
+/* Auth card */
+.auth-card {
+  background: rgba(255,255,255,0.65);
+  backdrop-filter: blur(18px);
+  border-radius: 24px;
+  border: 0.5px solid rgba(255,255,255,0.9);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.12);
+  width: 100%; max-width: 420px;
+  padding: 40px;
+  position: relative; z-index: 1;
+  transition: opacity 0.25s, transform 0.25s;
+}
+.auth-card.leaving { opacity: 0; transform: translateY(-12px) scale(0.98); pointer-events: none; }
+
+/* Tabs */
+.auth-tabs { display: flex; background: rgba(0,0,0,0.06); border-radius: 12px; padding: 4px; margin-bottom: 32px; }
+.auth-tab { flex: 1; padding: 9px; border-radius: 9px; font-size: 13px; font-weight: 700; color: var(--ink3); text-align: center; cursor: pointer; transition: all 0.18s; }
+.auth-tab.active { background: #fff; color: var(--ink); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+
+/* Card header */
+.auth-title { font-size: 24px; font-weight: 900; color: var(--ink); letter-spacing: -0.02em; margin-bottom: 6px; }
+.auth-title em { font-family: var(--font-serif); font-style: italic; font-weight: 500; color: var(--orange); }
+.auth-sub { font-size: 13px; color: var(--ink3); margin-bottom: 28px; line-height: 1.55; }
+
+/* Social buttons */
+.social-btns { display: flex; flex-direction: column; gap: 10px; margin-bottom: 22px; }
+.social-btn {
+  width: 100%; padding: 12px 16px; border-radius: 12px;
+  border: 1.5px solid rgba(0,0,0,0.1);
+  background: rgba(255,255,255,0.75);
+  font-size: 13.5px; font-weight: 700; font-family: var(--font-sans);
+  color: var(--ink); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  transition: all 0.15s;
+}
+.social-btn:hover { border-color: rgba(0,0,0,0.2); background: #fff; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,0.08); }
+.social-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+/* Divider */
+.auth-divider { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+.auth-divider-line { flex: 1; height: 0.5px; background: rgba(0,0,0,0.1); }
+.auth-divider-text { font-size: 11.5px; color: var(--ink3); font-weight: 700; }
+
+/* Form */
+.form-group { margin-bottom: 14px; }
+.form-label { font-size: 11px; font-weight: 700; color: var(--ink3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; display: block; }
+.form-input {
+  width: 100%; border: 1.5px solid rgba(0,0,0,0.1); border-radius: 11px;
+  padding: 12px 14px; font-size: 14px; font-family: var(--font-sans);
+  color: var(--ink); background: rgba(255,255,255,0.7); outline: none;
+  transition: all 0.15s;
+}
+.form-input:focus { border-color: var(--orange); background: #fff; box-shadow: 0 0 0 3px rgba(215,103,54,0.1); }
+.form-input::placeholder { color: var(--ink3); }
+
+/* Password strength */
+.pw-strength { display: flex; gap: 4px; margin-top: 7px; height: 3px; }
+.pw-bar { flex: 1; border-radius: 2px; background: rgba(0,0,0,0.08); transition: background 0.3s; }
+.pw-bar.weak { background: #e05555; }
+.pw-bar.medium { background: var(--orange); }
+.pw-bar.strong { background: #6db86b; }
+
+/* Forgot password */
+.forgot-link { font-size: 11.5px; color: var(--orange); font-weight: 700; cursor: pointer; float: right; margin-top: -10px; margin-bottom: 14px; display: block; text-align: right; }
+.forgot-link:hover { color: var(--orange-d); }
+
+/* Terms */
+.auth-terms { font-size: 11px; color: var(--ink3); line-height: 1.6; margin-bottom: 18px; }
+.auth-terms a { color: var(--orange); font-weight: 700; text-decoration: none; }
+
+/* Submit button */
+.auth-btn {
+  width: 100%; background: var(--orange); color: #fff; border: none;
+  border-radius: 13px; padding: 15px;
+  font-size: 14.5px; font-weight: 900; font-family: var(--font-sans);
+  cursor: pointer; transition: all 0.15s;
+  box-shadow: 0 8px 24px rgba(215,103,54,0.38);
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.auth-btn:hover { background: var(--orange-d); transform: translateY(-2px); box-shadow: 0 12px 32px rgba(215,103,54,0.44); }
+.auth-btn svg { width: 15px; height: 15px; stroke: #fff; fill: none; stroke-width: 2.5; }
+
+/* Switch link */
+.auth-switch { text-align: center; margin-top: 18px; font-size: 12.5px; color: var(--ink3); }
+.auth-switch a { color: var(--orange); font-weight: 700; text-decoration: none; cursor: pointer; }
+.auth-switch a:hover { color: var(--orange-d); }
+
+/* ── ONBOARDING CARD ── */
+.ob-card {
+  background: rgba(255,255,255,0.65);
+  backdrop-filter: blur(18px);
+  border-radius: 24px;
+  border: 0.5px solid rgba(255,255,255,0.9);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.12);
+  width: 100%; max-width: 480px;
+  padding: 40px;
+  position: relative; z-index: 1;
+  display: none;
+}
+.ob-card.visible { display: block; animation: cardIn 0.4s cubic-bezier(0.34,1.1,0.64,1) both; }
+@keyframes cardIn { from{opacity:0;transform:translateY(20px) scale(0.97)} to{opacity:1;transform:translateY(0) scale(1)} }
+
+.ob-eyebrow { font-size: 10.5px; font-weight: 700; color: var(--orange); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; display: flex; align-items: center; gap: 7px; }
+.ob-eyebrow-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--orange); animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.7)} }
+.ob-title { font-size: 26px; font-weight: 900; color: var(--ink); line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 8px; }
+.ob-title em { font-family: var(--font-serif); font-style: italic; font-weight: 500; color: var(--orange); }
+.ob-sub { font-size: 13px; color: var(--ink3); line-height: 1.65; margin-bottom: 24px; }
+
+/* Upload zone */
+.upload-zone {
+  border: 2px dashed rgba(215,103,54,0.3); border-radius: 18px;
+  background: rgba(255,255,255,0.4); padding: 32px 20px;
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 12px; cursor: pointer;
+  transition: all 0.2s; margin-bottom: 16px; min-height: 200px;
+  position: relative; overflow: hidden;
+}
+.upload-zone:hover { border-color: var(--orange); background: rgba(255,255,255,0.6); }
+.upload-zone.drag-over { border-color: var(--orange); background: var(--orange-l); border-style: solid; }
+
+.uz-idle { display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
+.uz-icon { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, var(--orange-m), var(--orange)); display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 28px rgba(215,103,54,0.32); transition: transform 0.2s; }
+.upload-zone:hover .uz-icon { transform: translateY(-3px); }
+.uz-icon svg { width: 26px; height: 26px; stroke: #fff; fill: none; stroke-width: 2; }
+.uz-title { font-size: 15px; font-weight: 900; color: var(--ink); }
+.uz-sub { font-size: 12px; color: var(--ink3); line-height: 1.6; }
+.uz-hint { font-size: 10.5px; color: var(--ink3); }
+
+.uz-scanning { display: none; flex-direction: column; align-items: center; gap: 14px; text-align: center; width: 100%; }
+.scan-ring-wrap { width: 68px; height: 68px; position: relative; display: flex; align-items: center; justify-content: center; }
+.scan-ring { position: absolute; inset: 0; border-radius: 50%; border: 3px solid transparent; border-top-color: var(--orange); border-right-color: var(--orange-m); animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.scan-inner { width: 50px; height: 50px; border-radius: 50%; background: var(--orange-l); display: flex; align-items: center; justify-content: center; font-size: 20px; }
+.scan-title { font-size: 14px; font-weight: 900; color: var(--ink); font-family: var(--font-serif); font-style: italic; }
+.scan-steps { display: flex; flex-direction: column; gap: 7px; width: 100%; text-align: left; }
+.ss { display: flex; align-items: center; gap: 9px; }
+.ss-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(0,0,0,0.1); flex-shrink: 0; transition: background 0.3s; }
+.ss-dot.done { background: var(--orange); }
+.ss-dot.cur { background: var(--orange); animation: sdpulse 0.8s infinite; }
+@keyframes sdpulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.ss-text { font-size: 11.5px; color: var(--ink3); transition: color 0.3s; }
+.ss-text.done { color: var(--ink); }
+.ss-text.cur { color: var(--orange); font-weight: 700; }
+
+.uz-done { display: none; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
+.done-ring { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #a8d5a2, #6db86b); display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(109,184,107,0.35); animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+@keyframes popIn { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+.done-ring svg { width: 26px; height: 26px; stroke: #fff; fill: none; stroke-width: 2.5; }
+.done-title { font-size: 14px; font-weight: 900; color: var(--ink); }
+.done-chips { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; }
+.done-chip { background: rgba(255,255,255,0.8); border: 0.5px solid rgba(0,0,0,0.07); border-radius: 20px; padding: 3px 10px; font-size: 10.5px; font-weight: 700; color: var(--ink2); }
+
+/* Tips */
+.ob-tips { display: flex; gap: 8px; margin-bottom: 20px; }
+.ob-tip { flex: 1; background: rgba(255,255,255,0.5); border-radius: 11px; padding: 10px 11px; border: 0.5px solid rgba(255,255,255,0.8); }
+.ob-tip-ico { font-size: 15px; margin-bottom: 4px; }
+.ob-tip-title { font-size: 11px; font-weight: 700; color: var(--ink); }
+.ob-tip-sub { font-size: 10px; color: var(--ink3); margin-top: 1px; line-height: 1.4; }
+
+/* Buttons */
+.ob-btn { width: 100%; background: var(--orange); color: #fff; border: none; border-radius: 13px; padding: 15px; font-size: 14.5px; font-weight: 900; font-family: var(--font-sans); cursor: pointer; transition: all 0.15s; box-shadow: 0 8px 24px rgba(215,103,54,0.38); display: flex; align-items: center; justify-content: center; gap: 8px; }
+.ob-btn:hover { background: var(--orange-d); transform: translateY(-2px); }
+.ob-btn svg { width: 15px; height: 15px; stroke: #fff; fill: none; stroke-width: 2.5; }
+.ob-skip { text-align: center; margin-top: 12px; font-size: 12px; color: var(--ink3); cursor: pointer; transition: color 0.15s; font-weight: 700; }
+.ob-skip:hover { color: var(--orange); }
+
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- LEFT PANEL -->
+<div class="left-panel">
+  <div class="lp-blob lp-b1"></div>
+  <div class="lp-blob lp-b2"></div>
+  <div class="lp-blob lp-b3"></div>
+
+  <div class="lp-brand">
+    <div class="lp-brand-name">
+      <div class="lp-logo"><span class="lp-logo-text">W<span class="lp-logo-i">w</span></span></div>
+      Whatever the <em>Weather.</em>
+    </div>
+  </div>
+
+  <div class="lp-content">
+    <h1 class="lp-headline">Your AI<br>stylist is<br><em>waiting.</em></h1>
+    <p class="lp-sub">Upload your clothes once. Get a perfect outfit every morning — weather-aware, occasion-perfect, from your actual wardrobe.</p>
+
+    <div class="lp-features">
+      <div class="lp-feat">
+        <div class="lp-feat-ico">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+        </div>
+        <div>
+          <div class="lp-feat-title">Upload once, styled forever</div>
+          <div class="lp-feat-sub">AI builds your digital closet automatically</div>
+        </div>
+      </div>
+      <div class="lp-feat">
+        <div class="lp-feat-ico">
+          <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <div>
+          <div class="lp-feat-title">Weather-aware every day</div>
+          <div class="lp-feat-sub">Auto-detects your location and live conditions</div>
+        </div>
+      </div>
+      <div class="lp-feat">
+        <div class="lp-feat-ico">
+          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+        </div>
+        <div>
+          <div class="lp-feat-title">Gets smarter every use</div>
+          <div class="lp-feat-sub">Learns your style, preferences, and lifestyle</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lp-footer">© 2026 Whatever the Weather. All rights reserved.</div>
+</div>
+
+<!-- RIGHT PANEL -->
+<div class="right-panel">
+  <div class="rp-blob rp-b1"></div>
+  <div class="rp-blob rp-b2"></div>
+  <div class="rp-blob rp-b3"></div>
+
+  <!-- AUTH CARD -->
+  <div class="auth-card" id="auth-card">
+
+    <!-- Tabs -->
+    <div class="auth-tabs">
+      <div class="auth-tab active" id="tab-signup" onclick="switchTab('signup')">Create account</div>
+      <div class="auth-tab" id="tab-login" onclick="switchTab('login')">Log in</div>
+    </div>
+
+    <!-- SIGN UP -->
+    <div id="view-signup">
+      <div class="auth-title">Start for <em>free.</em></div>
+      <div class="auth-sub">No credit card required. Cancel anytime.</div>
+
+      <div class="social-btns">
+        <button class="social-btn" onclick="handleSocial('Google')">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Continue with Google
+        </button>
+        <button class="social-btn" onclick="handleSocial('Apple')">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          Continue with Apple
+        </button>
+      </div>
+
+      <div class="auth-divider">
+        <div class="auth-divider-line"></div>
+        <div class="auth-divider-text">or sign up with email</div>
+        <div class="auth-divider-line"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Email address</label>
+        <input class="form-input" type="email" placeholder="you@example.com" id="signup-email"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" placeholder="At least 8 characters" id="signup-pw" oninput="checkPwStrength(this.value)"/>
+        <div class="pw-strength">
+          <div class="pw-bar" id="pw-bar-1"></div>
+          <div class="pw-bar" id="pw-bar-2"></div>
+          <div class="pw-bar" id="pw-bar-3"></div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirm password</label>
+        <input class="form-input" type="password" placeholder="Repeat your password" id="signup-pw2"/>
+      </div>
+
+      <div class="auth-terms">
+        By creating an account you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+      </div>
+
+      <button class="auth-btn" onclick="goToOnboarding()">
+        Create my account
+        <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <div class="auth-switch">Already have an account? <a onclick="switchTab('login')">Log in</a></div>
+    </div>
+
+    <!-- LOG IN -->
+    <div id="view-login" class="hidden">
+      <div class="auth-title">Welcome <em>back.</em></div>
+      <div class="auth-sub">Good to see you again. Let's find your outfit.</div>
+
+      <div class="social-btns">
+        <button class="social-btn" onclick="handleSocial('Google')">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Continue with Google
+        </button>
+        <button class="social-btn" onclick="handleSocial('Apple')">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          Continue with Apple
+        </button>
+      </div>
+
+      <div class="auth-divider">
+        <div class="auth-divider-line"></div>
+        <div class="auth-divider-text">or log in with email</div>
+        <div class="auth-divider-line"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Email address</label>
+        <input class="form-input" type="email" placeholder="you@example.com"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" placeholder="Your password"/>
+      </div>
+      <a class="forgot-link" href="#">Forgot password?</a>
+
+      <button class="auth-btn" onclick="handleLogin()" style="margin-top:8px;">
+        Log in
+        <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <div class="auth-switch">Don't have an account? <a onclick="switchTab('signup')">Sign up free</a></div>
+    </div>
+
+  </div>
+
+  <!-- ONBOARDING CARD -->
+  <div class="ob-card" id="ob-card">
+    <div class="ob-eyebrow"><div class="ob-eyebrow-dot"></div>One last step</div>
+    <h2 class="ob-title">Build your<br><em>AI Closet.</em></h2>
+    <p class="ob-sub">Upload photos of your clothes — AI automatically detects, categorises, and organises everything. Takes under 2 minutes.</p>
+
+    <div class="upload-zone" id="upload-zone"
+      ondragover="event.preventDefault();this.classList.add('drag-over')"
+      ondragleave="this.classList.remove('drag-over')"
+      ondrop="handleDrop(event)"
+      onclick="handleZoneClick()">
+
+      <div class="uz-idle" id="uz-idle">
+        <div class="uz-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+        </div>
+        <div class="uz-title">Upload your clothes photos</div>
+        <div class="uz-sub">AI automatically detects and sorts<br>each item into your closet</div>
+        <div class="uz-hint">Drag & drop · click to browse · up to 20 photos</div>
+      </div>
+
+      <div class="uz-scanning" id="uz-scanning">
+        <div class="scan-ring-wrap">
+          <div class="scan-ring"></div>
+          <div class="scan-inner">👗</div>
+        </div>
+        <div class="scan-title">Scanning your photos...</div>
+        <div class="scan-steps">
+          <div class="ss"><div class="ss-dot done"></div><span class="ss-text done">Photos received ✓</span></div>
+          <div class="ss"><div class="ss-dot" id="ss1"></div><span class="ss-text" id="st1">Detecting clothing items...</span></div>
+          <div class="ss"><div class="ss-dot" id="ss2"></div><span class="ss-text" id="st2">Categorising by type & colour</span></div>
+          <div class="ss"><div class="ss-dot" id="ss3"></div><span class="ss-text" id="st3">Analysing your personal style</span></div>
+          <div class="ss"><div class="ss-dot" id="ss4"></div><span class="ss-text" id="st4">Adding to your closet</span></div>
+        </div>
+      </div>
+
+      <div class="uz-done" id="uz-done">
+        <div class="done-ring">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="done-title">8 items added to your closet!</div>
+        <div class="done-chips">
+          <div class="done-chip">3 Tops</div>
+          <div class="done-chip">2 Bottoms</div>
+          <div class="done-chip">1 Jacket</div>
+          <div class="done-chip">2 Shoes</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ob-tips" id="ob-tips">
+      <div class="ob-tip">
+        <div class="ob-tip-ico">📸</div>
+        <div class="ob-tip-title">Any photo works</div>
+        <div class="ob-tip-sub">No flat lays or white backgrounds needed</div>
+      </div>
+      <div class="ob-tip">
+        <div class="ob-tip-ico">⚡</div>
+        <div class="ob-tip-title">Under 2 minutes</div>
+        <div class="ob-tip-sub">AI does all the sorting automatically</div>
+      </div>
+      <div class="ob-tip">
+        <div class="ob-tip-ico">🔒</div>
+        <div class="ob-tip-title">Private & secure</div>
+        <div class="ob-tip-sub">Only you can see your wardrobe</div>
+      </div>
+    </div>
+
+    <button class="ob-btn" id="ob-btn" onclick="handleObBtn()">
+      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+      <span id="ob-btn-label">Choose Photos</span>
+    </button>
+    <div class="ob-skip" id="ob-skip" onclick="enterApp()">Skip for now — I'll add clothes later</div>
+  </div>
+
+</div>
+
+<script>
+let currentTab = 'signup';
+let uploadState = 'idle'; // idle | scanning | done
+
+// ── AUTH ──
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('tab-signup').className = 'auth-tab' + (tab==='signup' ? ' active' : '');
+  document.getElementById('tab-login').className = 'auth-tab' + (tab==='login' ? ' active' : '');
+  document.getElementById('view-signup').classList.toggle('hidden', tab !== 'signup');
+  document.getElementById('view-login').classList.toggle('hidden', tab !== 'login');
+}
+
+function checkPwStrength(pw) {
+  const bars = [
+    document.getElementById('pw-bar-1'),
+    document.getElementById('pw-bar-2'),
+    document.getElementById('pw-bar-3'),
+  ];
+  bars.forEach(b => b.className = 'pw-bar');
+  if(pw.length === 0) return;
+  if(pw.length >= 1) bars[0].classList.add('weak');
+  if(pw.length >= 6) { bars[0].classList.add('medium'); bars[1].classList.add('medium'); }
+  if(pw.length >= 10 && /[A-Z]/.test(pw) && /[0-9]/.test(pw)) {
+    bars.forEach(b => { b.className = 'pw-bar strong'; });
+  }
+}
+
+function handleSocial(provider) {
+  // Simulate social login → go to onboarding
+  goToOnboarding();
+}
+
+function goToOnboarding() {
+  const authCard = document.getElementById('auth-card');
+  authCard.classList.add('leaving');
+  setTimeout(() => {
+    authCard.style.display = 'none';
+    const ob = document.getElementById('ob-card');
+    ob.classList.add('visible');
+  }, 250);
+}
+
+function handleLogin() {
+  // Simulate login → go to app (Today page)
+  alert('Logging in... (would redirect to Today page)');
+}
+
+// ── ONBOARDING ──
+function handleZoneClick() {
+  if(uploadState === 'idle') startUpload();
+}
+
+function handleObBtn() {
+  if(uploadState === 'idle') startUpload();
+  else if(uploadState === 'done') enterApp();
+}
+
+function startUpload() {
+  uploadState = 'scanning';
+  document.getElementById('uz-idle').style.display = 'none';
+  document.getElementById('uz-scanning').style.display = 'flex';
+  document.getElementById('ob-tips').style.display = 'none';
+  document.getElementById('ob-btn').disabled = true;
+  document.getElementById('ob-skip').style.display = 'none';
+  document.getElementById('upload-zone').style.cursor = 'default';
+
+  const steps = [
+    { dot:'ss1', txt:'st1', dl:500 },
+    { dot:'ss2', txt:'st2', dl:1100 },
+    { dot:'ss3', txt:'st3', dl:1750 },
+    { dot:'ss4', txt:'st4', dl:2400 },
+  ];
+  steps.forEach(({ dot, txt, dl }) => {
+    setTimeout(() => {
+      document.getElementById(dot).className = 'ss-dot cur';
+      document.getElementById(txt).className = 'ss-text cur';
+    }, dl);
+    setTimeout(() => {
+      document.getElementById(dot).className = 'ss-dot done';
+      document.getElementById(txt).className = 'ss-text done';
+    }, dl + 560);
+  });
+
+  setTimeout(() => {
+    uploadState = 'done';
+    document.getElementById('uz-scanning').style.display = 'none';
+    document.getElementById('uz-done').style.display = 'flex';
+    const btn = document.getElementById('ob-btn');
+    btn.disabled = false;
+    btn.innerHTML = `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Get my first outfit`;
+  }, 3600);
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.remove('drag-over');
+  if(uploadState === 'idle' && e.dataTransfer.files.length > 0) startUpload();
+}
+
+function enterApp() {
+  alert('Entering app... (would redirect to Today page)');
+}
+</script>
+</body>
+</html>
