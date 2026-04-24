@@ -250,6 +250,8 @@ body.ww-preview .app {
     align-items: center;
     justify-content: space-between;
     padding: 0 28px;
+    position: relative;
+    z-index: 30;
 }
 
 .tb-title {
@@ -354,6 +356,7 @@ body.ww-preview .app {
     position: absolute;
     top: 42px;
     right: 0;
+    z-index: 50;
     background: #fff;
     border-radius: 14px;
     border: 0.5px solid rgba(0, 0, 0, 0.1);
@@ -432,6 +435,8 @@ body.ww-preview .app {
     min-width: 0;
     overflow: hidden;
     display: flex;
+    position: relative;
+    z-index: 0;
 }
 
 /* 主內容外殼：須佔滿 body-canvas，否則內層 .cols 右欄無法延展，版面會像被切半 */
