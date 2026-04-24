@@ -1,0 +1,249 @@
+@using System.Linq
+@model HNB.Areas.WW.Models.TodayIndexModel
+
+@{
+    var todayForecast = Model?.WeatherDays?.FirstOrDefault(day => day.IsToday);
+    var todayIcon = todayForecast?.WeatherIconEmoji ?? Model?.CurrentWeatherEmoji ?? "☀️";
+    var futureDays = Model?.WeatherDays?.Where(day => day.IsToday == false).ToList() ?? [];
+}
+
+<div class="cols">
+
+    <!-- LEFT PANEL -->
+    <div class="lp">
+        <div class="lp-scroll">
+
+            <!-- Weather -->
+            <div class="wcard">
+                <div class="wl">
+                    <div class="city">@(Model?.CurrentLocationText ?? "Now · Auto-detected")</div>
+                    <div class="tmp">@(Model?.CurrentTemperatureText ?? "—")</div>
+                    <div class="desc">@(Model?.CurrentWeatherSummaryText ?? "")</div>
+                </div>
+                <div class="wr">
+                    <div class="ico">@(Model?.CurrentWeatherEmoji ?? "⛅")</div>
+                    <div class="feel">@(Model?.CurrentWindSpeedText ?? "")</div>
+                </div>
+            </div>
+
+            <!-- Week strip -->
+            <div class="week-strip">
+                <div class="week-hdr">This Week</div>
+                <div class="week-row">
+                    <div class="wday"
+                         data-type="past"
+                         data-date="Apr 17"
+                         data-occ="Casual"
+                         data-name="Weekend Easy"
+                         data-temp="25°"
+                         data-ico="☀️"
+                         onclick="clickDay(this)">
+                        <div class="wd-lbl">Fri</div>
+                        <div class="wd-ico">☀️</div>
+                        <div class="wd-circle filled"></div>
+                    </div>
+                    <div class="wday"
+                         data-type="past"
+                         data-date="Apr 18"
+                         data-occ="Date"
+                         data-name="Evening Chic"
+                         data-temp="21°"
+                         data-ico="🌙"
+                         onclick="clickDay(this)">
+                        <div class="wd-lbl">Sat</div>
+                        <div class="wd-ico">🌤️</div>
+                        <div class="wd-circle filled"></div>
+                    </div>
+                    <div class="wday"
+                         data-type="past"
+                         data-date="Apr 19"
+                         data-occ="Work"
+                         data-name="Smart Casual"
+                         data-temp="23°"
+                         data-ico="⛅"
+                         onclick="clickDay(this)">
+                        <div class="wd-lbl">Sun</div>
+                        <div class="wd-ico">⛅</div>
+                        <div class="wd-circle filled"></div>
+                    </div>
+
+                    <div class="wday today sel" id="day-today" data-type="today" onclick="clickDay(this)">
+                        <div class="wd-lbl">Today</div>
+                        <div class="wd-ico">@todayIcon</div>
+                        <div class="wd-circle"></div>
+                    </div>
+
+                    @foreach (var weatherDay in futureDays)
+                    {
+                        <div class="wday"
+                             data-type="future"
+                             data-date="@weatherDay.DateFullText"
+                             data-temp="@weatherDay.TemperatureText"
+                             data-ico="@weatherDay.WeatherIconEmoji"
+                             data-desc="@weatherDay.WeatherDescriptionText"
+                             onclick="clickDay(this)">
+                            <div class="wd-lbl">@weatherDay.WeekdayText</div>
+                            <div class="wd-ico">@weatherDay.WeatherIconEmoji</div>
+                            <div class="wd-circle"></div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Occasion -->
+            <div class="occ-section" id="occ-section">
+                <div>
+                    <div class="occ-title" id="occ-title">What's today about?</div>
+                    <div class="occ-sub">Quick pick, or describe below</div>
+                </div>
+                <div class="occ-grid">
+                    <div class="ocard" onclick="pickOcc(this,'Work')"><div class="em">💼</div><div class="nm">Work</div><div class="ht">Office or meetings</div></div>
+                    <div class="ocard" onclick="pickOcc(this,'Casual')"><div class="em">☕</div><div class="nm">Casual</div><div class="ht">Errands or chill</div></div>
+                    <div class="ocard" onclick="pickOcc(this,'Date')"><div class="em">✨</div><div class="nm">Date</div><div class="ht">Dinner or night out</div></div>
+                    <div class="ocard" onclick="pickOcc(this,'Outdoor')"><div class="em">🌿</div><div class="nm">Outdoor</div><div class="ht">Parks or activities</div></div>
+                </div>
+
+                <!-- BIG INPUT -->
+                <div class="free-block">
+                    <div class="free-block-label">Or describe your day</div>
+                    <textarea class="free-inp" id="free-occ" rows="2" placeholder='e.g. "rooftop dinner date", "startup job interview"' oninput="handleFree(this)"></textarea>
+                    <div class="free-examples">
+                        <span class="free-ex" onclick="setEx('beach wedding as a guest')">👰 Beach wedding</span>
+                        <span class="free-ex" onclick="setEx('casual Friday at the office')">💻 Casual Friday</span>
+                        <span class="free-ex" onclick="setEx('first date at a rooftop bar')">✨ Rooftop date</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Generate -->
+        <div class="lp-foot">
+            <button class="gbtn" id="gbtn" disabled onclick="startGen()">
+                <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>
+                <span id="gbtn-label">Style me today</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="rp">
+
+        <!-- Empty -->
+        <div class="r-empty" id="r-empty">
+            <div class="r-empty-ico">
+                <svg viewBox="0 0 24 24"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.57a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.57a2 2 0 00-1.34-2.23z" /></svg>
+            </div>
+            <div class="r-empty-title">Your outfit will appear here</div>
+            <div class="r-empty-sub">Pick an occasion or describe your day — then tap Style me today</div>
+        </div>
+
+        <!-- Gen loader -->
+        <div class="r-gen hidden" id="r-gen">
+            <div class="gcircle"><div class="sring"></div><span style="font-size:20px;color:var(--orange);">✦</span></div>
+            <div style="font-size:16px;font-weight:500;color:var(--ink);font-family:var(--font-serif);font-style:italic;">Finding your look...</div>
+            <div style="font-size:12.5px;color:var(--ink3);">Matching your closet with today's weather</div>
+            <div class="gsteps">
+                <div class="gstep"><div class="sd done"></div><span class="st done">Weather · 22° light rain ✓</span></div>
+                <div class="gstep"><div class="sd done"></div><span class="st done">Occasion · <span id="g-occ">Work</span> ✓</span></div>
+                <div class="gstep"><div class="sd" id="sd3"></div><span class="st" id="st3">Scanning closet for rain-safe pieces...</span></div>
+                <div class="gstep"><div class="sd" id="sd4"></div><span class="st" id="st4">Checking colour harmony</span></div>
+                <div class="gstep"><div class="sd" id="sd5"></div><span class="st" id="st5">Assembling your look</span></div>
+            </div>
+        </div>
+
+        <!-- Item assembly -->
+        <div class="r-items hidden" id="r-items">
+            <div style="font-size:12.5px;color:var(--ink3);font-weight:700;letter-spacing:0.05em;text-transform:uppercase;" id="items-lbl">Picking items...</div>
+            <div class="items-row">
+                <div class="icard" id="ic0"><div class="ibox" style="width:54px;height:66px;"><svg width="27" height="27" viewBox="0 0 24 24"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.57a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.57a2 2 0 00-1.34-2.23z" /></svg><div class="ichk" id="ck0"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg></div></div><span class="ilbl">Shirt</span></div>
+                <div class="icard" id="ic1"><div class="ibox" style="width:46px;height:78px;"><svg width="23" height="23" viewBox="0 0 24 24"><path d="M6 2l-3 8h5v12h8V10h5l-3-8H6z" /></svg><div class="ichk" id="ck1"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg></div></div><span class="ilbl">Trousers</span></div>
+                <div class="icard" id="ic2"><div class="ibox" style="width:62px;height:74px;"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M3 5c0-1 .7-2 2-2l4 3 3-3 3 3 4-3c1.3 0 2 1 2 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5z" /></svg><div class="ichk" id="ck2"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg></div></div><span class="ilbl">Jacket</span></div>
+                <div class="icard" id="ic3"><div class="ibox" style="width:54px;height:42px;"><svg width="27" height="19" viewBox="0 0 32 20"><ellipse cx="8" cy="14" rx="7" ry="5" /><ellipse cx="24" cy="14" rx="7" ry="5" /><path d="M1 14V8a6 6 0 0112 0v2h6V8a6 6 0 0112 0v6" /></svg><div class="ichk" id="ck3"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg></div></div><span class="ilbl">Shoes</span></div>
+            </div>
+        </div>
+
+        <!-- Result -->
+        <div class="r-result hidden" id="r-result">
+            <div class="r-topbar">
+                <div class="r-back" onclick="backToEmpty()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6" /></svg>Change occasion</div>
+                <div class="r-icons">
+                    <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" /></svg>
+                    <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" /></svg>
+                </div>
+            </div>
+            <div class="r-scroll">
+                <div class="outfit-hero">
+                    <div class="obadge" id="r-occ-badge">Work</div>
+                    <div class="owbadge">22° 🌧️</div>
+                    <div class="outfit-full" id="outfit-full">
+                        <div class="of-item"><div class="of-box" style="width:48px;height:60px;"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.57a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.57a2 2 0 00-1.34-2.23z" /></svg></div><span class="of-lbl">Top</span></div>
+                        <div class="of-item"><div class="of-box" style="width:40px;height:70px;"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M6 2l-3 8h5v12h8V10h5l-3-8H6z" /></svg></div><span class="of-lbl">Bottom</span></div>
+                        <div class="of-item"><div class="of-box" style="width:56px;height:68px;"><svg width="27" height="27" viewBox="0 0 24 24"><path d="M3 5c0-1 .7-2 2-2l4 3 3-3 3 3 4-3c1.3 0 2 1 2 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5z" /></svg></div><span class="of-lbl">Jacket</span></div>
+                        <div class="of-item"><div class="of-box" style="width:44px;height:34px;"><svg width="22" height="15" viewBox="0 0 32 20"><ellipse cx="8" cy="14" rx="7" ry="5" /><ellipse cx="24" cy="14" rx="7" ry="5" /><path d="M1 14V8a6 6 0 0112 0v2h6V8a6 6 0 0112 0v6" /></svg></div><span class="of-lbl">Shoes</span></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="ai-name" id="ai-name">Polished Rain-Ready</div>
+                    <div class="ai-text" id="ai-text"></div>
+                </div>
+                <div class="ractions" id="r-actions">
+                    <button class="rab"><svg viewBox="0 0 24 24"><path d="M1 4v6h6M23 20v-6h-6" /><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15" /></svg>Redo</button>
+                    <button class="rab pri"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" /></svg>Save look</button>
+                </div>
+                <div class="tweak" id="r-tweak">
+                    <div class="chips"><div class="chip">Warmer</div><div class="chip">More formal</div><div class="chip">No jacket</div><div class="chip">Swap shoes</div></div>
+                    <div class="tinp-row"><input class="tinp" placeholder="Or ask anything..." /><button class="tsend"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg></button></div>
+                </div>
+                <div class="shop-wrap" id="shop-wrap">
+                    <div class="shop-divider"></div>
+                    <div class="shop-hdr"><div class="shop-title">Shop this look</div><div class="shop-sub">Items that complete this outfit</div></div>
+                    <div class="shop-row">
+                        <div class="pcard"><div class="pimg"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /></svg><div class="ptag">Completes look</div></div><div class="pinfo"><div class="pname">Oxford Loafer</div><div class="pwhy">Water-resistant sole</div><div class="pprice">$89 · Cole Haan</div></div></div>
+                        <div class="pcard"><div class="pimg"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" /></svg></div><div class="pinfo"><div class="pname">Canvas Tote</div><div class="pwhy">Waterproof canvas</div><div class="pprice">$45 · Muji</div></div></div>
+                        <div class="pcard"><div class="pimg"><svg viewBox="0 0 24 24"><path d="M23 12a11.05 11.05 0 00-22 0zm-5 7a3 3 0 01-6 0v-7" /></svg></div><div class="pinfo"><div class="pname">Compact Umbrella</div><div class="pwhy">Windproof, fits in bag</div><div class="pprice">$28 · Blunt</div></div></div>
+                        <div class="pcard"><div class="pimg"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /></svg></div><div class="pinfo"><div class="pname">Slim Chinos</div><div class="pwhy">Lighter than jeans</div><div class="pprice">$65 · Uniqlo</div></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Past record -->
+        <div class="r-record hidden" id="r-record">
+            <div class="rec-topbar"><div class="rec-date" id="rec-date">Apr 19</div><div class="rec-meta" id="rec-meta">Work · 23° ⛅</div></div>
+            <div class="rec-scroll">
+                <div class="rec-hero">
+                    <div class="obadge" id="rec-badge">Work</div><div class="owbadge" id="rec-weather">23° ⛅</div>
+                    <div style="display:flex;gap:11px;align-items:flex-end;">
+                        <div class="of-item"><div class="of-box" style="width:48px;height:60px;"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.57a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.57a2 2 0 00-1.34-2.23z" /></svg></div><span class="of-lbl">Top</span></div>
+                        <div class="of-item"><div class="of-box" style="width:40px;height:70px;"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M6 2l-3 8h5v12h8V10h5l-3-8H6z" /></svg></div><span class="of-lbl">Bottom</span></div>
+                        <div class="of-item"><div class="of-box" style="width:44px;height:34px;"><svg width="22" height="15" viewBox="0 0 32 20"><ellipse cx="8" cy="14" rx="7" ry="5" /><ellipse cx="24" cy="14" rx="7" ry="5" /><path d="M1 14V8a6 6 0 0112 0v2h6V8a6 6 0 0112 0v6" /></svg></div><span class="of-lbl">Shoes</span></div>
+                    </div>
+                </div>
+                <div class="rec-name" id="rec-name">Smart Casual</div>
+                <div class="rec-reason" id="rec-reason">Mild and partly cloudy — picked your beige chino + white button-down. Light enough for the temperature, smart enough for the office.</div>
+            </div>
+        </div>
+
+        <!-- Future plan -->
+        <div class="r-future hidden" id="r-future">
+            <div class="fut-topbar"><div class="fut-date" id="fut-date">Tue Apr 22</div><div class="fut-weather"><span id="fut-ico">⛅</span><span id="fut-desc">24° · Partly cloudy</span></div></div>
+            <div class="fut-scroll">
+                <div class="fut-note">Weather forecast is ready. Set your occasion and we'll generate your outfit the morning of this day.</div>
+                <div class="fut-occ-title">What's the occasion?</div>
+                <div class="fut-occ-grid">
+                    <div class="ocard" onclick="pickFutOcc(this,'Work')"><div class="em">💼</div><div class="nm">Work</div><div class="ht">Office or meetings</div></div>
+                    <div class="ocard" onclick="pickFutOcc(this,'Casual')"><div class="em">☕</div><div class="nm">Casual</div><div class="ht">Errands or chill</div></div>
+                    <div class="ocard" onclick="pickFutOcc(this,'Date')"><div class="em">✨</div><div class="nm">Date</div><div class="ht">Dinner or night out</div></div>
+                    <div class="ocard" onclick="pickFutOcc(this,'Outdoor')"><div class="em">🌿</div><div class="nm">Outdoor</div><div class="ht">Parks or activities</div></div>
+                </div>
+                <button class="fut-gbtn hidden" id="fut-gbtn" onclick="saveFuture()"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>Save to calendar</button>
+                <div class="hidden" id="fut-saved" style="background:var(--orange-l);border:0.5px solid var(--orange-m);border-radius:13px;padding:14px 16px;font-size:12.5px;color:#7a4020;display:flex;align-items:center;gap:10px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7a4020" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12" /></svg>
+                    Occasion saved. We'll generate your outfit the morning of this day.
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

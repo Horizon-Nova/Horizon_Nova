@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace HNB.Areas.WW.Models
 {
-    public class DashboardModel
+    public class TodayIndexModel
     {
         #region Properties
 

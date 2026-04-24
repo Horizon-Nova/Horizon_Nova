@@ -39,7 +39,7 @@ namespace HNB.Areas.WW.Controllers
 
             var today = DateOnly.FromDateTime(DateTime.Today);
 
-            var dashboardModel = new DashboardModel
+            var todayModel = new TodayIndexModel
             {
                 CurrentLocationText = "Now · Auto-detected",
                 CurrentTemperatureText = $"{currentWeatherResult.Temperature:0}°",
@@ -56,7 +56,7 @@ namespace HNB.Areas.WW.Controllers
             {
                 var isToday = forecastWeatherDay.Date == today;
 
-                dashboardModel.WeatherDays.Add(new WeatherDayModel
+                todayModel.WeatherDays.Add(new WeatherDayModel
                 {
                     DateText = forecastWeatherDay.Date.ToString("MM/dd"),
                     WeekdayText = WeatherUtilities.QueryWeekdayText(forecastWeatherDay.Date, today),
@@ -76,7 +76,7 @@ namespace HNB.Areas.WW.Controllers
             ViewData["TopbarBrandEmphasis"] = "Weather.";
             ViewData["TopbarLocation"] = $"Taipei · {DateTime.Today:ddd MMM dd}";
 
-            return View(dashboardModel);
+            return View(todayModel);
         }
 
         #endregion

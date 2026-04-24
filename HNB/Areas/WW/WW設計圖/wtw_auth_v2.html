@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Bodoni+Moda:ital,wght@1,500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --orange:#d76736; --orange-d:#b8522a; --orange-l:#f2e0d5; --orange-m:#e8b89e;
+  --beige:#d3ceb8; --bg:#d9d4c0; --peach:#d3a38c; --teal:#9dbab5;
+  --black:#141210; --ink:#1e1b18; --ink2:#5a534c; --ink3:#9a9188;
+  --font-sans:'Lato',sans-serif; --font-serif:'Bodoni Moda',serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:var(--font-sans);display:flex;}
+
+/* ── LEFT PANEL ── */
+.left{
+  width:460px;flex-shrink:0;
+  background:var(--black);
+  display:flex;flex-direction:column;
+  padding:48px;
+  position:relative;overflow:hidden;
+}
+.lb1{position:absolute;width:340px;height:320px;background:rgba(215,103,54,.16);top:-80px;right:-60px;border-radius:63% 37% 54% 46%/55% 48% 52% 45%;pointer-events:none;}
+.lb2{position:absolute;width:280px;height:300px;background:rgba(157,186,181,.1);bottom:-60px;left:-40px;border-radius:44% 56% 38% 62%/58% 42% 58% 42%;pointer-events:none;}
+.lb3{position:absolute;width:180px;height:160px;background:rgba(215,103,54,.08);top:42%;left:32%;border-radius:52% 48% 62% 38%/42% 58% 42% 58%;pointer-events:none;}
+
+/* Brand */
+.l-brand{position:relative;z-index:1;display:flex;align-items:center;gap:11px;margin-bottom:auto;}
+.l-logo{width:38px;height:38px;border-radius:11px;background:var(--orange);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(215,103,54,.5);flex-shrink:0;}
+.l-logo span{font-weight:900;font-size:11px;color:#fff;}
+.l-logo em{font-family:var(--font-serif);font-style:italic;}
+.l-brand-name{font-weight:900;font-size:16px;color:#fff;}
+.l-brand-name em{font-family:var(--font-serif);font-style:italic;color:var(--orange);}
+
+/* Content */
+.l-content{position:relative;z-index:1;}
+.l-h{font-size:42px;font-weight:900;color:#fff;line-height:1.04;letter-spacing:-.025em;margin-bottom:14px;}
+.l-h em{font-family:var(--font-serif);font-style:italic;font-weight:500;color:var(--orange);}
+.l-sub{font-size:15px;color:rgba(255,255,255,.42);line-height:1.72;margin-bottom:38px;}
+.l-feats{display:flex;flex-direction:column;gap:16px;}
+.lf{display:flex;align-items:center;gap:13px;}
+.lf-ico{width:38px;height:38px;border-radius:11px;background:rgba(255,255,255,.06);border:.5px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.lf-ico svg{width:17px;height:17px;stroke:var(--orange);fill:none;stroke-width:1.8;}
+.lf-title{font-size:13px;font-weight:700;color:#fff;}
+.lf-sub{font-size:11.5px;color:rgba(255,255,255,.32);margin-top:1px;}
+
+.l-footer{position:relative;z-index:1;margin-top:48px;font-size:11px;color:rgba(255,255,255,.18);}
+
+/* ── RIGHT PANEL ── */
+.right{
+  flex:1;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  padding:48px;position:relative;overflow:hidden;
+}
+.rb1{position:absolute;width:380px;height:340px;background:var(--peach);top:-80px;right:-60px;border-radius:60% 40% 55% 45%/50% 60% 40% 50%;opacity:.58;pointer-events:none;}
+.rb2{position:absolute;width:300px;height:320px;background:var(--teal);bottom:-70px;left:-40px;border-radius:44% 56% 38% 62%/58% 42% 58% 42%;opacity:.5;pointer-events:none;}
+.rb3{position:absolute;width:220px;height:200px;background:var(--orange-l);top:32%;left:16%;border-radius:52% 48% 62% 38%/42% 58% 42% 58%;opacity:.42;pointer-events:none;}
+
+/* Auth card */
+.card{
+  background:rgba(255,255,255,.65);
+  backdrop-filter:blur(20px);
+  border-radius:24px;
+  border:.5px solid rgba(255,255,255,.92);
+  box-shadow:0 24px 64px rgba(0,0,0,.12);
+  width:100%;max-width:424px;
+  padding:40px;
+  position:relative;z-index:1;
+}
+
+/* Context pill — shows where user came from */
+.ctx-pill{
+  display:inline-flex;align-items:center;gap:7px;
+  background:var(--orange-l);border:.5px solid rgba(215,103,54,.25);
+  border-radius:20px;padding:5px 13px;
+  font-size:11px;font-weight:700;color:var(--orange);
+  margin-bottom:20px;
+}
+.ctx-pill svg{width:12px;height:12px;stroke:var(--orange);fill:none;stroke-width:2;}
+.ctx-pill.hidden{display:none;}
+
+/* Tabs */
+.tabs{display:flex;background:rgba(0,0,0,.06);border-radius:12px;padding:4px;margin-bottom:28px;}
+.tab{flex:1;padding:9px;border-radius:9px;font-size:13px;font-weight:700;color:var(--ink3);text-align:center;cursor:pointer;transition:all .18s;user-select:none;}
+.tab.active{background:#fff;color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.08);}
+
+/* Card header */
+.card-title{font-size:23px;font-weight:900;color:var(--ink);letter-spacing:-.02em;margin-bottom:5px;}
+.card-title em{font-family:var(--font-serif);font-style:italic;font-weight:500;color:var(--orange);}
+.card-sub{font-size:13px;color:var(--ink3);margin-bottom:24px;line-height:1.55;}
+
+/* Social */
+.socials{display:flex;flex-direction:column;gap:9px;margin-bottom:20px;}
+.soc-btn{
+  width:100%;padding:12px 16px;border-radius:12px;
+  border:1.5px solid rgba(0,0,0,.1);background:rgba(255,255,255,.75);
+  font-size:13px;font-weight:700;font-family:var(--font-sans);color:var(--ink);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;
+  transition:all .15s;
+}
+.soc-btn:hover{border-color:rgba(0,0,0,.2);background:#fff;transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.08);}
+.soc-btn svg{width:18px;height:18px;flex-shrink:0;}
+
+/* Divider */
+.div-row{display:flex;align-items:center;gap:11px;margin-bottom:20px;}
+.div-line{flex:1;height:.5px;background:rgba(0,0,0,.1);}
+.div-txt{font-size:11px;color:var(--ink3);font-weight:700;white-space:nowrap;}
+
+/* Form */
+.fg{margin-bottom:13px;}
+.fl{font-size:10.5px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.09em;margin-bottom:5px;display:block;}
+.fi{
+  width:100%;border:1.5px solid rgba(0,0,0,.1);border-radius:11px;
+  padding:12px 14px;font-size:14px;font-family:var(--font-sans);
+  color:var(--ink);background:rgba(255,255,255,.7);outline:none;
+  transition:all .15s;
+}
+.fi:focus{border-color:var(--orange);background:#fff;box-shadow:0 0 0 3px rgba(215,103,54,.1);}
+.fi::placeholder{color:var(--ink3);}
+
+/* Password strength */
+.pw-wrap{position:relative;}
+.pw-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--ink3);font-size:11px;font-weight:700;}
+.pw-bars{display:flex;gap:4px;margin-top:6px;height:3px;}
+.pw-bar{flex:1;border-radius:2px;background:rgba(0,0,0,.08);transition:background .3s;}
+.pw-bar.w{background:#e05555;}.pw-bar.m{background:var(--orange);}.pw-bar.s{background:#6db86b;}
+.pw-label{font-size:10.5px;margin-top:4px;height:14px;transition:color .3s;}
+
+/* Forgot */
+.forgot{font-size:11.5px;color:var(--orange);font-weight:700;cursor:pointer;text-align:right;display:block;margin-top:-8px;margin-bottom:14px;transition:color .15s;}
+.forgot:hover{color:var(--orange-d);}
+
+/* Terms */
+.terms{font-size:11px;color:var(--ink3);line-height:1.65;margin-bottom:16px;}
+.terms a{color:var(--orange);font-weight:700;text-decoration:none;}
+
+/* Submit */
+.submit{
+  width:100%;background:var(--orange);color:#fff;border:none;
+  border-radius:13px;padding:15px;
+  font-size:14px;font-weight:900;font-family:var(--font-sans);
+  cursor:pointer;transition:all .15s;
+  box-shadow:0 8px 24px rgba(215,103,54,.36);
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.submit:hover{background:var(--orange-d);transform:translateY(-2px);box-shadow:0 12px 32px rgba(215,103,54,.42);}
+.submit svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:2.5;}
+
+/* Switch */
+.switch{text-align:center;margin-top:16px;font-size:12.5px;color:var(--ink3);}
+.switch a{color:var(--orange);font-weight:700;text-decoration:none;cursor:pointer;}
+
+/* Demo controls */
+.demo-controls{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);display:flex;gap:9px;z-index:100;}
+.dc-btn{background:rgba(20,18,16,.85);backdrop-filter:blur(10px);border:.5px solid rgba(255,255,255,.12);border-radius:11px;padding:9px 18px;font-size:12px;font-weight:700;color:rgba(255,255,255,.5);cursor:pointer;font-family:var(--font-sans);transition:all .15s;}
+.dc-btn:hover{color:#fff;border-color:rgba(255,255,255,.2);}
+.dc-btn.active{background:var(--orange);border-color:var(--orange);color:#fff;}
+
+.hidden{display:none!important;}
+</style>
+</head>
+<body>
+
+<!-- LEFT -->
+<div class="left">
+  <div class="lb1"></div><div class="lb2"></div><div class="lb3"></div>
+  <div class="l-brand">
+    <div class="l-logo"><span>W<em>w</em></span></div>
+    <div class="l-brand-name">Whatever the <em>Weather.</em></div>
+  </div>
+  <div class="l-content">
+    <h1 class="l-h">Your AI<br>stylist is<br><em>waiting.</em></h1>
+    <p class="l-sub">Upload your clothes once. Get a perfect outfit every morning — weather-aware, occasion-perfect, always from your own wardrobe.</p>
+    <div class="l-feats">
+      <div class="lf">
+        <div class="lf-ico"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg></div>
+        <div><div class="lf-title">Upload once, styled forever</div><div class="lf-sub">AI builds your digital closet automatically</div></div>
+      </div>
+      <div class="lf">
+        <div class="lf-ico"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+        <div><div class="lf-title">Weather-aware every day</div><div class="lf-sub">Auto-detects your location and conditions</div></div>
+      </div>
+      <div class="lf">
+        <div class="lf-ico"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div>
+        <div><div class="lf-title">Gets smarter every use</div><div class="lf-sub">Learns your style and preferences</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="l-footer">© 2026 Whatever the Weather. All rights reserved.</div>
+</div>
+
+<!-- RIGHT -->
+<div class="right">
+  <div class="rb1"></div><div class="rb2"></div><div class="rb3"></div>
+
+  <div class="card">
+
+    <!-- Context pill -->
+    <div class="ctx-pill hidden" id="ctx-pill">
+      <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      <span id="ctx-text">Save your look — sign up free</span>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab active" id="tab-su" onclick="switchTab('signup')">Create account</div>
+      <div class="tab" id="tab-li" onclick="switchTab('login')">Log in</div>
+    </div>
+
+    <!-- SIGN UP -->
+    <div id="view-signup">
+      <div class="card-title" id="su-title">Start for <em>free.</em></div>
+      <div class="card-sub" id="su-sub">No credit card required. Cancel anytime.</div>
+
+      <div class="socials">
+        <button class="soc-btn" onclick="goToOnboarding()">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Continue with Google
+        </button>
+        <button class="soc-btn" onclick="goToOnboarding()">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          Continue with Apple
+        </button>
+      </div>
+
+      <div class="div-row"><div class="div-line"></div><div class="div-txt">or sign up with email</div><div class="div-line"></div></div>
+
+      <div class="fg"><label class="fl">Email address</label><input class="fi" type="email" placeholder="you@example.com"/></div>
+      <div class="fg">
+        <label class="fl">Password</label>
+        <div class="pw-wrap">
+          <input class="fi" type="password" id="pw-input" placeholder="At least 8 characters" oninput="checkPw(this.value)" style="padding-right:52px;"/>
+          <span class="pw-toggle" onclick="togglePw()">Show</span>
+        </div>
+        <div class="pw-bars"><div class="pw-bar" id="pb1"></div><div class="pw-bar" id="pb2"></div><div class="pw-bar" id="pb3"></div></div>
+        <div class="pw-label" id="pw-label" style="color:var(--ink3);"></div>
+      </div>
+      <div class="fg"><label class="fl">Confirm password</label><input class="fi" type="password" placeholder="Repeat your password"/></div>
+
+      <div class="terms">By creating an account you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</div>
+
+      <button class="submit" onclick="goToOnboarding()">
+        Create my account
+        <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <div class="switch">Already have an account? <a onclick="switchTab('login')">Log in</a></div>
+    </div>
+
+    <!-- LOG IN -->
+    <div id="view-login" class="hidden">
+      <div class="card-title">Welcome <em>back.</em></div>
+      <div class="card-sub">Good to see you again. Let's find your outfit.</div>
+
+      <div class="socials">
+        <button class="soc-btn" onclick="goToApp()">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Continue with Google
+        </button>
+        <button class="soc-btn" onclick="goToApp()">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          Continue with Apple
+        </button>
+      </div>
+
+      <div class="div-row"><div class="div-line"></div><div class="div-txt">or log in with email</div><div class="div-line"></div></div>
+
+      <div class="fg"><label class="fl">Email address</label><input class="fi" type="email" placeholder="you@example.com"/></div>
+      <div class="fg">
+        <label class="fl">Password</label>
+        <div class="pw-wrap">
+          <input class="fi" type="password" id="li-pw" placeholder="Your password" style="padding-right:52px;"/>
+          <span class="pw-toggle" onclick="toggleLiPw()">Show</span>
+        </div>
+      </div>
+      <a class="forgot">Forgot password?</a>
+
+      <button class="submit" onclick="goToApp()" style="margin-top:4px;">
+        Log in
+        <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <div class="switch">Don't have an account? <a onclick="switchTab('signup')">Sign up free</a></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Demo controls -->
+<div class="demo-controls">
+  <div class="dc-btn active" id="btn-1" onclick="setCtx('landing')">From Landing (Login)</div>
+  <div class="dc-btn" id="btn-2" onclick="setCtx('trial')">From Trial (Sign up)</div>
+</div>
+
+<script>
+let pwVisible = false;
+let liPwVisible = false;
+
+// ── Context ──
+function setCtx(from) {
+  const pill = document.getElementById('ctx-pill');
+  const suTitle = document.getElementById('su-title');
+  const suSub = document.getElementById('su-sub');
+
+  if(from === 'trial') {
+    // Coming from trial after generating an outfit
+    pill.classList.remove('hidden');
+    document.getElementById('ctx-text').textContent = 'Save your look — sign up free';
+    switchTab('signup');
+    suTitle.innerHTML = 'Save your <em>look.</em>';
+    suSub.textContent = 'Create a free account to use your own wardrobe and save your outfits.';
+  } else {
+    // Coming from landing Login button
+    pill.classList.add('hidden');
+    switchTab('login');
+    suTitle.innerHTML = 'Start for <em>free.</em>';
+    suSub.textContent = 'No credit card required. Cancel anytime.';
+  }
+
+  ['btn-1','btn-2'].forEach((id,i) => {
+    document.getElementById(id).classList.toggle('active', ['landing','trial'][i] === from);
+  });
+}
+
+// ── Tabs ──
+function switchTab(tab) {
+  document.getElementById('tab-su').className = 'tab' + (tab==='signup'?' active':'');
+  document.getElementById('tab-li').className = 'tab' + (tab==='login'?' active':'');
+  document.getElementById('view-signup').classList.toggle('hidden', tab!=='signup');
+  document.getElementById('view-login').classList.toggle('hidden', tab!=='login');
+}
+
+// ── Password strength ──
+function checkPw(pw) {
+  const bars = ['pb1','pb2','pb3'];
+  const labels = {weak:'Weak',medium:'Good',strong:'Strong'};
+  bars.forEach(b => document.getElementById(b).className = 'pw-bar');
+  const lbl = document.getElementById('pw-label');
+  if(!pw) { lbl.textContent=''; return; }
+  if(pw.length >= 1) document.getElementById('pb1').classList.add('w');
+  if(pw.length >= 7) { document.getElementById('pb1').classList.add('m'); document.getElementById('pb2').classList.add('m'); lbl.textContent='Good'; lbl.style.color='var(--orange)'; }
+  if(pw.length >= 10 && /[A-Z]/.test(pw) && /[0-9!@#$]/.test(pw)) {
+    bars.forEach(b => document.getElementById(b).className = 'pw-bar s');
+    lbl.textContent='Strong ✓'; lbl.style.color='#6db86b';
+  } else if(pw.length < 7) { lbl.textContent='Too short'; lbl.style.color='#e05555'; }
+}
+
+function togglePw() {
+  pwVisible = !pwVisible;
+  const inp = document.getElementById('pw-input');
+  inp.type = pwVisible ? 'text' : 'password';
+  inp.nextElementSibling.textContent = pwVisible ? 'Hide' : 'Show';
+}
+
+function toggleLiPw() {
+  liPwVisible = !liPwVisible;
+  const inp = document.getElementById('li-pw');
+  inp.type = liPwVisible ? 'text' : 'password';
+  inp.nextElementSibling.textContent = liPwVisible ? 'Hide' : 'Show';
+}
+
+// ── Navigation ──
+function goToOnboarding() {
+  alert('→ Onboarding (upload clothes)');
+}
+function goToApp() {
+  alert('→ Today page (direct, no onboarding)');
+}
+
+// Init — default to landing/login context
+setCtx('landing');
+</script>
+</body>
+</html>

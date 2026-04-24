@@ -1,0 +1,215 @@
+@using System.Linq
+@model HNB.Areas.WW.Models.WardrobeIndexModel
+
+@{
+    var totalItems = Model?.Items?.Count(i => i.IsPendingReview == false) ?? 0;
+    var pendingItems = Model?.Items?.Count(i => i.IsPendingReview) ?? 0;
+
+    string QueryCategoryBubbleSymbol(string categoryKey, string categoryName)
+        => categoryKey switch
+        {
+            "tops" => "👕",
+            "bottoms" => "👖",
+            "outerwear" => "🧥",
+            "shoes" => "👟",
+            "accessories" => "👜",
+            _ => string.IsNullOrWhiteSpace(categoryName)
+                ? "?"
+                : categoryName.Trim().Substring(0, 1)
+        };
+
+    string QueryCategoryTag(string categoryKey)
+        => categoryKey switch
+        {
+            "tops" => "Top",
+            "bottoms" => "Bottom",
+            "outerwear" => "Outerwear",
+            "shoes" => "Shoes",
+            "accessories" => "Accessories",
+            "unconfirmed" => "Unconfirmed",
+            _ => "Item"
+        };
+
+    string QueryCardBackground(string categoryKey, string itemName)
+    {
+        var palette = categoryKey switch
+        {
+            "tops" => new[] { "f0ebe2,#e5ddd0", "e8edf2,#d8e2ec", "2a2a2a,#1a1a1a", "f5ede0,#ead8c0" },
+            "outerwear" => new[] { "2c3a4a,#1e2c3a", "c8b898,#b8a880" },
+            "bottoms" => new[] { "1a1a2e,#16213e", "e8e0d0,#d8d0c0" },
+            "shoes" => new[] { "3a2e22,#2a1e12", "f5f5f5,#e8e8e8" },
+            "accessories" => new[] { "e9dccf,#dcc8b5", "d4c7ba,#c8b8aa" },
+            "unconfirmed" => new[] { "f5ede0,#ead8c0", "e8e0d8,#d8d0c8" },
+            _ => new[] { "f5efe6,#ece5d8" }
+        };
+
+        var stableIndex = Math.Abs((itemName ?? string.Empty).GetHashCode()) % palette.Length;
+        return palette[stableIndex];
+    }
+}
+
+<div class="main">
+
+    <!-- LEFT: UPLOAD -->
+    <div class="upload-col">
+        <div class="upload-label">Add to Closet</div>
+
+        <div class="upload-zone"
+             id="upload-zone"
+             ondragover="event.preventDefault();this.classList.add('drag-over')"
+             ondragleave="this.classList.remove('drag-over')"
+             ondrop="wwClosetHandleDrop(event)">
+
+            <!-- Idle -->
+            <div class="uz-idle" id="uz-idle">
+                <div class="upload-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" /></svg>
+                </div>
+                <div class="uz-title">Upload your photos</div>
+                <div class="uz-sub">AI will detect and sort items into your closet</div>
+                <button type="button" class="uz-btn" onclick="wwClosetStartUpload()">
+                    <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" /></svg>
+                    Choose photos
+                </button>
+                <div class="uz-hint">or drag & drop · up to 20</div>
+            </div>
+
+            <!-- Scanning -->
+            <div class="uz-scanning" id="uz-scanning">
+                <div class="scan-ring-wrap">
+                    <div class="scan-ring"></div>
+                    <div class="scan-inner" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M4 7h3l2-2h6l2 2h3v12H4V7z" /><circle cx="12" cy="13" r="3" /></svg>
+                    </div>
+                </div>
+                <div class="scan-title">Scanning photos…</div>
+                <div class="scan-sub">AI is identifying and categorizing each item</div>
+                <div class="scan-steps">
+                    <div class="scan-step"><div class="ss-dot done"></div><span class="ss-text done">Upload received</span></div>
+                    <div class="scan-step"><div class="ss-dot" id="ss1"></div><span class="ss-text" id="st1">Detecting clothing items…</span></div>
+                    <div class="scan-step"><div class="ss-dot" id="ss2"></div><span class="ss-text" id="st2">Sorting by category</span></div>
+                    <div class="scan-step"><div class="ss-dot" id="ss3"></div><span class="ss-text" id="st3">Analyzing color and style</span></div>
+                    <div class="scan-step"><div class="ss-dot" id="ss4"></div><span class="ss-text" id="st4">Adding to closet</span></div>
+                </div>
+            </div>
+
+            <!-- Done -->
+            <div class="uz-done" id="uz-done">
+                <div class="done-icon">
+                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
+                </div>
+                <div class="done-title">Added 4 items!</div>
+                <div class="done-sub">Your closet is updated</div>
+                <div class="done-chips">
+                    <div class="done-chip">2 Tops</div>
+                    <div class="done-chip">1 Bottom</div>
+                    <div class="done-chip">1 Outerwear</div>
+                </div>
+                <button type="button" class="upload-again" onclick="wwClosetResetUpload()">
+                    + Upload more photos
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT: GRID -->
+    <div class="closet-col">
+        <div class="cat-row">
+            <div class="cat-row-label">Categories</div>
+            <div class="bubbles">
+                <button type="button" class="bubble active" onclick="wwClosetFilterCat(this,'all')">
+                    <div class="bubble-circle">👔</div>
+                    <span class="bubble-label">All @totalItems</span>
+                </button>
+
+                @foreach (var category in Model?.Categories ?? [])
+                {
+                    <button type="button" class="bubble" onclick="wwClosetFilterCat(this,'@category.Key')">
+                        <div class="bubble-circle">@QueryCategoryBubbleSymbol(category.Key, category.Name)</div>
+                        <span class="bubble-label">@category.Name @category.Count</span>
+                    </button>
+                }
+
+                <button type="button" class="bubble bubble-unconfirmed" onclick="wwClosetFilterCat(this,'unconfirmed')">
+                    <div class="bubble-circle">?</div>
+                    <span class="bubble-label">Review @pendingItems</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="closet-grid-wrap">
+            <div class="grid-header">
+                <div>
+                    <div class="grid-title" id="grid-title">All</div>
+                    <div class="grid-sub" id="grid-sub">Showing @totalItems items</div>
+                </div>
+                <div class="grid-actions">
+                    <button type="button" class="grid-btn active" aria-label="Grid">
+                        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /></svg>
+                    </button>
+                    <button type="button" class="grid-btn" aria-label="Shuffle">
+                        <svg viewBox="0 0 24 24"><path d="M16 3h5v5" /><path d="M4 20l5-5" /><path d="M16 3l-7 7" /><path d="M21 16v5h-5" /><path d="M15 15l6 6" /><path d="M4 4l5 5" /></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="clothes-grid" id="clothes-grid">
+                @foreach (var item in Model?.Items ?? Enumerable.Empty<HNB.Areas.WW.Models.WardrobeItemModel>())
+                {
+                    var cat = item.IsPendingReview ? "unconfirmed" : item.CategoryKey;
+                    var cardTag = QueryCategoryTag(cat);
+                    <div class="ccard" data-cat="@cat">
+                        <div class="ccard-img" style="background:linear-gradient(145deg,#@QueryCardBackground(cat, item.Name));">
+                            @if (cat == "bottoms")
+                            {
+                                <svg viewBox="0 0 24 24"><path d="M6 2l-3 8h5v12h8V10h5l-3-8H6z" /></svg>
+                            }
+                            else if (cat == "outerwear")
+                            {
+                                <svg viewBox="0 0 24 24"><path d="M3 5c0-1 .7-2 2-2l4 3 3-3 3 3 4-3c1.3 0 2 1 2 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5z" /></svg>
+                            }
+                            else if (cat == "shoes")
+                            {
+                                <svg viewBox="0 0 32 20"><ellipse cx="8" cy="14" rx="7" ry="5" /><ellipse cx="24" cy="14" rx="7" ry="5" /><path d="M1 14V8a6 6 0 0112 0v2h6V8a6 6 0 0112 0v6" /></svg>
+                            }
+                            else if (cat == "accessories")
+                            {
+                                <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" /></svg>
+                            }
+                            else
+                            {
+                                <svg viewBox="0 0 24 24"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.57a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.57a2 2 0 00-1.34-2.23z" /></svg>
+                            }
+
+                            <div class="ccard-cat-tag">@cardTag</div>
+                            @if (item.IsPendingReview)
+                            {
+                                <div class="ccard-unconfirmed-tag">Unconfirmed</div>
+                            }
+                            <div class="ccard-del" onclick="event.stopPropagation()" aria-hidden="true">
+                                <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                            </div>
+                        </div>
+                        <div class="ccard-body">
+                            <div class="ccard-name">@item.Name</div>
+                            <div class="ccard-tags">
+                                @if (!string.IsNullOrWhiteSpace(item.PrimaryColor))
+                                {
+                                    <span class="ctag">@item.PrimaryColor</span>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(item.Season))
+                                {
+                                    <span class="ctag">@item.Season</span>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(item.Occasion))
+                                {
+                                    <span class="ctag">@item.Occasion</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

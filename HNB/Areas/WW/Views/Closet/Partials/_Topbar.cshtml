@@ -1,0 +1,19 @@
+@using System.Linq
+@model HNB.Areas.WW.Models.WardrobeIndexModel
+
+@{
+    var totalItems = Model?.Items?.Count(i => i.IsPendingReview == false) ?? 0;
+    var pendingItems = Model?.Items?.Count(i => i.IsPendingReview) ?? 0;
+    var categoryCount = Model?.Categories?.Count ?? 0;
+}
+
+<div class="tb">
+    <span class="tb-brand">My <em>Closet</em></span>
+    <div class="tb-stats">
+        <div class="tb-stat"><span class="tb-stat-num" id="stat-total">@totalItems</span><span>items</span></div>
+        <div class="tb-stat-div"></div>
+        <div class="tb-stat"><span class="tb-stat-num" id="stat-unconfirmed" style="color:var(--orange);">@pendingItems</span><span>unconfirmed</span></div>
+        <div class="tb-stat-div"></div>
+        <div class="tb-stat"><span class="tb-stat-num">@categoryCount</span><span>categories</span></div>
+    </div>
+</div>

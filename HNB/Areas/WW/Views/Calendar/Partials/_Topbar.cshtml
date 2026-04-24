@@ -1,0 +1,17 @@
+@using System.Globalization
+@{
+    Layout = null;
+}
+
+<div class="tb">
+    <span class="tb-brand">Outfit <em>Log</em></span>
+    <div class="tb-r">
+        <button type="button" class="mnav-btn" onclick="wwCalendarChangeMonth(-1)" aria-label="Previous month">
+            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6" /></svg>
+        </button>
+        <div class="mnav-label" id="month-label">@DateTime.Now.ToString("MMMM yyyy", CultureInfo.InvariantCulture)</div>
+        <button type="button" class="mnav-btn" onclick="wwCalendarChangeMonth(1)" aria-label="Next month">
+            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6" /></svg>
+        </button>
+    </div>
+</div>

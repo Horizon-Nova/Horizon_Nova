@@ -1,0 +1,127 @@
+@{
+    Layout = null;
+}
+
+<!-- LEFT -->
+<div class="left">
+  <div class="lb1"></div><div class="lb2"></div><div class="lb3"></div>
+  <div class="l-brand">
+    <div class="l-logo"><span>W<em>w</em></span></div>
+    <div class="l-brand-name">Whatever the <em>Weather.</em></div>
+  </div>
+  <div class="l-content">
+    <h1 class="l-h">Your AI<br>stylist is<br><em>waiting.</em></h1>
+    <p class="l-sub">Upload your clothes once. Get a perfect outfit every morning — weather-aware, occasion-perfect, always from your own wardrobe.</p>
+    <div class="l-feats">
+      <div class="lf">
+        <div class="lf-ico"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg></div>
+        <div><div class="lf-title">Upload once, styled forever</div><div class="lf-sub">AI builds your digital closet automatically</div></div>
+      </div>
+      <div class="lf">
+        <div class="lf-ico"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+        <div><div class="lf-title">Weather-aware every day</div><div class="lf-sub">Auto-detects your location and conditions</div></div>
+      </div>
+      <div class="lf">
+        <div class="lf-ico"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div>
+        <div><div class="lf-title">Gets smarter every use</div><div class="lf-sub">Learns your style and preferences</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="l-footer">© 2026 Whatever the Weather. All rights reserved.</div>
+</div>
+
+<!-- RIGHT -->
+<div class="right" style="overflow-y:auto;">
+  <div class="rb1"></div><div class="rb2"></div><div class="rb3"></div>
+
+  <div class="card">
+
+    <div class="ctx-pill hidden" id="ctx-pill">
+      <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      <span id="ctx-text">Save your look — sign up free</span>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" id="tab-su" onclick="switchTab('signup')">Create account</div>
+      <div class="tab" id="tab-li" onclick="switchTab('login')">Log in</div>
+    </div>
+
+    <div id="view-signup">
+      <div class="card-title" id="su-title">Start for <em>free.</em></div>
+      <div class="card-sub" id="su-sub">No credit card required. Cancel anytime.</div>
+
+      <div class="socials">
+        <button type="button" class="soc-btn" onclick="goToOnboarding()">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Continue with Google
+        </button>
+        <button type="button" class="soc-btn" onclick="goToOnboarding()">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          Continue with Apple
+        </button>
+      </div>
+
+      <div class="div-row"><div class="div-line"></div><div class="div-txt">or sign up with email</div><div class="div-line"></div></div>
+
+      <div class="fg"><label class="fl">Email address</label><input class="fi" type="email" placeholder="you@example.com"/></div>
+      <div class="fg">
+        <label class="fl">Password</label>
+        <div class="pw-wrap">
+          <input class="fi" type="password" id="pw-input" placeholder="At least 8 characters" oninput="checkPw(this.value)" style="padding-right:52px;"/>
+          <span class="pw-toggle" onclick="togglePw()">Show</span>
+        </div>
+        <div class="pw-bars"><div class="pw-bar" id="pb1"></div><div class="pw-bar" id="pb2"></div><div class="pw-bar" id="pb3"></div></div>
+        <div class="pw-label" id="pw-label" style="color:var(--ink3);"></div>
+      </div>
+      <div class="fg"><label class="fl">Confirm password</label><input class="fi" type="password" placeholder="Repeat your password"/></div>
+
+      <div class="terms">By creating an account you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</div>
+
+      <button type="button" class="submit" onclick="goToOnboarding()">
+        Create my account
+        <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <div class="switch">Already have an account? <button type="button" class="link-like" onclick="switchTab('login')">Log in</button></div>
+    </div>
+
+    <div id="view-login" class="hidden">
+      <div class="card-title">Welcome <em>back.</em></div>
+      <div class="card-sub">Good to see you again. Let's find your outfit.</div>
+
+      <div class="socials">
+        <button type="button" class="soc-btn" onclick="goToApp()">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Continue with Google
+        </button>
+        <button type="button" class="soc-btn" onclick="goToApp()">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          Continue with Apple
+        </button>
+      </div>
+
+      <div class="div-row"><div class="div-line"></div><div class="div-txt">or log in with email</div><div class="div-line"></div></div>
+
+      <div class="fg"><label class="fl">Email address</label><input class="fi" type="email" placeholder="you@example.com"/></div>
+      <div class="fg">
+        <label class="fl">Password</label>
+        <div class="pw-wrap">
+          <input class="fi" type="password" id="li-pw" placeholder="Your password" style="padding-right:52px;"/>
+          <span class="pw-toggle" onclick="toggleLiPw()">Show</span>
+        </div>
+      </div>
+      <a class="forgot" href="#">Forgot password?</a>
+
+      <button type="button" class="submit" onclick="goToApp()" style="margin-top:4px;">
+        Log in
+        <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <div class="switch">Don't have an account? <button type="button" class="link-like" onclick="switchTab('signup')">Sign up free</button></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="demo-controls">
+  <div class="dc-btn active" id="btn-1" onclick="setCtx('landing')">From Landing (Login)</div>
+  <div class="dc-btn" id="btn-2" onclick="setCtx('trial')">From Trial (Sign up)</div>
+</div>
