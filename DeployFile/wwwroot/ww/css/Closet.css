@@ -357,6 +357,16 @@
     min-width: 0;
 }
 
+.closet-grid-wrap {
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+    max-width: 980px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+}
+
 .cat-row {
     padding: 16px 22px 14px;
     border-bottom: 0.5px solid rgba(0, 0, 0, 0.07);
@@ -567,9 +577,14 @@
 .ccard-img svg {
     width: 40px;
     height: 40px;
+    display: block;
     stroke: rgba(0, 0, 0, 0.2);
-    fill: rgba(0, 0, 0, 0.06);
-    stroke-width: 1.2;
+    fill: none;
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.08));
+    transform: translateY(-6px);
 }
 
 .ccard-cat-tag {
@@ -583,6 +598,7 @@
     padding: 3px 8px;
     border-radius: 6px;
     letter-spacing: 0.04em;
+    text-transform: uppercase;
 }
 
 .ccard-unconfirmed-tag {
