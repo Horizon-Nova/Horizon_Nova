@@ -22,6 +22,9 @@
     <meta name="viewport" content="width=1280" />
     <title>@title</title>
 
+    <link rel="icon" type="image/png" href="~/ww/image/logo.png" asp-append-version="true" />
+    <link rel="shortcut icon" type="image/png" href="~/ww/image/logo.png" asp-append-version="true" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Bodoni+Moda:ital,wght@1,500&display=swap" rel="stylesheet">
 
@@ -48,8 +51,8 @@
 
         <!-- Sidebar -->
         <nav class="sb" aria-label="WW navigation">
-            <a asp-area="WW" asp-controller="Today" asp-action="Index" class="logo" aria-label="WW home">
-                <span class="logo-text">W<span class="logo-i">w</span></span>
+            <a asp-area="WW" asp-controller="Today" asp-action="Index" class="logo" aria-label="Whatever the Weather 首頁">
+                <img class="logo-img" src="~/ww/image/logo.png" alt="" width="26" height="26" asp-append-version="true" />
             </a>
 
             <a asp-area="WW" asp-controller="Today" asp-action="Index" class="@navTodayClass" aria-label="Today">
@@ -79,7 +82,10 @@
             else
             {
                 <div class="tb">
-                    <span class="tb-brand" id="tb-title">@topbarBrandPrefix<em>@topbarBrandEmphasis</em></span>
+                    <div class="tb-brand-row">
+                        <img class="tb-logo-mark" src="~/ww/image/logo.png" alt="" width="28" height="28" asp-append-version="true" />
+                        <span class="tb-brand" id="tb-title">@topbarBrandPrefix<em>@topbarBrandEmphasis</em></span>
+                    </div>
                     <div class="tb-r">
                         <div class="loc-pill" id="loc-pill" onclick="wwToggleLocPopup()">
                             <div class="loc-dot"></div>

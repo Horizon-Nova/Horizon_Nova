@@ -24,6 +24,19 @@ body { font-family: var(--font-sans); background: var(--bg); color: var(--ink); 
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 52px;
 }
+.nav-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.nav-logo-mark {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  flex-shrink: 0;
+  display: block;
+}
 .nav-brand { font-weight: 900; font-size: 15px; color: #fff; }
 .nav-brand em { font-family: var(--font-serif); font-style: italic; font-weight: 500; color: var(--orange); }
 .nav-r { display: flex; align-items: center; gap: 28px; }
