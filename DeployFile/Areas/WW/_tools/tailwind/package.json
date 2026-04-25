@@ -1,0 +1,12 @@
+{
+  "name": "horizon-nova",
+  "private": true,
+  "devDependencies": {
+    "tailwindcss": "^3.4.17"
+  },
+  "scripts": {
+    "ww:css": "tailwindcss -c tailwind.config.js -i ../../../../wwwroot/ww/css/ww.input.css -o ../../../../wwwroot/ww/css/ww.tailwind.css",
+    "ww:css:min": "tailwindcss -c tailwind.config.js -i ../../../../wwwroot/ww/css/ww.input.css -o ../../../../wwwroot/ww/css/ww.tailwind.css --minify",
+    "ww:css:watch": "tailwindcss -c tailwind.config.js -i ../../../../wwwroot/ww/css/ww.input.css -o ../../../../wwwroot/ww/css/ww.tailwind.css --watch"
+  }
+}
