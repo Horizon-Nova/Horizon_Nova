@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --orange: #d76736;
+    --orange-d: #b8522a;
+    --orange-l: #f2e0d5;
+    --orange-m: #e8b89e;
+    --beige: #d3ceb8;
+    --bg: #d9d4c0;
+    --peach: #d3a38c;
+    --teal: #9dbab5;
+    --black: #141210;
+    --ink: #1e1b18;
+    --ink2: #5a534c;
+    --ink3: #9a9188;
+    --font-sans: "Lato", sans-serif;
+    --font-serif: "Bodoni Moda", serif;
+  }
+}
+
+@layer utilities {
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}
+

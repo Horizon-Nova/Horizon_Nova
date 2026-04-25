@@ -19,7 +19,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=1280" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@title</title>
 
     <link rel="icon" type="image/png" href="~/ww/image/logo.png" asp-append-version="true" />
@@ -27,6 +27,8 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Bodoni+Moda:ital,wght@1,500&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="~/ww/css/ww.tailwind.css" asp-append-version="true" />
 
     <link rel="stylesheet" href="~/ww/css/Layout.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)

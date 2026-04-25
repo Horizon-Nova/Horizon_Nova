@@ -15,8 +15,8 @@
     var firstRecord = records.FirstOrDefault();
 }
 
-<div class="cols">
-    <div class="cal-col">
+<div class="cols flex flex-1 overflow-hidden min-w-0 flex-col md:flex-row">
+    <div class="cal-col w-full md:w-[320px] md:flex-shrink-0 md:border-r-[0.5px] md:border-black/10 flex flex-col overflow-y-auto overflow-x-hidden px-[18px] py-[20px] gap-4 scrollbar-none">
         <div class="month-summary">
             <div class="ms-stat">
                 <div class="ms-num">@monthOutfitCount</div>
