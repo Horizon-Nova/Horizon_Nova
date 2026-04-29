@@ -62,8 +62,7 @@ Sites/
 
 QdrantEmbedding
 
-# Node.js (Tailwind build)
-HNB/Areas/WW/_tools/tailwind/node_modules/
+# Node.js
 npm-debug.log
 yarn-debug.log
 yarn-error.log

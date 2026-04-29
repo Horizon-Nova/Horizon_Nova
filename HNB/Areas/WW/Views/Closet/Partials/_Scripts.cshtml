@@ -1,4 +1,125 @@
 @{
     Layout = null;
 }
-<script src="~/ww/js/Closet.js" asp-append-version="true"></script>
+
+<script>
+// Closet interactions: based on wtw_closet_v1.html.
+
+function wwClosetFilterCat(el, cat) {
+  // Active 樣式：用 Tailwind class 切換，不依賴自訂 CSS
+  document.querySelectorAll("[data-bubble='1']").forEach(b => {
+    b.classList.remove("bg-[#f2e0d5]/75", "border-[#d76736]/35");
+    b.classList.add("bg-white/55", "border-white/85");
+  });
+  el.classList.remove("bg-white/55", "border-white/85");
+  el.classList.add("bg-[#f2e0d5]/75", "border-[#d76736]/35");
+
+  const cards = document.querySelectorAll(".ccard");
+  let count = 0;
+  cards.forEach(c => {
+    if (cat === "all" || c.dataset.cat === cat) {
+      c.style.display = "";
+      count++;
+    } else {
+      c.style.display = "none";
+    }
+  });
+
+  const labels = {
+    all: "All Items",
+    tops: "Tops",
+    bottoms: "Bottoms",
+    outerwear: "Outerwear",
+    shoes: "Shoes",
+    accessories: "Accessories",
+    unconfirmed: "Needs Review"
+  };
+
+  const title = document.getElementById("grid-title");
+  const sub = document.getElementById("grid-sub");
+  if (title) title.textContent = labels[cat] || "All Items";
+  if (sub) sub.textContent = "Showing " + count + " item" + (count !== 1 ? "s" : "");
+}
+
+// Upload simulation
+function wwClosetStartUpload() {
+  const idle = document.getElementById("uz-idle");
+  const scanning = document.getElementById("uz-scanning");
+  const done = document.getElementById("uz-done");
+  if (!idle || !scanning || !done) return;
+
+  idle.classList.add("hidden");
+  done.classList.add("hidden");
+  scanning.classList.remove("hidden");
+  scanning.classList.add("flex");
+
+  const steps = [
+    { dot: "ss1", txt: "st1", dl: 500 },
+    { dot: "ss2", txt: "st2", dl: 1100 },
+    { dot: "ss3", txt: "st3", dl: 1700 },
+    { dot: "ss4", txt: "st4", dl: 2300 }
+  ];
+
+  steps.forEach(({ dot, txt, dl }) => {
+    setTimeout(() => {
+      const d = document.getElementById(dot);
+      const t = document.getElementById(txt);
+      if (d) d.className = "h-[9px] w-[9px] rounded-full bg-[#d76736]";
+      if (t) t.className = "text-[12px] font-bold text-[#1e1b18]";
+    }, dl);
+    setTimeout(() => {
+      const d = document.getElementById(dot);
+      const t = document.getElementById(txt);
+      if (d) d.className = "h-[9px] w-[9px] rounded-full bg-[#d76736]";
+      if (t) t.className = "text-[12px] font-bold text-[#1e1b18]";
+    }, dl + 550);
+  });
+
+  setTimeout(() => {
+    scanning.classList.add("hidden");
+    done.classList.remove("hidden");
+    done.classList.add("flex");
+    // demo: update total stats in topbar (if present)
+    const total = document.getElementById("stat-total");
+    if (total) total.textContent = "28";
+  }, 3400);
+}
+
+function wwClosetResetUpload() {
+  const idle = document.getElementById("uz-idle");
+  const scanning = document.getElementById("uz-scanning");
+  const done = document.getElementById("uz-done");
+  if (!idle || !scanning || !done) return;
+
+  scanning.classList.add("hidden");
+  done.classList.add("hidden");
+  idle.classList.remove("hidden");
+  idle.classList.add("flex");
+
+  ["ss1","ss2","ss3","ss4"].forEach(id => {
+    const e = document.getElementById(id);
+    if (e) e.className = "h-[9px] w-[9px] rounded-full bg-black/15";
+  });
+  ["st1","st2","st3","st4"].forEach(id => {
+    const e = document.getElementById(id);
+    if (e) e.className = "text-[12px] font-bold text-black/35";
+  });
+}
+
+function wwClosetHandleDrop(e) {
+  e.preventDefault();
+  const zone = document.getElementById("upload-zone");
+  if (zone) {
+    zone.classList.remove("border-[#d76736]", "bg-[#f2e0d5]/55");
+    zone.classList.add("border-black/15", "bg-white/35");
+  }
+  if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) wwClosetStartUpload();
+}
+
+// 初始狀態：套用預設 active bubble 樣式
+(function () {
+  var first = document.querySelector("[data-bubble='1'][data-cat='all']");
+  if (first) wwClosetFilterCat(first, "all");
+})();
+
+</script>

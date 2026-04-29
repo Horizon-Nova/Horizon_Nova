@@ -1,22 +1,26 @@
 @using System.Linq
 @model HNB.Areas.WW.Models.WardrobeIndexModel
-
 @{
+    Layout = null;
+
     var totalItems = Model?.Items?.Count(i => i.IsPendingReview == false) ?? 0;
     var pendingItems = Model?.Items?.Count(i => i.IsPendingReview) ?? 0;
-    var categoryCount = Model?.Categories?.Count ?? 0;
 }
 
-<div class="tb">
-    <div class="tb-brand-row">
-        <img class="tb-logo-mark" src="~/ww/image/logo.png" alt="" width="28" height="28" asp-append-version="true" />
-        <span class="tb-brand">My <em>Closet</em></span>
+<!-- TOPBAR (wtw_closet_v1.html) -->
+<div class="flex h-[54px] items-center justify-between border-b border-black/10 bg-[rgba(217,212,192,0.75)] px-4 backdrop-blur-[14px] md:px-7">
+    <div class="text-[15px] font-black text-[#1e1b18]">
+        Whatever the <span class="font-medium italic text-[#d76736] [font-family:var(--font-serif)]">Weather.</span>
     </div>
-    <div class="tb-stats">
-        <div class="tb-stat"><span class="tb-stat-num" id="stat-total">@totalItems</span><span>items</span></div>
-        <div class="tb-stat-div"></div>
-        <div class="tb-stat"><span class="tb-stat-num" id="stat-unconfirmed" style="color:var(--orange);">@pendingItems</span><span>unconfirmed</span></div>
-        <div class="tb-stat-div"></div>
-        <div class="tb-stat"><span class="tb-stat-num">@categoryCount</span><span>categories</span></div>
+    <div class="flex items-center gap-5 text-[12px] font-bold text-black/55" aria-label="Closet stats">
+        <div class="flex items-center gap-[6px]">
+            <span class="text-[16px] font-black text-[#1e1b18]" id="stat-total">@totalItems</span>
+            items
+        </div>
+        <div class="h-[18px] w-px bg-black/15" aria-hidden="true"></div>
+        <div class="flex items-center gap-[6px]">
+            <span class="text-[16px] font-black text-[#1e1b18]" id="stat-pending">@pendingItems</span>
+            to review
+        </div>
     </div>
 </div>

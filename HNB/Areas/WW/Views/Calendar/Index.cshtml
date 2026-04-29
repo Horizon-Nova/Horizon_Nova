@@ -1,18 +1,20 @@
 @model HNB.Areas.WW.Models.HistoryIndexModel
 @{
     Layout = "~/Areas/WW/Views/Shared/_Layout.cshtml";
-    ViewData["Title"] = "Calendar";
+    ViewData["Title"] = "Outfit Log";
 }
 
 @section Topbar {
-    @await Html.PartialAsync("Partials/_Topbar")
+    <div class="ww-feature-calendar-topbar">
+        @await Html.PartialAsync("Partials/_Topbar")
+    </div>
 }
 
 <section class="ww-feature-calendar">
     @await Html.PartialAsync("Partials/_MainContent", Model)
 </section>
 
-@section Styles {
+@section Head {
     @await Html.PartialAsync("Partials/_Styles")
 }
 

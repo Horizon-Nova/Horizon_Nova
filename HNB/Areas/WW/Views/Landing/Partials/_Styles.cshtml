@@ -1,7 +1,58 @@
 @{
     Layout = null;
 }
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Bodoni+Moda:ital,wght@1,500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="~/ww/css/ww.tailwind.css" asp-append-version="true" />
-<link rel="stylesheet" href="~/ww/css/Landing.css" asp-append-version="true" />
+
+<!-- Tailwind（首頁不使用任何本地 CSS/JS 檔） -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ["Lato", "sans-serif"],
+          serif: ["Bodoni Moda", "serif"]
+        },
+        colors: {
+          ww: {
+            orange: "#d76736",
+            orangeD: "#b8522a",
+            orangeL: "#f2e0d5",
+            beige: "#d3ceb8",
+            bg: "#d9d4c0",
+            peach: "#d3a38c",
+            teal: "#9dbab5",
+            black: "#141210",
+            ink: "#1e1b18",
+            ink2: "#5a534c",
+            ink3: "#9a9188"
+          }
+        },
+        keyframes: {
+          fadeUp: {
+            "0%": { opacity: "0", transform: "translateY(22px)" },
+            "100%": { opacity: "1", transform: "translateY(0)" }
+          },
+          pulseDot: {
+            "0%, 100%": { opacity: "1", transform: "scale(1)" },
+            "50%": { opacity: "0.5", transform: "scale(0.7)" }
+          }
+        },
+        animation: {
+          "fade-up": "fadeUp 0.7s ease both",
+          "pulse-dot": "pulseDot 1.5s infinite"
+        }
+      }
+    }
+  }
+</script>
+
+<style>
+  .ww-hide-scrollbar::-webkit-scrollbar { display: none; }
+</style>

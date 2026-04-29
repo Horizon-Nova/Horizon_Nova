@@ -4,11 +4,15 @@
     ViewData["Title"] = "Today";
 }
 
+@section Topbar {
+    @await Html.PartialAsync("Partials/_Topbar")
+}
+
 <section class="ww-feature-today">
     @await Html.PartialAsync("Partials/_MainContent", Model)
 </section>
 
-@section Styles {
+@section Head {
     @await Html.PartialAsync("Partials/_Styles")
 }
 

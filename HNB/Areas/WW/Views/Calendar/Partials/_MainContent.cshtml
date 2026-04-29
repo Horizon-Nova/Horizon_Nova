@@ -1,114 +1,157 @@
-@using System.Globalization
-@using System.Linq
 @model HNB.Areas.WW.Models.HistoryIndexModel
 
-@{
-    var records = Model?.Records ?? [];
-    var monthOutfitCount = records.Count;
-    var avgTempText = "—";
-    var topOccasionText = records
-        .Where(r => !string.IsNullOrWhiteSpace(r.BadgeText))
-        .GroupBy(r => r.BadgeText!)
-        .OrderByDescending(g => g.Count())
-        .Select(g => g.Key)
-        .FirstOrDefault() ?? "—";
-    var firstRecord = records.FirstOrDefault();
-}
-
-<div class="cols flex flex-1 overflow-hidden min-w-0 flex-col md:flex-row">
-    <div class="cal-col w-full md:w-[320px] md:flex-shrink-0 md:border-r-[0.5px] md:border-black/10 flex flex-col overflow-y-auto overflow-x-hidden px-[18px] py-[20px] gap-4 scrollbar-none">
-        <div class="month-summary">
-            <div class="ms-stat">
-                <div class="ms-num">@monthOutfitCount</div>
-                <div class="ms-label">Outfits</div>
-            </div>
-            <div class="ms-stat">
-                <div class="ms-num">@avgTempText</div>
-                <div class="ms-label">Avg Temp</div>
-            </div>
-            <div class="ms-stat">
-                <div class="ms-num orange">@topOccasionText</div>
-                <div class="ms-label">Top Occ.</div>
-            </div>
-        </div>
-
-        <div class="cal-wrap">
-            <div class="cal-grid" id="cal-grid"></div>
-        </div>
-
-        <div class="sec-label">Recent Logs</div>
-        <div class="recent-strip">
-            @for (var index = 0; index < records.Count; index++)
-            {
-                var record = records[index];
-                var dateText = record.CreatedAt.ToString("MMM dd", CultureInfo.InvariantCulture);
-                var weekdayText = record.CreatedAt.ToString("dddd", CultureInfo.InvariantCulture);
-                var occasionText = record.BadgeText ?? "";
-                var weatherText = record.TypeName ?? "";
-                var itemClass = index == 0 ? "recent-item js-recent-item active" : "recent-item js-recent-item";
-                <div class="@itemClass"
-                     data-date="@dateText"
-                     data-weekday="@weekdayText"
-                     data-weather="@weatherText"
-                     data-occ="@occasionText"
-                     data-name="@record.Title"
-                     data-summary="@record.Description">
-                    <div class="ri-date">@dateText</div>
-                    <div class="ri-name">@record.Title</div>
-                    <div class="ri-occ">@occasionText</div>
-                    <div class="ri-weather">@weatherText</div>
+<div class="flex min-h-0 flex-1 flex-col overflow-hidden md:flex-row">
+    <!-- LEFT (cal-col) -->
+    <div class="ww-calendar-scroll w-full shrink-0 border-b border-black/10 px-4 py-[18px] md:w-[300px] md:border-b-0 md:border-r md:px-4 md:py-[18px] md:overflow-y-auto">
+        <div class="flex flex-col gap-[14px]">
+            <!-- month-summary -->
+            <div class="flex rounded-[14px] border border-white/80 bg-white/50 px-[14px] py-[12px] backdrop-blur-[10px]">
+                <div class="flex-1 text-center">
+                    <div class="text-[18px] font-black leading-none text-[#d76736]" id="ms-outfits">0</div>
+                    <div class="mt-[6px] text-[9px] font-bold uppercase tracking-[0.09em] text-black/35">Outfits</div>
                 </div>
-            }
+                <div class="w-px bg-black/10"></div>
+                <div class="flex-1 text-center">
+                    <div class="text-[18px] font-black leading-none text-[#1e1b18]" id="ms-avg">--</div>
+                    <div class="mt-[6px] text-[9px] font-bold uppercase tracking-[0.09em] text-black/35">Avg Temp</div>
+                </div>
+                <div class="w-px bg-black/10"></div>
+                <div class="flex-1 text-center">
+                    <div class="text-[12px] font-black leading-none text-[#1e1b18]" id="ms-topocc">--</div>
+                    <div class="mt-[6px] text-[9px] font-bold uppercase tracking-[0.09em] text-black/35">Top Occasion</div>
+                </div>
+            </div>
+
+            <!-- cal-wrap -->
+            <div class="rounded-[14px] border border-white/80 bg-white/55 px-[10px] py-[12px] backdrop-blur-[10px]">
+                <div class="grid grid-cols-7 gap-[2px]" id="cal-grid"></div>
+            </div>
+
+            <div class="text-[9.5px] font-bold uppercase tracking-[0.09em] text-black/35">AI-Detected Palette</div>
+            <div class="flex flex-wrap items-center gap-[6px]" aria-label="Outfit palette">
+                <div class="h-[22px] w-[22px] rounded-full border-2 border-white/90 shadow-[0_2px_6px_rgba(0,0,0,0.1)]" style="background:#f5f0e8"></div>
+                <div class="h-[22px] w-[22px] rounded-full border-2 border-white/90 shadow-[0_2px_6px_rgba(0,0,0,0.1)]" style="background:#c8c4bc"></div>
+                <div class="h-[22px] w-[22px] rounded-full border-2 border-white/90 shadow-[0_2px_6px_rgba(0,0,0,0.1)]" style="background:#8a8070"></div>
+                <div class="h-[22px] w-[22px] rounded-full border-2 border-white/90 shadow-[0_2px_6px_rgba(0,0,0,0.1)]" style="background:#6a7a88"></div>
+                <div class="h-[22px] w-[22px] rounded-full border-2 border-white/90 shadow-[0_2px_6px_rgba(0,0,0,0.1)]" style="background:#2c2420"></div>
+                <span class="ml-[2px] text-[10px] font-bold text-black/35">Neutral &middot; 82%</span>
+            </div>
+
+            <div class="text-[9.5px] font-bold uppercase tracking-[0.09em] text-black/35">Top Occasions</div>
+            <div class="flex flex-col gap-[7px]" aria-label="Occasion breakdown">
+                <div>
+                    <div class="mb-[3px] flex items-center justify-between">
+                        <div class="text-[11.5px] font-bold text-[#1e1b18]">Work</div>
+                        <div class="text-[10.5px] font-bold text-black/35">42%</div>
+                    </div>
+                    <div class="h-[5px] overflow-hidden rounded-[3px] bg-black/10">
+                        <div class="h-full rounded-[3px] bg-gradient-to-r from-[#e8b89e] to-[#d76736]" style="width:42%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="mb-[3px] flex items-center justify-between">
+                        <div class="text-[11.5px] font-bold text-[#1e1b18]">Casual</div>
+                        <div class="text-[10.5px] font-bold text-black/35">31%</div>
+                    </div>
+                    <div class="h-[5px] overflow-hidden rounded-[3px] bg-black/10">
+                        <div class="h-full rounded-[3px] bg-gradient-to-r from-[#e8b89e] to-[#d76736]" style="width:31%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="mb-[3px] flex items-center justify-between">
+                        <div class="text-[11.5px] font-bold text-[#1e1b18]">Date</div>
+                        <div class="text-[10.5px] font-bold text-black/35">18%</div>
+                    </div>
+                    <div class="h-[5px] overflow-hidden rounded-[3px] bg-black/10">
+                        <div class="h-full rounded-[3px] bg-gradient-to-r from-[#e8b89e] to-[#d76736]" style="width:18%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="mb-[3px] flex items-center justify-between">
+                        <div class="text-[11.5px] font-bold text-[#1e1b18]">Outdoor</div>
+                        <div class="text-[10.5px] font-bold text-black/35">9%</div>
+                    </div>
+                    <div class="h-[5px] overflow-hidden rounded-[3px] bg-black/10">
+                        <div class="h-full rounded-[3px] bg-gradient-to-r from-[#e8b89e] to-[#d76736]" style="width:9%"></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="log-col">
-        @if (firstRecord == null)
-        {
-            <div class="log-empty">
-                <div class="log-empty-ico">
-                    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></svg>
+    <!-- RIGHT (log-col) -->
+    <div class="min-w-0 flex-1 overflow-hidden bg-white/35 backdrop-blur-[14px]">
+        <div class="shrink-0 border-b border-black/10 px-6 pb-3 pt-4">
+            <div class="truncate text-[26px] font-medium italic leading-none text-[#1e1b18] [font-family:var(--font-serif)]" id="log-date-big">Sunday, April 20</div>
+            <div class="mt-[5px] flex flex-wrap items-center gap-[6px]">
+                <div class="inline-flex items-center gap-[6px] rounded-full bg-white/70 px-[10px] py-[3px] text-[11px] font-bold text-black/60" id="log-weather">
+                    <i data-lucide="sun" class="h-[14px] w-[14px] text-black/40" aria-hidden="true" id="log-weather-ico"></i>
+                    <span id="log-weather-txt">24&deg; Clear</span>
                 </div>
-                <div class="log-empty-title">No outfit history yet</div>
-                <div class="log-empty-sub">Save your first daily look and your calendar timeline will appear here.</div>
+                <div class="rounded-full bg-[#f2e0d5] px-[10px] py-[3px] text-[11px] font-bold text-[#d76736]" id="log-occ">Casual</div>
             </div>
-        }
-        else
-        {
-            <div class="log-detail">
-                <div class="log-topbar">
-                    <div>
-                        <div class="log-date-big" id="log-date-big">@firstRecord.CreatedAt.ToString("dddd, MMMM dd", CultureInfo.InvariantCulture)</div>
-                        <div class="log-pills">
-                            <div class="log-weather-pill" id="log-weather">@(firstRecord.TypeName ?? "")</div>
-                            <div class="log-occ-pill" id="log-occ">@(firstRecord.BadgeText ?? "")</div>
-                        </div>
-                    </div>
-                    <div class="log-icons">
-                        <button type="button" id="like-btn" class="log-icon-btn" onclick="wwCalendarToggleLike()" aria-label="Like">
-                            <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></svg>
-                        </button>
-                    </div>
-                </div>
+        </div>
 
-                <div class="log-scroll">
-                    <div class="outfit-hero">
-                        <div class="hero-badge" id="hero-badge">@(firstRecord.BadgeText ?? "")</div>
-                        <div class="hero-weather" id="hero-weather">@(firstRecord.TypeName ?? "")</div>
-                        <div class="full-look">
-                            <div class="look-item"><div class="look-box" style="width:46px;height:58px;"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z" /></svg></div><span class="look-lbl">Top</span></div>
-                            <div class="look-item"><div class="look-box" style="width:38px;height:66px;"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M6 2l-3 8h5v12h8V10h5l-3-8H6z" /></svg></div><span class="look-lbl">Bottom</span></div>
-                            <div class="look-item"><div class="look-box" style="width:50px;height:62px;"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M3 5c0-1 .7-2 2-2l4 3 3-3 3 3 4-3c1.3 0 2 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5z" /></svg></div><span class="look-lbl">Outerwear</span></div>
-                            <div class="look-item"><div class="look-box" style="width:42px;height:34px;"><svg width="20" height="14" viewBox="0 0 32 20"><ellipse cx="8" cy="14" rx="7" ry="5" /><ellipse cx="24" cy="14" rx="7" ry="5" /><path d="M1 14V8a6 6 0 0 1 12 0v2h6V8a6 6 0 0 1 12 0v6" /></svg></div><span class="look-lbl">Shoes</span></div>
-                        </div>
-                    </div>
-
-                    <div class="ai-summary">
-                        <div class="ai-summary-name" id="ai-summary-name">@firstRecord.Title</div>
-                        <div class="ai-summary-text" id="ai-summary-text">@firstRecord.Description</div>
-                    </div>
-                </div>
-            </div>
-        }
+        <div class="ww-calendar-scroll flex min-h-0 flex-1 flex-col gap-[14px] overflow-y-auto px-6 py-[18px]" id="log-scroll"></div>
     </div>
 </div>
+
+<template id="ww-calendar-card-tpl">
+    <div class="ww-fade-up overflow-hidden rounded-[18px] border border-white/85 bg-white/55 shadow-[0_4px_20px_rgba(0,0,0,0.07)] backdrop-blur-[12px]">
+        <div class="flex flex-col md:flex-row">
+            <div class="relative flex min-h-[160px] flex-1 flex-col items-center justify-center gap-2 border-b border-white/60 bg-[linear-gradient(150deg,rgba(242,224,213,0.95),rgba(211,206,184,0.85))] py-5 md:border-b-0 md:border-r">
+                <div class="absolute left-[10px] top-[10px] rounded-full bg-white/70 px-2 py-[2px] text-[9px] font-bold uppercase tracking-[0.08em] text-black/35">AI look</div>
+                <div class="absolute right-[10px] top-[10px] rounded-full bg-white/75 px-[10px] py-[4px] text-[11px] font-bold text-black/60">
+                    <span data-card-weather></span>
+                </div>
+
+                <div class="absolute left-[14px] top-[42px] inline-flex items-center rounded-full border border-[#d76736]/25 bg-[#f2e0d5] px-[12px] py-[4px] text-[12px] font-bold text-[#d76736]" data-card-tag></div>
+
+                <div class="flex items-end gap-2">
+                    <div class="flex flex-col items-center gap-[3px]">
+                        <div class="flex items-center justify-center rounded-[7px] bg-black/10" style="width:44px;height:58px">
+                            <svg class="h-[22px] w-[22px] fill-none stroke-black/15 stroke-[1.2] [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24"><path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/></svg>
+                        </div>
+                        <div class="text-[8px] font-bold uppercase tracking-[0.2px] text-black/35">Top</div>
+                    </div>
+                    <div class="flex flex-col items-center gap-[3px]">
+                        <div class="flex items-center justify-center rounded-[7px] bg-black/10" style="width:36px;height:64px">
+                            <svg class="h-[18px] w-[18px] fill-none stroke-black/15 stroke-[1.2] [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24"><path d="M6 2l-3 8h5v12h8V10h5l-3-8H6z"/></svg>
+                        </div>
+                        <div class="text-[8px] font-bold uppercase tracking-[0.2px] text-black/35">Bottom</div>
+                    </div>
+                    <div class="flex flex-col items-center gap-[3px]">
+                        <div class="flex items-center justify-center rounded-[7px] bg-black/10" style="width:48px;height:60px">
+                            <svg class="h-[24px] w-[24px] fill-none stroke-black/15 stroke-[1.2] [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24"><path d="M3 5c0-1 .7-2 2-2l4 3 3-3 3 3 4-3c1.3 0 2 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5z"/></svg>
+                        </div>
+                        <div class="text-[8px] font-bold uppercase tracking-[0.2px] text-black/35">Jacket</div>
+                    </div>
+                    <div class="flex flex-col items-center gap-[3px]">
+                        <div class="flex items-center justify-center rounded-[7px] bg-black/10" style="width:44px;height:44px">
+                            <svg class="h-[22px] w-[22px] fill-none stroke-black/15 stroke-[1.2] [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 32 20"><ellipse cx="8" cy="14" rx="7" ry="5"/><ellipse cx="24" cy="14" rx="7" ry="5"/><path d="M1 14V8a6 6 0 0 1 12 0v2h6V8a6 6 0 0 1 12 0v6"/></svg>
+                        </div>
+                        <div class="text-[8px] font-bold uppercase tracking-[0.2px] text-black/35">Shoes</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="min-w-0 flex-[1.2] px-6 py-6">
+                <div class="text-[28px] leading-none text-[#1e1b18] [font-family:var(--font-serif)] italic" data-card-name></div>
+                <div class="mt-4 text-[16px] leading-relaxed text-black/55" data-card-desc></div>
+
+                <div class="mt-5 flex flex-wrap gap-2" data-card-items></div>
+
+                <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+                    <button type="button" class="flex flex-1 items-center justify-center gap-2 rounded-[14px] border border-black/5 bg-white/70 px-4 py-[12px] text-[15px] font-black text-black/55 shadow-[0_2px_10px_rgba(0,0,0,0.04)] transition hover:-translate-y-px hover:bg-white/85" data-card-redo>
+                        <svg class="h-[18px] w-[18px] fill-none stroke-black/45 stroke-[2] [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10" /><path d="M3.51 15a9 9 0 102.13-9.36L1 10" /></svg>
+                        Redo
+                    </button>
+                    <button type="button" class="flex flex-1 items-center justify-center gap-2 rounded-[14px] bg-[#d76736] px-4 py-[12px] text-[15px] font-black text-white shadow-[0_10px_26px_rgba(215,103,54,0.38)] transition hover:-translate-y-px hover:bg-[#c75d2f]" data-card-save>
+                        <svg class="h-[18px] w-[18px] fill-none stroke-white stroke-[2] [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></svg>
+                        Save look
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

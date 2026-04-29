@@ -1,13 +1,18 @@
 ﻿using HNB.Helpers;
 using System.Text;
 using System.Text.Json;
+using HNB.Repositories;
+using Models.Hnb;
 
 namespace HNB.Services;
 
 /// <summary>
 /// 錯誤日誌服務層，負責處理錯誤日誌的業務邏輯
 /// </summary>
-public class ErrorLogService(IHttpClientFactory httpClientFactory, IConfiguration configuration)
+public class ErrorLogService(
+    IHttpClientFactory httpClientFactory,
+    IConfiguration configuration,
+    ErrorLogRepository errorLogRepository)
 {
     /// <summary>
     /// 發送錯誤日誌到 n8n webhook
@@ -36,6 +41,33 @@ public class ErrorLogService(IHttpClientFactory httpClientFactory, IConfiguratio
             }
         }
 
+        var dbSaved = true;
+        try
+        {
+            var log = new error_log
+            {
+                id = Guid.NewGuid(),
+                created_at = DateTime.UtcNow,
+                message = LogSanitizer.Clean(ex.Message) ?? "",
+                layer = LogSanitizer.Clean(layer) ?? "",
+                stage = stage,
+                function = LogSanitizer.Clean(function) ?? "",
+                function_full = LogSanitizer.Clean(functionFull) ?? "",
+                stack_trace = LogSanitizer.Clean(ex.StackTrace) ?? "",
+                path = LogSanitizer.Clean(context.Request.Path) ?? "",
+                http_method = LogSanitizer.Clean(context.Request.Method) ?? "",
+                status_code = context.Response?.StatusCode ?? 0,
+                trace_id = LogSanitizer.Clean(context.TraceIdentifier) ?? "",
+                user_id = LogSanitizer.Clean(context.User.Identity?.Name ?? "Anonymous") ?? ""
+            };
+
+            dbSaved = errorLogRepository.Insert(log);
+        }
+        catch
+        {
+            dbSaved = false;
+        }
+
         // 非同步發送到 n8n webhook（不阻塞主流程）
         _ = Task.Run(async () =>
         {
@@ -49,7 +81,7 @@ public class ErrorLogService(IHttpClientFactory httpClientFactory, IConfiguratio
             }
         });
 
-        return true;
+        return dbSaved;
     }
 
     /// <summary>

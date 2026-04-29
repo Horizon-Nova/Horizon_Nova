@@ -1,0 +1,38 @@
+@model HNB.Areas.WW.Models.TodayIndexModel
+@{
+    Layout = null;
+
+    // 與藍圖一致：Topbar 標題會被 JS 依日期/狀態動態替換。
+    var locationText = Model?.CurrentLocationText;
+    if (string.IsNullOrWhiteSpace(locationText))
+    {
+        locationText = "New York &middot; Mon Apr 21";
+    }
+
+    var avatarText = "J";
+}
+
+<!-- TOPBAR (wtw_today_v4.html) -->
+<div class="tb">
+    <span class="tb-brand" id="tb-title">Whatever the <em>Weather.</em></span>
+    <div class="tb-r">
+        <div class="loc-pill" id="loc-pill" onclick="toggleLocPopup()">
+            <div class="loc-dot"></div>
+            <svg class="loc-svg" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            <span class="loc-text" id="loc-text">@Html.Raw(locationText)</span>
+            <span class="loc-edit">Edit</span>
+            <div class="loc-popup" id="loc-popup" onclick="event.stopPropagation()">
+                <div class="loc-popup-label">Change Location</div>
+                <div class="loc-inp-row">
+                    <input class="loc-inp" id="loc-inp" placeholder="City, State or ZIP" onkeydown="if(event.key==='Enter')confirmLoc()" />
+                    <button type="button" class="loc-confirm" onclick="confirmLoc()">Set</button>
+                </div>
+            </div>
+        </div>
+        <div class="av" onclick="toggleLocPopup()">@avatarText</div>
+    </div>
+</div>
+

@@ -1,4 +1,451 @@
 @{
     Layout = null;
 }
-<script src="~/ww/js/Calendar.js" asp-append-version="true"></script>
+
+<script>
+    (function () {
+        "use strict";
+
+        var MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+        // 示範資料：先對齊設計圖互動；後續可再接 API/Model
+        var dayData = {
+            "Apr 18": {
+                cards: [
+                    {
+                        tag: "Work", weather: "22\u00B0 Partly cloudy", name: "Office Classic", hasPhoto: true,
+                        items: [
+                            { name: "White Button-Down", cat: "Top", bg: "#f5f5f5", icon: "shirt" },
+                            { name: "Beige Chinos", cat: "Bottom", bg: "#d8c8a8", icon: "pants" },
+                            { name: "Derby Shoes", cat: "Shoes", bg: "#8a7060", icon: "shoes" }
+                        ]
+                    },
+                    {
+                        tag: "Work", weather: "22\u00B0 Partly cloudy", name: "Smart Casual Friday", hasPhoto: false,
+                        items: [
+                            { name: "Merino Sweater", cat: "Top", bg: "#c8b898", icon: "shirt" },
+                            { name: "Dark Jeans", cat: "Bottom", bg: "#3a4858", icon: "pants" },
+                            { name: "Chelsea Boots", cat: "Shoes", bg: "#5a4838", icon: "shoes" }
+                        ]
+                    }
+                ]
+            },
+            "Apr 19": {
+                cards: [
+                    {
+                        tag: "Date", weather: "20\u00B0 Rain", name: "Rainy Evening", hasPhoto: false,
+                        items: [
+                            { name: "Navy Jacket", cat: "Outer", bg: "#3a4a5a", icon: "shirt" },
+                            { name: "Silk Top", cat: "Top", bg: "#e8d8c8", icon: "shirt" },
+                            { name: "Slim Trousers", cat: "Bottom", bg: "#5a5050", icon: "pants" }
+                        ]
+                    },
+                    {
+                        tag: "Date", weather: "20\u00B0 Rain", name: "Date Night Dark", hasPhoto: false,
+                        items: [
+                            { name: "Black Coat", cat: "Outer", bg: "#2a2a2a", icon: "shirt" },
+                            { name: "Turtleneck", cat: "Top", bg: "#4a4040", icon: "shirt" },
+                            { name: "Tapered Pants", cat: "Bottom", bg: "#3a3030", icon: "pants" }
+                        ]
+                    }
+                ]
+            },
+            "Apr 20": {
+                cards: [
+                    {
+                        tag: "Casual", weather: "24\u00B0 Clear", name: "Weekend Glow", hasPhoto: true,
+                        items: [
+                            { name: "Linen Shirt", cat: "Top", bg: "#f0ebe2", icon: "shirt" },
+                            { name: "White Shorts", cat: "Bottom", bg: "#f5f0e8", icon: "pants" },
+                            { name: "Sneakers", cat: "Shoes", bg: "#f5f5f5", icon: "shoes" },
+                            { name: "Tote Bag", cat: "Bag", bg: "#c8b070", icon: "bag" }
+                        ]
+                    },
+                    {
+                        tag: "Casual", weather: "24\u00B0 Clear", name: "Sunny Alternative", hasPhoto: false,
+                        items: [
+                            { name: "Striped Tee", cat: "Top", bg: "#e8ecf0", icon: "shirt" },
+                            { name: "Linen Pants", cat: "Bottom", bg: "#f0ebe2", icon: "pants" },
+                            { name: "Loafers", cat: "Shoes", bg: "#b8a888", icon: "shoes" }
+                        ]
+                    }
+                ]
+            }
+        };
+
+        var outfitDays = [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20];
+        var currentYear = 2026;
+        var currentMonth = 3; // April
+        var currentDayKey = "Apr 20";
+
+        function byId(id) {
+            return document.getElementById(id);
+        }
+
+        function safeText(el, text) {
+            if (!el) return;
+            el.textContent = text;
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/\"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function getIconSvg(type) {
+            var icons = {
+                shirt: '<path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/>',
+                pants: '<path d="M6 2l-3 8h5v12h8V10h5l-3-8H6z"/>',
+                shoes: '<ellipse cx="8" cy="14" rx="7" ry="5"/><ellipse cx="24" cy="14" rx="7" ry="5"/><path d="M1 14V8a6 6 0 0 1 12 0v2h6V8a6 6 0 0 1 12 0v6"/>',
+                bag: '<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>'
+            };
+
+            var vb = type === "shoes" ? "0 0 32 20" : "0 0 24 24";
+            var sz = type === "shoes" ? 'width="18" height="12"' : 'width="16" height="16"';
+            var p = icons[type] || icons.shirt;
+            return '<svg ' + sz + ' viewBox="' + vb + '" class="fill-none stroke-black/20 stroke-[1.6] [stroke-linecap:round] [stroke-linejoin:round]">' + p + "</svg>";
+        }
+
+        function weatherIconName(text) {
+            var t = String(text || "").toLowerCase();
+            if (t.indexOf("rain") >= 0) return "cloud-rain";
+            if (t.indexOf("storm") >= 0 || t.indexOf("thunder") >= 0) return "cloud-lightning";
+            if (t.indexOf("snow") >= 0) return "cloud-snow";
+            if (t.indexOf("clear") >= 0 || t.indexOf("sun") >= 0) return "sun";
+            if (t.indexOf("cloud") >= 0) return "cloud-sun";
+            return "cloud";
+        }
+
+        function buildCard(card, index, dayKey) {
+            var id = dayKey.replace(" ", "") + "-" + index;
+
+            var itemsHTML = (card.items || []).map(function (it) {
+                var bg = (it && it.bg) ? String(it.bg) : "#f5f0e8";
+                var name = (it && it.name) ? String(it.name) : "";
+                var cat = (it && it.cat) ? String(it.cat) : "Item";
+                var icon = (it && it.icon) ? String(it.icon) : "shirt";
+
+                return '' +
+                    '<div class="flex-1 cursor-pointer rounded-[10px] border border-white/85 bg-white/70 px-[10px] py-[10px] shadow-[0_2px_10px_rgba(0,0,0,0.04)] transition hover:border-[#e8b89e] hover:-translate-y-px">' +
+                    '  <div class="mx-auto flex h-[40px] w-[36px] items-center justify-center rounded-[8px]" style="background:' + escapeHtml(bg) + '">' +
+                    getIconSvg(icon) +
+                    "  </div>" +
+                    '  <div class="mt-[6px] text-center text-[9.5px] font-bold leading-[1.25] text-[#1e1b18]">' + escapeHtml(name) + "</div>" +
+                    '  <div class="mt-[2px] text-center text-[8.5px] font-bold uppercase tracking-[0.03em] text-black/35">' + escapeHtml(cat) + "</div>" +
+                    "</div>";
+            }).join("");
+
+            return '' +
+                '<div class="ww-fade-up overflow-hidden rounded-[18px] border border-white/85 bg-white/55 shadow-[0_4px_20px_rgba(0,0,0,0.07)] backdrop-blur-[12px]" id="card-' + id + '">' +
+                '  <div class="flex">' +
+                '    <div class="relative flex min-h-[230px] flex-1 flex-col items-center justify-center gap-2 border-r border-white/60 bg-[linear-gradient(150deg,rgba(242,224,213,0.95),rgba(211,206,184,0.85))] py-5">' +
+                '      <div class="absolute left-[12px] top-[12px] rounded-full bg-white/70 px-3 py-[4px] text-[10px] font-bold uppercase tracking-[0.08em] text-black/35">AI Suggestion</div>' +
+                '      <div class="flex items-end gap-[10px]">' +
+                '        <div class="flex flex-col items-center gap-[4px]">' +
+                '          <div class="flex items-center justify-center rounded-[9px] bg-black/10" style="width:44px;height:58px"><svg class="h-[22px] w-[22px] fill-none stroke-black/15 stroke-[1.2] [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24"><path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/></svg></div>' +
+                '          <div class="text-[9px] font-bold uppercase tracking-[0.2px] text-black/35">TOP</div>' +
+                '        </div>' +
+                '        <div class="flex flex-col items-center gap-[4px]">' +
+                '          <div class="flex items-center justify-center rounded-[9px] bg-black/10" style="width:36px;height:64px"><svg class="h-[18px] w-[18px] fill-none stroke-black/15 stroke-[1.2] [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24"><path d="M6 2l-3 8h5v12h8V10h5l-3-8H6z"/></svg></div>' +
+                '          <div class="text-[9px] font-bold uppercase tracking-[0.2px] text-black/35">BOTTOM</div>' +
+                '        </div>' +
+                '        <div class="flex flex-col items-center gap-[4px]">' +
+                '          <div class="flex items-center justify-center rounded-[9px] bg-black/10" style="width:44px;height:44px"><svg class="h-[22px] w-[22px] fill-none stroke-black/15 stroke-[1.2] [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 32 20"><ellipse cx="8" cy="14" rx="7" ry="5"/><ellipse cx="24" cy="14" rx="7" ry="5"/><path d="M1 14V8a6 6 0 0 1 12 0v2h6V8a6 6 0 0 1 12 0v6"/></svg></div>' +
+                '          <div class="text-[9px] font-bold uppercase tracking-[0.2px] text-black/35">SHOES</div>' +
+                '        </div>' +
+                '      </div>' +
+                '    </div>' +
+                '    <div class="relative flex min-h-[230px] flex-1 cursor-pointer flex-col items-center justify-center bg-[rgba(240,236,228,0.4)] transition hover:bg-[rgba(215,103,54,0.06)]" id="yp-' + id + '" data-action="upload" data-card-id="' + id + '" data-card-idx="' + index + '">' +
+                '      <div class="absolute left-[12px] top-[12px] rounded-full bg-white/70 px-3 py-[4px] text-[10px] font-bold uppercase tracking-[0.08em] text-black/35">Your Photo</div>' +
+                '      <div class="flex flex-col items-center justify-center gap-[10px]" id="upl-' + id + '">' +
+                '        <div class="flex h-[96px] w-[96px] items-center justify-center rounded-[26px] border border-white/90 bg-white/80 shadow-[0_8px_22px_rgba(0,0,0,0.06)]">' +
+                '          <svg class="h-[28px] w-[28px] fill-none stroke-[#d76736] stroke-[1.7] [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>' +
+                '        </div>' +
+                '        <div class="text-[15px] font-black text-[#d76736]">Upload photo</div>' +
+                '        <div class="text-[12px] font-bold text-black/35">Did you wear this?</div>' +
+                '      </div>' +
+                '      <div class="hidden w-full" id="pf-' + id + '">' +
+                '        <div class="relative flex h-[230px] w-full flex-col overflow-hidden">' +
+                '          <div class="relative flex-1 bg-[linear-gradient(150deg,rgba(157,186,181,0.45),rgba(211,163,140,0.35))]">' +
+                '            <div class="flex h-full w-full items-center justify-center">' +
+                '              <i data-lucide="user" class="h-[18px] w-[18px] text-black/25" aria-hidden="true"></i>' +
+                '            </div>' +
+                '            <button type="button" class="absolute right-[14px] top-[14px] flex h-[44px] w-[44px] items-center justify-center rounded-full bg-black/55 text-white shadow-[0_10px_22px_rgba(0,0,0,0.18)]" data-action="remove-photo" data-card-id="' + id + '" data-card-idx="' + index + '" aria-label="Remove photo">' +
+                '              <svg class="h-[18px] w-[18px] fill-none stroke-white stroke-[2.4] [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+                '            </button>' +
+                '          </div>' +
+                '          <div class="relative flex h-[64px] items-center justify-end bg-white/65 px-[16px]">' +
+                '            <button type="button" class="hidden items-center gap-[8px] rounded-full bg-[#d76736] px-[18px] py-[12px] text-[14px] font-black text-white shadow-[0_10px_24px_rgba(215,103,54,0.45)] transition hover:-translate-y-px hover:bg-[#b8522a]" id="share-' + id + '" data-action="share" data-card-id="' + id + '">' +
+                '              <svg class="h-[16px] w-[16px] fill-none stroke-white stroke-[1.9] [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg>' +
+                '              Share this look' +
+                '            </button>' +
+                '          </div>' +
+                '        </div>' +
+                '      </div>' +
+                '    </div>' +
+                '  </div>' +
+                '  <div class="px-[14px] pb-[10px] pt-[12px]">' +
+                '    <div class="mb-2 flex items-center justify-between gap-3">' +
+                '      <div class="text-[15px] font-medium italic text-[#1e1b18] [font-family:var(--font-serif)]">' + escapeHtml(card.name || "") + '</div>' +
+                '      <div class="flex items-center gap-[5px]">' +
+                '        <span class="inline-flex items-center gap-[6px] whitespace-nowrap rounded-full bg-white/70 px-[10px] py-[3px] text-[10px] font-bold text-black/60">' +
+                '          <i data-lucide="' + escapeHtml(weatherIconName(card.weather)) + '" class="h-[12px] w-[12px] text-black/40" aria-hidden="true"></i>' +
+                '          <span>' + escapeHtml(card.weather || "") + '</span>' +
+                '        </span>' +
+                '        <span class="whitespace-nowrap rounded-full bg-[#f2e0d5] px-[10px] py-[3px] text-[10px] font-bold text-[#d76736]">' + escapeHtml(card.tag || "") + '</span>' +
+                '      </div>' +
+                '    </div>' +
+                '    <button type="button" class="group flex items-center gap-[6px] bg-transparent p-0 text-left" data-action="toggle-items" data-card-id="' + id + '">' +
+                '      <span class="flex h-[14px] w-[14px] items-center justify-center transition-transform" id="arr-' + id + '">' +
+                '        <svg class="h-[10px] w-[10px] fill-none stroke-black/35 stroke-[2.5] [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>' +
+                '      </span>' +
+                '      <span class="text-[10.5px] font-bold uppercase tracking-[0.07em] text-black/35 transition-colors group-hover:text-[#d76736]">Items worn</span>' +
+                '      <span class="ml-1 rounded-full bg-black/5 px-[7px] py-[1px] text-[10px] font-bold text-black/35">' + String((card.items || []).length) + '</span>' +
+                '    </button>' +
+                '    <div class="hidden flex gap-[7px] pt-[10px] mt-[10px] border-t border-black/10" id="iw-' + id + '">' + itemsHTML + '</div>' +
+                '  </div>' +
+                '</div>';
+        }
+
+        function renderCards(dayKey) {
+            var data = dayData[dayKey];
+            if (!data) return;
+            var scroll = byId("log-scroll");
+            if (!scroll) return;
+
+            // 藍圖有 buildGenMoreBtn() 但沒有實際渲染到畫面；這裡先維持一致不顯示。
+            scroll.innerHTML = (data.cards || []).map(function (c, i) { return buildCard(c, i, dayKey); }).join("");
+
+            // 套用已上傳狀態
+            (data.cards || []).forEach(function (c, i) {
+                if (!c.hasPhoto) return;
+                var id = dayKey.replace(" ", "") + "-" + i;
+                var yp = byId("yp-" + id);
+                var upl = byId("upl-" + id);
+                var pf = byId("pf-" + id);
+                var share = byId("share-" + id);
+                yp && yp.classList.add("cursor-default");
+                upl && upl.classList.add("hidden");
+                pf && pf.classList.remove("hidden");
+                share && share.classList.remove("hidden");
+            });
+
+            // 動態插入的 icon 需要重新掃描
+            window.lucide?.createIcons?.();
+        }
+
+        function renderCalendar() {
+            safeText(byId("month-label"), MONTHS[currentMonth] + " " + currentYear);
+            var grid = byId("cal-grid");
+            if (!grid) return;
+            grid.innerHTML = "";
+
+            ["S", "M", "T", "W", "T", "F", "S"].forEach(function (d) {
+                var el = document.createElement("div");
+                el.className = "pb-[6px] text-center text-[9px] font-bold uppercase tracking-[0.05em] text-black/35";
+                el.textContent = d;
+                grid.appendChild(el);
+            });
+
+            var firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            var daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            var today = 21;
+
+            for (var i = 0; i < firstDay; i++) {
+                var pad = document.createElement("div");
+                pad.className = "aspect-square rounded-[8px] opacity-30";
+                grid.appendChild(pad);
+            }
+
+            var dayMap = { 18: "Apr 18", 19: "Apr 19", 20: "Apr 20" };
+            var dayMeta = {
+                "Apr 18": { weekday: "Friday", weather: "22\u00B0 Partly cloudy", occ: "Work" },
+                "Apr 19": { weekday: "Saturday", weather: "20\u00B0 Rain", occ: "Date" },
+                "Apr 20": { weekday: "Sunday", weather: "24\u00B0 Clear", occ: "Casual" }
+            };
+
+            for (var dnum = 1; dnum <= daysInMonth; dnum++) {
+                var dayEl = document.createElement("div");
+                var hasOutfit = outfitDays.indexOf(dnum) >= 0 && currentMonth === 3;
+                var isToday = dnum === today && currentMonth === 3;
+                var isFuture = dnum > today && currentMonth === 3;
+
+                dayEl.className =
+                    "aspect-square select-none rounded-[8px] transition " +
+                    (isFuture ? "pointer-events-none opacity-30 " : "cursor-pointer hover:bg-[#f2e0d5] ") +
+                    (isToday ? "bg-[#d76736] shadow-[0_3px_10px_rgba(215,103,54,0.35)] " : "") +
+                    "flex flex-col items-center justify-center gap-[2px]";
+
+                dayEl.innerHTML =
+                    '<span class="cal-num text-[11px] font-bold leading-none ' + (isToday ? "text-white" : "text-[#1e1b18]") + '">' + dnum + "</span>" +
+                    (hasOutfit ? '<div class="h-1 w-1 rounded-full ' + (isToday ? "bg-white/80" : "bg-[#d76736]") + '"></div>' : "");
+
+                dayEl.setAttribute("data-cal-day", "1");
+                dayEl.setAttribute("data-cal-num", String(dnum));
+
+                if (hasOutfit && !isFuture) {
+                    dayEl.addEventListener("click", function (ev) {
+                        var target = ev.currentTarget;
+                        if (!target) return;
+
+                        document.querySelectorAll("[data-cal-day='1']").forEach(function (c) {
+                            c.classList.remove("outline", "outline-2", "outline-[#d76736]", "bg-[#f2e0d5]");
+                        });
+                        target.classList.add("outline", "outline-2", "outline-[#d76736]", "bg-[#f2e0d5]");
+
+                        var selectedNum = parseInt(target.getAttribute("data-cal-num") || "0", 10);
+                        var key = dayMap[selectedNum];
+                        var meta = key ? dayMeta[key] : null;
+                        if (key && meta) {
+                            wwCalendarSelectDay(key, meta.weekday, meta.weather, meta.occ);
+                        }
+                    });
+                }
+
+                if (dnum === 20) {
+                    dayEl.classList.add("outline", "outline-2", "outline-[#d76736]", "bg-[#f2e0d5]");
+                }
+
+                grid.appendChild(dayEl);
+            }
+
+            safeText(byId("ms-outfits"), "18");
+            safeText(byId("ms-avg"), "22\u00B0");
+            safeText(byId("ms-topocc"), "Work");
+        }
+
+        // ====== 全域 API（供 Razor onclick 呼叫）======
+        window.wwCalendarChangeMonth = function (dir) {
+            currentMonth += dir;
+            if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+            if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+            renderCalendar();
+        };
+
+        window.wwCalendarSelectDay = function (date, weekday, weather, occ) {
+            var dayNum = (date.split(" ")[1] || "").trim();
+            safeText(byId("log-date-big"), weekday + ", " + MONTHS[3] + " " + dayNum);
+            safeText(byId("log-weather-txt"), weather);
+            var ico = byId("log-weather-ico");
+            if (ico) {
+                ico.setAttribute("data-lucide", weatherIconName(weather));
+                window.lucide?.createIcons?.();
+            }
+            safeText(byId("log-occ"), occ);
+            currentDayKey = date;
+            renderCards(date);
+        };
+
+        window.wwCalendarToggleItems = function (id) {
+            var worn = byId("iw-" + id);
+            var arrow = byId("arr-" + id);
+            if (!worn) return;
+            worn.classList.toggle("hidden");
+            arrow && arrow.classList.toggle("rotate-90");
+        };
+
+        window.wwCalendarHandleUpload = function (id, cardIdx) {
+            var data = dayData[currentDayKey];
+            if (!data || !data.cards || !data.cards[cardIdx]) return;
+            if (data.cards[cardIdx].hasPhoto) return;
+            data.cards[cardIdx].hasPhoto = true;
+
+            var upl = byId("upl-" + id);
+            var pf = byId("pf-" + id);
+            var yp = byId("yp-" + id);
+            var share = byId("share-" + id);
+
+            upl && upl.classList.add("hidden");
+            pf && pf.classList.remove("hidden");
+            yp && yp.classList.add("cursor-default");
+            share && share.classList.remove("hidden");
+        };
+
+        window.wwCalendarRemovePhoto = function (e, id, cardIdx) {
+            e && e.stopPropagation && e.stopPropagation();
+            var data = dayData[currentDayKey];
+            if (!data || !data.cards || !data.cards[cardIdx]) return;
+            data.cards[cardIdx].hasPhoto = false;
+
+            var upl = byId("upl-" + id);
+            var pf = byId("pf-" + id);
+            var yp = byId("yp-" + id);
+            var share = byId("share-" + id);
+
+            upl && upl.classList.remove("hidden");
+            pf && pf.classList.add("hidden");
+            yp && yp.classList.remove("cursor-default");
+            share && share.classList.add("hidden");
+        };
+
+        window.wwCalendarHandleShare = function (e, id) {
+            e && e.stopPropagation && e.stopPropagation();
+            // 藍圖為占位流程：目前不實作任何行為（避免出現草稿提示/對話框）。
+            return;
+        };
+
+        window.wwCalendarToggleLike = function () {
+            var btn = byId("like-btn");
+            if (!btn) return;
+
+            btn.classList.toggle("bg-[#d76736]/10");
+            btn.classList.toggle("border-[#d76736]/25");
+
+            var svg = btn.querySelector("svg");
+            if (svg) {
+                svg.classList.toggle("stroke-[#d76736]");
+                svg.classList.toggle("fill-[#d76736]/10");
+            }
+        };
+
+        function bindLogActions() {
+            var scroll = byId("log-scroll");
+            if (!scroll) return;
+
+            scroll.addEventListener("click", function (ev) {
+                var target = ev.target;
+                if (!target) return;
+
+                var el = target.closest ? target.closest("[data-action]") : null;
+                if (!el) return;
+
+                var action = el.getAttribute("data-action");
+
+                if (action === "upload") {
+                    var id = el.getAttribute("data-card-id") || "";
+                    var idx = parseInt(el.getAttribute("data-card-idx") || "0", 10);
+                    window.wwCalendarHandleUpload(id, idx);
+                    return;
+                }
+
+                if (action === "remove-photo") {
+                    var rid = el.getAttribute("data-card-id") || "";
+                    var ridx = parseInt(el.getAttribute("data-card-idx") || "0", 10);
+                    window.wwCalendarRemovePhoto(ev, rid, ridx);
+                    return;
+                }
+
+                if (action === "share") {
+                    var sid = el.getAttribute("data-card-id") || "";
+                    window.wwCalendarHandleShare(ev, sid);
+                    return;
+                }
+
+                if (action === "toggle-items") {
+                    var tid = el.getAttribute("data-card-id") || "";
+                    window.wwCalendarToggleItems(tid);
+                    return;
+                }
+            });
+        }
+
+        // init
+        bindLogActions();
+        renderCalendar();
+        renderCards(currentDayKey);
+    })();
+</script>

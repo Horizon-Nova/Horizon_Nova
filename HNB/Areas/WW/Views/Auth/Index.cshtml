@@ -1,18 +1,42 @@
 @{
     Layout = null;
-    ViewData["Title"] = "WW Auth";
+    ViewData["Title"] = "Auth";
 }
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/png" href="~/ww/image/logo.png" asp-append-version="true" />
-<link rel="shortcut icon" type="image/png" href="~/ww/image/logo.png" asp-append-version="true" />
-@await Html.PartialAsync("Partials/_Styles")
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"]</title>
+
+    <link rel="icon" type="image/png" href="~/ww/image/logo.png" asp-append-version="true" />
+    <link rel="shortcut icon" type="image/png" href="~/ww/image/logo.png" asp-append-version="true" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Bodoni+Moda:ital,wght@1,500&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ["Lato", "sans-serif"],
+                        serif: ["Bodoni Moda", "serif"]
+                    }
+                }
+            }
+        };
+    </script>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    @await Html.PartialAsync("Partials/_Styles")
 </head>
-<body>
-@await Html.PartialAsync("Partials/_MainContent")
-@await Html.PartialAsync("Partials/_Scripts")
+<body class="min-h-screen bg-[#d9d4c0] font-sans text-[#1e1b18]">
+    @await Html.PartialAsync("Partials/_MainContent")
+    @await Html.PartialAsync("Partials/_Scripts")
 </body>
 </html>

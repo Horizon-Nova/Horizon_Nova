@@ -44,6 +44,7 @@ public static class ServiceExtensions
         services.AddScoped<SidebarNavigationRepository>();
         services.AddScoped<BlockedIpRepository>();
         services.AddScoped<TeamZoneRepository>();
+        services.AddScoped<ErrorLogRepository>();
 
         return services;
     }

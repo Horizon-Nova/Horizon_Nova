@@ -81,11 +81,11 @@ builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(optio
 
 var app = builder.Build();
 
+app.UseMiddleware<ExceptionLoggingMiddleware>();
+
 app.UseExceptionHandler("/Error/NotFound");
 app.UseStatusCodePagesWithReExecute("/Error/NotFound");
 app.UseHsts();
-
-app.UseMiddleware<ExceptionLoggingMiddleware>();
 app.UseMiddleware<IpSecurityMiddleware>();
 app.UseMiddleware<FileUploadFormOptionsMiddleware>();
 

@@ -5,14 +5,16 @@
 }
 
 @section Topbar {
-    @await Html.PartialAsync("Partials/_Topbar", Model)
+    <div class="ww-closet-topbar">
+        @await Html.PartialAsync("Partials/_Topbar", Model)
+    </div>
 }
 
-<section class="ww-feature-closet">
+<section class="flex h-full min-h-0 overflow-hidden">
     @await Html.PartialAsync("Partials/_MainContent", Model)
 </section>
 
-@section Styles {
+@section Head {
     @await Html.PartialAsync("Partials/_Styles")
 }
 

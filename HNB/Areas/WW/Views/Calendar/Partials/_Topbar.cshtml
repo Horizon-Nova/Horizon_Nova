@@ -3,18 +3,18 @@
     Layout = null;
 }
 
-<div class="tb">
-    <div class="tb-brand-row">
-        <img class="tb-logo-mark" src="~/ww/image/logo.png" alt="" width="28" height="28" asp-append-version="true" />
-        <span class="tb-brand">Outfit <em>Log</em></span>
+<div class="flex h-[54px] shrink-0 items-center justify-between border-b border-black/10 bg-[#d9d4c0]/75 px-7 backdrop-blur-[14px]">
+    <div class="flex min-w-0 items-center gap-3">
+        <img class="h-7 w-7 shrink-0 object-contain drop-shadow-[0_1px_2px_rgba(0,0,0,0.08)]" src="~/ww/image/logo.png" alt="" width="28" height="28" asp-append-version="true" />
+        <span class="text-[15px] font-black tracking-[0.1px] text-[var(--ink)]">Outfit <em class="[font-family:var(--font-serif)] font-medium italic text-[var(--orange)]">Log</em></span>
     </div>
-    <div class="tb-r">
-        <button type="button" class="mnav-btn" onclick="wwCalendarChangeMonth(-1)" aria-label="Previous month">
-            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6" /></svg>
+    <div class="flex items-center gap-3">
+        <button type="button" class="flex h-[30px] w-[30px] items-center justify-center rounded-[9px] border border-black/10 bg-white/60 text-black/60 transition hover:-translate-y-px hover:bg-white/85" onclick="wwCalendarChangeMonth(-1)" aria-label="Previous month">
+            <svg class="h-4 w-4 fill-none stroke-black/45 stroke-[2] [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6" /></svg>
         </button>
-        <div class="mnav-label" id="month-label">@DateTime.Now.ToString("MMMM yyyy", CultureInfo.InvariantCulture)</div>
-        <button type="button" class="mnav-btn" onclick="wwCalendarChangeMonth(1)" aria-label="Next month">
-            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6" /></svg>
+        <div class="min-w-[110px] text-center text-[11px] font-black uppercase tracking-[0.04em] text-black/50" id="month-label">@DateTime.Now.ToString("MMMM yyyy", CultureInfo.InvariantCulture)</div>
+        <button type="button" class="flex h-[30px] w-[30px] items-center justify-center rounded-[9px] border border-black/10 bg-white/60 text-black/60 transition hover:-translate-y-px hover:bg-white/85" onclick="wwCalendarChangeMonth(1)" aria-label="Next month">
+            <svg class="h-4 w-4 fill-none stroke-black/45 stroke-[2] [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6" /></svg>
         </button>
     </div>
 </div>

@@ -1,4 +1,16 @@
 @{
     Layout = null;
 }
-<link rel="stylesheet" href="~/ww/css/Closet.css" asp-append-version="true" />
+
+<style>
+/* Closet: 以 Tailwind 為主；此檔僅保留 Tailwind 不好表達的少量樣式。 */
+
+@@keyframes wwSpin {
+  to { transform: rotate(360deg); }
+}
+.ww-closet-spin { animation: wwSpin 0.85s linear infinite; }
+
+/* 右側衣櫃捲軸（可移除，不影響功能） */
+.ww-closet-scroll::-webkit-scrollbar { width: 6px; }
+.ww-closet-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.14); border-radius: 999px; }
+</style>

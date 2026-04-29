@@ -3,7 +3,7 @@
     ViewData["Title"] = "WW Landing";
 }
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +11,7 @@
 <link rel="shortcut icon" type="image/png" href="~/ww/image/logo.png" asp-append-version="true" />
 @await Html.PartialAsync("Partials/_Styles")
 </head>
-<body>
+<body class="min-h-screen bg-ww-bg font-sans text-ww-ink overflow-x-hidden">
 @await Html.PartialAsync("Partials/_MainContent")
 @await Html.PartialAsync("Partials/_Scripts")
 </body>

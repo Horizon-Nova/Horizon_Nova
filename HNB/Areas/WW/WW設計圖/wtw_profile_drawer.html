@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Bodoni+Moda:ital,wght@1,500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --orange:#d76736; --orange-d:#b8522a; --orange-l:#f2e0d5; --orange-m:#e8b89e;
+  --beige:#d3ceb8; --bg:#d9d4c0; --peach:#d3a38c; --teal:#9dbab5;
+  --black:#141210; --ink:#1e1b18; --ink2:#5a534c; --ink3:#9a9188;
+  --font-sans:'Lato',sans-serif; --font-serif:'Bodoni Moda',serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:var(--font-sans);background:#1a1714;display:flex;align-items:center;justify-content:center;padding:32px;}
+
+.app{
+  width:1180px;height:730px;background:var(--bg);
+  border-radius:22px;border:.5px solid rgba(0,0,0,.12);
+  display:flex;overflow:hidden;position:relative;
+  box-shadow:0 32px 80px rgba(0,0,0,.18),0 8px 24px rgba(0,0,0,.1);
+}
+
+/* Blobs */
+.blobs{position:absolute;inset:0;pointer-events:none;overflow:hidden;border-radius:22px;z-index:0;}
+.blob{position:absolute;}
+.b1{width:380px;height:320px;background:var(--peach);top:-80px;right:140px;border-radius:63% 37% 54% 46%/55% 48% 52% 45%;}
+.b2{width:300px;height:340px;background:var(--teal);bottom:-60px;right:30px;border-radius:44% 56% 38% 62%/58% 42% 58% 42%;}
+.b3{width:220px;height:200px;background:var(--beige);top:200px;right:460px;border-radius:52% 48% 62% 38%/42% 58% 42% 58%;opacity:.6;}
+
+/* Sidebar */
+.sb{width:68px;flex-shrink:0;background:var(--black);display:flex;flex-direction:column;align-items:center;padding:22px 0 18px;gap:4px;position:relative;z-index:10;}
+.s-logo{width:38px;height:38px;border-radius:11px;background:var(--orange);display:flex;align-items:center;justify-content:center;margin-bottom:20px;box-shadow:0 4px 14px rgba(215,103,54,.5);}
+.s-logo span{font-weight:900;font-size:11px;color:#fff;}
+.s-logo em{font-family:var(--font-serif);font-style:italic;}
+.ni{width:46px;height:46px;border-radius:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;transition:background .15s;}
+.ni:hover{background:rgba(255,255,255,.08);}
+.ni.on{background:var(--orange);box-shadow:0 4px 12px rgba(215,103,54,.4);}
+.ni svg{width:18px;height:18px;stroke:rgba(255,255,255,.38);fill:none;stroke-width:1.7;stroke-linecap:round;}
+.ni.on svg{stroke:#fff;}
+.ni span{font-size:7.5px;color:rgba(255,255,255,.35);font-weight:700;letter-spacing:.3px;text-transform:uppercase;}
+.ni.on span{color:#fff;}
+.sb-spacer{flex:1;}
+.sb-div{width:28px;height:.5px;background:rgba(255,255,255,.1);margin:6px 0;}
+.s-av{width:32px;height:32px;border-radius:50%;background:var(--orange);border:1.5px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#fff;cursor:pointer;transition:all .15s;}
+.s-av:hover{box-shadow:0 0 0 3px rgba(215,103,54,.3);}
+
+/* App body */
+.app-body{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative;z-index:1;}
+.topbar{height:54px;flex-shrink:0;background:rgba(217,212,192,.75);backdrop-filter:blur(14px);border-bottom:.5px solid rgba(0,0,0,.07);display:flex;align-items:center;justify-content:space-between;padding:0 28px;}
+.tb-brand{font-weight:900;font-size:15px;color:var(--ink);}
+.tb-brand em{font-family:var(--font-serif);font-style:italic;color:var(--orange);}
+
+/* Content bg */
+.content{flex:1;display:flex;align-items:center;justify-content:center;}
+.hint{font-size:14px;color:var(--ink3);font-weight:700;display:flex;align-items:center;gap:10px;}
+.hint svg{width:16px;height:16px;stroke:var(--orange);fill:none;stroke-width:2;}
+
+/* ── PROFILE DRAWER ── */
+.drawer-overlay{
+  position:absolute;inset:0;z-index:50;
+  background:rgba(0,0,0,.22);backdrop-filter:blur(3px);
+  opacity:0;pointer-events:none;transition:opacity .25s;
+  border-radius:22px;
+}
+.drawer-overlay.open{opacity:1;pointer-events:all;}
+
+.drawer{
+  position:absolute;top:0;right:0;bottom:0;
+  width:320px;z-index:60;
+  background:rgba(250,248,244,.97);backdrop-filter:blur(20px);
+  border-left:.5px solid rgba(0,0,0,.08);
+  border-radius:0 22px 22px 0;
+  display:flex;flex-direction:column;
+  transform:translateX(100%);
+  transition:transform .3s cubic-bezier(.4,0,.2,1);
+  overflow:hidden;
+}
+.drawer.open{transform:translateX(0);}
+
+/* Drawer header */
+.d-hdr{
+  padding:20px 20px 16px;
+  border-bottom:.5px solid rgba(0,0,0,.07);
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;
+}
+.d-hdr-title{font-size:15px;font-weight:900;color:var(--ink);}
+.d-close{
+  width:30px;height:30px;border-radius:9px;
+  background:rgba(0,0,0,.06);border:none;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:background .13s;
+}
+.d-close:hover{background:var(--orange-l);}
+.d-close svg{width:14px;height:14px;stroke:var(--ink3);fill:none;stroke-width:2.2;}
+
+/* Drawer scroll */
+.d-scroll{flex:1;overflow-y:auto;}
+.d-scroll::-webkit-scrollbar{width:3px;}
+.d-scroll::-webkit-scrollbar-thumb{background:var(--beige);border-radius:2px;}
+
+/* Profile hero */
+.d-hero{
+  background:linear-gradient(150deg,rgba(240,221,212,.9),rgba(211,206,184,.7));
+  padding:22px 20px;display:flex;align-items:center;gap:14px;
+}
+.d-av{
+  width:60px;height:60px;border-radius:50%;
+  background:linear-gradient(135deg,var(--orange-m),var(--orange));
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;font-weight:900;color:#fff;
+  border:3px solid rgba(255,255,255,.8);
+  box-shadow:0 6px 20px rgba(215,103,54,.3);flex-shrink:0;
+}
+.d-name{font-size:17px;font-weight:900;color:var(--ink);}
+.d-email{font-size:12px;color:var(--ink3);margin-top:2px;}
+.d-since{font-size:11px;color:var(--ink3);margin-top:2px;}
+
+/* Stats */
+.d-stats{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:.5px solid rgba(0,0,0,.06);}
+.d-stat{padding:13px 6px;text-align:center;}
+.d-stat+.d-stat{border-left:.5px solid rgba(0,0,0,.06);}
+.d-stat-num{font-size:22px;font-weight:900;color:var(--orange);}
+.d-stat-lbl{font-size:9.5px;color:var(--ink3);margin-top:2px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;}
+
+.d-div{height:.5px;background:rgba(0,0,0,.06);}
+.d-sec{font-size:9.5px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.1em;padding:14px 20px 8px;}
+
+/* Style DNA */
+.d-tags{padding:0 20px 14px;display:flex;gap:6px;flex-wrap:wrap;}
+.d-tag{background:rgba(0,0,0,.05);border-radius:20px;padding:5px 13px;font-size:11.5px;font-weight:700;color:var(--ink2);}
+
+/* Settings */
+.d-setting{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 20px;cursor:pointer;
+  border-bottom:.5px solid rgba(0,0,0,.04);
+  transition:background .1s;
+}
+.d-setting:hover{background:rgba(0,0,0,.02);}
+.d-sl{display:flex;align-items:center;gap:12px;}
+.d-sico{
+  width:32px;height:32px;border-radius:9px;
+  background:rgba(0,0,0,.05);
+  display:flex;align-items:center;justify-content:center;
+}
+.d-sico svg{width:15px;height:15px;stroke:var(--ink3);fill:none;stroke-width:1.8;}
+.d-slbl{font-size:13px;font-weight:700;color:var(--ink);}
+.d-sub{font-size:11px;color:var(--ink3);margin-top:1px;}
+.d-chev{color:var(--ink3);font-size:16px;}
+
+/* Danger */
+.d-setting.danger .d-slbl{color:#e05555;}
+.d-setting.danger .d-sico{background:rgba(224,85,85,.08);}
+.d-setting.danger .d-sico svg{stroke:#e05555;}
+.d-setting.danger .d-chev{color:#e05555;}
+
+/* Plan card */
+.d-plan{
+  margin:14px 16px 8px;
+  background:var(--black);border-radius:16px;
+  padding:16px 18px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.d-plan-badge{
+  display:inline-block;background:var(--orange);color:#fff;
+  font-size:9px;font-weight:900;padding:3px 10px;border-radius:20px;
+  letter-spacing:.8px;text-transform:uppercase;margin-bottom:6px;
+}
+.d-plan-name{font-size:14px;font-weight:700;color:#fff;}
+.d-plan-sub{font-size:11px;color:rgba(255,255,255,.38);margin-top:2px;}
+.d-plan-upgrade{
+  background:rgba(215,103,54,.2);border:.5px solid rgba(215,103,54,.3);
+  color:var(--orange-m);border-radius:10px;
+  padding:7px 14px;font-size:11.5px;font-weight:700;
+  font-family:var(--font-sans);cursor:pointer;
+  transition:all .15s;white-space:nowrap;
+}
+.d-plan-upgrade:hover{background:var(--orange);color:#fff;border-color:var(--orange);}
+.d-cred-num{font-size:32px;font-weight:900;color:var(--orange-m);line-height:1;}
+.d-cred-lbl{font-size:9px;color:rgba(255,255,255,.3);margin-top:2px;letter-spacing:.5px;text-transform:uppercase;}
+
+/* Version */
+.d-version{text-align:center;padding:14px 20px 20px;font-size:11px;color:rgba(0,0,0,.2);}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="blobs"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+
+  <!-- Sidebar -->
+  <div class="sb">
+    <div class="s-logo"><span>W<em>w</em></span></div>
+    <div class="ni on">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M3 12h1m16 0h1M12 3v1m0 16v1m-7.07-14.07.7.7m12.74 12.74.7.7m0-14.14-.7.7m-12.74 12.74-.7.7"/></svg>
+      <span>Today</span>
+    </div>
+    <div class="ni">
+      <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+      <span>Closet</span>
+    </div>
+    <div class="ni">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Cal</span>
+    </div>
+    <div class="sb-spacer"></div>
+    <div class="sb-div"></div>
+    <div class="s-av" onclick="openDrawer()">J</div>
+  </div>
+
+  <!-- App body -->
+  <div class="app-body">
+    <div class="topbar">
+      <span class="tb-brand">Whatever the <em>Weather.</em></span>
+    </div>
+    <div class="content">
+      <div class="hint">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        Click the avatar in the sidebar to open Profile
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlay -->
+  <div class="drawer-overlay" id="overlay" onclick="closeDrawer()"></div>
+
+  <!-- Profile Drawer -->
+  <div class="drawer" id="drawer">
+
+    <div class="d-hdr">
+      <div class="d-hdr-title">My Profile</div>
+      <button class="d-close" onclick="closeDrawer()">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="d-scroll">
+
+      <!-- Hero -->
+      <div class="d-hero">
+        <div class="d-av">J</div>
+        <div>
+          <div class="d-name">Jamie Chen</div>
+          <div class="d-email">jamie@email.com</div>
+          <div class="d-since">Member since April 2026</div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="d-stats">
+        <div class="d-stat"><div class="d-stat-num">12</div><div class="d-stat-lbl">Outfits</div></div>
+        <div class="d-stat"><div class="d-stat-num">24</div><div class="d-stat-lbl">Items</div></div>
+        <div class="d-stat"><div class="d-stat-num">3</div><div class="d-stat-lbl">Weeks</div></div>
+      </div>
+
+      <!-- Style DNA -->
+      <div class="d-div"></div>
+      <div class="d-sec">Style DNA</div>
+      <div class="d-tags">
+        <span class="d-tag">Minimal</span>
+        <span class="d-tag">Neutral Palette</span>
+        <span class="d-tag">Smart Casual</span>
+        <span class="d-tag">Work-Ready</span>
+      </div>
+
+      <!-- Plan card -->
+      <div class="d-div"></div>
+      <div class="d-plan">
+        <div>
+          <div class="d-plan-badge">Pro Plan</div>
+          <div class="d-plan-name">200 Credits left</div>
+          <div class="d-plan-sub">Renews May 1, 2026</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="d-cred-num">200</div>
+          <div class="d-cred-lbl">Credits</div>
+        </div>
+      </div>
+
+      <!-- Settings -->
+      <div class="d-div"></div>
+      <div class="d-sec">Account</div>
+
+      <div class="d-setting">
+        <div class="d-sl">
+          <div class="d-sico"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+          <div><div class="d-slbl">Edit Profile</div><div class="d-sub">Name, photo, preferences</div></div>
+        </div>
+        <span class="d-chev">›</span>
+      </div>
+
+      <div class="d-setting">
+        <div class="d-sl">
+          <div class="d-sico"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg></div>
+          <div><div class="d-slbl">Notifications</div><div class="d-sub">Morning reminders & alerts</div></div>
+        </div>
+        <span class="d-chev">›</span>
+      </div>
+
+      <div class="d-setting">
+        <div class="d-sl">
+          <div class="d-sico"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+          <div><div class="d-slbl">Privacy</div><div class="d-sub">Data usage & permissions</div></div>
+        </div>
+        <span class="d-chev">›</span>
+      </div>
+
+      <div class="d-setting danger">
+        <div class="d-sl">
+          <div class="d-sico"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg></div>
+          <div><div class="d-slbl">Log Out</div></div>
+        </div>
+        <span class="d-chev">›</span>
+      </div>
+
+      <div class="d-version">Whatever the Weather · v1.0.0</div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+function openDrawer() {
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('overlay').classList.add('open');
+}
+function closeDrawer() {
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+}
+</script>
+</body>
+</html>

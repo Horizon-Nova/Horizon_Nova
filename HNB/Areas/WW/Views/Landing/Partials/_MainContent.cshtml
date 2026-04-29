@@ -1,103 +1,588 @@
 @{
     Layout = null;
 }
-<nav class="nav">
-  <div class="nav-brand-row">
-    <img class="nav-logo-mark" src="~/ww/image/logo.png" alt="" width="28" height="28" asp-append-version="true" />
-    <div class="nav-brand">Whatever the <em>Weather.</em></div>
-  </div>
-  <div class="nav-r">
-    <a href="#" class="nav-link">Pricing</a>
-    <a href="#" class="nav-link">Login</a>
-    <button class="nav-cta">Try it for Free</button>
-  </div>
-</nav>
-<section class="hero">
-  <div class="blob hero-b1"></div><div class="blob hero-b2"></div><div class="blob hero-b3"></div>
-  <div class="hero-pill"><div class="hero-pill-dot"></div>AI-Powered Personal Styling</div>
-  <h1 class="hero-title">Whatever the<br><em>Weather.</em></h1>
-  <p class="hero-sub">Your AI stylist that knows your wardrobe, reads the weather, and puts together the <strong>perfect outfit every morning.</strong></p>
-  <div class="hero-btns">
-    <button class="btn-primary"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Try it for Free</button>
-    <button class="btn-ghost">See how it works ↓</button>
-  </div>
-  <div class="hero-steps">
-    <div class="hs-step"><div class="hs-num">1</div><div><div class="hs-title">Upload your clothes</div><div class="hs-desc">AI scans your photos and builds your digital wardrobe automatically</div></div></div>
-    <div class="hs-step"><div class="hs-num">2</div><div><div class="hs-title">Tell us your day</div><div class="hs-desc">Type anything — "rooftop dinner" or "startup interview" — or quick pick</div></div></div>
-    <div class="hs-step"><div class="hs-num">3</div><div><div class="hs-title">Get your perfect outfit</div><div class="hs-desc">AI picks from your actual wardrobe, weather-aware, with a full explanation</div></div></div>
-  </div>
-</section>
-<section class="closet-sec">
-  <div class="blob closet-b1"></div><div class="blob closet-b2"></div>
-  <div class="closet-inner">
-    <div class="closet-text">
-      <div class="section-eyebrow">Smart Wardrobe</div>
-      <h2 class="section-title">Manage your Closet<br>with <em>AI-power.</em></h2>
-      <p class="section-sub">Just upload photos from your phone. AI instantly detects every item, assigns categories, and builds your digital wardrobe — no manual tagging needed.</p>
-      <div class="check-list">
-        <div class="check-item"><div class="check-ico"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Auto category & colour detection</div>
-        <div class="check-item"><div class="check-ico"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Works with any photo — no styling needed</div>
-        <div class="check-item"><div class="check-ico"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>Learns your personal style over time</div>
-      </div>
+
+<header class="fixed left-0 right-0 top-0 z-[100] flex h-[54px] items-center justify-between bg-ww-black px-4 sm:px-[52px]">
+    <div class="text-[15px] font-black text-white">
+        Whatever the <span class="font-serif italic font-medium text-ww-orange">Weather.</span>
     </div>
-    <div class="closet-visual">
-      <div class="ai-badge"><div class="ai-badge-dot"></div>AI scanning your wardrobe</div>
-      <div class="closet-demo">
-        <div class="cd-topbar"><div class="cd-topbar-title">My Closet</div><div class="cd-topbar-stat"><strong>24</strong> items · <strong>6</strong> categories</div></div>
-        <div class="cd-bubbles">
-          <div class="cd-bubble on"><div class="cd-bubble-c">👔</div><div class="cd-bubble-l">All 24</div></div>
-          <div class="cd-bubble"><div class="cd-bubble-c">👕</div><div class="cd-bubble-l">Tops 6</div></div>
-          <div class="cd-bubble"><div class="cd-bubble-c">👖</div><div class="cd-bubble-l">Bottoms 5</div></div>
-          <div class="cd-bubble"><div class="cd-bubble-c">🧥</div><div class="cd-bubble-l">Outer 4</div></div>
-          <div class="cd-bubble"><div class="cd-bubble-c">👟</div><div class="cd-bubble-l">Shoes 5</div></div>
-          <div class="cd-bubble"><div class="cd-bubble-c">👜</div><div class="cd-bubble-l">Acc 4</div></div>
+    <nav class="hidden items-center gap-7 md:flex" aria-label="Landing navigation">
+        <a href="#" class="text-[13px] font-bold text-white/45 no-underline transition-colors hover:text-white">Pricing</a>
+        <a href="#" class="text-[13px] font-bold text-white/45 no-underline transition-colors hover:text-white">Login</a>
+        <button class="whitespace-nowrap cursor-pointer rounded-[22px] bg-ww-orange px-[22px] py-[9px] text-[13px] font-bold text-white shadow-[0_4px_14px_rgba(215,103,54,0.4)] transition-all hover:translate-y-[-1px] hover:bg-ww-orangeD">
+            Try it for Free
+        </button>
+    </nav>
+    <button class="whitespace-nowrap cursor-pointer rounded-[22px] bg-ww-orange px-[16px] py-[8px] text-[12px] font-bold text-white shadow-[0_4px_14px_rgba(215,103,54,0.35)] transition-all hover:bg-ww-orangeD md:hidden">
+        Try Free
+    </button>
+</header>
+
+<main class="pt-[54px]">
+    <section class="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pb-20 pt-[130px] text-center sm:px-[52px]">
+        <div class="pointer-events-none absolute -left-20 -top-28 h-[460px] w-[500px] rounded-[63%_37%_54%_46%/55%_48%_52%_45%] bg-ww-peach/65"></div>
+        <div class="pointer-events-none absolute -bottom-24 -right-16 h-[460px] w-[420px] rounded-[44%_56%_38%_62%/58%_42%_58%_42%] bg-ww-teal/60"></div>
+        <div class="pointer-events-none absolute left-[58%] top-[25%] h-[260px] w-[280px] rounded-[52%_48%_62%_38%/42%_58%_42%_58%] bg-ww-orangeL/55"></div>
+
+        <div class="relative z-[1] inline-flex animate-fade-up items-center gap-2 rounded-full border border-ww-orange/25 bg-white/65 px-4 py-[6px] text-[11px] font-bold uppercase tracking-[0.1em] text-ww-orange backdrop-blur-[8px]">
+            <span class="h-[6px] w-[6px] animate-pulse-dot rounded-full bg-ww-orange"></span>
+            AI-Powered Personal Styling
         </div>
-      </div>
-    </div>
-  </div>
-</section>
-<section class="wear-sec">
-  <div class="blob wear-b1"></div><div class="blob wear-b2"></div>
-  <div class="wear-inner">
-    <div class="wear-text">
-      <div class="section-eyebrow">AI Styling</div>
-      <h2 class="section-title">What to <em>wear?</em><br>AI decides.</h2>
-      <p class="section-sub">Tell us your day — AI picks the perfect outfit from your actual wardrobe, factoring in live weather, your occasion, and your personal style.</p>
-      <div class="wear-features">
-        <div class="wf"><div class="wf-ico"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div><div class="wf-title">Location & weather auto-detected</div><div class="wf-desc">No need to check the forecast. AI reads live conditions and adjusts every recommendation.</div></div></div>
-        <div class="wf"><div class="wf-ico"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div><div><div class="wf-title">Explains every pick</div><div class="wf-desc">AI tells you exactly why each item was chosen — and what it skipped and why.</div></div></div>
-        <div class="wf"><div class="wf-ico"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div><div><div class="wf-title">Gets smarter every day</div><div class="wf-desc">The more you use it, the better it understands your preferences, lifestyle, and body.</div></div></div>
-      </div>
-    </div>
-    <div class="wear-visual">
-      <div class="app-window"><div class="aw-bar"><div class="aw-dots"><div class="aw-dot" style="background:#ff5f57;"></div><div class="aw-dot" style="background:#ffbd2e;"></div><div class="aw-dot" style="background:#28c840;"></div></div><div class="aw-title">Whatever the <em>Weather.</em></div><div style="width:60px;"></div></div></div>
-    </div>
-  </div>
-</section>
-<section class="log-sec">
-  <div class="blob log-b1"></div><div class="blob log-b2"></div>
-  <div class="log-inner">
-    <div class="log-text">
-      <div class="section-eyebrow">Outfit Log</div>
-      <h2 class="section-title">Your style,<br><em>documented.</em></h2>
-      <p class="section-sub">Every outfit gets logged automatically. Look back at any day — what you wore, the weather, the occasion. Your personal style diary.</p>
-    </div>
-    <div class="log-visual">
-      <div class="log-demo"><div class="ld-header"><div class="ld-title">Outfit <em>Log</em></div><div class="ld-nav"><div class="ld-nav-btn">‹</div>April 2026<div class="ld-nav-btn">›</div></div></div></div>
-    </div>
-  </div>
-</section>
-<section class="cta-sec">
-  <div class="blob cta-b1"></div><div class="blob cta-b2"></div><div class="blob cta-b3"></div>
-  <div class="cta-pill">✦ Start today — it's free</div>
-  <h2 class="cta-title">Ready to create<br>your <em>AI Closet?</em></h2>
-  <p class="cta-sub">Join people who never stress about what to wear. Upload your clothes, and let AI do the rest.</p>
-  <button class="cta-btn"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Get Started — Free</button>
-  <div class="cta-note">No credit card required · Cancel anytime</div>
-</section>
-<footer>
-  <div class="ft-top">
-    <div class="ft-links"><a href="#" class="ft-link">Company</a><a href="#" class="ft-link">Pricing</a><a href="#" class="ft-link">Legal</a></div>
-  </div>
-  <div class="ft-brand"><div class="ft-brand-big">Whatever the <em>Weather.</em></div><div class="ft-copy">© 2026 WTW. All rights reserved.</div></div>
-</footer>
+
+        <h1 class="relative z-[1] mt-8 animate-[fadeUp_0.7s_ease_0.1s_both] text-[clamp(58px,8vw,108px)] font-black leading-[0.95] tracking-[-0.03em] text-ww-ink">
+            Whatever the<br /><span class="font-serif italic font-medium text-ww-orange">Weather.</span>
+        </h1>
+
+        <p class="relative z-[1] mt-6 max-w-[520px] animate-[fadeUp_0.7s_ease_0.2s_both] text-[19px] leading-[1.65] text-ww-ink2">
+            Your AI stylist that knows your wardrobe, reads the weather, and puts together the <strong class="font-bold text-ww-ink">perfect outfit every morning.</strong>
+        </p>
+
+        <div class="relative z-[1] mb-[72px] mt-10 flex animate-[fadeUp_0.7s_ease_0.3s_both] flex-col justify-center gap-3 sm:flex-row">
+            <button class="inline-flex items-center justify-center gap-[9px] rounded-[14px] bg-ww-orange px-[38px] py-[17px] text-[15px] font-black text-white shadow-[0_10px_32px_rgba(215,103,54,0.42)] transition-all hover:translate-y-[-2px] hover:bg-ww-orangeD hover:shadow-[0_14px_40px_rgba(215,103,54,0.48)]">
+                <svg class="h-4 w-4 fill-none stroke-white stroke-[2.5]" viewBox="0 0 24 24" aria-hidden="true">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                </svg>
+                Try it for Free
+            </button>
+            <button class="rounded-[14px] border-[1.5px] border-black/10 bg-white/55 px-[32px] py-[17px] text-[15px] font-bold text-ww-ink shadow-none backdrop-blur-[8px] transition-all hover:border-ww-orange hover:bg-ww-orangeL hover:text-ww-orange">
+                See how it works ↓
+            </button>
+        </div>
+
+        <div class="relative z-[1] flex w-full max-w-[780px] animate-[fadeUp_0.7s_ease_0.4s_both] flex-col overflow-hidden rounded-[18px] border border-white/85 bg-white/55 text-left shadow-[0_8px_32px_rgba(0,0,0,0.1)] backdrop-blur-[12px] sm:flex-row">
+            <div class="flex flex-1 items-start gap-[14px] px-6 py-[22px]">
+                <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ww-orange text-[13px] font-black text-white">
+                    1
+                </div>
+                <div>
+                    <div class="text-[14px] font-black text-ww-ink">Upload your clothes</div>
+                    <div class="mt-1 text-[12px] leading-[1.65] text-ww-ink2">AI scans your photos and builds your digital wardrobe automatically</div>
+                </div>
+            </div>
+            <div class="flex flex-1 items-start gap-[14px] border-t border-black/10 px-6 py-[22px] sm:border-l sm:border-t-0">
+                <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ww-orange text-[13px] font-black text-white">
+                    2
+                </div>
+                <div>
+                    <div class="text-[14px] font-black text-ww-ink">Tell us your day</div>
+                    <div class="mt-1 text-[12px] leading-[1.65] text-ww-ink2">Type anything — "rooftop dinner" or "startup interview" — or quick pick</div>
+                </div>
+            </div>
+            <div class="flex flex-1 items-start gap-[14px] border-t border-black/10 px-6 py-[22px] sm:border-l sm:border-t-0">
+                <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ww-orange text-[13px] font-black text-white">
+                    3
+                </div>
+                <div>
+                    <div class="text-[14px] font-black text-ww-ink">Get your perfect outfit</div>
+                    <div class="mt-1 text-[12px] leading-[1.65] text-ww-ink2">AI picks from your actual wardrobe, weather-aware, with a full explanation</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="relative overflow-hidden bg-white px-6 py-[90px] md:px-[52px] md:py-[110px]">
+        <div class="pointer-events-none absolute -right-[50px] -top-[70px] h-[300px] w-[320px] rounded-[60%_40%_55%_45%/50%_60%_40%_50%] bg-ww-peach opacity-[0.45]"></div>
+        <div class="pointer-events-none absolute -bottom-[50px] -left-[30px] h-[220px] w-[240px] rounded-[45%_55%_40%_60%/60%_40%_55%_45%] bg-ww-teal opacity-[0.40]"></div>
+
+        <div class="mx-auto flex max-w-[1100px] flex-col items-start gap-10 md:flex-row md:items-center md:gap-[80px]">
+            <div class="flex-1">
+                <div class="mb-[14px] text-[11px] font-bold uppercase tracking-[0.12em] text-ww-orange">Smart Wardrobe</div>
+                <h2 class="mb-4 text-[clamp(34px,4vw,54px)] font-black leading-[1.08] tracking-[-0.02em] text-ww-ink">
+                    Manage your Closet<br />with <span class="font-serif italic font-medium text-ww-orange">AI-power.</span>
+                </h2>
+                <p class="max-w-[460px] text-[16px] leading-[1.75] text-ww-ink2">
+                    Just upload photos from your phone. AI instantly detects every item, assigns categories, and builds your digital wardrobe — no manual tagging needed.
+                </p>
+                <div class="mt-7 flex flex-col gap-[11px] text-[13.5px] font-bold text-ww-ink2">
+                    <div class="flex items-center gap-[11px]">
+                        <span class="inline-flex h-[22px] w-[22px] items-center justify-center rounded-[6px] bg-ww-orangeL">
+                            <svg class="h-[11px] w-[11px] fill-none stroke-ww-orange" viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"></polyline></svg>
+                        </span>
+                        Auto category & colour detection
+                    </div>
+                    <div class="flex items-center gap-[11px]">
+                        <span class="inline-flex h-[22px] w-[22px] items-center justify-center rounded-[6px] bg-ww-orangeL">
+                            <svg class="h-[11px] w-[11px] fill-none stroke-ww-orange" viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"></polyline></svg>
+                        </span>
+                        Works with any photo — no styling needed
+                    </div>
+                    <div class="flex items-center gap-[11px]">
+                        <span class="inline-flex h-[22px] w-[22px] items-center justify-center rounded-[6px] bg-ww-orangeL">
+                            <svg class="h-[11px] w-[11px] fill-none stroke-ww-orange" viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"></polyline></svg>
+                        </span>
+                        Learns your personal style over time
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative z-[1] w-full flex-none md:flex-[1.2]">
+                <div class="mb-[14px] inline-flex items-center gap-[7px] rounded-full bg-ww-black px-[14px] py-[6px] text-[11px] font-bold tracking-[0.04em] text-white">
+                    <span class="h-[7px] w-[7px] animate-pulse-dot rounded-full bg-ww-orange"></span>
+                    AI scanning your wardrobe
+                </div>
+
+                <div class="overflow-hidden rounded-[20px] border-[0.5px] border-black/10 bg-[rgba(250,248,244,0.9)] shadow-[0_20px_60px_rgba(0,0,0,0.12)]">
+                    <div class="flex items-center justify-between border-b-[0.5px] border-black/10 bg-ww-bg px-[18px] py-[13px]">
+                        <div class="text-[13px] font-black text-ww-ink">My Closet</div>
+                        <div class="text-[12px] text-ww-ink3">
+                            <strong class="font-black text-ww-orange">24</strong> items · <strong class="font-black text-ww-orange">6</strong> categories
+                        </div>
+                    </div>
+
+                    <div class="flex gap-[10px] overflow-x-auto border-b-[0.5px] border-black/10 px-4 py-3">
+                        <div class="flex shrink-0 flex-col items-center gap-1">
+                            <div class="flex h-[44px] w-[44px] items-center justify-center rounded-full border-2 border-ww-orange bg-ww-orangeL transition-all">
+                                <i data-lucide="layers" class="h-[18px] w-[18px] text-ww-orange" aria-hidden="true"></i>
+                            </div>
+                            <div class="text-[9px] font-bold uppercase text-ww-orange">All 24</div>
+                        </div>
+                        <div class="flex shrink-0 flex-col items-center gap-1">
+                            <div class="flex h-[44px] w-[44px] items-center justify-center rounded-full border-2 border-black/10 bg-white/80 transition-all">
+                                <i data-lucide="shirt" class="h-[18px] w-[18px] text-black/40" aria-hidden="true"></i>
+                            </div>
+                            <div class="text-[9px] font-bold uppercase text-ww-ink3">Tops 6</div>
+                        </div>
+                        <div class="flex shrink-0 flex-col items-center gap-1">
+                            <div class="flex h-[44px] w-[44px] items-center justify-center rounded-full border-2 border-black/10 bg-white/80 transition-all">
+                                <i data-lucide="columns-2" class="h-[18px] w-[18px] text-black/40" aria-hidden="true"></i>
+                            </div>
+                            <div class="text-[9px] font-bold uppercase text-ww-ink3">Bottoms 5</div>
+                        </div>
+                        <div class="flex shrink-0 flex-col items-center gap-1">
+                            <div class="flex h-[44px] w-[44px] items-center justify-center rounded-full border-2 border-black/10 bg-white/80 transition-all">
+                                <i data-lucide="archive" class="h-[18px] w-[18px] text-black/40" aria-hidden="true"></i>
+                            </div>
+                            <div class="text-[9px] font-bold uppercase text-ww-ink3">Outer 4</div>
+                        </div>
+                        <div class="flex shrink-0 flex-col items-center gap-1">
+                            <div class="flex h-[44px] w-[44px] items-center justify-center rounded-full border-2 border-black/10 bg-white/80 transition-all">
+                                <i data-lucide="footprints" class="h-[18px] w-[18px] text-black/40" aria-hidden="true"></i>
+                            </div>
+                            <div class="text-[9px] font-bold uppercase text-ww-ink3">Shoes 5</div>
+                        </div>
+                        <div class="flex shrink-0 flex-col items-center gap-1">
+                            <div class="flex h-[44px] w-[44px] items-center justify-center rounded-full border-2 border-black/10 bg-white/80 transition-all">
+                                <i data-lucide="shopping-bag" class="h-[18px] w-[18px] text-black/40" aria-hidden="true"></i>
+                            </div>
+                            <div class="text-[9px] font-bold uppercase text-ww-ink3">Acc 4</div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-[10px] px-4 pb-4 pt-[14px] sm:grid-cols-3 lg:grid-cols-5">
+                        <div class="overflow-hidden rounded-[12px] border-[0.5px] border-black/10 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.05)]">
+                            <div class="relative flex h-[86px] items-center justify-center bg-[linear-gradient(145deg,#f0ebe2,#e5ddd0)]">
+                                <svg class="h-[34px] w-[34px] fill-none stroke-[rgba(0,0,0,0.16)] stroke-[1.1]" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.57a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.57a2 2 0 00-1.34-2.23z"/></svg>
+                                <div class="absolute bottom-2 right-2 rounded-full bg-white/90 px-2 py-1 text-[8px] font-black uppercase text-ww-ink3">Top</div>
+                            </div>
+                            <div class="px-2 pb-[9px] pt-[7px]">
+                                <div class="text-[10.5px] font-bold text-ww-ink">White Oxford</div>
+                                <div class="mt-[3px] flex gap-[3px]">
+                                    <span class="rounded-[4px] bg-black/5 px-[5px] py-[1px] text-[8.5px] font-bold text-ww-ink3">White</span>
+                                    <span class="rounded-[4px] bg-black/5 px-[5px] py-[1px] text-[8.5px] font-bold text-ww-ink3">Work</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="overflow-hidden rounded-[12px] border-[0.5px] border-black/10 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.05)]">
+                            <div class="relative flex h-[86px] items-center justify-center bg-[linear-gradient(145deg,#2c3a4a,#1e2c3a)]">
+                                <svg class="h-[34px] w-[34px] fill-none stroke-[rgba(0,0,0,0.16)] stroke-[1.1]" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5c0-1 .7-2 2-2l4 3 3-3 3 3 4-3c1.3 0 2 1 2 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5z" stroke="rgba(255,255,255,0.3)"/></svg>
+                                <div class="absolute bottom-2 right-2 rounded-full bg-white/90 px-2 py-1 text-[8px] font-black uppercase text-ww-ink3">Outer</div>
+                            </div>
+                            <div class="px-2 pb-[9px] pt-[7px]">
+                                <div class="text-[10.5px] font-bold text-ww-ink">Navy Jacket</div>
+                                <div class="mt-[3px] flex gap-[3px]">
+                                    <span class="rounded-[4px] bg-black/5 px-[5px] py-[1px] text-[8.5px] font-bold text-ww-ink3">Navy</span>
+                                    <span class="rounded-[4px] bg-black/5 px-[5px] py-[1px] text-[8.5px] font-bold text-ww-ink3">Rain</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="overflow-hidden rounded-[12px] border-[0.5px] border-black/10 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.05)]">
+                            <div class="relative flex h-[86px] items-center justify-center bg-[linear-gradient(145deg,#e8e0d0,#d8d0c0)]">
+                                <svg class="h-[34px] w-[34px] fill-none stroke-[rgba(0,0,0,0.16)] stroke-[1.1]" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2l-3 8h5v12h8V10h5l-3-8H6z"/></svg>
+                                <div class="absolute bottom-2 right-2 rounded-full bg-white/90 px-2 py-1 text-[8px] font-black uppercase text-ww-ink3">Bottom</div>
+                            </div>
+                            <div class="px-2 pb-[9px] pt-[7px]">
+                                <div class="text-[10.5px] font-bold text-ww-ink">Beige Chinos</div>
+                                <div class="mt-[3px] flex gap-[3px]">
+                                    <span class="rounded-[4px] bg-black/5 px-[5px] py-[1px] text-[8.5px] font-bold text-ww-ink3">Beige</span>
+                                    <span class="rounded-[4px] bg-black/5 px-[5px] py-[1px] text-[8.5px] font-bold text-ww-ink3">Work</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="overflow-hidden rounded-[12px] border-[0.5px] border-black/10 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.05)]">
+                            <div class="relative flex h-[86px] items-center justify-center bg-[linear-gradient(145deg,#3a2e22,#2a1e12)]">
+                                <svg class="h-[20px] w-[30px] fill-none stroke-[rgba(0,0,0,0.16)] stroke-[1.1]" viewBox="0 0 32 20" aria-hidden="true"><ellipse cx="8" cy="14" rx="7" ry="5" stroke="rgba(255,255,255,0.35)"/><ellipse cx="24" cy="14" rx="7" ry="5" stroke="rgba(255,255,255,0.35)"/><path d="M1 14V8a6 6 0 0112 0v2h6V8a6 6 0 0112 0v6" stroke="rgba(255,255,255,0.35)"/></svg>
+                                <div class="absolute bottom-2 right-2 rounded-full bg-white/90 px-2 py-1 text-[8px] font-black uppercase text-ww-ink3">Shoes</div>
+                            </div>
+                            <div class="px-2 pb-[9px] pt-[7px]">
+                                <div class="text-[10.5px] font-bold text-ww-ink">Oxford Loafer</div>
+                                <div class="mt-[3px] flex gap-[3px]">
+                                    <span class="rounded-[4px] bg-black/5 px-[5px] py-[1px] text-[8.5px] font-bold text-ww-ink3">Brown</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="overflow-hidden rounded-[12px] border-[0.5px] border-black/10 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.05)]">
+                            <div class="relative flex h-[86px] items-center justify-center bg-[linear-gradient(145deg,#1a1a2e,#16213e)]">
+                                <svg class="h-[34px] w-[34px] fill-none stroke-[rgba(0,0,0,0.16)] stroke-[1.1]" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2l-3 8h5v12h8V10h5l-3-8H6z" stroke="rgba(255,255,255,0.3)"/></svg>
+                                <div class="absolute bottom-2 right-2 rounded-full bg-white/90 px-2 py-1 text-[8px] font-black uppercase text-ww-ink3">Bottom</div>
+                            </div>
+                            <div class="px-2 pb-[9px] pt-[7px]">
+                                <div class="text-[10.5px] font-bold text-ww-ink">Black Jeans</div>
+                                <div class="mt-[3px] flex gap-[3px]">
+                                    <span class="rounded-[4px] bg-black/5 px-[5px] py-[1px] text-[8.5px] font-bold text-ww-ink3">Black</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="overflow-hidden rounded-[12px] border-[0.5px] border-black/10 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.05)]">
+                            <div class="relative flex h-[86px] items-center justify-center bg-[linear-gradient(145deg,#f5f5f5,#e8e8e8)]">
+                                <svg class="h-[20px] w-[30px] fill-none stroke-[rgba(0,0,0,0.16)] stroke-[1.1]" viewBox="0 0 32 20" aria-hidden="true"><ellipse cx="8" cy="14" rx="7" ry="5"/><ellipse cx="24" cy="14" rx="7" ry="5"/><path d="M1 14V8a6 6 0 0112 0v2h6V8a6 6 0 0112 0v6"/></svg>
+                                <div class="absolute bottom-2 right-2 rounded-full bg-white/90 px-2 py-1 text-[8px] font-black uppercase text-ww-ink3">Shoes</div>
+                            </div>
+                            <div class="px-2 pb-[9px] pt-[7px]">
+                                <div class="text-[10.5px] font-bold text-ww-ink">White Sneakers</div>
+                                <div class="mt-[3px] flex gap-[3px]">
+                                    <span class="rounded-[4px] bg-black/5 px-[5px] py-[1px] text-[8.5px] font-bold text-ww-ink3">White</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="overflow-hidden rounded-[12px] border-[0.5px] border-black/10 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.05)]">
+                            <div class="relative flex h-[86px] items-center justify-center bg-[linear-gradient(145deg,#c8b898,#b8a880)]">
+                                <svg class="h-[34px] w-[34px] fill-none stroke-[rgba(0,0,0,0.16)] stroke-[1.1]" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5c0-1 .7-2 2-2l4 3 3-3 3 3 4-3c1.3 0 2 1 2 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5z" stroke="rgba(255,255,255,0.4)"/></svg>
+                                <div class="absolute bottom-2 right-2 rounded-full bg-white/90 px-2 py-1 text-[8px] font-black uppercase text-ww-ink3">Outer</div>
+                            </div>
+                            <div class="px-2 pb-[9px] pt-[7px]">
+                                <div class="text-[10.5px] font-bold text-ww-ink">Khaki Trench</div>
+                                <div class="mt-[3px] flex gap-[3px]">
+                                    <span class="rounded-[4px] bg-black/5 px-[5px] py-[1px] text-[8.5px] font-bold text-ww-ink3">Khaki</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="overflow-hidden rounded-[12px] border-[0.5px] border-black/10 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.05)]">
+                            <div class="relative flex h-[86px] items-center justify-center bg-[linear-gradient(145deg,#f5ede0,#ead8c0)]">
+                                <svg class="h-[34px] w-[34px] fill-none stroke-[rgba(0,0,0,0.16)] stroke-[1.1]" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.57a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.57a2 2 0 00-1.34-2.23z"/></svg>
+                                <div class="absolute bottom-2 right-2 rounded-full bg-white/90 px-2 py-1 text-[8px] font-black uppercase text-ww-ink3">Top</div>
+                            </div>
+                            <div class="px-2 pb-[9px] pt-[7px]">
+                                <div class="text-[10.5px] font-bold text-ww-ink">Beige Knit</div>
+                                <div class="mt-[3px] flex gap-[3px]">
+                                    <span class="rounded-[4px] bg-black/5 px-[5px] py-[1px] text-[8.5px] font-bold text-ww-ink3">Beige</span>
+                                    <span class="rounded-[4px] bg-black/5 px-[5px] py-[1px] text-[8.5px] font-bold text-ww-ink3">Fall</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="overflow-hidden rounded-[12px] border-[0.5px] border-black/10 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.05)]">
+                            <div class="relative flex h-[86px] items-center justify-center bg-[linear-gradient(145deg,#e8edf2,#d8e2ec)]">
+                                <svg class="h-[34px] w-[34px] fill-none stroke-[rgba(0,0,0,0.16)] stroke-[1.1]" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.57a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.57a2 2 0 00-1.34-2.23z"/></svg>
+                                <div class="absolute bottom-2 right-2 rounded-full bg-white/90 px-2 py-1 text-[8px] font-black uppercase text-ww-ink3">Top</div>
+                            </div>
+                            <div class="px-2 pb-[9px] pt-[7px]">
+                                <div class="text-[10.5px] font-bold text-ww-ink">Blue Denim</div>
+                                <div class="mt-[3px] flex gap-[3px]">
+                                    <span class="rounded-[4px] bg-black/5 px-[5px] py-[1px] text-[8.5px] font-bold text-ww-ink3">Blue</span>
+                                    <span class="rounded-[4px] bg-black/5 px-[5px] py-[1px] text-[8.5px] font-bold text-ww-ink3">Casual</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="overflow-hidden rounded-[12px] border-[0.5px] border-black/10 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.05)]">
+                            <div class="relative flex h-[86px] items-center justify-center bg-[linear-gradient(145deg,#2a2a2a,#1a1a1a)]">
+                                <svg class="h-[34px] w-[34px] fill-none stroke-[rgba(0,0,0,0.16)] stroke-[1.1]" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.57a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.57a2 2 0 00-1.34-2.23z" stroke="rgba(255,255,255,0.25)"/></svg>
+                                <div class="absolute bottom-2 right-2 rounded-full bg-white/90 px-2 py-1 text-[8px] font-black uppercase text-ww-ink3">Top</div>
+                            </div>
+                            <div class="px-2 pb-[9px] pt-[7px]">
+                                <div class="text-[10.5px] font-bold text-ww-ink">Black Tee</div>
+                                <div class="mt-[3px] flex gap-[3px]">
+                                    <span class="rounded-[4px] bg-black/5 px-[5px] py-[1px] text-[8.5px] font-bold text-ww-ink3">Black</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="relative overflow-hidden bg-ww-bg px-6 py-[90px] md:px-[52px] md:py-[110px]">
+        <div class="pointer-events-none absolute -right-10 -top-[70px] h-[320px] w-[360px] rounded-[55%_45%_60%_40%/45%_55%_45%_55%] bg-ww-teal opacity-[0.55]"></div>
+        <div class="pointer-events-none absolute -bottom-[60px] -left-[30px] h-[260px] w-[280px] rounded-[48%_52%_42%_58%/58%_42%_55%_45%] bg-ww-peach opacity-[0.50]"></div>
+
+        <div class="mx-auto flex max-w-[1100px] flex-col items-start gap-10 md:flex-row md:items-center md:gap-[80px]">
+            <div class="flex-1">
+                <div class="mb-[14px] text-[11px] font-bold uppercase tracking-[0.12em] text-ww-orange">AI Styling</div>
+                <h2 class="mb-4 text-[clamp(34px,4vw,54px)] font-black leading-[1.08] tracking-[-0.02em] text-ww-ink">
+                    What to <span class="font-serif italic font-medium text-ww-orange">wear?</span><br />AI decides.
+                </h2>
+                <p class="max-w-[460px] text-[16px] leading-[1.75] text-ww-ink2">Tell us your day — AI picks the perfect outfit from your actual wardrobe, factoring in live weather, your occasion, and your personal style.</p>
+
+                <div class="mt-9 flex flex-col gap-5">
+                    <div class="flex items-start gap-[14px]">
+                        <div class="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-[12px] border border-white/90 bg-white/60 backdrop-blur-[6px]">
+                            <svg class="h-[19px] w-[19px] fill-none stroke-ww-orange stroke-[1.8]" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        </div>
+                        <div>
+                            <div class="text-[14px] font-black text-ww-ink">Location & weather auto-detected</div>
+                            <div class="mt-1 text-[12.5px] leading-[1.65] text-ww-ink2">No need to check the forecast. AI reads live conditions and adjusts every recommendation.</div>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-[14px]">
+                        <div class="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-[12px] border border-white/90 bg-white/60 backdrop-blur-[6px]">
+                            <svg class="h-[19px] w-[19px] fill-none stroke-ww-orange stroke-[1.8]" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                        </div>
+                        <div>
+                            <div class="text-[14px] font-black text-ww-ink">Explains every pick</div>
+                            <div class="mt-1 text-[12.5px] leading-[1.65] text-ww-ink2">AI tells you exactly why each item was chosen — and what it skipped and why.</div>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-[14px]">
+                        <div class="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-[12px] border border-white/90 bg-white/60 backdrop-blur-[6px]">
+                            <svg class="h-[19px] w-[19px] fill-none stroke-ww-orange stroke-[1.8]" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+                        </div>
+                        <div>
+                            <div class="text-[14px] font-black text-ww-ink">Gets smarter every day</div>
+                            <div class="mt-1 text-[12.5px] leading-[1.65] text-ww-ink2">The more you use it, the better it understands your preferences, lifestyle, and body.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative z-[1] w-full flex-none md:flex-[1.2]">
+                <div class="overflow-hidden rounded-[20px] border-[0.5px] border-black/10 bg-ww-bg shadow-[0_24px_64px_rgba(0,0,0,0.16)]">
+                    <div class="flex h-[46px] items-center justify-between bg-ww-black px-4">
+                        <div class="flex gap-[5px]">
+                            <span class="h-[9px] w-[9px] rounded-full bg-[#ff5f57]"></span>
+                            <span class="h-[9px] w-[9px] rounded-full bg-[#ffbd2e]"></span>
+                            <span class="h-[9px] w-[9px] rounded-full bg-[#28c840]"></span>
+                        </div>
+                        <div class="text-[12px] font-black text-white">Whatever the <span class="font-serif italic font-medium text-ww-orange">Weather.</span></div>
+                        <div class="w-[60px]"></div>
+                    </div>
+
+                    <div class="flex h-[370px]">
+                        <div class="ww-hide-scrollbar flex w-[200px] shrink-0 flex-col gap-[10px] overflow-y-auto border-r-[0.5px] border-black/10 px-[14px] pb-0 pt-[14px] [scrollbar-width:none] [-ms-overflow-style:none]">
+                            <div class="rounded-[12px] bg-ww-orange px-[14px] py-[12px] shadow-[0_6px_20px_rgba(215,103,54,0.3)]">
+                                <div class="text-[8px] font-bold uppercase leading-none tracking-[0.06em] text-white/60">Now · NYC</div>
+                                <div class="my-[2px] text-[32px] font-black leading-none text-white">22°</div>
+                                <div class="text-[9.5px] leading-[1.2] text-white/80">Light rain · Feels 20°</div>
+                                <div class="mt-[6px] flex items-center justify-start">
+                                    <i data-lucide="cloud-rain" class="h-[22px] w-[22px] text-white/90" aria-hidden="true"></i>
+                                </div>
+                            </div>
+                            <div class="text-[9px] font-bold uppercase tracking-[0.08em] text-ww-ink3">What's today about?</div>
+                            <div class="grid grid-cols-2 gap-[5px]">
+                                <div class="rounded-[9px] border-[1.5px] border-ww-orange bg-ww-orangeL px-[6px] py-2 text-center">
+                                    <div class="flex items-center justify-center"><i data-lucide="briefcase" class="h-[14px] w-[14px] text-ww-orange" aria-hidden="true"></i></div>
+                                    <div class="mt-[2px] text-[8.5px] font-bold text-ww-ink">Work</div>
+                                </div>
+                                <div class="rounded-[9px] border-[1.5px] border-transparent bg-white/60 px-[6px] py-2 text-center">
+                                    <div class="flex items-center justify-center"><i data-lucide="coffee" class="h-[14px] w-[14px] text-black/55" aria-hidden="true"></i></div>
+                                    <div class="mt-[2px] text-[8.5px] font-bold text-ww-ink">Casual</div>
+                                </div>
+                                <div class="rounded-[9px] border-[1.5px] border-transparent bg-white/60 px-[6px] py-2 text-center">
+                                    <div class="flex items-center justify-center"><i data-lucide="sparkles" class="h-[14px] w-[14px] text-black/55" aria-hidden="true"></i></div>
+                                    <div class="mt-[2px] text-[8.5px] font-bold text-ww-ink">Date</div>
+                                </div>
+                                <div class="rounded-[9px] border-[1.5px] border-transparent bg-white/60 px-[6px] py-2 text-center">
+                                    <div class="flex items-center justify-center"><i data-lucide="leaf" class="h-[14px] w-[14px] text-black/55" aria-hidden="true"></i></div>
+                                    <div class="mt-[2px] text-[8.5px] font-bold text-ww-ink">Outdoor</div>
+                                </div>
+                            </div>
+                            <div class="rounded-[9px] border-[1.5px] border-black/10 bg-white/65 px-[10px] py-2 text-[9.5px] text-ww-ink3">Or describe your day...</div>
+                            <button class="flex items-center justify-center gap-[6px] rounded-[10px] bg-ww-orange p-[11px] text-[11px] font-black text-white shadow-[0_4px_14px_rgba(215,103,54,0.35)]">
+                                <svg class="h-[11px] w-[11px] fill-none stroke-white stroke-[2.5]" viewBox="0 0 24 24" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                Style me today
+                            </button>
+                        </div>
+
+                        <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
+                            <div class="flex items-center justify-between border-b-[0.5px] border-black/10 px-[14px] py-[10px]">
+                                <div class="text-[9.5px] font-bold text-ww-ink3">← Change occasion</div>
+                                <div class="flex gap-2">
+                                    <div class="flex h-6 w-6 items-center justify-center rounded-[7px] bg-white/60">
+                                        <svg class="h-[11px] w-[11px] fill-none stroke-ww-ink3 stroke-[1.8]" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+                                    </div>
+                                    <div class="flex h-6 w-6 items-center justify-center rounded-[7px] bg-white/60">
+                                        <svg class="h-[11px] w-[11px] fill-none stroke-ww-ink3 stroke-[1.8]" viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-1 flex-col gap-[10px] overflow-y-auto px-[14px] py-3">
+                                <div class="relative flex h-[130px] shrink-0 items-center justify-center overflow-hidden rounded-[14px] border-[0.5px] border-white/80 bg-[linear-gradient(150deg,rgba(242,224,213,0.92),rgba(211,206,184,0.78))]">
+                                    <div class="absolute left-2 top-2 rounded-full border-[0.5px] border-ww-orange/30 bg-ww-orange/15 px-[9px] py-[3px] text-[9px] font-bold text-ww-orange">Work</div>
+                                    <div class="absolute right-2 top-2 inline-flex items-center gap-[5px] rounded-full bg-white/90 px-[9px] py-[3px] text-[9px] font-bold text-ww-ink2">
+                                        22°
+                                        <i data-lucide="cloud-rain" class="h-[12px] w-[12px] text-ww-orange" aria-hidden="true"></i>
+                                    </div>
+                                    <div class="flex items-end gap-[10px]">
+                                        <div class="flex flex-col items-center gap-[3px]">
+                                            <div class="flex h-[48px] w-[38px] items-center justify-center rounded-[8px] bg-[rgba(195,188,165,0.85)]"><svg class="h-[19px] w-[19px] fill-none stroke-[rgba(0,0,0,0.18)] stroke-[1.2]" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.57a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.57a2 2 0 00-1.34-2.23z"/></svg></div>
+                                            <span class="text-[7.5px] font-bold uppercase text-ww-ink3">Top</span>
+                                        </div>
+                                        <div class="flex flex-col items-center gap-[3px]">
+                                            <div class="flex h-[58px] w-[32px] items-center justify-center rounded-[8px] bg-[rgba(195,188,165,0.85)]"><svg class="h-4 w-4 fill-none stroke-[rgba(0,0,0,0.18)] stroke-[1.2]" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2l-3 8h5v12h8V10h5l-3-8H6z"/></svg></div>
+                                            <span class="text-[7.5px] font-bold uppercase text-ww-ink3">Bottom</span>
+                                        </div>
+                                        <div class="flex flex-col items-center gap-[3px]">
+                                            <div class="flex h-[56px] w-[46px] items-center justify-center rounded-[8px] bg-[rgba(195,188,165,0.85)]"><svg class="h-[22px] w-[22px] fill-none stroke-[rgba(0,0,0,0.18)] stroke-[1.2]" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5c0-1 .7-2 2-2l4 3 3-3 3 3 4-3c1.3 0 2 1 2 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5z"/></svg></div>
+                                            <span class="text-[7.5px] font-bold uppercase text-ww-ink3">Jacket</span>
+                                        </div>
+                                        <div class="flex flex-col items-center gap-[3px]">
+                                            <div class="flex h-[28px] w-[38px] items-center justify-center rounded-[8px] bg-[rgba(195,188,165,0.85)]"><svg class="h-3 w-[18px] fill-none stroke-[rgba(0,0,0,0.18)] stroke-[1.2]" viewBox="0 0 32 20" aria-hidden="true"><ellipse cx="8" cy="14" rx="7" ry="5"/><ellipse cx="24" cy="14" rx="7" ry="5"/><path d="M1 14V8a6 6 0 0112 0v2h6V8a6 6 0 0112 0v6"/></svg></div>
+                                            <span class="text-[7.5px] font-bold uppercase text-ww-ink3">Shoes</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="text-[13px] font-medium italic text-ww-ink [font-family:Georgia,serif]">Polished Rain-Ready</div>
+                                <div class="text-[10px] leading-[1.65] text-ww-ink2">Navy jacket + slim trousers. Skipped your linen shirt — absorbs moisture and takes hours to dry. Sharp and dry all day.</div>
+                                <div class="flex gap-[6px]">
+                                    <button class="flex flex-1 items-center justify-center gap-1 rounded-[8px] border border-black/10 bg-white/65 px-2 py-[7px] text-[10px] font-bold text-ww-ink2">
+                                        <svg class="h-[10px] w-[10px] fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>
+                                        Redo
+                                    </button>
+                                    <button class="flex flex-1 items-center justify-center gap-1 rounded-[8px] border border-ww-orange bg-ww-orange px-2 py-[7px] text-[10px] font-bold text-white">
+                                        <svg class="h-[10px] w-[10px] fill-none stroke-current stroke-2" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+                                        Save look
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="relative overflow-hidden bg-white px-6 py-[110px] sm:px-[52px]">
+        <div class="pointer-events-none absolute -left-10 -top-16 h-[300px] w-[300px] rounded-[55%_45%_60%_40%/45%_55%_45%_55%] bg-ww-peach/35"></div>
+        <div class="pointer-events-none absolute -bottom-14 -right-10 h-[260px] w-[260px] rounded-[48%_52%_42%_58%/58%_42%_55%_45%] bg-ww-teal/30"></div>
+
+        <div class="mx-auto w-full max-w-[1100px]">
+            <div class="grid items-center gap-10 sm:grid-cols-2 sm:gap-20">
+                <div>
+                    <div class="text-[11px] font-bold uppercase tracking-[0.12em] text-ww-orange">Outfit Log</div>
+                    <h2 class="mt-3 text-[clamp(34px,4vw,54px)] font-black leading-[1.08] tracking-[-0.02em] text-ww-ink">
+                        Your style,<br /><span class="font-serif italic font-medium text-ww-orange">documented.</span>
+                    </h2>
+                    <p class="mt-4 max-w-[460px] text-[16px] leading-[1.75] text-ww-ink2">Every outfit gets logged automatically. Look back at any day — what you wore, the weather, the occasion. Your personal style diary.</p>
+                    <div class="mt-7 space-y-3 text-[13.5px] font-bold text-ww-ink2">
+                        <div class="flex items-center gap-3"><span class="inline-flex h-[22px] w-[22px] items-center justify-center rounded-[6px] bg-ww-orangeL"><svg class="h-[11px] w-[11px] fill-none stroke-ww-orange" viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></span>See what you wore any day</div>
+                        <div class="flex items-center gap-3"><span class="inline-flex h-[22px] w-[22px] items-center justify-center rounded-[6px] bg-ww-orangeL"><svg class="h-[11px] w-[11px] fill-none stroke-ww-orange" viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></span>Discover your style patterns & palette</div>
+                        <div class="flex items-center gap-3"><span class="inline-flex h-[22px] w-[22px] items-center justify-center rounded-[6px] bg-ww-orangeL"><svg class="h-[11px] w-[11px] fill-none stroke-ww-orange" viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"></polyline></svg></span>Plan outfits for upcoming events</div>
+                    </div>
+                </div>
+
+                <div class="relative z-[1]">
+                    <div class="overflow-hidden rounded-[20px] border border-black/10 bg-[#faf8f4]/95 shadow-[0_20px_60px_rgba(0,0,0,0.12)]">
+                        <div class="flex items-center justify-between border-b border-black/10 bg-ww-bg px-5 py-4">
+                            <div class="text-[14px] font-black text-ww-ink">Outfit <span class="font-serif italic font-medium text-ww-orange">Log</span></div>
+                            <div class="flex items-center gap-2 text-[12px] font-bold text-ww-ink3">
+                                <span class="inline-flex h-[26px] w-[26px] items-center justify-center rounded-[8px] border border-black/10 bg-white/65 text-[13px]">‹</span>
+                                April 2026
+                                <span class="inline-flex h-[26px] w-[26px] items-center justify-center rounded-[8px] border border-black/10 bg-white/65 text-[13px]">›</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-col lg:flex-row">
+                            <div class="w-full shrink-0 border-b border-black/10 px-[14px] py-[14px] lg:w-[210px] lg:border-b-0 lg:border-r">
+                                <div class="mb-3 flex overflow-hidden rounded-[10px] border border-black/10 bg-white/60">
+                                    <div class="flex-1 px-1 py-2 text-center">
+                                        <div class="text-[16px] font-black leading-none text-ww-orange">18</div>
+                                        <div class="mt-[2px] text-[8px] font-bold uppercase text-ww-ink3">Outfits</div>
+                                    </div>
+                                    <div class="w-px bg-black/10"></div>
+                                    <div class="flex-1 px-1 py-2 text-center">
+                                        <div class="text-[16px] font-black leading-none text-ww-orange">22°</div>
+                                        <div class="mt-[2px] text-[8px] font-bold uppercase text-ww-ink3">Avg Temp</div>
+                                    </div>
+                                    <div class="w-px bg-black/10"></div>
+                                    <div class="flex-1 px-1 py-2 text-center">
+                                        <div class="text-[11px] font-black leading-none text-ww-orange">Work</div>
+                                        <div class="mt-[2px] text-[8px] font-bold uppercase text-ww-ink3">Top Occ.</div>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-7 gap-[1px]">
+                                    <div class="pb-[5px] text-center text-[8px] font-bold uppercase text-ww-ink3">S</div><div class="pb-[5px] text-center text-[8px] font-bold uppercase text-ww-ink3">M</div><div class="pb-[5px] text-center text-[8px] font-bold uppercase text-ww-ink3">T</div><div class="pb-[5px] text-center text-[8px] font-bold uppercase text-ww-ink3">W</div><div class="pb-[5px] text-center text-[8px] font-bold uppercase text-ww-ink3">T</div><div class="pb-[5px] text-center text-[8px] font-bold uppercase text-ww-ink3">F</div><div class="pb-[5px] text-center text-[8px] font-bold uppercase text-ww-ink3">S</div>
+                                    <div class="aspect-square opacity-[0.22]"></div><div class="aspect-square opacity-[0.22]"></div><div class="flex aspect-square items-center justify-center rounded-[7px] text-[10px] font-bold text-ww-ink after:h-[3px] after:w-[3px] after:rounded-full after:bg-ww-orange after:content-['']">1</div><div class="flex aspect-square items-center justify-center rounded-[7px] text-[10px] font-bold text-ww-ink after:h-[3px] after:w-[3px] after:rounded-full after:bg-ww-orange after:content-['']">2</div><div class="flex aspect-square items-center justify-center rounded-[7px] text-[10px] font-bold text-ww-ink after:h-[3px] after:w-[3px] after:rounded-full after:bg-ww-orange after:content-['']">3</div><div class="flex aspect-square items-center justify-center rounded-[7px] text-[10px] font-bold text-ww-ink after:h-[3px] after:w-[3px] after:rounded-full after:bg-ww-orange after:content-['']">4</div><div class="flex aspect-square items-center justify-center rounded-[7px] text-[10px] font-bold text-ww-ink">5</div>
+                                    <div class="flex aspect-square items-center justify-center rounded-[7px] text-[10px] font-bold text-ww-ink after:h-[3px] after:w-[3px] after:rounded-full after:bg-ww-orange after:content-['']">6</div><div class="flex aspect-square items-center justify-center rounded-[7px] text-[10px] font-bold text-ww-ink after:h-[3px] after:w-[3px] after:rounded-full after:bg-ww-orange after:content-['']">7</div><div class="flex aspect-square items-center justify-center rounded-[7px] text-[10px] font-bold text-ww-ink after:h-[3px] after:w-[3px] after:rounded-full after:bg-ww-orange after:content-['']">8</div><div class="flex aspect-square items-center justify-center rounded-[7px] text-[10px] font-bold text-ww-ink after:h-[3px] after:w-[3px] after:rounded-full after:bg-ww-orange after:content-['']">9</div><div class="flex aspect-square items-center justify-center rounded-[7px] text-[10px] font-bold text-ww-ink after:h-[3px] after:w-[3px] after:rounded-full after:bg-ww-orange after:content-['']">10</div><div class="flex aspect-square items-center justify-center rounded-[7px] text-[10px] font-bold text-ww-ink after:h-[3px] after:w-[3px] after:rounded-full after:bg-ww-orange after:content-['']">11</div><div class="flex aspect-square items-center justify-center rounded-[7px] text-[10px] font-bold text-ww-ink">12</div>
+                                    <div class="flex aspect-square items-center justify-center rounded-[7px] text-[10px] font-bold text-ww-ink after:h-[3px] after:w-[3px] after:rounded-full after:bg-ww-orange after:content-['']">13</div><div class="flex aspect-square items-center justify-center rounded-[7px] text-[10px] font-bold text-ww-ink after:h-[3px] after:w-[3px] after:rounded-full after:bg-ww-orange after:content-['']">14</div><div class="flex aspect-square items-center justify-center rounded-[7px] text-[10px] font-bold text-ww-ink after:h-[3px] after:w-[3px] after:rounded-full after:bg-ww-orange after:content-['']">15</div><div class="flex aspect-square items-center justify-center rounded-[7px] bg-ww-orangeL text-[10px] font-bold text-ww-orange outline outline-[1.5px] outline-ww-orange">16</div><div class="flex aspect-square items-center justify-center rounded-[7px] text-[10px] font-bold text-ww-ink after:h-[3px] after:w-[3px] after:rounded-full after:bg-ww-orange after:content-['']">17</div><div class="flex aspect-square items-center justify-center rounded-[7px] text-[10px] font-bold text-ww-ink after:h-[3px] after:w-[3px] after:rounded-full after:bg-ww-orange after:content-['']">18</div><div class="flex aspect-square items-center justify-center rounded-[7px] text-[10px] font-bold text-ww-ink">19</div>
+                                    <div class="flex aspect-square items-center justify-center rounded-[7px] text-[10px] font-bold text-ww-ink after:h-[3px] after:w-[3px] after:rounded-full after:bg-ww-orange after:content-['']">20</div><div class="flex aspect-square items-center justify-center rounded-[7px] bg-ww-orange text-[10px] font-bold text-white after:h-[3px] after:w-[3px] after:rounded-full after:bg-white/75 after:content-['']">21</div><div class="aspect-square opacity-[0.22]"></div><div class="aspect-square opacity-[0.22]"></div><div class="aspect-square opacity-[0.22]"></div><div class="aspect-square opacity-[0.22]"></div><div class="aspect-square opacity-[0.22]"></div>
+                                </div>
+                            </div>
+                            <div class="flex flex-1 flex-col gap-[10px] p-4">
+                                <div class="text-[18px] font-medium italic leading-[1.1] text-ww-ink [font-family:Georgia,serif]">Wednesday,<br />April 16</div>
+                                <div class="flex gap-[6px]">
+                                    <span class="inline-flex items-center gap-[6px] rounded-full bg-black/5 px-[10px] py-[3px] text-[10.5px] font-bold text-ww-ink2">
+                                        <i data-lucide="cloud-sun" class="h-[12px] w-[12px] text-ww-orange" aria-hidden="true"></i>
+                                        22°
+                                    </span>
+                                    <span class="rounded-full bg-ww-orangeL px-[10px] py-[3px] text-[10.5px] font-bold text-ww-orange">Date Night</span>
+                                </div>
+                                <div class="flex h-[110px] items-center justify-center gap-3 rounded-[12px] bg-[linear-gradient(145deg,rgba(242,224,213,0.9),rgba(211,206,184,0.8))]">
+                                    <div class="flex flex-col items-center gap-[3px]"><div class="flex h-[46px] w-[36px] items-center justify-center rounded-[8px] bg-[rgba(195,188,165,0.85)]"><svg class="h-[18px] w-[18px] fill-none stroke-[rgba(0,0,0,0.18)] stroke-[1.2]" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.57a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.57a2 2 0 00-1.34-2.23z"/></svg></div><span class="text-[8px] font-bold uppercase text-ww-ink3">Top</span></div>
+                                    <div class="flex flex-col items-center gap-[3px]"><div class="flex h-[54px] w-[28px] items-center justify-center rounded-[8px] bg-[rgba(195,188,165,0.85)]"><svg class="h-[14px] w-[14px] fill-none stroke-[rgba(0,0,0,0.18)] stroke-[1.2]" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2l-3 8h5v12h8V10h5l-3-8H6z"/></svg></div><span class="text-[8px] font-bold uppercase text-ww-ink3">Bottom</span></div>
+                                    <div class="flex flex-col items-center gap-[3px]"><div class="flex h-[28px] w-[38px] items-center justify-center rounded-[8px] bg-[rgba(195,188,165,0.85)]"><svg class="h-3 w-[18px] fill-none stroke-[rgba(0,0,0,0.18)] stroke-[1.2]" viewBox="0 0 32 20" aria-hidden="true"><ellipse cx="8" cy="14" rx="7" ry="5"/><ellipse cx="24" cy="14" rx="7" ry="5"/><path d="M1 14V8a6 6 0 0112 0v2h6V8a6 6 0 0112 0v6"/></svg></div><span class="text-[8px] font-bold uppercase text-ww-ink3">Shoes</span></div>
+                                    <div class="flex flex-col items-center gap-[3px]"><div class="flex h-[34px] w-[34px] items-center justify-center rounded-[8px] bg-[rgba(195,188,165,0.85)]"><svg class="h-[17px] w-[17px] fill-none stroke-[rgba(0,0,0,0.18)] stroke-[1.2]" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></div><span class="text-[8px] font-bold uppercase text-ww-ink3">Bag</span></div>
+                                </div>
+                                <div class="text-[14px] font-medium italic text-ww-ink [font-family:Georgia,serif]">Evening Chic</div>
+                                <div class="text-[11px] leading-[1.65] text-ww-ink2">Clear and mild — silk blouse + tailored trousers. Elegant without being overdressed for dinner.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="relative overflow-hidden bg-ww-black px-6 py-[130px] text-center sm:px-[52px]">
+        <div class="pointer-events-none absolute -left-[80px] -top-[100px] h-[460px] w-[500px] rounded-[60%_40%_55%_45%/50%_60%_40%_50%] bg-[rgba(215,103,54,0.1)]"></div>
+        <div class="pointer-events-none absolute -bottom-24 -right-16 h-[400px] w-[420px] rounded-[44%_56%_38%_62%/58%_42%_58%_42%] bg-ww-teal/10"></div>
+        <div class="pointer-events-none absolute right-[10%] top-[30%] h-[280px] w-[300px] rounded-[52%_48%_62%_38%/42%_58%_42%_58%] bg-ww-orange/7"></div>
+
+        <div class="relative z-[1] mx-auto w-full max-w-[980px]">
+            <div class="inline-block rounded-full border border-ww-orange/25 bg-ww-orange/15 px-4 py-[6px] text-[11px] font-bold uppercase tracking-[0.1em] text-ww-orange">
+                ✦ Start today — it's free
+            </div>
+            <h2 class="mt-7 text-[clamp(38px,5.5vw,72px)] font-black leading-[1.05] tracking-[-0.025em] text-white">
+                Ready to create<br />your <span class="font-serif italic font-medium text-ww-orange">AI Closet?</span>
+            </h2>
+            <p class="mx-auto mt-5 max-w-[440px] text-[17px] leading-[1.7] text-white/45">
+                Join people who never stress about what to wear. Upload your clothes, and let AI do the rest.
+            </p>
+            <button class="mx-auto mt-10 inline-flex items-center gap-3 rounded-[16px] bg-ww-orange px-[52px] py-[19px] text-[16px] font-black text-white shadow-[0_12px_40px_rgba(215,103,54,0.48)] transition-all hover:translate-y-[-2px] hover:bg-ww-orangeD hover:shadow-[0_18px_48px_rgba(215,103,54,0.52)]">
+                <svg class="h-[17px] w-[17px] fill-none stroke-white stroke-[2.5]" viewBox="0 0 24 24" aria-hidden="true">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                </svg>
+                Get Started — Free
+            </button>
+            <div class="mt-4 text-[12px] font-bold text-white/25">No credit card required · Cancel anytime</div>
+        </div>
+    </section>
+
+    <footer class="border-t border-white/5 bg-ww-black px-6 pb-[30px] pt-[44px] md:px-[52px]">
+            <div class="mb-[36px] flex flex-wrap items-center justify-between gap-5">
+                <div class="flex gap-7">
+                    <a href="#" class="text-[12.5px] font-bold text-white/35 transition-colors hover:text-white/75">Company</a>
+                    <a href="#" class="text-[12.5px] font-bold text-white/35 transition-colors hover:text-white/75">Pricing</a>
+                    <a href="#" class="text-[12.5px] font-bold text-white/35 transition-colors hover:text-white/75">Legal</a>
+                </div>
+                <div class="flex gap-[10px]">
+                    <div class="flex h-[34px] w-[34px] cursor-pointer items-center justify-center rounded-[10px] bg-white/5 transition-colors hover:bg-white/10"><svg class="h-[14px] w-[14px] fill-none stroke-white/35 stroke-[1.8]" viewBox="0 0 24 24" aria-hidden="true"><path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/></svg></div>
+                    <div class="flex h-[34px] w-[34px] cursor-pointer items-center justify-center rounded-[10px] bg-white/5 transition-colors hover:bg-white/10"><svg class="h-[14px] w-[14px] fill-none stroke-white/35 stroke-[1.8]" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></div>
+                    <div class="flex h-[34px] w-[34px] cursor-pointer items-center justify-center rounded-[10px] bg-white/5 transition-colors hover:bg-white/10"><svg class="h-[14px] w-[14px] fill-none stroke-white/35 stroke-[1.8]" viewBox="0 0 24 24" aria-hidden="true"><path d="M22.54 6.42a2.78 2.78 0 00-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 00-1.95 1.96A29 29 0 001 12a29 29 0 00.46 5.58A2.78 2.78 0 003.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 001.95-1.95A29 29 0 0023 12a29 29 0 00-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg></div>
+                </div>
+            </div>
+            <div class="border-t border-white/5 pt-8 text-center">
+                <div class="text-[clamp(40px,6vw,72px)] font-black tracking-[-0.025em] text-white">
+                    Whatever the <em class="font-serif italic font-medium text-ww-orange">Weather.</em>
+                </div>
+                <div class="mt-2 text-[11px] text-[rgba(255,255,255,0.18)]">© 2026 WTW. All rights reserved.</div>
+            </div>
+    </footer>
+</main>

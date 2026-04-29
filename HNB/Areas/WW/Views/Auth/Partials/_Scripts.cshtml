@@ -1,4 +1,115 @@
 @{
     Layout = null;
 }
-<script src="~/ww/js/Auth.js" asp-append-version="true"></script>
+<script>
+    (function () {
+        function byId(id) { return document.getElementById(id); }
+
+        function setCtx(from) {
+            var pill = byId("ctx-pill");
+            var ctxText = byId("ctx-text");
+            var suTitle = byId("su-title");
+            var suSub = byId("su-sub");
+
+            if (!pill || !ctxText || !suTitle || !suSub) return;
+
+            if (from === "trial") {
+                pill.classList.remove("hidden");
+                ctxText.textContent = "Save your look - sign up free";
+                switchTab("signup");
+                suTitle.innerHTML = "Save your <em class=\"[font-family:var(--font-serif)] font-medium italic text-[#d76736]\">look.</em>";
+                suSub.textContent = "Create a free account to use your own wardrobe and save your outfits.";
+            } else {
+                pill.classList.add("hidden");
+                switchTab("login");
+                suTitle.innerHTML = "Start for <em class=\"[font-family:var(--font-serif)] font-medium italic text-[#d76736]\">free.</em>";
+                suSub.textContent = "No credit card required. Cancel anytime.";
+            }
+
+            var btn1 = byId("btn-1");
+            var btn2 = byId("btn-2");
+            btn1 && btn1.classList.toggle("active", from === "landing");
+            btn2 && btn2.classList.toggle("active", from === "trial");
+        }
+
+        function switchTab(tab) {
+            var tabSu = byId("tab-su");
+            var tabLi = byId("tab-li");
+            var viewSu = byId("view-signup");
+            var viewLi = byId("view-login");
+
+            tabSu && tabSu.classList.toggle("bg-white", tab === "signup");
+            tabSu && tabSu.classList.toggle("text-[#1e1b18]", tab === "signup");
+            tabSu && tabSu.classList.toggle("text-black/35", tab !== "signup");
+
+            tabLi && tabLi.classList.toggle("bg-white", tab === "login");
+            tabLi && tabLi.classList.toggle("text-[#1e1b18]", tab === "login");
+            tabLi && tabLi.classList.toggle("text-black/35", tab !== "login");
+
+            viewSu && viewSu.classList.toggle("hidden", tab !== "signup");
+            viewLi && viewLi.classList.toggle("hidden", tab !== "login");
+        }
+
+        function checkPw(pw) {
+            var pb1 = byId("pb1");
+            var pb2 = byId("pb2");
+            var pb3 = byId("pb3");
+            var lbl = byId("pw-label");
+            if (!pb1 || !pb2 || !pb3 || !lbl) return;
+
+            [pb1, pb2, pb3].forEach(function (b) {
+                b.className = "h-[6px] flex-1 rounded-full bg-black/10 transition";
+            });
+
+            if (!pw) {
+                lbl.textContent = "";
+                lbl.className = "text-[11px] font-bold text-black/35";
+                return;
+            }
+
+            pb1.classList.remove("bg-black/10");
+            pb1.classList.add("bg-[#e8b89e]");
+
+            if (pw.length < 8) {
+                lbl.textContent = "Too short";
+                lbl.className = "text-[11px] font-bold text-[#e05555]";
+                return;
+            }
+
+            pb2.classList.remove("bg-black/10");
+            pb2.classList.add("bg-[#d76736]");
+            lbl.textContent = "Good";
+            lbl.className = "text-[11px] font-bold text-[#d76736]";
+
+            var strong =
+                pw.length >= 10 &&
+                /[A-Z]/.test(pw) &&
+                (/[0-9!#$]/.test(pw) || pw.indexOf(String.fromCharCode(64)) >= 0);
+
+            if (strong) {
+                pb3.classList.remove("bg-black/10");
+                pb3.classList.add("bg-[#6db86b]");
+                lbl.textContent = "Strong";
+                lbl.className = "text-[11px] font-bold text-[#6db86b]";
+            }
+        }
+
+        function togglePw(inputId, toggleId) {
+            var inp = byId(inputId);
+            var t = byId(toggleId);
+            if (!inp || !t) return;
+            var isPw = inp.type === "password";
+            inp.type = isPw ? "text" : "password";
+            t.textContent = isPw ? "Hide" : "Show";
+        }
+
+        window.wwAuthSetCtx = setCtx;
+        window.wwAuthSwitchTab = switchTab;
+        window.wwAuthCheckPw = checkPw;
+        window.wwAuthTogglePw = togglePw;
+
+        // init
+        setCtx("landing");
+        window.lucide?.createIcons?.();
+    })();
+</script>
