@@ -14,15 +14,15 @@
 
 <!-- TOPBAR (wtw_today_v4.html) -->
 <div class="tb">
-    <span class="tb-brand" id="tb-title">Whatever the <em>Weather.</em></span>
-    <div class="tb-r">
-        <div class="loc-pill" id="loc-pill" onclick="toggleLocPopup()">
+    <span class="tb-brand min-w-0 flex-1 truncate pr-3" id="tb-title">Whatever the <em>Weather.</em></span>
+    <div class="tb-r shrink-0">
+        <div class="loc-pill max-w-[66vw] min-w-0" id="loc-pill" onclick="toggleLocPopup()">
             <div class="loc-dot"></div>
             <svg class="loc-svg" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"></path>
                 <circle cx="12" cy="10" r="3"></circle>
             </svg>
-            <span class="loc-text" id="loc-text">@Html.Raw(locationText)</span>
+            <span class="loc-text max-w-[46vw] truncate" id="loc-text">@Html.Raw(locationText)</span>
             <span class="loc-edit">Edit</span>
             <div class="loc-popup" id="loc-popup" onclick="event.stopPropagation()">
                 <div class="loc-popup-label">Change Location</div>
@@ -35,4 +35,3 @@
         <div class="av" onclick="toggleLocPopup()">@avatarText</div>
     </div>
 </div>
-

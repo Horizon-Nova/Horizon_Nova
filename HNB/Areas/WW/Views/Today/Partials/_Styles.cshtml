@@ -13,10 +13,16 @@
   border-bottom: 0.5px solid rgba(0,0,0,0.07);
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 28px;
+  /* 讓標題字體能依容器寬度縮放，避免被右側功能擠壓變形 */
+  container-type: inline-size;
 }
 .tb-brand {
   font-family: var(--font-sans); font-weight: 900;
-  font-size: 15px; color: var(--ink); letter-spacing: 0.1px;
+  font-size: clamp(12px, 4cqw, 15px);
+  color: var(--ink); letter-spacing: 0.1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .tb-brand em {
   font-family: var(--font-serif); font-style: italic;
@@ -134,14 +140,21 @@
   gap: 4px; padding: 8px 4px; border-radius: 12px;
   cursor: pointer; transition: background 0.15s;
 }
-.wday:hover { background: var(--orange-l); }
+.wday:hover { background: var(--orange); }
+.wday:hover .wd-lbl { color: rgba(255,255,255,0.9); }
+.wday:hover .wd-ico { color: #fff; }
+.wday:hover .wd-circle { border-color: rgba(255,255,255,0.6); opacity: 1; }
+.wday:hover .wd-circle.filled { background: #fff; border-color: #fff; }
 .wday.sel { background: var(--orange-l); outline: 2px solid var(--orange); }
 .wday.today { background: var(--orange); box-shadow: 0 3px 10px rgba(215,103,54,0.35); }
 .wday.today:hover { background: var(--orange-d); }
 .wd-lbl { font-size: 9px; color: var(--ink3); font-weight: 700; text-transform: uppercase; }
 .wday.today .wd-lbl { color: rgba(255,255,255,0.8); }
 .wday.sel .wd-lbl { color: var(--orange); }
+.wday.today.sel .wd-lbl { color: rgba(255,255,255,0.95); }
 .wd-ico { font-size: 15px; line-height: 1; }
+.wday.today .wd-ico { color: #fff; }
+.wday.today.sel .wd-ico { color: #fff; }
 .wd-circle { width: 7px; height: 7px; border-radius: 50%; border: 1.5px solid var(--ink3); opacity: 0.3; }
 .wday.today .wd-circle { border-color: rgba(255,255,255,0.5); opacity: 1; }
 .wday.sel .wd-circle { border-color: var(--orange); opacity: 1; }
@@ -372,7 +385,29 @@
 .fut-gbtn { background: var(--orange); color: #fff; border: none; border-radius: 13px; padding: 14px; font-size: 13.5px; font-weight: 700; font-family: var(--font-sans); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px; box-shadow: 0 6px 20px rgba(215,103,54,0.35); }
 .fut-gbtn svg { width: 13px; height: 13px; stroke: #fff; fill: none; stroke-width: 2; }
 
-.hidden { display: none !important; }
 .fade { animation: fadeUp 0.22s ease; }
 @@keyframes fadeUp { from{opacity:0;transform:translateY(7px)} to{opacity:1;transform:translateY(0)} }
+
+/* 手機板：避免 topbar/雙欄擠壓造成點不到或無法捲動 */
+@@media (max-width: 640px) {
+  .tb { height: auto; padding: 10px 16px; flex-wrap: wrap; gap: 10px; }
+  .tb-brand { flex: 1 1 100%; }
+  .tb-r { width: 100%; justify-content: space-between; }
+  .loc-pill { max-width: 100%; }
+
+  .cols { flex-direction: column; overflow: visible; }
+
+  .lp {
+    width: auto;
+    border-right: none;
+    border-bottom: 0.5px solid rgba(0,0,0,0.07);
+    overflow: visible;
+  }
+  .lp-scroll { flex: none; overflow: visible; padding: 16px 16px 0; }
+  .lp-foot { padding: 14px 16px 16px; }
+
+  .rp { overflow: visible; }
+  .r-result, .r-record, .r-future { overflow: visible; }
+  .r-scroll, .rec-scroll, .fut-scroll { overflow: visible; padding: 16px 16px; }
+}
 </style>

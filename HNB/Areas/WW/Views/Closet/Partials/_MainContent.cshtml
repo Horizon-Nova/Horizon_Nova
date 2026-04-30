@@ -53,13 +53,13 @@
     }
 }
 
-<div class="flex min-h-0 flex-1 flex-col overflow-hidden md:flex-row">
+<div class="flex h-full min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain md:flex-row md:overflow-hidden">
     <!-- LEFT: UPLOAD ZONE -->
-    <div class="flex w-full min-h-0 flex-col border-b border-black/10 px-5 py-5 md:w-[360px] md:border-b-0 md:border-r">
+    <div class="flex w-full flex-col border-b border-black/10 px-5 py-5 md:h-full md:min-h-0 md:w-[360px] md:border-b-0 md:border-r">
         <div class="text-[9.5px] font-bold uppercase tracking-[0.1em] text-black/40">Add to Closet</div>
 
-        <div class="mt-4 flex min-h-0 flex-1 flex-col" id="upload-col">
-            <div class="flex min-h-0 flex-1 flex-col justify-center overflow-hidden rounded-[18px] border-2 border-dashed border-black/15 bg-white/35 p-4 text-center shadow-[0_4px_18px_rgba(0,0,0,0.05)] backdrop-blur-[12px] transition"
+        <div class="mt-4 flex flex-col md:min-h-0 md:flex-1" id="upload-col">
+            <div class="flex flex-col justify-center rounded-[18px] border-2 border-dashed border-black/15 bg-white/35 p-4 text-center shadow-[0_4px_18px_rgba(0,0,0,0.05)] backdrop-blur-[12px] transition md:min-h-0 md:flex-1 md:overflow-hidden"
                  id="upload-zone"
                  ondragover="event.preventDefault();this.classList.add('border-[#d76736]','bg-[#f2e0d5]/55');this.classList.remove('border-black/15','bg-white/35')"
                  ondragleave="this.classList.remove('border-[#d76736]','bg-[#f2e0d5]/55');this.classList.add('border-black/15','bg-white/35')"
@@ -197,7 +197,7 @@
             </div>
         </div>
 
-        <div class="flex min-h-0 flex-1 flex-col px-6 pb-4 pt-4">
+        <div class="flex flex-col px-6 pb-4 pt-4 md:min-h-0 md:flex-1">
             <div class="mb-3 flex items-center justify-end gap-2">
                 <button type="button"
                         class="flex h-[34px] w-[34px] items-center justify-center rounded-[12px] border border-black/10 bg-white/60 shadow-[0_2px_10px_rgba(0,0,0,0.06)] transition hover:-translate-y-px hover:border-[#d76736]/40"
@@ -211,7 +211,7 @@
                 </button>
             </div>
 
-            <div class="ww-closet-scroll min-h-0 flex-1 overflow-auto pr-2 pb-[110px]" id="clothes-grid-wrap">
+            <div class="ww-closet-scroll overflow-visible pr-2 pb-[110px] md:min-h-0 md:flex-1 md:overflow-auto" id="clothes-grid-wrap">
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" id="clothes-grid">
                     @foreach (var item in items)
                     {

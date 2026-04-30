@@ -1,0 +1,50 @@
+@{
+    Layout = null;
+}
+
+<div class="hna-control">
+
+    <!-- Search -->
+    <div class="hna-search-wrap">
+        <span class="hna-search-icon"><i data-lucide="search"></i></span>
+        <input id="hna-search"
+               type="text"
+               class="hna-input"
+               placeholder="搜尋項目、備註..." />
+    </div>
+
+    <!-- Filters -->
+    <select id="hna-filter-type" class="hna-select">
+        <option value="">所有類型</option>
+        <option value="income">收入</option>
+        <option value="expense">支出</option>
+        <option value="transfer">轉帳</option>
+    </select>
+
+    <select id="hna-filter-status" class="hna-select">
+        <option value="">所有狀態</option>
+        <option value="confirmed">已確認</option>
+        <option value="pending">待確認</option>
+        <option value="voided">已作廢</option>
+    </select>
+
+    <select id="hna-filter-period" class="hna-select">
+        <option value="month">本月</option>
+        <option value="quarter">本季</option>
+        <option value="year">本年度</option>
+        <option value="custom">自訂區間</option>
+    </select>
+
+    <!-- Spacer -->
+    <div class="hna-control-spacer"></div>
+
+    <!-- Actions -->
+    <button class="hna-btn hna-btn-ghost">
+        <i data-lucide="download"></i> 匯出
+    </button>
+
+    <button class="hna-btn hna-btn-primary">
+        <i data-lucide="plus"></i> 新增帳目
+    </button>
+
+</div>

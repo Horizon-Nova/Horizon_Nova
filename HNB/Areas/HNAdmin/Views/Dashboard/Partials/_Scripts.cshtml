@@ -1,0 +1,14 @@
+@{
+    Layout = null;
+}
+
+<script>
+    $(document).ready(function () {
+        window.lucide?.createIcons?.();
+
+        // Select all checkbox
+        $('#hna-select-all').on('change', function () {
+            $('#hna-finance-table tbody input[type="checkbox"]').prop('checked', this.checked);
+        });
+    });
+</script>
