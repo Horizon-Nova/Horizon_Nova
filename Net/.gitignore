@@ -55,6 +55,13 @@ vocab.json
 merges.txt
 special_tokens_map.json
 
+# 排除資料夾
+HNB/Areas/Backoffice/storage/
+
+Sites/
+
+QdrantEmbedding
+
 # Node.js
 npm-debug.log
 yarn-debug.log
