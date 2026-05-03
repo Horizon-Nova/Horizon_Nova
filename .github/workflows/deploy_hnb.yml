@@ -37,7 +37,7 @@ jobs:
 
       # Step 5: Build and publish to temporary location
       - name: Build and Publish
-        working-directory: ./HNB
+        working-directory: ./Net/HNB
         run: dotnet publish -c Release -o ../_publish_output --no-restore
 
       # Step 6: Checkout Deploy branch and prepare it
