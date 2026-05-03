@@ -15,6 +15,8 @@
   padding: 0 28px;
   /* 讓標題字體能依容器寬度縮放，避免被右側功能擠壓變形 */
   container-type: inline-size;
+  /* 確保 loc-popup 不被右側面板的 backdrop-filter 層疊上下文遮住 */
+  position: relative; z-index: 20;
 }
 .tb-brand {
   font-family: var(--font-sans); font-weight: 900;
@@ -114,6 +116,17 @@
 
 @@keyframes fadeDown { from { opacity: 0; transform: translateY(-6px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
+/* ── FEATURE WRAPPER ── */
+/* section.ww-feature-today is rendered inside a flex-1 div in _Layout.
+   Without an explicit height it collapses to content height, so the
+   cols/panels never reach the viewport bottom. */
+.ww-feature-today {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
 /* ── COLS ── */
 .cols { flex: 1; display: flex; overflow: hidden; }
 
@@ -163,7 +176,7 @@
   box-shadow: 0 4px 16px rgba(0,0,0,0.05);
 }
 .week-hdr { font-size: 9px; color: var(--ink3); letter-spacing: 0.1em; font-weight: 700; margin-bottom: 11px; text-transform: uppercase; }
-.week-row { display: flex; gap: 3px; overflow-x: auto; }
+.week-row { display: flex; gap: 3px; overflow-x: auto; padding: 3px; }
 .week-row::-webkit-scrollbar { display: none; }
 .wday {
   flex-shrink: 0; width: 38px;
@@ -420,7 +433,6 @@
 #fut-input-section { flex: 1; display: flex; flex-direction: column; gap: 14px; }
 .fut-input-label { font-size: 15px; font-weight: 900; color: var(--ink); margin-bottom: 0; }
 .fut-input-sub { font-size: 11.5px; color: var(--ink3); line-height: 1.6; margin-bottom: 0; }
-.fut-save-btn { margin-top: auto; }
 
 /* Future — textarea wrap (v5: white card container; chips inside separated by border-top) */
 .fut-textarea-wrap {
@@ -476,10 +488,11 @@
 .fut-notif-text { font-size: 12px; color: var(--ink2); line-height: 1.65; }
 .fut-notif-text strong { color: var(--ink); font-weight: 700; }
 
-/* Future — save button */
+/* Future — save button (margin-top:auto pushes it to the bottom of fut-input-section) */
 .fut-save-btn {
   width: 100%; background: var(--orange); color: #fff; border: none;
   border-radius: 14px; padding: 15px;
+  margin-top: auto;
   font-size: 14px; font-weight: 900; font-family: var(--font-sans);
   cursor: pointer; display: flex; align-items: center;
   justify-content: center; gap: 8px;
