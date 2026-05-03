@@ -1,0 +1,44 @@
+﻿/* 服裝 AI 提取 - 使用 Bootstrap 為主，僅補充必要樣式 */
+
+.wardrobe-container {
+    max-width: 1200px;
+}
+
+/* 上傳區域拖曳效果 */
+.upload-zone {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.upload-zone:hover {
+    background-color: #f8f9fa !important;
+    border-color: #0d6efd !important;
+}
+
+/* 圖片覆蓋層懸停效果 */
+.wardrobe-item-card:hover .opacity-0 {
+    opacity: 1 !important;
+}
+
+/* 圖片覆蓋層過渡效果 */
+.transition-opacity {
+    transition: opacity 0.3s ease;
+}
+
+/* 複選框樣式 */
+.item-checkbox {
+    cursor: pointer;
+    z-index: 10;
+}
+
+.wardrobe-item-card:hover .item-checkbox {
+    background-color: white !important;
+}
+
+/* 響應式調整 */
+@media (max-width: 768px) {
+    .wardrobe-container {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+}
