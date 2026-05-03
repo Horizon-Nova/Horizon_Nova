@@ -7,20 +7,14 @@
     var pendingItems = Model?.Items?.Count(i => i.IsPendingReview) ?? 0;
 }
 
-<!-- TOPBAR (wtw_closet_v1.html) -->
-<div class="flex h-[54px] items-center justify-between border-b border-black/10 bg-[rgba(217,212,192,0.75)] px-4 backdrop-blur-[14px] md:px-7">
-    <div class="text-[15px] font-black text-[#1e1b18]">
-        Whatever the <span class="font-medium italic text-[#d76736] [font-family:var(--font-serif)]">Weather.</span>
+<!-- TOPBAR (wtw_closet_desktop.html) -->
+<div class="tb">
+    <div class="tb-left">
+        <span class="tb-brand">My <em>Closet</em></span>
+        <span class="tb-count" id="stat-total">@totalItems items</span>
     </div>
-    <div class="flex items-center gap-5 text-[12px] font-bold text-black/55" aria-label="Closet stats">
-        <div class="flex items-center gap-[6px]">
-            <span class="text-[16px] font-black text-[#1e1b18]" id="stat-total">@totalItems</span>
-            items
-        </div>
-        <div class="h-[18px] w-px bg-black/15" aria-hidden="true"></div>
-        <div class="flex items-center gap-[6px]">
-            <span class="text-[16px] font-black text-[#1e1b18]" id="stat-pending">@pendingItems</span>
-            to review
-        </div>
+    <div class="tb-search" aria-label="Search items">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+        <input type="text" id="closet-search" placeholder="Search items..." oninput="wwClosetSearch(this.value)" />
     </div>
 </div>

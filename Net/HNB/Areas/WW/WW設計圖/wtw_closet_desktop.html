@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Bodoni+Moda:ital,wght@1,500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --orange:#d76736; --orange-d:#b8522a; --orange-l:#f2e0d5; --orange-m:#e8b89e;
+  --beige:#d3ceb8; --bg:#d9d4c0; --peach:#d3a38c; --teal:#9dbab5;
+  --black:#141210; --ink:#1e1b18; --ink2:#5a534c; --ink3:#9a9188;
+  --font-sans:'Lato',sans-serif; --font-serif:'Bodoni Moda',serif;
+  --sb-narrow:100px; --sb-wide:224px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);font-family:var(--font-sans);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px;}
+
+.app{width:1180px;height:730px;background:var(--bg);border-radius:22px;border:.5px solid rgba(0,0,0,.12);display:flex;overflow:hidden;position:relative;box-shadow:0 32px 80px rgba(0,0,0,.18),0 8px 24px rgba(0,0,0,.1);}
+
+.blobs{position:absolute;inset:0;pointer-events:none;overflow:hidden;border-radius:22px;z-index:0;}
+.blob{position:absolute;}
+.blob-1{width:340px;height:300px;background:var(--peach);top:-80px;right:120px;border-radius:63% 37% 54% 46%/55% 48% 52% 45%;opacity:.85;}
+.blob-2{width:280px;height:320px;background:var(--teal);bottom:-60px;right:20px;border-radius:44% 56% 38% 62%/58% 42% 58% 42%;opacity:.8;}
+.blob-3{width:200px;height:180px;background:var(--beige);top:160px;right:480px;border-radius:52% 48% 62% 38%/42% 58% 42% 58%;opacity:.45;}
+
+/* ── SIDEBAR ── */
+.sb{width:var(--sb-narrow);flex-shrink:0;background:var(--black);display:flex;flex-direction:column;align-items:stretch;padding:22px 0 18px;position:relative;z-index:10;transition:width .28s cubic-bezier(.4,0,.2,1);overflow:hidden;}
+.sb:hover{width:var(--sb-wide);}
+.sb-logo-row{display:flex;align-items:center;gap:10px;padding:0 16px;margin-bottom:24px;flex-shrink:0;}
+.s-logo{width:36px;height:36px;border-radius:10px;background:var(--orange);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(215,103,54,.5);}
+.s-logo span{font-weight:900;font-size:10px;color:#fff;}
+.s-logo em{font-family:var(--font-serif);font-style:italic;}
+.sb-brand{font-size:12.5px;font-weight:900;color:#fff;white-space:nowrap;overflow:hidden;opacity:0;transition:opacity .15s;}
+.sb-brand em{font-family:var(--font-serif);font-style:italic;color:var(--orange);}
+.sb:hover .sb-brand{opacity:1;transition:opacity .2s .1s;}
+.nav-list{display:flex;flex-direction:column;gap:3px;padding:0 10px;flex:1;}
+.ni{border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:10px 6px 8px;cursor:pointer;transition:background .15s;position:relative;flex-shrink:0;min-height:58px;overflow:hidden;}
+.sb:hover .ni{flex-direction:row;align-items:center;gap:11px;padding:0 10px;height:52px;min-height:52px;}
+.ni:hover{background:rgba(255,255,255,.07);}
+.ni.on{background:var(--orange);box-shadow:0 4px 12px rgba(215,103,54,.38);}
+.ni-ico{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ni.on .ni-ico{background:rgba(255,255,255,.15);}
+.ni-ico svg{width:17px;height:17px;stroke:rgba(255,255,255,.4);fill:none;stroke-width:1.7;stroke-linecap:round;transition:stroke .15s;}
+.ni.on .ni-ico svg{stroke:#fff;}
+.ni-short{font-size:8px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;flex-shrink:0;transition:opacity .1s;}
+.ni.on .ni-short{color:rgba(255,255,255,.9);}
+.sb:hover .ni-short{opacity:0;width:0;overflow:hidden;transition:opacity .08s;}
+.ni-text{flex:1;min-width:0;opacity:0;width:0;overflow:hidden;white-space:nowrap;transition:opacity .1s,width 0s .1s;pointer-events:none;}
+.sb:hover .ni-text{opacity:1;width:auto;transition:opacity .2s .12s,width 0s;pointer-events:all;}
+.ni-label{font-size:13px;font-weight:900;color:#fff;line-height:1.15;}
+.ni-desc{font-size:10.5px;color:rgba(255,255,255,.38);margin-top:2px;line-height:1.3;}
+.sb-spacer{flex:1;}
+.sb-div{height:.5px;background:rgba(255,255,255,.08);margin:8px 14px;flex-shrink:0;}
+
+/* BODY */
+.body{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative;z-index:1;}
+
+/* TOPBAR */
+.tb{height:54px;flex-shrink:0;background:rgba(217,212,192,.75);backdrop-filter:blur(14px);border-bottom:.5px solid rgba(0,0,0,.07);display:flex;align-items:center;justify-content:space-between;padding:0 28px;}
+.tb-left{display:flex;align-items:center;gap:16px;}
+.tb-brand{font-weight:900;font-size:15px;color:var(--ink);}
+.tb-brand em{font-family:var(--font-serif);font-style:italic;font-weight:500;color:var(--orange);}
+.tb-count{font-size:12px;font-weight:700;color:var(--ink3);background:rgba(0,0,0,.06);border-radius:20px;padding:3px 10px;}
+.tb-search{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.6);border:.5px solid rgba(0,0,0,.08);border-radius:10px;padding:6px 12px;width:180px;}
+.tb-search svg{width:13px;height:13px;stroke:var(--ink3);fill:none;stroke-width:1.8;flex-shrink:0;}
+.tb-search input{border:none;background:transparent;font-size:12px;color:var(--ink);font-family:var(--font-sans);width:100%;outline:none;}
+.tb-search input::placeholder{color:var(--ink3);}
+
+/* COLS */
+.cols{flex:1;display:flex;overflow:hidden;}
+
+/* ── LEFT: CLOSET GRID ── */
+.closet-col{
+  flex:1;overflow-y:auto;overflow-x:hidden;
+  padding:20px 22px;
+  display:flex;flex-direction:column;gap:18px;
+  transition:flex .3s cubic-bezier(.4,0,.2,1);
+}
+.closet-col::-webkit-scrollbar{width:3px;}
+.closet-col::-webkit-scrollbar-thumb{background:var(--beige);border-radius:2px;}
+
+.sec-header{display:flex;align-items:center;gap:8px;}
+.sec-label{font-size:9.5px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.09em;}
+.sec-count{font-size:12px;font-weight:900;color:var(--orange);}
+
+.item-grid{display:grid;gap:10px;}
+.item-grid.cols-4{grid-template-columns:repeat(4,1fr);}
+.item-grid.cols-3{grid-template-columns:repeat(3,1fr);}
+
+/* Item card */
+.item-card{
+  background:rgba(255,255,255,.55);backdrop-filter:blur(10px);
+  border-radius:14px;border:.5px solid rgba(255,255,255,.85);
+  overflow:visible;position:relative;cursor:pointer;
+  transition:all .18s;box-shadow:0 3px 12px rgba(0,0,0,.06);
+}
+.item-card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.1);border-color:rgba(255,255,255,1);}
+.item-card.active{border-color:var(--orange) !important;box-shadow:0 0 0 2px var(--orange-l),0 6px 18px rgba(0,0,0,.08) !important;transform:translateY(-2px);}
+
+/* X button */
+.item-x{
+  position:absolute;top:-7px;right:-7px;
+  width:20px;height:20px;border-radius:50%;
+  background:var(--black);border:2px solid var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;z-index:5;transition:background .13s;
+  opacity:0;
+}
+.item-card:hover .item-x{opacity:1;}
+.item-x:hover{background:var(--orange);}
+.item-x svg{width:8px;height:8px;stroke:#fff;fill:none;stroke-width:2.5;}
+
+.item-img{height:80px;border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:center;font-size:26px;}
+.item-info{padding:8px 10px 9px;}
+.item-name{font-size:11.5px;font-weight:700;color:var(--ink);line-height:1.3;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.item-worn{font-size:10px;font-weight:700;color:var(--ink3);}
+.item-worn.few{color:var(--orange);}
+
+/* ── DETAIL DRAWER (matches profile drawer) ── */
+.drawer-overlay{
+  position:absolute;inset:0;z-index:50;
+  background:rgba(0,0,0,.22);backdrop-filter:blur(3px);
+  opacity:0;pointer-events:none;transition:opacity .25s;
+  border-radius:22px;
+}
+.drawer-overlay.open{opacity:1;pointer-events:all;}
+
+.detail-col{
+  position:absolute;top:0;right:0;bottom:0;
+  width:320px;z-index:60;
+  background:rgba(250,248,244,.97);backdrop-filter:blur(20px);
+  border-left:.5px solid rgba(0,0,0,.08);
+  border-radius:0 22px 22px 0;
+  display:flex;flex-direction:column;
+  transform:translateX(100%);
+  transition:transform .3s cubic-bezier(.4,0,.2,1);
+  overflow:hidden;
+}
+.detail-col.open{transform:translateX(0);}
+
+.detail-scroll{flex:1;overflow-y:auto;display:flex;flex-direction:column;}
+.detail-scroll::-webkit-scrollbar{width:3px;}
+.detail-scroll::-webkit-scrollbar-thumb{background:var(--beige);border-radius:2px;}
+
+/* Detail image */
+.detail-img{
+  height:220px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:72px;position:relative;
+}
+.detail-close{
+  position:absolute;top:12px;right:12px;
+  width:28px;height:28px;border-radius:8px;
+  background:rgba(255,255,255,.7);border:none;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .13s;
+}
+.detail-close:hover{background:var(--orange-l);}
+.detail-close svg{width:12px;height:12px;stroke:var(--ink3);fill:none;stroke-width:2.2;}
+
+/* Detail content */
+.detail-content{padding:16px 20px;display:flex;flex-direction:column;gap:14px;}
+
+.detail-name{font-size:22px;font-weight:500;color:var(--ink);font-family:var(--font-serif);font-style:italic;line-height:1.1;}
+.detail-tags{display:flex;gap:6px;flex-wrap:wrap;}
+.d-tag{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;}
+.d-tag.cat{background:rgba(0,0,0,.07);color:var(--ink2);}
+.d-tag.worn{background:var(--orange-l);color:var(--orange);}
+.d-tag.few{background:rgba(215,103,54,.12);color:var(--orange);}
+.d-tag.color{background:rgba(255,255,255,.7);color:var(--ink2);border:.5px solid rgba(0,0,0,.08);}
+
+/* Wear frequency */
+.detail-sec{display:flex;flex-direction:column;gap:7px;}
+.detail-sec-label{font-size:9px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.09em;}
+.freq-bar{height:6px;background:rgba(0,0,0,.07);border-radius:3px;overflow:hidden;}
+.freq-fill{height:100%;background:linear-gradient(90deg,var(--orange-m),var(--orange));border-radius:3px;transition:width .5s cubic-bezier(.4,0,.2,1);}
+.worn-dates{display:flex;gap:5px;flex-wrap:wrap;}
+.worn-chip{font-size:10px;font-weight:700;color:var(--ink3);background:rgba(0,0,0,.05);border-radius:6px;padding:3px 8px;}
+
+/* Style DNA */
+.style-dna{display:flex;flex-direction:column;gap:8px;}
+.dna-row{display:flex;justify-content:space-between;align-items:center;}
+.dna-label{font-size:11px;color:var(--ink2);font-weight:700;}
+.dna-val{font-size:11px;color:var(--ink3);font-weight:700;}
+.dna-bar-wrap{flex:1;margin:0 10px;height:4px;background:rgba(0,0,0,.07);border-radius:2px;overflow:hidden;}
+.dna-bar{height:100%;background:var(--orange-m);border-radius:2px;}
+
+/* Outfit history */
+.outfit-chips{display:flex;flex-direction:column;gap:6px;}
+.outfit-chip{background:rgba(255,255,255,.6);border-radius:10px;padding:8px 11px;border:.5px solid rgba(255,255,255,.8);display:flex;align-items:center;justify-content:space-between;}
+.oc-date{font-size:10.5px;font-weight:700;color:var(--ink3);}
+.oc-name{font-size:11.5px;font-weight:700;color:var(--ink);}
+.oc-occ{font-size:9.5px;font-weight:700;color:var(--orange);background:var(--orange-l);border-radius:20px;padding:2px 7px;}
+
+/* Actions */
+.detail-actions{padding:0 20px 20px;display:flex;flex-direction:column;gap:8px;flex-shrink:0;}
+.act-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:12px;border:none;font-size:13px;font-weight:700;font-family:var(--font-sans);cursor:pointer;transition:all .15s;}
+.act-btn svg{width:15px;height:15px;fill:none;stroke-width:1.8;stroke-linecap:round;}
+.act-btn.primary{background:var(--orange);color:#fff;box-shadow:0 4px 14px rgba(215,103,54,.3);}
+.act-btn.primary svg{stroke:#fff;}
+.act-btn.primary:hover{background:var(--orange-d);}
+.act-btn.danger{background:rgba(200,50,50,.08);color:#b83030;}
+.act-btn.danger svg{stroke:#b83030;}
+.act-btn.danger:hover{background:rgba(200,50,50,.14);}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.detail-content > *{animation:fadeUp .2s ease both;}
+.detail-content > *:nth-child(1){animation-delay:.02s;}
+.detail-content > *:nth-child(2){animation-delay:.05s;}
+.detail-content > *:nth-child(3){animation-delay:.08s;}
+.detail-content > *:nth-child(4){animation-delay:.11s;}
+.detail-content > *:nth-child(5){animation-delay:.14s;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="blobs">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sb">
+    <div class="sb-logo-row">
+      <div class="s-logo"><span>W<em>w</em></span></div>
+      <div class="sb-brand">Whatever the <em>Weather.</em></div>
+    </div>
+    <div class="nav-list">
+      <div class="ni">
+        <div class="ni-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M3 12h1m16 0h1M12 3v1m0 16v1m-7.07-14.07.7.7m12.74 12.74.7.7m0-14.14-.7.7m-12.74 12.74-.7.7"/></svg></div>
+        <span class="ni-short">Today</span>
+        <div class="ni-text"><div class="ni-label">Today's Outfit</div><div class="ni-desc">AI picks your look today</div></div>
+      </div>
+      <div class="ni on">
+        <div class="ni-ico"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg></div>
+        <span class="ni-short">Closet</span>
+        <div class="ni-text"><div class="ni-label">My Closet</div><div class="ni-desc">Manage your wardrobe</div></div>
+      </div>
+      <div class="ni">
+        <div class="ni-ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+        <span class="ni-short">Log</span>
+        <div class="ni-text"><div class="ni-label">Outfit Log</div><div class="ni-desc">Your style history</div></div>
+      </div>
+      <div class="sb-spacer"></div>
+      <div class="sb-div"></div>
+      <div class="ni">
+        <div class="ni-ico"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+        <span class="ni-short">Profile</span>
+        <div class="ni-text"><div class="ni-label">Profile</div><div class="ni-desc">Settings & account</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="body">
+    <div class="tb">
+      <div class="tb-left">
+        <span class="tb-brand">My <em>Closet</em></span>
+        <span class="tb-count">24 items</span>
+      </div>
+      <div class="tb-search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Search items...">
+      </div>
+    </div>
+
+    <div class="cols">
+
+      <!-- CLOSET GRID -->
+      <div class="closet-col" id="closet-col">
+
+        <!-- Tops -->
+        <div>
+          <div class="sec-header">
+            <span class="sec-label">Tops</span>
+            <span class="sec-count">12</span>
+          </div>
+          <div style="margin-top:10px;" class="item-grid cols-4" id="tops-grid"></div>
+        </div>
+
+        <!-- Bottoms -->
+        <div>
+          <div class="sec-header">
+            <span class="sec-label">Bottoms</span>
+            <span class="sec-count">6</span>
+          </div>
+          <div style="margin-top:10px;" class="item-grid cols-4" id="bottoms-grid"></div>
+        </div>
+
+        <!-- Shoes -->
+        <div>
+          <div class="sec-header">
+            <span class="sec-label">Shoes</span>
+            <span class="sec-count">4</span>
+          </div>
+          <div style="margin-top:10px;" class="item-grid cols-4" id="shoes-grid"></div>
+        </div>
+
+        <!-- Accessories -->
+        <div>
+          <div class="sec-header">
+            <span class="sec-label">Accessories</span>
+            <span class="sec-count">2</span>
+          </div>
+          <div style="margin-top:10px;" class="item-grid cols-4" id="acc-grid"></div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- OVERLAY -->
+  <div class="drawer-overlay" id="drawer-overlay" onclick="closeDetail()"></div>
+
+  <!-- DETAIL DRAWER -->
+  <div class="detail-col" id="detail-col">
+    <div class="detail-scroll" id="detail-scroll">
+
+      <div class="detail-img" id="detail-img">
+        <button class="detail-close" onclick="closeDetail()">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+        <span id="detail-emoji" style="font-size:72px;">👕</span>
+      </div>
+
+      <div class="detail-content" id="detail-content"></div>
+
+      <div class="detail-actions" id="detail-actions">
+        <button class="act-btn primary" onclick="styleWithThis()">
+          <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Style with this item
+        </button>
+        <button class="act-btn danger" onclick="removeActive()">
+          <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+          Remove from closet
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+const items = {
+  tops: [
+    {name:'Linen Shirt',emoji:'👕',bg:'#f0ebe2',worn:8,few:false,color:'Ivory',dates:['Apr 20','Apr 18','Apr 14','Apr 10','Apr 7','Apr 4','Apr 2','Apr 1'],outfits:[{date:'Apr 20',name:'Weekend Glow',occ:'Casual'},{date:'Apr 18',name:'Office Classic',occ:'Work'},{date:'Apr 14',name:'Sunday Easy',occ:'Casual'}],dna:[{l:'Versatility',v:92},{l:'Formality',v:35},{l:'Layerability',v:78}]},
+    {name:'Striped Tee',emoji:'👕',bg:'#e8ecf0',worn:2,few:true,color:'Blue-White',dates:['Apr 19','Apr 10'],outfits:[{date:'Apr 19',name:'Rainy Evening',occ:'Date'},{date:'Apr 10',name:'Casual Friday',occ:'Casual'}],dna:[{l:'Versatility',v:60},{l:'Formality',v:20},{l:'Layerability',v:55}]},
+    {name:'White Button-Down',emoji:'👔',bg:'#f5f5f5',worn:5,few:false,color:'White',dates:['Apr 18','Apr 15','Apr 11','Apr 8','Apr 3'],outfits:[{date:'Apr 18',name:'Office Classic',occ:'Work'},{date:'Apr 15',name:'Board Meeting',occ:'Work'}],dna:[{l:'Versatility',v:85},{l:'Formality',v:72},{l:'Layerability',v:90}]},
+    {name:'Navy Jacket',emoji:'🧥',bg:'#2a3848',worn:3,few:false,color:'Navy',dates:['Apr 19','Apr 12','Apr 5'],outfits:[{date:'Apr 19',name:'Rainy Evening',occ:'Date'}],dna:[{l:'Versatility',v:70},{l:'Formality',v:65},{l:'Layerability',v:40}]},
+  ],
+  bottoms: [
+    {name:'White Shorts',emoji:'🩳',bg:'#f5f0e8',worn:4,few:false,color:'White',dates:['Apr 20','Apr 16','Apr 13','Apr 6'],outfits:[{date:'Apr 20',name:'Weekend Glow',occ:'Casual'}],dna:[{l:'Versatility',v:55},{l:'Formality',v:15},{l:'Seasonality',v:90}]},
+    {name:'Beige Chinos',emoji:'👖',bg:'#d8c8a8',worn:1,few:true,color:'Beige',dates:['Apr 18'],outfits:[{date:'Apr 18',name:'Office Classic',occ:'Work'}],dna:[{l:'Versatility',v:80},{l:'Formality',v:60},{l:'Seasonality',v:65}]},
+    {name:'Dark Jeans',emoji:'👖',bg:'#3a4858',worn:6,few:false,color:'Indigo',dates:['Apr 17','Apr 13','Apr 9','Apr 6','Apr 3','Apr 1'],outfits:[{date:'Apr 17',name:'Smart Casual',occ:'Casual'}],dna:[{l:'Versatility',v:95},{l:'Formality',v:45},{l:'Seasonality',v:70}]},
+    {name:'Slim Trousers',emoji:'👖',bg:'#5a5050',worn:2,few:true,color:'Charcoal',dates:['Apr 19','Apr 11'],outfits:[{date:'Apr 19',name:'Rainy Evening',occ:'Date'}],dna:[{l:'Versatility',v:72},{l:'Formality',v:75},{l:'Seasonality',v:60}]},
+  ],
+  shoes: [
+    {name:'White Sneakers',emoji:'👟',bg:'#f5f5f5',worn:10,few:false,color:'White',dates:['Apr 20','Apr 19','Apr 17','Apr 15','Apr 13'],outfits:[{date:'Apr 20',name:'Weekend Glow',occ:'Casual'},{date:'Apr 19',name:'Rainy Evening',occ:'Date'}],dna:[{l:'Versatility',v:98},{l:'Formality',v:25},{l:'Comfort',v:90}]},
+    {name:'Derby Shoes',emoji:'👞',bg:'#8a7060',worn:1,few:true,color:'Tan',dates:['Apr 18'],outfits:[{date:'Apr 18',name:'Office Classic',occ:'Work'}],dna:[{l:'Versatility',v:55},{l:'Formality',v:88},{l:'Comfort',v:60}]},
+    {name:'Chelsea Boots',emoji:'👢',bg:'#4a3828',worn:3,few:false,color:'Brown',dates:['Apr 15','Apr 10','Apr 4'],outfits:[{date:'Apr 15',name:'Smart Casual',occ:'Work'}],dna:[{l:'Versatility',v:75},{l:'Formality',v:65},{l:'Comfort',v:72}]},
+    {name:'Loafers',emoji:'🥿',bg:'#b8a888',worn:2,few:true,color:'Camel',dates:['Apr 12','Apr 7'],outfits:[{date:'Apr 12',name:'Sunday Brunch',occ:'Casual'}],dna:[{l:'Versatility',v:68},{l:'Formality',v:55},{l:'Comfort',v:82}]},
+  ],
+  accessories: [
+    {name:'Tan Tote Bag',emoji:'👜',bg:'#c8b070',worn:3,few:false,color:'Tan',dates:['Apr 20','Apr 15','Apr 8'],outfits:[{date:'Apr 20',name:'Weekend Glow',occ:'Casual'}],dna:[{l:'Versatility',v:80},{l:'Formality',v:30},{l:'Capacity',v:85}]},
+    {name:'Canvas Tote',emoji:'🛍️',bg:'#e8e0d0',worn:1,few:true,color:'Natural',dates:['Apr 5'],outfits:[{date:'Apr 5',name:'Market Day',occ:'Casual'}],dna:[{l:'Versatility',v:65},{l:'Formality',v:10},{l:'Capacity',v:90}]},
+  ]
+};
+
+let activeCard = null;
+
+function renderGrid(data, gridId){
+  const grid = document.getElementById(gridId);
+  grid.innerHTML = data.map((item, i) => `
+    <div class="item-card" id="card-${gridId}-${i}" onclick="openDetail(this, '${gridId}', ${i})">
+      <div class="item-x" onclick="removeCard(event, '${gridId}', ${i})">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </div>
+      <div class="item-img" style="background:linear-gradient(145deg,${item.bg},${darken(item.bg)});">${item.emoji}</div>
+      <div class="item-info">
+        <div class="item-name">${item.name}</div>
+        <div class="item-worn ${item.few?'few':''}">${item.few?'Few used':'Worn '+item.worn+'×'}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openDetail(card, gridId, idx){
+  if(activeCard) activeCard.classList.remove('active');
+  card.classList.add('active');
+  activeCard = card;
+
+  const catKey = gridId.replace('-grid','') === 'acc' ? 'accessories' : gridId.replace('-grid','');
+  const item = items[catKey][idx];
+  if(!item) return;
+
+  document.getElementById('detail-col').classList.add('open');
+  document.getElementById('drawer-overlay').classList.add('open');
+
+  document.getElementById('detail-emoji').textContent = item.emoji;
+  document.getElementById('detail-img').style.background = `linear-gradient(145deg,${item.bg},${darken(item.bg)})`;
+
+  document.getElementById('detail-content').innerHTML = `
+    <div class="detail-name">${item.name}</div>
+    <div class="detail-tags">
+      <span class="d-tag cat">${getCat(catKey)}</span>
+      <span class="d-tag ${item.few?'few':'worn'}">${item.few?'Few used':'Worn '+item.worn+'×'}</span>
+      <span class="d-tag color">${item.color}</span>
+    </div>
+    <div class="detail-sec">
+      <div class="detail-sec-label">Wear frequency this month</div>
+      <div class="freq-bar"><div class="freq-fill" style="width:${Math.min(100,item.worn*10)}%"></div></div>
+      <div class="worn-dates">${item.dates.map(d=>`<span class="worn-chip">${d}</span>`).join('')}</div>
+    </div>
+    <div class="detail-sec">
+      <div class="detail-sec-label">Style profile</div>
+      <div class="style-dna">
+        ${item.dna.map(d=>`
+          <div class="dna-row">
+            <span class="dna-label">${d.l}</span>
+            <div class="dna-bar-wrap"><div class="dna-bar" style="width:${d.v}%"></div></div>
+            <span class="dna-val">${d.v}%</span>
+          </div>`).join('')}
+      </div>
+    </div>
+    <div class="detail-sec">
+      <div class="detail-sec-label">Recent outfits</div>
+      <div class="outfit-chips">
+        ${item.outfits.map(o=>`
+          <div class="outfit-chip">
+            <div><div class="oc-date">${o.date}</div><div class="oc-name">${o.name}</div></div>
+            <span class="oc-occ">${o.occ}</span>
+          </div>`).join('')}
+      </div>
+    </div>
+  `;
+
+  document.getElementById('detail-scroll').scrollTop = 0;
+}
+
+function closeDetail(){
+  document.getElementById('detail-col').classList.remove('open');
+  document.getElementById('drawer-overlay').classList.remove('open');
+  if(activeCard){ activeCard.classList.remove('active'); activeCard=null; }
+}
+
+function removeCard(e, gridId, idx){
+  e.stopPropagation();
+  const card = document.getElementById(`card-${gridId}-${idx}`);
+  card.style.transition='all .2s';
+  card.style.opacity='0';
+  card.style.transform='scale(.9)';
+  setTimeout(()=>{card.remove(); closeDetail();},200);
+}
+
+function removeActive(){
+  if(activeCard){
+    activeCard.style.transition='all .2s';
+    activeCard.style.opacity='0';
+    activeCard.style.transform='scale(.9)';
+    setTimeout(()=>{activeCard.remove(); closeDetail();},200);
+  }
+}
+
+function styleWithThis(){
+  alert('Generating outfit with this item... ⚡');
+}
+
+function getCat(key){
+  return {tops:'Tops',bottoms:'Bottoms',shoes:'Shoes',accessories:'Accessories'}[key]||key;
+}
+
+function darken(hex){
+  try{
+    const r=Math.max(0,parseInt(hex.slice(1,3),16)-22);
+    const g=Math.max(0,parseInt(hex.slice(3,5),16)-22);
+    const b=Math.max(0,parseInt(hex.slice(5,7),16)-22);
+    return `rgb(${r},${g},${b})`;
+  }catch(e){return hex;}
+}
+
+renderGrid(items.tops,'tops-grid');
+renderGrid(items.bottoms,'bottoms-grid');
+renderGrid(items.shoes,'shoes-grid');
+renderGrid(items.accessories,'acc-grid');
+</script>
+</body>
+</html>

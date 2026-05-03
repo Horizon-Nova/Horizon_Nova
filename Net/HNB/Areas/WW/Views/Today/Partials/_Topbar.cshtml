@@ -3,13 +3,8 @@
     Layout = null;
 
     // 與藍圖一致：Topbar 標題會被 JS 依日期/狀態動態替換。
-    var locationText = Model?.CurrentLocationText;
-    if (string.IsNullOrWhiteSpace(locationText))
-    {
-        locationText = "New York &middot; Mon Apr 21";
-    }
+    var locationText = string.IsNullOrWhiteSpace(Model?.CurrentLocationText) ? "Now &middot; Auto-detected" : Model!.CurrentLocationText;
 
-    var avatarText = "J";
 }
 
 <!-- TOPBAR (wtw_today_v4.html) -->
@@ -17,21 +12,41 @@
     <span class="tb-brand min-w-0 flex-1 truncate pr-3" id="tb-title">Whatever the <em>Weather.</em></span>
     <div class="tb-r shrink-0">
         <div class="loc-pill max-w-[66vw] min-w-0" id="loc-pill" onclick="toggleLocPopup()">
-            <div class="loc-dot"></div>
-            <svg class="loc-svg" viewBox="0 0 24 24" aria-hidden="true">
+            <div class="loc-dot" id="loc-dot"></div>
+            <svg class="loc-pin" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"></path>
                 <circle cx="12" cy="10" r="3"></circle>
             </svg>
             <span class="loc-text max-w-[46vw] truncate" id="loc-text">@Html.Raw(locationText)</span>
             <span class="loc-edit">Edit</span>
             <div class="loc-popup" id="loc-popup" onclick="event.stopPropagation()">
-                <div class="loc-popup-label">Change Location</div>
-                <div class="loc-inp-row">
-                    <input class="loc-inp" id="loc-inp" placeholder="City, State or ZIP" onkeydown="if(event.key==='Enter')confirmLoc()" />
-                    <button type="button" class="loc-confirm" onclick="confirmLoc()">Set</button>
+                <div class="loc-popup-head">
+                    <div class="loc-popup-label">Change Location</div>
+                    <div class="loc-inp-wrap">
+                        <svg class="loc-inp-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input class="loc-inp" id="loc-inp" type="text" placeholder="City, State or ZIP code" maxlength="40" onkeydown="if(event.key==='Enter')confirmLoc()" />
+                    </div>
+                    <div class="loc-hint">e.g. Portland, ME &nbsp;&middot;&nbsp; 04101</div>
+                    <button type="button" class="loc-confirm" onclick="confirmLoc()">Apply location</button>
+                </div>
+
+                <div class="loc-popup-divider" aria-hidden="true"></div>
+
+                <div class="loc-popup-foot">
+                    <button type="button" class="loc-relocate" onclick="relocateMe()">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path>
+                            <circle cx="12" cy="12" r="8" stroke-dasharray="3 3"></circle>
+                        </svg>
+                        Relocate my position
+                        <span class="loc-relocate-sub">Use GPS</span>
+                    </button>
                 </div>
             </div>
         </div>
-        <div class="av" onclick="toggleLocPopup()">@avatarText</div>
     </div>
 </div>

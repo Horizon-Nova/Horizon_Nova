@@ -3,208 +3,403 @@
 }
 
 <script>
-// Today interactions: based on wwwroot/ww/js/Today.js + wtw_today_v4.html.
-
-const aiText = "Light rain today \u2014 picked your water-resistant navy jacket + slim trousers. Skipped your linen shirt: absorbs moisture and takes hours to dry. This combo keeps you sharp and dry all day.";
-let selOcc = null, typeT = null;
+const aiText = "Light rain today — picked your water-resistant navy jacket + slim trousers. Skipped your linen shirt: absorbs moisture and takes hours to dry. This combo keeps you sharp and dry all day.";
+let selOcc = null;
+let typeT = null;
 
 const pastData = {
-  "Apr 17":{occ:"Casual",name:"Weekend Easy",temp:"25\u00B0",icon:"sun",reason:"Sunny and warm \u2014 light linen shirt + white shorts. Breathable and easy for a weekend afternoon."},
-  "Apr 18":{occ:"Date",name:"Evening Chic",temp:"21\u00B0",icon:"moon-star",reason:"Clear and mild \u2014 your silk blouse + tailored trousers. Elegant without being overdressed for dinner."},
-  "Apr 19":{occ:"Work",name:"Smart Casual",temp:"23\u00B0",icon:"cloud-sun",reason:"Mild and partly cloudy \u2014 beige chino + white button-down. Light enough for the temperature, smart enough for the office."}
+  "Apr 17": { occ: "Casual", name: "Weekend Easy", temp: "25°", reason: "Sunny and warm — light linen shirt + white shorts. Breathable and easy for a weekend afternoon." },
+  "Apr 18": { occ: "Date", name: "Evening Chic", temp: "21°", reason: "Clear and mild — your silk blouse + tailored trousers. Elegant without being overdressed for dinner." },
+  "Apr 19": { occ: "Work", name: "Smart Casual", temp: "23°", reason: "Mild and partly cloudy — picked your beige chino + white button-down. Light enough for the temperature, smart enough for the office." }
 };
 
-function show(id){ document.getElementById(id)?.classList.remove("hidden"); }
-function hide(id){ document.getElementById(id)?.classList.add("hidden"); }
-function fadeIn(id){
-  const e=document.getElementById(id);
-  if(!e) return;
-  e.classList.remove("hidden");
-  e.classList.add("fade");
-  setTimeout(()=>e.classList.remove("fade"),250);
-}
-function hideAllRight(){ ["r-empty","r-gen","r-items","r-result","r-record","r-future"].forEach(id=>hide(id)); }
+const futPlans = {};
+const futureDayMap = {
+  Sun: "Sunday",
+  Mon: "Monday",
+  Tue: "Tuesday",
+  Wed: "Wednesday",
+  Thu: "Thursday",
+  Fri: "Friday",
+  Sat: "Saturday"
+};
 
-// Location popup
-function toggleLocPopup(){
-  const p = document.getElementById("loc-popup");
-  if(!p) return;
-  p.classList.toggle("open");
-  if(p.classList.contains("open")) setTimeout(()=>document.getElementById("loc-inp")?.focus(), 50);
+function show(id) { document.getElementById(id)?.classList.remove("hidden"); }
+function hide(id) { document.getElementById(id)?.classList.add("hidden"); }
+
+function fadeIn(id) {
+  const element = document.getElementById(id);
+  if (!element) return;
+
+  element.classList.remove("hidden");
+  element.classList.add("fade");
+  setTimeout(() => element.classList.remove("fade"), 250);
 }
-function confirmLoc(){
-  const inp = document.getElementById("loc-inp");
-  if(!inp) return;
-  const v = (inp.value||"").trim();
-  if(v){
-    const d = new Date().toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
-    const t = document.getElementById("loc-text");
-    if(t) t.textContent = v + " \u00B7 " + d;
+
+function hideAllRight() {
+  ["r-empty", "r-gen", "r-items", "r-result", "r-record", "r-future"].forEach(hide);
+}
+
+function setBrandLogo() {
+  const title = document.getElementById("tb-title");
+  if (title) {
+    title.innerHTML = "Whatever the <em>Weather.</em>";
   }
-  document.getElementById("loc-popup")?.classList.remove("open");
 }
-document.addEventListener("click", e=>{
-  const pill = document.getElementById("loc-pill");
+
+function toggleLocPopup() {
   const popup = document.getElementById("loc-popup");
-  if(!pill || !popup) return;
-  if(!pill.contains(e.target)) popup.classList.remove("open");
+  const pill = document.getElementById("loc-pill");
+  if (!popup || !pill) return;
+
+  const isOpen = popup.classList.contains("open");
+  popup.classList.toggle("open");
+  pill.classList.toggle("active", !isOpen);
+
+  if (!isOpen) {
+    setTimeout(() => document.getElementById("loc-inp")?.focus(), 50);
+  }
+}
+
+function closeLocPopup() {
+  document.getElementById("loc-popup")?.classList.remove("open");
+  document.getElementById("loc-pill")?.classList.remove("active");
+}
+
+function resolveTempUnit(locationText) {
+  const text = locationText || "";
+  const lower = text.toLowerCase();
+  const usCities = ["chicago", "new york", "nyc", "los angeles", "san francisco", "seattle", "boston", "miami", "austin", "dallas", "houston", "atlanta", "denver", "phoenix", "philadelphia", "washington", "dc"];
+  const usState = /\b(AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY|DC)\b/i;
+  const zip = /\b\d{5}(-\d{4})?\b/;
+  const useF = usState.test(text) || zip.test(text) || usCities.some(city => lower === city || lower.startsWith(city + ",") || lower.includes(" " + city)) || lower.includes("united states") || lower.includes("usa") || lower.includes("belize") || lower.includes("bahamas");
+  return useF ? "F" : "C";
+}
+
+function applyTempUnit(unit) {
+  const element = document.getElementById("wcard-temp");
+  if (!element) return;
+
+  const raw = (element.textContent || "").trim();
+  const match = /(-?\d+(?:\.\d+)?)/.exec(raw);
+  if (!match) return;
+
+  element.innerHTML = `${match[1]}&deg;${unit}`;
+}
+
+function applyNowLocation(rawLocation) {
+  const base = (rawLocation || "").trim();
+  const city = base.split("·")[0].split("·")[0].split("繚")[0].trim();
+  const location = city ? `${city} · NOW` : "CHICAGO · NOW";
+  const top = document.getElementById("loc-text");
+  const card = document.getElementById("wcard-location");
+
+  if (top) top.textContent = location;
+  if (card) card.innerHTML = location.replace(" · ", " &bull; ");
+
+  applyTempUnit(resolveTempUnit(rawLocation));
+}
+
+function confirmLoc() {
+  const input = document.getElementById("loc-inp");
+  if (!input) return;
+
+  const value = (input.value || "").trim();
+  if (!value) return;
+
+  const text = document.getElementById("loc-text");
+  if (text) text.textContent = `${value} · Manual`;
+
+  document.getElementById("loc-dot")?.classList.add("manual");
+  applyTempUnit(resolveTempUnit(value));
+  closeLocPopup();
+  input.value = "";
+}
+
+function relocateMe() {
+  const text = document.getElementById("loc-text");
+  if (text) text.textContent = "Now · Auto-detected";
+
+  document.getElementById("loc-dot")?.classList.remove("manual");
+  closeLocPopup();
+}
+
+document.addEventListener("click", event => {
+  const pill = document.getElementById("loc-pill");
+  if (pill && !pill.contains(event.target)) {
+    closeLocPopup();
+  }
 });
 
-function setEx(txt){
-  const inp = document.getElementById("free-occ");
-  if(!inp) return;
-  inp.value = txt;
-  handleFree(inp);
-  inp.focus();
+document.addEventListener("DOMContentLoaded", () => {
+  const initial = (document.getElementById("loc-text")?.textContent || "").replace("· NOW", "").trim();
+  applyTempUnit(resolveTempUnit(initial));
+});
+
+function setEx(text) {
+  const input = document.getElementById("free-occ");
+  if (!input) return;
+
+  input.value = text;
+  handleFree(input);
+  input.focus();
 }
 
-function clickDay(el){
-  document.querySelectorAll(".wday").forEach(d=>d.classList.remove("sel"));
-  el.classList.add("sel");
-  const type = el.dataset.type;
-  if(type==="today"){
-    const tb = document.getElementById("tb-title");
-    if(tb) tb.innerHTML = "Whatever the <em>Weather.</em>";
+function resetOcc() {
+  document.querySelectorAll("#occ-section .ocard").forEach(card => card.classList.remove("on"));
+  const input = document.getElementById("free-occ");
+  if (input) input.value = "";
+  selOcc = null;
+  const button = document.getElementById("gbtn");
+  if (button) button.disabled = true;
+}
+
+function pickOcc(element, occ) {
+  document.querySelectorAll("#occ-section .ocard").forEach(card => card.classList.remove("on"));
+  element.classList.add("on");
+  selOcc = occ;
+  const input = document.getElementById("free-occ");
+  if (input) input.value = "";
+  const button = document.getElementById("gbtn");
+  if (button) button.disabled = false;
+}
+
+function handleFree(element) {
+  document.querySelectorAll("#occ-section .ocard").forEach(card => card.classList.remove("on"));
+  selOcc = (element.value || "").trim();
+  const button = document.getElementById("gbtn");
+  if (button) button.disabled = !selOcc;
+}
+
+function parseFutureDayLabel(dateText) {
+  const parts = (dateText || "").split(" ");
+  return futureDayMap[parts[0]] || parts[0] || "";
+}
+
+function clickDay(element) {
+  document.querySelectorAll(".wday").forEach(day => day.classList.remove("sel"));
+  element.classList.add("sel");
+
+  const type = element.dataset.type;
+  if (type === "today") {
+    setBrandLogo();
     show("occ-section");
-    document.getElementById("occ-title").textContent = "What's today about?";
-    document.getElementById("gbtn-label").textContent = "Style me today";
-    resetOcc(); hideAllRight(); fadeIn("r-empty");
-  } else if(type==="past"){
-    hide("occ-section");
-    const gbtn = document.getElementById("gbtn");
-    if(gbtn) gbtn.disabled = true;
-    const d = pastData[el.dataset.date];
-    const tb = document.getElementById("tb-title");
-    if(tb) tb.innerHTML = el.dataset.date;
-    document.getElementById("rec-date").textContent = el.dataset.date;
-    document.getElementById("rec-meta").textContent = d.occ+" \u00B7 "+d.temp;
-    document.getElementById("rec-badge").textContent = d.occ;
-    document.getElementById("rec-weather").textContent = d.temp;
-    document.getElementById("rec-name").textContent = d.name;
-    document.getElementById("rec-reason").textContent = d.reason;
-    hideAllRight(); fadeIn("r-record");
-  } else {
-    show("occ-section");
-    document.getElementById("occ-title").textContent = "What's the occasion for "+el.dataset.date+"?";
-    document.getElementById("gbtn-label").textContent = "Save to calendar";
+    document.getElementById("occ-title").textContent = "Where are we going?";
+    document.getElementById("gbtn-label").textContent = "Let's go.";
     resetOcc();
-    document.getElementById("fut-date").textContent = el.dataset.date;
-    const futIco = document.getElementById("fut-ico");
-    if (futIco) futIco.innerHTML = '<i data-lucide=\"' + (el.dataset.icon || "cloud") + '\" class=\"inline-block h-4 w-4 align-[-2px]\" aria-hidden=\"true\"></i>';
-    document.getElementById("fut-desc").textContent = el.dataset.temp+" \u00B7 "+el.dataset.desc;
-    hide("fut-saved"); hide("fut-gbtn");
-    document.querySelectorAll("#r-future .ocard").forEach(c=>c.classList.remove("on"));
-    hideAllRight(); fadeIn("r-future");
+    hideAllRight();
+    fadeIn("r-empty");
+  } else if (type === "past") {
+    hide("occ-section");
+    const button = document.getElementById("gbtn");
+    if (button) button.disabled = true;
+
+    const data = pastData[element.dataset.date];
+    const title = document.getElementById("tb-title");
+    if (title) title.textContent = element.dataset.date || "";
+    if (!data) return;
+
+    document.getElementById("rec-date").textContent = element.dataset.date || "";
+    document.getElementById("rec-meta").textContent = `${data.occ} · ${data.temp}`;
+    document.getElementById("rec-badge").textContent = data.occ;
+    document.getElementById("rec-weather").textContent = data.temp;
+    document.getElementById("rec-name").textContent = data.name;
+    document.getElementById("rec-reason").textContent = data.reason;
+    hideAllRight();
+    fadeIn("r-record");
+  } else {
+    hide("occ-section");
+    const button = document.getElementById("gbtn");
+    if (button) button.disabled = true;
+
+    const date = element.dataset.date || "";
+    const title = document.getElementById("tb-title");
+    if (title) title.textContent = date;
+
+    document.getElementById("fut-day-label").textContent = parseFutureDayLabel(date);
+    document.getElementById("fut-date").textContent = date;
+    document.getElementById("fut-ico").textContent = element.dataset.icon || "☁️";
+    document.getElementById("fut-temp").textContent = (element.dataset.temp || "").replace("簞", "°");
+    document.getElementById("fut-desc").textContent = element.dataset.desc || "";
+
+    if (futPlans[date]) {
+      showFutSaved(futPlans[date]);
+    } else {
+      show("fut-input-section");
+      hide("fut-saved-section");
+      const input = document.getElementById("fut-note-inp");
+      if (input) input.value = "";
+      document.getElementById("fut-save-btn").disabled = true;
+      document.querySelectorAll(".fut-chip").forEach(chip => chip.classList.remove("on"));
+    }
+
+    hideAllRight();
+    fadeIn("r-future");
   }
 
   window.lucide?.createIcons?.();
 }
 
-function resetOcc(){
-  document.querySelectorAll("#occ-section .ocard").forEach(c=>c.classList.remove("on"));
-  const inp = document.getElementById("free-occ");
-  if(inp) inp.value = "";
-  selOcc = null;
-  const gbtn = document.getElementById("gbtn");
-  if(gbtn) gbtn.disabled = true;
-}
-function pickOcc(el, occ){
-  document.querySelectorAll("#occ-section .ocard").forEach(c=>c.classList.remove("on"));
-  el.classList.add("on"); selOcc = occ;
-  const inp = document.getElementById("free-occ");
-  if(inp) inp.value = "";
-  const gbtn = document.getElementById("gbtn");
-  if(gbtn) gbtn.disabled = false;
-}
-function handleFree(el){
-  document.querySelectorAll("#occ-section .ocard").forEach(c=>c.classList.remove("on"));
-  selOcc = (el.value||"").trim();
-  const gbtn = document.getElementById("gbtn");
-  if(gbtn) gbtn.disabled = !selOcc;
-}
-function pickFutOcc(el){
-  document.querySelectorAll("#r-future .ocard").forEach(c=>c.classList.remove("on"));
-  el.classList.add("on"); show("fut-gbtn");
-}
-function saveFuture(){
-  hide("fut-gbtn"); fadeIn("fut-saved");
-  const selDay = document.querySelector(".wday.sel");
-  const c = selDay?.querySelector(".wd-circle");
-  if(c) c.classList.add("filled");
+function handleFutInp(element) {
+  document.getElementById("fut-save-btn").disabled = !element.value.trim();
+  document.querySelectorAll(".fut-chip").forEach(chip => chip.classList.remove("on"));
 }
 
-function startGen(){
+function setFutChip(element, text) {
+  document.querySelectorAll(".fut-chip").forEach(chip => chip.classList.remove("on"));
+  element.classList.add("on");
+  document.getElementById("fut-note-inp").value = text;
+  document.getElementById("fut-save-btn").disabled = false;
+}
+
+function saveFuturePlan() {
+  const note = document.getElementById("fut-note-inp").value.trim();
+  if (!note) return;
+
+  const selectedDay = document.querySelector(".wday.sel");
+  const key = selectedDay ? (selectedDay.dataset.date || "") : "";
+  if (key) {
+    futPlans[key] = note;
+  }
+
+  const circle = selectedDay?.querySelector(".wd-circle");
+  if (circle) {
+    circle.classList.add("filled");
+  }
+
+  showFutSaved(note);
+}
+
+function showFutSaved(note) {
+  hide("fut-input-section");
+  document.getElementById("fut-saved-note-display").textContent = `"${note}" — outfit coming the night before at 9 PM.`;
+  show("fut-saved-section");
+}
+
+function editFuturePlan() {
+  const selectedDay = document.querySelector(".wday.sel");
+  const key = selectedDay ? (selectedDay.dataset.date || "") : "";
+  const existing = futPlans[key] || "";
+
+  show("fut-input-section");
+  hide("fut-saved-section");
+  document.getElementById("fut-note-inp").value = existing;
+  document.getElementById("fut-save-btn").disabled = !existing;
+}
+
+function startGen() {
   const occ = selOcc || "Work";
   document.getElementById("g-occ").textContent = occ;
   document.getElementById("r-occ-badge").textContent = occ;
-  const tb = document.getElementById("tb-title");
-  if(tb) tb.innerHTML = "Generating...";
-  hideAllRight(); fadeIn("r-gen");
+  const title = document.getElementById("tb-title");
+  if (title) title.innerHTML = "Generating...";
+  hideAllRight();
+  fadeIn("r-gen");
 
-  const steps=[{d:"sd3",t:"st3",dl:400},{d:"sd4",t:"st4",dl:920},{d:"sd5",t:"st5",dl:1400}];
-  steps.forEach(({d,t,dl})=>{
-    setTimeout(()=>{ document.getElementById(d).className="sd cur"; document.getElementById(t).className="st cur"; }, dl);
-    setTimeout(()=>{ document.getElementById(d).className="sd done"; document.getElementById(t).className="st done"; }, dl+520);
+  const steps = [{ d: "sd3", t: "st3", dl: 400 }, { d: "sd4", t: "st4", dl: 920 }, { d: "sd5", t: "st5", dl: 1400 }];
+  steps.forEach(({ d, t, dl }) => {
+    setTimeout(() => {
+      document.getElementById(d).className = "sd cur";
+      document.getElementById(t).className = "st cur";
+    }, dl);
+    setTimeout(() => {
+      document.getElementById(d).className = "sd done";
+      document.getElementById(t).className = "st done";
+    }, dl + 520);
   });
 
-  setTimeout(()=>{
-    hide("r-gen"); fadeIn("r-items");
-    const ids=["ic0","ic1","ic2","ic3"], cks=["ck0","ck1","ck2","ck3"];
-    const lbls=["Picking shirt...","Adding trousers...","Grabbing jacket...","Choosing shoes..."];
-    ids.forEach((id,i)=>{
-      setTimeout(()=>{
-        document.getElementById("items-lbl").textContent = lbls[i];
+  setTimeout(() => {
+    hide("r-gen");
+    fadeIn("r-items");
+    const ids = ["ic0", "ic1", "ic2", "ic3"];
+    const checks = ["ck0", "ck1", "ck2", "ck3"];
+    const labels = ["Picking shirt...", "Adding trousers...", "Grabbing jacket...", "Choosing shoes..."];
+
+    ids.forEach((id, index) => {
+      setTimeout(() => {
+        document.getElementById("items-lbl").textContent = labels[index];
         document.getElementById(id).classList.add("show");
-        setTimeout(()=>document.getElementById(cks[i]).classList.add("show"), 270);
-      }, i*520);
+        setTimeout(() => document.getElementById(checks[index]).classList.add("show"), 270);
+      }, index * 520);
     });
-    setTimeout(()=>showResult(), ids.length*520+500);
+
+    setTimeout(() => showResult(), ids.length * 520 + 500);
   }, 2300);
 }
 
-function showResult(){
+function showResult() {
   hide("r-items");
-  const tb = document.getElementById("tb-title");
-  if(tb) tb.innerHTML = "Whatever the <em>Weather.</em>";
+  setBrandLogo();
 
   const circle = document.getElementById("day-today")?.querySelector(".wd-circle");
-  if(circle) circle.classList.add("filled");
+  if (circle) {
+    circle.classList.add("filled");
+  }
 
   fadeIn("r-result");
-  setTimeout(()=>document.getElementById("outfit-full")?.classList.add("show"), 170);
-  setTimeout(()=>{ const n=document.getElementById("ai-name"); if(n){ n.style.opacity="1"; n.style.transition="opacity .45s"; } }, 620);
-  setTimeout(()=>typeWriter(aiText,0), 840);
+  setTimeout(() => document.getElementById("outfit-full")?.classList.add("show"), 170);
+  setTimeout(() => {
+    const name = document.getElementById("ai-name");
+    if (name) {
+      name.style.opacity = "1";
+      name.style.transition = "opacity .45s";
+    }
+  }, 620);
+  setTimeout(() => typeWriter(aiText, 0), 840);
 
-  const endT = 840 + aiText.length*18;
-  setTimeout(()=>{ document.getElementById("r-actions").style.opacity="1"; document.getElementById("r-tweak").style.opacity="1"; }, endT+120);
-  setTimeout(()=>{ document.getElementById("shop-wrap").style.opacity="1"; }, endT+600);
+  const endTime = 840 + aiText.length * 18;
+  setTimeout(() => {
+    document.getElementById("r-actions").style.opacity = "1";
+    document.getElementById("r-tweak").style.opacity = "1";
+  }, endTime + 120);
+  setTimeout(() => {
+    document.getElementById("shop-wrap").style.opacity = "1";
+  }, endTime + 600);
 }
 
-function typeWriter(text, i){
-  const el = document.getElementById("ai-text");
-  if(!el) return;
-  if(i < text.length){
-    el.innerHTML = text.slice(0,i+1) + "<span class=\"cursor\"></span>";
-    typeT=setTimeout(()=>typeWriter(text,i+1),18);
+function typeWriter(text, index) {
+  const element = document.getElementById("ai-text");
+  if (!element) return;
+
+  if (index < text.length) {
+    element.innerHTML = `${text.slice(0, index + 1)}<span class="cursor"></span>`;
+    typeT = setTimeout(() => typeWriter(text, index + 1), 18);
   } else {
-    el.innerHTML = text;
+    element.innerHTML = text;
   }
 }
 
-function backToEmpty(){
-  if(typeT) clearTimeout(typeT);
+function backToEmpty() {
+  if (typeT) {
+    clearTimeout(typeT);
+  }
+
   document.getElementById("outfit-full")?.classList.remove("show");
-  const n=document.getElementById("ai-name"); if(n) n.style.opacity="0";
-  const t=document.getElementById("ai-text"); if(t) t.innerHTML="";
-  const ra=document.getElementById("r-actions"); if(ra) ra.style.opacity="0";
-  const tw=document.getElementById("r-tweak"); if(tw) tw.style.opacity="0";
-  const sw=document.getElementById("shop-wrap"); if(sw) sw.style.opacity="0";
-  ["ic0","ic1","ic2","ic3"].forEach(id=>document.getElementById(id)?.classList.remove("show"));
-  ["ck0","ck1","ck2","ck3"].forEach(id=>document.getElementById(id)?.classList.remove("show"));
-  ["sd3","sd4","sd5"].forEach(id=>{ const e=document.getElementById(id); if(e) e.className="sd"; });
-  ["st3","st4","st5"].forEach(id=>{ const e=document.getElementById(id); if(e) e.className="st"; });
-  const tb = document.getElementById("tb-title");
-  if(tb) tb.innerHTML = "Whatever the <em>Weather.</em>";
-  hideAllRight(); fadeIn("r-empty");
+  const name = document.getElementById("ai-name");
+  if (name) name.style.opacity = "0";
+  const text = document.getElementById("ai-text");
+  if (text) text.innerHTML = "";
+  const actions = document.getElementById("r-actions");
+  if (actions) actions.style.opacity = "0";
+  const tweak = document.getElementById("r-tweak");
+  if (tweak) tweak.style.opacity = "0";
+  const shop = document.getElementById("shop-wrap");
+  if (shop) shop.style.opacity = "0";
+
+  ["ic0", "ic1", "ic2", "ic3"].forEach(id => document.getElementById(id)?.classList.remove("show"));
+  ["ck0", "ck1", "ck2", "ck3"].forEach(id => document.getElementById(id)?.classList.remove("show"));
+  ["sd3", "sd4", "sd5"].forEach(id => {
+    const element = document.getElementById(id);
+    if (element) element.className = "sd";
+  });
+  ["st3", "st4", "st5"].forEach(id => {
+    const element = document.getElementById(id);
+    if (element) element.className = "st";
+  });
+
+  show("occ-section");
+  setBrandLogo();
+  hideAllRight();
+  fadeIn("r-empty");
 }
 </script>

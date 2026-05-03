@@ -2,64 +2,142 @@
 @model HNB.Areas.WW.Models.TodayIndexModel
 
 @{
-    var todayForecast = Model?.WeatherDays?.FirstOrDefault(day => day.IsToday);
-    var futureDays = Model?.WeatherDays?.Where(day => day.IsToday == false).ToList() ?? [];
+    var futureDays = Model?.WeatherDays?
+        .Where(day => string.Equals(day.DayType, "future", System.StringComparison.OrdinalIgnoreCase))
+        .Take(7)
+        .ToList() ?? [];
 
-    // 顯示用文字：讓度數/分隔符號用 entity，避免編碼問題
-    var tempText = string.IsNullOrWhiteSpace(Model?.CurrentTemperatureText) ? "22&deg;" : Model!.CurrentTemperatureText;
-    var weatherSummary = Model?.CurrentWeatherSummaryText ?? "Light rain &middot; Feels like 20&deg;";
-    var windText = Model?.CurrentWindSpeedText ?? "Wind 12 km/h";
-    var locationText = Model?.CurrentLocationText ?? "Now &middot; Auto-detected";
-
-    string WeatherIconName(string? text)
+    string BuildNowLocationText(string? rawText)
     {
-        var t = (text ?? string.Empty).ToLowerInvariant();
-        if (t.Contains("rain")) return "cloud-rain";
-        if (t.Contains("snow")) return "cloud-snow";
-        if (t.Contains("storm") || t.Contains("thunder")) return "cloud-lightning";
-        if (t.Contains("clear") || t.Contains("sun")) return "sun";
-        if (t.Contains("cloud")) return "cloud";
-        return "cloud";
+        var text = string.IsNullOrWhiteSpace(rawText) ? string.Empty : rawText.Trim();
+
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return "CHICAGO &bull; NOW";
+        }
+
+        if (text.Contains("&middot;", System.StringComparison.OrdinalIgnoreCase))
+        {
+            text = text.Split(new[] { "&middot;" }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
+        }
+        else if (text.Contains("·", System.StringComparison.OrdinalIgnoreCase))
+        {
+            text = text.Split('·', StringSplitOptions.RemoveEmptyEntries)[0].Trim();
+        }
+        else if (text.Contains("繚", System.StringComparison.OrdinalIgnoreCase))
+        {
+            text = text.Split(new[] { "繚" }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
+        }
+
+        if (string.IsNullOrWhiteSpace(text) ||
+            text.Contains("auto-detected", System.StringComparison.OrdinalIgnoreCase) ||
+            text.Contains("now", System.StringComparison.OrdinalIgnoreCase))
+        {
+            return "CHICAGO &bull; NOW";
+        }
+
+        return $"{text} &bull; NOW";
     }
 
-    var todayIconName = WeatherIconName(weatherSummary);
+    char ResolveTemperatureUnit()
+    {
+        var wind = Model?.CurrentWindSpeedText ?? string.Empty;
+        if (wind.Contains("mph", System.StringComparison.OrdinalIgnoreCase)) return 'F';
+        if (wind.Contains("km/h", System.StringComparison.OrdinalIgnoreCase)) return 'C';
+
+        var location = Model?.CurrentLocationText ?? string.Empty;
+        if (location.Contains("belize", System.StringComparison.OrdinalIgnoreCase)) return 'F';
+        if (location.Contains("bahamas", System.StringComparison.OrdinalIgnoreCase)) return 'F';
+        if (location.Contains("united states", System.StringComparison.OrdinalIgnoreCase)) return 'F';
+        if (location.Contains("usa", System.StringComparison.OrdinalIgnoreCase)) return 'F';
+        if (location.Contains("u.s.", System.StringComparison.OrdinalIgnoreCase)) return 'F';
+
+        return 'C';
+    }
+
+    string FormatTemperatureTextWithUnit(string? rawText, char unit)
+    {
+        var text = string.IsNullOrWhiteSpace(rawText) ? string.Empty : rawText.Trim();
+        if (string.IsNullOrWhiteSpace(text)) return $"22&deg;{unit}";
+
+        text = text.Replace("°", "&deg;", System.StringComparison.OrdinalIgnoreCase);
+        text = text.Replace("簞", "&deg;", System.StringComparison.OrdinalIgnoreCase);
+
+        if (text.Contains("&deg;C", System.StringComparison.OrdinalIgnoreCase) ||
+            text.Contains("&deg;F", System.StringComparison.OrdinalIgnoreCase))
+        {
+            return text;
+        }
+
+        if (text.Contains("&deg;", System.StringComparison.OrdinalIgnoreCase))
+        {
+            return $"{text}{unit}";
+        }
+
+        return $"{text}&deg;{unit}";
+    }
+
+    string FormatSummaryPartWithUnit(string part, char unit)
+    {
+        if (string.IsNullOrWhiteSpace(part)) return part;
+
+        var text = part
+            .Replace("°", "&deg;", System.StringComparison.OrdinalIgnoreCase)
+            .Replace("簞", "&deg;", System.StringComparison.OrdinalIgnoreCase);
+
+        if (!text.Contains("Feels like", System.StringComparison.OrdinalIgnoreCase))
+        {
+            return text;
+        }
+
+        if (text.Contains("&deg;C", System.StringComparison.OrdinalIgnoreCase) ||
+            text.Contains("&deg;F", System.StringComparison.OrdinalIgnoreCase))
+        {
+            return text;
+        }
+
+        return text.Replace("&deg;", $"&deg;{unit}", System.StringComparison.OrdinalIgnoreCase);
+    }
+
+    var tempUnit = ResolveTemperatureUnit();
+    var tempText = FormatTemperatureTextWithUnit(Model?.CurrentTemperatureText, tempUnit);
+    var weatherSummaryParts = (Model?.CurrentWeatherSummaryText ?? "Light rain &middot; Feels like 20&deg;")
+        .Split(new[] { "&middot;", "·", "繚" }, StringSplitOptions.RemoveEmptyEntries)
+        .Select(text => text.Trim())
+        .Where(text => !string.IsNullOrWhiteSpace(text))
+        .Select(text => FormatSummaryPartWithUnit(text, tempUnit))
+        .ToList();
+    var windText = Model?.CurrentWindSpeedText ?? "Wind 12 km/h";
+    var locationText = BuildNowLocationText(Model?.CurrentLocationText);
+    var todayWeatherEmoji = string.IsNullOrWhiteSpace(Model?.CurrentWeatherEmoji) ? "☁️" : Model.CurrentWeatherEmoji;
 }
 
 <div class="cols">
-    <!-- LEFT PANEL -->
     <div class="lp">
         <div class="lp-scroll">
-
-            <!-- Weather -->
             <div class="wcard">
                 <div class="wl">
-                    <div class="city">@Html.Raw(locationText)</div>
-                    <div class="tmp">@Html.Raw(tempText)</div>
-                    <div class="desc">@Html.Raw(weatherSummary)</div>
+                    <div class="city" id="wcard-location">@Html.Raw(locationText)</div>
+                    <div class="tmp" id="wcard-temp">@Html.Raw(tempText)</div>
+                    <div class="desc">
+                        @foreach (var part in weatherSummaryParts)
+                        {
+                            <div>@Html.Raw(part)</div>
+                        }
+                    </div>
                 </div>
                 <div class="wr">
-                    <div class="ico"><i data-lucide="@todayIconName" class="h-8 w-8 text-[var(--orange)]" aria-hidden="true"></i></div>
+                    <div class="ico" aria-hidden="true">@todayWeatherEmoji</div>
                     <div class="feel">@windText</div>
                 </div>
             </div>
 
-            <!-- Week strip -->
             <div class="week-strip">
                 <div class="week-hdr">This Week</div>
                 <div class="week-row">
-                    <div class="wday" data-type="past" data-date="Apr 17" data-occ="Casual" data-name="Weekend Easy" data-temp="25&deg;" data-icon="sun" onclick="clickDay(this)">
-                        <div class="wd-lbl">Fri</div><div class="wd-ico"><i data-lucide="sun" class="h-4 w-4" aria-hidden="true"></i></div><div class="wd-circle filled"></div>
-                    </div>
-                    <div class="wday" data-type="past" data-date="Apr 18" data-occ="Date" data-name="Evening Chic" data-temp="21&deg;" data-icon="moon-star" onclick="clickDay(this)">
-                        <div class="wd-lbl">Sat</div><div class="wd-ico"><i data-lucide="moon-star" class="h-4 w-4" aria-hidden="true"></i></div><div class="wd-circle filled"></div>
-                    </div>
-                    <div class="wday" data-type="past" data-date="Apr 19" data-occ="Work" data-name="Smart Casual" data-temp="23&deg;" data-icon="cloud-sun" onclick="clickDay(this)">
-                        <div class="wd-lbl">Sun</div><div class="wd-ico"><i data-lucide="cloud-sun" class="h-4 w-4" aria-hidden="true"></i></div><div class="wd-circle filled"></div>
-                    </div>
-
                     <div class="wday today sel" id="day-today" data-type="today" onclick="clickDay(this)">
                         <div class="wd-lbl">Today</div>
-                        <div class="wd-ico"><i data-lucide="@todayIconName" class="h-4 w-4" aria-hidden="true"></i></div>
+                        <div class="wd-ico" aria-hidden="true">@todayWeatherEmoji</div>
                         <div class="wd-circle"></div>
                     </div>
 
@@ -70,27 +148,26 @@
                              data-date="@weatherDay.DateFullText"
                              data-temp="@weatherDay.TemperatureText"
                              data-desc="@weatherDay.WeatherDescriptionText"
-                             data-icon="@WeatherIconName(weatherDay.WeatherDescriptionText)"
+                             data-icon="@weatherDay.WeatherIconEmoji"
                              onclick="clickDay(this)">
                             <div class="wd-lbl">@weatherDay.WeekdayText</div>
-                            <div class="wd-ico"><i data-lucide="@WeatherIconName(weatherDay.WeatherDescriptionText)" class="h-4 w-4" aria-hidden="true"></i></div>
+                            <div class="wd-ico" aria-hidden="true">@weatherDay.WeatherIconEmoji</div>
                             <div class="wd-circle"></div>
                         </div>
                     }
                 </div>
             </div>
 
-            <!-- Occasion -->
             <div class="occ-section" id="occ-section">
                 <div>
-                    <div class="occ-title" id="occ-title">What's today about?</div>
+                    <div class="occ-title" id="occ-title">Where are we going?</div>
                     <div class="occ-sub">Quick pick, or describe below</div>
                 </div>
                 <div class="occ-grid">
-                    <div class="ocard" onclick="pickOcc(this,'Work')"><div class="em"><i data-lucide="briefcase" class="h-4 w-4" aria-hidden="true"></i></div><div class="nm">Work</div><div class="ht">Office or meetings</div></div>
-                    <div class="ocard" onclick="pickOcc(this,'Casual')"><div class="em"><i data-lucide="coffee" class="h-4 w-4" aria-hidden="true"></i></div><div class="nm">Casual</div><div class="ht">Errands or chill</div></div>
-                    <div class="ocard" onclick="pickOcc(this,'Date')"><div class="em"><i data-lucide="sparkles" class="h-4 w-4" aria-hidden="true"></i></div><div class="nm">Date</div><div class="ht">Dinner or night out</div></div>
-                    <div class="ocard" onclick="pickOcc(this,'Outdoor')"><div class="em"><i data-lucide="leaf" class="h-4 w-4" aria-hidden="true"></i></div><div class="nm">Outdoor</div><div class="ht">Parks or activities</div></div>
+                    <div class="ocard" onclick="pickOcc(this,'Work')"><div class="em">💼</div><div class="nm">Work</div><div class="ht">Office or meetings</div></div>
+                    <div class="ocard" onclick="pickOcc(this,'Casual')"><div class="em">☕</div><div class="nm">Casual</div><div class="ht">Errands or chill</div></div>
+                    <div class="ocard" onclick="pickOcc(this,'Date')"><div class="em">✨</div><div class="nm">Date</div><div class="ht">Dinner or night out</div></div>
+                    <div class="ocard" onclick="pickOcc(this,'Outdoor')"><div class="em">🌿</div><div class="nm">Outdoor</div><div class="ht">Parks or activities</div></div>
                 </div>
 
                 <div class="free-block">
@@ -103,44 +180,38 @@
                     </div>
                 </div>
             </div>
-
         </div>
 
         <div class="lp-foot">
             <button class="gbtn" id="gbtn" disabled onclick="startGen()">
                 <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                <span id="gbtn-label">Style me today</span>
+                <span id="gbtn-label">Let's go.</span>
             </button>
         </div>
     </div>
 
-    <!-- RIGHT PANEL -->
     <div class="rp">
-
-        <!-- Empty -->
         <div class="r-empty" id="r-empty">
             <div class="r-empty-ico">
                 <svg viewBox="0 0 24 24"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.57a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.57a2 2 0 00-1.34-2.23z"/></svg>
             </div>
             <div class="r-empty-title">Your outfit will appear here</div>
-            <div class="r-empty-sub">Pick an occasion or describe your day &mdash; then tap Style me today</div>
+            <div class="r-empty-sub">Tell me about today.<br />Pick an occasion on the left &mdash; I'll handle the rest.</div>
         </div>
 
-        <!-- Gen loader -->
         <div class="r-gen hidden" id="r-gen">
-            <div class="gcircle"><div class="sring"></div><span style="font-size:20px;color:var(--orange);">✦</span></div>
-            <div style="font-size:16px;font-weight:500;color:var(--ink);font-family:var(--font-serif);font-style:italic;">Finding your look...</div>
-            <div style="font-size:12.5px;color:var(--ink3);">Matching your closet with today's weather</div>
+            <div class="gcircle"><div class="sring"></div><span style="font-size:20px;color:var(--orange);">&#10024;</span></div>
+            <div style="font-size:16px;font-weight:500;color:var(--ink);font-family:var(--font-serif);font-style:italic;">Give me a second.</div>
+            <div style="font-size:12.5px;color:var(--ink3);">Pulling from your closet now</div>
             <div class="gsteps">
-                <div class="gstep"><div class="sd done"></div><span class="st done">Weather &middot; 22&deg; light rain ✓</span></div>
-                <div class="gstep"><div class="sd done"></div><span class="st done">Occasion &middot; <span id="g-occ">Work</span> ✓</span></div>
-                <div class="gstep"><div class="sd" id="sd3"></div><span class="st" id="st3">Scanning closet for rain-safe pieces...</span></div>
-                <div class="gstep"><div class="sd" id="sd4"></div><span class="st" id="st4">Checking colour harmony</span></div>
+                <div class="gstep"><div class="sd done"></div><span class="st done">It's warm. Keeping light.</span></div>
+                <div class="gstep"><div class="sd done"></div><span class="st done">You said <span id="g-occ">Work</span>. Got it.</span></div>
+                <div class="gstep"><div class="sd" id="sd3"></div><span class="st" id="st3">Picking your pieces...</span></div>
+                <div class="gstep"><div class="sd" id="sd4"></div><span class="st" id="st4">Putting it together...</span></div>
                 <div class="gstep"><div class="sd" id="sd5"></div><span class="st" id="st5">Assembling your look</span></div>
             </div>
         </div>
 
-        <!-- Item assembly -->
         <div class="r-items hidden" id="r-items">
             <div style="font-size:16px;font-weight:500;color:var(--ink);font-family:var(--font-serif);font-style:italic;" id="items-lbl">Picking shirt...</div>
             <div class="items-row">
@@ -151,19 +222,21 @@
             </div>
         </div>
 
-        <!-- Result -->
         <div class="r-result hidden" id="r-result">
             <div class="r-topbar">
-                <div class="r-topbar-l"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg> Change occasion</div>
-                <div class="rtb-actions">
-                    <div class="rtb-ic"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z"/></svg></div>
-                    <div class="rtb-ic"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div>
+                <div class="r-back" onclick="backToEmpty()">
+                    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+                    Change occasion
+                </div>
+                <div class="r-icons">
+                    <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+                    <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
                 </div>
             </div>
             <div class="r-scroll">
                 <div class="outfit-hero">
                     <div class="obadge" id="r-occ-badge">Work</div>
-                    <div class="owbadge">22&deg; <span id="r-weather-ico"><i data-lucide="@todayIconName" class="inline-block h-4 w-4 align-[-2px]" aria-hidden="true"></i></span></div>
+                    <div class="owbadge">22&deg; <span id="r-weather-ico" aria-hidden="true">@todayWeatherEmoji</span></div>
                     <div class="outfit-full" id="outfit-full">
                         <div class="of-item"><div class="of-box" style="width:48px;height:60px;"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.57a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.57a2 2 0 00-1.34-2.23z"/></svg></div><span class="of-lbl">Top</span></div>
                         <div class="of-item"><div class="of-box" style="width:40px;height:70px;"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M6 2l-3 8h5v12h8V10h5l-3-8H6z"/></svg></div><span class="of-lbl">Bottom</span></div>
@@ -175,19 +248,20 @@
                 <div class="ai-name" id="ai-name">Polished Rain-Ready</div>
                 <div class="ai-text" id="ai-text"></div>
 
-                <div class="r-actions" id="r-actions">
-                    <button class="rab" onclick="backToEmpty()"><svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>Redo</button>
-                    <button class="rab" style="background:var(--orange);color:#fff;border-color:transparent;"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z"/></svg>Save look</button>
+                <div class="ractions" id="r-actions">
+                    <button class="rab"><svg viewBox="0 0 24 24"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>Redo</button>
+                    <button class="rab pri"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>Save look</button>
                 </div>
 
-                <div class="r-tweak" id="r-tweak">
+                <div class="tweak" id="r-tweak">
                     <div class="chips">
-                        <div class="chip" onclick="alert('Tweak: warmer')">Warmer</div>
-                        <div class="chip" onclick="alert('Tweak: more formal')">More formal</div>
-                        <div class="chip" onclick="alert('Tweak: add colour')">Add colour</div>
+                        <div class="chip">Warmer</div>
+                        <div class="chip">More formal</div>
+                        <div class="chip">No jacket</div>
+                        <div class="chip">Swap shoes</div>
                     </div>
                     <div class="tinp-row">
-                        <input class="tinp" placeholder="Ask for a tweak..." />
+                        <input class="tinp" placeholder="Or ask anything..." />
                         <button class="tsend" type="button"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
                     </div>
                 </div>
@@ -195,8 +269,7 @@
                 <div class="shop-wrap" id="shop-wrap">
                     <div class="shop-divider"></div>
                     <div class="shop-hdr">
-                        <div class="shop-title">Shop this look</div>
-                        <div class="shop-sub">Optional suggestions</div>
+                        <div class="shop-title">From your closet</div>
                     </div>
                     <div class="shop-row">
                         <div class="pcard"><div class="pimg"><div class="ptag">NEW</div><svg viewBox="0 0 24 24"><path d="M20 21V19a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="pinfo"><div class="pname">Rain Jacket</div><div class="pwhy">Water-resistant layer</div><div class="pprice">$120 &middot; A&Co</div></div></div>
@@ -209,7 +282,6 @@
             </div>
         </div>
 
-        <!-- Past record -->
         <div class="r-record hidden" id="r-record">
             <div class="rec-topbar"><div class="rec-date" id="rec-date">Apr 19</div><div class="rec-meta" id="rec-meta">Work &middot; 23&deg;</div></div>
             <div class="rec-scroll">
@@ -226,28 +298,65 @@
             </div>
         </div>
 
-        <!-- Future plan -->
         <div class="r-future hidden" id="r-future">
-            <div class="fut-topbar"><div class="fut-date" id="fut-date">Tue Apr 22</div><div class="fut-weather"><span id="fut-ico"><i data-lucide="cloud-sun" class="inline-block h-4 w-4 align-[-2px]" aria-hidden="true"></i></span><span id="fut-desc">24&deg; &middot; Partly cloudy</span></div></div>
             <div class="fut-scroll">
-                <div class="fut-note">Weather forecast is ready. Set your occasion and we'll generate your outfit the morning of this day.</div>
-                <div class="fut-occ-title">What's the occasion?</div>
-                <div class="fut-occ-grid">
-                    <div class="ocard" onclick="pickFutOcc(this,'Work')"><div class="em"><i data-lucide="briefcase" class="h-4 w-4" aria-hidden="true"></i></div><div class="nm">Work</div><div class="ht">Office or meetings</div></div>
-                    <div class="ocard" onclick="pickFutOcc(this,'Casual')"><div class="em"><i data-lucide="coffee" class="h-4 w-4" aria-hidden="true"></i></div><div class="nm">Casual</div><div class="ht">Errands or chill</div></div>
-                    <div class="ocard" onclick="pickFutOcc(this,'Date')"><div class="em"><i data-lucide="sparkles" class="h-4 w-4" aria-hidden="true"></i></div><div class="nm">Date</div><div class="ht">Dinner or night out</div></div>
-                    <div class="ocard" onclick="pickFutOcc(this,'Outdoor')"><div class="em"><i data-lucide="leaf" class="h-4 w-4" aria-hidden="true"></i></div><div class="nm">Outdoor</div><div class="ht">Parks or activities</div></div>
+                <div class="fut-hero">
+                    <div>
+                        <div class="fut-hero-day" id="fut-day-label">Tuesday</div>
+                        <div class="fut-hero-date" id="fut-date">Apr 22</div>
+                    </div>
+                    <div class="fut-hero-weather">
+                        <div class="fut-hero-ico" id="fut-ico">&#9925;</div>
+                        <div>
+                            <div class="fut-hero-temp" id="fut-temp">24&deg;</div>
+                            <div class="fut-hero-desc" id="fut-desc">Partly cloudy</div>
+                        </div>
+                    </div>
                 </div>
-                <button class="fut-gbtn hidden" id="fut-gbtn" onclick="saveFuture()">
-                    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                    Save to calendar
-                </button>
-                <div class="hidden" id="fut-saved" style="background:var(--orange-l);border:0.5px solid var(--orange-m);border-radius:13px;padding:14px 16px;font-size:12.5px;color:#7a4020;display:flex;align-items:center;gap:10px;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7a4020" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
-                    Occasion saved. We'll generate your outfit the morning of this day.
+
+                <div id="fut-input-section">
+                    <div class="fut-input-label">What's happening that day?</div>
+                    <div class="fut-input-sub">One line is enough. We'll take it from there.</div>
+
+                    <div class="fut-textarea-wrap">
+                        <textarea class="fut-inp" id="fut-note-inp" rows="2"
+                                  placeholder='e.g. "job interview downtown", "friends dinner"'
+                                  oninput="handleFutInp(this)"></textarea>
+                        <div class="fut-quick-chips">
+                            <button type="button" class="fut-chip" onclick="setFutChip(this,'💼 Work day')">💼 Work day</button>
+                            <button type="button" class="fut-chip" onclick="setFutChip(this,'✨ Date night')">✨ Date night</button>
+                            <button type="button" class="fut-chip" onclick="setFutChip(this,'☕ Casual day')">☕ Casual day</button>
+                            <button type="button" class="fut-chip" onclick="setFutChip(this,'🌿 Outdoor plans')">🌿 Outdoor plans</button>
+                        </div>
+                    </div>
+
+                    <div class="fut-notif">
+                        <div class="fut-notif-ico">
+                            <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+                        </div>
+                        <div class="fut-notif-text">
+                            <strong>Outfit ready the night before, 9 PM.</strong><br />
+                            Tell us what's happening. We'll check the forecast and pick from your closet.
+                        </div>
+                    </div>
+
+                    <button type="button" class="fut-save-btn" id="fut-save-btn" disabled onclick="saveFuturePlan()">
+                        <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                        Save plan
+                    </button>
+                </div>
+
+                <div id="fut-saved-section" class="hidden">
+                    <div class="fut-saved-state">
+                        <div class="fut-saved-check">
+                            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                        <div class="fut-saved-title">Saved.</div>
+                        <div class="fut-saved-sub" id="fut-saved-note-display">Outfit coming the night before at 9 PM.</div>
+                        <div class="fut-saved-edit" onclick="editFuturePlan()">Edit plan</div>
+                    </div>
                 </div>
             </div>
         </div>
-
     </div>
 </div>

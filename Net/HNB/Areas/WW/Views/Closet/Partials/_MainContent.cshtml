@@ -2,36 +2,23 @@
 @model HNB.Areas.WW.Models.WardrobeIndexModel
 
 @{
-    var items = Model?.Items ?? Enumerable.Empty<HNB.Areas.WW.Models.WardrobeItemModel>();
+    Layout = null;
 
-    var totalItems = items.Count(i => i.IsPendingReview == false);
-    var pendingItems = items.Count(i => i.IsPendingReview);
+    var items = Model?.Items ?? Enumerable.Empty<HNB.Areas.WW.Models.WardrobeItemModel>();
 
     int CountByCategory(string key)
         => items.Count(i => (i.IsPendingReview ? "unconfirmed" : i.CategoryKey) == key);
 
-    string CategoryLabel(string key)
+    string CategoryShortTag(string key)
         => key switch
         {
-            "all" => "All Items",
             "tops" => "Tops",
             "bottoms" => "Bottoms",
             "outerwear" => "Outerwear",
             "shoes" => "Shoes",
             "accessories" => "Accessories",
-            "unconfirmed" => "Needs Review",
-            _ => "All Items"
-        };
-
-    string CategoryShortTag(string key)
-        => key switch
-        {
-            "tops" => "Top",
-            "bottoms" => "Bottom",
-            "outerwear" => "Outerwear",
-            "shoes" => "Shoes",
-            "accessories" => "Accessories",
-            "unconfirmed" => "Needs review",
+            "unconfirmed" => "Review",
+            "uncategorized" => "Uncategorized",
             _ => "Item"
         };
 
@@ -51,187 +38,171 @@
         var idx = Math.Abs((itemName ?? string.Empty).GetHashCode()) % palette.Length;
         return palette[idx];
     }
+
+    var confirmedItems = items.Where(i => i.IsPendingReview == false).ToList();
+    var tops = confirmedItems.Where(i => (i.IsUncategorized ? "uncategorized" : i.CategoryKey) == "tops").ToList();
+    var bottoms = confirmedItems.Where(i => (i.IsUncategorized ? "uncategorized" : i.CategoryKey) == "bottoms").ToList();
+    var outerwear = confirmedItems.Where(i => (i.IsUncategorized ? "uncategorized" : i.CategoryKey) == "outerwear").ToList();
+    var shoes = confirmedItems.Where(i => (i.IsUncategorized ? "uncategorized" : i.CategoryKey) == "shoes").ToList();
+    var accessories = confirmedItems.Where(i => (i.IsUncategorized ? "uncategorized" : i.CategoryKey) == "accessories").ToList();
+    var uncategorized = confirmedItems.Where(i => i.IsUncategorized).ToList();
+    var unconfirmed = items.Where(i => i.IsPendingReview).ToList();
 }
 
-<div class="flex h-full min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain md:flex-row md:overflow-hidden">
-    <!-- LEFT: UPLOAD ZONE -->
-    <div class="flex w-full flex-col border-b border-black/10 px-5 py-5 md:h-full md:min-h-0 md:w-[360px] md:border-b-0 md:border-r">
-        <div class="text-[9.5px] font-bold uppercase tracking-[0.1em] text-black/40">Add to Closet</div>
-
-        <div class="mt-4 flex flex-col md:min-h-0 md:flex-1" id="upload-col">
-            <div class="flex flex-col justify-center rounded-[18px] border-2 border-dashed border-black/15 bg-white/35 p-4 text-center shadow-[0_4px_18px_rgba(0,0,0,0.05)] backdrop-blur-[12px] transition md:min-h-0 md:flex-1 md:overflow-hidden"
-                 id="upload-zone"
-                 ondragover="event.preventDefault();this.classList.add('border-[#d76736]','bg-[#f2e0d5]/55');this.classList.remove('border-black/15','bg-white/35')"
-                 ondragleave="this.classList.remove('border-[#d76736]','bg-[#f2e0d5]/55');this.classList.add('border-black/15','bg-white/35')"
-                 ondrop="wwClosetHandleDrop(event)">
-
-                <!-- Idle -->
-                <div class="flex flex-col items-center gap-[10px]" id="uz-idle">
-                    <div class="flex h-[64px] w-[64px] items-center justify-center rounded-[18px] border border-black/10 bg-white/65 shadow-[0_6px_20px_rgba(0,0,0,0.08)]" aria-hidden="true">
-                        <svg class="h-[26px] w-[26px] fill-none stroke-[#d76736] stroke-[2.2] [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" /></svg>
-                    </div>
-                    <div class="text-[17px] font-black text-[#1e1b18]">Upload your photos</div>
-                    <div class="max-w-[230px] text-[12.5px] leading-relaxed text-black/55">AI will detect and sort items into your closet</div>
-                    <button type="button"
-                            class="mt-1 inline-flex items-center justify-center gap-2 rounded-[13px] bg-[#d76736] px-4 py-[11px] text-[13px] font-black text-white shadow-[0_8px_22px_rgba(215,103,54,0.4)] transition hover:-translate-y-px hover:bg-[#c75d2f]"
-                            onclick="wwClosetStartUpload()">
-                        <svg class="h-[14px] w-[14px] fill-none stroke-white stroke-[2.4] [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" /></svg>
-                        Choose photos
-                    </button>
-                    <div class="text-[11px] text-black/40">or drag &amp; drop &middot; up to 20</div>
-                </div>
-
-                <!-- Scanning -->
-                <div class="hidden flex-col items-center gap-[10px]" id="uz-scanning">
-                    <div class="relative flex h-[84px] w-[84px] items-center justify-center rounded-full border border-black/10 bg-white/70 shadow-[0_8px_22px_rgba(0,0,0,0.08)]">
-                        <div class="ww-closet-spin absolute inset-2 rounded-full border-[2.5px] border-transparent border-t-[#d76736]"></div>
-                        <div class="flex h-[54px] w-[54px] items-center justify-center rounded-[16px] border border-[#d76736]/25 bg-[#f2e0d5]">
-                            <svg class="h-[22px] w-[22px] fill-none stroke-[#d76736] stroke-[2.1] [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24"><path d="M4 7h3l2-2h6l2 2h3v12H4V7z" /><circle cx="12" cy="13" r="3" /></svg>
-                        </div>
-                    </div>
-                    <div class="text-[17px] italic text-[#1e1b18] [font-family:var(--font-serif)]">Scanning photos...</div>
-                    <div class="text-[12.5px] text-black/40">AI is identifying and categorizing each item</div>
-
-                    <div class="mt-1 w-[240px] space-y-[10px] text-left">
-                        <div class="flex items-center gap-[10px]">
-                            <div class="h-[9px] w-[9px] rounded-full bg-[#d76736]" aria-hidden="true"></div>
-                            <span class="text-[12px] font-bold text-[#1e1b18]">Upload received</span>
-                        </div>
-                        <div class="flex items-center gap-[10px]">
-                            <div class="h-[9px] w-[9px] rounded-full bg-black/15" id="ss1" aria-hidden="true"></div>
-                            <span class="text-[12px] font-bold text-black/35" id="st1">Detecting clothing items...</span>
-                        </div>
-                        <div class="flex items-center gap-[10px]">
-                            <div class="h-[9px] w-[9px] rounded-full bg-black/15" id="ss2" aria-hidden="true"></div>
-                            <span class="text-[12px] font-bold text-black/35" id="st2">Sorting by category</span>
-                        </div>
-                        <div class="flex items-center gap-[10px]">
-                            <div class="h-[9px] w-[9px] rounded-full bg-black/15" id="ss3" aria-hidden="true"></div>
-                            <span class="text-[12px] font-bold text-black/35" id="st3">Analyzing color and style</span>
-                        </div>
-                        <div class="flex items-center gap-[10px]">
-                            <div class="h-[9px] w-[9px] rounded-full bg-black/15" id="ss4" aria-hidden="true"></div>
-                            <span class="text-[12px] font-bold text-black/35" id="st4">Adding to closet</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Done -->
-                <div class="hidden flex-col items-center gap-[10px]" id="uz-done">
-                    <div class="flex h-[74px] w-[74px] items-center justify-center rounded-full border border-[#d76736]/20 bg-[#f2e0d5] shadow-[0_8px_22px_rgba(0,0,0,0.08)]">
-                        <svg class="h-[28px] w-[28px] fill-none stroke-[#d76736] stroke-[3] [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
-                    </div>
-                    <div class="text-[22px] font-black text-[#1e1b18]">Added 4 items!</div>
-                    <div class="text-[12.5px] text-black/40">Your closet is updated</div>
-                    <button type="button"
-                            class="mt-1 inline-flex items-center justify-center gap-2 rounded-[14px] border border-black/5 bg-white/75 px-4 py-[11px] text-[13px] font-black text-black/55 shadow-[0_2px_10px_rgba(0,0,0,0.04)] transition hover:-translate-y-px hover:bg-white/90"
-                            onclick="wwClosetResetUpload()">
-                        <svg class="h-[16px] w-[16px] fill-none stroke-black/55 stroke-[2.5] [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10" /><path d="M3.51 15a9 9 0 102.13-9.36L1 10" /></svg>
-                        Add more
-                    </button>
-                </div>
+<div class="cols">
+    <!-- CLOSET GRID -->
+    <div class="closet-col" id="closet-col">
+        <!-- Tops -->
+        <div>
+            <div class="sec-header">
+                <span class="sec-label">Tops</span>
+                <span class="sec-count">@CountByCategory("tops")</span>
             </div>
-        </div>
-    </div>
-
-    <!-- RIGHT: GRID -->
-    <div class="flex min-h-0 flex-1 flex-col">
-        <div class="flex flex-col gap-[12px] border-b border-black/10 px-6 py-5">
-            <div class="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
-                <div>
-                    <div class="text-[22px] font-black text-[#1e1b18]" id="grid-title">@CategoryLabel("all")</div>
-                    <div class="mt-1 text-[12.5px] text-black/40" id="grid-sub">Showing @totalItems item@(totalItems == 1 ? "" : "s")</div>
-                </div>
-
-                <div class="flex flex-wrap gap-[10px]" aria-label="Category filters">
-                    <button type="button"
-                            class="bubble inline-flex items-center gap-2 rounded-full border border-white/85 bg-white/55 px-3 py-[9px] shadow-[0_2px_10px_rgba(0,0,0,0.04)] backdrop-blur-[10px] transition hover:-translate-y-px hover:border-[#d76736]/35"
-                            data-bubble="1" data-cat="all"
-                            onclick="wwClosetFilterCat(this,'all')">
-                        <span class="flex h-[28px] w-[28px] items-center justify-center rounded-full bg-[#d3ceb8]/90 text-[12px] font-black text-black/55">All</span>
-                        <span class="text-[12px] font-black text-black/55">All</span>
-                    </button>
-                    <button type="button"
-                            class="bubble inline-flex items-center gap-2 rounded-full border border-white/85 bg-white/55 px-3 py-[9px] shadow-[0_2px_10px_rgba(0,0,0,0.04)] backdrop-blur-[10px] transition hover:-translate-y-px hover:border-[#d76736]/35"
-                            data-bubble="1" data-cat="tops"
-                            onclick="wwClosetFilterCat(this,'tops')">
-                        <span class="flex h-[28px] w-[28px] items-center justify-center rounded-full bg-[#d3ceb8]/90 text-[12px] font-black text-black/55">T</span>
-                        <span class="text-[12px] font-black text-black/55">Tops @CountByCategory("tops")</span>
-                    </button>
-                    <button type="button"
-                            class="bubble inline-flex items-center gap-2 rounded-full border border-white/85 bg-white/55 px-3 py-[9px] shadow-[0_2px_10px_rgba(0,0,0,0.04)] backdrop-blur-[10px] transition hover:-translate-y-px hover:border-[#d76736]/35"
-                            data-bubble="1" data-cat="bottoms"
-                            onclick="wwClosetFilterCat(this,'bottoms')">
-                        <span class="flex h-[28px] w-[28px] items-center justify-center rounded-full bg-[#d3ceb8]/90 text-[12px] font-black text-black/55">B</span>
-                        <span class="text-[12px] font-black text-black/55">Bottoms @CountByCategory("bottoms")</span>
-                    </button>
-                    <button type="button"
-                            class="bubble inline-flex items-center gap-2 rounded-full border border-white/85 bg-white/55 px-3 py-[9px] shadow-[0_2px_10px_rgba(0,0,0,0.04)] backdrop-blur-[10px] transition hover:-translate-y-px hover:border-[#d76736]/35"
-                            data-bubble="1" data-cat="outerwear"
-                            onclick="wwClosetFilterCat(this,'outerwear')">
-                        <span class="flex h-[28px] w-[28px] items-center justify-center rounded-full bg-[#d3ceb8]/90 text-[12px] font-black text-black/55">O</span>
-                        <span class="text-[12px] font-black text-black/55">Outerwear @CountByCategory("outerwear")</span>
-                    </button>
-                    <button type="button"
-                            class="bubble inline-flex items-center gap-2 rounded-full border border-white/85 bg-white/55 px-3 py-[9px] shadow-[0_2px_10px_rgba(0,0,0,0.04)] backdrop-blur-[10px] transition hover:-translate-y-px hover:border-[#d76736]/35"
-                            data-bubble="1" data-cat="shoes"
-                            onclick="wwClosetFilterCat(this,'shoes')">
-                        <span class="flex h-[28px] w-[28px] items-center justify-center rounded-full bg-[#d3ceb8]/90 text-[12px] font-black text-black/55">S</span>
-                        <span class="text-[12px] font-black text-black/55">Shoes @CountByCategory("shoes")</span>
-                    </button>
-                    <button type="button"
-                            class="bubble inline-flex items-center gap-2 rounded-full border border-white/85 bg-white/55 px-3 py-[9px] shadow-[0_2px_10px_rgba(0,0,0,0.04)] backdrop-blur-[10px] transition hover:-translate-y-px hover:border-[#d76736]/35"
-                            data-bubble="1" data-cat="accessories"
-                            onclick="wwClosetFilterCat(this,'accessories')">
-                        <span class="flex h-[28px] w-[28px] items-center justify-center rounded-full bg-[#d3ceb8]/90 text-[12px] font-black text-black/55">A</span>
-                        <span class="text-[12px] font-black text-black/55">Accessories @CountByCategory("accessories")</span>
-                    </button>
-                    <button type="button"
-                            class="bubble inline-flex items-center gap-2 rounded-full border border-white/85 bg-white/55 px-3 py-[9px] shadow-[0_2px_10px_rgba(0,0,0,0.04)] backdrop-blur-[10px] transition hover:-translate-y-px hover:border-[#d76736]/35"
-                            data-bubble="1" data-cat="unconfirmed"
-                            onclick="wwClosetFilterCat(this,'unconfirmed')">
-                        <span class="flex h-[28px] w-[28px] items-center justify-center rounded-full bg-[#d3ceb8]/90 text-[12px] font-black text-black/55">!</span>
-                        <span class="text-[12px] font-black text-black/55">Review @pendingItems</span>
-                    </button>
-                </div>
+            <div style="margin-top:10px;" class="item-grid cols-4" id="tops-grid">
+                @foreach (var item in tops)
+                {
+                    var cat = item.IsPendingReview ? "unconfirmed" : (item.CategoryKey ?? "tops");
+                    var tag = CategoryShortTag(cat);
+                    var gradient = StableCardGradient(cat, item.Name);
+                    @await Html.PartialAsync("Partials/_ClothingCard", (item, cat, tag, gradient))
+                }
             </div>
         </div>
 
-        <div class="flex flex-col px-6 pb-4 pt-4 md:min-h-0 md:flex-1">
-            <div class="mb-3 flex items-center justify-end gap-2">
-                <button type="button"
-                        class="flex h-[34px] w-[34px] items-center justify-center rounded-[12px] border border-black/10 bg-white/60 shadow-[0_2px_10px_rgba(0,0,0,0.06)] transition hover:-translate-y-px hover:border-[#d76736]/40"
-                        aria-label="Grid">
-                    <svg class="h-[16px] w-[16px] fill-none stroke-black/40 stroke-[1.8]" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /></svg>
-                </button>
-                <button type="button"
-                        class="flex h-[34px] w-[34px] items-center justify-center rounded-[12px] border border-black/10 bg-white/60 shadow-[0_2px_10px_rgba(0,0,0,0.06)] transition hover:-translate-y-px hover:border-[#d76736]/40"
-                        aria-label="Shuffle">
-                    <svg class="h-[16px] w-[16px] fill-none stroke-black/40 stroke-[1.8]" viewBox="0 0 24 24"><path d="M16 3h5v5" /><path d="M4 20l5-5" /><path d="M16 3l-7 7" /><path d="M21 16v5h-5" /><path d="M15 15l6 6" /><path d="M4 4l5 5" /></svg>
-                </button>
+        <!-- Bottoms -->
+        <div>
+            <div class="sec-header">
+                <span class="sec-label">Bottoms</span>
+                <span class="sec-count">@CountByCategory("bottoms")</span>
             </div>
+            <div style="margin-top:10px;" class="item-grid cols-4" id="bottoms-grid">
+                @foreach (var item in bottoms)
+                {
+                    var cat = item.IsPendingReview ? "unconfirmed" : (item.CategoryKey ?? "bottoms");
+                    var tag = CategoryShortTag(cat);
+                    var gradient = StableCardGradient(cat, item.Name);
+                    @await Html.PartialAsync("Partials/_ClothingCard", (item, cat, tag, gradient))
+                }
+            </div>
+        </div>
 
-            <div class="ww-closet-scroll overflow-visible pr-2 pb-[110px] md:min-h-0 md:flex-1 md:overflow-auto" id="clothes-grid-wrap">
-                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" id="clothes-grid">
-                    @foreach (var item in items)
+        <!-- Shoes -->
+        <div>
+            <div class="sec-header">
+                <span class="sec-label">Shoes</span>
+                <span class="sec-count">@CountByCategory("shoes")</span>
+            </div>
+            <div style="margin-top:10px;" class="item-grid cols-4" id="shoes-grid">
+                @foreach (var item in shoes)
+                {
+                    var cat = item.IsPendingReview ? "unconfirmed" : (item.CategoryKey ?? "shoes");
+                    var tag = CategoryShortTag(cat);
+                    var gradient = StableCardGradient(cat, item.Name);
+                    @await Html.PartialAsync("Partials/_ClothingCard", (item, cat, tag, gradient))
+                }
+            </div>
+        </div>
+
+        <!-- Outerwear -->
+        <div>
+            <div class="sec-header">
+                <span class="sec-label">Outerwear</span>
+                <span class="sec-count">@CountByCategory("outerwear")</span>
+            </div>
+            <div style="margin-top:10px;" class="item-grid cols-4" id="outerwear-grid">
+                @foreach (var item in outerwear)
+                {
+                    var cat = item.IsPendingReview ? "unconfirmed" : (item.CategoryKey ?? "outerwear");
+                    var tag = CategoryShortTag(cat);
+                    var gradient = StableCardGradient(cat, item.Name);
+                    @await Html.PartialAsync("Partials/_ClothingCard", (item, cat, tag, gradient))
+                }
+            </div>
+        </div>
+
+        <!-- Accessories -->
+        <div>
+            <div class="sec-header">
+                <span class="sec-label">Accessories</span>
+                <span class="sec-count">@CountByCategory("accessories")</span>
+            </div>
+            <div style="margin-top:10px;" class="item-grid cols-4" id="acc-grid">
+                @foreach (var item in accessories)
+                {
+                    var cat = item.IsPendingReview ? "unconfirmed" : (item.CategoryKey ?? "accessories");
+                    var tag = CategoryShortTag(cat);
+                    var gradient = StableCardGradient(cat, item.Name);
+                    @await Html.PartialAsync("Partials/_ClothingCard", (item, cat, tag, gradient))
+                }
+            </div>
+        </div>
+
+        <!-- Uncategorized -->
+        @if (uncategorized.Any())
+        {
+            <div>
+                <div class="sec-header">
+                    <span class="sec-label">Uncategorized</span>
+                    <span class="sec-count">@uncategorized.Count</span>
+                </div>
+                <div style="margin-top:10px;" class="item-grid cols-4" id="uncategorized-grid">
+                    @foreach (var item in uncategorized)
                     {
-                        var cat = item.IsPendingReview ? "unconfirmed" : (item.CategoryKey ?? "tops");
+                        var cat = "uncategorized";
                         var tag = CategoryShortTag(cat);
                         var gradient = StableCardGradient(cat, item.Name);
-
                         @await Html.PartialAsync("Partials/_ClothingCard", (item, cat, tag, gradient))
                     }
                 </div>
             </div>
-        </div>
+        }
 
-        <div class="flex shrink-0 items-center justify-between gap-3 border-t border-black/10 bg-white/25 px-6 py-[14px] backdrop-blur-[12px]">
-            <div class="text-[12.5px] text-black/40"><span class="font-black text-[#1e1b18]">@totalItems items</span> ready to style</div>
-            <button type="button"
-                    class="inline-flex items-center gap-[9px] rounded-[14px] bg-[#d76736] px-[18px] py-[13px] text-[13px] font-black text-white shadow-[0_10px_26px_rgba(215,103,54,0.42)] transition hover:-translate-y-px hover:bg-[#c75d2f]">
-                <svg class="h-[15px] w-[15px] fill-none stroke-white stroke-[2.5] [stroke-linejoin:round]" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                I'm ready &middot; style me today
-            </button>
+        <!-- Review (pending) -->
+        @if (unconfirmed.Any())
+        {
+            <div>
+                <div class="sec-header">
+                    <span class="sec-label">Review</span>
+                    <span class="sec-count">@unconfirmed.Count</span>
+                </div>
+                <div style="margin-top:10px;" class="item-grid cols-4" id="review-grid">
+                    @foreach (var item in unconfirmed)
+                    {
+                        var cat = "unconfirmed";
+                        var tag = CategoryShortTag(cat);
+                        var gradient = StableCardGradient(cat, item.Name);
+                        @await Html.PartialAsync("Partials/_ClothingCard", (item, cat, tag, gradient))
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- OVERLAY -->
+    <div class="drawer-overlay" id="drawer-overlay" onclick="closeDetail()"></div>
+
+    <!-- DETAIL DRAWER -->
+    <div class="detail-col" id="detail-col">
+        <div class="detail-scroll" id="detail-scroll">
+            <div class="detail-img" id="detail-img">
+                <button type="button" class="detail-close" onclick="closeDetail()" aria-label="Close detail">
+                    <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                </button>
+                <span id="detail-emoji" style="font-size:72px;">👕</span>
+            </div>
+
+            <div class="detail-content" id="detail-content"></div>
+
+            <div class="detail-actions" id="detail-actions">
+                <button type="button" class="act-btn primary" onclick="styleWithThis()">
+                    <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>
+                    Style with this item
+                </button>
+                <button type="button" class="act-btn danger" onclick="removeActive()">
+                    <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" /><path d="M10 11v6M14 11v6" /></svg>
+                    Remove from closet
+                </button>
+            </div>
         </div>
     </div>
 </div>

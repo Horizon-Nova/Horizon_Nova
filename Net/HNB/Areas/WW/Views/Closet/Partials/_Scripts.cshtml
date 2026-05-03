@@ -3,123 +3,158 @@
 }
 
 <script>
-// Closet interactions: based on wtw_closet_v1.html.
+// Closet interactions: based on wtw_closet_desktop.html.
 
-function wwClosetFilterCat(el, cat) {
-  // Active 樣式：用 Tailwind class 切換，不依賴自訂 CSS
-  document.querySelectorAll("[data-bubble='1']").forEach(b => {
-    b.classList.remove("bg-[#f2e0d5]/75", "border-[#d76736]/35");
-    b.classList.add("bg-white/55", "border-white/85");
-  });
-  el.classList.remove("bg-white/55", "border-white/85");
-  el.classList.add("bg-[#f2e0d5]/75", "border-[#d76736]/35");
+let activeCard = null;
 
-  const cards = document.querySelectorAll(".ccard");
-  let count = 0;
-  cards.forEach(c => {
-    if (cat === "all" || c.dataset.cat === cat) {
-      c.style.display = "";
-      count++;
-    } else {
-      c.style.display = "none";
-    }
-  });
-
-  const labels = {
-    all: "All Items",
-    tops: "Tops",
-    bottoms: "Bottoms",
-    outerwear: "Outerwear",
-    shoes: "Shoes",
-    accessories: "Accessories",
-    unconfirmed: "Needs Review"
-  };
-
-  const title = document.getElementById("grid-title");
-  const sub = document.getElementById("grid-sub");
-  if (title) title.textContent = labels[cat] || "All Items";
-  if (sub) sub.textContent = "Showing " + count + " item" + (count !== 1 ? "s" : "");
-}
-
-// Upload simulation
-function wwClosetStartUpload() {
-  const idle = document.getElementById("uz-idle");
-  const scanning = document.getElementById("uz-scanning");
-  const done = document.getElementById("uz-done");
-  if (!idle || !scanning || !done) return;
-
-  idle.classList.add("hidden");
-  done.classList.add("hidden");
-  scanning.classList.remove("hidden");
-  scanning.classList.add("flex");
-
-  const steps = [
-    { dot: "ss1", txt: "st1", dl: 500 },
-    { dot: "ss2", txt: "st2", dl: 1100 },
-    { dot: "ss3", txt: "st3", dl: 1700 },
-    { dot: "ss4", txt: "st4", dl: 2300 }
-  ];
-
-  steps.forEach(({ dot, txt, dl }) => {
-    setTimeout(() => {
-      const d = document.getElementById(dot);
-      const t = document.getElementById(txt);
-      if (d) d.className = "h-[9px] w-[9px] rounded-full bg-[#d76736]";
-      if (t) t.className = "text-[12px] font-bold text-[#1e1b18]";
-    }, dl);
-    setTimeout(() => {
-      const d = document.getElementById(dot);
-      const t = document.getElementById(txt);
-      if (d) d.className = "h-[9px] w-[9px] rounded-full bg-[#d76736]";
-      if (t) t.className = "text-[12px] font-bold text-[#1e1b18]";
-    }, dl + 550);
-  });
-
-  setTimeout(() => {
-    scanning.classList.add("hidden");
-    done.classList.remove("hidden");
-    done.classList.add("flex");
-    // demo: update total stats in topbar (if present)
-    const total = document.getElementById("stat-total");
-    if (total) total.textContent = "28";
-  }, 3400);
-}
-
-function wwClosetResetUpload() {
-  const idle = document.getElementById("uz-idle");
-  const scanning = document.getElementById("uz-scanning");
-  const done = document.getElementById("uz-done");
-  if (!idle || !scanning || !done) return;
-
-  scanning.classList.add("hidden");
-  done.classList.add("hidden");
-  idle.classList.remove("hidden");
-  idle.classList.add("flex");
-
-  ["ss1","ss2","ss3","ss4"].forEach(id => {
-    const e = document.getElementById(id);
-    if (e) e.className = "h-[9px] w-[9px] rounded-full bg-black/15";
-  });
-  ["st1","st2","st3","st4"].forEach(id => {
-    const e = document.getElementById(id);
-    if (e) e.className = "text-[12px] font-bold text-black/35";
+function wwClosetSearch(query) {
+  const q = (query || "").trim().toLowerCase();
+  document.querySelectorAll(".item-card").forEach(card => {
+    const name = (card.dataset.name || "").toLowerCase();
+    const tag = (card.dataset.tag || "").toLowerCase();
+    const color = (card.dataset.color || "").toLowerCase();
+    const season = (card.dataset.season || "").toLowerCase();
+    const occasion = (card.dataset.occasion || "").toLowerCase();
+    const hay = [name, tag, color, season, occasion].join(" ");
+    card.style.display = !q || hay.includes(q) ? "" : "none";
   });
 }
 
-function wwClosetHandleDrop(e) {
-  e.preventDefault();
-  const zone = document.getElementById("upload-zone");
-  if (zone) {
-    zone.classList.remove("border-[#d76736]", "bg-[#f2e0d5]/55");
-    zone.classList.add("border-black/15", "bg-white/35");
+function openDetail(card) {
+  if (!card) return;
+  if (activeCard) activeCard.classList.remove("active");
+  card.classList.add("active");
+  activeCard = card;
+
+  document.getElementById("detail-col")?.classList.add("open");
+  document.getElementById("drawer-overlay")?.classList.add("open");
+
+  const name = card.dataset.name || "";
+  const tag = card.dataset.tag || "";
+  const color = card.dataset.color || "";
+  const season = card.dataset.season || "";
+  const occasion = card.dataset.occasion || "";
+  const emoji = card.dataset.emoji || "👕";
+  const gradient = card.dataset.gradient || "";
+  const wornCount = Number(card.dataset.wornCount || "0");
+  const isFewUsed = (card.dataset.fewUsed || "") === "true";
+  const dates = (card.dataset.dates || "").split("|").filter(Boolean);
+  const dna = (card.dataset.dna || "")
+    .split("|")
+    .filter(Boolean)
+    .map(entry => {
+      const [label, value] = entry.split("~");
+      return { label: label || "", value: Number(value || "0") };
+    });
+  const outfits = (card.dataset.outfits || "")
+    .split("|")
+    .filter(Boolean)
+    .map(entry => {
+      const [date, outfitName, outfitOccasion] = entry.split("~");
+      return { date: date || "", name: outfitName || "", occasion: outfitOccasion || "" };
+    });
+
+  const content = document.getElementById("detail-content");
+  if (content) {
+    const chips = [
+      { cls: "cat", text: tag },
+      { cls: isFewUsed ? "few" : "worn", text: isFewUsed ? "Few used" : `Worn ${wornCount}×` },
+      { cls: "color", text: color }
+    ].filter(x => (x.text || "").trim().length > 0);
+
+    content.innerHTML = `
+      <div class="detail-name">${escapeHtml(name)}</div>
+      <div class="detail-tags">
+        ${chips.map(c => `<span class="d-tag ${c.cls}">${escapeHtml(c.text)}</span>`).join("")}
+      </div>
+      <div class="detail-sec">
+        <div class="detail-sec-label">Wear frequency this month</div>
+        <div class="freq-bar"><div class="freq-fill" style="width:${Math.min(100, wornCount * 10)}%"></div></div>
+        <div class="worn-dates">${dates.map(date => `<span class="worn-chip">${escapeHtml(date)}</span>`).join("")}</div>
+      </div>
+      <div class="detail-sec">
+        <div class="detail-sec-label">Style profile</div>
+        <div class="style-dna">
+          ${dna.map(profile => `
+            <div class="dna-row">
+              <span class="dna-label">${escapeHtml(profile.label)}</span>
+              <div class="dna-bar-wrap"><div class="dna-bar" style="width:${profile.value}%"></div></div>
+              <span class="dna-val">${profile.value}%</span>
+            </div>`).join("")}
+        </div>
+      </div>
+      <div class="detail-sec">
+        <div class="detail-sec-label">Recent outfits</div>
+        <div class="outfit-chips">
+          ${outfits.map(outfit => `
+            <div class="outfit-chip">
+              <div><div class="oc-date">${escapeHtml(outfit.date)}</div><div class="oc-name">${escapeHtml(outfit.name)}</div></div>
+              <span class="oc-occ">${escapeHtml(outfit.occasion)}</span>
+            </div>`).join("")}
+        </div>
+      </div>
+    `;
   }
-  if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) wwClosetStartUpload();
+
+  const emojiEl = document.getElementById("detail-emoji");
+  if (emojiEl) {
+    emojiEl.textContent = emoji;
+  }
+
+  const img = document.getElementById("detail-img");
+  if (img) {
+    const parts = String(gradient).split(",");
+    const from = parts[0] ? `#${parts[0].trim()}` : "rgba(242,224,213,0.92)";
+    const to = parts[1] ? `#${parts[1].trim()}` : "rgba(211,206,184,0.78)";
+    img.style.background = `linear-gradient(145deg,${from},${to})`;
+  }
+
+  document.getElementById("detail-scroll")?.scrollTo?.({ top: 0 });
 }
 
-// 初始狀態：套用預設 active bubble 樣式
-(function () {
-  var first = document.querySelector("[data-bubble='1'][data-cat='all']");
-  if (first) wwClosetFilterCat(first, "all");
-})();
+function closeDetail() {
+  document.getElementById("detail-col")?.classList.remove("open");
+  document.getElementById("drawer-overlay")?.classList.remove("open");
+  if (activeCard) {
+    activeCard.classList.remove("active");
+    activeCard = null;
+  }
+}
 
+function removeCard(ev) {
+  ev?.stopPropagation?.();
+  const card = ev?.target?.closest?.(".item-card");
+  if (!card) return;
+  card.style.transition = "all .2s";
+  card.style.opacity = "0";
+  card.style.transform = "scale(.9)";
+  setTimeout(() => { card.remove(); closeDetail(); }, 200);
+}
+
+function removeActive() {
+  if (!activeCard) return;
+  activeCard.style.transition = "all .2s";
+  activeCard.style.opacity = "0";
+  activeCard.style.transform = "scale(.9)";
+  setTimeout(() => { activeCard.remove(); closeDetail(); }, 200);
+}
+
+function styleWithThis() {
+  alert("Generating outfit with this item...");
+}
+
+function escapeHtml(str) {
+  return String(str || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll("\"", "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+document.addEventListener("click", (e) => {
+  const card = e.target?.closest?.(".item-card");
+  if (!card) return;
+  openDetail(card);
+});
 </script>

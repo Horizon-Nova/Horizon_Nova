@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Bodoni+Moda:ital,wght@1,500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --orange:   #d76736;
+  --orange-d: #b8522a;
+  --orange-l: #f2e0d5;
+  --orange-m: #e8b89e;
+  --beige:    #d3ceb8;
+  --bg:       #d9d4c0;
+  --teal:     #9dbab5;
+  --ink:      #1e1b18;
+  --ink2:     #5a534c;
+  --ink3:     #9a9188;
+  --font-sans: 'Lato', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* Demo wrapper — remove in production */
+body {
+  background: var(--bg);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  padding: 40px;
+}
+
+/* ── LOCATION PILL ── */
+.loc-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,0.6);
+  border: 0.5px solid rgba(0,0,0,0.08);
+  border-radius: 20px; padding: 6px 14px;
+  cursor: pointer; transition: all 0.15s;
+  position: relative;
+  user-select: none;
+}
+.loc-pill:hover { background: rgba(255,255,255,0.9); border-color: rgba(215,103,54,0.35); }
+.loc-pill.active { background: rgba(255,255,255,0.9); border-color: rgba(215,103,54,0.35); }
+
+.loc-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--teal); flex-shrink: 0;
+  animation: pdot 2.5s infinite;
+}
+.loc-dot.manual { background: var(--orange); animation: none; }
+@keyframes pdot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.45;transform:scale(0.7)} }
+
+.loc-pin {
+  width: 11px; height: 11px;
+  stroke: var(--ink3); fill: none; stroke-width: 2.2;
+  flex-shrink: 0;
+}
+
+.loc-text {
+  font-size: 12px; color: var(--ink2);
+  font-weight: 700; white-space: nowrap;
+}
+
+.loc-edit {
+  font-size: 10.5px; color: var(--orange); font-weight: 700;
+  background: var(--orange-l); border-radius: 10px;
+  padding: 2px 7px; margin-left: 2px;
+  transition: background 0.15s; flex-shrink: 0;
+}
+.loc-pill:hover .loc-edit,
+.loc-pill.active .loc-edit { background: var(--orange-m); }
+
+/* ── DROPDOWN POPUP ── */
+.loc-popup {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  background: #fff;
+  border-radius: 18px;
+  border: 0.5px solid rgba(0,0,0,0.09);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.13), 0 4px 16px rgba(0,0,0,0.07);
+  width: 280px;
+  z-index: 100;
+  overflow: hidden;
+  display: none;
+}
+.loc-popup.open {
+  display: block;
+  animation: fadeDown 0.2s cubic-bezier(0.16,1,0.3,1);
+}
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Popup — top section */
+.loc-popup-head { padding: 14px 16px 12px; }
+
+.loc-popup-label {
+  font-size: 10px; font-weight: 700; color: var(--ink3);
+  text-transform: uppercase; letter-spacing: 0.09em;
+  margin-bottom: 10px;
+}
+
+.loc-inp-wrap { position: relative; }
+
+.loc-inp-icon {
+  position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+  width: 13px; height: 13px;
+  stroke: var(--ink3); fill: none; stroke-width: 2;
+  pointer-events: none;
+}
+
+.loc-inp {
+  width: 100%;
+  border: 1.5px solid var(--beige); border-radius: 11px;
+  padding: 9px 12px 9px 30px;
+  font-size: 13px; font-family: var(--font-sans);
+  color: var(--ink); outline: none; background: #faf9f5;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.loc-inp:focus {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px rgba(215,103,54,0.12);
+}
+.loc-inp::placeholder { color: var(--ink3); }
+
+.loc-hint {
+  font-size: 10.5px; color: var(--ink3);
+  margin-top: 5px;
+}
+
+.loc-confirm {
+  width: 100%; background: var(--orange); color: #fff; border: none;
+  border-radius: 11px; padding: 10px;
+  font-size: 12.5px; font-weight: 700; font-family: var(--font-sans);
+  cursor: pointer; margin-top: 10px;
+  transition: background 0.15s, transform 0.1s;
+  letter-spacing: 0.2px;
+}
+.loc-confirm:hover { background: var(--orange-d); }
+.loc-confirm:active { transform: scale(0.98); }
+
+/* Popup — divider */
+.loc-popup-divider { height: 0.5px; background: rgba(0,0,0,0.06); }
+
+/* Popup — bottom section */
+.loc-popup-foot { padding: 11px 16px; }
+
+.loc-relocate {
+  display: flex; align-items: center; gap: 8px;
+  background: none; border: none; width: 100%;
+  font-family: var(--font-sans); font-size: 12.5px;
+  font-weight: 700; color: var(--ink2);
+  cursor: pointer; padding: 3px 0;
+  transition: color 0.15s;
+  text-align: left;
+}
+.loc-relocate:hover { color: var(--orange); }
+.loc-relocate svg {
+  width: 14px; height: 14px;
+  stroke: currentColor; fill: none; stroke-width: 2;
+  flex-shrink: 0;
+}
+.loc-relocate-sub {
+  font-size: 10px; color: var(--ink3);
+  font-weight: 400; margin-left: auto;
+}
+</style>
+</head>
+<body>
+
+<!-- ── LOCATION PILL COMPONENT ── -->
+<div class="loc-pill" id="loc-pill" onclick="toggleLocPopup()">
+  <div class="loc-dot" id="loc-dot"></div>
+  <svg class="loc-pin" viewBox="0 0 24 24">
+    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+    <circle cx="12" cy="10" r="3"/>
+  </svg>
+  <span class="loc-text" id="loc-text">Now · Auto-detected</span>
+  <span class="loc-edit">Edit</span>
+
+  <!-- Dropdown popup -->
+  <div class="loc-popup" id="loc-popup" onclick="event.stopPropagation()">
+
+    <div class="loc-popup-head">
+      <div class="loc-popup-label">Change Location</div>
+      <div class="loc-inp-wrap">
+        <svg class="loc-inp-icon" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input
+          class="loc-inp"
+          id="loc-inp"
+          type="text"
+          placeholder="City, State or ZIP code"
+          maxlength="40"
+          onkeydown="if(event.key==='Enter') confirmLoc()"
+        />
+      </div>
+      <div class="loc-hint">e.g. Portland, ME &nbsp;·&nbsp; 04101</div>
+      <button class="loc-confirm" onclick="confirmLoc()">Apply location</button>
+    </div>
+
+    <div class="loc-popup-divider"></div>
+
+    <div class="loc-popup-foot">
+      <button class="loc-relocate" onclick="relocateMe()">
+        <svg viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
+          <circle cx="12" cy="12" r="8" stroke-dasharray="3 3"/>
+        </svg>
+        Relocate my position
+        <span class="loc-relocate-sub">Use GPS</span>
+      </button>
+    </div>
+
+  </div>
+</div>
+<!-- ── END COMPONENT ── -->
+
+<script>
+function toggleLocPopup() {
+  const popup = document.getElementById('loc-popup');
+  const pill  = document.getElementById('loc-pill');
+  const isOpen = popup.classList.contains('open');
+  popup.classList.toggle('open');
+  pill.classList.toggle('active', !isOpen);
+  if (!isOpen) setTimeout(() => document.getElementById('loc-inp').focus(), 50);
+}
+
+function confirmLoc() {
+  const val = document.getElementById('loc-inp').value.trim();
+  if (!val) return;
+  document.getElementById('loc-text').textContent = val + ' · Manual';
+  document.getElementById('loc-dot').classList.add('manual');
+  closePopup();
+}
+
+function relocateMe() {
+  document.getElementById('loc-text').textContent = 'Now · Auto-detected';
+  document.getElementById('loc-dot').classList.remove('manual');
+  closePopup();
+}
+
+function closePopup() {
+  document.getElementById('loc-popup').classList.remove('open');
+  document.getElementById('loc-pill').classList.remove('active');
+  document.getElementById('loc-inp').value = '';
+}
+
+document.addEventListener('click', function(e) {
+  if (!document.getElementById('loc-pill').contains(e.target)) closePopup();
+});
+</script>
+
+</body>
+</html>

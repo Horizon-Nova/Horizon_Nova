@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="220" height="28" viewBox="0 0 220 28" role="img" aria-label="Whatever the Weather.">
+  <style>
+    .base { font: 900 16px system-ui, -apple-system, Segoe UI, Arial, sans-serif; fill: #1e1b18; }
+    .serif { font: 500 italic 16px Georgia, "Times New Roman", serif; fill: #d76736; }
+  </style>
+  <text x="0" y="19" class="base">Whatever the </text>
+  <text x="122" y="19" class="serif">Weather.</text>
+</svg>

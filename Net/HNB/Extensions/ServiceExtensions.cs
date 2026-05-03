@@ -5,8 +5,6 @@ using HNB.Areas.WW.Services;
 using HNB.Areas.Backoffice.Utilities;
 using HNB.Areas.HNB_WEB.Repositories;
 using HNB.Areas.HNB_WEB.Services;
-using HNB.IntelligentSystems.Embedding.Module;
-using HNB.IntelligentSystems.GroundingDINO.Module;
 using HNB.Repositories;
 using HNB.Services;
 

@@ -154,44 +154,101 @@ body {
   display: flex; align-items: center; gap: 6px;
   background: rgba(255,255,255,0.6);
   border: 0.5px solid rgba(0,0,0,0.08);
-  border-radius: 20px; padding: 6px 12px;
+  border-radius: 20px; padding: 6px 14px;
   cursor: pointer; transition: all 0.15s;
   position: relative;
 }
-.loc-pill:hover { background: rgba(255,255,255,0.85); border-color: var(--orange); }
-.loc-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--teal); animation: pdot 2s infinite; }
-@keyframes pdot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.75)} }
+.loc-pill:hover { background: rgba(255,255,255,0.9); border-color: rgba(215,103,54,0.35); }
+.loc-pill.active { background: rgba(255,255,255,0.9); border-color: rgba(215,103,54,0.35); }
+.loc-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--teal); flex-shrink:0; animation: pdot 2.5s infinite; }
+.loc-dot.manual { background: var(--orange); animation: none; }
+@keyframes pdot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.45;transform:scale(0.7)} }
+.loc-svg { width: 11px; height: 11px; stroke: var(--ink3); fill: none; stroke-width: 2.2; flex-shrink:0; }
 .loc-text { font-size: 12px; color: var(--ink2); font-weight: 700; }
-.loc-edit { font-size: 10px; color: var(--orange); font-weight: 700; opacity: 0; transition: opacity 0.15s; }
-.loc-pill:hover .loc-edit { opacity: 1; }
-.loc-svg { width: 11px; height: 11px; stroke: var(--orange); fill: none; stroke-width: 2.2; }
+.loc-edit {
+  font-size: 10.5px; color: var(--orange); font-weight: 700;
+  background: var(--orange-l); border-radius: 10px;
+  padding: 2px 7px; margin-left: 2px;
+  transition: background 0.15s;
+}
+.loc-pill:hover .loc-edit, .loc-pill.active .loc-edit { background: var(--orange-m); }
 
-/* Location edit popup */
+/* Location popup */
 .loc-popup {
-  position: absolute; top: 42px; right: 0;
-  background: #fff; border-radius: 14px;
-  border: 0.5px solid rgba(0,0,0,0.1);
-  box-shadow: 0 12px 40px rgba(0,0,0,0.14);
-  padding: 14px 16px; width: 260px;
+  position: absolute; top: calc(100% + 10px); right: 0;
+  background: #fff;
+  border-radius: 18px;
+  border: 0.5px solid rgba(0,0,0,0.09);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.13), 0 4px 16px rgba(0,0,0,0.07);
+  padding: 0; width: 280px;
   z-index: 100;
   display: none;
+  overflow: hidden;
 }
-.loc-popup.open { display: block; animation: fadeUp 0.18s ease; }
-.loc-popup-label { font-size: 10px; font-weight: 700; color: var(--ink3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
-.loc-inp-row { display: flex; gap: 6px; align-items: center; }
+.loc-popup.open { display: block; animation: fadeUp 0.2s cubic-bezier(0.16,1,0.3,1); }
+@keyframes fadeUp { from { opacity:0; transform:translateY(-6px) scale(0.98); } to { opacity:1; transform:translateY(0) scale(1); } }
+
+.loc-popup-head {
+  padding: 14px 16px 12px;
+  border-bottom: 0.5px solid rgba(0,0,0,0.06);
+}
+.loc-popup-label {
+  font-size: 10px; font-weight: 700; color: var(--ink3);
+  text-transform: uppercase; letter-spacing: 0.09em;
+  margin-bottom: 10px;
+}
+.loc-inp-wrap {
+  position: relative;
+}
+.loc-inp-icon {
+  position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+  width: 13px; height: 13px; stroke: var(--ink3); fill: none; stroke-width: 2;
+  pointer-events: none;
+}
 .loc-inp {
-  flex: 1; border: 1.5px solid var(--beige); border-radius: 9px;
-  padding: 8px 11px; font-size: 13px; font-family: var(--font-sans);
-  color: var(--ink); outline: none; background: #faf9f6;
+  width: 100%; box-sizing: border-box;
+  border: 1.5px solid var(--beige); border-radius: 11px;
+  padding: 9px 12px 9px 30px;
+  font-size: 13px; font-family: var(--font-sans);
+  color: var(--ink); outline: none; background: #faf9f5;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
-.loc-inp:focus { border-color: var(--orange); }
+.loc-inp:focus {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px rgba(215,103,54,0.12);
+}
+.loc-inp::placeholder { color: var(--ink3); }
+.loc-hint { font-size: 10.5px; color: var(--ink3); margin-top: 5px; letter-spacing: 0.01em; }
+
 .loc-confirm {
-  background: var(--orange); color: #fff; border: none;
-  border-radius: 9px; padding: 8px 13px;
-  font-size: 12px; font-weight: 700; font-family: var(--font-sans);
-  cursor: pointer;
+  width: 100%; background: var(--orange); color: #fff; border: none;
+  border-radius: 11px; padding: 10px;
+  font-size: 12.5px; font-weight: 700; font-family: var(--font-sans);
+  cursor: pointer; margin-top: 10px;
+  transition: background 0.15s, transform 0.1s;
+  letter-spacing: 0.2px;
 }
 .loc-confirm:hover { background: var(--orange-d); }
+.loc-confirm:active { transform: scale(0.98); }
+
+.loc-popup-divider {
+  height: 0.5px; background: rgba(0,0,0,0.06);
+}
+.loc-popup-foot {
+  padding: 11px 16px;
+}
+.loc-relocate {
+  display: flex; align-items: center; gap: 8px;
+  background: none; border: none;
+  font-family: var(--font-sans); font-size: 12.5px;
+  font-weight: 700; color: var(--ink2);
+  cursor: pointer; padding: 3px 0;
+  transition: color 0.15s;
+  width: 100%;
+}
+.loc-relocate:hover { color: var(--orange); }
+.loc-relocate svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; flex-shrink: 0; }
+.loc-relocate-sub { font-size: 10px; color: var(--ink3); font-weight: 400; margin-left: auto; }
 
 /* ── COLS ── */
 .cols { flex: 1; display: flex; overflow: hidden; }
@@ -483,7 +540,122 @@ body {
 .fut-topbar { padding: 14px 24px; border-bottom: 0.5px solid rgba(0,0,0,0.07); flex-shrink: 0; }
 .fut-date { font-size: 14px; font-weight: 700; color: var(--ink); }
 .fut-weather { font-size: 12px; color: var(--ink2); margin-top: 3px; display: flex; align-items: center; gap: 6px; }
-.fut-scroll { flex: 1; overflow-y: auto; padding: 22px 26px; display: flex; flex-direction: column; gap: 14px; }
+.fut-scroll { flex: 1; overflow-y: auto; padding: 44px 36px 32px; display: flex; flex-direction: column; gap: 26px; }
+.fut-scroll::-webkit-scrollbar { display: none; }
+
+/* Future — date + weather hero */
+.fut-hero {
+  display: flex; align-items: flex-start; justify-content: space-between;
+}
+.fut-hero-date {
+  font-size: 22px; font-weight: 900; color: var(--ink); line-height: 1;
+}
+.fut-hero-day {
+  font-size: 12px; color: var(--ink3); font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px;
+}
+.fut-hero-weather {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.7);
+  border: 0.5px solid rgba(255,255,255,0.9);
+  border-radius: 12px; padding: 8px 14px;
+  backdrop-filter: blur(8px);
+}
+.fut-hero-ico { font-size: 22px; line-height: 1; }
+.fut-hero-temp { font-size: 18px; font-weight: 900; color: var(--ink); }
+.fut-hero-desc { font-size: 11px; color: var(--ink3); font-weight: 700; margin-top: 1px; }
+
+/* Future — input section */
+.fut-input-label {
+  font-size: 15px; font-weight: 900; color: var(--ink);
+  margin-bottom: 10px;
+}
+.fut-input-sub {
+  font-size: 11.5px; color: var(--ink3); margin-bottom: 12px; line-height: 1.6;
+}
+.fut-textarea-wrap {
+  background: rgba(255,255,255,0.75);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 2px solid rgba(255,255,255,0.9);
+  padding: 14px 16px;
+  display: flex; flex-direction: column; gap: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.fut-textarea-wrap:focus-within {
+  border-color: var(--orange);
+  box-shadow: 0 4px 24px rgba(215,103,54,0.15);
+}
+.fut-inp {
+  border: none; outline: none;
+  font-size: 14px; font-family: var(--font-sans); font-weight: 700;
+  color: var(--ink); background: transparent;
+  width: 100%; resize: none; line-height: 1.55;
+  min-height: 52px;
+}
+.fut-inp::placeholder { color: var(--ink3); font-weight: 400; }
+.fut-quick-chips {
+  display: flex; gap: 5px; flex-wrap: wrap; padding-top: 4px;
+  border-top: 0.5px solid rgba(0,0,0,0.06);
+}
+.fut-chip {
+  font-size: 10.5px; color: var(--ink3); font-weight: 700;
+  background: rgba(0,0,0,0.05); border-radius: 20px;
+  padding: 3px 9px; cursor: pointer; transition: all 0.12s;
+  border: none; font-family: var(--font-sans);
+}
+.fut-chip:hover { background: var(--orange-l); color: var(--orange); }
+.fut-chip.on { background: var(--orange-l); color: var(--orange); }
+
+/* Future — notification hint */
+.fut-notif {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: rgba(255,255,255,0.55);
+  border: 0.5px solid rgba(255,255,255,0.8);
+  border-radius: 14px; padding: 13px 15px;
+  backdrop-filter: blur(8px);
+}
+.fut-notif-ico {
+  width: 32px; height: 32px; border-radius: 10px;
+  background: var(--orange-l); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.fut-notif-ico svg { width: 15px; height: 15px; stroke: var(--orange); fill: none; stroke-width: 2; }
+.fut-notif-text { font-size: 12px; color: var(--ink2); line-height: 1.65; }
+.fut-notif-text strong { color: var(--ink); font-weight: 700; }
+
+/* Future — save button */
+.fut-save-btn {
+  width: 100%; background: var(--orange); color: #fff;
+  border: none; border-radius: 14px; padding: 15px;
+  font-size: 14px; font-weight: 900; font-family: var(--font-sans);
+  cursor: pointer; display: flex; align-items: center;
+  justify-content: center; gap: 8px;
+  transition: all 0.15s; letter-spacing: 0.2px;
+  box-shadow: 0 6px 20px rgba(215,103,54,0.35);
+}
+.fut-save-btn:hover { background: var(--orange-d); transform: translateY(-1px); box-shadow: 0 10px 28px rgba(215,103,54,0.4); }
+.fut-save-btn:active { transform: translateY(0); }
+.fut-save-btn:disabled { opacity: 0.3; cursor: default; transform: none; box-shadow: none; }
+.fut-save-btn svg { width: 14px; height: 14px; stroke: #fff; fill: none; stroke-width: 2.5; }
+
+/* Future — saved confirmation */
+.fut-saved-state {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 12px; padding: 8px 0; text-align: center;
+}
+.fut-saved-check {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: var(--orange-l); border: 2px solid var(--orange-m);
+  display: flex; align-items: center; justify-content: center;
+}
+.fut-saved-check svg { width: 22px; height: 22px; stroke: var(--orange); fill: none; stroke-width: 2.5; }
+.fut-saved-title { font-size: 15px; font-weight: 900; color: var(--ink); }
+.fut-saved-sub { font-size: 12px; color: var(--ink3); line-height: 1.6; max-width: 260px; }
+.fut-saved-edit { font-size: 12px; color: var(--orange); font-weight: 700; cursor: pointer; margin-top: 4px; }
+.fut-saved-edit:hover { opacity: 0.7; }
+
 .fut-occ-title { font-size: 15px; font-weight: 900; color: var(--ink); }
 .fut-occ-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .fut-note { background: var(--orange-l); border-left: 3px solid var(--orange); border-radius: 0 12px 12px 0; padding: 12px 15px; font-size: 12.5px; color: #7a4020; line-height: 1.65; }
@@ -539,20 +711,32 @@ body {
       <div class="tb-r">
         <!-- Editable location -->
         <div class="loc-pill" id="loc-pill" onclick="toggleLocPopup()">
-          <div class="loc-dot"></div>
+          <div class="loc-dot" id="loc-dot"></div>
           <svg class="loc-svg" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          <span class="loc-text" id="loc-text">New York · Mon Apr 21</span>
+          <span class="loc-text" id="loc-text">New York · Auto-detected</span>
           <span class="loc-edit">Edit</span>
           <!-- Popup -->
           <div class="loc-popup" id="loc-popup" onclick="event.stopPropagation()">
-            <div class="loc-popup-label">Change Location</div>
-            <div class="loc-inp-row">
-              <input class="loc-inp" id="loc-inp" placeholder="City, State or ZIP" onkeydown="if(event.key==='Enter')confirmLoc()"/>
-              <button class="loc-confirm" onclick="confirmLoc()">Set</button>
+            <div class="loc-popup-head">
+              <div class="loc-popup-label">Change Location</div>
+              <div class="loc-inp-wrap">
+                <svg class="loc-inp-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input class="loc-inp" id="loc-inp" placeholder="City, State or ZIP code" onkeydown="if(event.key==='Enter')confirmLoc()"/>
+              </div>
+              <div class="loc-hint">e.g. Portland, ME &nbsp;·&nbsp; 04101</div>
+              <button class="loc-confirm" onclick="confirmLoc()">Apply location</button>
+            </div>
+            <div class="loc-popup-divider"></div>
+            <div class="loc-popup-foot">
+              <button class="loc-relocate" onclick="relocateMe()">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8" stroke-dasharray="3 3"/></svg>
+                Relocate my position
+                <span class="loc-relocate-sub">Use GPS</span>
+              </button>
             </div>
           </div>
         </div>
-        <div class="av" onclick="toggleLocPopup()">J</div>
+        <div class="av">J</div>
       </div>
     </div>
 
@@ -579,20 +763,20 @@ body {
           <div class="week-strip">
             <div class="week-hdr">This Week</div>
             <div class="week-row">
-              <div class="wday" data-type="past" data-date="Apr 17" data-occ="Casual" data-name="Weekend Easy" data-temp="25°" data-ico="☀️" onclick="clickDay(this)"><div class="wd-lbl">Fri</div><div class="wd-ico">☀️</div><div class="wd-circle filled"></div></div>
-              <div class="wday" data-type="past" data-date="Apr 18" data-occ="Date" data-name="Evening Chic" data-temp="21°" data-ico="🌙" onclick="clickDay(this)"><div class="wd-lbl">Sat</div><div class="wd-ico">🌤️</div><div class="wd-circle filled"></div></div>
-              <div class="wday" data-type="past" data-date="Apr 19" data-occ="Work" data-name="Smart Casual" data-temp="23°" data-ico="⛅" onclick="clickDay(this)"><div class="wd-lbl">Sun</div><div class="wd-ico">⛅</div><div class="wd-circle filled"></div></div>
               <div class="wday today sel" id="day-today" data-type="today" onclick="clickDay(this)"><div class="wd-lbl">Today</div><div class="wd-ico">🌧️</div><div class="wd-circle"></div></div>
               <div class="wday" data-type="future" data-date="Tue Apr 22" data-temp="24°" data-ico="⛅" data-desc="Partly cloudy" onclick="clickDay(this)"><div class="wd-lbl">Tue</div><div class="wd-ico">⛅</div><div class="wd-circle"></div></div>
               <div class="wday" data-type="future" data-date="Wed Apr 23" data-temp="26°" data-ico="🌤️" data-desc="Mostly sunny" onclick="clickDay(this)"><div class="wd-lbl">Wed</div><div class="wd-ico">🌤️</div><div class="wd-circle"></div></div>
               <div class="wday" data-type="future" data-date="Thu Apr 24" data-temp="28°" data-ico="☀️" data-desc="Hot and sunny" onclick="clickDay(this)"><div class="wd-lbl">Thu</div><div class="wd-ico">☀️</div><div class="wd-circle"></div></div>
+              <div class="wday" data-type="future" data-date="Fri Apr 25" data-temp="22°" data-ico="🌧️" data-desc="Light rain" onclick="clickDay(this)"><div class="wd-lbl">Fri</div><div class="wd-ico">🌧️</div><div class="wd-circle"></div></div>
+              <div class="wday" data-type="future" data-date="Sat Apr 26" data-temp="27°" data-ico="☀️" data-desc="Sunny" onclick="clickDay(this)"><div class="wd-lbl">Sat</div><div class="wd-ico">☀️</div><div class="wd-circle"></div></div>
+              <div class="wday" data-type="future" data-date="Sun Apr 27" data-temp="25°" data-ico="🌤️" data-desc="Partly cloudy" onclick="clickDay(this)"><div class="wd-lbl">Sun</div><div class="wd-ico">🌤️</div><div class="wd-circle"></div></div>
             </div>
           </div>
 
           <!-- Occasion -->
           <div class="occ-section" id="occ-section">
             <div>
-              <div class="occ-title" id="occ-title">What's today about?</div>
+              <div class="occ-title" id="occ-title">Where are we going?</div>
               <div class="occ-sub">Quick pick, or describe below</div>
             </div>
             <div class="occ-grid">
@@ -620,7 +804,7 @@ body {
         <div class="lp-foot">
           <button class="gbtn" id="gbtn" disabled onclick="startGen()">
             <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-            <span id="gbtn-label">Style me today</span>
+            <span id="gbtn-label">Let's go.</span>
           </button>
         </div>
       </div>
@@ -633,8 +817,8 @@ body {
           <div class="r-empty-ico">
             <svg viewBox="0 0 24 24"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.57a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.57a2 2 0 00-1.34-2.23z"/></svg>
           </div>
-          <div class="r-empty-title">Your outfit will appear here</div>
-          <div class="r-empty-sub">Pick an occasion or describe your day — then tap Style me today</div>
+          <div class="r-empty-title">Tell me about today — I'll handle the rest.</div>
+          <div class="r-empty-sub">Pick an occasion or describe your day — then tap Let's go.</div>
         </div>
 
         <!-- Gen loader -->
@@ -726,21 +910,69 @@ body {
 
         <!-- Future plan -->
         <div class="r-future hidden" id="r-future">
-          <div class="fut-topbar"><div class="fut-date" id="fut-date">Tue Apr 22</div><div class="fut-weather"><span id="fut-ico">⛅</span><span id="fut-desc">24° · Partly cloudy</span></div></div>
           <div class="fut-scroll">
-            <div class="fut-note">Weather forecast is ready. Set your occasion and we'll generate your outfit the morning of this day.</div>
-            <div class="fut-occ-title">What's the occasion?</div>
-            <div class="fut-occ-grid">
-              <div class="ocard" onclick="pickFutOcc(this,'Work')"><div class="em">💼</div><div class="nm">Work</div><div class="ht">Office or meetings</div></div>
-              <div class="ocard" onclick="pickFutOcc(this,'Casual')"><div class="em">☕</div><div class="nm">Casual</div><div class="ht">Errands or chill</div></div>
-              <div class="ocard" onclick="pickFutOcc(this,'Date')"><div class="em">✨</div><div class="nm">Date</div><div class="ht">Dinner or night out</div></div>
-              <div class="ocard" onclick="pickFutOcc(this,'Outdoor')"><div class="em">🌿</div><div class="nm">Outdoor</div><div class="ht">Parks or activities</div></div>
+
+            <!-- Date + weather hero -->
+            <div class="fut-hero">
+              <div>
+                <div class="fut-hero-day" id="fut-day-label">Tuesday</div>
+                <div class="fut-hero-date" id="fut-date">Apr 22</div>
+              </div>
+              <div class="fut-hero-weather">
+                <div class="fut-hero-ico" id="fut-ico">⛅</div>
+                <div>
+                  <div class="fut-hero-temp" id="fut-temp">24°</div>
+                  <div class="fut-hero-desc" id="fut-desc">Partly cloudy</div>
+                </div>
+              </div>
             </div>
-            <button class="fut-gbtn hidden" id="fut-gbtn" onclick="saveFuture()"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Save to calendar</button>
-            <div class="hidden" id="fut-saved" style="background:var(--orange-l);border:0.5px solid var(--orange-m);border-radius:13px;padding:14px 16px;font-size:12.5px;color:#7a4020;display:flex;align-items:center;gap:10px;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7a4020" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
-              Occasion saved. We'll generate your outfit the morning of this day.
+
+            <!-- Input section (shown when not saved) -->
+            <div id="fut-input-section">
+              <div class="fut-input-label">What's happening that day?</div>
+              <div class="fut-input-sub">One line is enough. We'll take it from there.</div>
+              <div class="fut-textarea-wrap">
+                <textarea class="fut-inp" id="fut-note-inp" rows="2"
+                  placeholder='e.g. "job interview downtown", "friends dinner"'
+                  oninput="handleFutInp(this)"></textarea>
+                <div class="fut-quick-chips">
+                  <button class="fut-chip" onclick="setFutChip(this,'💼 Work day')">💼 Work day</button>
+                  <button class="fut-chip" onclick="setFutChip(this,'✨ Date night')">✨ Date night</button>
+                  <button class="fut-chip" onclick="setFutChip(this,'☕ Casual day')">☕ Casual day</button>
+                  <button class="fut-chip" onclick="setFutChip(this,'🌿 Outdoor plans')">🌿 Outdoor plans</button>
+                </div>
+              </div>
+
+              <!-- Notification hint -->
+              <div class="fut-notif">
+                <div class="fut-notif-ico">
+                  <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+                </div>
+                <div class="fut-notif-text">
+                  <strong>Outfit ready the night before, 9 PM.</strong><br>
+                  Tell us what's happening. We'll check the forecast and pick from your closet.
+                </div>
+              </div>
+
+              <!-- Save button -->
+              <button class="fut-save-btn" id="fut-save-btn" disabled onclick="saveFuturePlan()">
+                <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Save plan
+              </button>
             </div>
+
+            <!-- Saved confirmation (hidden by default) -->
+            <div id="fut-saved-section" class="hidden">
+              <div class="fut-saved-state">
+                <div class="fut-saved-check">
+                  <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <div class="fut-saved-title">Saved.</div>
+                <div class="fut-saved-sub" id="fut-saved-note-display">Outfit coming the night before at 9 PM.</div>
+                <div class="fut-saved-edit" onclick="editFuturePlan()">Edit plan</div>
+              </div>
+            </div>
+
           </div>
         </div>
 
@@ -767,17 +999,34 @@ function hideAllRight(){ ['r-empty','r-gen','r-items','r-result','r-record','r-f
 // Location popup
 function toggleLocPopup(){
   const p = document.getElementById('loc-popup');
+  const pill = document.getElementById('loc-pill');
+  const isOpen = p.classList.contains('open');
   p.classList.toggle('open');
-  if(p.classList.contains('open')) setTimeout(()=>document.getElementById('loc-inp').focus(), 50);
+  pill.classList.toggle('active', !isOpen);
+  if(!isOpen) setTimeout(()=>document.getElementById('loc-inp').focus(), 50);
 }
 function confirmLoc(){
   const v = document.getElementById('loc-inp').value.trim();
-  if(v){ document.getElementById('loc-text').textContent = v + ' · ' + new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}); }
+  if(!v) return;
+  document.getElementById('loc-text').textContent = v + ' · Manual';
+  document.getElementById('loc-dot').classList.add('manual');
   document.getElementById('loc-popup').classList.remove('open');
+  document.getElementById('loc-pill').classList.remove('active');
+  document.getElementById('loc-inp').value = '';
+}
+function relocateMe(){
+  document.getElementById('loc-text').textContent = 'New York · Auto-detected';
+  document.getElementById('loc-dot').classList.remove('manual');
+  document.getElementById('loc-popup').classList.remove('open');
+  document.getElementById('loc-pill').classList.remove('active');
+  document.getElementById('loc-inp').value = '';
 }
 document.addEventListener('click', e=>{
   const pill = document.getElementById('loc-pill');
-  if(!pill.contains(e.target)) document.getElementById('loc-popup').classList.remove('open');
+  if(!pill.contains(e.target)){
+    document.getElementById('loc-popup').classList.remove('open');
+    pill.classList.remove('active');
+  }
 });
 
 function setEx(txt){
@@ -794,33 +1043,87 @@ function clickDay(el){
   if(type==='today'){
     document.getElementById('tb-title').innerHTML = "Whatever the <em>Weather.</em>";
     show('occ-section');
-    document.getElementById('occ-title').textContent = "What's today about?";
-    document.getElementById('gbtn-label').textContent = "Style me today";
+    document.getElementById('occ-title').textContent = "Where are we going?";
+    document.getElementById('gbtn-label').textContent = "Let's go.";
     resetOcc(); hideAllRight(); fadeIn('r-empty');
-  } else if(type==='past'){
+  } else {
     hide('occ-section');
     document.getElementById('gbtn').disabled = true;
-    const d = pastData[el.dataset.date];
     document.getElementById('tb-title').innerHTML = el.dataset.date;
-    document.getElementById('rec-date').textContent = el.dataset.date;
-    document.getElementById('rec-meta').textContent = d.occ+' · '+d.temp+' '+el.dataset.ico;
-    document.getElementById('rec-badge').textContent = d.occ;
-    document.getElementById('rec-weather').textContent = d.temp+' '+el.dataset.ico;
-    document.getElementById('rec-name').textContent = d.name;
-    document.getElementById('rec-reason').textContent = d.reason;
-    hideAllRight(); fadeIn('r-record');
-  } else {
-    show('occ-section');
-    document.getElementById('occ-title').textContent = 'What\'s the occasion for '+el.dataset.date+'?';
-    document.getElementById('gbtn-label').textContent = 'Save to calendar';
-    resetOcc();
+
+    // Populate future panel
+    const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     document.getElementById('fut-date').textContent = el.dataset.date;
     document.getElementById('fut-ico').textContent = el.dataset.ico;
-    document.getElementById('fut-desc').textContent = el.dataset.temp+' · '+el.dataset.desc;
-    hide('fut-saved'); hide('fut-gbtn');
-    document.querySelectorAll('#r-future .ocard').forEach(c=>c.classList.remove('on'));
+    document.getElementById('fut-temp').textContent = el.dataset.temp;
+    document.getElementById('fut-desc').textContent = el.dataset.desc;
+
+    // Day label from date string
+    const dayLabel = el.dataset.date.split(' ')[0];
+    const dayMap = {Tue:'Tuesday',Wed:'Wednesday',Thu:'Thursday',Fri:'Friday',Sat:'Saturday',Sun:'Sunday',Mon:'Monday'};
+    document.getElementById('fut-day-label').textContent = dayMap[dayLabel] || dayLabel;
+
+    // Reset to input state
+    const key = el.dataset.date;
+    if(futPlans[key]){
+      showFutSaved(futPlans[key]);
+    } else {
+      show('fut-input-section');
+      hide('fut-saved-section');
+      document.getElementById('fut-note-inp').value = '';
+      document.getElementById('fut-save-btn').disabled = true;
+      document.querySelectorAll('.fut-chip').forEach(c=>c.classList.remove('on'));
+    }
+
+    // Update dot on day strip
     hideAllRight(); fadeIn('r-future');
   }
+}
+
+// Future plan state per day
+const futPlans = {};
+
+function handleFutInp(el){
+  document.getElementById('fut-save-btn').disabled = !el.value.trim();
+  document.querySelectorAll('.fut-chip').forEach(c=>c.classList.remove('on'));
+}
+
+function setFutChip(el, txt){
+  document.querySelectorAll('.fut-chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('fut-note-inp').value = txt;
+  document.getElementById('fut-save-btn').disabled = false;
+}
+
+function saveFuturePlan(){
+  const note = document.getElementById('fut-note-inp').value.trim();
+  if(!note) return;
+  const selDay = document.querySelector('.wday.sel');
+  const key = selDay ? selDay.dataset.date : '';
+  if(key) futPlans[key] = note;
+
+  // Mark dot on strip
+  if(selDay){ const c=selDay.querySelector('.wd-circle'); if(c) c.classList.add('filled'); }
+
+  showFutSaved(note);
+}
+
+function showFutSaved(note){
+  hide('fut-input-section');
+  document.getElementById('fut-saved-note-display').textContent =
+    '"' + note + '" — outfit coming the night before at 9 PM.';
+  show('fut-saved-section');
+}
+
+function editFuturePlan(){
+  const selDay = document.querySelector('.wday.sel');
+  const key = selDay ? selDay.dataset.date : '';
+  const existing = futPlans[key] || '';
+  show('fut-input-section');
+  hide('fut-saved-section');
+  document.getElementById('fut-note-inp').value = existing;
+  document.getElementById('fut-save-btn').disabled = !existing;
 }
 
 function resetOcc(){
@@ -839,15 +1142,6 @@ function handleFree(el){
   document.querySelectorAll('#occ-section .ocard').forEach(c=>c.classList.remove('on'));
   selOcc = el.value.trim();
   document.getElementById('gbtn').disabled = !selOcc;
-}
-function pickFutOcc(el, occ){
-  document.querySelectorAll('#r-future .ocard').forEach(c=>c.classList.remove('on'));
-  el.classList.add('on'); show('fut-gbtn');
-}
-function saveFuture(){
-  hide('fut-gbtn'); fadeIn('fut-saved');
-  const selDay = document.querySelector('.wday.sel');
-  if(selDay){ const c=selDay.querySelector('.wd-circle'); if(c) c.classList.add('filled'); }
 }
 function startGen(){
   const occ = selOcc||'Work';

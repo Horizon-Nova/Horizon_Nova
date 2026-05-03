@@ -1,3 +1,5 @@
+@using System.Globalization
+@using System.Linq
 @model (HNB.Areas.WW.Models.WardrobeItemModel Item, string Cat, string Tag, string Gradient)
 
 @{
@@ -5,63 +7,111 @@
     var cat = Model.Cat;
     var tag = Model.Tag;
     var gradient = Model.Gradient;
+
+    int QueryWornCount()
+    {
+        var seed = Math.Abs($"{item.Id}|{item.Name}|{cat}".GetHashCode());
+        return (seed % 10) + 1;
+    }
+
+    bool QueryFewUsed()
+        => QueryWornCount() <= 2;
+
+    string QueryDatesData()
+    {
+        var limit = Math.Min(QueryWornCount(), 5);
+        var seed = Math.Abs((item.Id ?? string.Empty).GetHashCode());
+        var baseDate = new DateOnly(2026, 4, 20);
+
+        return string.Join("|", Enumerable.Range(0, limit)
+            .Select(index => baseDate.AddDays(-((seed + (index * 3)) % 24)).ToString("MMM d", CultureInfo.InvariantCulture)));
+    }
+
+    string QueryStyleProfileData()
+    {
+        var labels = cat switch
+        {
+            "tops" => new[] { "Versatility", "Formality", "Layerability" },
+            "bottoms" => new[] { "Versatility", "Formality", "Seasonality" },
+            "outerwear" => new[] { "Versatility", "Formality", "Layerability" },
+            "shoes" => new[] { "Versatility", "Formality", "Comfort" },
+            "accessories" => new[] { "Versatility", "Formality", "Capacity" },
+            _ => new[] { "Versatility", "Formality", "Seasonality" }
+        };
+
+        var seed = Math.Abs($"{item.Name}|{item.PrimaryColor}|{cat}".GetHashCode());
+        return string.Join("|", labels.Select((label, index) =>
+        {
+            var value = 45 + ((seed + (index * 17)) % 51);
+            return $"{label}~{value}";
+        }));
+    }
+
+    string QueryRecentOutfitsData()
+    {
+        var occasion = string.IsNullOrWhiteSpace(item.Occasion) ? "Casual" : item.Occasion;
+        var lookNames = occasion switch
+        {
+            "上班" => new[] { "Office Classic", "Board Meeting", "Workday Layers" },
+            "約會" => new[] { "Dinner Date", "Evening Glow", "Weekend Dress Up" },
+            "通勤" => new[] { "City Commute", "Rainy Commute", "Early Train" },
+            _ => new[] { "Weekend Glow", "Sunday Easy", "Casual Friday" }
+        };
+
+        return string.Join("|", QueryDatesData()
+            .Split('|', StringSplitOptions.RemoveEmptyEntries)
+            .Take(3)
+            .Select((date, index) => $"{date}~{lookNames[index % lookNames.Length]}~{occasion}"));
+    }
+
+    var wornCount = QueryWornCount();
+    var fewUsed = QueryFewUsed();
+    var datesData = QueryDatesData();
+    var styleProfileData = QueryStyleProfileData();
+    var recentOutfitsData = QueryRecentOutfitsData();
+
+    var emoji = cat switch
+    {
+        "bottoms" => "👖",
+        "outerwear" => "🧥",
+        "shoes" => "👟",
+        "accessories" => "👜",
+        "unconfirmed" => "🧷",
+        "uncategorized" => "🧺",
+        _ => "👕"
+    };
 }
 
-<div class="ccard overflow-hidden rounded-[18px] border border-white/80 bg-white/55 shadow-[0_8px_22px_rgba(0,0,0,0.06)] backdrop-blur-[10px] transition hover:-translate-y-[2px] hover:border-[#d76736]/25 hover:shadow-[0_12px_28px_rgba(0,0,0,0.09)]"
-     data-cat="@cat">
-    <div class="relative flex h-[120px] items-center justify-center" style="background:linear-gradient(145deg,#@gradient);">
-        @if (cat == "bottoms")
+<div class="item-card"
+     data-cat="@cat"
+     data-name="@item.Name"
+     data-tag="@tag"
+     data-color="@item.PrimaryColor"
+     data-season="@item.Season"
+     data-occasion="@item.Occasion"
+     data-gradient="@gradient"
+     data-emoji="@emoji"
+     data-worn-count="@wornCount"
+     data-few-used="@fewUsed.ToString().ToLowerInvariant()"
+     data-dates="@datesData"
+     data-dna="@styleProfileData"
+     data-outfits="@recentOutfitsData">
+
+    <div class="item-x" onclick="removeCard(event)">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+    </div>
+
+    <div class="item-img" style="background:linear-gradient(145deg,#@gradient);">@emoji</div>
+
+    <div class="item-info">
+        <div class="item-name">@item.Name</div>
+        @if (fewUsed)
         {
-            <svg class="h-[34px] w-[34px] fill-none stroke-black/20 stroke-[1.3] [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24"><path d="M6 2l-3 8h5v12h8V10h5l-3-8H6z" /></svg>
-        }
-        else if (cat == "outerwear")
-        {
-            <svg class="h-[34px] w-[34px] fill-none stroke-black/20 stroke-[1.3] [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24"><path d="M3 5c0-1 .7-2 2-2l4 3 3-3 3 3 4-3c1.3 0 2 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5z" /></svg>
-        }
-        else if (cat == "shoes")
-        {
-            <svg class="h-[34px] w-[34px] fill-none stroke-black/20 stroke-[1.3] [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 32 20"><ellipse cx="8" cy="14" rx="7" ry="5" /><ellipse cx="24" cy="14" rx="7" ry="5" /><path d="M1 14V8a6 6 0 0 1 12 0v2h6V8a6 6 0 0 1 12 0v6" /></svg>
-        }
-        else if (cat == "accessories")
-        {
-            <svg class="h-[34px] w-[34px] fill-none stroke-black/20 stroke-[1.3] [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" /></svg>
+            <div class="item-worn few">Few used</div>
         }
         else
         {
-            <svg class="h-[34px] w-[34px] fill-none stroke-black/20 stroke-[1.3] [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24"><path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z" /></svg>
+            <div class="item-worn">Worn @wornCount×</div>
         }
-
-        <div class="absolute left-[10px] top-[10px] rounded-full border border-black/10 bg-white/75 px-[9px] py-1 text-[10px] font-black text-black/55">@tag</div>
-        @if (item.IsPendingReview)
-        {
-            <div class="absolute right-[10px] top-[10px] rounded-full border border-[#d76736]/25 bg-[#d76736]/15 px-[9px] py-1 text-[10px] font-black text-[#d76736]">Needs review</div>
-        }
-        <button type="button"
-                class="absolute bottom-[10px] right-[10px] flex h-[26px] w-[26px] items-center justify-center rounded-[10px] border border-black/10 bg-white/65 transition hover:-translate-y-px hover:border-[#d76736]/40"
-                onclick="event.stopPropagation()"
-                aria-label="Remove">
-            <svg class="h-[14px] w-[14px] fill-none stroke-black/45 stroke-[2] [stroke-linecap:round]" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-        </button>
-    </div>
-    <div class="px-3 pb-[13px] pt-3">
-        <div class="text-[13px] font-black text-[#1e1b18]">@item.Name</div>
-        <div class="mt-2 flex flex-wrap gap-[6px]">
-            @if (!string.IsNullOrWhiteSpace(item.PrimaryColor))
-            {
-                <span class="rounded-full border border-black/10 bg-white/75 px-2 py-1 text-[10px] font-black text-black/55">@item.PrimaryColor</span>
-            }
-            @if (!string.IsNullOrWhiteSpace(item.Season))
-            {
-                <span class="rounded-full border border-black/10 bg-white/75 px-2 py-1 text-[10px] font-black text-black/55">@item.Season</span>
-            }
-            @if (!string.IsNullOrWhiteSpace(item.Occasion))
-            {
-                <span class="rounded-full border border-black/10 bg-white/75 px-2 py-1 text-[10px] font-black text-black/55">@item.Occasion</span>
-            }
-            @if (item.IsPendingReview)
-            {
-                <span class="rounded-full border border-[#d76736]/25 bg-[#d76736]/15 px-2 py-1 text-[10px] font-black text-[#d76736]">Needs review</span>
-            }
-        </div>
     </div>
 </div>
