@@ -38,7 +38,7 @@ jobs:
       # Step 5: Build and publish to temporary location
       - name: Build and Publish
         working-directory: ./Net/HNB
-        run: dotnet publish -c Release -o ../_publish_output --no-restore
+        run: dotnet publish -c Release -o ${{ github.workspace }}/_publish_output --no-restore
 
       # Step 6: Checkout Deploy branch and prepare it
       - name: Checkout Deploy branch
@@ -50,11 +50,8 @@ jobs:
       # Step 7: Copy build output to DeployFile in Deploy branch
       - name: Copy build output to DeployFile
         run: |
-          cd deploy-repo
-          # Clean old DeployFile
-          rm -rf DeployFile/* DeployFile/.* 2>/dev/null || true
-          # Copy new build output
-          cp -r ../_publish_output/* DeployFile/ || true
+          rm -rf deploy-repo/DeployFile && mkdir -p deploy-repo/DeployFile
+          cp -r ${{ github.workspace }}/_publish_output/* deploy-repo/DeployFile/
 
       # Step 8: Configure Git and commit
       - name: Configure Git and Push
