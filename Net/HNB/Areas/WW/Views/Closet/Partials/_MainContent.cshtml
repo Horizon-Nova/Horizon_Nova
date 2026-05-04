@@ -50,6 +50,71 @@
 }
 
 <div class="cols">
+    <!-- IMPORT -->
+    <div class="import-col">
+        <div class="import-label">匯入衣櫥</div>
+
+        <input id="ww-closet-import-input" class="hidden" type="file" accept="image/*" multiple />
+
+        <div class="import-zone" id="ww-closet-import-zone">
+            <!-- IDLE -->
+            <div class="iz-idle" id="ww-closet-iz-idle">
+                <div class="import-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                        <path d="M17 8l-5-5-5 5" />
+                        <path d="M12 3v12" />
+                    </svg>
+                </div>
+                <div class="iz-title">上傳照片</div>
+                <div class="iz-sub">系統會自動辨識衣物並放入你的衣櫥</div>
+                <button class="iz-btn" type="button" id="ww-closet-import-btn">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                        <path d="M17 8l-5-5-5 5" />
+                        <path d="M12 3v12" />
+                    </svg>
+                    選擇照片
+                </button>
+                <div class="iz-hint">或將檔案拖放到此處（最多 20 張）</div>
+            </div>
+
+            <!-- SCANNING -->
+            <div class="iz-scanning" id="ww-closet-iz-scanning">
+                <div class="scan-ring-wrap" aria-hidden="true">
+                    <div class="scan-ring"></div>
+                    <div class="scan-inner">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.57a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.57a2 2 0 00-1.34-2.23z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="scan-title">正在掃描照片…</div>
+                <div class="scan-sub">辨識衣物與分類中</div>
+                <div class="scan-steps">
+                    <div class="scan-step"><div class="ss-dot done"></div><span class="ss-text done">已接收照片</span></div>
+                    <div class="scan-step"><div class="ss-dot" id="ww-closet-ss1"></div><span class="ss-text" id="ww-closet-st1">辨識衣物中…</span></div>
+                    <div class="scan-step"><div class="ss-dot" id="ww-closet-ss2"></div><span class="ss-text" id="ww-closet-st2">分類中</span></div>
+                    <div class="scan-step"><div class="ss-dot" id="ww-closet-ss3"></div><span class="ss-text" id="ww-closet-st3">分析顏色與風格</span></div>
+                    <div class="scan-step"><div class="ss-dot" id="ww-closet-ss4"></div><span class="ss-text" id="ww-closet-st4">加入衣櫥</span></div>
+                </div>
+            </div>
+
+            <!-- DONE -->
+            <div class="iz-done" id="ww-closet-iz-done">
+                <div class="done-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                        <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                </div>
+                <div class="done-title">匯入完成</div>
+                <div class="done-sub">已加入衣櫥</div>
+                <div class="done-chips" id="ww-closet-import-done-chips"></div>
+                <button class="import-again" type="button" id="ww-closet-import-again-btn">再上傳更多</button>
+            </div>
+        </div>
+    </div>
+
     <!-- CLOSET GRID -->
     <div class="closet-col" id="closet-col">
         <!-- Tops -->

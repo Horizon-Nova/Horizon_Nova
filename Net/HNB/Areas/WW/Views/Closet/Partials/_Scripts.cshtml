@@ -6,6 +6,154 @@
 // Closet interactions: based on wtw_closet_desktop.html.
 
 let activeCard = null;
+let importTimerIds = [];
+let importIsRunning = false;
+
+function wwClosetImportInit() {
+  const zone = document.getElementById("ww-closet-import-zone");
+  const input = document.getElementById("ww-closet-import-input");
+  const chooseBtn = document.getElementById("ww-closet-import-btn");
+  const againBtn = document.getElementById("ww-closet-import-again-btn");
+
+  if (!zone || !input) return;
+
+  const openPicker = () => input.click();
+
+  zone.addEventListener("click", (e) => {
+    if (importIsRunning) return;
+    if (e.target?.closest?.("button")) return;
+    openPicker();
+  });
+
+  zone.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    if (importIsRunning) return;
+    zone.classList.add("drag-over");
+  });
+
+  zone.addEventListener("dragleave", () => {
+    zone.classList.remove("drag-over");
+  });
+
+  zone.addEventListener("drop", (e) => {
+    e.preventDefault();
+    zone.classList.remove("drag-over");
+    if (importIsRunning) return;
+    const files = Array.from(e.dataTransfer?.files || []).filter(f => (f.type || "").startsWith("image/"));
+    if (files.length <= 0) return;
+    wwClosetImportStart(files);
+  });
+
+  input.addEventListener("change", () => {
+    if (importIsRunning) return;
+    const files = Array.from(input.files || []);
+    if (files.length <= 0) return;
+    wwClosetImportStart(files);
+  });
+
+  chooseBtn?.addEventListener("click", (e) => {
+    e.preventDefault();
+    if (importIsRunning) return;
+    openPicker();
+  });
+
+  againBtn?.addEventListener("click", (e) => {
+    e.preventDefault();
+    wwClosetImportReset();
+  });
+}
+
+function wwClosetImportStart(files) {
+  const idle = document.getElementById("ww-closet-iz-idle");
+  const scanning = document.getElementById("ww-closet-iz-scanning");
+  const done = document.getElementById("ww-closet-iz-done");
+  const input = document.getElementById("ww-closet-import-input");
+
+  if (!idle || !scanning || !done) return;
+
+  importIsRunning = true;
+  wwClosetImportClearTimers();
+
+  idle.style.display = "none";
+  done.style.display = "none";
+  scanning.style.display = "flex";
+
+  const steps = [
+    { dot: "ww-closet-ss1", txt: "ww-closet-st1", dl: 450 },
+    { dot: "ww-closet-ss2", txt: "ww-closet-st2", dl: 1050 },
+    { dot: "ww-closet-ss3", txt: "ww-closet-st3", dl: 1650 },
+    { dot: "ww-closet-ss4", txt: "ww-closet-st4", dl: 2250 },
+  ];
+
+  steps.forEach(({ dot, txt, dl }) => {
+    importTimerIds.push(window.setTimeout(() => {
+      document.getElementById(dot)?.classList.add("cur");
+      document.getElementById(txt)?.classList.add("cur");
+    }, dl));
+
+    importTimerIds.push(window.setTimeout(() => {
+      const dotEl = document.getElementById(dot);
+      const txtEl = document.getElementById(txt);
+      dotEl?.classList.remove("cur");
+      txtEl?.classList.remove("cur");
+      dotEl?.classList.add("done");
+      txtEl?.classList.add("done");
+    }, dl + 550));
+  });
+
+  importTimerIds.push(window.setTimeout(() => {
+    scanning.style.display = "none";
+    done.style.display = "flex";
+    wwClosetImportRenderDone(files);
+    if (input) input.value = "";
+    importIsRunning = false;
+  }, 3300));
+}
+
+function wwClosetImportRenderDone(files) {
+  const chips = document.getElementById("ww-closet-import-done-chips");
+  if (!chips) return;
+
+  const count = Math.min(20, files?.length || 0);
+  const labels = [
+    `已接收 ${count} 張`,
+    "辨識完成",
+    "已加入衣櫥"
+  ];
+
+  chips.innerHTML = labels.map(text => `<div class="done-chip">${escapeHtml(text)}</div>`).join("");
+}
+
+function wwClosetImportReset() {
+  const idle = document.getElementById("ww-closet-iz-idle");
+  const scanning = document.getElementById("ww-closet-iz-scanning");
+  const done = document.getElementById("ww-closet-iz-done");
+
+  if (!idle || !scanning || !done) return;
+
+  wwClosetImportClearTimers();
+  importIsRunning = false;
+
+  scanning.style.display = "none";
+  done.style.display = "none";
+  idle.style.display = "flex";
+
+  ["ww-closet-ss1", "ww-closet-ss2", "ww-closet-ss3", "ww-closet-ss4"].forEach(id => {
+    const el = document.getElementById(id);
+    el?.classList.remove("cur");
+    el?.classList.remove("done");
+  });
+  ["ww-closet-st1", "ww-closet-st2", "ww-closet-st3", "ww-closet-st4"].forEach(id => {
+    const el = document.getElementById(id);
+    el?.classList.remove("cur");
+    el?.classList.remove("done");
+  });
+}
+
+function wwClosetImportClearTimers() {
+  importTimerIds.forEach(id => window.clearTimeout(id));
+  importTimerIds = [];
+}
 
 function wwClosetSearch(query) {
   const q = (query || "").trim().toLowerCase();
@@ -156,5 +304,9 @@ document.addEventListener("click", (e) => {
   const card = e.target?.closest?.(".item-card");
   if (!card) return;
   openDetail(card);
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  wwClosetImportInit();
 });
 </script>
