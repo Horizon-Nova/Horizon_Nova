@@ -1,4 +1,4 @@
-namespace HNB.IntelligentSystems.Embedding.Models;
+﻿namespace HNB.IntelligentSystems.Embedding.Models;
 
 /// <summary>
 /// 嵌入請求

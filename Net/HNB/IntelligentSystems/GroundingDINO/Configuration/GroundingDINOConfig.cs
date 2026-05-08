@@ -1,4 +1,4 @@
-namespace HNB.IntelligentSystems.GroundingDINO.Configuration;
+﻿namespace HNB.IntelligentSystems.GroundingDINO.Configuration;
 
 public class GroundingDINOConfig
 {

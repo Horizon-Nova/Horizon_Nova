@@ -1,4 +1,4 @@
-namespace HNB.IntelligentSystems.DallE3.Configuration;
+﻿namespace HNB.IntelligentSystems.DallE3.Configuration;
 
 public class DallE3Config
 {

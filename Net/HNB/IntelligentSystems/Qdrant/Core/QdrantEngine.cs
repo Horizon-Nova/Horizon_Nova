@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 using HNB.IntelligentSystems.Qdrant.Configuration;
 using HNB.IntelligentSystems.Qdrant.Models;

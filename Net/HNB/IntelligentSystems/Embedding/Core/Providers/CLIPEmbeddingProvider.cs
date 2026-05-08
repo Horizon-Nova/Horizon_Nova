@@ -1,4 +1,4 @@
-using HNB.IntelligentSystems.Embedding.Configuration;
+﻿using HNB.IntelligentSystems.Embedding.Configuration;
 using Microsoft.ML.OnnxRuntime.Tensors;
 using OnnxSessionOptions = Microsoft.ML.OnnxRuntime.SessionOptions;
 using OnnxInferenceSession = Microsoft.ML.OnnxRuntime.InferenceSession;

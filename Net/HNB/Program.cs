@@ -1,4 +1,4 @@
-using HNB.Extensions;
+﻿using HNB.Extensions;
 using HNB.Filters;
 using HNB.Middleware;
 using HNB.Utilities;

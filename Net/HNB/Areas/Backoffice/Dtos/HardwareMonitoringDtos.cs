@@ -1,4 +1,4 @@
-namespace HNB.Areas.Backoffice.Dtos;
+﻿namespace HNB.Areas.Backoffice.Dtos;
 
 /// <summary>
 /// 硬體資訊資料傳輸物件

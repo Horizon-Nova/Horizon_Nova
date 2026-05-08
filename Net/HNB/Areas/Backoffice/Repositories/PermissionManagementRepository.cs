@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Models.HnbBackoffice;
 
 namespace HNB.Areas.Backoffice.Repositories;

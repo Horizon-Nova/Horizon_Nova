@@ -1,4 +1,4 @@
-namespace HNB.IntelligentSystems.Embedding.Configuration;
+﻿namespace HNB.IntelligentSystems.Embedding.Configuration;
 
 /// <summary>
 /// Embedding 模組配置

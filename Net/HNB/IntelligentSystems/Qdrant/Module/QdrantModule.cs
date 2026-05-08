@@ -1,4 +1,4 @@
-using HNB.IntelligentSystems.Qdrant.Configuration;
+﻿using HNB.IntelligentSystems.Qdrant.Configuration;
 using HNB.IntelligentSystems.Qdrant.Core;
 using HNB.IntelligentSystems.Qdrant.Models;
 using Microsoft.Extensions.Configuration;

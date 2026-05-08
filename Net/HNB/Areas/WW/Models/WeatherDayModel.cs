@@ -1,4 +1,4 @@
-namespace HNB.Areas.WW.Models
+﻿namespace HNB.Areas.WW.Models
 {
     public class WeatherDayModel
     {

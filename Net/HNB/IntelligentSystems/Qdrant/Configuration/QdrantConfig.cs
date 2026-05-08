@@ -1,4 +1,4 @@
-namespace HNB.IntelligentSystems.Qdrant.Configuration;
+﻿namespace HNB.IntelligentSystems.Qdrant.Configuration;
 
 /// <summary>
 /// Qdrant 配置類別

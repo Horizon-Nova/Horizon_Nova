@@ -1,4 +1,4 @@
-namespace HNB.IntelligentSystems.DallE3.Models;
+﻿namespace HNB.IntelligentSystems.DallE3.Models;
 
 /// <summary>
 /// DallE3 圖片編輯請求模型（從 base64 參考圖片）

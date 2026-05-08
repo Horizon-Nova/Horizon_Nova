@@ -1,4 +1,4 @@
-# FileManager 功能測試案例
+﻿# FileManager 功能測試案例
 
 ## 說明
 此檔案用於記錄 FileManager 的所有功能測試案例，每次開發/修正功能時需核對，確保沒有破壞現有功能。

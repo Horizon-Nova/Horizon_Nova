@@ -1,4 +1,4 @@
-namespace HNB.IntelligentSystems.Embedding.Core;
+﻿namespace HNB.IntelligentSystems.Embedding.Core;
 
 /// <summary>
 /// 嵌入提供者介面

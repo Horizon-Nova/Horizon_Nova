@@ -1,4 +1,4 @@
-using HNB.IntelligentSystems.Embedding.Configuration;
+﻿using HNB.IntelligentSystems.Embedding.Configuration;
 using HNB.IntelligentSystems.Embedding.Core;
 using HNB.IntelligentSystems.Embedding.Core.Providers;
 using HNB.IntelligentSystems.Embedding.Models;

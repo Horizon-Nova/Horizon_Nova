@@ -1,4 +1,4 @@
-namespace HNB.IntelligentSystems.GroundingDINO.Models;
+﻿namespace HNB.IntelligentSystems.GroundingDINO.Models;
 
 public class DetectionResult
 {

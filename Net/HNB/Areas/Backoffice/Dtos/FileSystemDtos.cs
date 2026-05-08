@@ -1,4 +1,4 @@
-namespace HNB.Areas.Backoffice.Dtos;
+﻿namespace HNB.Areas.Backoffice.Dtos;
 
 /// <summary>
 /// 檔案系統項目/詳細資訊（統一 DTO）
