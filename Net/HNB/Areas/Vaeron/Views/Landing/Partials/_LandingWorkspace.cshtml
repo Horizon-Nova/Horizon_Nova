@@ -1,0 +1,71 @@
+@* 設計稿：Feature 2 工作區（等價於 index.html 的 feature-row reverse） *@
+<div class="section-full" id="workspace">
+  <div class="container-xl px-3 px-lg-4 px-xl-5">
+    <div class="row flex-lg-row-reverse align-items-center g-4 g-lg-5 g-xl-5">
+      <div class="col-12 col-lg-6 feature-text reveal min-w-0">
+        <span class="f-tag">工作區切換</span>
+        <h2 class="f-title">不同場域，<br>不同工具</h2>
+        <p class="f-desc">為產線、測試、維運分別建立工作區，各自對應不同的模組組合。一鍵切換，Shell 自動更新側欄與狀態，不需要重新啟動。</p>
+        <ul class="f-bullets">
+          <li><div class="f-bullet-dot"></div>每個工作區對應獨立的模組組合與設定</li>
+          <li><div class="f-bullet-dot"></div>切換時顯示骨架過場，降低感知延遲</li>
+          <li><div class="f-bullet-dot"></div>狀態同步至設定檔，重啟後維持一致</li>
+        </ul>
+      </div>
+
+      <div class="col-12 col-lg-6 min-w-0">
+        <div class="f-visual reveal w-100">
+            <div class="f-visual-bar">
+              <div class="tl-dot" style="background:#FF5F57;width:8px;height:8px"></div>
+              <div class="tl-dot" style="background:#FEBC2E;width:8px;height:8px"></div>
+              <div class="tl-dot" style="background:#28C840;width:8px;height:8px"></div>
+              <span class="f-visual-title">工作區選擇</span>
+            </div>
+
+            <div class="f-visual-body">
+              <div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-bottom:10px;letter-spacing:.4px">CURRENT WORKSPACE</div>
+
+              <div class="ws-popup">
+                <div class="ws-popup-header">SWITCH WORKSPACE</div>
+                <div class="ws-row active">
+                  <div class="ws-row-name">
+                    HN-Production
+                    <span class="ws-active-badge">當前</span>
+                  </div>
+                  <div class="ws-row-desc">主要生產工作區  ·  2 modules</div>
+                </div>
+                <div class="ws-row">
+                  <div class="ws-row-name">HN-Testing</div>
+                  <div class="ws-row-desc">測試與驗證環境  ·  2 modules</div>
+                </div>
+                <div class="ws-row">
+                  <div class="ws-row-name">HN-Maintenance</div>
+                  <div class="ws-row-desc">維運與排查環境  ·  3 modules</div>
+                </div>
+              </div>
+
+              <div style="margin-top:14px;padding:10px 14px;border:1px solid var(--border);border-radius:6px;background:var(--bg)">
+                <div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-bottom:6px;letter-spacing:.4px">AFTER SWITCH — HN-Testing</div>
+                <div style="display:flex;flex-direction:column;gap:4px">
+                  <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text2)">
+                    <div style="width:4px;height:4px;border-radius:50%;background:var(--accent)"></div>
+                    TestRunner.Core <span style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-left:auto">v1.2.0</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text2)">
+                    <div style="width:4px;height:4px;border-radius:50%;background:var(--accent)"></div>
+                    MockServer.Lite <span style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-left:auto">v0.9.4</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+

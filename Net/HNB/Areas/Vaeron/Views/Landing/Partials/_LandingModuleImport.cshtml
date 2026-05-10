@@ -1,0 +1,157 @@
+@* 設計稿：Feature 1 模組匯入 *@
+
+<div class="section-full" id="import">
+
+  <div class="container-xl px-3 px-lg-4 px-xl-5">
+
+    <div class="row align-items-center g-4 g-lg-5 g-xl-5">
+
+      <div class="col-12 col-lg-6 feature-text reveal min-w-0">
+
+        <span class="f-tag">模組匯入</span>
+
+        <h2 class="f-title">導入資料夾，<br>立即就緒</h2>
+
+        <p class="f-desc">點擊「導入模組」，選取資料夾，Shell 自動掃描、驗證授權並將模組加入左側導覽列。不需要重啟，不需要設定。</p>
+
+        <ul class="f-bullets">
+
+          <li><div class="f-bullet-dot"></div>掃描模組目錄並識別中繼資料（名稱、版本、作者）</li>
+
+          <li><div class="f-bullet-dot"></div>可回收 AssemblyLoadContext 載入，支援啟停與卸載</li>
+
+          <li><div class="f-bullet-dot"></div>需要授權的模組在匯入時自動執行驗證流程</li>
+
+        </ul>
+
+      </div>
+
+      <div class="col-12 col-lg-6 min-w-0">
+
+      <div class="f-visual reveal w-100">
+
+          <div class="f-visual-bar">
+
+            <div class="tl-dot" style="background:#FF5F57;width:8px;height:8px"></div>
+
+            <div class="tl-dot" style="background:#FEBC2E;width:8px;height:8px"></div>
+
+            <div class="tl-dot" style="background:#28C840;width:8px;height:8px"></div>
+
+            <span class="f-visual-title">Modules  ·  模組管理</span>
+
+          </div>
+
+          <div class="f-visual-body">
+
+            <div class="module-list-wrap">
+
+              <div class="module-list">
+
+                <div class="module-list-hd">
+
+                  已安裝模組
+
+                  <span class="mod-count">2</span>
+
+                </div>
+
+                <div class="mod-item selected">
+
+                  <div class="mod-item-name">ProductionMonitor</div>
+
+                  <div class="mod-item-meta">
+
+                    <span>v1.3.0</span>
+
+                    <span style="opacity:.35">·</span>
+
+                    <span class="badge b-ok">啟用</span>
+
+                  </div>
+
+                </div>
+
+                <div class="mod-item">
+
+                  <div class="mod-item-name">DeployManager</div>
+
+                  <div class="mod-item-meta">
+
+                    <span>v2.1.4</span>
+
+                    <span style="opacity:.35">·</span>
+
+                    <span class="badge b-ok">啟用</span>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+              <div class="mod-detail">
+
+                <div class="mod-detail-name">ProductionMonitor</div>
+
+                <div class="mod-detail-badges">
+
+                  <span class="badge" style="background:rgba(74,127,224,.10);color:var(--accent2);font-family:var(--mono)">v1.3.0</span>
+
+                  <span class="badge b-ok">啟用</span>
+
+                </div>
+
+                <p class="mod-detail-desc">產線機台即時監控模組，顯示各機台運行狀態、今日產量與即時異常告警。</p>
+
+                <div class="mod-meta-table">
+
+                  <div class="mod-meta-row">
+
+                    <div class="mod-meta-label">開發者</div>
+
+                    <div class="mod-meta-val">Vaeron Studio</div>
+
+                  </div>
+
+                  <div class="mod-meta-row">
+
+                    <div class="mod-meta-label">識別碼</div>
+
+                    <div class="mod-meta-val" style="font-family:var(--mono);font-size:9px;color:var(--text2)">com.vaeron.prod.monitor</div>
+
+                  </div>
+
+                  <div class="mod-meta-row">
+
+                    <div class="mod-meta-label">最低版本</div>
+
+                    <div class="mod-meta-val">2.1.0</div>
+
+                  </div>
+
+                </div>
+
+                <div style="display:flex;gap:6px;margin-top:12px">
+
+                  <div style="height:28px;padding:0 12px;border-radius:4px;background:var(--accent);color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center">開啟模組</div>
+
+                  <div style="height:28px;padding:0 12px;border-radius:4px;border:1px solid var(--border2);color:var(--text2);font-size:11px;display:flex;align-items:center">停用</div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+

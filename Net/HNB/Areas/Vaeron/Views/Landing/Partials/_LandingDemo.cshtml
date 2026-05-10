@@ -1,0 +1,342 @@
+@* #demo：直接對齊 helix-demo-interactive_1.html（同頁渲染，不使用 iframe） *@
+<section class="section-full section-helix-demo position-relative overflow-hidden" id="demo" aria-label="Helix Studio 互動試用區">
+  <div class="container-fluid px-0 px-sm-2 px-md-3 px-lg-4 px-xl-5">
+    <main id="helix-demo-root" class="helix-embed-root reveal w-100 min-w-0 d-flex flex-column align-items-stretch" aria-label="Helix Studio 互動試用區" data-helix-demo-design-width="1200">
+      <div class="helix-demo-stage">
+            <div class="demo-header">
+              <div class="demo-tag"><div class="demo-dot"></div>互動 Demo  ·  真實操作體驗</div>
+              <h1>Helix Studio — 試用看看</h1>
+              <p>真正可操作的 Shell。切換頁面、匯入模組、切換工作區、篩選日誌。</p>
+            </div>
+
+            <div class="shell-wrap">
+              <!-- Titlebar -->
+              <div class="titlebar">
+                <div class="tl-dot" style="background:#FF5F57"></div>
+                <div class="tl-dot" style="background:#FEBC2E"></div>
+                <div class="tl-dot" style="background:#28C840"></div>
+                <span class="tl-lbl">Helix Studio — v2.4.1  ·  HELIX-WS-01</span>
+              </div>
+
+              <div class="shell-main">
+
+                <!-- Sidebar -->
+                <div class="sidebar">
+                  <div class="sb-logo">
+                    <div class="sb-logo-badge">H</div>
+                    <div><div class="sb-logo-name">HELIX</div><div class="sb-logo-ver">STUDIO  ·  v2.4.1</div></div>
+                  </div>
+
+                  <div class="sb-ws-btn" id="wsBtnEl" onclick="toggleWsPopup()">
+                    <div class="sb-ws-icon"><i data-lucide="folder-kanban" style="width:13px;height:13px;color:#fff"></i></div>
+                    <div><div class="sb-ws-label">WORKSPACE</div><div class="sb-ws-name" id="wsNameEl">HN-Production</div></div>
+                    <div class="sb-ws-arrow"><i data-lucide="chevron-down" style="width:14px;height:14px"></i></div>
+                  </div>
+
+                  <!-- WS Popup -->
+                  <div class="ws-popup" id="wsPopup">
+                    <div class="ws-popup-hdr">SWITCH WORKSPACE</div>
+                    <div class="ws-row active" id="wsRow0" onclick="switchWorkspace(0)">
+                      <div class="ws-row-name"><div class="ws-dot" id="wsDot0"></div>HN-Production</div>
+                      <div class="ws-row-desc">主要生產工作區  ·  2 modules</div>
+                    </div>
+                    <div class="ws-row" id="wsRow1" onclick="switchWorkspace(1)">
+                      <div class="ws-row-name"><div class="ws-dot" id="wsDot1" style="display:none"></div>HN-Testing</div>
+                      <div class="ws-row-desc">測試與驗證環境  ·  2 modules</div>
+                    </div>
+                    <div class="ws-row" id="wsRow2" onclick="switchWorkspace(2)">
+                      <div class="ws-row-name"><div class="ws-dot" id="wsDot2" style="display:none"></div>HN-Maintenance</div>
+                      <div class="ws-row-desc">維運與排查環境  ·  1 module</div>
+                    </div>
+                    <div class="ws-manage" onclick="closeWsPopup()">
+                      <i data-lucide="settings" style="width:12px;height:12px"></i>Manage Workspaces
+                    </div>
+                  </div>
+
+                  <!-- Nav -->
+                  <div class="sb-nav" id="sbNav">
+                    <div class="sb-sec">WORKSPACE</div>
+                    <div class="nav-item active" onclick="navigate('home')" data-page="home">
+                      <div class="nav-icon"><i data-lucide="layout-dashboard" style="width:14px;height:14px"></i></div>
+                      Home<span class="nav-zh">首頁</span>
+                    </div>
+
+                    <hr class="sb-div">
+                    <div class="sb-sec">MODULES</div>
+                    <div id="moduleNavItems"></div>
+
+                    <div class="sb-sec" style="margin-top:16px">SYSTEM</div>
+                    <div class="nav-item" onclick="navigate('eventlog')" data-page="eventlog">
+                      <div class="nav-icon"><i data-lucide="scroll-text" style="width:14px;height:14px"></i></div>
+                      Event Log<span class="nav-zh">日誌</span>
+                    </div>
+                    <div class="nav-item" onclick="navigate('modules')" data-page="modules">
+                      <div class="nav-icon"><i data-lucide="package" style="width:14px;height:14px"></i></div>
+                      Modules<span class="nav-zh">模組</span>
+                    </div>
+                    <div class="nav-item" onclick="navigate('settings')" data-page="settings">
+                      <div class="nav-icon"><i data-lucide="settings" style="width:14px;height:14px"></i></div>
+                      Settings<span class="nav-zh">設定</span>
+                    </div>
+                  </div>
+
+                  <!-- Skeleton -->
+                  <div id="sbSkeleton" style="display:none;position:absolute;inset:0;background:var(--SurfaceSidebar);z-index:10;padding:80px 22px;flex-direction:column;gap:10px">
+                    <div class="skeleton" style="height:28px;width:80px;margin-bottom:8px"></div>
+                    <div class="skeleton" style="height:28px;width:140px;margin-bottom:8px;opacity:.65"></div>
+                    <div class="skeleton" style="height:28px;width:110px;opacity:.35"></div>
+                  </div>
+
+                  <div class="sb-footer">
+                    <div class="sb-footer-lbl">HELIX STUDIO</div>
+                    <div class="sb-footer-info">v2.4.1 · <span style="color:var(--TextOnDarkMuted)">HELIX-WS-01</span></div>
+                  </div>
+                </div>
+
+                <!-- Splitter -->
+                <div class="splitter"></div>
+
+                <!-- Content -->
+                <div class="content-area">
+                  <div class="topbar">
+                    <div>
+                      <div class="breadcrumb" id="breadcrumb">HN-Production &nbsp;/&nbsp; <span>Home</span></div>
+                      <div class="page-title" id="pageTitle">Home</div>
+                    </div>
+                    <div class="search-bar">
+                      <i data-lucide="search" style="width:13px;height:13px;color:var(--TextTertiary)"></i>
+                      搜尋頁面、模組或指令
+                    </div>
+                    <div class="topbar-actions">
+                      <div class="icon-btn"><i data-lucide="bell" style="width:16px;height:16px"></i></div>
+                      <div class="icon-btn"><i data-lucide="circle-help" style="width:16px;height:16px"></i></div>
+                    </div>
+                  </div>
+
+                  <div class="page-content">
+
+                    <!-- HOME -->
+                    <div class="page active" id="page-home">
+                      <div class="home-body">
+                        <div class="home-welcome">
+                          <h2>Welcome <span id="hWsMachine">HELIX-WS-01</span></h2>
+                          <p id="hWsDesc">目前工作區已就緒，可檢視系統狀態、模組與常用操作。</p>
+                        </div>
+
+                        <!-- 3 summary cards -->
+                        <div class="summary-grid">
+                          <div class="card">
+                            <div class="card-col-header">
+                              <i data-lucide="monitor" style="width:14px;height:14px"></i>SYSTEM
+                            </div>
+                            <div class="card-value">Windows 11 24H2</div>
+                            <div class="card-sub">Uptime 03:42:19</div>
+                          </div>
+                          <div class="card">
+                            <div class="card-col-header">
+                              <i data-lucide="folder-kanban" style="width:14px;height:14px"></i>ACTIVE WORKSPACE
+                            </div>
+                            <div class="card-value" id="hCardWs">HN-Production</div>
+                            <div class="card-sub">已就緒</div>
+                          </div>
+                          <div class="card">
+                            <div class="card-col-header">
+                              <i data-lucide="package" style="width:14px;height:14px"></i>MODULES
+                            </div>
+                            <div class="card-value big" id="hCardModCount">2</div>
+                            <div class="card-sub"><span id="hCardModStatus">All modules ready</span></div>
+                          </div>
+                        </div>
+
+                        <!-- System Info + Quick Actions -->
+                        <div class="info-grid">
+                          <div class="card">
+                            <div class="section-title">System Information</div>
+                            <div class="section-sub">本機執行環境詳情</div>
+                            <div class="sysinfo-grid">
+                              <div class="sysinfo-item"><div class="sysinfo-label">DEVICE</div><div class="sysinfo-value">HELIX-WS-01</div></div>
+                              <div class="sysinfo-item"><div class="sysinfo-label">OPERATING SYSTEM</div><div class="sysinfo-value">Windows 11 24H2</div></div>
+                              <div class="sysinfo-item"><div class="sysinfo-label">BUILD VERSION</div><div class="sysinfo-value mono">v2.4.1+build.847</div></div>
+                              <div class="sysinfo-item"><div class="sysinfo-label">PLATFORM</div><div class="sysinfo-value">.NET 8 · WPF · x64</div></div>
+                              <div class="sysinfo-item"><div class="sysinfo-label">DATA FOLDER</div><div class="sysinfo-value mono">D:\Helix\Data</div></div>
+                              <div class="sysinfo-item">
+                                <div class="sysinfo-label">LICENSE</div>
+                                <div class="sysinfo-value success">
+                                  <i data-lucide="circle-check" style="width:13px;height:13px"></i>Active · Enterprise
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="card">
+                            <div class="section-title">Quick Actions</div>
+                            <div class="section-sub">常用操作</div>
+                            <div class="quick-actions">
+                              <div class="qa-item" onclick="navigate('settings')">
+                                <div class="qa-icon-wrap"><i data-lucide="settings" style="width:15px;height:15px"></i></div>
+                                <div><div class="qa-title">Settings</div><div class="qa-desc">語言、主題、工作區管理</div></div>
+                              </div>
+                              <div class="qa-item" onclick="toggleWsPopup()">
+                                <div class="qa-icon-wrap"><i data-lucide="folder-kanban" style="width:15px;height:15px"></i></div>
+                                <div><div class="qa-title">Manage Workspaces</div><div class="qa-desc">新增、切換或刪除工作區</div></div>
+                              </div>
+                              <div class="qa-item" onclick="navigate('modules')">
+                                <div class="qa-icon-wrap"><i data-lucide="package" style="width:15px;height:15px"></i></div>
+                                <div><div class="qa-title">Modules</div><div class="qa-desc">擴充清單與模組目錄</div></div>
+                              </div>
+                              <div class="qa-item" onclick="navigate('eventlog')">
+                                <div class="qa-icon-wrap"><i data-lucide="scroll-text" style="width:15px;height:15px"></i></div>
+                                <div><div class="qa-title">Event Log</div><div class="qa-desc">查看系統活動與錯誤記錄</div></div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Loaded modules -->
+                        <div class="card">
+                          <div class="section-title" style="margin-bottom:14px">Loaded Modules <span style="font-size:13px;font-weight:400;color:var(--TextTertiary);margin-left:8px">已載入模組</span></div>
+                          <div id="homeModuleList"></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- MODULES -->
+                    <div class="page" id="page-modules">
+                      <div class="mod-toolbar">
+                        <div>
+                          <div class="mod-toolbar-title">Modules  ·  模組管理</div>
+                          <div class="mod-toolbar-path" id="modPath">D:\Helix\Workspaces\HN-Production\Modules</div>
+                        </div>
+                        <div class="mod-toolbar-actions">
+                          <div class="ghost-btn" onclick="rescan()">
+                            <i data-lucide="refresh-cw" style="width:13px;height:13px"></i>重新掃描
+                          </div>
+                          <div class="ghost-btn accent" onclick="openImportDialog()">
+                            <i data-lucide="folder-input" style="width:13px;height:13px"></i>導入模組
+                          </div>
+                        </div>
+                      </div>
+                      <div class="mod-body">
+                        <div class="mod-list-panel">
+                          <div class="mod-list-hdr">
+                            <span class="mod-list-label">已安裝模組</span>
+                            <span class="mod-count" id="modCount">2</span>
+                          </div>
+                          <div class="mod-list" id="modList"></div>
+                        </div>
+                        <div id="modDetailArea"></div>
+                      </div>
+
+                      <!-- Import dialog -->
+                      <div class="dialog-overlay" id="importDialog">
+                        <div class="dialog-box">
+                          <div class="dialog-tbar">選取模組資料夾</div>
+                          <div class="dialog-path"><div class="dialog-path-input" id="dlgPath">D:\Helix\Plugins\</div></div>
+                          <div class="dialog-files">
+                            <div class="dialog-file" onclick="selectDlgFolder(this,'ProductionMonitor')">
+                              <i data-lucide="folder" style="width:14px;height:14px;color:var(--StatusWarning)"></i> ProductionMonitor
+                            </div>
+                            <div class="dialog-file" onclick="selectDlgFolder(this,'DeployManager')">
+                              <i data-lucide="folder" style="width:14px;height:14px;color:var(--StatusWarning)"></i> DeployManager
+                            </div>
+                            <div class="dialog-file" onclick="selectDlgFolder(this,'Assets')">
+                              <i data-lucide="folder" style="width:14px;height:14px;color:var(--StatusWarning)"></i> Assets
+                            </div>
+                            <div class="dialog-file" onclick="selectDlgFolder(this,'Config')">
+                              <i data-lucide="folder" style="width:14px;height:14px;color:var(--StatusWarning)"></i> Config
+                            </div>
+                          </div>
+                          <div class="dialog-actions">
+                            <div class="ghost-btn" onclick="closeImportDialog()">取消</div>
+                            <div class="primary-btn" id="dlgConfirmBtn" onclick="confirmImport()" style="opacity:.4;pointer-events:none">選取資料夾</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- EVENT LOG -->
+                    <div class="page" id="page-eventlog">
+                      <div class="log-toolbar">
+                        <div class="filter-btn active" onclick="setLogFilter('all',this)">All</div>
+                        <div class="filter-btn" onclick="setLogFilter('info',this)">
+                          <div class="filter-dot" style="background:var(--StatusSuccess)"></div>Info
+                        </div>
+                        <div class="filter-btn" onclick="setLogFilter('warning',this)">
+                          <div class="filter-dot" style="background:var(--StatusWarning)"></div>Warning
+                        </div>
+                        <div class="filter-btn" onclick="setLogFilter('error',this)">
+                          <div class="filter-dot" style="background:var(--StatusDanger)"></div>Error
+                        </div>
+                        <div class="filter-btn" onclick="setLogFilter('debug',this)">Debug</div>
+                        <div class="log-search">
+                          <i data-lucide="search" style="width:11px;height:11px"></i>搜尋關鍵字…
+                        </div>
+                        <div class="dl-btn" onclick="showToast('event_log_20260510.zip 已匯出')">
+                          <i data-lucide="download" style="width:12px;height:12px"></i>Download .zip
+                        </div>
+                      </div>
+                      <div class="log-tbl">
+                        <div class="log-head">
+                          <div class="log-th">TIMESTAMP</div>
+                          <div class="log-th">LEVEL</div>
+                          <div class="log-th">SOURCE</div>
+                          <div class="log-th">MESSAGE</div>
+                        </div>
+                        <div class="log-body" id="logBody"></div>
+                      </div>
+                    </div>
+
+                    <!-- SETTINGS placeholder -->
+                    <div class="page" id="page-settings">
+                      <div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--TextTertiary);flex-direction:column;gap:10px">
+                        <i data-lucide="settings" style="width:36px;height:36px;opacity:.3"></i>
+                        <div style="font-size:14px;color:var(--TextSecondary)">Settings</div>
+                        <div style="font-size:11px;opacity:.6">語言、主題、工作區管理、日誌設定…</div>
+                      </div>
+                    </div>
+
+                    <!-- MODULE UI -->
+                    <div class="page" id="page-module-ui">
+                      <div id="moduleUiContent" style="height:100%;display:flex;flex-direction:column"></div>
+                    </div>
+
+                  </div><!-- page-content -->
+                </div><!-- content-area -->
+
+                <!-- Status bar -->
+                <div class="statusbar">
+                  <span style="font-weight:600;margin-right:12px" id="sbWs">HN-Production</span>
+                  <div class="sb-sep"></div>
+                  <div class="health-dot" id="healthDot"></div>
+                  <span id="sbMods">模組：2 loaded</span>
+                  <span style="margin-left:auto;color:var(--TextOnDarkMuted)">
+                    HELIX-WS-01
+                    <span style="margin:0 12px;opacity:.3">|</span>
+                    <span style="font-family:var(--mono)">v2.4.1</span>
+                  </span>
+                </div>
+              </div><!-- shell-main -->
+
+              <!-- Toast -->
+              <div class="toast" id="toast">
+                <div class="toast-dot"></div>
+                <span id="toastMsg">操作完成</span>
+              </div>
+
+              <ul class="hints list-unstyled mb-0" role="note" aria-label="操作提示">
+                <li><span class="hint-key">左側模組名稱</span><span class="hint-txt">開啟模組 UI</span></li>
+                <li><span class="hint-key">Workspace ▾</span><span class="hint-txt">切換工作區</span></li>
+                <li><span class="hint-key">Modules → 導入模組</span><span class="hint-txt">匯入新模組</span></li>
+                <li><span class="hint-key">Event Log</span><span class="hint-txt">篩選日誌等級</span></li>
+              </ul>
+            </div>
+      </div>
+    </main>
+  </div>
+</section>
+
+
+
+
+
+

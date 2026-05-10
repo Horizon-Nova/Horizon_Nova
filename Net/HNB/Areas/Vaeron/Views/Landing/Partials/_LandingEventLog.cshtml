@@ -1,0 +1,291 @@
+@* 設計稿：Feature 3 事件日誌 *@
+
+
+
+<div class="section-full" id="eventlog">
+
+
+
+  <div class="container-xl px-3 px-lg-4 px-xl-5">
+
+
+
+    <div class="row align-items-center g-4 g-lg-5 g-xl-5">
+
+
+
+      <div class="col-12 col-lg-6 feature-text reveal min-w-0">
+
+
+
+        <span class="f-tag">事件日誌</span>
+
+
+
+        <h2 class="f-title">問題發生，<br>立刻看到</h2>
+
+
+
+        <p class="f-desc">依等級篩選、關鍵字搜尋，問題發生時不需要翻查多個工具。一鍵匯出完整記錄，便於稽核與問題回報。</p>
+
+
+
+        <ul class="f-bullets">
+
+
+
+          <li><div class="f-bullet-dot"></div>支援 Info / Warning / Error / Debug 等級過濾</li>
+
+
+
+          <li><div class="f-bullet-dot"></div>掛載未處理例外捕捉，錯誤自動記錄不遺漏</li>
+
+
+
+          <li><div class="f-bullet-dot"></div>一鍵下載 .zip，提供開發團隊定位問題</li>
+
+
+
+        </ul>
+
+
+
+      </div>
+
+
+
+      <div class="col-12 col-lg-6 min-w-0">
+
+
+
+      <div class="f-visual reveal w-100">
+
+
+
+          <div class="f-visual-bar">
+
+
+
+            <div class="tl-dot" style="background:#FF5F57;width:8px;height:8px"></div>
+
+
+
+            <div class="tl-dot" style="background:#FEBC2E;width:8px;height:8px"></div>
+
+
+
+            <div class="tl-dot" style="background:#28C840;width:8px;height:8px"></div>
+
+
+
+            <span class="f-visual-title">Event Log  ·  日誌</span>
+
+
+
+          </div>
+
+
+
+          <div class="f-visual-body">
+
+
+
+            <div class="log-filter-bar">
+
+
+
+              <div class="log-filter active">All</div>
+
+
+
+              <div class="log-filter">Info</div>
+
+
+
+              <div class="log-filter">Warning</div>
+
+
+
+              <div class="log-filter">Error</div>
+
+
+
+              <div class="log-filter">Debug</div>
+
+
+
+              <div style="margin-left:auto;height:24px;padding:0 10px;border-radius:4px;font-family:var(--mono);font-size:9px;color:var(--text2);border:1px solid var(--border);display:flex;align-items:center">Download .zip</div>
+
+
+
+            </div>
+
+
+
+            <div class="log-head">
+
+
+
+              <div class="lh">TIMESTAMP</div>
+
+
+
+              <div class="lh">LEVEL</div>
+
+
+
+              <div class="lh">SOURCE</div>
+
+
+
+              <div class="lh">MESSAGE</div>
+
+
+
+            </div>
+
+
+
+            <div class="log-row">
+
+
+
+              <div class="lc">14:00:02</div>
+
+
+
+              <div class="lc"><span class="badge b-ok">Info</span></div>
+
+
+
+              <div class="lc">Shell</div>
+
+
+
+              <div class="lc msg">Workspace loaded: HN-Production</div>
+
+
+
+            </div>
+
+
+
+            <div class="log-row">
+
+
+
+              <div class="lc">14:00:09</div>
+
+
+
+              <div class="lc"><span class="badge b-warn">Warning</span></div>
+
+
+
+              <div class="lc">Router</div>
+
+
+
+              <div class="lc msg">偵測到重複封包，已略過</div>
+
+
+
+            </div>
+
+
+
+            <div class="log-row error">
+
+
+
+              <div class="lc">14:00:21</div>
+
+
+
+              <div class="lc"><span class="badge b-err">Error</span></div>
+
+
+
+              <div class="lc" style="color:var(--danger)">Storage</div>
+
+
+
+              <div class="lc msg err">連線逾時，啟動重試  ·  COM3</div>
+
+
+
+            </div>
+
+
+
+            <div class="log-row">
+
+
+
+              <div class="lc">14:00:36</div>
+
+
+
+              <div class="lc"><span class="badge b-ok">Info</span></div>
+
+
+
+              <div class="lc">Storage</div>
+
+
+
+              <div class="lc msg">重試成功，已恢復同步</div>
+
+
+
+            </div>
+
+
+
+            <div class="log-row">
+
+
+
+              <div class="lc">14:01:02</div>
+
+
+
+              <div class="lc"><span class="badge" style="background:rgba(140,140,170,.10);color:var(--text3)">Debug</span></div>
+
+
+
+              <div class="lc">Telemetry</div>
+
+
+
+              <div class="lc msg">已送出工作區心跳</div>
+
+
+
+            </div>
+
+
+
+          </div>
+
+
+
+      </div>
+
+
+
+    </div>
+
+
+
+  </div>
+
+
+
+</div>
+
+
+
+
+
+

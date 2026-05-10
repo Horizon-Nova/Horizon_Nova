@@ -1,0 +1,119 @@
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="~/Vaeron/NovaHome/helix-demo-preview.js" asp-append-version="true"></script>
+
+<script>
+
+(function () {
+
+  const staggerMs = 80;
+
+  const markVisible = (el, idx) => {
+
+    setTimeout(() => el.classList.add('visible'), idx * staggerMs);
+
+  };
+
+  const revealTargetsInEntry = (target) => {
+
+    const els = target.classList.contains('reveal')
+
+      ? [target]
+
+      : target.querySelectorAll('.reveal');
+
+    els.forEach((el, idx) => markVisible(el, idx));
+
+  };
+
+  const ioReveal = new IntersectionObserver((entries) => {
+
+    entries.forEach((e) => {
+
+      if (!e.isIntersecting) return;
+
+      revealTargetsInEntry(e.target);
+
+      ioReveal.unobserve(e.target);
+
+    });
+
+  }, { threshold: 0.12 });
+
+
+
+  document.querySelectorAll('.reveal').forEach((el) => ioReveal.observe(el));
+
+
+
+  const applyRevealFallback = () => {
+
+    const vh = window.innerHeight || document.documentElement.clientHeight;
+
+    const vw = window.innerWidth || document.documentElement.clientWidth;
+
+    let i = 0;
+
+    document.querySelectorAll('.reveal:not(.visible)').forEach((el) => {
+
+      const r = el.getBoundingClientRect();
+
+      if (r.bottom > 0 && r.top < vh && r.right > 0 && r.left < vw) {
+
+        markVisible(el, i++);
+
+      }
+
+    });
+
+  };
+
+  requestAnimationFrame(() => requestAnimationFrame(applyRevealFallback));
+
+})();
+
+</script>
+
+<script>
+
+(function () {
+
+  const updateHelixDemoScale = () => {
+
+    const root = document.getElementById('helix-demo-root');
+
+    if (!root?.hasAttribute('data-helix-demo-design-width')) return;
+
+    const raw = parseFloat(root.getAttribute('data-helix-demo-design-width') || '', 10);
+
+    if (!Number.isFinite(raw) || raw <= 0) return;
+
+    const avail = Math.max(0, root.clientWidth);
+
+    if (avail <= 0) return;
+
+    root.style.setProperty('--helix-demo-design-width', `${raw}px`);
+
+    root.style.setProperty('--helix-demo-scale', String(Math.min(1, avail / raw)));
+
+  };
+
+  const schedule = () => window.requestAnimationFrame(updateHelixDemoScale);
+
+  window.addEventListener('resize', schedule, { passive: true });
+
+  if ('ResizeObserver' in window) {
+
+    const ro = new ResizeObserver(schedule);
+
+    const demoRoot = document.getElementById('helix-demo-root');
+
+    if (demoRoot) ro.observe(demoRoot);
+
+  }
+
+  schedule();
+
+})();
+
+</script>
+
