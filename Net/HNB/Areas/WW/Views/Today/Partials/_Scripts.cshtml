@@ -1,18 +1,13 @@
-@{
+﻿@{
     Layout = null;
 }
 
 <script>
-const aiText = "Light rain today — picked your water-resistant navy jacket + slim trousers. Skipped your linen shirt: absorbs moisture and takes hours to dry. This combo keeps you sharp and dry all day.";
-let selOcc = null;
+let selOcc = null;   // combined occasion sent to API（card + free text）
+let selCard = null;  // 目前選中的快選卡片（Work / Casual / Date / Outdoor）
 let typeT = null;
-
-const pastData = {
-  "Apr 17": { occ: "Casual", name: "Weekend Easy", temp: "25°", reason: "Sunny and warm — light linen shirt + white shorts. Breathable and easy for a weekend afternoon." },
-  "Apr 18": { occ: "Date", name: "Evening Chic", temp: "21°", reason: "Clear and mild — your silk blouse + tailored trousers. Elegant without being overdressed for dinner." },
-  "Apr 19": { occ: "Work", name: "Smart Casual", temp: "23°", reason: "Mild and partly cloudy — picked your beige chino + white button-down. Light enough for the temperature, smart enough for the office." }
-};
-
+let latestOutfit = null;
+let latestHistory = null;
 const futPlans = {};
 const futureDayMap = {
   Sun: "Sunday",
@@ -30,7 +25,6 @@ function hide(id) { document.getElementById(id)?.classList.add("hidden"); }
 function fadeIn(id) {
   const element = document.getElementById(id);
   if (!element) return;
-
   element.classList.remove("hidden");
   element.classList.add("fade");
   setTimeout(() => element.classList.remove("fade"), 250);
@@ -42,9 +36,7 @@ function hideAllRight() {
 
 function setBrandLogo() {
   const title = document.getElementById("tb-title");
-  if (title) {
-    title.innerHTML = "Whatever the <em>Weather.</em>";
-  }
+  if (title) title.innerHTML = "Whatever the <em>Weather.</em>";
 }
 
 function toggleLocPopup() {
@@ -55,7 +47,6 @@ function toggleLocPopup() {
   const isOpen = popup.classList.contains("open");
   popup.classList.toggle("open");
   pill.classList.toggle("active", !isOpen);
-
   if (!isOpen) {
     setTimeout(() => document.getElementById("loc-inp")?.focus(), 50);
   }
@@ -89,14 +80,13 @@ function applyTempUnit(unit) {
 
 function applyNowLocation(rawLocation) {
   const base = (rawLocation || "").trim();
-  const city = base.split("·")[0].split("·")[0].split("繚")[0].trim();
-  const location = city ? `${city} · NOW` : "CHICAGO · NOW";
+  const city = base.split("·")[0].trim();
+  const location = city ? `${city} · NOW` : "Taipei · NOW";
   const top = document.getElementById("loc-text");
   const card = document.getElementById("wcard-location");
 
   if (top) top.textContent = location;
   if (card) card.innerHTML = location.replace(" · ", " &bull; ");
-
   applyTempUnit(resolveTempUnit(rawLocation));
 }
 
@@ -109,7 +99,6 @@ function confirmLoc() {
 
   const text = document.getElementById("loc-text");
   if (text) text.textContent = `${value} · Manual`;
-
   document.getElementById("loc-dot")?.classList.add("manual");
   applyTempUnit(resolveTempUnit(value));
   closeLocPopup();
@@ -119,7 +108,6 @@ function confirmLoc() {
 function relocateMe() {
   const text = document.getElementById("loc-text");
   if (text) text.textContent = "Now · Auto-detected";
-
   document.getElementById("loc-dot")?.classList.remove("manual");
   closeLocPopup();
 }
@@ -134,21 +122,29 @@ document.addEventListener("click", event => {
 document.addEventListener("DOMContentLoaded", () => {
   const initial = (document.getElementById("loc-text")?.textContent || "").replace("· NOW", "").trim();
   applyTempUnit(resolveTempUnit(initial));
+  loadFuturePlansFromServer();
+  loadAndShowHistory(true);
 });
 
 function setEx(text) {
   const input = document.getElementById("free-occ");
   if (!input) return;
-
   input.value = text;
   handleFree(input);
   input.focus();
+}
+
+function buildCombinedOcc() {
+  const free = (document.getElementById("free-occ")?.value || "").trim();
+  const parts = [selCard, free].filter(Boolean);
+  return parts.length > 0 ? parts.join(" ") : null;
 }
 
 function resetOcc() {
   document.querySelectorAll("#occ-section .ocard").forEach(card => card.classList.remove("on"));
   const input = document.getElementById("free-occ");
   if (input) input.value = "";
+  selCard = null;
   selOcc = null;
   const button = document.getElementById("gbtn");
   if (button) button.disabled = true;
@@ -157,16 +153,15 @@ function resetOcc() {
 function pickOcc(element, occ) {
   document.querySelectorAll("#occ-section .ocard").forEach(card => card.classList.remove("on"));
   element.classList.add("on");
-  selOcc = occ;
-  const input = document.getElementById("free-occ");
-  if (input) input.value = "";
+  selCard = occ;
+  selOcc = buildCombinedOcc();
   const button = document.getElementById("gbtn");
-  if (button) button.disabled = false;
+  if (button) button.disabled = !selOcc;
 }
 
 function handleFree(element) {
-  document.querySelectorAll("#occ-section .ocard").forEach(card => card.classList.remove("on"));
-  selOcc = (element.value || "").trim();
+  // 不清除卡片選取，讓 card + chip 可以同時生效
+  selOcc = buildCombinedOcc() || (element.value || "").trim() || null;
   const button = document.getElementById("gbtn");
   if (button) button.disabled = !selOcc;
 }
@@ -188,25 +183,11 @@ function clickDay(element) {
     document.getElementById("gbtn-label").textContent = "Let's go.";
     resetOcc();
     hideAllRight();
-    fadeIn("r-empty");
-  } else if (type === "past") {
-    hide("occ-section");
-    const button = document.getElementById("gbtn");
-    if (button) button.disabled = true;
-
-    const data = pastData[element.dataset.date];
-    const title = document.getElementById("tb-title");
-    if (title) title.textContent = element.dataset.date || "";
-    if (!data) return;
-
-    document.getElementById("rec-date").textContent = element.dataset.date || "";
-    document.getElementById("rec-meta").textContent = `${data.occ} · ${data.temp}`;
-    document.getElementById("rec-badge").textContent = data.occ;
-    document.getElementById("rec-weather").textContent = data.temp;
-    document.getElementById("rec-name").textContent = data.name;
-    document.getElementById("rec-reason").textContent = data.reason;
-    hideAllRight();
-    fadeIn("r-record");
+    if (latestHistory) {
+      fadeIn("r-record");
+    } else {
+      fadeIn("r-empty");
+    }
   } else {
     hide("occ-section");
     const button = document.getElementById("gbtn");
@@ -218,8 +199,8 @@ function clickDay(element) {
 
     document.getElementById("fut-day-label").textContent = parseFutureDayLabel(date);
     document.getElementById("fut-date").textContent = date;
-    document.getElementById("fut-ico").textContent = element.dataset.icon || "☁️";
-    document.getElementById("fut-temp").textContent = (element.dataset.temp || "").replace("簞", "°");
+    document.getElementById("fut-ico").textContent = element.dataset.icon || "";
+    document.getElementById("fut-temp").textContent = element.dataset.temp || "";
     document.getElementById("fut-desc").textContent = element.dataset.desc || "";
 
     if (futPlans[date]) {
@@ -252,27 +233,70 @@ function setFutChip(element, text) {
   document.getElementById("fut-save-btn").disabled = false;
 }
 
-function saveFuturePlan() {
+async function saveFuturePlan() {
   const note = document.getElementById("fut-note-inp").value.trim();
   if (!note) return;
 
   const selectedDay = document.querySelector(".wday.sel");
   const key = selectedDay ? (selectedDay.dataset.date || "") : "";
-  if (key) {
-    futPlans[key] = note;
-  }
+  if (!key) return;
 
-  const circle = selectedDay?.querySelector(".wd-circle");
-  if (circle) {
-    circle.classList.add("filled");
-  }
+  try {
+    const response = await fetch("/WW/Today/SaveFuturePlan", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ date: key, note })
+    });
 
-  showFutSaved(note);
+    if (!response.ok) {
+      const err = await response.json().catch(() => null);
+      console.error("SaveFuturePlan failed:", err?.message || `HTTP ${response.status}`);
+      return;
+    }
+
+    const payload = await response.json().catch(() => null);
+    const finalDate = payload?.date || key;
+    const finalNote = payload?.note || note;
+
+    futPlans[finalDate] = finalNote;
+    const circle = selectedDay?.querySelector(".wd-circle");
+    if (circle) circle.classList.add("filled");
+    showFutSaved(finalNote);
+  } catch (err) {
+    console.warn("SaveFuturePlan failed:", err);
+  }
+}
+
+async function loadFuturePlansFromServer() {
+  try {
+    const response = await fetch("/WW/Today/FuturePlans");
+    if (!response.ok) {
+      const err = await response.json().catch(() => null);
+      console.error("LoadFuturePlans failed:", err?.message || `HTTP ${response.status}`);
+      return;
+    }
+    const plans = await response.json();
+    if (!Array.isArray(plans)) return;
+
+    plans.forEach(plan => {
+      if (!plan.date || !plan.note) return;
+      futPlans[plan.date] = plan.note;
+
+      // 將已儲存的未來計畫標記到日期圓點
+      document.querySelectorAll(".wday[data-date]").forEach(dayEl => {
+        if (dayEl.dataset.date === plan.date) {
+          dayEl.querySelector(".wd-circle")?.classList.add("filled");
+        }
+      });
+    });
+  } catch (err) {
+    console.warn("LoadFuturePlans failed:", err);
+  }
 }
 
 function showFutSaved(note) {
   hide("fut-input-section");
-  document.getElementById("fut-saved-note-display").textContent = `"${note}" — outfit coming the night before at 9 PM.`;
+  document.getElementById("fut-saved-note-display").textContent = `"${note}" outfit coming the night before at 9 PM.`;
   show("fut-saved-section");
 }
 
@@ -287,10 +311,14 @@ function editFuturePlan() {
   document.getElementById("fut-save-btn").disabled = !existing;
 }
 
-function startGen() {
-  const occ = selOcc || "Work";
-  document.getElementById("g-occ").textContent = occ;
-  document.getElementById("r-occ-badge").textContent = occ;
+async function startGen() {
+  // Combined occasion（card + free text）作為 API 輸入
+  const freeText = (document.getElementById("free-occ")?.value || "").trim();
+  const occ = selOcc || freeText || "Work";
+  // Badge 顯示：優先 selCard，否則截短 free text
+  const badgeLabel = selCard || (freeText.length > 14 ? freeText.slice(0, 13) + "…" : freeText) || "Work";
+  document.getElementById("g-occ").textContent = badgeLabel;
+  document.getElementById("r-occ-badge").textContent = badgeLabel;
   const title = document.getElementById("tb-title");
   if (title) title.innerHTML = "Generating...";
   hideAllRight();
@@ -308,34 +336,166 @@ function startGen() {
     }, dl + 520);
   });
 
+  let responsePayload = null;
+  let responseError = null;
+  try {
+    responsePayload = await wwTodayGenerateOutfit(occ);
+  } catch (error) {
+    responseError = error;
+  }
+
   setTimeout(() => {
     hide("r-gen");
     fadeIn("r-items");
     const ids = ["ic0", "ic1", "ic2", "ic3"];
     const checks = ["ck0", "ck1", "ck2", "ck3"];
-    const labels = ["Picking shirt...", "Adding trousers...", "Grabbing jacket...", "Choosing shoes..."];
+    const labels = ["Picking top...", "Adding bottom...", "Choosing layer...", "Choosing shoes..."];
 
     ids.forEach((id, index) => {
       setTimeout(() => {
         document.getElementById("items-lbl").textContent = labels[index];
         document.getElementById(id).classList.add("show");
         setTimeout(() => document.getElementById(checks[index]).classList.add("show"), 270);
-      }, index * 520);
+      }, index * 360);
     });
 
-    setTimeout(() => showResult(), ids.length * 520 + 500);
-  }, 2300);
+    setTimeout(() => showResult(responsePayload, responseError), ids.length * 360 + 500);
+  }, 700);
 }
 
-function showResult() {
+async function wwTodayGenerateOutfit(occasion) {
+  const weatherSummary = [
+    document.getElementById("wcard-location")?.textContent || "",
+    document.getElementById("wcard-temp")?.textContent || "",
+    Array.from(document.querySelectorAll(".desc div")).map(x => x.textContent || "").join(" "),
+    document.querySelector(".feel")?.textContent || ""
+  ].join(" ").trim();
+
+  const response = await fetch("/WW/Today/GenerateOutfit", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      occasion,
+      weatherSummary,
+      temperature: document.getElementById("wcard-temp")?.textContent || ""
+    })
+  });
+
+  const payload = await response.json().catch(() => null);
+  if (!response.ok) {
+    const message = payload?.message || payload?.errors?.[0] || "Unable to generate outfit";
+    throw new Error(message);
+  }
+
+  return payload;
+}
+
+// Tweak
+
+async function sendTweak(instruction) {
+  if (!instruction || !latestOutfit) return;
+
+  const title = document.getElementById("tb-title");
+  if (title) title.innerHTML = "Tweaking...";
+
+  // 清空舊結果
+  const hero = document.getElementById("outfit-full");
+  if (hero) {
+    hero.classList.remove("show");
+    hero.style.backgroundImage = "";
+  }
+  const aiName = document.getElementById("ai-name");
+  const aiText = document.getElementById("ai-text");
+  if (aiName) { aiName.style.opacity = "0"; aiName.textContent = ""; }
+  if (aiText) aiText.innerHTML = "";
+  if (typeT) clearTimeout(typeT);
+
+  // 顯示 loading 狀態
+  hideAllRight();
+  fadeIn("r-gen");
+  document.getElementById("g-occ").textContent = instruction;
+
+  // 重設 stepper
+  ["sd3","sd4","sd5"].forEach(id => { const el = document.getElementById(id); if (el) el.className = "sd"; });
+  ["st3","st4","st5"].forEach(id => { const el = document.getElementById(id); if (el) el.className = "st"; });
+  const stepsCfg = [{ d:"sd3",t:"st3",dl:300 },{ d:"sd4",t:"st4",dl:700 },{ d:"sd5",t:"st5",dl:1100 }];
+  stepsCfg.forEach(({ d, t, dl }) => {
+    setTimeout(() => {
+      document.getElementById(d).className = "sd cur";
+      document.getElementById(t).className = "st cur";
+    }, dl);
+    setTimeout(() => {
+      document.getElementById(d).className = "sd done";
+      document.getElementById(t).className = "st done";
+    }, dl + 400);
+  });
+
+  let responsePayload = null;
+  let responseError = null;
+  try {
+    responsePayload = await wwTodayTweakOutfit(instruction);
+  } catch (err) {
+    responseError = err;
+  }
+
+  setTimeout(() => {
+    hide("r-gen");
+    showResult(responsePayload, responseError);
+  }, 600);
+}
+
+async function wwTodayTweakOutfit(tweakInstruction) {
+  const currentItemLabels = (latestOutfit?.items || [])
+    .map(item => item.label || item.categoryKey || "")
+    .filter(Boolean);
+
+  const response = await fetch("/WW/Today/TweakOutfit", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      outfitId: latestOutfit?.outfitId || "",
+      occasion: latestOutfit?.occasion || selOcc || "",
+      currentOutfitName: latestOutfit?.name || "",
+      currentItemLabels,
+      tweakInstruction
+    })
+  });
+
+  const payload = await response.json().catch(() => null);
+  if (!response.ok) {
+    const message = payload?.message || "Unable to tweak outfit";
+    throw new Error(message);
+  }
+
+  return payload;
+}
+
+function onTweakChipClick(element, instruction) {
+  document.querySelectorAll(".chip").forEach(c => c.classList.remove("on"));
+  element.classList.add("on");
+  sendTweak(instruction);
+}
+
+function onTweakSend() {
+  const input = document.getElementById("tweak-input");
+  const instruction = (input?.value || "").trim();
+  if (!instruction) return;
+  if (input) input.value = "";
+  document.querySelectorAll(".chip").forEach(c => c.classList.remove("on"));
+  sendTweak(instruction);
+}
+
+// Result rendering
+
+function showResult(payload, error) {
   hide("r-items");
   setBrandLogo();
 
   const circle = document.getElementById("day-today")?.querySelector(".wd-circle");
-  if (circle) {
-    circle.classList.add("filled");
-  }
+  if (circle) circle.classList.add("filled");
 
+  latestOutfit = payload;
+  renderOutfitPayload(payload, error);
   fadeIn("r-result");
   setTimeout(() => document.getElementById("outfit-full")?.classList.add("show"), 170);
   setTimeout(() => {
@@ -345,9 +505,13 @@ function showResult() {
       name.style.transition = "opacity .45s";
     }
   }, 620);
-  setTimeout(() => typeWriter(aiText, 0), 840);
 
-  const endTime = 840 + aiText.length * 18;
+  const text = error
+    ? error.message
+    : payload?.reason || "I found an outfit from your closet.";
+  setTimeout(() => typeWriter(text, 0), 840);
+
+  const endTime = 840 + text.length * 18;
   setTimeout(() => {
     document.getElementById("r-actions").style.opacity = "1";
     document.getElementById("r-tweak").style.opacity = "1";
@@ -357,24 +521,203 @@ function showResult() {
   }, endTime + 600);
 }
 
+function renderOutfitPayload(payload, error) {
+  const name = document.getElementById("ai-name");
+  if (name) name.textContent = error ? "No Closet Match Yet" : (payload?.name || "Weather Look");
+
+  const generated = payload?.generatedImageUrl;
+  const hero = document.getElementById("outfit-full");
+  if (hero && generated) {
+    hero.style.backgroundImage = `url('${generated}')`;
+    hero.style.backgroundSize = "contain";
+    hero.style.backgroundPosition = "center";
+    hero.style.backgroundRepeat = "no-repeat";
+    hero.innerHTML = "";
+  }
+
+  if (payload?.items?.length) {
+    const labels = payload.items.slice(0, 4).map(item => item.label || item.categoryKey || "Item");
+    document.querySelectorAll(".of-lbl").forEach((label, index) => {
+      if (labels[index]) label.textContent = labels[index];
+    });
+  }
+
+  // 用後端回傳資料渲染「From your closet」
+  renderClosetItems(payload?.items || []);
+}
+
+function renderClosetItems(items) {
+  const row = document.getElementById("shop-items-row");
+  if (!row) return;
+
+  if (!items || items.length === 0) {
+    row.innerHTML = '<div style="color:var(--ink3);font-size:12px;padding:8px 0;">目前沒有可用的衣櫥品項。</div>';
+    return;
+  }
+
+  const categoryLabels = {
+    tops: "上衣", bottoms: "下身", outerwear: "外套",
+    shoes: "鞋子", accessories: "配件", uncategorized: "未分類"
+  };
+
+  row.innerHTML = items.map(item => {
+    const imgUrl = item.generatedImageUrl || item.croppedImageUrl || item.imageUrl || "";
+    const label = item.label || categoryLabels[item.categoryKey] || "Item";
+    const why = categoryLabels[item.categoryKey] || "";
+    const imgHtml = imgUrl
+      ? `<img src="${escapeHtml(imgUrl)}" alt="${escapeHtml(label)}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;" />`
+      : `<svg viewBox="0 0 24 24" width="28" height="28" stroke="var(--ink3)" fill="none" stroke-width="1.5"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.57a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.57a2 2 0 00-1.34-2.23z"/></svg>`;
+
+    return `<div class="pcard">
+      <div class="pimg">${imgHtml}</div>
+      <div class="pinfo">
+        <div class="pname">${escapeHtml(label)}</div>
+        <div class="pwhy">${escapeHtml(why)}</div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+// Outfit history (r-record)
+
+async function loadAndShowHistory(autoShow = false) {
+  try {
+    const response = await fetch("/WW/Today/OutfitHistory?limit=10");
+    if (!response.ok) {
+      const err = await response.json().catch(() => null);
+      console.error("LoadOutfitHistory failed:", err?.message || `HTTP ${response.status}`);
+      latestHistory = null;
+      if (autoShow) {
+        hideAllRight();
+        fadeIn("r-empty");
+      }
+      return;
+    }
+    const data = await response.json();
+
+    const items = data?.items || [];
+    if (items.length === 0) {
+      latestHistory = null;
+      if (autoShow) {
+        hideAllRight();
+        fadeIn("r-empty");
+      }
+      return;
+    }
+
+    const latest = items[0];
+    latestHistory = latest;
+
+    document.getElementById("rec-badge").textContent = latest.occasion || "Outfit";
+    document.getElementById("rec-weather").textContent = latest.weatherSummary || "";
+    document.getElementById("rec-name").textContent = latest.name || "Today's Look";
+    document.getElementById("rec-reason").textContent = latest.occasion
+      ? `Last worn for ${latest.occasion}.`
+      : "Your recent outfit.";
+
+    if (latest.createdAt) {
+      try {
+        const d = new Date(latest.createdAt);
+        document.getElementById("rec-date").textContent = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+        document.getElementById("rec-meta").textContent = `${latest.occasion || ""} · ${d.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
+      } catch (_) {}
+    }
+
+    if (latest.generatedImageUrl) {
+      const hero = document.querySelector(".rec-hero");
+      if (hero) {
+        hero.style.backgroundImage = `url('${latest.generatedImageUrl}')`;
+        hero.style.backgroundSize = "cover";
+        hero.style.backgroundPosition = "center";
+      }
+    }
+
+    if (autoShow) {
+      hideAllRight();
+      fadeIn("r-record");
+    }
+  } catch (err) {
+    console.warn("LoadOutfitHistory failed:", err);
+  }
+}
+
+async function onSaveLookClick() {
+  if (!latestOutfit) return;
+
+  const saveBtn = document.querySelector("#r-actions .rab.pri");
+  if (saveBtn) {
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = `<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Saving...`;
+  }
+
+  try {
+    const today = new Date();
+    const date = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+    const itemLabels = (latestOutfit.items || [])
+      .map(i => i.label || i.categoryKey || "")
+      .filter(Boolean);
+
+    const response = await fetch("/WW/Calendar/SaveOutfitLook", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        outfitId: latestOutfit.outfitId || "",
+        name: latestOutfit.name || "",
+        occasion: latestOutfit.occasion || selOcc || "",
+        weatherSummary: latestOutfit.weatherSummary || "",
+        generatedImageUrl: latestOutfit.generatedImageUrl || "",
+        itemLabels,
+        date
+      })
+    });
+
+    if (response.ok) {
+      if (saveBtn) {
+        saveBtn.innerHTML = `<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Saved!`;
+        setTimeout(() => {
+          saveBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>Save look`;
+          saveBtn.disabled = false;
+        }, 2000);
+      }
+    } else {
+      const err = await response.json().catch(() => null);
+      console.error("SaveOutfitLook failed:", err?.message || `HTTP ${response.status}`);
+      if (saveBtn) {
+        saveBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>Save look`;
+        saveBtn.disabled = false;
+      }
+    }
+  } catch (err) {
+    console.warn("SaveOutfitLook failed:", err);
+    if (saveBtn) {
+      saveBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>Save look`;
+      saveBtn.disabled = false;
+    }
+  }
+
+  await loadAndShowHistory(true);
+}
 function typeWriter(text, index) {
   const element = document.getElementById("ai-text");
   if (!element) return;
 
   if (index < text.length) {
-    element.innerHTML = `${text.slice(0, index + 1)}<span class="cursor"></span>`;
+    element.innerHTML = `${escapeHtml(text.slice(0, index + 1))}<span class="cursor"></span>`;
     typeT = setTimeout(() => typeWriter(text, index + 1), 18);
   } else {
-    element.innerHTML = text;
+    element.textContent = text;
   }
 }
 
 function backToEmpty() {
-  if (typeT) {
-    clearTimeout(typeT);
-  }
+  if (typeT) clearTimeout(typeT);
 
   document.getElementById("outfit-full")?.classList.remove("show");
+  const hero = document.getElementById("outfit-full");
+  if (hero) {
+    hero.style.backgroundImage = "";
+  }
+
   const name = document.getElementById("ai-name");
   if (name) name.style.opacity = "0";
   const text = document.getElementById("ai-text");
@@ -385,6 +728,8 @@ function backToEmpty() {
   if (tweak) tweak.style.opacity = "0";
   const shop = document.getElementById("shop-wrap");
   if (shop) shop.style.opacity = "0";
+
+  document.querySelectorAll(".chip").forEach(c => c.classList.remove("on"));
 
   ["ic0", "ic1", "ic2", "ic3"].forEach(id => document.getElementById(id)?.classList.remove("show"));
   ["ck0", "ck1", "ck2", "ck3"].forEach(id => document.getElementById(id)?.classList.remove("show"));
@@ -400,6 +745,23 @@ function backToEmpty() {
   show("occ-section");
   setBrandLogo();
   hideAllRight();
-  fadeIn("r-empty");
+    if (latestHistory) {
+      fadeIn("r-record");
+    } else {
+      fadeIn("r-empty");
+    }
+}
+
+function escapeHtml(str) {
+  return String(str || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll("\"", "&quot;")
+    .replaceAll("'", "&#39;");
 }
 </script>
+
+
+
+

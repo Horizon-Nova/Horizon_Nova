@@ -1,4 +1,4 @@
-@using System.Linq
+﻿@using System.Linq
 @model HNB.Areas.WW.Models.TodayIndexModel
 
 @{
@@ -24,9 +24,9 @@
         {
             text = text.Split('·', StringSplitOptions.RemoveEmptyEntries)[0].Trim();
         }
-        else if (text.Contains("繚", System.StringComparison.OrdinalIgnoreCase))
+        else if (text.Contains("・", System.StringComparison.OrdinalIgnoreCase))
         {
-            text = text.Split(new[] { "繚" }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
+            text = text.Split(new[] { "・" }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
         }
 
         if (string.IsNullOrWhiteSpace(text) ||
@@ -61,7 +61,7 @@
         if (string.IsNullOrWhiteSpace(text)) return $"22&deg;{unit}";
 
         text = text.Replace("°", "&deg;", System.StringComparison.OrdinalIgnoreCase);
-        text = text.Replace("簞", "&deg;", System.StringComparison.OrdinalIgnoreCase);
+        text = text.Replace("º", "&deg;", System.StringComparison.OrdinalIgnoreCase);
 
         if (text.Contains("&deg;C", System.StringComparison.OrdinalIgnoreCase) ||
             text.Contains("&deg;F", System.StringComparison.OrdinalIgnoreCase))
@@ -83,7 +83,7 @@
 
         var text = part
             .Replace("°", "&deg;", System.StringComparison.OrdinalIgnoreCase)
-            .Replace("簞", "&deg;", System.StringComparison.OrdinalIgnoreCase);
+            .Replace("º", "&deg;", System.StringComparison.OrdinalIgnoreCase);
 
         if (!text.Contains("Feels like", System.StringComparison.OrdinalIgnoreCase))
         {
@@ -102,7 +102,7 @@
     var tempUnit = ResolveTemperatureUnit();
     var tempText = FormatTemperatureTextWithUnit(Model?.CurrentTemperatureText, tempUnit);
     var weatherSummaryParts = (Model?.CurrentWeatherSummaryText ?? "Light rain &middot; Feels like 20&deg;")
-        .Split(new[] { "&middot;", "·", "繚" }, StringSplitOptions.RemoveEmptyEntries)
+        .Split(new[] { "&middot;", "·", "・" }, StringSplitOptions.RemoveEmptyEntries)
         .Select(text => text.Trim())
         .Where(text => !string.IsNullOrWhiteSpace(text))
         .Select(text => FormatSummaryPartWithUnit(text, tempUnit))
@@ -164,10 +164,10 @@
                     <div class="occ-sub">Quick pick, or describe below</div>
                 </div>
                 <div class="occ-grid">
-                    <div class="ocard" onclick="pickOcc(this,'Work')"><div class="em">💼</div><div class="nm">Work</div><div class="ht">Office or meetings</div></div>
-                    <div class="ocard" onclick="pickOcc(this,'Casual')"><div class="em">☕</div><div class="nm">Casual</div><div class="ht">Errands or chill</div></div>
-                    <div class="ocard" onclick="pickOcc(this,'Date')"><div class="em">✨</div><div class="nm">Date</div><div class="ht">Dinner or night out</div></div>
-                    <div class="ocard" onclick="pickOcc(this,'Outdoor')"><div class="em">🌿</div><div class="nm">Outdoor</div><div class="ht">Parks or activities</div></div>
+                    <div class="ocard" onclick="pickOcc(this,'Work')"><div class="em">&#128188;</div><div class="nm">Work</div><div class="ht">Office or meetings</div></div>
+                    <div class="ocard" onclick="pickOcc(this,'Casual')"><div class="em">&#9749;</div><div class="nm">Casual</div><div class="ht">Errands or chill</div></div>
+                    <div class="ocard" onclick="pickOcc(this,'Date')"><div class="em">&#10024;</div><div class="nm">Date</div><div class="ht">Dinner or night out</div></div>
+                    <div class="ocard" onclick="pickOcc(this,'Outdoor')"><div class="em">&#127807;</div><div class="nm">Outdoor</div><div class="ht">Parks or activities</div></div>
                 </div>
 
                 <div class="free-block">
@@ -235,14 +235,14 @@
             </div>
             <div class="r-scroll">
                 <div class="outfit-hero">
-                    <div class="obadge" id="r-occ-badge">Work</div>
-                    <div class="owbadge">22&deg; <span id="r-weather-ico" aria-hidden="true">@todayWeatherEmoji</span></div>
                     <div class="outfit-full" id="outfit-full">
                         <div class="of-item"><div class="of-box" style="width:48px;height:60px;"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.57a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.57a2 2 0 00-1.34-2.23z"/></svg></div><span class="of-lbl">Top</span></div>
                         <div class="of-item"><div class="of-box" style="width:40px;height:70px;"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M6 2l-3 8h5v12h8V10h5l-3-8H6z"/></svg></div><span class="of-lbl">Bottom</span></div>
                         <div class="of-item"><div class="of-box" style="width:54px;height:64px;"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M4 9l8-7 8 7v11a2 2 0 01-2 2H6a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg></div><span class="of-lbl">Jacket</span></div>
                         <div class="of-item"><div class="of-box" style="width:44px;height:34px;"><svg width="22" height="15" viewBox="0 0 32 20"><ellipse cx="8" cy="14" rx="7" ry="5"/><ellipse cx="24" cy="14" rx="7" ry="5"/><path d="M1 14V8a6 6 0 0112 0v2h6V8a6 6 0 0112 0v6"/></svg></div><span class="of-lbl">Shoes</span></div>
                     </div>
+                    <div class="obadge" id="r-occ-badge">Work</div>
+                    <div class="owbadge">22&deg; <span id="r-weather-ico" aria-hidden="true">@todayWeatherEmoji</span></div>
                 </div>
 
                 <div class="ai-name" id="ai-name">Polished Rain-Ready</div>
@@ -250,19 +250,19 @@
 
                 <div class="ractions" id="r-actions">
                     <button class="rab"><svg viewBox="0 0 24 24"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>Redo</button>
-                    <button class="rab pri"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>Save look</button>
+                    <button type="button" class="rab pri" onclick="onSaveLookClick()"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>Save look</button>
                 </div>
 
                 <div class="tweak" id="r-tweak">
                     <div class="chips">
-                        <div class="chip">Warmer</div>
-                        <div class="chip">More formal</div>
-                        <div class="chip">No jacket</div>
-                        <div class="chip">Swap shoes</div>
+                        <div class="chip" onclick="onTweakChipClick(this,'Warmer')">Warmer</div>
+                        <div class="chip" onclick="onTweakChipClick(this,'More formal')">More formal</div>
+                        <div class="chip" onclick="onTweakChipClick(this,'No jacket')">No jacket</div>
+                        <div class="chip" onclick="onTweakChipClick(this,'Swap shoes')">Swap shoes</div>
                     </div>
                     <div class="tinp-row">
-                        <input class="tinp" placeholder="Or ask anything..." />
-                        <button class="tsend" type="button"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+                        <input class="tinp" id="tweak-input" placeholder="Or ask anything..." />
+                        <button type="button" class="tsend" onclick="onTweakSend()"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
                     </div>
                 </div>
 
@@ -271,13 +271,7 @@
                     <div class="shop-hdr">
                         <div class="shop-title">From your closet</div>
                     </div>
-                    <div class="shop-row">
-                        <div class="pcard"><div class="pimg"><div class="ptag">NEW</div><svg viewBox="0 0 24 24"><path d="M20 21V19a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="pinfo"><div class="pname">Rain Jacket</div><div class="pwhy">Water-resistant layer</div><div class="pprice">$120 &middot; A&Co</div></div></div>
-                        <div class="pcard"><div class="pimg"><svg viewBox="0 0 24 24"><path d="M4 4h16v6H4z"/><path d="M6 10v10h12V10"/><path d="M8 14h8"/></svg></div><div class="pinfo"><div class="pname">Chelsea Boots</div><div class="pwhy">Water-resistant sole</div><div class="pprice">$89 &middot; Cole Haan</div></div></div>
-                        <div class="pcard"><div class="pimg"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg></div><div class="pinfo"><div class="pname">Canvas Tote</div><div class="pwhy">Waterproof canvas</div><div class="pprice">$45 &middot; Muji</div></div></div>
-                        <div class="pcard"><div class="pimg"><svg viewBox="0 0 24 24"><path d="M23 12a11.05 11.05 0 00-22 0zm-5 7a3 3 0 01-6 0v-7"/></svg></div><div class="pinfo"><div class="pname">Compact Umbrella</div><div class="pwhy">Windproof, fits in bag</div><div class="pprice">$28 &middot; Blunt</div></div></div>
-                        <div class="pcard"><div class="pimg"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg></div><div class="pinfo"><div class="pname">Slim Chinos</div><div class="pwhy">Lighter than jeans</div><div class="pprice">$65 &middot; Uniqlo</div></div></div>
-                    </div>
+                    <div class="shop-row" id="shop-items-row"></div>
                 </div>
             </div>
         </div>
@@ -323,10 +317,10 @@
                                   placeholder='e.g. "job interview downtown", "friends dinner"'
                                   oninput="handleFutInp(this)"></textarea>
                         <div class="fut-quick-chips">
-                            <button type="button" class="fut-chip" onclick="setFutChip(this,'💼 Work day')">💼 Work day</button>
-                            <button type="button" class="fut-chip" onclick="setFutChip(this,'✨ Date night')">✨ Date night</button>
-                            <button type="button" class="fut-chip" onclick="setFutChip(this,'☕ Casual day')">☕ Casual day</button>
-                            <button type="button" class="fut-chip" onclick="setFutChip(this,'🌿 Outdoor plans')">🌿 Outdoor plans</button>
+                            <button type="button" class="fut-chip" onclick="setFutChip(this,'Work day')">&#128188; Work day</button>
+                            <button type="button" class="fut-chip" onclick="setFutChip(this,'Date night')">&#10024; Date night</button>
+                            <button type="button" class="fut-chip" onclick="setFutChip(this,'Casual day')">&#9749; Casual day</button>
+                            <button type="button" class="fut-chip" onclick="setFutChip(this,'Outdoor plans')">&#127807; Outdoor plans</button>
                         </div>
                     </div>
 

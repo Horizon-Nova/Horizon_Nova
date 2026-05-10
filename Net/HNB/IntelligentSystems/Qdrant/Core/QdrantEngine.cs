@@ -213,6 +213,62 @@ public class QdrantEngine(QdrantConfig config, HttpClient httpClient)
     }
 
     /// <summary>
+    /// 以 filter 捲動取回所有符合條件的點（不需向量，適合 calendar_look / future_plan 的純 filter 檢索）
+    /// </summary>
+    public async Task<List<SearchResult>> Scroll(
+        string collectionName,
+        Dictionary<string, object>? filter = null,
+        int limit = 100,
+        bool withVector = false,
+        CancellationToken cancellationToken = default)
+    {
+        EnsureHeadersInitialized();
+        var url = $"{GetBaseUrl()}/collections/{collectionName}/points/scroll";
+
+        var requestBody = new Dictionary<string, object>
+        {
+            ["limit"] = limit,
+            ["with_payload"] = true,
+            ["with_vector"] = withVector
+        };
+
+        if (filter != null && filter.Count > 0)
+            requestBody["filter"] = filter;
+
+        var json = JsonSerializer.Serialize(requestBody);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        var response = await _httpClient.PostAsync(url, content, cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+            throw new Exception($"Scroll 失敗: {response.StatusCode}");
+
+        var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
+        var jsonDoc = JsonDocument.Parse(responseContent);
+
+        var results = new List<SearchResult>();
+        if (jsonDoc.RootElement.TryGetProperty("result", out var result) &&
+            result.TryGetProperty("points", out var points))
+        {
+            foreach (var item in points.EnumerateArray())
+            {
+                var searchResult = new SearchResult();
+
+                if (item.TryGetProperty("id", out var id))
+                    searchResult.Id = id.ValueKind == JsonValueKind.String
+                        ? id.GetString() ?? string.Empty
+                        : id.GetRawText();
+
+                if (item.TryGetProperty("payload", out var payload))
+                    searchResult.Payload = JsonSerializer.Deserialize<Dictionary<string, object>>(payload.GetRawText());
+
+                results.Add(searchResult);
+            }
+        }
+
+        return results;
+    }
+
+    /// <summary>
     /// 刪除所有向量點
     /// </summary>
     public async Task<bool> DeleteAllPoints(string collectionName, CancellationToken cancellationToken = default)

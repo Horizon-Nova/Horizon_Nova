@@ -5,6 +5,11 @@ using HNB.Areas.WW.Services;
 using HNB.Areas.Backoffice.Utilities;
 using HNB.Areas.HNB_WEB.Repositories;
 using HNB.Areas.HNB_WEB.Services;
+using HNB.IntelligentSystems.DallE3.Module;
+using HNB.IntelligentSystems.Embedding.Module;
+using HNB.IntelligentSystems.GroundingDINO.Core;
+using HNB.IntelligentSystems.GroundingDINO.Module;
+using HNB.IntelligentSystems.Qdrant.Module;
 using HNB.Repositories;
 using HNB.Services;
 
@@ -29,6 +34,13 @@ public static class ServiceExtensions
         services.AddHttpClient<IWeatherService, WeatherService>();
         services.AddScoped<IWardrobeService, WardrobeService>();
         services.AddScoped<IHistoryService, HistoryService>();
+        services.AddScoped<IWwAiWardrobeService, WwAiWardrobeService>();
+
+        services.AddSingleton<ModelHealthChecker>();
+        services.AddScoped<GroundingDINOModule>();
+        services.AddScoped<EmbeddingModule>();
+        services.AddScoped<QdrantModule>();
+        services.AddScoped<DallE3Module>();
 
         return services;
     }

@@ -73,10 +73,14 @@
             }
         };
 
-        var outfitDays = [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20];
-        var currentYear = 2026;
-        var currentMonth = 3; // April
-        var currentDayKey = "Apr 20";
+        var outfitDays = [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20]; // April mock
+        var _now = new Date();
+        var currentYear = _now.getFullYear();
+        var currentMonth = _now.getMonth();
+        var _todayNum = _now.getDate();
+        var currentDayKey = MONTHS[currentMonth].slice(0, 3) + " " + _todayNum;
+        var pendingUploadTarget = null;
+        var realLookDates = new Set(); // ISO yyyy-MM-dd strings from API
 
         function byId(id) {
             return document.getElementById(id);
@@ -120,8 +124,42 @@
             return "cloud";
         }
 
+        function toIsoDate(year, month, day) {
+            return year + "-" + String(month + 1).padStart(2, "0") + "-" + String(day).padStart(2, "0");
+        }
+
+        function buildApiCard(look, index) {
+            var id = "api-" + (look.id || index);
+            var itemsHtml = (look.itemLabels || []).map(function (lbl) {
+                return '<span class="inline-flex items-center gap-[4px] rounded-full bg-white/70 px-[10px] py-[4px] text-[10px] font-bold text-black/55">' + escapeHtml(lbl) + "</span>";
+            }).join("");
+
+            var leftPanel = look.generatedImageUrl
+                ? '<div class="absolute inset-0 overflow-hidden rounded-[inherit]">' +
+                  '  <img src="' + escapeHtml(look.generatedImageUrl) + '" alt="Outfit" style="width:100%;height:100%;object-fit:contain;background:linear-gradient(150deg,rgba(242,224,213,0.95),rgba(211,206,184,0.85));" />' +
+                  '</div>'
+                : '<div class="flex items-end gap-[10px]">' +
+                  '  <div class="flex flex-col items-center gap-[4px]"><div class="flex items-center justify-center rounded-[9px] bg-black/10" style="width:44px;height:58px"><svg class="h-[22px] w-[22px] fill-none stroke-black/15 stroke-[1.2]" viewBox="0 0 24 24"><path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/></svg></div><div class="text-[9px] font-bold uppercase tracking-[0.2px] text-black/35">TOP</div></div>' +
+                  '  <div class="flex flex-col items-center gap-[4px]"><div class="flex items-center justify-center rounded-[9px] bg-black/10" style="width:36px;height:64px"><svg class="h-[18px] w-[18px] fill-none stroke-black/15 stroke-[1.2]" viewBox="0 0 24 24"><path d="M6 2l-3 8h5v12h8V10h5l-3-8H6z"/></svg></div><div class="text-[9px] font-bold uppercase tracking-[0.2px] text-black/35">BOTTOM</div></div>' +
+                  '  <div class="flex flex-col items-center gap-[4px]"><div class="flex items-center justify-center rounded-[9px] bg-black/10" style="width:44px;height:44px"><svg class="h-[22px] w-[22px] fill-none stroke-black/15 stroke-[1.2]" viewBox="0 0 32 20"><ellipse cx="8" cy="14" rx="7" ry="5"/><ellipse cx="24" cy="14" rx="7" ry="5"/><path d="M1 14V8a6 6 0 0 1 12 0v2h6V8a6 6 0 0 1 12 0v6"/></svg></div><div class="text-[9px] font-bold uppercase tracking-[0.2px] text-black/35">SHOES</div></div>' +
+                  '</div>';
+
+            return '<div class="ww-fade-up overflow-hidden rounded-[18px] border border-white/85 bg-white/55 shadow-[0_4px_20px_rgba(0,0,0,0.07)] backdrop-blur-[12px]" id="card-' + id + '">' +
+                '  <div class="relative flex min-h-[200px] flex-col items-center justify-center gap-2 bg-[linear-gradient(150deg,rgba(242,224,213,0.95),rgba(211,206,184,0.85))] py-5">' +
+                '    <div class="absolute left-[12px] top-[12px] rounded-full bg-white/70 px-3 py-[4px] text-[10px] font-bold uppercase tracking-[0.08em] text-black/35">AI look</div>' +
+                '    <div class="absolute right-[12px] top-[12px] rounded-full bg-white/75 px-[10px] py-[4px] text-[11px] font-bold text-black/60">' + escapeHtml(look.weatherSummary || "") + '</div>' +
+                '    <div class="absolute left-[14px] top-[40px] inline-flex items-center rounded-full border border-[#d76736]/25 bg-[#f2e0d5] px-[12px] py-[4px] text-[12px] font-bold text-[#d76736]">' + escapeHtml(look.occasion || "") + '</div>' +
+                     leftPanel +
+                '  </div>' +
+                '  <div class="px-[16px] pb-[14px] pt-[14px]">' +
+                '    <div class="text-[17px] font-medium italic text-[#1e1b18] [font-family:var(--font-serif)]">' + escapeHtml(look.name || "AI Look") + '</div>' +
+                '    <div class="mt-[10px] flex flex-wrap gap-[6px]">' + itemsHtml + '</div>' +
+                '  </div>' +
+                '</div>';
+        }
+
         function buildCard(card, index, dayKey) {
-            var id = dayKey.replace(" ", "") + "-" + index;
+            var id = dayKey.replace(/ /g, "") + "-" + index;
 
             var itemsHTML = (card.items || []).map(function (it) {
                 var bg = (it && it.bg) ? String(it.bg) : "#f5f0e8";
@@ -209,30 +247,48 @@
                 '</div>';
         }
 
-        function renderCards(dayKey) {
-            var data = dayData[dayKey];
-            if (!data) return;
+        async function renderCards(dayKey, isoDate) {
             var scroll = byId("log-scroll");
             if (!scroll) return;
 
-            // 藍圖有 buildGenMoreBtn() 但沒有實際渲染到畫面；這裡先維持一致不顯示。
-            scroll.innerHTML = (data.cards || []).map(function (c, i) { return buildCard(c, i, dayKey); }).join("");
+            // 先顯示 mock 資料（如果有）
+            var data = dayData[dayKey];
+            var mockHtml = data ? (data.cards || []).map(function (c, i) { return buildCard(c, i, dayKey); }).join("") : "";
+            scroll.innerHTML = mockHtml || '<div class="flex flex-1 items-center justify-center py-16 text-[13px] font-bold text-black/30">Loading...</div>';
 
-            // 套用已上傳狀態
-            (data.cards || []).forEach(function (c, i) {
-                if (!c.hasPhoto) return;
-                var id = dayKey.replace(" ", "") + "-" + i;
-                var yp = byId("yp-" + id);
-                var upl = byId("upl-" + id);
-                var pf = byId("pf-" + id);
-                var share = byId("share-" + id);
-                yp && yp.classList.add("cursor-default");
-                upl && upl.classList.add("hidden");
-                pf && pf.classList.remove("hidden");
-                share && share.classList.remove("hidden");
-            });
+            if (data) {
+                (data.cards || []).forEach(function (c, i) {
+                    if (!c.hasPhoto) return;
+                    var id = dayKey.replace(/ /g, "") + "-" + i;
+                    var yp = byId("yp-" + id);
+                    var upl = byId("upl-" + id);
+                    var pf = byId("pf-" + id);
+                    var share = byId("share-" + id);
+                    yp && yp.classList.add("cursor-default");
+                    upl && upl.classList.add("hidden");
+                    pf && pf.classList.remove("hidden");
+                    share && share.classList.remove("hidden");
+                });
+            }
 
-            // 動態插入的 icon 需要重新掃描
+            // 若有 ISO 日期，向 API 取真實 looks
+            if (isoDate) {
+                try {
+                    var resp = await fetch("/WW/Calendar/OutfitLooks?date=" + encodeURIComponent(isoDate));
+                    if (resp.ok) {
+                        var looks = await resp.json();
+                        if (Array.isArray(looks) && looks.length > 0) {
+                            var apiHtml = looks.map(function (look, i) { return buildApiCard(look, i); }).join("");
+                            scroll.innerHTML = apiHtml + (mockHtml ? '<div class="mt-[6px] text-[9px] font-bold uppercase tracking-[0.08em] text-black/30 px-1">Archive</div>' + mockHtml : "");
+                        } else if (!data) {
+                            scroll.innerHTML = '<div class="flex flex-1 items-center justify-center py-16 text-[13px] font-bold text-black/30">No looks recorded for this day.</div>';
+                        }
+                    }
+                } catch (_) {}
+            } else if (!data) {
+                scroll.innerHTML = '<div class="flex flex-1 items-center justify-center py-16 text-[13px] font-bold text-black/30">No looks recorded for this day.</div>';
+            }
+
             window.lucide?.createIcons?.();
         }
 
@@ -251,7 +307,18 @@
 
             var firstDay = new Date(currentYear, currentMonth, 1).getDay();
             var daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-            var today = 21;
+            var nowDate = new Date();
+            var isCurrentMonthYear = currentMonth === nowDate.getMonth() && currentYear === nowDate.getFullYear();
+            var todayNum = isCurrentMonthYear ? nowDate.getDate() : -1;
+
+            // April 2026 mock map
+            var mockDayMap = { 18: "Apr 18", 19: "Apr 19", 20: "Apr 20" };
+            var mockDayMeta = {
+                "Apr 18": { weekday: "Friday",   weather: "22\u00B0 Partly cloudy", occ: "Work" },
+                "Apr 19": { weekday: "Saturday", weather: "20\u00B0 Rain",           occ: "Date" },
+                "Apr 20": { weekday: "Sunday",   weather: "24\u00B0 Clear",          occ: "Casual" }
+            };
+            var isAprilMock = currentMonth === 3 && currentYear === 2026;
 
             for (var i = 0; i < firstDay; i++) {
                 var pad = document.createElement("div");
@@ -259,18 +326,14 @@
                 grid.appendChild(pad);
             }
 
-            var dayMap = { 18: "Apr 18", 19: "Apr 19", 20: "Apr 20" };
-            var dayMeta = {
-                "Apr 18": { weekday: "Friday", weather: "22\u00B0 Partly cloudy", occ: "Work" },
-                "Apr 19": { weekday: "Saturday", weather: "20\u00B0 Rain", occ: "Date" },
-                "Apr 20": { weekday: "Sunday", weather: "24\u00B0 Clear", occ: "Casual" }
-            };
-
             for (var dnum = 1; dnum <= daysInMonth; dnum++) {
                 var dayEl = document.createElement("div");
-                var hasOutfit = outfitDays.indexOf(dnum) >= 0 && currentMonth === 3;
-                var isToday = dnum === today && currentMonth === 3;
-                var isFuture = dnum > today && currentMonth === 3;
+                var iso = toIsoDate(currentYear, currentMonth, dnum);
+                var hasRealLook = realLookDates.has(iso);
+                var hasMockOutfit = isAprilMock && outfitDays.indexOf(dnum) >= 0;
+                var hasOutfit = hasRealLook || hasMockOutfit;
+                var isToday = dnum === todayNum;
+                var isFuture = isCurrentMonthYear && dnum > todayNum;
 
                 dayEl.className =
                     "aspect-square select-none rounded-[8px] transition " +
@@ -284,8 +347,9 @@
 
                 dayEl.setAttribute("data-cal-day", "1");
                 dayEl.setAttribute("data-cal-num", String(dnum));
+                dayEl.setAttribute("data-cal-iso", iso);
 
-                if (hasOutfit && !isFuture) {
+                if (!isFuture) {
                     dayEl.addEventListener("click", function (ev) {
                         var target = ev.currentTarget;
                         if (!target) return;
@@ -296,24 +360,43 @@
                         target.classList.add("outline", "outline-2", "outline-[#d76736]", "bg-[#f2e0d5]");
 
                         var selectedNum = parseInt(target.getAttribute("data-cal-num") || "0", 10);
-                        var key = dayMap[selectedNum];
-                        var meta = key ? dayMeta[key] : null;
-                        if (key && meta) {
-                            wwCalendarSelectDay(key, meta.weekday, meta.weather, meta.occ);
-                        }
+                        var clickedIso = target.getAttribute("data-cal-iso") || "";
+                        var mockKey = isAprilMock ? mockDayMap[selectedNum] : null;
+                        var meta = mockKey ? mockDayMeta[mockKey] : null;
+                        var weekdayName = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][new Date(currentYear, currentMonth, selectedNum).getDay()];
+
+                        wwCalendarSelectDay(
+                            mockKey || (MONTHS[currentMonth].slice(0,3) + " " + selectedNum),
+                            weekdayName,
+                            meta ? meta.weather : "",
+                            meta ? meta.occ : "",
+                            clickedIso
+                        );
                     });
                 }
 
-                if (dnum === 20) {
+                if (isToday) {
                     dayEl.classList.add("outline", "outline-2", "outline-[#d76736]", "bg-[#f2e0d5]");
                 }
 
                 grid.appendChild(dayEl);
             }
 
-            safeText(byId("ms-outfits"), "18");
+            safeText(byId("ms-outfits"), String(realLookDates.size || (isAprilMock ? 18 : 0)));
             safeText(byId("ms-avg"), "22\u00B0");
             safeText(byId("ms-topocc"), "Work");
+        }
+
+        async function loadRealLookDates() {
+            try {
+                var resp = await fetch("/WW/Calendar/OutfitLookDates");
+                if (!resp.ok) return;
+                var dates = await resp.json();
+                if (Array.isArray(dates)) {
+                    realLookDates = new Set(dates);
+                    renderCalendar(); // \u91CD\u7E6A\u4EE5\u88DC\u4E0A\u5713\u9EDE
+                }
+            } catch (_) {}
         }
 
         // ====== 全域 API（供 Razor onclick 呼叫）======
@@ -324,9 +407,9 @@
             renderCalendar();
         };
 
-        window.wwCalendarSelectDay = function (date, weekday, weather, occ) {
+        window.wwCalendarSelectDay = function (date, weekday, weather, occ, isoDate) {
             var dayNum = (date.split(" ")[1] || "").trim();
-            safeText(byId("log-date-big"), weekday + ", " + MONTHS[3] + " " + dayNum);
+            safeText(byId("log-date-big"), weekday + ", " + MONTHS[currentMonth] + " " + dayNum);
             safeText(byId("log-weather-txt"), weather);
             var ico = byId("log-weather-ico");
             if (ico) {
@@ -335,7 +418,7 @@
             }
             safeText(byId("log-occ"), occ);
             currentDayKey = date;
-            renderCards(date);
+            renderCards(date, isoDate || "");
         };
 
         window.wwCalendarToggleItems = function (id) {
@@ -350,6 +433,58 @@
             var data = dayData[currentDayKey];
             if (!data || !data.cards || !data.cards[cardIdx]) return;
             if (data.cards[cardIdx].hasPhoto) return;
+
+            pendingUploadTarget = { id: id, cardIdx: cardIdx };
+            ensureCalendarUploadInput().click();
+        };
+
+        function ensureCalendarUploadInput() {
+            var input = byId("ww-calendar-look-upload-input");
+            if (input) return input;
+
+            input = document.createElement("input");
+            input.type = "file";
+            input.accept = "image/*";
+            input.id = "ww-calendar-look-upload-input";
+            input.className = "hidden";
+            input.addEventListener("change", function () {
+                if (!pendingUploadTarget || !input.files || input.files.length === 0) {
+                    input.value = "";
+                    return;
+                }
+
+                uploadCalendarLookPhoto(input.files[0], pendingUploadTarget.id, pendingUploadTarget.cardIdx)
+                    .finally(function () {
+                        input.value = "";
+                        pendingUploadTarget = null;
+                    });
+            });
+
+            document.body.appendChild(input);
+            return input;
+        }
+
+        async function uploadCalendarLookPhoto(file, id, cardIdx) {
+            var data = dayData[currentDayKey];
+            if (!data || !data.cards || !data.cards[cardIdx]) return;
+
+            var form = new FormData();
+            form.append("Image", file);
+            form.append("OutfitId", id);
+            form.append("Occasion", data.cards[cardIdx].tag || "");
+            form.append("WeatherSummary", data.cards[cardIdx].weather || "");
+
+            var response = await fetch("/WW/Calendar/SaveLookPhoto", {
+                method: "POST",
+                body: form
+            });
+
+            var payload = await response.json().catch(function () { return null; });
+            if (!response.ok) {
+                alert(payload?.message || payload?.error || "Photo upload failed");
+                return;
+            }
+
             data.cards[cardIdx].hasPhoto = true;
 
             var upl = byId("upl-" + id);
@@ -361,7 +496,7 @@
             pf && pf.classList.remove("hidden");
             yp && yp.classList.add("cursor-default");
             share && share.classList.remove("hidden");
-        };
+        }
 
         window.wwCalendarRemovePhoto = function (e, id, cardIdx) {
             e && e.stopPropagation && e.stopPropagation();
@@ -443,7 +578,10 @@
 
         // init
         bindLogActions();
+        loadRealLookDates(); // 非同步：取回 API 日期後重繪月曆
         renderCalendar();
-        renderCards(currentDayKey);
+        var todayIso = toIsoDate(currentYear, currentMonth, _todayNum);
+        var todayWeekday = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][_now.getDay()];
+        wwCalendarSelectDay(currentDayKey, todayWeekday, "", "", todayIso);
     })();
 </script>

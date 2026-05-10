@@ -1,0 +1,23 @@
+WW AI 串接目前待補說明（2026-05-10）
+
+0) 已實作內容
+- Closet AI API 串接已完成，前端可呼叫後端匯入流程。
+- Today 已可依使用者需求（場合/微調指令）生成對應穿搭圖片。
+- Today 的 Save look 已串接至後端儲存 API（/WW/Calendar/SaveOutfitLook）。
+- 目前失敗情境會回傳錯誤訊息並輸出 error log，便於排查。
+
+1) 尚未完成：天氣 API 提示詞（Prompt）整合
+- Today 流程目前已可讀取天氣資料，但尚未完成穩定且可驗證的天氣提示詞策略（包含情境詞、溫度條件詞、風格限制詞）之最終版本。
+
+2) 尚未完成：向量資料庫歷史資料寫入驗證
+- 目前本機無法用 Qdrant 測試環境（無服務可連）。
+- Railway 向量資料庫環境由另一位工程師維護，現階段無法在本機完成該環境的連線驗證。
+
+3) 造成的影響
+- Today 生成後的 Save look 無法在本機完成「成功寫入向量資料庫」驗證。
+- Calendar / Outfit Log 的歷史資料類別（如 calendar_look / outfit_history / future_plan）無法在本地端測試結果，需靠railway架設待測試。
+
+4) 待可用 Railway 測試環境後需回歸驗證
+- 驗證 SaveOutfitLook 是否成功寫入 collection。
+- 驗證 OutfitLooks / OutfitLookDates 是否可正確查回資料。
+- 驗證 Today OutfitHistory / FuturePlans 是否可正常讀寫。

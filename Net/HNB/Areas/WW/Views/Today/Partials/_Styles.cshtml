@@ -344,7 +344,12 @@
 }
 .obadge { position: absolute; top: 13px; left: 13px; background: rgba(215,103,54,0.15); border: 0.5px solid rgba(215,103,54,0.3); border-radius: 20px; padding: 4px 12px; font-size: 11px; color: var(--orange); font-weight: 700; }
 .owbadge { position: absolute; top: 13px; right: 13px; background: rgba(255,255,255,0.88); border-radius: 20px; padding: 4px 12px; font-size: 11px; color: var(--ink2); }
-.outfit-full { display: flex; gap: 13px; align-items: flex-end; opacity: 0; transform: scale(0.92); transition: all 0.55s cubic-bezier(0.34,1.2,0.64,1); }
+.outfit-full {
+  position: absolute; inset: 0; border-radius: 18px; overflow: hidden;
+  display: flex; gap: 13px; align-items: flex-end; justify-content: center;
+  background-size: contain; background-position: center; background-repeat: no-repeat;
+  opacity: 0; transform: scale(0.92); transition: all 0.55s cubic-bezier(0.34,1.2,0.64,1);
+}
 .outfit-full.show { opacity: 1; transform: scale(1); }
 .of-item { display: flex; flex-direction: column; align-items: center; gap: 5px; }
 .of-box { border-radius: 11px; background: rgba(200,194,170,0.85); display: flex; align-items: center; justify-content: center; }

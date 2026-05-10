@@ -13,7 +13,8 @@ public static class ImageUtils
 {
     private static readonly float[] Mean = { 0.485f, 0.456f, 0.406f };
     private static readonly float[] Std = { 0.229f, 0.224f, 0.225f };
-    private static readonly int[] TargetSize = { 1200, 800 };
+    // ONNX 模型的 pixel_values 期望形狀為 [1, 3, 800, 800]（正方形）
+    private static readonly int[] TargetSize = { 800, 800 };
 
     public static (bool success, byte[]? imageBytes, string? error) ParseBase64Image(string base64Data)
     {
@@ -144,16 +145,8 @@ public static class ImageUtils
 
     public static float[] PreprocessForModel(Image<Rgb24> srcImg)
     {
-        var resized = srcImg.Clone(ctx => ctx.Resize(new ResizeOptions
-        {
-            Size = new Size(TargetSize[0], TargetSize[1]),
-            Mode = ResizeMode.Max
-        }));
-
-        if (resized.Width != TargetSize[0] || resized.Height != TargetSize[1])
-        {
-            resized.Mutate(ctx => ctx.Resize(TargetSize[0], TargetSize[1]));
-        }
+        // 直接縮放到模型期望的固定尺寸（800×800），符合 pixel_values 形狀 [1,3,800,800]
+        var resized = srcImg.Clone(ctx => ctx.Resize(TargetSize[0], TargetSize[1]));
 
         int area = TargetSize[0] * TargetSize[1];
         float[] output = new float[3 * area];

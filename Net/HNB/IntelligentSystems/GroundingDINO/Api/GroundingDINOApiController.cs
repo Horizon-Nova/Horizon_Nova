@@ -12,9 +12,7 @@ namespace HNB.IntelligentSystems.GroundingDINO.Api;
 /// GroundingDINO 物件檢測 API Controller
 /// 統一返回格式：所有 API 都返回 images 陣列格式
 /// base64 輸入 → base64 輸出，圖片輸入 → URL 輸出
-/// 已停用 - AI 模組已關閉以節省記憶體
 /// </summary>
-/*
 [ApiController]
 [Route("api/[controller]")]
 public class GroundingDINOApiController(GroundingDINOModule module, IWebHostEnvironment env) : ControllerBase
@@ -64,6 +62,9 @@ public class GroundingDINOApiController(GroundingDINOModule module, IWebHostEnvi
         if (request.ImagesBase64 == null || request.ImagesBase64.Count == 0)
             return BadRequest(new { success = false, error = "請提供 base64 圖片資料" });
 
+        if (!EnsureModelReady(out var modelError))
+            return StatusCode(503, new { success = false, error = modelError });
+
         var imageResults = new List<dynamic>();
         var errors = new List<string>();
 
@@ -104,6 +105,9 @@ public class GroundingDINOApiController(GroundingDINOModule module, IWebHostEnvi
     {
         if (images == null || images.Count == 0)
             return BadRequest(new { success = false, error = "請提供圖片文件" });
+
+        if (!EnsureModelReady(out var modelError))
+            return StatusCode(503, new { success = false, error = modelError });
 
         var imageResults = new List<dynamic>();
         var errors = new List<string>();
@@ -172,6 +176,29 @@ public class GroundingDINOApiController(GroundingDINOModule module, IWebHostEnvi
         return annotatedImage;
     }
 
+    private bool EnsureModelReady(out string error)
+    {
+        error = string.Empty;
+
+        try
+        {
+            if (!module.IsModelReady())
+                module.StartEngine();
+
+            if (module.IsModelReady())
+                return true;
+
+            var status = module.LoadDetailedStatus();
+            error = status.Message;
+            return false;
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+            return false;
+        }
+    }
+
     private object BuildResponse(List<dynamic> imageResults, List<string> errors)
     {
         var images = imageResults.ToList();
@@ -194,5 +221,4 @@ public class GroundingDINOApiController(GroundingDINOModule module, IWebHostEnvi
         };
     }
 }
-*/
 

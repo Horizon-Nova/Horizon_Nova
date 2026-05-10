@@ -3,8 +3,6 @@
 }
 
 <script>
-// Closet interactions: based on wtw_closet_desktop.html.
-
 let activeCard = null;
 let importTimerIds = [];
 let importIsRunning = false;
@@ -63,7 +61,7 @@ function wwClosetImportInit() {
   });
 }
 
-function wwClosetImportStart(files) {
+async function wwClosetImportStart(files) {
   const idle = document.getElementById("ww-closet-iz-idle");
   const scanning = document.getElementById("ww-closet-iz-scanning");
   const done = document.getElementById("ww-closet-iz-done");
@@ -78,19 +76,18 @@ function wwClosetImportStart(files) {
   done.style.display = "none";
   scanning.style.display = "flex";
 
-  const steps = [
-    { dot: "ww-closet-ss1", txt: "ww-closet-st1", dl: 450 },
-    { dot: "ww-closet-ss2", txt: "ww-closet-st2", dl: 1050 },
-    { dot: "ww-closet-ss3", txt: "ww-closet-st3", dl: 1650 },
-    { dot: "ww-closet-ss4", txt: "ww-closet-st4", dl: 2250 },
+  // 步驟 1–3：固定時序過渡（cur → done）
+  const earlySteps = [
+    { dot: "ww-closet-ss1", txt: "ww-closet-st1", curAt: 400,  doneAt: 950  },
+    { dot: "ww-closet-ss2", txt: "ww-closet-st2", curAt: 1050, doneAt: 1600 },
+    { dot: "ww-closet-ss3", txt: "ww-closet-st3", curAt: 1700, doneAt: 2250 },
   ];
 
-  steps.forEach(({ dot, txt, dl }) => {
+  earlySteps.forEach(({ dot, txt, curAt, doneAt }) => {
     importTimerIds.push(window.setTimeout(() => {
       document.getElementById(dot)?.classList.add("cur");
       document.getElementById(txt)?.classList.add("cur");
-    }, dl));
-
+    }, curAt));
     importTimerIds.push(window.setTimeout(() => {
       const dotEl = document.getElementById(dot);
       const txtEl = document.getElementById(txt);
@@ -98,30 +95,146 @@ function wwClosetImportStart(files) {
       txtEl?.classList.remove("cur");
       dotEl?.classList.add("done");
       txtEl?.classList.add("done");
-    }, dl + 550));
+    }, doneAt));
   });
 
+  // 步驟 4：進入 cur（脈衝）後一直等，直到 API 回應後才 done
   importTimerIds.push(window.setTimeout(() => {
-    scanning.style.display = "none";
-    done.style.display = "flex";
-    wwClosetImportRenderDone(files);
-    if (input) input.value = "";
-    importIsRunning = false;
-  }, 3300));
+    document.getElementById("ww-closet-ss4")?.classList.add("cur");
+    document.getElementById("ww-closet-st4")?.classList.add("cur");
+  }, 2400));
+
+  // 等待實際上傳完成
+  let importResult = null;
+  let importError = null;
+  try {
+    importResult = await wwClosetImportUpload(files);
+  } catch (err) {
+    importError = err;
+  }
+
+  // API 完成後才把步驟 4 標為 done
+  const ss4 = document.getElementById("ww-closet-ss4");
+  const st4 = document.getElementById("ww-closet-st4");
+  ss4?.classList.remove("cur");
+  st4?.classList.remove("cur");
+  ss4?.classList.add("done");
+  st4?.classList.add("done");
+
+  // 短暫停留讓使用者看到「全部完成」後切換畫面
+  await new Promise(resolve => importTimerIds.push(window.setTimeout(resolve, 350)));
+
+  scanning.style.display = "none";
+  done.style.display = "flex";
+  wwClosetImportRenderDone(files, importResult, importError);
+  if (importResult?.items?.length) {
+    wwClosetAppendImportedItems(importResult.items);
+  }
+  if (input) input.value = "";
+  importIsRunning = false;
 }
 
-function wwClosetImportRenderDone(files) {
+async function wwClosetImportUpload(files) {
+  const form = new FormData();
+  Array.from(files || []).forEach(file => form.append("image[]", file));
+
+  const response = await fetch("/WW/Closet/ImportImages", {
+    method: "POST",
+    body: form
+  });
+
+  const payload = await response.json().catch(() => null);
+  if (!response.ok) {
+    if (payload?.items?.length) {
+      return payload;
+    }
+
+    const message = payload?.message || payload?.errors?.[0] || "Import failed";
+    throw new Error(message);
+  }
+
+  return payload;
+}
+
+function wwClosetImportRenderDone(files, result, error) {
   const chips = document.getElementById("ww-closet-import-done-chips");
   if (!chips) return;
 
-  const count = Math.min(20, files?.length || 0);
-  const labels = [
-    `已接收 ${count} 張`,
-    "辨識完成",
-    "已加入衣櫥"
-  ];
+  const labels = error
+    ? [error.message || "Import failed"]
+    : ["匯入完成"];
 
   chips.innerHTML = labels.map(text => `<div class="done-chip">${escapeHtml(text)}</div>`).join("");
+}
+
+function wwClosetAppendImportedItems(items) {
+  const categoryGridMap = {
+    tops: "tops-grid",
+    bottoms: "bottoms-grid",
+    outerwear: "outerwear-grid",
+    shoes: "shoes-grid",
+    accessories: "acc-grid",
+    uncategorized: "uncategorized-grid",
+    unconfirmed: "review-grid"
+  };
+
+  let reviewGrid = document.getElementById("review-grid");
+  let grid = reviewGrid;
+  if (!grid) {
+    const closet = document.getElementById("closet-col");
+    if (!closet) return;
+    const section = document.createElement("div");
+    section.innerHTML = `
+      <div class="sec-header">
+        <span class="sec-label">Review</span>
+        <span class="sec-count" id="review-count">0</span>
+      </div>
+      <div style="margin-top:10px;" class="item-grid cols-4" id="review-grid"></div>`;
+    closet.prepend(section);
+    grid = document.getElementById("review-grid");
+    reviewGrid = grid;
+  }
+
+  if (!grid) return;
+
+  items.forEach(item => {
+    const targetCategory = item.categoryKey && item.categoryKey !== "uncategorized"
+      ? item.categoryKey
+      : "unconfirmed";
+    const targetGrid = document.getElementById(categoryGridMap[targetCategory] || "review-grid") || reviewGrid;
+    if (!targetGrid) return;
+
+    const card = document.createElement("div");
+    const label = item.label || item.categoryKey || "AI item";
+    const imageUrl = item.generatedImageUrl || item.imageUrl || item.croppedImageUrl || "";
+    card.className = "item-card";
+    card.dataset.cat = targetCategory;
+    card.dataset.name = label;
+    card.dataset.tag = targetCategory === "unconfirmed" ? "Review" : targetCategory;
+    card.dataset.color = "Unknown";
+    card.dataset.season = "Unknown";
+    card.dataset.occasion = "";
+    card.dataset.gradient = "f5ede0,#ead8c0";
+    card.dataset.emoji = "";
+    card.dataset.wornCount = "0";
+    card.dataset.fewUsed = "true";
+    card.dataset.dates = "";
+    card.dataset.dna = "";
+    card.dataset.outfits = "";
+    card.innerHTML = `
+      <div class="item-x" onclick="removeCard(event)">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+      </div>
+      <div class="item-img" style="${imageUrl ? `background-image:url('${escapeHtml(imageUrl)}');background-size:cover;background-position:center;` : "background:linear-gradient(145deg,#f5ede0,#ead8c0);"}"></div>
+      <div class="item-info">
+        <div class="item-name">${escapeHtml(label)}</div>
+        <div class="item-worn few">Few used</div>
+      </div>`;
+    targetGrid.prepend(card);
+  });
+
+  const countEl = document.getElementById("review-count");
+  if (countEl && reviewGrid) countEl.textContent = String(reviewGrid.querySelectorAll(".item-card").length);
 }
 
 function wwClosetImportReset() {
@@ -182,7 +295,7 @@ function openDetail(card) {
   const color = card.dataset.color || "";
   const season = card.dataset.season || "";
   const occasion = card.dataset.occasion || "";
-  const emoji = card.dataset.emoji || "👕";
+  const emoji = card.dataset.emoji || "";
   const gradient = card.dataset.gradient || "";
   const wornCount = Number(card.dataset.wornCount || "0");
   const isFewUsed = (card.dataset.fewUsed || "") === "true";
@@ -206,7 +319,7 @@ function openDetail(card) {
   if (content) {
     const chips = [
       { cls: "cat", text: tag },
-      { cls: isFewUsed ? "few" : "worn", text: isFewUsed ? "Few used" : `Worn ${wornCount}×` },
+      { cls: isFewUsed ? "few" : "worn", text: isFewUsed ? "Few used" : `Worn ${wornCount}` },
       { cls: "color", text: color }
     ].filter(x => (x.text || "").trim().length > 0);
 
@@ -251,10 +364,18 @@ function openDetail(card) {
 
   const img = document.getElementById("detail-img");
   if (img) {
-    const parts = String(gradient).split(",");
-    const from = parts[0] ? `#${parts[0].trim()}` : "rgba(242,224,213,0.92)";
-    const to = parts[1] ? `#${parts[1].trim()}` : "rgba(211,206,184,0.78)";
-    img.style.background = `linear-gradient(145deg,${from},${to})`;
+    const cardImage = card.querySelector(".item-img");
+    const imageBackground = cardImage?.style?.backgroundImage || "";
+    if (imageBackground) {
+      img.style.backgroundImage = imageBackground;
+      img.style.backgroundSize = "cover";
+      img.style.backgroundPosition = "center";
+    } else {
+      const parts = String(gradient).split(",");
+      const from = parts[0] ? `#${parts[0].trim()}` : "rgba(242,224,213,0.92)";
+      const to = parts[1] ? `#${parts[1].trim()}` : "rgba(211,206,184,0.78)";
+      img.style.background = `linear-gradient(145deg,${from},${to})`;
+    }
   }
 
   document.getElementById("detail-scroll")?.scrollTo?.({ top: 0 });
@@ -288,7 +409,18 @@ function removeActive() {
 }
 
 function styleWithThis() {
-  alert("Generating outfit with this item...");
+  if (!activeCard) return;
+
+  const selectedItem = {
+    name: activeCard.dataset.name || "",
+    categoryKey: activeCard.dataset.cat || "",
+    tag: activeCard.dataset.tag || "",
+    color: activeCard.dataset.color || "",
+    imageUrl: activeCard.querySelector(".item-img")?.style?.backgroundImage || ""
+  };
+
+  sessionStorage.setItem("wwStyleWithItem", JSON.stringify(selectedItem));
+  window.location.href = "/WW/Today";
 }
 
 function escapeHtml(str) {

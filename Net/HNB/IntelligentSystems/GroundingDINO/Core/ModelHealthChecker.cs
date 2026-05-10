@@ -1,6 +1,7 @@
 ﻿using HNB.IntelligentSystems.GroundingDINO.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace HNB.IntelligentSystems.GroundingDINO.Core;
 
@@ -18,6 +19,7 @@ public class ModelHealthChecker : IDisposable
     private DateTime? _engineInitializedTime = null;
     private int _consecutiveFailures = 0;
     private readonly GroundingDINOConfig _config;
+    private readonly ILogger<ModelHealthChecker> _logger;
     private string? _initializationError;
     private bool _isDownloading = false;
 
@@ -31,11 +33,16 @@ public class ModelHealthChecker : IDisposable
     private const string RemoteModelUrl = "https://horizon-nova.up.railway.app/storage/AI/groundingdino.onnx";
     private const string RemoteVocabUrl = "https://horizon-nova.up.railway.app/storage/AI/vocab.txt";
 
-    public ModelHealthChecker(IConfiguration configuration, IWebHostEnvironment environment)
+    public ModelHealthChecker(IConfiguration configuration, IWebHostEnvironment environment, ILogger<ModelHealthChecker> logger)
     {
         _config = LoadConfig(configuration, environment);
-
+        _logger = logger;
         _lastHealthCheckTime = DateTime.Now;
+
+        _logger.LogInformation(
+            "[GroundingDINO] ModelHealthChecker 初始化完成。ModelPath={ModelPath} | VocabPath={VocabPath}",
+            _config.ModelPath,
+            _config.VocabPath);
     }
 
     private static GroundingDINOConfig LoadConfig(IConfiguration configuration, IWebHostEnvironment environment)
@@ -122,6 +129,12 @@ public class ModelHealthChecker : IDisposable
                 ? (double)totalDownloaded / totalSize.Value * 100.0
                 : 0.0;
 
+            // 在鎖內一次取得，避免多次 IO
+            bool modelFileExists = File.Exists(_config.ModelPath);
+            bool vocabFileExists = File.Exists(_config.VocabPath);
+            long? modelFileSize = modelFileExists ? new FileInfo(_config.ModelPath).Length : null;
+            long? vocabFileSize = vocabFileExists ? new FileInfo(_config.VocabPath).Length : null;
+
             var info = new ModelStatusInfo
             {
                 IsReady = _engine != null,
@@ -137,7 +150,11 @@ public class ModelHealthChecker : IDisposable
                 ConsecutiveFailures = _consecutiveFailures,
                 ModelPath = _config.ModelPath,
                 VocabPath = _config.VocabPath,
-                EngineInitializedTime = _engineInitializedTime
+                EngineInitializedTime = _engineInitializedTime,
+                ModelFileExists = modelFileExists,
+                VocabFileExists = vocabFileExists,
+                ModelFileSize = modelFileSize,
+                VocabFileSize = vocabFileSize
             };
 
             if (_engine != null)
@@ -148,6 +165,14 @@ public class ModelHealthChecker : IDisposable
             else if (!string.IsNullOrEmpty(_initializationError))
             {
                 info.Message = _initializationError;
+            }
+            else if (!modelFileExists)
+            {
+                info.Message = $"模型檔案不存在：{_config.ModelPath}";
+            }
+            else if (!vocabFileExists)
+            {
+                info.Message = $"詞彙表檔案不存在：{_config.VocabPath}";
             }
             else
             {
@@ -197,9 +222,51 @@ public class ModelHealthChecker : IDisposable
     private void InitializeEngine()
     {
         _initializationError = null;
-        _engine = new DetectionEngine(_config);
-        _engineInitializedTime = DateTime.Now;
-        _consecutiveFailures = 0;
+        _logger.LogInformation(
+            "[GroundingDINO] 開始初始化引擎。ModelPath={ModelPath} | VocabPath={VocabPath}",
+            _config.ModelPath,
+            _config.VocabPath);
+
+        try
+        {
+            // 先確認檔案存在，提供更明確的錯誤訊息
+            if (!File.Exists(_config.ModelPath))
+            {
+                _initializationError = $"找不到模型檔案：{_config.ModelPath}";
+                _logger.LogError("[GroundingDINO] {Error}", _initializationError);
+                return;
+            }
+
+            if (!File.Exists(_config.VocabPath))
+            {
+                _initializationError = $"找不到詞彙表檔案：{_config.VocabPath}";
+                _logger.LogError("[GroundingDINO] {Error}", _initializationError);
+                return;
+            }
+
+            var modelFileSize = new FileInfo(_config.ModelPath).Length;
+            _logger.LogInformation(
+                "[GroundingDINO] 模型檔案確認存在，大小 {SizeMB:F1} MB，開始載入 ONNX Session（可能需要數秒）...",
+                modelFileSize / 1024.0 / 1024.0);
+
+            _engine = new DetectionEngine(_config);
+            _engineInitializedTime = DateTime.Now;
+            _consecutiveFailures = 0;
+
+            _logger.LogInformation("[GroundingDINO] 引擎初始化成功，已就緒。");
+        }
+        catch (Exception ex)
+        {
+            _engine = null;
+            _engineInitializedTime = null;
+            _initializationError = $"引擎初始化失敗：{ex.Message}";
+
+            _logger.LogError(
+                ex,
+                "[GroundingDINO] 引擎初始化失敗。ModelPath={ModelPath} | Error={Error}",
+                _config.ModelPath,
+                ex.Message);
+        }
     }
 
     private void TryRepairModelFiles()
@@ -211,12 +278,12 @@ public class ModelHealthChecker : IDisposable
             _engineInitializedTime = null;
 
             _initializationError = "模型檔案損壞或無效，請手動檢查並重新上傳模型檔案";
-            Console.WriteLine("[ModelHealthChecker] 模型檔案損壞或無效，請手動檢查並重新上傳");
+            _logger.LogError("[GroundingDINO] 模型檔案損壞或無效，請手動檢查並重新上傳。ModelPath={ModelPath}", _config.ModelPath);
         }
         catch (Exception ex)
         {
             _initializationError = $"修復失敗：{ex.Message}。請手動檢查文件。";
-            Console.WriteLine($"[ModelHealthChecker] 修復模型文件時發生異常：{ex.Message}");
+            _logger.LogError(ex, "[GroundingDINO] 修復模型文件時發生異常。");
         }
     }
 
@@ -305,14 +372,14 @@ public class ModelHealthChecker : IDisposable
             if (!string.IsNullOrEmpty(modelDir) && !Directory.Exists(modelDir))
             {
                 Directory.CreateDirectory(modelDir);
-                Console.WriteLine($"[ModelHealthChecker] 已創建模型目錄：{modelDir}");
+                _logger.LogInformation("[GroundingDINO] 已建立模型目錄：{ModelDir}", modelDir);
             }
 
             var vocabDir = Path.GetDirectoryName(Path.GetFullPath(_config.VocabPath));
             if (!string.IsNullOrEmpty(vocabDir) && !Directory.Exists(vocabDir))
             {
                 Directory.CreateDirectory(vocabDir);
-                Console.WriteLine($"[ModelHealthChecker] 已創建詞彙表目錄：{vocabDir}");
+                _logger.LogInformation("[GroundingDINO] 已建立詞彙表目錄：{VocabDir}", vocabDir);
             }
 
             var downloadTasks = new List<Task<(bool success, string message, string fileName)>>();
@@ -558,11 +625,16 @@ public class ModelHealthChecker : IDisposable
         lock (_lock)
         {
             _consecutiveFailures++;
-            Console.WriteLine($"[ModelHealthChecker] 檢測失敗通知，連續失敗次數：{_consecutiveFailures}");
+            _logger.LogWarning(
+                "[GroundingDINO] 偵測失敗通知，連續失敗次數：{FailureCount}/{MaxFailures}",
+                _consecutiveFailures,
+                MaxConsecutiveFailures);
 
             if (_consecutiveFailures >= MaxConsecutiveFailures)
             {
-                Console.WriteLine($"[ModelHealthChecker] 連續失敗次數達到閾值 {MaxConsecutiveFailures}，觸發修復流程");
+                _logger.LogError(
+                    "[GroundingDINO] 連續失敗次數達到閾值 {MaxFailures}，卸載引擎並觸發修復流程。",
+                    MaxConsecutiveFailures);
                 _engine?.Dispose();
                 _engine = null;
 
@@ -587,14 +659,18 @@ public class ModelHealthChecker : IDisposable
     }
 
     /// <summary>
-    /// 手動啟動模型引擎（載入到記憶體）
+    /// 手動啟動模型引擎（載入到記憶體）。
+    /// 此方法不會拋出 exception，失敗原因可透過 GetDetailedStatus().InitializationError 取得。
     /// </summary>
     public void StartEngine()
     {
         lock (_lock)
         {
             if (_engine != null)
+            {
+                _logger.LogDebug("[GroundingDINO] StartEngine 被呼叫，引擎已在運行中，跳過。");
                 return;
+            }
 
             InitializeEngine();
         }
@@ -609,16 +685,16 @@ public class ModelHealthChecker : IDisposable
         {
             if (_engine == null)
             {
-                Console.WriteLine("[ModelHealthChecker] 模型未載入，無需卸載");
+                _logger.LogDebug("[GroundingDINO] StopEngine 被呼叫，但引擎未載入，跳過。");
                 return;
             }
 
-            Console.WriteLine("[ModelHealthChecker] 開始手動卸載模型...");
+            _logger.LogInformation("[GroundingDINO] 開始手動卸載引擎...");
             _engine?.Dispose();
             _engine = null;
             _engineInitializedTime = null;
             _initializationError = null;
-            Console.WriteLine("[ModelHealthChecker] 模型已卸載");
+            _logger.LogInformation("[GroundingDINO] 引擎已卸載。");
         }
     }
 

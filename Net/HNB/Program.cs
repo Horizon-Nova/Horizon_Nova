@@ -127,7 +127,7 @@ app.MapControllerRoute(
 app.MapControllerRoute(
     name: "root",
     pattern: "",
-    defaults: new { area = "HNB_WEB", controller = "NovaHome", action = "Index" });
+    defaults: new { area = "WW", controller = "Closet", action = "Index" });
 
 app.MapControllerRoute(
     name: "default",

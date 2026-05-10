@@ -114,6 +114,20 @@ public class QdrantModule(IConfiguration configuration, IHttpClientFactory httpC
     }
 
     /// <summary>
+    /// 以 filter 捲動取回符合條件的所有點（不需向量查詢）
+    /// </summary>
+    public async Task<List<SearchResult>> Scroll(
+        string? collectionName,
+        Dictionary<string, object>? filter = null,
+        int limit = 100,
+        CancellationToken cancellationToken = default)
+    {
+        var name = collectionName ?? _config.DefaultCollectionName;
+        var engine = GetOrCreateEngine();
+        return await engine.Scroll(name, filter, limit, false, cancellationToken);
+    }
+
+    /// <summary>
     /// 刪除所有向量點
     /// </summary>
     public async Task<bool> DeleteAllPoints(string? collectionName = null, CancellationToken cancellationToken = default)

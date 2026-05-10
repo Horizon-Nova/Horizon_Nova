@@ -23,8 +23,11 @@ namespace HNB.IntelligentSystems.GroundingDINO.Core
         private readonly int[] targetSize;
         private const int MaxTextLen = 256;
 
-        private readonly string[] inputNames = { "img", "input_ids", "attention_mask", "position_ids", "token_type_ids", "text_token_mask" };
-        private readonly string[] outputNames = { "logits", "boxes" };
+        // 對應 ONNX 模型實際的 input/output 名稱（由 onnxruntime 檢查確認）
+        // Inputs : pixel_values, input_ids, token_type_ids, attention_mask, pixel_mask
+        // Outputs: logits, pred_boxes
+        private readonly string[] inputNames = { "pixel_values", "input_ids", "token_type_ids", "attention_mask", "pixel_mask" };
+        private readonly string[] outputNames = { "logits", "pred_boxes" };
 
         /// <summary>
         /// Initializes a new instance of the DetectionEngine.
@@ -64,63 +67,57 @@ namespace HNB.IntelligentSystems.GroundingDINO.Core
         int srcW = image.Width;
         int srcH = image.Height;
 
+        // 1. 圖片前處理 → pixel_values [1, 3, H, W]（H=W=800）
         float[] imgData = ImageUtils.PreprocessForModel(image);
         var imgTensor = new DenseTensor<float>(imgData, new[] { 1, 3, targetSize[1], targetSize[0] });
 
+        // 2. pixel_mask：全1，形狀 [1, H, W]，代表所有像素均有效（int64）
+        int maskH = targetSize[1];
+        int maskW = targetSize[0];
+        long[] pixelMaskData = new long[maskH * maskW];
+        Array.Fill(pixelMaskData, 1L);
+        var pixelMaskTensor = new DenseTensor<long>(pixelMaskData, new[] { 1, maskH, maskW });
+
+        // 3. 文字 tokenize（caption 結尾需有 "."，tokenizer 內部會再處理一次，不影響結果）
         string caption = textPrompt.Trim().ToLower();
         if (!caption.EndsWith("."))
             caption += " .";
 
-        var (inputIds, tokenTypeIds, attentionMask, specialTokens) = tokenizer.TokenizeText(caption, MaxTextLen);
-        var (textSelfAttentionMasks, positionIds) = tokenizer.GenerateMasksWithSpecialTokens(inputIds, specialTokens);
+        // _（specialTokens）在此版本模型不需要，忽略
+        var (inputIds, tokenTypeIds, attentionMaskBool, _) = tokenizer.TokenizeText(caption, MaxTextLen);
 
         int seqLen = inputIds.Length;
-
         if (seqLen > MaxTextLen)
         {
             Array.Resize(ref inputIds, MaxTextLen);
             Array.Resize(ref tokenTypeIds, MaxTextLen);
-            Array.Resize(ref attentionMask, MaxTextLen);
-            Array.Resize(ref positionIds, MaxTextLen);
-
-            bool[,,] trimmedMasks = new bool[1, MaxTextLen, MaxTextLen];
-            for (int i = 0; i < MaxTextLen; i++)
-            {
-                for (int j = 0; j < MaxTextLen; j++)
-                {
-                    trimmedMasks[0, i, j] = textSelfAttentionMasks[0, i, j];
-                }
-            }
-            textSelfAttentionMasks = trimmedMasks;
+            Array.Resize(ref attentionMaskBool, MaxTextLen);
             seqLen = MaxTextLen;
         }
 
-        bool[] textMaskFlat = new bool[seqLen * seqLen];
+        // 4. attention_mask 模型期望 int64（1/0），從 bool[] 轉換
+        long[] attentionMaskLong = new long[seqLen];
         for (int i = 0; i < seqLen; i++)
-        {
-            for (int j = 0; j < seqLen; j++)
-            {
-                textMaskFlat[i * seqLen + j] = textSelfAttentionMasks[0, i, j];
-            }
-        }
+            attentionMaskLong[i] = attentionMaskBool[i] ? 1L : 0L;
 
+        // 5. 組裝 inputs，名稱與型別完全對應模型 metadata
         var inputs = new List<NamedOnnxValue>
         {
-            NamedOnnxValue.CreateFromTensor("img", imgTensor),
-            NamedOnnxValue.CreateFromTensor("input_ids", new DenseTensor<long>(inputIds, new[] { 1, seqLen })),
-            NamedOnnxValue.CreateFromTensor("attention_mask", new DenseTensor<bool>(attentionMask, new[] { 1, seqLen })),
-            NamedOnnxValue.CreateFromTensor("position_ids", new DenseTensor<long>(positionIds, new[] { 1, seqLen })),
-            NamedOnnxValue.CreateFromTensor("token_type_ids", new DenseTensor<long>(tokenTypeIds, new[] { 1, seqLen })),
-            NamedOnnxValue.CreateFromTensor("text_token_mask", new DenseTensor<bool>(textMaskFlat, new[] { 1, seqLen, seqLen }))
+            NamedOnnxValue.CreateFromTensor("pixel_values",   imgTensor),
+            NamedOnnxValue.CreateFromTensor("input_ids",      new DenseTensor<long>(inputIds,          new[] { 1, seqLen })),
+            NamedOnnxValue.CreateFromTensor("token_type_ids", new DenseTensor<long>(tokenTypeIds,      new[] { 1, seqLen })),
+            NamedOnnxValue.CreateFromTensor("attention_mask", new DenseTensor<long>(attentionMaskLong, new[] { 1, seqLen })),
+            NamedOnnxValue.CreateFromTensor("pixel_mask",     pixelMaskTensor),
         };
 
+        // 6. 執行推理，output name 為 pred_boxes（非 boxes）
         using (var results = session.Run(inputs))
         {
             var logitsTensor = results.FirstOrDefault(r => r.Name == "logits")?.Value as DenseTensor<float>;
-            var boxesTensor = results.FirstOrDefault(r => r.Name == "boxes")?.Value as DenseTensor<float>;
+            var boxesTensor  = results.FirstOrDefault(r => r.Name == "pred_boxes")?.Value as DenseTensor<float>;
 
             if (logitsTensor == null || boxesTensor == null)
-                throw new Exception("模型輸出無效：缺少 logits 或 boxes");
+                throw new Exception("模型輸出無效：缺少 logits 或 pred_boxes");
 
             return PostProcess(logitsTensor, boxesTensor, inputIds, srcW, srcH);
         }
