@@ -1,0 +1,25 @@
+﻿@{
+    ViewData["Title"] = "Helix Studio — Vaeron Studio";
+    ViewData["Description"] = "Helix Studio 是以 Windows 桌面為核心的模組化工具主機；由 Vaeron Studio 提供從需求整理到部署維護的工業桌面軟體交付。";
+    ViewData["BodyClass"] = "helix-marketing min-vh-100 d-flex flex-column";
+}
+@section Head {
+    @await Html.PartialAsync("Partials/_LandingHeadStyles")
+}
+
+<main class="flex-grow-1 d-flex flex-column w-100">
+@await Html.PartialAsync("Partials/_LandingTopbar")
+@await Html.PartialAsync("Partials/_LandingHeroLead")
+@await Html.PartialAsync("Partials/_LandingDemo")
+@await Html.PartialAsync("Partials/_LandingModuleImport")
+@await Html.PartialAsync("Partials/_LandingWorkspace")
+@await Html.PartialAsync("Partials/_LandingEventLog")
+@await Html.PartialAsync("Partials/_LandingCapabilities")
+@await Html.PartialAsync("Partials/_LandingContactCta")
+@await Html.PartialAsync("Partials/_LandingFooter")
+</main>
+
+@section Scripts {
+    @await Html.PartialAsync("Partials/_LandingScripts")
+}
+

@@ -1,0 +1,27 @@
+@{
+    ViewData["Title"] = "產品詳情｜Helix Studio";
+    ViewData["Description"] = "Helix Studio 產品詳細說明（建置中）。";
+    var homeUrl = Url.Action("Index", "Landing", new { area = "Vaeron" })!;
+    var id = Context.Request.RouteValues["id"]?.ToString();
+}
+
+@section Head {
+    @await Html.PartialAsync("Partials/_LandingHeadStyles")
+}
+
+<main class="container flex-grow-1 d-flex flex-column justify-content-center py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8 text-center py-5">
+            <p class="font-monospace small text-uppercase mb-2 text-primary">Vaeron Studio</p>
+            <h1 class="h3 fw-semibold text-body mt-2">產品詳情建置中</h1>
+            @if (!string.IsNullOrWhiteSpace(id))
+            {
+                <p class="text-secondary small mt-2 mb-0 font-monospace">@id</p>
+            }
+            <p class="text-secondary small mt-3 mb-0">此頁預留為單一產品介紹路由。</p>
+            <a href="@homeUrl" class="btn btn-primary mt-4">返回首頁</a>
+        </div>
+    </div>
+</main>
+
+@section Scripts { }

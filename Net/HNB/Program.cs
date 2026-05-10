@@ -1,4 +1,4 @@
-﻿using HNB.Extensions;
+using HNB.Extensions;
 using HNB.Filters;
 using HNB.Middleware;
 using HNB.Utilities;
@@ -127,7 +127,7 @@ app.MapControllerRoute(
 app.MapControllerRoute(
     name: "root",
     pattern: "",
-    defaults: new { area = "WW", controller = "Closet", action = "Index" });
+    defaults: new { area = "Vaeron", controller = "Landing", action = "Index" });
 
 app.MapControllerRoute(
     name: "default",

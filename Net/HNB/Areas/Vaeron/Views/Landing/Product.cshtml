@@ -1,0 +1,22 @@
+@{
+    ViewData["Title"] = "產品｜Helix Studio";
+    ViewData["Description"] = "Helix Studio 相關產品與方案頁面（建置中）。";
+    var homeUrl = Url.Action("Index", "Landing", new { area = "Vaeron" })!;
+}
+
+@section Head {
+    @await Html.PartialAsync("Partials/_LandingHeadStyles")
+}
+
+<main class="container flex-grow-1 d-flex flex-column justify-content-center py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8 text-center py-5">
+            <p class="font-monospace small text-uppercase mb-2 text-primary">Vaeron Studio</p>
+            <h1 class="h3 fw-semibold text-body mt-2">產品頁面建置中</h1>
+            <p class="text-secondary small mt-3 mb-0">此路由已預留，內容將與 Helix Studio 正式上架資訊同步更新。</p>
+            <a href="@homeUrl" class="btn btn-primary mt-4">返回首頁</a>
+        </div>
+    </div>
+</main>
+
+@section Scripts { }

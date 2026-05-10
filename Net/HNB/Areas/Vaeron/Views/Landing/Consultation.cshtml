@@ -1,0 +1,48 @@
+@{
+    ViewData["Title"] = "聯繫我們｜Helix Studio · Vaeron Studio";
+    ViewData["Description"] = "聯繫 Vaeron Studio，提交 Helix Studio 或委外開發需求。";
+    var homeUrl = Url.Action("Index", "Landing", new { area = "Vaeron" })!;
+}
+
+@section Head {
+    @await Html.PartialAsync("Partials/_LandingHeadStyles")
+}
+
+<main class="container flex-grow-1 py-5">
+    <nav class="mb-4">
+        <a href="@homeUrl" class="small text-secondary text-decoration-none">← 返回首頁</a>
+    </nav>
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8">
+            <p class="font-monospace small text-primary text-uppercase mb-2">Vaeron Studio</p>
+            <h1 class="h3 fw-semibold text-body">聯繫我們</h1>
+            <p class="text-secondary mt-2">留下需求與聯絡方式，我們會在營業時間內回覆。</p>
+            <form class="mt-4 border border-secondary-subtle rounded-3 p-4 bg-body-tertiary" method="get" action="#">
+                <div class="mb-3">
+                    <label class="form-label small" for="interest">感興趣項目</label>
+                    <select id="interest" name="interest" class="form-select form-select-sm">
+                        <option>Helix Studio／模組化主機</option>
+                        <option>客製企業系統</option>
+                        <option>網站與平台</option>
+                        <option>其他</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small" for="company">公司／稱呼</label>
+                    <input id="company" name="company" type="text" class="form-control form-control-sm" maxlength="120" autocomplete="organization" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small" for="email">Email</label>
+                    <input id="email" name="email" type="email" class="form-control form-control-sm" required autocomplete="email" />
+                </div>
+                <div class="mb-4">
+                    <label class="form-label small" for="message">留言</label>
+                    <textarea id="message" name="message" class="form-control form-control-sm" rows="5" maxlength="4000"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm">送出（示範表單）</button>
+            </form>
+        </div>
+    </div>
+</main>
+
+@section Scripts { }

@@ -1,10 +1,8 @@
-﻿using HNB.Areas.Backoffice.Core;
+using HNB.Areas.Backoffice.Core;
 using HNB.Areas.Backoffice.Repositories;
 using HNB.Areas.Backoffice.Services;
 using HNB.Areas.WW.Services;
 using HNB.Areas.Backoffice.Utilities;
-using HNB.Areas.HNB_WEB.Repositories;
-using HNB.Areas.HNB_WEB.Services;
 using HNB.IntelligentSystems.DallE3.Module;
 using HNB.IntelligentSystems.Embedding.Module;
 using HNB.IntelligentSystems.GroundingDINO.Core;
@@ -29,7 +27,6 @@ public static class ServiceExtensions
         services.AddScoped<SidebarNavigationService>();
         services.AddScoped<DatabaseService>();
         services.AddScoped<OrganizationScope>();
-        services.AddScoped<TeamZoneService>();
 
         services.AddHttpClient<IWeatherService, WeatherService>();
         services.AddScoped<IWardrobeService, WardrobeService>();
@@ -53,7 +50,6 @@ public static class ServiceExtensions
         services.AddScoped<AuthRepository>();
         services.AddScoped<SidebarNavigationRepository>();
         services.AddScoped<BlockedIpRepository>();
-        services.AddScoped<TeamZoneRepository>();
         services.AddScoped<ErrorLogRepository>();
 
         return services;
