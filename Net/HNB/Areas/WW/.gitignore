@@ -1,0 +1,38 @@
+﻿# Dependency directories
+node_modules/
+.pnpm-store/
+.yarn/cache/
+
+# Build outputs
+dist/
+build/
+.next/
+.nuxt/
+bin/
+obj/
+
+# Python environments and cache
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Environment and logs
+.env
+.env.*
+!.env.example
+*.log
+logs/
+git-bootstrap-error.log
+gitools/
+gitools/git-remote-state.json
+
+# IDE and OS files
+.idea/
+.vscode/
+.vs/
+.cache/
+.tmp/
+tmp/
+.DS_Store
+Thumbs.db
