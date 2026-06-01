@@ -1,4 +1,4 @@
-﻿namespace BuildModels.Internal
+namespace BuildModels.Internal
 {
     internal static class InternalAuditVerifier
     {

@@ -1,4 +1,4 @@
-﻿// Layout.js - Bootstrap 專用腳本
+// Layout.js - Bootstrap 專用腳本
 
 // 側欄狀態儲存 Key
 const SIDEBAR_COLLAPSED_KEY = 'sidebar_collapsed_state_bootstrap';

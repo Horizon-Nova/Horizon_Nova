@@ -1,4 +1,4 @@
-﻿using HNB.Services;
+using HNB.Services;
 
 namespace HNB.Middleware;
 

@@ -1,4 +1,4 @@
-﻿using HNB.Repositories;
+using HNB.Repositories;
 using Microsoft.Extensions.Caching.Memory;
 using Models.Hnb;
 

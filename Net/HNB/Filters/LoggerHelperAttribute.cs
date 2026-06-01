@@ -1,4 +1,4 @@
-﻿using HNB.Helpers;
+using HNB.Helpers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Models.Hnb;
 using System.Text;

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.AspNetCore.StaticFiles;
 using System.IO.Compression;
 using System.Net;
 using System.Text;

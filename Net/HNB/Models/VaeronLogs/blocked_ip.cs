@@ -16,38 +16,31 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Models.Hnb;
+namespace Models.VaeronLogs;
 
-[Table("error_logs", Schema = "dbo")]
-public partial class error_log
+/// <summary>
+/// 封鎖 IP 清單
+/// </summary>
+[Table("blocked_ips", Schema = "dbo")]
+[Index("ip_address", Name = "idx_blocked_ips_ip_address", IsUnique = true)]
+public partial class blocked_ip
 {
     [Key]
     public Guid id { get; set; }
 
-    [Column(TypeName = "timestamp without time zone")]
-    public DateTime? created_at { get; set; }
+    public DateTime created_at { get; set; }
 
-    public string? layer { get; set; }
+    public DateTime updated_at { get; set; }
 
-    public int? stage { get; set; }
+    /// <summary>
+    /// 被封鎖的 IP
+    /// </summary>
+    public string ip_address { get; set; } = null!;
 
-    public string? function { get; set; }
+    /// <summary>
+    /// 封鎖原因
+    /// </summary>
+    public string? reason { get; set; }
 
-    public string? function_full { get; set; }
-
-    public string? message { get; set; }
-
-    public string? stack_trace { get; set; }
-
-    public string? path { get; set; }
-
-    public string? http_method { get; set; }
-
-    public int? status_code { get; set; }
-
-    public string? trace_id { get; set; }
-
-    public string? user_id { get; set; }
-
-    public string? extra { get; set; }
+    public string? created_user_name { get; set; }
 }

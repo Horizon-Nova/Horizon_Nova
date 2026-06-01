@@ -14,11 +14,11 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
-namespace Models.Hnb;
+namespace Models.VaeronLogs;
 
-public partial class HnbDbContext : DbContext
+public partial class VaeronLogsDbContext : DbContext
 {
-    public HnbDbContext(DbContextOptions<HnbDbContext> options)
+    public VaeronLogsDbContext(DbContextOptions<VaeronLogsDbContext> options)
         : base(options)
     {
     }
@@ -31,33 +31,48 @@ public partial class HnbDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.UseCollation("C");
-
         modelBuilder.Entity<access_record>(entity =>
         {
             entity.HasKey(e => e.id).HasName("access_records_pkey");
 
+            entity.ToTable("access_records", "dbo", tb => tb.HasComment("系統存取紀錄"));
+
             entity.Property(e => e.id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.created_at).HasDefaultValueSql("CURRENT_TIMESTAMP");
-            entity.Property(e => e.log_type).HasDefaultValueSql("'authorize'::text");
+            entity.Property(e => e.created_at).HasDefaultValueSql("now()");
+            entity.Property(e => e.extra).HasComment("額外資料 JSON");
+            entity.Property(e => e.log_type)
+                .HasDefaultValueSql("'authorize'::text")
+                .HasComment("紀錄類型，例如 authorize、request、blocked");
+            entity.Property(e => e.updated_at).HasDefaultValueSql("now()");
         });
 
         modelBuilder.Entity<blocked_ip>(entity =>
         {
             entity.HasKey(e => e.id).HasName("blocked_ips_pkey");
 
+            entity.ToTable("blocked_ips", "dbo", tb => tb.HasComment("封鎖 IP 清單"));
+
             entity.Property(e => e.id).HasDefaultValueSql("gen_random_uuid()");
-            entity.Property(e => e.created_at).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.created_at).HasDefaultValueSql("now()");
+            entity.Property(e => e.ip_address).HasComment("被封鎖的 IP");
+            entity.Property(e => e.reason).HasComment("封鎖原因");
+            entity.Property(e => e.updated_at).HasDefaultValueSql("now()");
         });
 
         modelBuilder.Entity<error_log>(entity =>
         {
             entity.HasKey(e => e.id).HasName("error_logs_pkey");
 
-            entity.Property(e => e.id).ValueGeneratedNever();
-            entity.Property(e => e.created_at).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.ToTable("error_logs", "dbo", tb => tb.HasComment("系統錯誤日誌"));
+
+            entity.Property(e => e.id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.created_at).HasDefaultValueSql("now()");
+            entity.Property(e => e.extra).HasComment("額外錯誤資料 JSON");
+            entity.Property(e => e.function_full).HasComment("完整方法路徑");
+            entity.Property(e => e.function_name).HasComment("方法名稱");
+            entity.Property(e => e.layer).HasComment("錯誤所在層級");
+            entity.Property(e => e.stage).HasComment("錯誤階段");
         });
-        modelBuilder.HasSequence("sidebar_navigation_id_seq", "dbo");
 
         OnModelCreatingPartial(modelBuilder);
     }

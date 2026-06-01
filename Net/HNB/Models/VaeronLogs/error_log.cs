@@ -16,23 +16,42 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Models.Hnb;
+namespace Models.VaeronLogs;
 
+/// <summary>
+/// 系統錯誤日誌
+/// </summary>
 [Table("error_logs", Schema = "dbo")]
+[Index("created_at", Name = "idx_error_logs_created_at", AllDescending = true)]
+[Index("layer", Name = "idx_error_logs_layer")]
+[Index("status_code", Name = "idx_error_logs_status_code")]
+[Index("trace_id", Name = "idx_error_logs_trace_id")]
+[Index("user_id", Name = "idx_error_logs_user_id")]
 public partial class error_log
 {
     [Key]
     public Guid id { get; set; }
 
-    [Column(TypeName = "timestamp without time zone")]
-    public DateTime? created_at { get; set; }
+    public DateTime created_at { get; set; }
 
+    /// <summary>
+    /// 錯誤所在層級
+    /// </summary>
     public string? layer { get; set; }
 
+    /// <summary>
+    /// 錯誤階段
+    /// </summary>
     public int? stage { get; set; }
 
-    public string? function { get; set; }
+    /// <summary>
+    /// 方法名稱
+    /// </summary>
+    public string? function_name { get; set; }
 
+    /// <summary>
+    /// 完整方法路徑
+    /// </summary>
     public string? function_full { get; set; }
 
     public string? message { get; set; }
@@ -49,5 +68,9 @@ public partial class error_log
 
     public string? user_id { get; set; }
 
+    /// <summary>
+    /// 額外錯誤資料 JSON
+    /// </summary>
+    [Column(TypeName = "jsonb")]
     public string? extra { get; set; }
 }

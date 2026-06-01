@@ -16,38 +16,47 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Models.Hnb;
+namespace Models.VaeronLogs;
 
-[Table("error_logs", Schema = "dbo")]
-public partial class error_log
+/// <summary>
+/// 系統存取紀錄
+/// </summary>
+[Table("access_records", Schema = "dbo")]
+[Index("created_at", Name = "idx_access_records_created_at", AllDescending = true)]
+[Index("ip_address", Name = "idx_access_records_ip_address")]
+[Index("log_type", Name = "idx_access_records_log_type")]
+[Index("user_id", Name = "idx_access_records_user_id")]
+public partial class access_record
 {
     [Key]
     public Guid id { get; set; }
 
-    [Column(TypeName = "timestamp without time zone")]
-    public DateTime? created_at { get; set; }
+    public DateTime created_at { get; set; }
 
-    public string? layer { get; set; }
+    public DateTime updated_at { get; set; }
 
-    public int? stage { get; set; }
-
-    public string? function { get; set; }
-
-    public string? function_full { get; set; }
-
-    public string? message { get; set; }
-
-    public string? stack_trace { get; set; }
-
-    public string? path { get; set; }
-
-    public string? http_method { get; set; }
-
-    public int? status_code { get; set; }
-
-    public string? trace_id { get; set; }
+    /// <summary>
+    /// 紀錄類型，例如 authorize、request、blocked
+    /// </summary>
+    public string log_type { get; set; } = null!;
 
     public string? user_id { get; set; }
 
+    public string? created_user_name { get; set; }
+
+    public string? ip_address { get; set; }
+
+    public string? user_agent { get; set; }
+
+    public string? request_path { get; set; }
+
+    public string? request_method { get; set; }
+
+    public int? response_status { get; set; }
+
+    /// <summary>
+    /// 額外資料 JSON
+    /// </summary>
+    [Column(TypeName = "jsonb")]
     public string? extra { get; set; }
 }

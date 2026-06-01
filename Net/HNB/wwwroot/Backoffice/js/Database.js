@@ -1,4 +1,4 @@
-﻿/**
+/**
  * 資料庫管理系統 JavaScript - 基本功能版本
  * Database Management JS - Basic Functions Only
  */

@@ -1,4 +1,4 @@
-﻿namespace HNB.Helpers;
+namespace HNB.Helpers;
 
 public static class LogSanitizer
 {

@@ -10,6 +10,7 @@ using Microsoft.Extensions.FileProviders;
 using Models.Hnb;
 using Models.HnbBackoffice;
 using Models.HnbWeb;
+using Models.VaeronLogs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +26,8 @@ builder.Services.AddDbContext<HnbBackofficeDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("HnbBackoffice")));
 builder.Services.AddDbContext<HnbWebDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("HnbWeb")));
+builder.Services.AddDbContext<VaeronLogsDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("VaeronLogs")));
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient();

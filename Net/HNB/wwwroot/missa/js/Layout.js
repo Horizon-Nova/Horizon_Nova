@@ -1,4 +1,4 @@
-﻿document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     if (window.lucide) window.lucide.createIcons();
 
